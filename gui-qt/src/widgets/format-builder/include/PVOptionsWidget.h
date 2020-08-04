@@ -15,6 +15,11 @@
 #include <QCheckBox>
 class QLabel;
 
+namespace PVGuiQt
+{
+class PVPythonScriptWidget;
+}
+
 namespace PVInspector
 {
 
@@ -33,10 +38,12 @@ class PVOptionsWidget : public QWidget
 	}
 
 	void set_lines_range(int first_line, int line_count);
+	void set_python_script(const QString& python_script, bool is_path, bool disabled);
 
   Q_SIGNALS:
 	void first_line_changed(int);
 	void line_count_changed(int);
+    void python_script_updated(const QString& python_script, bool is_path, bool disabled);
 
   private Q_SLOTS:
 	void disable_specify_line_count(int checkstate);
@@ -46,6 +53,7 @@ class PVOptionsWidget : public QWidget
 	QLabel* _line_count_label;
 	QCheckBox* _line_count_checkbox;
 	PVGuiQt::PVLocalizedSpinBox* _line_count_spinbox;
+	PVGuiQt::PVPythonScriptWidget* _python_scripting_widget;
 };
 }
 

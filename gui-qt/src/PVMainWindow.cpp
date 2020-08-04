@@ -1072,6 +1072,28 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 		PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),
 		                                               src.get_original_format());
 	}
+
+	// Execute Python script if any
+	bool is_path, disabled;
+	QString python_script = src.get_original_format().get_python_script(is_path, disabled);
+	if (not disabled) {
+		if (is_path and not QFileInfo(python_script).exists()) {
+			QMessageBox::warning(this, tr("Unable to execute Python script"),
+				python_script + tr(" is missing"), QMessageBox::Ok);
+		}
+		else {
+			auto& python_interpreter = src.get_parent<Inendi::PVRoot>().python_interpreter();
+			PVCore::PVProgressBox::progress([&](PVCore::PVProgressBox& pbox) {
+				pbox.set_enable_cancel(false);
+				try {
+					python_interpreter.execute_script(python_script.toStdString(), is_path);
+				}
+				catch (pybind11::error_already_set &eas) {
+					Q_EMIT pbox.warning_sig("Error while executing Python script", eas.what());
+				}
+			}, QString("Executing python script"), this);
+		}
+	}
 }
 
 /******************************************************************************

@@ -148,6 +148,7 @@
 	<file alias="view-hit-count">resources/view_display_hitcount.png</file>
 	<file alias="view-series">resources/view_display_series.png</file>
 	<file alias="view-axes-combination">resources/axes-combination.png</file>
+    <file alias="python">resources/python.png</file>
 
 	<!-- LISTING STATS PANEL -->
 	<file alias="icon_linked">resources/trafik/elements-interface/icone-lier-actif.png</file>

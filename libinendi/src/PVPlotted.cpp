@@ -107,6 +107,17 @@ int Inendi::PVPlotted::create_table()
 	return 0;
 }
 
+void Inendi::PVPlotted::append_column()
+{
+	_columns.emplace_back(PVPlottingProperties("default", PVCore::PVArgumentList()));
+	_plotteds.emplace_back(Inendi::plotting_type, get_row_count());
+
+	// update minmax values
+	_minmax_values.resize(_columns.size());
+	PVCol col(_columns.size()-1);
+	get_col_minmax(_minmax_values[col].min, _minmax_values[col].max, col);
+}
+
 PVRow Inendi::PVPlotted::get_row_count() const
 {
 	return get_parent<PVSource>().get_row_count();

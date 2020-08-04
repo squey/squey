@@ -697,6 +697,37 @@ void Inendi::PVView::sort_indexes(PVCol col,
 	BENCH_END(pvcop_sort, "pvcop_sort", 0, 0, 1, idxes.size());
 }
 
+bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pybind11::array& column, const QString& axis_name)
+{
+	// Insert column in Nraw
+	PVRush::PVNraw& nraw = get_rushnraw_parent();
+	bool ret = nraw.append_column(column_type, column);
+
+	if (ret) {
+		// compute mapping and plotting
+		Inendi::PVMapped& mapped = get_parent<PVMapped>();
+		mapped.append_column();
+		Inendi::PVPlotted& plotted = get_parent<PVPlotted>();
+		plotted.append_column();
+		mapped.compute(); 
+
+		// update format
+		PVCol col(nraw.column_count()-1);
+		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+		PVRush::PVAxisFormat axis_format(col);
+		axis_format.set_name(axis_name);
+		axis_format.set_type(column_type.c_str());
+		axis_format.set_mapping("default"); // FIXME : use string for string
+		axis_format.set_plotting("default");
+		axis_format.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
+		axis_format.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+		format.insert_axis(axis_format, PVCombCol(0), true); // FIXME
+		_axes_combination.axis_append(col);
+	}
+
+	return ret;
+}
+
 // Load/save and serialization
 void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so) const
 {

@@ -1,0 +1,22 @@
+diff --git a/sources/pyside2/CMakeLists.txt b/sources/pyside2/CMakeLists.txt
+index 1603859..9f9eed4 100644
+--- a/sources/pyside2/CMakeLists.txt
++++ b/sources/pyside2/CMakeLists.txt2
+@@ -156,7 +156,7 @@ set (Qt5Test_FOUND "0")
+ set (Qt5Widgets_FOUND "0")
+ 
+ collect_essential_modules()
+-collect_optional_modules()
++#collect_optional_modules()
+ 
+ # Modules to be built unless specified by -DMODULES on command line
+ if (NOT MODULES)
+@@ -240,7 +240,7 @@ endif()
+ #####################################################################
+ 
+ add_subdirectory(libpyside)
+-find_package(Qt5Designer)
++#find_package(Qt5Designer)
+ if(Qt5UiTools_FOUND AND Qt5Designer_FOUND)
+     add_subdirectory(plugins)
+ endif()

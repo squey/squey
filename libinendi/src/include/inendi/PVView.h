@@ -19,6 +19,7 @@
 #include <pvkernel/core/PVDataTreeObject.h>
 
 #include <pvbase/types.h> // for PVCol, PVRow
+#include <pvcop/db/types.h>
 
 #include <sigc++/sigc++.h>
 
@@ -63,6 +64,11 @@ namespace tbb
 {
 class task_group_context;
 } // namespace tbb
+
+namespace pybind11
+{
+class array;
+}
 
 namespace Inendi
 {
@@ -167,6 +173,8 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void set_layer_stack_selected_layer_index(int index);
 
 	void set_selection_from_layer(PVLayer const& layer);
+
+	bool insert_axis(const pvcop::db::type_t& column_type, const pybind11::array& column, const QString& axis_name);
 
 	/**
 	 * Set the current selected events set

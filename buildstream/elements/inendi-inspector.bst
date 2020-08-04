@@ -36,6 +36,8 @@ depends:
 - freedesktop-sdk.bst:components/xcb-util-keysyms.bst
 - freedesktop-sdk.bst:components/xorg-lib-xcursor.bst
 
+- freedesktop-sdk.bst:components/python3-pip.bst
+
 - pigz.bst
 - lbzip2.bst
 - gperftools.bst
@@ -56,7 +58,9 @@ depends:
 - kitemmodels.bst
 - erf.bst
 - qtopcua.bst
-#- openssl.bst
+- pybind11.bst
+- conda.bst
+# - numpy.bst
 - inendi-inspector-doc.bst
 
 sources:

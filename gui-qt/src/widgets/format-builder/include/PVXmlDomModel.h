@@ -111,6 +111,9 @@ class PVXmlDomModel : public QAbstractItemModel
 			xmlRootDom.removeAttribute("line_count");
 	}
 
+	void set_python_script(const QString& python_script, bool is_path, bool disabled);
+	QString get_python_script(bool& is_path, bool& disabled) const;
+
 	/**
 	 *
 	 * @param section : raw or col index

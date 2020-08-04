@@ -134,6 +134,16 @@ pvcop::db::array const& Inendi::PVMapped::get_column(PVCol col) const
 
 /******************************************************************************
  *
+ * Inendi::PVMapped::append_column
+ *
+ *****************************************************************************/
+void Inendi::PVMapped::append_column()
+{
+	columns.emplace_back(PVMappingProperties("default", PVCore::PVArgumentList()));
+}
+
+/******************************************************************************
+ *
  * Inendi::PVMapped::get_row_count
  *
  *****************************************************************************/

@@ -24,6 +24,7 @@
 
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList
 #include <pvkernel/core/PVClassLibrary.h> // for PVClassLibrary
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/PVLogger.h>       // for PVLOG_DEBUG, PVLOG_ERROR
 
 #include <pvbase/types.h> // for PVCol
@@ -139,6 +140,7 @@ void PVRush::PVXmlParamParser::parseFromRootNode(QDomElement const& rootNode)
 	setDom(rootNode);
 	setAxesCombinationFromRootNode(rootNode);
 	setLinesRangeFromRootNode(rootNode);
+	setPythonScriptFromRootNode(rootNode);
 	dump_filters();
 }
 
@@ -191,6 +193,26 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 		}
 		_axes_combination.push_back(ax_id);
 	}
+}
+
+void PVRush::PVXmlParamParser::setPythonScriptFromRootNode(QDomElement const& rootNode)
+{
+	QDomElement python_script_element = rootNode.firstChildElement("python-script");
+
+	QString python_script = python_script_element.text();
+	bool is_path = python_script_element.attribute("path", "1").toUInt();
+	bool disabled = python_script_element.attribute("disabled", "0").toUInt();
+	if (not is_path) {
+		python_script = PVCore::deserialize_base64<QString>(python_script);
+	}
+	setPythonScriptFromFile(python_script, is_path, disabled);
+}	
+
+void PVRush::PVXmlParamParser::setPythonScriptFromFile(QString const& python_script, bool as_path, bool disabled)
+{
+	_python_script = python_script;
+	_python_script_is_path = as_path;
+	_python_script_disabled = disabled;
 }
 
 PVRush::PVAxisFormat::node_args_t
@@ -330,6 +352,13 @@ void PVRush::PVXmlParamParser::pushFilter(QDomElement const& elt, int newId)
 QList<PVRush::PVAxisFormat> const& PVRush::PVXmlParamParser::getAxes() const
 {
 	return _axes;
+}
+
+QString PVRush::PVXmlParamParser::get_python_script(bool& as_path, bool& disabled) const
+{
+	as_path = _python_script_is_path;
+	disabled = _python_script_disabled;
+	return _python_script;
 }
 
 /******************************* private *************************************/

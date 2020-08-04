@@ -30,6 +30,9 @@ PVStateMachine.cpp
 PVView.cpp
 PVCorrelationEngine.cpp
 PVRangeSubSampler.cpp
+PVPythonAppSingleton.cpp
+PVPythonSource.cpp
+PVPythonSelection.cpp
 
 plugins.cpp
 )
@@ -67,6 +70,7 @@ widgets/editors/PVZoneIndexEditor.cpp
 )
 
 set(MOC_HEADERS
+include/inendi/PVPythonAppSingleton.h
 )
 
 ###############################################################################

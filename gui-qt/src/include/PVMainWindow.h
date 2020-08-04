@@ -242,7 +242,7 @@ class PVMainWindow : public QMainWindow
 	void keyPressEvent(QKeyEvent* event) override;
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 
-  private:
+  public:
 	Inendi::PVRoot& get_root();
 	Inendi::PVRoot const& get_root() const;
 

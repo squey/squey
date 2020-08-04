@@ -348,6 +348,13 @@ bool PVRush::PVFormat::is_valid() const
 	return _axes.size() >= 2;
 }
 
+void PVRush::PVFormat::insert_axis(const PVAxisFormat& axis, PVCombCol pos, bool after /* = true */)
+{
+	_axes.append(axis);
+	_axes_comb.emplace_back(PVCol(_axes.size()-1)); // TODO : don't insert at the end
+	(void) after;
+}
+
 char* fill_spaces(QString str, int max_spaces)
 {
 	// Use for debug so we display the different elements
@@ -448,6 +455,7 @@ bool PVRush::PVFormat::populate_from_parser(PVXmlParamParser& xml_parser)
 	_fields_mask = xml_parser.getFieldsMask();
 	_first_line = xml_parser.get_first_line();
 	_line_count = xml_parser.get_line_count();
+	_python_script = xml_parser.get_python_script(_python_script_is_path, _python_script_disabled);
 
 	return true;
 }
@@ -543,6 +551,20 @@ PVRush::PVFormat::list_formats_in_dir(QString const& format_name_prefix, QString
 	}
 
 	return ret;
+}
+
+void PVRush::PVFormat::set_python_script(const QString& python_script, bool as_path, bool disabled)
+{
+	_python_script = python_script;
+	_python_script_is_path = as_path;
+	_python_script_disabled = disabled;
+}
+
+QString PVRush::PVFormat::get_python_script(bool& as_path, bool& disabled) const
+{
+	as_path = _python_script_is_path;
+	disabled = _python_script_disabled;
+	return _python_script;
 }
 
 PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
