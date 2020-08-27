@@ -68,8 +68,10 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 		} else { // load next file
 			_erf.set_path(_files_path[++_current_file_index].toStdString());
 			_source_start_row = _state_start_row = _range_index = 0;
-			_current_states_range = _selected_states.begin();
-			_state_id = _current_states_range->first;
+			if (not _selected_states.empty()) {
+				_current_states_range = _selected_states.begin();
+				_state_id = _current_states_range->first;
+			}
 		}
 	}
 
