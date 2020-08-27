@@ -217,6 +217,59 @@ add_to_results(std::vector<std::vector<T>>& results, std::vector<T>&& todemux, i
 	}
 }
 
+size_t PVRush::PVERFSource::compute_source_row_count(const rapidjson::Value* entities)
+{
+	auto state_row_count = [&](size_t state_id, const rapidjson::Value* entities) {
+		EString entity_type;
+		ERF_INT row_count = 0;
+		for (const auto& entity_type : entities->GetObject()) {
+			const std::string& entity_type_name = entity_type.name.GetString();
+
+			const auto& entity_groups =
+				entity_type_name == "NODE" ? entity_type.value["groups"] : entity_type.value;
+
+			for (const auto& entity_group : entity_groups.GetArray()) {
+				const std::string& entity_group_name = entity_group.GetString();
+
+				std::vector<EString> zones;
+				_erf.stage()->GetContourZones(state_id, ENTITY_RESULT, entity_type_name,
+											entity_group_name, zones);
+				for (const std::string& zone : zones) {
+
+					ErfResultIPtr result = nullptr;
+					ErfErrorCode status = _erf.stage()->GetContourResult(
+						state_id, ENTITY_RESULT, entity_type_name, entity_group_name, zone, result);
+
+					EString entity_type;
+					ERF_INT node_per_elem;
+					ERF_INT local_row_count;
+					result->ReadHeader(entity_type, local_row_count, node_per_elem);
+					if (row_count == 0) {
+						row_count = local_row_count;
+					}
+					else if (local_row_count != row_count) {
+						throw std::runtime_error("entid counts differs between entities groups");
+					}
+				}
+			}
+		}
+
+		return row_count;
+	};
+	
+
+	size_t source_row_count = 0;
+	for (const auto& range : _selected_states) {
+		size_t begin = range.first;
+		size_t end = range.second;
+		for (size_t state_id = begin; state_id <= end; state_id++) {
+			source_row_count += state_row_count(_state_ids[state_id], entities);
+		}
+	}
+
+	return source_row_count;
+}
+
 ERF_INT PVRush::PVERFSource::add_entityresults(ERF_INT state_id,
                                                size_t states_count,
                                                const rapidjson::Value* entityresults,
@@ -254,7 +307,12 @@ ERF_INT PVRush::PVERFSource::add_entityresults(ERF_INT state_id,
 				}
 				// FIXME disable if count or max is invalid
 				if (_source_row_count == std::numeric_limits<ERF_INT>::max()) {
-					_source_row_count = _state_row_count * states_count;
+					if (state_id == 0) {
+						_source_row_count = _state_row_count * states_count;
+					}
+					else {
+						_source_row_count = compute_source_row_count(entityresults);
+					}
 				}
 				row_count =
 				    std::min(_row_count_by_chunk, (size_t)(_state_row_count - _state_start_row));
