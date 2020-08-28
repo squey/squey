@@ -16,7 +16,7 @@ then
     flatpak remote-add --user --if-not-exists --no-gpg-verify inendi_tmp https://repo.esi-inendi.com/flatpak/
 
     # Export Freedesktop runtime bundle
-    echo "[1/3] Exporting Flatpak runtime bundle ..."
+    echo "[1/4] Exporting Flatpak runtime bundle ..."
     flatpak info "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
     runtime_not_installed=$?
     if [ $runtime_not_installed -eq 1 ]
@@ -32,7 +32,7 @@ then
     fi
 
     # Export Freedesktop Sdk bundle
-    echo "[1/3] Exporting Flatpak SDK bundle ..."
+    echo "[1/4] Exporting Flatpak SDK bundle ..."
     flatpak info "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
     sdk_not_installed=$?
     if [ $sdk_not_installed -eq 1 ]
@@ -50,7 +50,7 @@ then
     # Export NVIDIA drivers bundle
     if [ ! -z ${GL_DRIVERS_VERSION} ]
     then
-        echo "[2/3] Exporting NVIDIA drivers bundle ..."
+        echo "[2/4] Exporting NVIDIA drivers bundle ..."
         if [ $runtime_not_installed -eq 1 ]
         then
             flatpak install --user -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
@@ -63,11 +63,11 @@ then
             flatpak uninstall --user -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
         fi
     else
-        echo "[2/3] Skipping exporting NVIDIA drivers bundle as we don't have any GPU"
+        echo "[2/4] Skipping exporting NVIDIA drivers bundle as we don't have any GPU"
     fi
 
     # Export INENDI Inspector bundle
-    echo "[3/3] Exporting INENDI Inspector bundle ..."
+    echo "[4/4] Exporting INENDI Inspector bundle ..."
     flatpak info "${INSPECTOR_NAME}"  &> /dev/null
     inspector_not_installed=$?
     if [ $inspector_not_installed  -eq 1 ]

@@ -9,17 +9,17 @@ apt update && apt -y install software-properties-common && add-apt-repository pp
 install_mode="$1"
 if [[ ${install_mode} == "offline" ]]
 then
-    flatpak uninstall -y "${INSPECTOR_NAME}" &> /dev/null
-    flatpak install -y "${DIR}/inendi-inspector.flatpak"
+    flatpak uninstall -y "${RUNTIME_NAME}"  &> /dev/null
+    flatpak install -y "${DIR}/runtime.flatpak"
+    flatpak uninstall -y "${SDK_NAME}"  &> /dev/null
+    flatpak install -y "${DIR}/sdk.flatpak"
     if [ -f "${DIR}/drivers.flatpak" ]
     then
         flatpak uninstall -y "${DRIVER_NAME}"  &> /dev/null
         flatpak install -y "${DIR}/drivers.flatpak"
     fi
-    flatpak uninstall -y "${RUNTIME_NAME}"  &> /dev/null
-    flatpak install -y "${DIR}/runtime.flatpak"
-    flatpak uninstall -y "${SDK_NAME}"  &> /dev/null
-    flatpak install -y "${DIR}/sdk.flatpak"
+    flatpak uninstall -y "${INSPECTOR_NAME}" &> /dev/null
+    flatpak install -y "${DIR}/inendi-inspector.flatpak"
     rm -rf "${DIR}/*.flatpak"
 else # online installation
     flatpak install -y https://repo.esi-inendi.com/inendi-inspector.flatpakref
