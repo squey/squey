@@ -519,7 +519,7 @@ int test_source(int argc, char** argv)
 	std::cout << diff.count();
 
 #ifndef INSPECTOR_BENCH
-	PV_VALID(nraw.row_count(), (PVRow)expected_row_count);
+	PV_ASSERT_VALID(nraw.row_count() >= (PVRow)expected_row_count);
 #endif
 
 #if 0 // Test is too big to store ref_file in tests repository
