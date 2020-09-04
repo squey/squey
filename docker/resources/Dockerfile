@@ -19,7 +19,7 @@ apt-get install -y python3 python3-pip crudini pamtester && \
 apt-get install -y nginx ssl-cert && \
 apt-get install -y pocl-opencl-icd mesa-utils ocl-icd-libopencl1 clinfo && \
 echo "/usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
-apt-get -yq install wget patch xterm && \
+apt-get -yq install wget patch xterm kdialog && \
 apt-get install -y systemd && \
 cd /lib/systemd/system/sysinit.target.wants/ && \
 ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 && \
@@ -36,6 +36,9 @@ rm -f /lib/systemd/system/multi-user.target.wants/* \
 # Allow non-privileged user namespaces and increase the maximum number of memory map areas
 RUN echo "kernel.unprivileged_userns_clone = 1" > /etc/sysctl.d/00-local-userns.conf
 RUN echo "vm.max_map_count=1966080" > /etc/sysctl.d/00-local-max_map_count.conf
+
+# Disable coredumpctl core dump handling
+RUN echo 'kernel.core_pattern=|/bin/false' > /etc/sysctl.d/50-coredump.conf
     
 # Download/install data
 RUN mkdir -p "${INSTALL_PATH}"
