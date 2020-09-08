@@ -20,7 +20,7 @@ config:
     	install -m 0755 unpigz \$(DESTDIR)/bin
     EOF
   install-commands:
-  - make -j 1 install DESTDIR="%{install-root}"
+  - make -j 1 install DESTDIR="%{install-root}%{prefix}"
 
 
 depends:

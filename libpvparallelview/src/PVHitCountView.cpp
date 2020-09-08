@@ -492,6 +492,9 @@ void PVParallelView::PVHitCountView::draw_lines(QPainter* painter,
 
 void PVParallelView::PVHitCountView::do_zoom_change(int axes)
 {
+	if (not _backend) {
+		return;
+	}
 	if (axes & PVZoomableDrawingAreaConstraints::Y) {
 		if (_do_auto_scale) {
 			get_horizontal_scrollbar()->setValue(0);
@@ -509,6 +512,9 @@ void PVParallelView::PVHitCountView::do_zoom_change(int axes)
 
 void PVParallelView::PVHitCountView::do_pan_change()
 {
+	if (not _backend) {
+		return;
+	}
 	_update_all_timer.start();
 }
 
@@ -579,6 +585,9 @@ void PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility()
 
 void PVParallelView::PVHitCountView::update_all()
 {
+	if (not _backend) {
+		return;
+	}
 	get_hit_graph_manager().process_all_buffers();
 	get_viewport()->update();
 }
@@ -589,6 +598,9 @@ void PVParallelView::PVHitCountView::update_all()
 
 void PVParallelView::PVHitCountView::update_sel()
 {
+	if (not _backend) {
+		return;
+	}
 	get_hit_graph_manager().process_buffer_selected();
 	if (_auto_x_zoom_sel) {
 		set_x_zoom_level_from_sel();

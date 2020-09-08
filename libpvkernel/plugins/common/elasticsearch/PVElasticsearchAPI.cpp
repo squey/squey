@@ -690,7 +690,7 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 				subformats.erase(std::remove_if(subformats.begin(), subformats.end(),
 				                                [](const std::string& s) { return s.empty(); }));
 
-				time_col_formats.emplace_back(std::move(subformats));
+				time_col_formats.emplace_back(subformats.empty() ? std::vector<std::string>{format} : std::move(subformats));
 			}
 		}
 	}
@@ -724,7 +724,13 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 				        (std::string("/hits/hits/0/_source/") + col_name_pointer).c_str())
 				        .Get(json);
 				if (time) {
-					std::string time_value = time->GetString();
+					std::string time_value;
+					if (time->IsUint64()) { // "epoch_second" and "epoch_millis" are stored as numbers
+						time_value = std::to_string(time->IsUint64());
+					}
+					else {
+						time_value = time->GetString();
+					}
 					for (const std::string& mapping_format : time_col_formats[i]) {
 						if (not params.empty()) {
 							break;
@@ -740,6 +746,7 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 							return {};
 						};
 
+						
 						auto format_str_it = dateformat_map.equal_range(mapping_format);
 						for (auto it = format_str_it.first; it != format_str_it.second; ++it) {
 							const std::string& format = it->second;
