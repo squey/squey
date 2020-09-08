@@ -36,7 +36,7 @@ int main()
 	PVRush::PVElasticsearchInfos infos;
 	infos.set_host("http://connectors.srv.picviz");
 	infos.set_port(9200);
-	infos.set_index("proxy_sample");
+	infos.set_index("proxy_sample_geoip");
 	infos.set_login("elastic");
 	infos.set_password("changeme");
 	infos.set_filter_path("category,http_method,login,mime_type,src_ip,status_"
@@ -105,7 +105,7 @@ int main()
 	auto& source = *src;
 
 	static constexpr const size_t MEGA = 1024 * 1024;
-	PV_VALID(source.get_size(), MEGA * 9981UL);
+	PV_VALID(source.get_size(), MEGA * 219UL);
 
 	std::string output_file = pvtest::get_tmp_filename();
 	std::string ref_file_sorted = output_file + "_sorted";
