@@ -169,6 +169,15 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* /*in_t*/, QWi
 				return;
 			}
 		}
+		// Check if states are selected
+		const rapidjson::Document& json = _model->save();
+		if (rapidjson::Pointer("/post/singlestate/entityresults").Get(json)
+		    and not rapidjson::Pointer("/post/singlestate/states").Get(json)) {
+			QMessageBox::critical(
+			this, "No states selected", "Please, select one or more states to continue",
+			QMessageBox::Ok);
+			return;
+		}
 		accept();
 	});
 	connect(dialog_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
