@@ -53,6 +53,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	                          std::vector<std::vector<PVERFAPI::int_t>>& ids,
 	                          std::vector<std::vector<PVERFAPI::float_t>>& results);
 
+	size_t compute_source_row_count(const rapidjson::Value* entities);
+
   private:
 	PVRush::PVERFDescription* _input_desc;
 	QStringList _files_path;
