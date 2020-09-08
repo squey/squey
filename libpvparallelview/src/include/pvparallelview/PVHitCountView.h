@@ -108,6 +108,11 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 		return _backend->get_y_labels_cache();
 	}
 
+	bool is_backend_valid() const
+	{
+		return (bool) _backend;
+	}
+
   public:
 	PVHitCountViewSelectionRectangle* get_selection_rect() const { return _sel_rect; }
 
