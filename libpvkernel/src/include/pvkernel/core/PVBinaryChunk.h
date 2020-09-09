@@ -32,14 +32,6 @@ class PVBinaryChunk : public PVChunk
 		_invalid_columns.resize(columns_count, false);
 	}
 
-	template <typename T>
-	void set_column_chunk(PVCol col, std::vector<T>& vec_data)
-	{
-		_columns_chunk[col] = pvcop::db::sink::column_chunk_t(
-		    vec_data.data(), vec_data.size(), sizeof(T),
-		    std::string("number_") + pvcop::types::type_string<T>());
-	}
-
 	void set_raw_column_chunk(PVCol col,
 	                          const void* beg,
 	                          size_t rows_count,

@@ -262,16 +262,13 @@ void PVRush::PVERFAPI::add_connectivities(std::vector<QDomDocument>& formats,
 		    erf_type_traits<uint16_t>::string); //  FIXME use pvcop "string" type
 	}
 
-	for (const auto& entity_type : connectivities->GetArray()) {
-		std::string entity_type_name = entity_type.GetString();
+	format_root->addOneField(QString::fromStdString("idele"), erf_type_traits<int_t>::string);
 
-		format_root->addOneField(QString::fromStdString("idele"), erf_type_traits<int_t>::string);
+	format_root->addOneField(QString::fromStdString("type"), erf_type_traits<int_t>::string);
 
-		format_root->addOneField(QString::fromStdString("pid"), erf_type_traits<int_t>::string);
+	format_root->addOneField(QString::fromStdString("pid"), erf_type_traits<int_t>::string);
 
-		format_root->addOneField(QString::fromStdString(entity_type_name),
-		                         erf_type_traits<int_t>::string);
-	}
+	format_root->addOneField(QString::fromStdString("nodeid"), erf_type_traits<int_t>::string);
 }
 
 void PVRush::PVERFAPI::add_entityresults(ERF_INT state_id,

@@ -85,7 +85,7 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* /*in_t*/, QWi
 		if (not bad_files.empty()) {
 			QMessageBox::critical(
 			    this, "Incompatible file structure",
-			    QString("The following file(s) have not the expected structure :<br><br> %1")
+			    QString("The following file(s) do not have the expected structure :<br><br> %1")
 			        .arg(bad_files.join("<br>")),
 			    QMessageBox::Ok);
 			setResult(QDialog::Rejected);

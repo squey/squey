@@ -40,18 +40,16 @@ PVRush::PVERFSource::PVERFSource(PVInputDescription_p input)
 	}
 }
 
-static void expand(std::vector<std::vector<PVRush::PVERFAPI::int_t>>& ids, size_t node_per_elem)
+static void expand(std::vector<PVRush::PVERFAPI::int_t>& values, size_t node_per_elem)
 {
-	for (std::vector<PVRush::PVERFAPI::int_t>& id : ids) {
-		std::vector<PVRush::PVERFAPI::int_t> new_id(id.size() * node_per_elem);
+	std::vector<PVRush::PVERFAPI::int_t> new_values(values.size() * node_per_elem);
 #pragma omp parallel for
-		for (size_t i = 0; i < id.size(); i++) {
-			for (size_t j = 0; j < node_per_elem; j++) {
-				new_id[(i * node_per_elem) + j] = id[i];
-			}
+	for (size_t i = 0; i < values.size(); i++) {
+		for (size_t j = 0; j < node_per_elem; j++) {
+			new_values[(i * node_per_elem) + j] = values[i];
 		}
-		std::swap(id, new_id);
 	}
+	std::swap(values, new_values);
 }
 
 PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
@@ -83,10 +81,12 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 	const rapidjson::Value* constant_connectivities =
 	    rapidjson::Pointer("/post/constant/connectivities").Get(_selected_nodes);
 	if (constant_connectivities) {
-		std::vector<std::vector<PVERFAPI::int_t>> results;
 		_ids.clear();
+		std::vector<std::vector<PVERFAPI::int_t>> results;
+		results.resize(1);
+		_ids.resize(3);
 
-		EString entity_type;
+		size_t entity_type_id = 0;
 
 		ErfElementIList element_list;
 		ErfErrorCode status = _erf.stage()->GetElementList(0, element_list);
@@ -96,33 +96,42 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 			// idele
 			std::vector<PVERFAPI::int_t> idele;
 			status = element->ReadIds(idele);
-			_ids.emplace_back(std::move(idele));
 
 			// pid
 			std::vector<PVERFAPI::int_t> pid;
 			status = element->ReadPartIds(pid);
-			_ids.emplace_back(std::move(pid));
 
-			// ic
+			// nodeid
 			ERF_INT node_per_elem;
 			ERF_INT dim_count;
-			element->ReadHeader(row_count, node_per_elem, dim_count);
-			row_count *= node_per_elem;
-			_source_row_count = row_count;
+			ERF_INT local_row_count;
+			element->ReadHeader(local_row_count, node_per_elem, dim_count);
+			local_row_count *= node_per_elem;
+			row_count += local_row_count;
 
-			expand(_ids, node_per_elem);
+			// type
+			std::vector<PVERFAPI::int_t> type(local_row_count, (PVERFAPI::int_t)entity_type_id);
 
-			std::vector<PVERFAPI::int_t> values;
-			status = element->ReadConnectivities(values);
+			std::vector<PVERFAPI::int_t> nodeids;
+			status = element->ReadConnectivities(nodeids);
 
-			results.emplace_back(std::move(values));
+			expand(idele, node_per_elem);
+			expand(pid, node_per_elem);
+
+			_ids[0].insert(_ids[0].end(), idele.begin(), idele.end());
+			_ids[1].insert(_ids[1].end(), type.begin(), type.end());
+			_ids[2].insert(_ids[2].end(), pid.begin(), pid.end());
+			results[0].insert(results[0].end(), nodeids.begin(), nodeids.end());
 
 			(void)status;
+			entity_type_id++;
 		}
 
+		_source_row_count = row_count;
+
 		chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::int_t>(
-		    _files_path.size(), _current_file_index, std::move(_ids), std::move(results), row_count,
-		    nraw_start_row);
+			_files_path.size(), _current_file_index, std::move(_ids), std::move(results), row_count,
+			nraw_start_row);
 	}
 
 	const rapidjson::Value* constant_entityresults =
