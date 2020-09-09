@@ -115,6 +115,20 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	        &PVDatabaseParamsWidget::use_existing_format_toggle_Slot);
 	connect(_btn_sqlite_browse, &QAbstractButton::clicked, this,
 	        &PVDatabaseParamsWidget::browse_sqlite_Slot);
+	connect(_update_tables_button, &QAbstractButton::clicked, this,
+	        &PVDatabaseParamsWidget::update_tables_list);
+	connect(buttonBox, &QDialogButtonBox::accepted, this, [&] {
+		PVRush::PVFormat format;
+		if (_radio_new_format->isChecked() and _table_fields->rowCount() == 0) {
+			if (not update_fields_Slot()) {
+				return;
+			}
+		}
+		else if (not get_format_from_settings(format)) {
+			return;
+		}
+		accept();
+	});
 
 	_combo_type->setCurrentIndex(0);
 	sql_type_changed_Slot(0);
@@ -151,7 +165,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	                                                       << "SQL type"
 	                                                       << "INENDI type");
 
-	enable_used_format(true);
+	enable_used_format(false);
 }
 
 PVRush::PVDatabaseParamsWidget::~PVDatabaseParamsWidget()
@@ -354,16 +368,20 @@ void PVRush::PVDatabaseParamsWidget::query_preview_Slot()
 	dlg->preview();
 }
 
-void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
+bool PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 {
 	PVDBServ_p srv(new PVDBServ(get_infos()));
 	PVDBQuery qr(srv, get_query());
 	if (!qr.connect_serv()) {
-		return;
+		return false;
 	}
 
 	_new_format_doc = qr.get_format_from_db_schema();
-	const PVRush::PVFormat& format = PVRush::PVFormat(_new_format_doc.documentElement());
+	PVRush::PVFormat format;
+	if (not get_format_from_settings(format)) {
+		return false;
+	}
+	
 	const QList<QString>& db_types = qr.get_db_types();
 
 	_table_fields->setRowCount(format.get_axes().size());
@@ -376,6 +394,8 @@ void PVRush::PVDatabaseParamsWidget::update_fields_Slot()
 		_table_fields->setItem(i, 1, new QTableWidgetItem(db_types[i]));
 		_table_fields->setItem(i, 2, new QTableWidgetItem(type));
 	}
+
+	return true;
 }
 
 void PVRush::PVDatabaseParamsWidget::edit_existing_format_Slot()
@@ -417,4 +437,30 @@ void PVRush::PVDatabaseParamsWidget::browse_sqlite_Slot()
 		return;
 	}
 	_txt_dbname->setText(file);
+}
+
+bool PVRush::PVDatabaseParamsWidget::get_format_from_settings(PVRush::PVFormat& format)
+{
+	try {
+		format = PVRush::PVFormat(_new_format_doc.documentElement());
+	}
+	catch (const PVRush::PVFormatInvalid& e) {
+		QMessageBox::critical(this, "SQL error", "The SQL query did not return any valid data");
+		return false;
+	}
+	return true;
+}
+
+void PVRush::PVDatabaseParamsWidget::update_tables_list()
+{
+	_tables_list->clear();
+
+	PVDBServ_p srv(new PVDBServ(get_infos()));
+	PVDBQuery qr(srv, get_query());
+	if (!qr.connect_serv()) {
+		return;
+	}
+
+	QStringList tables = srv->to_database().tables();
+	_tables_list->addItems(tables);
 }
