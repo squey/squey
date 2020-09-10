@@ -626,6 +626,10 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			} catch (PVRush::PVInvalidFile const& e) {
 				invalid_formats.append(it.key() + ": " + e.what());
 			}
+			catch (const std::runtime_error& e) {
+				QMessageBox::critical(this, "Runtime error", e.what());
+				return;
+			}
 		}
 
 		if (not invalid_formats.isEmpty()) {

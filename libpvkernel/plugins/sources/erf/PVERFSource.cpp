@@ -282,7 +282,7 @@ size_t PVRush::PVERFSource::compute_source_row_count(const rapidjson::Value* ent
 						row_count = local_row_count;
 					}
 					else if (local_row_count != row_count) {
-						throw std::runtime_error("entid counts differs between entities groups");
+						throw std::runtime_error(std::string("entid counts differs between '") + entity_type_name + "' entities");
 					}
 				}
 			}
