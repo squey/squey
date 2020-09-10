@@ -7,6 +7,8 @@
 
 #include "PVERFSource.h"
 
+#include <pvkernel/core/PVUtils.h>
+
 PVRush::PVERFSource::PVERFSource(PVInputDescription_p input)
     : _input_desc(dynamic_cast<PVRush::PVERFDescription*>(input.get()))
     , _files_path(_input_desc->paths())
@@ -397,12 +399,15 @@ void PVRush::PVERFSource::add_inputs_dict(PVCore::PVBinaryChunk* chunk)
 	// TODO : remove common path part
 	if (_files_path.size() > 1) {
 
-		//std::vector<std::string> col_name_hierarchy;
-		//boost::split(col_name_hierarchy, col, boost::is_any_of("/"));
+		std::vector<std::string> files_paths;
+		for(const QString& file_path : _files_path) {
+			files_paths.emplace_back(file_path.toStdString());
+		}
+		PVCore::remove_common_folders(files_paths);
 
 		std::unique_ptr<pvcop::db::write_dict> inputs_dict(new pvcop::db::write_dict);
-		for (const QString& input_name : _files_path) {
-			inputs_dict->insert(input_name.toStdString().c_str());
+		for (const std::string& input_name : files_paths) {
+			inputs_dict->insert(input_name.c_str());
 		}
 		chunk->set_column_dict(PVCol(0), std::move(inputs_dict));
 	}
