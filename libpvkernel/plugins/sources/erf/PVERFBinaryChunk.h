@@ -34,9 +34,9 @@ class PVERFBinaryChunk : public PVCore::PVBinaryChunk
 		PVCol col_count(0);
 
 		if (files_count > 1) {
-			_input_index = std::vector<uint16_t>(row_count, (uint16_t)file_index);
+			_input_index = std::vector<pvcop::db::index_t>(row_count, (pvcop::db::index_t)file_index);
 			set_raw_column_chunk(col_count++, (void*)(_input_index.data()), row_count,
-			                     sizeof(uint16_t), erf_type_traits<uint16_t>::string);
+			                     sizeof(pvcop::db::index_t), erf_type_traits<pvcop::db::index_t>::string);
 		}
 		for (const auto& id : _ids) {
 			set_raw_column_chunk(col_count++, (void*)(id.data()), row_count,
@@ -51,7 +51,7 @@ class PVERFBinaryChunk : public PVCore::PVBinaryChunk
 	}
 
   private:
-	std::vector<uint16_t> _input_index;
+	std::vector<pvcop::db::index_t> _input_index;
 	std::vector<std::vector<PVERFAPI::int_t>> _ids;
 	std::vector<std::vector<T>> _results;
 };

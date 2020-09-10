@@ -49,6 +49,10 @@ struct erf_type_traits<int32_t> {
 	static constexpr const char* string = "number_int32";
 };
 template <>
+struct erf_type_traits<uint32_t> {
+	static constexpr const char* string = "number_uint32";
+};
+template <>
 struct erf_type_traits<int64_t> {
 	static constexpr const char* string = "number_int64";
 };

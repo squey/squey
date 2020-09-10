@@ -1,5 +1,7 @@
 #include "PVERFAPI.h"
 
+constexpr const char input_column_name[] = "filename";
+
 PVRush::PVERFAPI::PVERFAPI(const std::string& erf_path)
 {
 	_filer = nullptr;
@@ -258,16 +260,13 @@ void PVRush::PVERFAPI::add_connectivities(std::vector<QDomDocument>& formats,
 
 	if (multi_inputs) {
 		format_root->addOneField(
-		    QString::fromStdString("input"),
-		    erf_type_traits<uint16_t>::string); //  FIXME use pvcop "string" type
+		   	input_column_name,
+		    "string");
 	}
 
 	format_root->addOneField(QString::fromStdString("idele"), erf_type_traits<int_t>::string);
-
-	format_root->addOneField(QString::fromStdString("type"), erf_type_traits<int_t>::string);
-
+	format_root->addOneField(QString::fromStdString("type"), "string");
 	format_root->addOneField(QString::fromStdString("pid"), erf_type_traits<int_t>::string);
-
 	format_root->addOneField(QString::fromStdString("nodeid"), erf_type_traits<int_t>::string);
 }
 
@@ -285,8 +284,8 @@ void PVRush::PVERFAPI::add_entityresults(ERF_INT state_id,
 
 		if (multi_inputs) {
 			format_root->addOneField(
-			    QString::fromStdString("input"),
-			    erf_type_traits<uint16_t>::string); //  FIXME use pvcop "string" type
+			    input_column_name,
+			    "string");
 		}
 
 		if (state_id > 0) {

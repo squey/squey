@@ -53,6 +53,8 @@ class PVERFSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	                          std::vector<std::vector<PVERFAPI::int_t>>& ids,
 	                          std::vector<std::vector<PVERFAPI::float_t>>& results);
 
+	void add_inputs_dict(PVCore::PVBinaryChunk* chunk);
+
 	size_t compute_source_row_count(const rapidjson::Value* entities);
 
   private:

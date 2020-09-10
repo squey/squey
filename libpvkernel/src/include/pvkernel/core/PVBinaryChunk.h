@@ -42,6 +42,16 @@ class PVBinaryChunk : public PVChunk
 		    pvcop::db::sink::column_chunk_t(beg, rows_count, row_bytes_count, type);
 	}
 
+	void set_column_dict(PVCol col, std::unique_ptr<pvcop::db::write_dict> dict)
+	{
+		_dicts.emplace_back(std::make_pair(col, std::move(dict)));
+	}
+
+	std::vector<std::pair<PVCol, std::unique_ptr<pvcop::db::write_dict>>> take_column_dicts()
+	{
+		return std::move(_dicts);
+	}
+
 	void set_invalid(PVCol col, size_t row) { _invalids.insert({col, row}); }
 	void set_invalid_column(PVCol col) { _invalid_columns[col] = true; }
 
@@ -60,6 +70,7 @@ class PVBinaryChunk : public PVChunk
 	size_t _rows_count;
 	PVRow _start_index;
 	pvcop::db::sink::columns_chunk_t _columns_chunk;
+	std::vector<std::pair<PVCol, std::unique_ptr<pvcop::db::write_dict>>> _dicts;
 	std::multimap<PVCol, size_t> _invalids;
 	std::vector<bool> _invalid_columns;
 };

@@ -81,17 +81,27 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 	const rapidjson::Value* constant_connectivities =
 	    rapidjson::Pointer("/post/constant/connectivities").Get(_selected_nodes);
 	if (constant_connectivities) {
-		_ids.clear();
 		std::vector<std::vector<PVERFAPI::int_t>> results;
 		results.resize(1);
+		_ids.clear();
 		_ids.resize(3);
+		std::unique_ptr<pvcop::db::write_dict> types_dict(new pvcop::db::write_dict);
 
-		size_t entity_type_id = 0;
-
+		size_t connectivity_type_id = 0;
 		ErfElementIList element_list;
 		ErfErrorCode status = _erf.stage()->GetElementList(0, element_list);
-		for (size_t i = 0; i < element_list.size(); i++) {
-			ErfElementI* element = element_list[i];
+		std::vector<std::string> connectivity_types;
+		_erf.stage()->GetElementTypes(0, connectivity_types);
+
+		for (const auto& connectivity_type : constant_connectivities->GetArray()) {
+			const std::string& connectivity_type_name = connectivity_type.GetString();
+
+			auto it = std::find(connectivity_types.begin(), connectivity_types.end(), connectivity_type_name);
+			assert(it != connectivity_types.end());
+			size_t connectivity_type_index = std::distance(connectivity_types.begin(), it);
+			ErfElementI* element = element_list[connectivity_type_index];
+
+			types_dict->insert(connectivity_type_name.c_str());
 
 			// idele
 			std::vector<PVERFAPI::int_t> idele;
@@ -110,7 +120,7 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 			row_count += local_row_count;
 
 			// type
-			std::vector<PVERFAPI::int_t> type(local_row_count, (PVERFAPI::int_t)entity_type_id);
+			std::vector<PVERFAPI::int_t> type(local_row_count, (PVERFAPI::int_t)connectivity_type_id);
 
 			std::vector<PVERFAPI::int_t> nodeids;
 			status = element->ReadConnectivities(nodeids);
@@ -124,7 +134,7 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 			results[0].insert(results[0].end(), nodeids.begin(), nodeids.end());
 
 			(void)status;
-			entity_type_id++;
+			connectivity_type_id++;
 		}
 
 		_source_row_count = row_count;
@@ -132,6 +142,13 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 		chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::int_t>(
 			_files_path.size(), _current_file_index, std::move(_ids), std::move(results), row_count,
 			nraw_start_row);
+
+
+		if (_current_file_index == 0) {
+			chunk->set_column_dict(PVCol(1 + (_files_path.size() > 1)), std::move(types_dict));
+
+			add_inputs_dict(chunk);
+		}
 	}
 
 	const rapidjson::Value* constant_entityresults =
@@ -147,6 +164,10 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 		chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
 		    _files_path.size(), _current_file_index, std::move(ids), std::move(results), row_count,
 		    nraw_start_row);
+
+		if (_current_file_index == 0) {
+			add_inputs_dict(chunk);
+		}
 
 		_state_start_row += row_count;
 	}
@@ -180,6 +201,10 @@ PVCore::PVBinaryChunk* PVRush::PVERFSource::operator()()
 		chunk = new PVRush::PVERFBinaryChunk<PVERFAPI::float_t>(
 		    _files_path.size(), _current_file_index, std::move(ids), std::move(results), row_count,
 		    nraw_start_row);
+
+		if (_current_file_index == 0) {
+			add_inputs_dict(chunk);
+		}
 
 		if (_state_start_row >= _state_row_count) {
 			if (_state_id == _current_states_range->second) {
@@ -365,4 +390,20 @@ ERF_INT PVRush::PVERFSource::add_entityresults(ERF_INT state_id,
 	}
 
 	return row_count;
+}
+
+void PVRush::PVERFSource::add_inputs_dict(PVCore::PVBinaryChunk* chunk)
+{
+	// TODO : remove common path part
+	if (_files_path.size() > 1) {
+
+		//std::vector<std::string> col_name_hierarchy;
+		//boost::split(col_name_hierarchy, col, boost::is_any_of("/"));
+
+		std::unique_ptr<pvcop::db::write_dict> inputs_dict(new pvcop::db::write_dict);
+		for (const QString& input_name : _files_path) {
+			inputs_dict->insert(input_name.toStdString().c_str());
+		}
+		chunk->set_column_dict(PVCol(0), std::move(inputs_dict));
+	}
 }
