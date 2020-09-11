@@ -1076,7 +1076,7 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 	// Execute Python script if any
 	bool is_path, disabled;
 	QString python_script = src.get_original_format().get_python_script(is_path, disabled);
-	if (not disabled) {
+	if (not disabled and not python_script.isEmpty()) {
 		if (is_path and not QFileInfo(python_script).exists()) {
 			QMessageBox::warning(this, tr("Unable to execute Python script"),
 				python_script + tr(" is missing"), QMessageBox::Ok);
