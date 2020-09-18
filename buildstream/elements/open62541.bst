@@ -31,7 +31,7 @@ variables:
     -DUA_BUILD_UNIT_TESTS=OFF \
     -DUA_BUILD_TOOLS=OFF \
     -DCMAKE_BUILD_TYPE=Release \
-    -DUA_LOGLEVEL=200
+    -DUA_LOGLEVEL=300
     
 config:
   install-commands:

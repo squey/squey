@@ -71,10 +71,9 @@ class PVOpcUaParamsWidget
 	void set_columns_tree_widget_selection(const QString& filter_path);
 	void tree_item_changed(QTreeWidgetItem* item, int column);
 	size_t get_selected_columns_count() const;
+	void export_node(QString node_id, QString node_name, bool source_timestamp = true);
 
   private:
-	QPushButton* _btn_refresh;
-	PVWidgets::PVFilterableComboBox* _combo_index;
 	QTreeWidgetItem* _root_item = nullptr;
 	QTreeView* _opcua_treeview = nullptr;
 	QString _serialized_query;
