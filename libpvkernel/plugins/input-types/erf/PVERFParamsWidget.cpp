@@ -93,8 +93,8 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* /*in_t*/, QWi
 		}
 	}
 
-	QVBoxLayout* nodes_list_layout = new QVBoxLayout;
-	QLabel* nodes_list_label = new QLabel("Nodes list:");
+	QVBoxLayout* list_layout = new QVBoxLayout;
+	QLabel* list_label = new QLabel;
 
 	auto store_list_f = [&](QTextEdit* text_edit) {
 		// sender() in lambda function is always returning nullptr
@@ -104,26 +104,26 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* /*in_t*/, QWi
 		_status_bar_needs_refresh = true;
 	};
 
-	QStackedWidget* nodes_list_stacked_text = new QStackedWidget;
-	QTextEdit* nodes_list_text_constant = new QTextEdit;
-	connect(nodes_list_text_constant, &QTextEdit::textChanged,
-	        std::bind(store_list_f, nodes_list_text_constant));
-	QTextEdit* nodes_list_text_singlestate = new QTextEdit;
-	connect(nodes_list_text_singlestate, &QTextEdit::textChanged,
-	        std::bind(store_list_f, nodes_list_text_singlestate));
+	QStackedWidget* list_stacked_text = new QStackedWidget;
+	QTextEdit* list_text_constant = new QTextEdit;
+	connect(list_text_constant, &QTextEdit::textChanged,
+	        std::bind(store_list_f, list_text_constant));
+	QTextEdit* list_text_singlestate = new QTextEdit;
+	connect(list_text_singlestate, &QTextEdit::textChanged,
+	        std::bind(store_list_f, list_text_singlestate));
 	QTextEdit* states_list_text = new QTextEdit;
-	nodes_list_stacked_text->addWidget(nodes_list_text_constant);
-	nodes_list_stacked_text->addWidget(nodes_list_text_singlestate);
-	nodes_list_stacked_text->addWidget(states_list_text);
+	list_stacked_text->addWidget(list_text_constant);
+	list_stacked_text->addWidget(list_text_singlestate);
+	list_stacked_text->addWidget(states_list_text);
 
-	nodes_list_layout->addWidget(nodes_list_label);
-	nodes_list_layout->addWidget(nodes_list_stacked_text);
-	QWidget* nodes_list_widget = new QWidget;
-	nodes_list_widget->setLayout(nodes_list_layout);
-	nodes_list_widget->setVisible(false);
+	list_layout->addWidget(list_label);
+	list_layout->addWidget(list_stacked_text);
+	QWidget* list_widget = new QWidget;
+	list_widget->setLayout(list_layout);
+	list_widget->setVisible(false);
 
 	splitter->addWidget(tree);
-	splitter->addWidget(nodes_list_widget);
+	splitter->addWidget(list_widget);
 	splitter->setStretchFactor(0, 2);
 	splitter->setStretchFactor(1, 1);
 
@@ -136,17 +136,22 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* /*in_t*/, QWi
 		            {"post.singlestate.states", index++}};
 		        if (current.isValid()) {
 			        PVERFTreeItem* item = static_cast<PVERFTreeItem*>(current.internalPointer());
+					const std::unordered_map<PVERFTreeItem::EType, QString> list_label_map {
+						std::make_pair(PVERFTreeItem::EType::NODE, "Nodes"),
+						std::make_pair(PVERFTreeItem::EType::STATES, "States")
+					};
 			        if (item->type() == PVERFTreeItem::EType::NODE or
 			            item->type() == PVERFTreeItem::EType::STATES) {
-				        QWidget* widget = nodes_list_stacked_text->widget(
+				        QWidget* widget = list_stacked_text->widget(
 				            text_index_map.at(item->path().toStdString()));
 				        widget->setProperty("index", current);
-				        nodes_list_stacked_text->setCurrentWidget(widget);
-				        nodes_list_widget->setVisible(true);
+				        list_stacked_text->setCurrentWidget(widget);
+				        list_widget->setVisible(true);
+						list_label->setText(list_label_map.at(item->type()) + " list:");
 				        return;
 			        }
 		        }
-		        nodes_list_widget->setVisible(false);
+		        list_widget->setVisible(false);
 	        });
 
 	connect(tree, &PVRush::PVERFTreeView::model_changed,
@@ -163,6 +168,15 @@ PVRush::PVERFParamsWidget::PVERFParamsWidget(PVInputTypeERF const* /*in_t*/, QWi
 			if (ret == QMessageBox::Cancel) {
 				return;
 			}
+		}
+		// Check if states are selected
+		const rapidjson::Document& json = _model->save();
+		if (rapidjson::Pointer("/post/singlestate/entityresults").Get(json)
+		    and not rapidjson::Pointer("/post/singlestate/states").Get(json)) {
+			QMessageBox::critical(
+			this, "No states selected", "Please, select one or more states to continue",
+			QMessageBox::Ok);
+			return;
 		}
 		accept();
 	});
