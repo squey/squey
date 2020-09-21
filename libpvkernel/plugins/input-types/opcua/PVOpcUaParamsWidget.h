@@ -55,6 +55,7 @@ class PVOpcUaParamsWidget
 	PVOpcUaInfos get_infos() const override;
 	bool set_infos(PVOpcUaInfos const& infos) override;
 	void set_query(QString const& query) override;
+	void check_connection_slot() override;
 	bool check_connection(std::string* error = nullptr) override;
 	void export_query_result(PVCore::PVStreamingCompressor& compressor,
 	                         const std::string& sep,
@@ -71,10 +72,9 @@ class PVOpcUaParamsWidget
 	void set_columns_tree_widget_selection(const QString& filter_path);
 	void tree_item_changed(QTreeWidgetItem* item, int column);
 	size_t get_selected_columns_count() const;
+	void export_node(QString node_id, QString node_name, bool source_timestamp = true);
 
   private:
-	QPushButton* _btn_refresh;
-	PVWidgets::PVFilterableComboBox* _combo_index;
 	QTreeWidgetItem* _root_item = nullptr;
 	QTreeView* _opcua_treeview = nullptr;
 	QString _serialized_query;

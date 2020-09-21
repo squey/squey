@@ -121,7 +121,7 @@ bool SSLWidget::opcua()
 	authInfo.setUsernameAuthentication(SERVER_USER, SERVER_PASSWORD);
 
 	m_opcua_client->setAuthenticationInformation(authInfo);
-	m_opcua_client->setPkiConfiguration(pkiConfig);
+	//m_opcua_client->setPkiConfiguration(pkiConfig);
 	m_opcua_client->setApplicationIdentity(pkiConfig.applicationIdentity());
 
 	connect(m_opcua_client.get(), &QOpcUaClient::stateChanged,
@@ -315,15 +315,17 @@ void request_endpoints()
 
 	qDebug() << "UA_Client_getEndpoints:" << QDBGSTS(retval) << QDBGVAR(numEndpoints);
 
-	qDebug() << "endpoints[0]:" << QDBGSTR(endpoints[0].endpointUrl)
-	         << QDBGVAR(endpoints[0].securityMode) << QDBGSTR(endpoints[0].securityPolicyUri)
-	         << QDBGSTR(endpoints[0].transportProfileUri) << QDBGVAR(endpoints[0].securityLevel);
+	for (size_t endpoint_i = 0; endpoint_i < numEndpoints; ++endpoint_i) {
+		qDebug() << "endpoints[" << endpoint_i << "]:" << QDBGSTR(endpoints[endpoint_i].endpointUrl)
+				<< QDBGVAR(endpoints[endpoint_i].securityMode) << QDBGSTR(endpoints[endpoint_i].securityPolicyUri)
+				<< QDBGSTR(endpoints[endpoint_i].transportProfileUri) << QDBGVAR(endpoints[endpoint_i].securityLevel);
 
-	for (size_t i = 0; i < endpoints[0].userIdentityTokensSize; ++i) {
-		auto& token = endpoints[0].userIdentityTokens[i];
-		qDebug() << "endpoints[0].userIdentityTokens[" << '0' + i << "]:" << QDBGSTR(token.policyId)
-		         << QDBGVAR(token.tokenType) << QDBGSTR(token.issuedTokenType)
-		         << QDBGSTR(token.issuerEndpointUrl) << QDBGSTR(token.securityPolicyUri);
+		for (size_t i = 0; i < endpoints[endpoint_i].userIdentityTokensSize; ++i) {
+			auto& token = endpoints[endpoint_i].userIdentityTokens[i];
+			qDebug() << "endpoints[" << endpoint_i << "].userIdentityTokens[" << i << "]:" << QDBGSTR(token.policyId)
+					<< QDBGVAR(token.tokenType) << QDBGSTR(token.issuedTokenType)
+					<< QDBGSTR(token.issuerEndpointUrl) << QDBGSTR(token.securityPolicyUri);
+		}
 	}
 
 	UA_Client_disconnect(client);
@@ -434,6 +436,7 @@ void connect_to_server()
 		} else {
 			qDebug() << "Failed to load conf, aborting connection process.";
 		}
+		conf->securityMode = UA_MESSAGESECURITYMODE_SIGNANDENCRYPT;
 	}
 
 	UA_StatusCode retval =
@@ -489,7 +492,7 @@ int test_source(int argc, char** argv)
 	"ns=2;i=2019;$;ns=0;i=11;$;P6.2.5 FastSlowPosition;$;"
 	"ns=2;i=2020;$;ns=0;i=11;$;6.2.6 SlowFastPosition;$;";
 
-	const size_t expected_row_count = 193'960;
+	const size_t expected_row_count = 193'995;
 
 	PVRush::PVFormat format("format", QString::fromStdString(format_file));
 
@@ -554,14 +557,14 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 	//return EXIT_SUCCESS; // Bypass test for current prod, FIXME
 	return test_source(argc, argv);
 
-	// if (!(PKI_DIR = getenv("OPCUA_PKIDIR")) or !(SERVER_URL = getenv("OPCUA_URL")) or
-	//     !(SERVER_USER = getenv("OPCUA_USER")) or !(SERVER_PASSWORD = getenv("OPCUA_PASSWORD"))) {
-	// 	qDebug() << "Please define env variables OPCUA_PKIDIR OPCUA_URL OPCUA_USER OPCUA_PASSWORD";
-	// 	return EXIT_FAILURE;
-	// }
+	if (!(PKI_DIR = getenv("OPCUA_PKIDIR")) or !(SERVER_URL = getenv("OPCUA_URL")) or
+	    !(SERVER_USER = getenv("OPCUA_USER")) or !(SERVER_PASSWORD = getenv("OPCUA_PASSWORD"))) {
+		qDebug() << "Please define env variables OPCUA_PKIDIR OPCUA_URL OPCUA_USER OPCUA_PASSWORD";
+		return EXIT_FAILURE;
+	}
 
-	// request_endpoints();
-	// connect_to_server();
+	request_endpoints();
+	connect_to_server();
 
-	// qtopcua_connect(argc, argv);
+	qtopcua_connect(argc, argv);
 }

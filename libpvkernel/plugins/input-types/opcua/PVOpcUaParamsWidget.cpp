@@ -14,10 +14,12 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/widgets/PVFilterableComboBox.h>
 #include <pvkernel/widgets/PVQueryBuilder.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
+#include <QMenu>
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
@@ -175,19 +177,34 @@ void PVRush::PVOpcUaParamsWidget::fetch_server_data_slot()
 	fetch_server_data(get_infos());
 }
 
+static bool connecting = false;
+
+void PVRush::PVOpcUaParamsWidget::check_connection_slot()
+{
+	std::string error;
+
+	if (not check_connection(&error)) {
+		QMessageBox::critical(this, tr("Failure"), tr("Connection error : %1").arg(error.c_str()),
+		                      QMessageBox::Ok);
+	}
+}
+
 bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullptr*/)
 {
 	const PVOpcUaInfos& infos = get_infos();
 
 	QOpcUaProvider provider;
 	if (provider.availableBackends().isEmpty()) {
-		qDebug() << "No OpcUa backend available!";
+		*error = "No OpcUa backend available!";
+		qDebug() << error->c_str();
 		return false;
 	}
 	QOpcUaClient* client = provider.createClient(provider.availableBackends()[0]);
 	if (!client) {
-		qDebug() << "OpcUa backend (" << provider.availableBackends()[0]
-		         << ") could not be loaded and could not create client.";
+		*error += "OpcUa backend (";
+		*error += provider.availableBackends()[0].toStdString();
+		*error += ") could not be loaded and could not create client.";
+		qDebug() << error->c_str();
 		return false;
 	}
 
@@ -195,9 +212,9 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 	QOpcUaPkiConfiguration pkiConfig;
 
 #if 0 // Not yet supported
-	QString pkidir("/home/===/pkidir/");
-	pkiConfig.setClientCertificateFile(pkidir + "/own/certs/certificate.der");
-	pkiConfig.setPrivateKeyFile(pkidir + "/own/private/privatekey.pem");
+	QString pkidir = PVWidgets::PVFileDialog::getExistingDirectory();
+	pkiConfig.setClientCertificateFile(PVWidgets::PVFileDialog::getOpenFileName());//certificate.der
+	pkiConfig.setPrivateKeyFile(PVWidgets::PVFileDialog::getOpenFileName());//privatekey.pem
 	pkiConfig.setTrustListDirectory(pkidir + "/trusted/certs");
 	pkiConfig.setRevocationListDirectory(pkidir + "/trusted/crl");
 	pkiConfig.setIssuerListDirectory(pkidir + "/issuers/certs");
@@ -245,21 +262,42 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 					            //
 				            }
 			            });
+			    _opcua_treeview->setContextMenuPolicy(Qt::CustomContextMenu);
+				connect(_opcua_treeview, &QTreeView::customContextMenuRequested, [this](QPoint const& pos){
+					QModelIndex index = _opcua_treeview->indexAt(pos);
+					if (index.isValid()) {
+						auto contextMenu = new QMenu(this);
+						contextMenu->addAction("Export node to CSV", [this, index](){
+							export_node(index.siblingAtColumn(0).data(Qt::UserRole).value<QString>(),
+							            index.siblingAtColumn(5).data(Qt::UserRole).value<QString>());
+						});
+						contextMenu->addAction("Export node to CSV (values only)", [this, index](){
+							export_node(index.siblingAtColumn(0).data(Qt::UserRole).value<QString>(),
+							            index.siblingAtColumn(5).data(Qt::UserRole).value<QString>(), false);
+						});
+						contextMenu->exec(_opcua_treeview->viewport()->mapToGlobal(pos));
+					}
+				});
 				tabWidget->setCurrentIndex(tab_index);
+				QMessageBox::information(this, tr("Success"), tr("Connection successful"), QMessageBox::Ok);
 		    }
 	    });
 
-	connect(client, &QOpcUaClient::connectError, [](QOpcUaErrorState* errorState) {
-		qDebug() << "Client Error State:" << QOpcUa::statusToString(errorState->errorCode());
+	connect(client, &QOpcUaClient::connectError, [this](QOpcUaErrorState* errorState) {
+		std::string error = "Error State:" + QOpcUa::statusToString(errorState->errorCode()).toStdString();
+		qDebug() << error.c_str();
 		if (errorState->isClientSideError() &&
 		    errorState->connectionStep() ==
 		        QOpcUaErrorState::ConnectionStep::CertificateValidation) {
 			errorState->setIgnoreError(true);
+		} else {
+			QMessageBox::critical(this, tr("Failure"), tr("Connection error : %1").arg(error.c_str()),
+			                      QMessageBox::Ok);
 		}
 	});
 
 	QObject::connect(client, &QOpcUaClient::endpointsRequestFinished,
-	                 [client](QVector<QOpcUaEndpointDescription> endpoints,
+	                 [client, this](QVector<QOpcUaEndpointDescription> endpoints,
 	                          QOpcUa::UaStatusCode statusCode, QUrl requestUrl) {
 		                 qDebug() << "Endpoints returned:" << endpoints.count() << statusCode
 		                          << requestUrl;
@@ -269,6 +307,11 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 			                                             // reverse DNS.
 			                 client->connectToEndpoint(
 			                     endpoints.first()); // Connect to the first endpoint in the list
+		                 } else {
+			                 std::string error = "Endpoints Request Status:" + QOpcUa::statusToString(statusCode).toStdString();
+			                 qDebug() << error.c_str();
+			                 QMessageBox::critical(this, tr("Failure"), tr("Connection error : %1").arg(error.c_str()),
+			                                       QMessageBox::Ok);
 		                 }
 	                 });
 
@@ -276,7 +319,8 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 		qDebug() << "OpcUa client requesting endpoints...";
 		return true;
 	} else {
-		qDebug() << "OpcUa client could not request endpoints.";
+		*error += "OpcUa client could not request endpoints.";
+		qDebug() << error->c_str();
 	}
 
 	return false;
@@ -352,6 +396,94 @@ void PVRush::PVOpcUaParamsWidget::export_query_result(PVCore::PVStreamingCompres
 	} catch (const PVCore::PVStreamingCompressorError& e) {
 		*error = e.what();
 	}
+}
+
+void PVRush::PVOpcUaParamsWidget::export_node(QString node_id, QString node_name, bool source_timestamp)
+{
+	std::string error;
+	// FileDialog for option selection and file to write
+	PVWidgets::PVExportDlg export_dlg;
+
+	QFile file;
+	QString filename;
+	// Ask for file until a valid name is given or the action is aborted
+	while (true) {
+		int res = export_dlg.exec();
+		filename = export_dlg.selectedFiles()[0];
+		if (filename.isEmpty() || res == QDialog::Rejected) {
+			return;
+		}
+
+		file.setFileName(filename);
+		if (file.open(QIODevice::WriteOnly)) {
+
+			break;
+		}
+
+		// Error case
+		QMessageBox::critical(&export_dlg, tr("Error while exporting the selection"),
+								tr("Can not create the file \"%1\"").arg(filename));
+	}
+
+	// Export query
+	const PVRush::PVCSVExporter& exporter =
+		dynamic_cast<PVRush::PVCSVExporter&>(export_dlg.exporter_widget()->exporter());
+	std::string sep = exporter.get_sep_char(), quote = exporter.get_quote_char();
+	bool header = exporter.get_export_header();
+	PVCore::PVStreamingCompressor compressor(filename.toStdString());
+	PVCore::PVProgressBox::progress(
+		[&](PVCore::PVProgressBox& pbox) {
+			size_t count = 0;
+
+			PVRush::PVOpcUaAPI es(get_infos());
+
+			using PVRush::PVUtils::safe_export;
+
+			try {
+				if (header) {
+					if (source_timestamp) {
+						compressor.write(safe_export("Source Timestamp", sep, quote) + sep +
+										safe_export(node_name.toStdString().c_str(), sep, quote) + "\n");
+					} else {
+						compressor.write(safe_export(node_name.toStdString().c_str(), sep, quote) + "\n");
+					}
+				}
+
+				es.read_node_history(
+					node_id, UA_DateTime_fromUnixTime(0), UA_DateTime_now(), 10000,
+					[&compressor, &sep, &quote, &count, &pbox, &error, source_timestamp](UA_HistoryData* data, bool) {
+						if (not error.empty()) {
+							return false;
+						}
+						if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL ||
+							pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL2) {
+							return false;
+						}
+						for (UA_UInt32 i = 0; i < data->dataValuesSize; ++i) {
+							UA_DataValue& value = data->dataValues[i];
+							auto str_value = PVOpcUaAPI::to_json_string(value.value);
+							str_value = str_value.substr(1, str_value.size() - 2);
+							if (source_timestamp) {
+								std::string v;
+								v += safe_export(std::to_string(value.sourceTimestamp), sep, quote) + sep;
+								v +=
+									safe_export(str_value, sep, quote) + "\n";
+								compressor.write(v);
+							} else {
+								compressor.write(str_value + "\n");
+							}
+						}
+						count += data->dataValuesSize;
+						pbox.set_value(count);
+						pbox.set_extended_status(QString("%L1 rows exported so far").arg(count));
+						return true;
+					});
+			} catch (const PVCore::PVStreamingCompressorError& e) {
+				error = e.what();
+			}
+		},
+		"Exporting " + node_name + " (" + node_id + ")...", this);
+	compressor.wait_finished();
 }
 
 bool PVRush::PVOpcUaParamsWidget::set_infos(PVOpcUaInfos const& infos)
