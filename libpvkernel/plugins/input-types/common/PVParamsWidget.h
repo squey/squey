@@ -91,7 +91,7 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	virtual void preset_remove_slot() = 0;
 	virtual void load_preset(unsigned int id) = 0;
 
-	void check_connection_slot();
+	virtual void check_connection_slot();
 	void query_result_count_slot();
 	void load_format();
 	void edit_existing_format();

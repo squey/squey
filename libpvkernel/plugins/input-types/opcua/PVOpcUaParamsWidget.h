@@ -55,6 +55,7 @@ class PVOpcUaParamsWidget
 	PVOpcUaInfos get_infos() const override;
 	bool set_infos(PVOpcUaInfos const& infos) override;
 	void set_query(QString const& query) override;
+	void check_connection_slot() override;
 	bool check_connection(std::string* error = nullptr) override;
 	void export_query_result(PVCore::PVStreamingCompressor& compressor,
 	                         const std::string& sep,

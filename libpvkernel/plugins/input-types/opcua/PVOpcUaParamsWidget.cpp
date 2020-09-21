@@ -177,19 +177,34 @@ void PVRush::PVOpcUaParamsWidget::fetch_server_data_slot()
 	fetch_server_data(get_infos());
 }
 
+static bool connecting = false;
+
+void PVRush::PVOpcUaParamsWidget::check_connection_slot()
+{
+	std::string error;
+
+	if (not check_connection(&error)) {
+		QMessageBox::critical(this, tr("Failure"), tr("Connection error : %1").arg(error.c_str()),
+		                      QMessageBox::Ok);
+	}
+}
+
 bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullptr*/)
 {
 	const PVOpcUaInfos& infos = get_infos();
 
 	QOpcUaProvider provider;
 	if (provider.availableBackends().isEmpty()) {
-		qDebug() << "No OpcUa backend available!";
+		*error = "No OpcUa backend available!";
+		qDebug() << error->c_str();
 		return false;
 	}
 	QOpcUaClient* client = provider.createClient(provider.availableBackends()[0]);
 	if (!client) {
-		qDebug() << "OpcUa backend (" << provider.availableBackends()[0]
-		         << ") could not be loaded and could not create client.";
+		*error += "OpcUa backend (";
+		*error += provider.availableBackends()[0].toStdString();
+		*error += ") could not be loaded and could not create client.";
+		qDebug() << error->c_str();
 		return false;
 	}
 
@@ -264,20 +279,25 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 					}
 				});
 				tabWidget->setCurrentIndex(tab_index);
+				QMessageBox::information(this, tr("Success"), tr("Connection successful"), QMessageBox::Ok);
 		    }
 	    });
 
-	connect(client, &QOpcUaClient::connectError, [](QOpcUaErrorState* errorState) {
-		qDebug() << "Client Error State:" << QOpcUa::statusToString(errorState->errorCode());
+	connect(client, &QOpcUaClient::connectError, [this](QOpcUaErrorState* errorState) {
+		std::string error = "Error State:" + QOpcUa::statusToString(errorState->errorCode()).toStdString();
+		qDebug() << error.c_str();
 		if (errorState->isClientSideError() &&
 		    errorState->connectionStep() ==
 		        QOpcUaErrorState::ConnectionStep::CertificateValidation) {
 			errorState->setIgnoreError(true);
+		} else {
+			QMessageBox::critical(this, tr("Failure"), tr("Connection error : %1").arg(error.c_str()),
+			                      QMessageBox::Ok);
 		}
 	});
 
 	QObject::connect(client, &QOpcUaClient::endpointsRequestFinished,
-	                 [client](QVector<QOpcUaEndpointDescription> endpoints,
+	                 [client, this](QVector<QOpcUaEndpointDescription> endpoints,
 	                          QOpcUa::UaStatusCode statusCode, QUrl requestUrl) {
 		                 qDebug() << "Endpoints returned:" << endpoints.count() << statusCode
 		                          << requestUrl;
@@ -287,6 +307,11 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 			                                             // reverse DNS.
 			                 client->connectToEndpoint(
 			                     endpoints.first()); // Connect to the first endpoint in the list
+		                 } else {
+			                 std::string error = "Endpoints Request Status:" + QOpcUa::statusToString(statusCode).toStdString();
+			                 qDebug() << error.c_str();
+			                 QMessageBox::critical(this, tr("Failure"), tr("Connection error : %1").arg(error.c_str()),
+			                                       QMessageBox::Ok);
 		                 }
 	                 });
 
@@ -294,7 +319,8 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 		qDebug() << "OpcUa client requesting endpoints...";
 		return true;
 	} else {
-		qDebug() << "OpcUa client could not request endpoints.";
+		*error += "OpcUa client could not request endpoints.";
+		qDebug() << error->c_str();
 	}
 
 	return false;
