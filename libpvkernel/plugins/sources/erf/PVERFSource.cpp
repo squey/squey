@@ -396,7 +396,6 @@ ERF_INT PVRush::PVERFSource::add_entityresults(ERF_INT state_id,
 
 void PVRush::PVERFSource::add_inputs_dict(PVCore::PVBinaryChunk* chunk)
 {
-	// TODO : remove common path part
 	if (_files_path.size() > 1) {
 
 		std::vector<std::string> files_paths;
