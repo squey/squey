@@ -74,6 +74,8 @@ std::string join(It it_begin, It it_end, const std::string& separator)
 	return ret;
 }
 
+void remove_common_folders(std::vector<std::string>& paths);
+
 inline size_t available_memory()
 {
 	struct sysinfo info;

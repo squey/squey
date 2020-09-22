@@ -123,7 +123,7 @@ class PVNraw
 	 *
 	 * @note: Input data is in binary using "pvcop::db::sink::column_chunk_t"
 	 */
-	bool add_bin_chunk(PVCore::PVBinaryChunk const& chunk);
+	bool add_bin_chunk(PVCore::PVBinaryChunk& chunk);
 
 	/**
 	 * Close the collector and start the collection as import is done.
