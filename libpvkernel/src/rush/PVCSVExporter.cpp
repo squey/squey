@@ -66,7 +66,7 @@ void PVRush::PVCSVExporter::export_rows(const std::string& file_path,
 		compressor.write(_header);
 	}
 
-	size_t total_row_count = sel.bit_count();
+	size_t total_row_count = sel.count();
 	size_t exported_row_count = 0;
 	while (exported_row_count < total_row_count) {
 
