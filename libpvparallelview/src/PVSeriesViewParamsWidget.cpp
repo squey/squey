@@ -5,6 +5,7 @@
 #include <pvparallelview/PVDisplayViewTimeseries.h>
 
 #include <pvparallelview/common.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <inendi/PVRangeSubSampler.h>
 #include <inendi/widgets/PVAxisComboBox.h>
@@ -273,7 +274,9 @@ void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode(QAction* action
 
 	if (_series_view_widget->_sampler) {
 		set_sampling_mode(_sampling_mode);
-		_series_view_widget->_sampler->resubsample();
+		PVCore::PVProgressBox::progress(
+		    [this](PVCore::PVProgressBox& pbox) { _series_view_widget->_sampler->resubsample(); },
+		    QObject::tr("Sampling..."), this);
 	}
 
 	update_mode_selector(_sampling_mode_button, mode_index);

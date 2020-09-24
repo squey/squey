@@ -2,6 +2,7 @@
 
 #include <pvparallelview/PVSeriesView.h>
 #include <inendi/PVRangeSubSampler.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <QMouseEvent>
 #include <QToolTip>
@@ -531,7 +532,13 @@ void PVSeriesViewZoomer::hide_fragments(T const& fragments) const
 
 void PVSeriesViewZoomer::update_zoom(Zoom zoom)
 {
-	_rss.subsample(zoom.minX, zoom.maxX, zoom.minY, zoom.maxY);
+	// TODO can create infinite loop when move_zoom_by
+	// PVCore::PVProgressBox::progress(
+	//     [this, &zoom](PVCore::PVProgressBox& pbox) {
+	// 		pbox.set_enable_cancel(false);
+		    _rss.subsample(zoom.minX, zoom.maxX, zoom.minY, zoom.maxY);
+	//     },
+	//     QObject::tr("Sampling..."), this);
 }
 
 void PVSeriesViewZoomer::update_chronotips(QPoint point)

@@ -13,6 +13,7 @@
 #include <pvkernel/widgets/PVRangeEdit.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/core/qobject_helpers.h>
+#include <pvkernel/core/PVProgressBox.h>
 #include <inendi/PVSource.h>
 #include <pvdisplays/PVDisplayIf.h>
 
@@ -22,6 +23,7 @@
 #include <QScrollBar>
 #include <QSplitter>
 #include <QMenu>
+#include <QMessageBox>
 
 #include <KF5/KItemModels/klinkitemselectionmodel.h>
 
@@ -61,13 +63,23 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 		    if (_sampler) {
 			    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
 			                                                  plotteds_updated.end());
-			    _sampler->resubsample(updated_timeseries);
+			    PVCore::PVProgressBox::progress(
+			        [this, &updated_timeseries](PVCore::PVProgressBox& pbox) {
+				        pbox.set_enable_cancel(false);
+				        _sampler->resubsample(updated_timeseries);
+			        },
+			        QObject::tr("Sampling..."), this);
 		    }
 	    });
 	// Subscribe to selection changes
 	_selection_change_connection = _view->_update_output_selection.connect([this]() {
 		if (_sampler) {
-			_sampler->resubsample();
+			PVCore::PVProgressBox::progress(
+			    [this](PVCore::PVProgressBox& pbox) {
+				    pbox.set_enable_cancel(false);
+				    _sampler->resubsample();
+			    },
+			    QObject::tr("Sampling..."), this);
 		}
 	});
 }
@@ -224,10 +236,37 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 		return;
 	}
 
+	if (split >= _view->get_axes_combination().get_nraw_axes_count()) {
+		split = PVCol();
+	}
+
+	if (split != PVCol())
+	{
+		const pvcop::db::array& col_in = _view->get_rushnraw_parent().column(split);
+		pvcop::db::array col1_out;
+		pvcop::db::array col2_out;
+
+		pvcop::db::algo::distinct(col_in, col1_out, col2_out, _view->get_selection_visible_listing());
+
+		if (col1_out.size() > 100) {
+			if (QMessageBox::question(this, QString("Potentially slow operation"),
+			                          QString("Selected axis has %L1 distinct values, do you really want to split ?").arg(col1_out.size()))
+			    != QMessageBox::Yes) {
+				return;
+			}
+		}
+	}
+
 	_split_axis = split;
 
-	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
-	_sampler->set_split_column(split == PVCol() ? nullptr : &nraw.column(split));
+	PVCore::PVProgressBox::progress(
+	    [this, split](PVCore::PVProgressBox& pbox) {
+			pbox.set_enable_cancel(false);
+		    PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
+		    _sampler->set_split_column(split == PVCol() ? nullptr : &nraw.column(split));
+	    },
+	    QObject::tr("Splitting..."), this);
+
 	_zoomer->disable_selecting_mode(split != PVCol());
 
 	// Update range widget
@@ -244,20 +283,7 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 void PVParallelView::PVSeriesViewWidget::select_all_series(bool use_axes_combination /* = true */)
 {
 	QAbstractItemModel& model = *_series_tree_widget->model();
-	QItemSelection top_selection;
-
-	const std::vector<PVCol>& axes = _view->get_axes_combination().get_combination();
-	for (PVCol i(0); i < model.rowCount(); i++) {
-		const QModelIndex& axis = model.index(i, 0);
-		PVCol c = axis.data(Qt::UserRole).value<PVCol>();
-		if (not use_axes_combination or std::find(axes.begin(), axes.end(), c) != axes.end()) {
-			top_selection.merge(QItemSelection(axis, axis), QItemSelectionModel::Select);
-			for (PVCol i(0); i < model.rowCount(axis); i++) {
-				const QModelIndex& index = model.index(i, 0, axis);
-				top_selection.merge(QItemSelection(index, index), QItemSelectionModel::Select);
-			}
-		}
-	}
+	QItemSelection top_selection{model.index(0, 0), model.index(model.rowCount() - 1, 0)};
 
 	_series_tree_widget->selectionModel()->select(top_selection, QItemSelectionModel::Select);
 }
@@ -280,21 +306,23 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 
 	// connect hunting rectangle
 	connect(_zoomer, &PVSeriesViewZoomer::hunt_commit, [this](QRect region, bool addition) {
-		const QModelIndexList& selected_indexes = _series_tree_widget->selectedIndexes();
-		QItemSelection deselect_list;
+		const QModelIndexList& selected_indexes = _selection_model->selectedIndexes();
+		QItemSelection in_region_list;
 		for (const QModelIndex& index : selected_indexes) {
 			const PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
-			if (is_splitted() and not index.parent().isValid()) {
-				continue; // Prevent unselecting whole axes in splitted mode
-			}
-			if (is_in_region(region, index_id) == not addition) {
-				deselect_list.merge(QItemSelection(index, index), QItemSelectionModel::Select);
+			auto parent_index = index.parent();
+			if ((parent_index.isValid() or not is_splitted()) and
+			    is_in_region(region, index_id)) {
+				in_region_list.select(index, index);
+				if (is_splitted() and addition) {
+					in_region_list.select(parent_index, parent_index);
+				}
 			}
 		}
 		// Deselect those not in region unless there would be none left
-		if (deselect_list.size() < selected_indexes.size()) {
-			_series_tree_widget->selectionModel()->select(deselect_list,
-			                                              QItemSelectionModel::Deselect);
+		if (not in_region_list.empty()) {
+			_selection_model->select(in_region_list, addition ? QItemSelectionModel::ClearAndSelect
+			                                                  : QItemSelectionModel::Deselect);
 		}
 	});
 
@@ -356,33 +384,36 @@ void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*absc
 	disconnect(_zoomer, &PVSeriesViewZoomer::cursor_moved, 0, 0);
 
 	connect(_zoomer, &PVSeriesViewZoomer::cursor_moved, [this, filter_proxy_model](QRect region) {
-		QItemSelection selection;
-		filter_proxy_model->clear_selection();
+		if (_zoomer->current_selector_mode() != PVSeriesViewZoomer::SelectorMode::Hunting) {
+			return;
+		}
 		QSet<int> selected_ids;
 		for (const QModelIndex& index : _selection_model->selectedIndexes()) {
 			const PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
 			if ((index.parent().isValid() or not is_splitted()) and
 			    is_in_region(region, index_id)) {
 				selected_ids.insert(index_id);
-				QModelIndex source_index = filter_proxy_model->mapFromSource(index);
-				selection.merge(QItemSelection(source_index, source_index),
-				                QItemSelectionModel::Select);
 				if (is_splitted()) {
 					const PVCol parent_id = index.parent().data(Qt::UserRole).value<PVCol>();
 					selected_ids.insert(parent_id);
-					QModelIndex source_parent_index =
-					    filter_proxy_model->mapFromSource(index.parent());
-					selection.merge(QItemSelection(source_parent_index, source_parent_index),
-					                QItemSelectionModel::Select);
 				}
 			}
 		}
-		auto count = selected_ids.count();
-		if (count) {
-			filter_proxy_model->set_selection(selected_ids);
-			_selected_series_tree->selectionModel()->select(selection, QItemSelectionModel::Select);
-			_selected_series_tree->expandAll();
+		filter_proxy_model->set_selection(selected_ids);
+		QItemSelection selection; // Select all
+		{
+			auto sstm = _selected_series_tree->model();
+			selection.select(sstm->index(0, 0), sstm->index(sstm->rowCount() - 1, 0));
+			for (int i = 0; i < sstm->rowCount(); ++i) {
+				auto p_index = sstm->index(i, 0);
+				selection.select(sstm->index(0, 0, p_index),
+								sstm->index(sstm->rowCount(p_index) - 1, 0, p_index));
+			}
 		}
+		_selected_series_tree->selectionModel()->select(selection, QItemSelectionModel::Select);
+		_selected_series_tree->expandAll();
+
+		auto count = selected_ids.count();
 		auto scrollbar = _selected_series_tree->horizontalScrollBar();
 		_selected_series_tree->setMaximumHeight(
 		    count > 0 ? count * _selected_series_tree->sizeHintForRow(0) +
@@ -407,7 +438,12 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 	}
 	_sampler->set_selected_timeseries(selected_timeseries);
 	if (_update_selected_series_resample) {
-		_sampler->resubsample();
+		PVCore::PVProgressBox::progress(
+		    [this](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(false);
+			    _sampler->resubsample();
+		    },
+		    QObject::tr("Sampling..."), this);
 	}
 	_plot->show_series(std::move(series_draw_order));
 	_plot->update();
