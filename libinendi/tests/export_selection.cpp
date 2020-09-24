@@ -9,23 +9,24 @@
 
 int main(int argc, char** argv)
 {
-	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " file format [ref_file]" << std::endl;
+	if (argc <= 3) {
+		std::cerr << "Usage: " << argv[0] << " file format test_selection [ref_file]" << std::endl;
 		return 1;
 	}
 
 	static const std::string input_file = argv[1];
 	static const std::string format = argv[2];
-	static const std::string ref_file = (argc >= 4) ? argv[3] : input_file;
+	static const bool test_selection = std::string(argv[3]) == "1";
+	static const std::string ref_file = (argc >= 5) ? argv[4] : input_file;
 
-	std::string output_file = import_export(input_file, format);
+	std::string output_file = import_export(input_file, format, test_selection);
 
 #ifndef INSPECTOR_BENCH
 	std::string file_extension = input_file.substr(input_file.rfind('.') + 1);
 	std::string cmd = PVCore::PVStreamingDecompressor::executable(file_extension);
 	std::string uncompressed_file = output_file;
 	if (not cmd.empty()) {
-		std::string output_file2 = import_export(output_file, format);
+		std::string output_file2 = import_export(output_file, format, test_selection);
 		uncompressed_file = output_file2.substr(0, output_file2.find_last_of("."));
 		if (cmd == "funzip") {
 			cmd = "unzip -o -qq";

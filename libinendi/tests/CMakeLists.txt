@@ -27,17 +27,20 @@ add_inspector_test(Tinendi_format Tinendi_format)
 add_inspector_compile_test(Tqt_new_layer_dialog LINKS ${LINK_LIBRARIES} FILES new_layer_dialog.cpp)
 
 add_inspector_compile_test(Tinendi_export_selection LINKS ${LINK_LIBRARIES} FILES export_selection.cpp)
-add_inspector_test(Tinendi_export_selection Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format ${TESTS_FILES_DIR}/sources/proxy.log)
+add_inspector_test(Tinendi_export_selection Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format 0 ${TESTS_FILES_DIR}/sources/proxy.log)
 if(MINESET_TESTS)
 	add_inspector_compile_test(Tinendi_export_selection_to_mineset LINKS ${LINK_LIBRARIES} FILES export_selection_to_mineset.cpp)
-	add_inspector_test(Tinendi_export_selection_to_mineset Tinendi_export_selection_to_mineset ${TESTS_FILES_DIR}/sources/proxy_mineset.log ${TESTS_FILES_DIR}/formats/proxy.log.format)
+	add_inspector_test(Tinendi_export_selection_to_mineset Tinendi_export_selection_to_mineset ${TESTS_FILES_DIR}/sources/proxy_mineset.log ${TESTS_FILES_DIR}/formats/proxy.log.format 0)
 endif(MINESET_TESTS)
 
-add_inspector_test(Tinendi_export_small_selection_gz Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)
-add_inspector_test(Tinendi_export_small_selection_bz2 Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.bz2 ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)
-add_inspector_test(Tinendi_export_small_selection_zip Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.zip ${TESTS_FILES_DIR}/formats/proxy_small.log.format ${TESTS_FILES_DIR}/sources/proxy_small.log)
+add_inspector_test(Tinendi_export_small_selection_gz Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
+add_inspector_test(Tinendi_export_small_selection_bz2 Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.bz2 ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
+add_inspector_test(Tinendi_export_small_selection_zip Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.zip ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
 
-add_inspector_test(Tinendi_formatter_number Tinendi_export_selection ${TESTS_FILES_DIR}/picviz/formatter_number.csv ${TESTS_FILES_DIR}/picviz/formatter_number.csv.format)
+# Test selection
+add_inspector_test(Tinendi_export_odd_selection Tinendi_export_selection ${TESTS_FILES_DIR}/sources/proxy.log ${TESTS_FILES_DIR}/formats/proxy.log.format 1 ${TESTS_FILES_DIR}/sources/proxy_odd.log)
+
+add_inspector_test(Tinendi_formatter_number Tinendi_export_selection ${TESTS_FILES_DIR}/picviz/formatter_number.csv ${TESTS_FILES_DIR}/picviz/formatter_number.csv.format 0)
 
 add_inspector_compile_test(Tmapping_float_default LINKS ${LINK_LIBRARIES} FILES mapping_copy.cpp)
 add_inspector_test(Tmapping_float_default Tmapping_float_default ${TESTS_FILES_DIR}/picviz/float_default_mapping.csv ${TESTS_FILES_DIR}/picviz/float_default_mapping.csv.format)
