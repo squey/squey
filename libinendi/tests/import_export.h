@@ -37,7 +37,7 @@
 static constexpr const PVRow STEP_COUNT = 1000;
 
 std::string
-import_export(const std::string& input_file, const std::string& format, bool cancel = false)
+import_export(const std::string& input_file, const std::string& format, bool test_selection, bool cancel = false)
 {
 	std::string file_extension = input_file.substr(input_file.rfind('.') + 1);
 
@@ -54,7 +54,12 @@ import_export(const std::string& input_file, const std::string& format, bool can
 
 	// Export selection to temporary file
 	Inendi::PVSelection sel(view->get_row_count());
-	sel.select_all();
+	if (test_selection) {
+		sel.select_odd();
+	}
+	else {
+		sel.select_all();
+	}
 
 	char temp_pattern[] = "/tmp/fileXXXXXX";
 	close(mkstemp(temp_pattern));
