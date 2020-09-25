@@ -1,3 +1,12 @@
+4.8.5 (2020-09-25)
+------------------
+
+This minor release fixes or improves:
+* fixed a regression introduced in 4.8.3 where exported CSV were truncated
+* OPC-UA connector can export nodes in CSV + improved error messages
+* SQL connector can preview tables + improved error messages
+* ERF connector properly handles connectivities + improved error messages
+
 4.8.4 (2020-09-08)
 ------------------
 
