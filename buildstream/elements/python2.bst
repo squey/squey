@@ -54,9 +54,9 @@ sources:
   
 depends:
 - freedesktop-sdk.bst:bootstrap/openssl.bst
+- freedesktop-sdk.bst:bootstrap/xz.bst
 - freedesktop-sdk.bst:components/expat.bst
 - freedesktop-sdk.bst:components/gdbm.bst
 - freedesktop-sdk.bst:components/libffi.bst
 - freedesktop-sdk.bst:components/python3.bst
 - freedesktop-sdk.bst:components/sqlite.bst
-- freedesktop-sdk.bst:components/xz.bst
