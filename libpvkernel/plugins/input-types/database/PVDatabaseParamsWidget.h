@@ -56,11 +56,12 @@ class PVDatabaseParamsWidget : public QDialog, private Ui::DbParams
 	void preset_text_changed_Slot(const QString& text);
 	void sql_type_changed_Slot(int idx);
 	void query_preview_Slot();
-	void update_fields_Slot();
+	bool update_fields_Slot();
 	void edit_existing_format_Slot();
 	void edit_new_format_Slot();
 	void use_existing_format_toggle_Slot(bool toggle);
 	void browse_sqlite_Slot();
+	void update_tables_list();
 
   protected:
 	bool set_dbinfos(PVDBInfos const& infos);
@@ -73,6 +74,7 @@ class PVDatabaseParamsWidget : public QDialog, private Ui::DbParams
 	void show_sqlite();
 	void show_odbc();
 	static void show_layout_children(const QLayout* layout, bool show);
+	bool get_format_from_settings(PVRush::PVFormat& format);
 
   protected:
 	PVWidgets::PVPresetsWidget* _presets_widget;

@@ -18,6 +18,7 @@
 
 #include <pvcop/collector.h>
 #include <pvcop/sink.h>
+#include <pvcop/db/write_dict.h>
 
 #include <pvcop/db/exceptions/invalid_collection.h>
 
@@ -131,10 +132,15 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVTextChunk const& chunk)
 	return true;
 }
 
-bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk const& chunk)
+bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk& chunk)
 {
 	pvcop::db::sink snk(*_collector);
 	snk.write_chunk_by_column(chunk.start_index(), chunk.rows_count(), chunk.columns_chunk());
+
+	// Set string column dicts if any
+	for (std::pair<PVCol, std::unique_ptr<pvcop::db::write_dict>>& col_dict : chunk.take_column_dicts()) {
+		snk.set_column_dict(col_dict.first, std::move(col_dict.second));
+	}
 
 	// for (size_t col = 0; col < chunk.columns_chunk().size(); ++col) {
 	// 	if (chunk.is_invalid(PVCol(col))) {

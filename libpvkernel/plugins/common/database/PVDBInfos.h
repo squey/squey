@@ -83,8 +83,6 @@ class PVDBServ : public PVDBInfos
   public:
 	bool connect();
 	QString last_error() const;
-
-  protected:
 	QSqlDatabase to_database();
 
   private:

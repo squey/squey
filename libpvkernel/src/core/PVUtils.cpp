@@ -11,6 +11,10 @@
 #include <fstream>
 #include <memory>
 
+#include <boost/algorithm/string.hpp>
+
+#include <pvlogger.h>
+
 std::string& PVCore::replace(std::string& str,
                              const std::string& from,
                              const std::string& to,
@@ -54,3 +58,35 @@ std::string PVCore::exec_cmd(const char* cmd)
 	}
 	return result;
 }
+
+void PVCore::remove_common_folders(std::vector<std::string>& paths)
+ {
+	std::vector<std::vector<std::string>> paths_folders;
+	for (std::string& path : paths) {
+		paths_folders.emplace_back(std::vector<std::string>());
+		boost::split(paths_folders.back(), path, boost::is_any_of("/"));
+	}
+
+	size_t common_folders_depth = 0;
+	bool stop = false;
+	do {
+		std::string current_folder;
+		for (const std::vector<std::string>& path_folders : paths_folders) {
+			if (current_folder.empty()) {
+				current_folder = path_folders[common_folders_depth];
+			}
+			stop |= common_folders_depth >= path_folders.size()-1 or path_folders[common_folders_depth] != current_folder;
+		}
+		common_folders_depth += not stop;
+	} while (not stop);
+	common_folders_depth--;
+
+	if (common_folders_depth > 0) {
+		for (std::vector<std::string>& path_folders : paths_folders) {
+			path_folders.erase(path_folders.begin(), path_folders.size() > common_folders_depth+1 ? path_folders.begin() + common_folders_depth+1 : path_folders.end());
+		}
+		for (size_t i = 0; i < paths.size(); i++) {
+			paths[i] = boost::join(paths_folders[i], "/");
+		}
+	}
+ }

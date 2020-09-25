@@ -32,14 +32,6 @@ class PVBinaryChunk : public PVChunk
 		_invalid_columns.resize(columns_count, false);
 	}
 
-	template <typename T>
-	void set_column_chunk(PVCol col, std::vector<T>& vec_data)
-	{
-		_columns_chunk[col] = pvcop::db::sink::column_chunk_t(
-		    vec_data.data(), vec_data.size(), sizeof(T),
-		    std::string("number_") + pvcop::types::type_string<T>());
-	}
-
 	void set_raw_column_chunk(PVCol col,
 	                          const void* beg,
 	                          size_t rows_count,
@@ -48,6 +40,16 @@ class PVBinaryChunk : public PVChunk
 	{
 		_columns_chunk[col] =
 		    pvcop::db::sink::column_chunk_t(beg, rows_count, row_bytes_count, type);
+	}
+
+	void set_column_dict(PVCol col, std::unique_ptr<pvcop::db::write_dict> dict)
+	{
+		_dicts.emplace_back(std::make_pair(col, std::move(dict)));
+	}
+
+	std::vector<std::pair<PVCol, std::unique_ptr<pvcop::db::write_dict>>> take_column_dicts()
+	{
+		return std::move(_dicts);
 	}
 
 	void set_invalid(PVCol col, size_t row) { _invalids.insert({col, row}); }
@@ -68,6 +70,7 @@ class PVBinaryChunk : public PVChunk
 	size_t _rows_count;
 	PVRow _start_index;
 	pvcop::db::sink::columns_chunk_t _columns_chunk;
+	std::vector<std::pair<PVCol, std::unique_ptr<pvcop::db::write_dict>>> _dicts;
 	std::multimap<PVCol, size_t> _invalids;
 	std::vector<bool> _invalid_columns;
 };
