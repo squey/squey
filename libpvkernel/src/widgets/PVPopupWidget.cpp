@@ -10,11 +10,11 @@
 #include <QApplication>
 #include <QDesktopWidget>
 #include <QMouseEvent>
+#include <QScreen>
 
 static QRect fitToScreen(const QRect& rect)
 {
-	const QDesktopWidget* dw = QApplication::desktop();
-	QRect screen_geom = dw->availableGeometry(dw->screenNumber(rect.center()));
+	QRect screen_geom = QGuiApplication::screenAt(rect.center())->geometry();
 
 	QRect new_geom = rect;
 

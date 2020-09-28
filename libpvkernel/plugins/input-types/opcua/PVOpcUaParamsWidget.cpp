@@ -29,6 +29,7 @@
 #include <QOpcUaPkiConfiguration>
 #include <QOpcUaAuthenticationInformation>
 #include <QOpcUaErrorState>
+#include <QScreen>
 
 // #include <QSslSocket>
 // #include <openssl/ssl.h>
@@ -56,7 +57,7 @@ PVRush::PVOpcUaParamsWidget::PVOpcUaParamsWidget(PVInputTypeOpcUa const* in_t,
 	
 	tabWidget->setCurrentIndex(0);
 
-	resize(QApplication::desktop()->availableGeometry().height() - 50, QApplication::desktop()->availableGeometry().width() / 2);
+	resize(QGuiApplication::screens()[0]->geometry().height() - 50, QGuiApplication::screens()[0]->geometry().width() / 2);
 }
 
 void PVRush::PVOpcUaParamsWidget::reset_columns_tree_widget()

@@ -16,6 +16,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QDesktopWidget>
+#include <QScreen>
 
 static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
 static constexpr const char MATCH_ALL_QUERY[] = R"###({ "query" : { "match_all" : { } } })###";
@@ -81,7 +82,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	    "</body>"
 	    "</html>");
 
-	setFixedHeight(QApplication::desktop()->availableGeometry().height() - 50);
+	setFixedHeight(QGuiApplication::screens()[0]->geometry().height() - 50);
 }
 
 QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const

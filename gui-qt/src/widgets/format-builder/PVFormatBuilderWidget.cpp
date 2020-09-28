@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QDesktopServices>
 #include <QDesktopWidget>
+#include <QScreen>
 
 #include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
@@ -215,7 +216,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	// setWindowFlags(Qt::Window);
 	// geom.moveCenter(parent->geometry().center());
 	// setGeometry(geom);
-	QRect dr = QDesktopWidget().screenGeometry();
+	QRect dr = QGuiApplication::screens()[0]->geometry();
 	resize(dr.width() * 0.75, dr.height() * 0.75);
 }
 /******************************************************************************
