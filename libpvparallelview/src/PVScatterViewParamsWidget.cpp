@@ -23,7 +23,7 @@ PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterVi
 {
 	_sel_mode_signal_mapper = new QSignalMapper(this);
 	QObject::connect(_sel_mode_signal_mapper,
-	                 static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this,
+	                 &QSignalMapper::mappedInt, this,
 	                 &PVScatterViewParamsWidget::set_selection_mode);
 
 	_sel_mode_button =
