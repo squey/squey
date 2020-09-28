@@ -321,7 +321,7 @@ void PVGuiQt::PVListingView::wheelEvent(QWheelEvent* e)
 {
 	if (e->modifiers() == Qt::ControlModifier) {
 		PVCombCol colIndex(columnAt(e->pos().x()));
-		int d = e->delta() / 12;
+		int d = e->angleDelta().y() / 12;
 		uint32_t width =
 		    std::max(columnWidth(colIndex) + d, horizontalHeader()->minimumSectionSize());
 		horizontalHeader()->resizeSection(colIndex, width);

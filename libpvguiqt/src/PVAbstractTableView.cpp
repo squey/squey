@@ -375,7 +375,7 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
 	// to convert it to "wheel step"
 	// http://doc.qt.io/qt-5/qwheelevent.html
 	// Scroll 3 line by wheel step on listing
-	move_by(-e->delta() / 8 / 15 * 3);
+	move_by(-e->angleDelta().y() / 8 / 15 * 3);
 	e->accept(); // I am the one who handle event
 }
 
