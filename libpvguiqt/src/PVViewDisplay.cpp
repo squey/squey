@@ -53,7 +53,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 		// Set view color
 		QColor view_color = view->get_color();
 		QPalette Pal(palette());
-		Pal.setColor(QPalette::Background, view_color);
+		Pal.setColor(QPalette::Window, view_color);
 		setAutoFillBackground(true);
 		setPalette(Pal);
 	}
