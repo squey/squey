@@ -262,7 +262,7 @@ void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)
 {
 	ask_for_copying_count();
 
-	QFileDialog::Options options = 0;
+	QFileDialog::Options options;
 	if (append) {
 		options = QFileDialog::DontConfirmOverwrite;
 	}

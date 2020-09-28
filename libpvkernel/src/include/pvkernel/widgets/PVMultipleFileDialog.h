@@ -22,8 +22,8 @@ namespace PVWidgets
 class PVMultipleFileDialog : public PVFileDialog
 {
   public:
-	PVMultipleFileDialog(QWidget* parent = nullptr, Qt::WindowFlags flags = 0)
-	    : PVFileDialog(parent, flags)
+	PVMultipleFileDialog(QWidget* parent = nullptr)
+	    : PVFileDialog(parent)
 	{
 	}
 

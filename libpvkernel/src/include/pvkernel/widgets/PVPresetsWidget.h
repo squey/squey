@@ -38,8 +38,7 @@ class PVPresetsWidget : public QWidget
 
   public:
 	explicit PVPresetsWidget(const QString& title,
-	                         QWidget* parent = nullptr,
-	                         Qt::WindowFlags f = nullptr);
+	                         QWidget* parent = nullptr);
 
   public Q_SLOTS:
 	void load_Slot();
@@ -115,7 +114,7 @@ class PVSavePresetAsDialog : public QDialog
 	friend class PVPresetsWidget;
 
   public:
-	explicit PVSavePresetAsDialog(PVPresetsWidget* parent = nullptr, Qt::WindowFlags f = nullptr);
+	explicit PVSavePresetAsDialog(PVPresetsWidget* parent = nullptr);
 
   public Q_SLOTS:
 	void save_Slot();
