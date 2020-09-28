@@ -82,7 +82,7 @@ class PVLicenseDialog : public QDialog
 		license_token_layout->addWidget(token_text);
 		connect(license_type_combobox,
 		        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
-		        [=](const QString& text) {
+		        [=,this](const QString& text) {
 			        assert(text == "Trial" or text == "Paid");
 			        if (text == "Trial") { // Prompt validated email
 				        token_label->setText("Validated email:");
@@ -115,7 +115,7 @@ class PVLicenseDialog : public QDialog
 		QHBoxLayout* offline_layout = new QHBoxLayout();
 		QRadioButton* offline_radiobutton = new QRadioButton();
 		offline_radiobutton->setChecked(true);
-		connect(offline_radiobutton, &QRadioButton::clicked, [=]() {
+		connect(offline_radiobutton, &QRadioButton::clicked, [=,this]() {
 			buttons->button(QDialogButtonBox::Ok)->setEnabled(not _user_license_path.isEmpty());
 		});
 		QGroupBox* offline_groupbox = new QGroupBox("Offline activation");
@@ -163,7 +163,7 @@ class PVLicenseDialog : public QDialog
 		QPushButton* browse_license_file_button = new QPushButton("...");
 		browse_license_file_button->adjustSize();
 		browse_license_file_button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-		connect(browse_license_file_button, &QPushButton::clicked, [=]() {
+		connect(browse_license_file_button, &QPushButton::clicked, [=,this]() {
 			_user_license_path = PVWidgets::PVFileDialog::getOpenFileName(
 			    this, "Browse your license file", "", QString("License file (*.lic)"));
 			offline_radiobutton->setChecked(not _user_license_path.isEmpty());
@@ -224,7 +224,7 @@ class PVLicenseDialog : public QDialog
 
 		setLayout(layout);
 
-		connect(buttons, &QDialogButtonBox::accepted, this, [=]() {
+		connect(buttons, &QDialogButtonBox::accepted, this, [=,this]() {
 			PVCore::PVLicenseActivator::EError err_code;
 			if (offline_radiobutton->isChecked()) {
 				if (QFileInfo(_user_license_path).exists()) {

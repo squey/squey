@@ -224,7 +224,7 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	connect(_down_button, &QPushButton::clicked, this,
 	        &PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_down);
 	connect(_replace_line_edit, &QLineEdit::textChanged,
-	        [=]() { add_button->setEnabled(not _replace_line_edit->text().isEmpty()); });
+	        [=,this]() { add_button->setEnabled(not _replace_line_edit->text().isEmpty()); });
 	connect(_invert_button, &QPushButton::toggled, this,
 	        &PVFieldConverterSubstitutionParamWidget::invert_layouts);
 	connect(_substrings_table_widget, &QTableWidget::itemSelectionChanged, this,

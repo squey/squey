@@ -75,7 +75,7 @@ void TreeWidget::on_select_button_clicked()
 		worker->moveToThread(loading_thread);
 
 		connect(loading_thread, &QThread::started, worker, &ExtractProtocolsWorker::load);
-		connect(worker, &ExtractProtocolsWorker::finished, [=]() {
+		connect(worker, &ExtractProtocolsWorker::finished, [=,this]() {
 			loading_progress_dialog->close();
 			loading_progress_dialog->deleteLater();
 

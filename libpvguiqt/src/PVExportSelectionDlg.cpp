@@ -72,7 +72,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	}
 	_groupbox->setLayout(stacked_layout);
 
-	auto filter_selected_f = [=](const QString& filter) {
+	auto filter_selected_f = [=,this](const QString& filter) {
 		_filter_selected_f(filter);
 
 		_is_source_exporter = not filter.contains("*.csv");

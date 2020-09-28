@@ -466,7 +466,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
 			count_by_actions << action_col_count_by;
-			connect(action_col_count_by, &QAction::triggered, action_col_count_by, [=]() {
+			connect(action_col_count_by, &QAction::triggered, action_col_count_by, [=,this]() {
 				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
 				PVQNraw::show_count_by(lib_view(), col, col2,
 				                       lib_view().get_selection_visible_listing(), this);
@@ -475,7 +475,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
 				min_by_actions << action_col_min_by;
-				connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=]() {
+				connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
 					PVQNraw::show_min_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
@@ -485,7 +485,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
 				max_by_actions << action_col_max_by;
-				connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=]() {
+				connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
 					PVQNraw::show_max_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
@@ -495,7 +495,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			if (summable_types.contains(axis_type)) {
 				QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
 				sum_by_actions << action_col_sum_by;
-				connect(action_col_sum_by, &QAction::triggered, action_col_sum_by, [=]() {
+				connect(action_col_sum_by, &QAction::triggered, action_col_sum_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
 					PVQNraw::show_sum_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
@@ -503,7 +503,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 
 				QAction* action_col_avg_by = new QAction(axes[i], _menu_col_avg_by);
 				avg_by_actions << action_col_avg_by;
-				connect(action_col_avg_by, &QAction::triggered, action_col_avg_by, [=]() {
+				connect(action_col_avg_by, &QAction::triggered, action_col_avg_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
 					PVQNraw::show_avg_by(lib_view(), col, col2,
 					                     lib_view().get_selection_visible_listing(), this);
@@ -623,7 +623,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 
 					action->setChecked(existing_correlation);
 
-					connect(action, &QAction::triggered, [=, &root]() {
+					connect(action, &QAction::triggered, [=, this, &root]() {
 						if (not existing_correlation) {
 							root.correlations().add(correlation);
 						} else {

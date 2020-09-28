@@ -5,7 +5,7 @@ PVRush::PVERFTreeView::PVERFTreeView(PVRush::PVERFTreeModel* model, QWidget* par
 {
 	setModel(_model);
 
-	connect(_model, &PVRush::PVERFTreeModel::indexStateChanged, [=](QModelIndex index) {
+	connect(_model, &PVRush::PVERFTreeModel::indexStateChanged, [=,this](QModelIndex index) {
 		Qt::CheckState state =
 		    static_cast<Qt::CheckState>(_model->data(index, Qt::CheckStateRole).toUInt());
 		if (not _changing_check_state) {
@@ -21,7 +21,7 @@ PVRush::PVERFTreeView::PVERFTreeView(PVRush::PVERFTreeModel* model, QWidget* par
 	});
 
 	connect(selectionModel(), &QItemSelectionModel::selectionChanged,
-	        [=](const QItemSelection& sel, const QItemSelection& desel) {
+	        [=,this](const QItemSelection& sel, const QItemSelection& desel) {
 		        if (not _changing_selection) {
 			        auto change_states = [&](const QModelIndexList indexes, Qt::CheckState state) {
 				        if (indexes.isEmpty()) {
