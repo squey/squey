@@ -76,7 +76,7 @@ class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsear
 	void edit_custom_format() override;
 
   private:
-	void index_changed_slot(const QString& index);
+	void index_changed_slot(int index);
 	void index_changed_by_user_slot();
 	void fetch_server_data_slot();
 	void update_custom_format();

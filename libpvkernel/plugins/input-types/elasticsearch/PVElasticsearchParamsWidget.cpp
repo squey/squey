@@ -46,7 +46,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	_columns_tree_widget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	connect(_combo_index,
-	        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this,
+	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 	        &PVElasticsearchParamsWidget::index_changed_slot);
 	connect(_combo_index, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this,
 	        &PVElasticsearchParamsWidget::index_changed_by_user_slot);
@@ -90,9 +90,10 @@ QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const
 	return QString("SELECT * FROM %1 WHERE ").arg(get_infos().get_index());
 }
 
-void PVRush::PVElasticsearchParamsWidget::index_changed_slot(const QString& index)
+void PVRush::PVElasticsearchParamsWidget::index_changed_slot(int index)
 {
-	buttonBox->buttons()[0]->setEnabled(index != "");
+	QString index_text = _combo_index->itemText(index);
+	buttonBox->buttons()[0]->setEnabled(index_text != "");
 
 	QString query_type = _query_type_cb->currentText();
 

@@ -81,8 +81,9 @@ class PVLicenseDialog : public QDialog
 		license_token_layout->addWidget(token_label);
 		license_token_layout->addWidget(token_text);
 		connect(license_type_combobox,
-		        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
-		        [=,this](const QString& text) {
+		        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+		        [=,this](int index) {
+					const QString& text = license_type_combobox->itemText(index);
 			        assert(text == "Trial" or text == "Paid");
 			        if (text == "Trial") { // Prompt validated email
 				        token_label->setText("Validated email:");
