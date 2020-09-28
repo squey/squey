@@ -72,7 +72,7 @@ void PVCore::PVLogger::heavydebug(const char* format, ...)
 		return;
 
 	va_start(ap, format);
-	res.vsprintf(format, ap);
+	res = QString::vasprintf(format, ap);
 
 	if (log_filename.isEmpty()) {
 		std::cerr << qPrintable(get_now_str()) << " *** HEAVYDEBUG *** " << qPrintable(res);
@@ -92,7 +92,7 @@ void PVCore::PVLogger::debug(const char* format, ...)
 		return;
 
 	va_start(ap, format);
-	res.vsprintf(format, ap);
+	res = QString::vasprintf(format, ap);
 
 	if (log_filename.isEmpty()) {
 		std::cerr << qPrintable(get_now_str()) << " *** DEBUG *** " << qPrintable(res);
@@ -114,7 +114,7 @@ void PVCore::PVLogger::info(const char* format, ...)
 	mutex.lock();
 
 	va_start(ap, format);
-	res.vsprintf(format, ap);
+	res = QString::vasprintf(format, ap);
 
 	if (log_filename.isEmpty()) {
 		std::cerr << qPrintable(get_now_str()) << " *** INFO *** " << qPrintable(res);
@@ -136,7 +136,7 @@ void PVCore::PVLogger::warn(const char* format, ...)
 		return;
 
 	va_start(ap, format);
-	res.vsprintf(format, ap);
+	res = QString::vasprintf(format, ap);
 
 	if (log_filename.isEmpty()) {
 		std::cerr << qPrintable(get_now_str()) << " *** WARN *** " << qPrintable(res);
@@ -156,7 +156,7 @@ void PVCore::PVLogger::error(const char* format, ...)
 		return;
 
 	va_start(ap, format);
-	res.vsprintf(format, ap);
+	res = QString::vasprintf(format, ap);
 
 	if (log_filename.isEmpty()) {
 		std::cerr << qPrintable(get_now_str()) << " *** ERROR *** " << qPrintable(res);
@@ -176,7 +176,7 @@ void PVCore::PVLogger::fatal(const char* format, ...)
 		return;
 
 	va_start(ap, format);
-	res.vsprintf(format, ap);
+	res = QString::vasprintf(format, ap);
 
 	if (log_filename.isEmpty()) {
 		std::cerr << qPrintable(get_now_str()) << " *** FATAL *** " << qPrintable(res);
@@ -196,7 +196,7 @@ void PVCore::PVLogger::plain(const char* format, ...)
 		return;
 
 	va_start(ap, format);
-	res.vsprintf(format, ap);
+	res = QString::vasprintf(format, ap);
 
 	if (log_filename.isEmpty()) {
 		std::cerr << qPrintable(res);
