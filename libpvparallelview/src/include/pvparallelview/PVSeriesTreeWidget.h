@@ -58,8 +58,8 @@ class PVSeriesTreeItem
 	{
 		if (role == Qt::DisplayRole or role == Qt::ToolTipRole) {
 			return _item_text;
-		} else if (role == Qt::BackgroundColorRole) {
-			return _item_color;
+		} else if (role == Qt::BackgroundRole) {
+			return QBrush(_item_color.value<QColor>());
 		} else if (role == Qt::UserRole) {
 			return _item_data;
 		} else {
@@ -253,7 +253,7 @@ class PVSeriesTreeStyleDelegate : public QStyledItemDelegate
 	           const QStyleOptionViewItem& option,
 	           const QModelIndex& index) const override
 	{
-		const QColor& color = index.model()->data(index, Qt::BackgroundColorRole).value<QColor>();
+		const QColor& color = index.model()->data(index, Qt::BackgroundRole).value<QBrush>().color();
 		if ((option.state & QStyle::State_Selected)) {
 			painter->fillRect(option.rect, color);
 			painter->setPen(Qt::black);
