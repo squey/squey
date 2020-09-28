@@ -1254,7 +1254,7 @@ QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol
 		    node->getFirstFieldParent()->getFieldLinearId() == field_id)
 			return index;
 
-		index = get_field_node_index(field_id, index.child(0, 0));
+		index = get_field_node_index(field_id, myTreeModel->index(0, 0, index));
 	} while (parent.sibling(sibling++, 0).isValid() && !index.isValid());
 
 	return index;
