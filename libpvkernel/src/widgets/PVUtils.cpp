@@ -17,7 +17,7 @@
 
 QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, uint64_t nb_px)
 {
-	uint64_t str_width = QFontMetrics(font).width(s);
+	uint64_t str_width = QFontMetrics(font).horizontalAdvance(s);
 	if (str_width < nb_px)
 		return s;
 
@@ -28,12 +28,12 @@ QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, ui
 
 	QStringList list = str.split(separator);
 	uint64_t separator_count = list.length() - 1;
-	str_width += QFontMetrics(font).width(elipsis);
+	str_width += QFontMetrics(font).horizontalAdvance(elipsis);
 
 	uint64_t index = 0;
 	for (; str_width > nb_px && separator_count > 2; separator_count--) {
 		index = (separator_count + 1) / 2;
-		str_width -= QFontMetrics(font).width(list.at(index));
+		str_width -= QFontMetrics(font).horizontalAdvance(list.at(index));
 		list.removeAt(index);
 	}
 	list.insert(index, elipsis);
@@ -50,7 +50,7 @@ void PVWidgets::PVUtils::html_word_wrap_text(QString& string, const QFont& font,
 	QString line;
 	while (insert_pos < string.size()) {
 		line += string[insert_pos];
-		int line_width = QFontMetrics(font).width(line);
+		int line_width = QFontMetrics(font).horizontalAdvance(line);
 		if (line_width > (int)nb_px) {
 			string = string.insert(insert_pos, carriage_return);
 			insert_pos += carriage_return.size();

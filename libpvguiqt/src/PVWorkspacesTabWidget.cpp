@@ -116,7 +116,7 @@ void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
 		if (width > MIN_WIDTH) {
 			QFontMetrics metrics = QFontMetrics(font());
 			for (int i = 0; i < count(); i++) {
-				if (metrics.width(tabText(i)) > width) {
+				if (metrics.horizontalAdvance(tabText(i)) > width) {
 					stylesheet = QString("QTabBar::tab { max-width: %1px; } ").arg(width);
 					break;
 				}

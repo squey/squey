@@ -128,7 +128,7 @@ class PVLicenseDialog : public QDialog
 		QHBoxLayout* locking_code_layout = new QHBoxLayout;
 		QLineEdit* locking_code_text = new QLineEdit(locking_code);
 		locking_code_text->setFixedWidth(
-		    QFontMetrics(locking_code_text->font()).width(locking_code + "  "));
+		    QFontMetrics(locking_code_text->font()).horizontalAdvance(locking_code + "  "));
 		locking_code_text->setFocusPolicy(Qt::NoFocus);
 		QPushButton* copy_locking_code_button = new QPushButton();
 		connect(copy_locking_code_button, &QPushButton::clicked,
@@ -145,7 +145,7 @@ class PVLicenseDialog : public QDialog
 		// host_id
 		QHBoxLayout* host_id_layout = new QHBoxLayout;
 		QLineEdit* host_id_text = new QLineEdit(host_id);
-		host_id_text->setFixedWidth(QFontMetrics(host_id_text->font()).width(host_id + "  "));
+		host_id_text->setFixedWidth(QFontMetrics(host_id_text->font()).horizontalAdvance(host_id + "  "));
 		host_id_text->setFocusPolicy(Qt::NoFocus);
 		QPushButton* copy_host_id_button = new QPushButton();
 		connect(copy_host_id_button, &QPushButton::clicked,

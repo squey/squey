@@ -199,7 +199,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	// resizing on scrolling
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
-	_vhead_max_width = QFontMetrics(font).width(QString().leftJustified(
+	_vhead_max_width = QFontMetrics(font).horizontalAdvance(QString().leftJustified(
 	    QString::number(view.get_rushnraw_parent().row_count() + 1).size(), '9'));
 
 	// Handle selection modification signal.

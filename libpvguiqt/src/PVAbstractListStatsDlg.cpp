@@ -365,7 +365,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_values_view->setItemDelegateForColumn(1, new __impl::PVListStringsDelegate(this));
 
 	QString biggest_str = QString().fill('0', QString::number(model().size()).size() + 1);
-	_values_view->verticalHeader()->setFixedWidth(QFontMetrics(font()).width(biggest_str));
+	_values_view->verticalHeader()->setFixedWidth(QFontMetrics(font()).horizontalAdvance(biggest_str));
 
 	// Add content for right click menu on vertical headers
 	_hhead_ctxt_menu = new QMenu(this);
@@ -1025,14 +1025,14 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 	// compute widths for each statistic
 	if (show_count) {
 		if (model().stat_col().type() == "duration") { // FIXME
-			_field_size_count = fm.width(QString::fromStdString(model().stat_col().at(0)));
+			_field_size_count = fm.horizontalAdvance(QString::fromStdString(model().stat_col().at(0)));
 		} else {
 			double longest_val = (std::abs(relative_min_count()) < std::abs(relative_max_count()))
 			                         ? relative_max_count()
 			                         : relative_min_count();
 			double v = converting_digits_to_nines_at_given_precision(longest_val);
 			size_t precision = _counts_are_integers ? 0 : 3;
-			_field_size_count = fm.width(QLocale::system().toString(v, 'f', precision));
+			_field_size_count = fm.horizontalAdvance(QLocale::system().toString(v, 'f', precision));
 		}
 	} else {
 		_field_size_count = 0;
@@ -1041,7 +1041,7 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 	if (show_scientific) {
 		double v =
 		    converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(), 3);
-		_field_size_scientific = fm.width(PVStatsModel::format_scientific_notation(v));
+		_field_size_scientific = fm.horizontalAdvance(PVStatsModel::format_scientific_notation(v));
 	} else {
 		_field_size_scientific = 0;
 	}
@@ -1049,7 +1049,7 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 	if (show_percentage) {
 		double v =
 		    converting_digits_to_nines_at_given_precision(relative_max_count() / max_count(), 3);
-		_field_size_percentage = fm.width(PVStatsModel::format_percentage(v));
+		_field_size_percentage = fm.horizontalAdvance(PVStatsModel::format_percentage(v));
 	} else {
 		_field_size_percentage = 0;
 	}
