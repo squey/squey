@@ -281,7 +281,7 @@ class PVSeriesTreeView : public QTreeView
 
 	void keyPressEvent(QKeyEvent* event)
 	{
-		if (event->key() == Qt::Key_A and (event->modifiers() == Qt::ControlModifier) or
+		if ((event->key() == Qt::Key_A and (event->modifiers() == Qt::ControlModifier)) or
 		    (event->modifiers() == Qt::ShiftModifier)) {
 			event->ignore();
 			return;
