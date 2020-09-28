@@ -37,7 +37,7 @@ void PVFilter::PVFieldSplitterIP::set_args(PVCore::PVArgumentList const& args)
 	// Compute adjacente difference to have "number of elements to search" from current position.
 	_indexes.clear();
 
-	const auto param_list = params.split(sep, QString::SkipEmptyParts);
+	const auto param_list = params.split(sep, Qt::SkipEmptyParts);
 
 	if (param_list.size() > max_params_size) {
 		throw PVFilter::PVFieldsFilterInvalidArguments(
