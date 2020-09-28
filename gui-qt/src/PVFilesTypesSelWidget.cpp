@@ -214,12 +214,13 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 
 	// Compute the union and intersection of types
 	QSet<QString> types_union;
-	QSet<QString> types_intersec = files_types.begin()->second.toSet();
+	QSet<QString> types_intersec = QSet<QString>(files_types.begin()->second.begin(), files_types.begin()->second.end());
 
 	for (auto const& file_types : files_types) {
-		QStringList const& types = file_types.second;
-		types_union += types.toSet();
-		types_intersec &= types.toSet();
+		QSet<QString> types = QSet<QString>(file_types.second.begin(), file_types.second.end());
+
+		types_union += types;
+		types_intersec &= types;
 	}
 
 	// Set the intersection as the default selection
