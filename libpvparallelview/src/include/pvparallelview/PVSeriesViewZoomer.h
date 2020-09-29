@@ -38,18 +38,18 @@ class PVViewZoomer : public QWidget
 
 	PVViewZoomer(QWidget* parent = nullptr);
 
-	void zoom_in(QRect zoom_in_rect);
-	void zoom_in(QPoint center, bool rectangular, zoom_f zoom_factor);
+	void zoom_in(QRectF zoom_in_rect);
+	void zoom_in(QPointF center, bool rectangular, zoom_f zoom_factor);
 	void zoom_out();
-	void zoom_out(QPoint center);
-	void zoom_out(QPoint center, bool rectangular, zoom_f zoom_factor);
+	void zoom_out(QPointF center);
+	void zoom_out(QPointF center, bool rectangular, zoom_f zoom_factor);
 	void reset_zoom();
 	void reset_and_zoom_in(Zoom zoom);
 
 	void move_zoom_by(QPoint offset);
 
 	QRect normalized_zoom_rect(QRect zoomRect, bool rectangular) const;
-	Zoom rect_to_zoom(QRect const& rect) const;
+	Zoom rect_to_zoom(QRectF const& rect) const;
 	Zoom current_zoom() const { return _zoom_stack[_current_zoom_index]; }
 
 	static Zoom clamp_zoom(Zoom zoom);
@@ -61,7 +61,7 @@ class PVViewZoomer : public QWidget
 	virtual void update_zoom(Zoom) {}
 
   private:
-	void zoom_out(QPoint center, Zoom oldZoom, Zoom targetZoom);
+	void zoom_out(QPointF center, Zoom oldZoom, Zoom targetZoom);
 	void update_zoom();
 
   private:
