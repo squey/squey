@@ -236,7 +236,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj, Q
 	scene_event.setWidget(obj->get_viewport());
 
 	scene_event.setScenePos(obj->map_to_scene(event->position()));
-	scene_event.setScreenPos(event->globalPos());
+	scene_event.setScreenPos(event->globalPosition().toPoint());
 
 	scene_event.setButtons(event->buttons());
 	scene_event.setModifiers(event->modifiers());
