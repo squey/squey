@@ -315,7 +315,7 @@ void PVRush::PVERFAPI::add_entityresults(ERF_INT state_id,
 				ERF_INT dim_count;
 				result->ReadHeader(entity_type, row_count, dim_count);
 
-				for (size_t i = 0; i < dim_count; i++) {
+				for (ERF_INT i = 0; i < dim_count; i++) {
 					format_root->addOneField(
 					    QString::fromStdString(
 					        entity_group_name +

@@ -151,7 +151,7 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Inendi::PVView& view)
 	}
 
 	size_t total_row_count = 0;
-	for (size_t i = 0; i < layerstack.get_layer_count(); i++) {
+	for (int i = 0; i < layerstack.get_layer_count(); i++) {
 		total_row_count += layerstack.get_layer_n(i).get_selectable_count();
 	}
 
@@ -160,7 +160,7 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Inendi::PVView& view)
 	// Check if some files are being overwritten
 	std::vector<std::string> files_path;
 	bool overwritten = false;
-	for (size_t i = 0; i < layerstack.get_layer_count(); i++) {
+	for (int i = 0; i < layerstack.get_layer_count(); i++) {
 		files_path.emplace_back((dirname + "/" + layerstack.get_layer_n(i).get_name() + export_dialog.file_extension()).toStdString());
 		overwritten |= std::filesystem::exists(files_path.back());
 	}
@@ -189,7 +189,7 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Inendi::PVView& view)
 			    pbox.set_value(exported_row_count);
 		    });
 
-			for (size_t i = 0; i < layerstack.get_layer_count(); i++) {
+			for (int i = 0; i < layerstack.get_layer_count(); i++) {
 				const Inendi::PVLayer& layer = layerstack.get_layer_n(i);
 				const std::string& file_path = files_path[i];
 				try {
