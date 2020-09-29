@@ -48,6 +48,7 @@ depends:
 - google-breakpad.bst
 - portablecl.bst
 - libpcap.bst
+- lightpcapng.bst
 - tshark.bst
 - tbb.bst
 - boost.bst

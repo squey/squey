@@ -13,9 +13,6 @@
 	path = furl
 	url = git@gitlab.srv.picviz:picviz/furl.git
 	branch = master
-[submodule "libpvkernel/plugins/common/pcap/LightPcapNg"]
-	path = libpvkernel/plugins/common/pcap/LightPcapNg
-	url = https://github.com/rvelea/LightPcapNg
 [submodule "doc"]
 	path = doc
 	url = git@gitlab.srv.picviz:picviz/inendi-inspector-manual.git
