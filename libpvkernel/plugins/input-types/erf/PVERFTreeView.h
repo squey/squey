@@ -28,7 +28,7 @@ class PVERFTreeView : public QTreeView
 	PVERFTreeView(PVRush::PVERFTreeModel* model, QWidget* parent = nullptr);
 
   public:
-	bool select(const rapidjson::Document& json);
+	void select(const rapidjson::Document& json);
 
   private:
 	void set_item_state(QModelIndex index, Qt::CheckState state);

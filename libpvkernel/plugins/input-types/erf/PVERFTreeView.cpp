@@ -43,7 +43,7 @@ PVRush::PVERFTreeView::PVERFTreeView(PVRush::PVERFTreeModel* model, QWidget* par
 	        });
 }
 
-bool PVRush::PVERFTreeView::select(const rapidjson::Document& json)
+void PVRush::PVERFTreeView::select(const rapidjson::Document& json)
 {
 	rapidjson::Document::AllocatorType alloc;
 
