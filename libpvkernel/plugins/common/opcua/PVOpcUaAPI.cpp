@@ -342,15 +342,17 @@ std::string PVRush::PVOpcUaAPI::to_json_string(UA_Variant const& value)
 		                                  nullptr, 0, true));
 		auto* json_value_pos = json_value.data();
 		auto* json_value_end = json_value.data() + json_value.size();
-		UA_encodeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], (uint8_t**)&json_value_pos,
+		auto ret = UA_encodeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], (uint8_t**)&json_value_pos,
 		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+		(void) ret;
 	} else {
 		json_value.resize(
 		    UA_calcSizeJson(value.data, value.type, nullptr, 0, nullptr, 0, true));
 		auto* json_value_pos = json_value.data();
 		auto* json_value_end = json_value.data() + json_value.size();
-		UA_encodeJson(value.data, value.type, (uint8_t**)&json_value_pos,
+		auto ret = UA_encodeJson(value.data, value.type, (uint8_t**)&json_value_pos,
 		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+		(void) ret;
 	}
 	return json_value;
 }
