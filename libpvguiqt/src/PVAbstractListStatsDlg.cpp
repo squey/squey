@@ -282,8 +282,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
     , _view(&view)
     , _col(c)
     , _create_model_f(f)
+	, _old_sel(_view->get_real_output_selection())
     , _counts_are_integers(counts_are_integers)
-    , _old_sel(_view->get_real_output_selection())
 {
 	QString search_multiples = "search-multiple";
 	Inendi::PVLayerFilter::p_type search_multiple =
