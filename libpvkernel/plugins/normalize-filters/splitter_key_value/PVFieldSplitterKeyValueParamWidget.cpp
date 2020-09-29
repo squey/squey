@@ -266,7 +266,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_down()
 	/* keys must be necessarily ordered (decreasing order of their indices in the QListWidget) to
 	 * make the move down work.
 	 */
-	qSort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
+	std::sort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
 		return _keys_list->row(i1) > _keys_list->row(i2);
 	});
 
@@ -292,7 +292,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::move_key_up()
 	/* keys must be necessarily ordered (increasing order of their indices in the QListWidget) to
 	 * make the move up work.
 	 */
-	qSort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
+	std::sort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
 		return _keys_list->row(i1) < _keys_list->row(i2);
 	});
 
@@ -341,7 +341,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::selection_has_changed()
 
 	/* must sort keys to make first() have the smallest index and last() have the greatest index
 	 */
-	qSort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
+	std::sort(keys.begin(), keys.end(), [&](const QListWidgetItem* i1, const QListWidgetItem* i2) {
 		return _keys_list->row(i1) < _keys_list->row(i2);
 	});
 

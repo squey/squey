@@ -263,7 +263,7 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::selection_has_changed()
 	/* must sort keys to make first() have the smallest row index and last() have the greatest
 	 * row index
 	 */
-	qSort(selection.begin(), selection.end(), std::less<QModelIndex>());
+	std::sort(selection.begin(), selection.end(), std::less<QModelIndex>());
 
 	_up_button->setEnabled(selection.first().row() > 0);
 	_down_button->setEnabled(selection.last().row() < (model->rowCount() - 1));
@@ -328,7 +328,7 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_up()
 {
 	QItemSelectionModel* select_model = _substrings_table_widget->selectionModel();
 	QModelIndexList selected_rows = select_model->selectedRows();
-	qSort(selected_rows.begin(), selected_rows.end(),
+	std::sort(selected_rows.begin(), selected_rows.end(),
 	      [](const QModelIndex& i1, const QModelIndex& i2) { return i1.row() < i2.row(); });
 	int selected_row_count = selected_rows.count();
 
@@ -369,7 +369,7 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::move_rows_down()
 {
 	QItemSelectionModel* select_model = _substrings_table_widget->selectionModel();
 	QModelIndexList selected_rows = select_model->selectedRows();
-	qSort(selected_rows.begin(), selected_rows.end(),
+	std::sort(selected_rows.begin(), selected_rows.end(),
 	      [](const QModelIndex& i1, const QModelIndex& i2) { return i1.row() < i2.row(); });
 	int selected_row_count = selected_rows.count();
 
