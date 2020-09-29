@@ -232,7 +232,7 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 		if (types_intersec.contains(typen)) {
 			item->setSelected(true);
 		} else {
-			item->setBackgroundColor(Qt::lightGray);
+			item->setBackground(QBrush(Qt::lightGray));
 		}
 	}
 	_all_types_list->setEnabled(false);
