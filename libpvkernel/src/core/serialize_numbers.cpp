@@ -41,7 +41,7 @@ R deserialize_numbers(const std::string& numbers_list, const F& add_range_f)
 	bool rhs_specified = false;
 	bool dash_found = false; // True if a '-' is found in this field.
 
-	bool in_digits = false;
+	//bool in_digits = false;
 
 	// Special case: '--field=-' means all fields, emulate '--field=1-' .
 	size_t pos = 0;
@@ -54,7 +54,7 @@ R deserialize_numbers(const std::string& numbers_list, const F& add_range_f)
 
 	while (true) {
 		if (numbers_list[pos] == '-') {
-			in_digits = false;
+			//in_digits = false;
 			// Starting a range.
 			if (dash_found) {
 				throw std::runtime_error("invalid range");
@@ -67,7 +67,7 @@ R deserialize_numbers(const std::string& numbers_list, const F& add_range_f)
 			value = 0;
 		} else if (numbers_list[pos] == ',' or std::isblank(numbers_list[pos]) or
 		           numbers_list[pos] == '\0') {
-			in_digits = false;
+			//in_digits = false;
 			// Ending the string, or this field/byte sublist.
 			if (dash_found) {
 				dash_found = false;
@@ -105,7 +105,7 @@ R deserialize_numbers(const std::string& numbers_list, const F& add_range_f)
 			lhs_specified = false;
 			rhs_specified = false;
 		} else if (std::isdigit(numbers_list[pos])) {
-			in_digits = true;
+			//in_digits = true;
 
 			if (dash_found) {
 				rhs_specified = true;

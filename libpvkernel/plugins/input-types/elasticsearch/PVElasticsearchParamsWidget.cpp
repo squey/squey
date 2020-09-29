@@ -114,7 +114,6 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 	_root_item->setCheckState(0, Qt::Unchecked);
 
 	std::vector<std::pair<QTreeWidgetItem*, bool>> parents({std::make_pair(_root_item, true)});
-	size_t pop_depth = 0;
 
 	PVRush::PVElasticsearchAPI es(get_infos());
 	es.visit_columns([&](const std::string& rel_name, const std::string& abs_name,

@@ -198,7 +198,6 @@ class PVERFAPI
 
   private:
 	void add_connectivities(std::vector<QDomDocument>& formats,
-	                        const rapidjson::Value* connectivities,
 	                        bool multi_inputs) const;
 
 	void add_entityresults(ERF_INT state_id,

@@ -55,7 +55,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
 	auto split_selector =
 	    new PVWidgets::PVAxisComboBox(_series_view_widget->_view->get_axes_combination(),
 	                                  PVWidgets::PVAxisComboBox::AxesShown::OriginalAxes,
-	                                  [this](PVCol axis, PVCombCol) { return true; });
+	                                  [this](PVCol /*axis*/, PVCombCol) { return true; });
 	split_selector->insertItem(0, "", QVariant::fromValue(PVCol()));
 	split_selector->setCurrentIndex(0);
 	split_selector->setToolTip("Select which column to split series on");

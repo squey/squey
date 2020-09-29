@@ -198,7 +198,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL& PVParallelView::PVBCIDrawingBackendOp
  *****************************************************************************/
 
 PVParallelView::PVBCIBackendImage_p
-PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t image_width, uint8_t height_bits)
+PVParallelView::PVBCIDrawingBackendOpenCL::create_image(size_t /*image_width*/, uint8_t height_bits)
 {
 	// The minimal possible > 0, this is a workaround (an ugly one)
 	return PVBCIBackendImage_p(create_new_image(nullptr, 2, height_bits));

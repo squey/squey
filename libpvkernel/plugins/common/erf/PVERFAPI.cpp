@@ -61,6 +61,7 @@ size_t PVRush::PVERFAPI::memory_size(const rapidjson::Document& selected_nodes,
 	if (connectivities) {
 		ErfElementIList element_list;
 		ErfErrorCode Status = _stage->GetElementList(0, element_list);
+		(void) Status;
 		for (size_t i = 0; i < element_list.size(); i++) {
 			ErfElementI* element = element_list[i];
 			ERF_INT row_count;
@@ -106,6 +107,7 @@ size_t PVRush::PVERFAPI::memory_size(const rapidjson::Document& selected_nodes,
 						ErfErrorCode Status =
 						    _stage->GetContourResult(state_id, ENTITY_RESULT, entity_type_name,
 						                             entity_group_name, zone, result);
+						(void) Status;
 
 						EString entity_type;
 						ERF_INT node_per_elem;
@@ -159,7 +161,7 @@ PVRush::PVERFAPI::get_formats_from_selected_nodes(const rapidjson::Document& sel
 	const rapidjson::Value* constant_connectivities =
 	    rapidjson::Pointer("/post/constant/connectivities").Get(selected_nodes);
 	if (constant_connectivities) {
-		add_connectivities(formats, constant_connectivities, multi_inputs);
+		add_connectivities(formats, multi_inputs);
 	}
 
 	const rapidjson::Value* constant_entityresults =
@@ -208,7 +210,6 @@ PVRush::PVERFAPI::get_selected_nodes_by_source(const rapidjson::Document& select
 	        {"/post/constant/entityresults", "", "constant"},
 	        {"/post/singlestate/entityresults", "/post/singlestate/states", "results"}};
 
-	size_t index = 0;
 	for (auto& [pointer_source, pointer_base, source_name] : pointers_source) {
 		const rapidjson::Value* source_node =
 		    rapidjson::Pointer(pointer_source.c_str()).Get(selected_nodes);
@@ -251,7 +252,6 @@ PVRush::PVERFAPI::get_selected_nodes_by_source(const rapidjson::Document& select
 }
 
 void PVRush::PVERFAPI::add_connectivities(std::vector<QDomDocument>& formats,
-                                          const rapidjson::Value* connectivities,
                                           bool multi_inputs) const
 {
 	formats.emplace_back(QDomDocument());
