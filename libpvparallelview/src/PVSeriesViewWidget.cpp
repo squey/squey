@@ -401,7 +401,7 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 		PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
 		if ((index.parent().isValid() or not is_splitted())) {
 			QColor index_color = index.data(Qt::BackgroundRole).value<QBrush>().color();
-			series_draw_order.push_back({index_id, index_color});
+			series_draw_order.push_back({(size_t)index_id, index_color});
 			selected_timeseries.emplace(index_id);
 		}
 	}
