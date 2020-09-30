@@ -327,6 +327,5 @@ void PVParallelView::__impl::PVGraphicsPolygonItem::paint(QPainter* painter,
                                                           QWidget* widget)
 {
 	painter->setRenderHint(QPainter::Antialiasing, true);
-	painter->setRenderHint(QPainter::HighQualityAntialiasing, true);
 	QGraphicsPolygonItem::paint(painter, option, widget);
 }

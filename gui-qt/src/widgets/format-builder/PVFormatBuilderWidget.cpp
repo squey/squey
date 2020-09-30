@@ -8,6 +8,7 @@
 #include <QSplitter>
 #include <QDesktopServices>
 #include <QDesktopWidget>
+#include <QScreen>
 
 #include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
@@ -215,7 +216,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	// setWindowFlags(Qt::Window);
 	// geom.moveCenter(parent->geometry().center());
 	// setGeometry(geom);
-	QRect dr = QDesktopWidget().screenGeometry();
+	QRect dr = QGuiApplication::screens()[0]->geometry();
 	resize(dr.width() * 0.75, dr.height() * 0.75);
 }
 /******************************************************************************
@@ -1254,7 +1255,7 @@ QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol
 		    node->getFirstFieldParent()->getFieldLinearId() == field_id)
 			return index;
 
-		index = get_field_node_index(field_id, index.child(0, 0));
+		index = get_field_node_index(field_id, myTreeModel->index(0, 0, index));
 	} while (parent.sibling(sibling++, 0).isValid() && !index.isValid());
 
 	return index;

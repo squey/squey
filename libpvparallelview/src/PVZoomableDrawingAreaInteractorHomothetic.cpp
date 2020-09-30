@@ -68,7 +68,7 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::wheelEvent(
     PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event)
 {
 	if (event->modifiers() == Qt::NoModifier) {
-		int inc = (event->delta() > 0) ? 1 : -1;
+		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 		bool ret = increment_zoom_value(
 		    zda, PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y, inc);
 		event->setAccepted(true);

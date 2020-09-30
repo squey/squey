@@ -73,7 +73,7 @@ int main(int argc, char** argv)
 	                                  view->get_real_output_selection());
 
 	std::unordered_set<size_t> selected_timeseries;
-	for (int i = 0; i < timeseries.size(); ++i) {
+	for (size_t i = 0; i < timeseries.size(); ++i) {
 		selected_timeseries.emplace(i);
 	}
 	sampler.set_selected_timeseries(selected_timeseries);

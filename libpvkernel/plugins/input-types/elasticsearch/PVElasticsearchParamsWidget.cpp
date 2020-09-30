@@ -16,6 +16,7 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QDesktopWidget>
+#include <QScreen>
 
 static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
 static constexpr const char MATCH_ALL_QUERY[] = R"###({ "query" : { "match_all" : { } } })###";
@@ -45,7 +46,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	_columns_tree_widget->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	connect(_combo_index,
-	        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged), this,
+	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
 	        &PVElasticsearchParamsWidget::index_changed_slot);
 	connect(_combo_index, static_cast<void (QComboBox::*)(int)>(&QComboBox::activated), this,
 	        &PVElasticsearchParamsWidget::index_changed_by_user_slot);
@@ -81,7 +82,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	    "</body>"
 	    "</html>");
 
-	setFixedHeight(QApplication::desktop()->availableGeometry().height() - 50);
+	setFixedHeight(QGuiApplication::screens()[0]->geometry().height() - 50);
 }
 
 QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const
@@ -89,9 +90,10 @@ QString PVRush::PVElasticsearchParamsWidget::get_sql_query_prefix() const
 	return QString("SELECT * FROM %1 WHERE ").arg(get_infos().get_index());
 }
 
-void PVRush::PVElasticsearchParamsWidget::index_changed_slot(const QString& index)
+void PVRush::PVElasticsearchParamsWidget::index_changed_slot(int index)
 {
-	buttonBox->buttons()[0]->setEnabled(index != "");
+	QString index_text = _combo_index->itemText(index);
+	buttonBox->buttons()[0]->setEnabled(index_text != "");
 
 	QString query_type = _query_type_cb->currentText();
 
@@ -112,7 +114,6 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 	_root_item->setCheckState(0, Qt::Unchecked);
 
 	std::vector<std::pair<QTreeWidgetItem*, bool>> parents({std::make_pair(_root_item, true)});
-	size_t pop_depth = 0;
 
 	PVRush::PVElasticsearchAPI es(get_infos());
 	es.visit_columns([&](const std::string& rel_name, const std::string& abs_name,

@@ -704,22 +704,22 @@ void PVInspector::PVXmlDomModel::moveUp(const QModelIndex& index)
  * PVInspector::PVXmlDomModel::selectNext
  *
  *****************************************************************************/
-QModelIndex PVInspector::PVXmlDomModel::selectNext(const QModelIndex& index)
+QModelIndex PVInspector::PVXmlDomModel::selectNext(const QModelIndex& idx)
 {
 	QModelIndex newSel;
-	if (index.isValid()) {
-		if (!nodeFromIndex(index)->isOnRoot) {
-			int fieldCount = nodeFromIndex(index)->getParent()->getParent()->countChildren();
-			int idFieldCurrent = nodeFromIndex(index)->getParent()->getRow();
-			int childCount = nodeFromIndex(index)->getParent()->countChildren();
-			int idChildCurrent = nodeFromIndex(index)->getRow();
+	if (idx.isValid()) {
+		if (!nodeFromIndex(idx)->isOnRoot) {
+			int fieldCount = nodeFromIndex(idx)->getParent()->getParent()->countChildren();
+			int idFieldCurrent = nodeFromIndex(idx)->getParent()->getRow();
+			int childCount = nodeFromIndex(idx)->getParent()->countChildren();
+			int idChildCurrent = nodeFromIndex(idx)->getRow();
 			if (idChildCurrent + 1 < childCount) { // if it isn't the last item of the field...
-				newSel = index.parent().child(idChildCurrent + 1, 0);
+				newSel = index(idChildCurrent + 1, 0, idx.parent());
 			} else {                                   // if it's the last item of the field...
 				if (idFieldCurrent + 1 < fieldCount) { // if the node isn't on the last field...
-					newSel = index.parent().parent().child(idFieldCurrent + 1, 0).child(0, 0);
+					newSel = index(0, 0, index(idFieldCurrent + 1, 0, idx.parent().parent()));
 				} else { // if the node is on the last field...
-					newSel = index.parent().parent().child(0, 0).child(0, 0);
+					newSel = index(0, 0, index(0, 0, idx.parent().parent()));
 				}
 			}
 		} else {

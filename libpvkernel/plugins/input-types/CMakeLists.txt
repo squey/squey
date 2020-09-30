@@ -43,23 +43,8 @@ target_link_libraries(input_type_file pvkernel ${ARCHIVE_LIBRARY})
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libpvkernel/plugins/input-types/")
 
-# LightPcapNg
-include_directories(SYSTEM ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg/include)
-cmake_minimum_required(VERSION 2.8)
-include(ExternalProject)
-SET(LIGHTPCAPNG_LIBRARY_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg)
-message(STATUS LIGHTPCAPNG_LIBRARY_CMAKE_CURRENT_BINARY_DIR=${CMAKE_CURRENT_BINARY_DIR})
-SET(LIGHTPCAPNG_LIBRARY ${CMAKE_CURRENT_BINARY_DIR}/LightPcapNg-prefix/src/LightPcapNg-build/liblight_pcapng_static.a)
-ExternalProject_Add(LightPcapNg
-    SOURCE_DIR ${CMAKE_CURRENT_LIST_DIR}/../common/pcap/LightPcapNg
-    STEP_TARGETS build
-  	EXCLUDE_FROM_ALL TRUE
-  	BUILD_BYPRODUCTS ${LIGHTPCAPNG_LIBRARY}
-  	INSTALL_COMMAND cmake -E echo "Skipping install step."
-)
-
-include_directories("../common/pcap/libpvpcap/include/")
-include_directories("pcap/pcap-gui/")
+include_directories(SYSTEM "../common/pcap/libpvpcap/include/")
+include_directories(SYSTEM "pcap/pcap-gui/")
 
 # libraries
 add_subdirectory(../common/pcap/libpvpcap pvpcap)
@@ -85,14 +70,13 @@ QT5_WRAP_CPP(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
 
 # Generate linkage configuration
 add_library(input_type_pcap SHARED ${PCAP_SRC_FILES} ${PCAP_MOC_SRC})
-add_dependencies(pvpcap LightPcapNg)
 target_link_libraries(
 	input_type_pcap
 	pvkernel
 	${ARCHIVE_LIBRARY}
 	pcap-gui-widget
 	pvpcap
-	${LIGHTPCAPNG_LIBRARY}
+	light_pcapng_static
 )
 
 set(INPUTS_DIST_LIST

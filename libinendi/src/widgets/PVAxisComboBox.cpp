@@ -115,7 +115,7 @@ void PVWidgets::PVAxisComboBox::mouseMoveEvent(QMouseEvent* event)
 	                      reinterpret_cast<char const*>(&current_axis().value()), sizeof(PVCol)));
 	drag->setMimeData(mimeData);
 
-	Qt::DropAction dropAction = drag->exec(Qt::CopyAction);
+	drag->exec(Qt::CopyAction);
 }
 
 void PVWidgets::PVAxisComboBox::dragEnterEvent(QDragEnterEvent* event)

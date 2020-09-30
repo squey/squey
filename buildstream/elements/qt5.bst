@@ -6,12 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://download.qt.io/archive/qt/5.13/5.13.1/single/qt-everywhere-src-5.13.1.tar.xz
-  ref: adf00266dc38352a166a9739f1a24a1e36f1be9c04bf72e16e142a256436974e
-  
-  # Can't use version 5.14.1 because of this bug : https://bugreports.qt.io/browse/QTBUG-80990
-  #url: https://download.qt.io/archive/qt/5.14/5.14.1/single/qt-everywhere-src-5.14.1.tar.xz
-  #ref: 6f17f488f512b39c2feb57d83a5e0a13dcef32999bea2e2a8f832f54a29badb8
+  url: https://download.qt.io/archive/qt/5.15/5.15.1/single/qt-everywhere-src-5.15.1.tar.xz
+  ref: 44da876057e21e1be42de31facd99be7d5f9f07893e1ea762359bcee0ef64ee9
   
 - kind: patch
   path: buildstream/patches/qt5/xcbegl.patch
@@ -27,10 +23,6 @@ sources:
   
 - kind: patch
   path: buildstream/patches/qtwebengine/Fix_compiler_error_SIOCGSTAMP_not_declared.patch
-  strip-level: 1
-  
-- kind: patch
-  path: buildstream/patches/qtwebengine/qtwebengine-no-udev.patch
   strip-level: 1
 
 variables:

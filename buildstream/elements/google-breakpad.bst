@@ -6,6 +6,9 @@ description: |
 sources:
   - kind: local
     path: external/breakpad
+    
+environment:
+  CXXFLAGS: "-std=c++20"
 
 depends:
 - base.bst

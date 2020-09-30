@@ -545,7 +545,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_refresh_button_enabled(bool loading)
 void PVGuiQt::__impl::PVCellWidgetBase::set_invalid()
 {
 	_refresh_icon->setEnabled(true);
-	_item->setBackgroundColor(PVGuiQt::PVStatsListingWidget::INVALID_COLOR);
+	_item->setBackground(QBrush(PVGuiQt::PVStatsListingWidget::INVALID_COLOR));
 	_text->setText("N/A");
 	_valid = false;
 }

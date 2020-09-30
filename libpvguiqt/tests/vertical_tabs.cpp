@@ -17,6 +17,7 @@
 #include <QResizeEvent>
 #include <QSplitterHandle>
 #include <QStackedWidget>
+#include <QScreen>
 
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
@@ -35,7 +36,7 @@ class CustomMainWindow : public QMainWindow
 	CustomMainWindow(QWidget* parent = 0) : QMainWindow(parent)
 	{
 		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
-		                                QApplication::desktop()->availableGeometry()));
+		                                QGuiApplication::screens()[0]->geometry()));
 		resize(1024, 768);
 	}
 };

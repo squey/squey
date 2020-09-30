@@ -417,7 +417,7 @@ QString PVParallelView::PVZoomableDrawingAreaWithAxes::get_elided_text(const QSt
 	QFontMetrics fm(get_viewport()->font());
 
 	// MAX_TEXT_LABEL_WIDTH value should be calculated, depend of the client's windows settings.
-	if (fm.width(text) > MAX_TEXT_LABEL_WIDTH) {
+	if (fm.horizontalAdvance(text) > MAX_TEXT_LABEL_WIDTH) {
 		return fm.elidedText(text, Qt::ElideMiddle, MAX_TEXT_LABEL_WIDTH);
 	}
 	return text;

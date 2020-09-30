@@ -235,13 +235,12 @@ bool PVWidgets::PVGraphicsViewInteractorScene::wheelEvent(PVGraphicsView* obj, Q
 
 	scene_event.setWidget(obj->get_viewport());
 
-	scene_event.setScenePos(obj->map_to_scene(event->pos()));
-	scene_event.setScreenPos(event->globalPos());
+	scene_event.setScenePos(obj->map_to_scene(event->position()));
+	scene_event.setScreenPos(event->globalPosition().toPoint());
 
 	scene_event.setButtons(event->buttons());
 	scene_event.setModifiers(event->modifiers());
-	scene_event.setDelta(event->delta());
-	scene_event.setOrientation(event->orientation());
+	scene_event.setDelta(event->angleDelta().y());
 	scene_event.setAccepted(false);
 
 	propagate_event_to_scene(obj, &scene_event);

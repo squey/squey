@@ -220,7 +220,7 @@ int main()
 	QString groupName = "myGroupName";
 	PVCore::PVArgumentList args;
 	for (int i = 0; i < vars.count(); i++) {
-		args[QString().sprintf("param_%d", i)] = vars[i];
+		args[QString::asprintf("param_%d", i)] = vars[i];
 	}
 	QSettings settings(iniFilename, QSettings::IniFormat);
 	PVCore::PVArgumentList_to_QSettings(args, settings, groupName);

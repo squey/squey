@@ -16,6 +16,7 @@
 #include <QMenu>
 #include <QMouseEvent>
 #include <QScrollBar>
+#include <QScreen>
 
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspace.h>
@@ -53,7 +54,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 		// Set view color
 		QColor view_color = view->get_color();
 		QPalette Pal(palette());
-		Pal.setColor(QPalette::Background, view_color);
+		Pal.setColor(QPalette::Window, view_color);
 		setAutoFillBackground(true);
 		setPalette(Pal);
 	}
@@ -243,7 +244,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		}
 
 		// Maximize on right monitor
-		if (screen_number < QApplication::desktop()->screenCount() - 1) {
+		if (screen_number < QGuiApplication::screens().size() - 1) {
 			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
 			connect(maximize_right_action, SIGNAL(triggered(bool)), _screenSignalMapper,
 			        SLOT(map()));
@@ -264,7 +265,7 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 
 	bool can_restore = QApplication::desktop()->screenNumber(this) == screen_number;
 
-	QRect screenres = QApplication::desktop()->availableGeometry(screen_number);
+	QRect screenres = QGuiApplication::screens()[screen_number]->geometry();
 
 	// JBL: You may be wondering why the hell I am messing so much with the
 	// floating state of the widget,

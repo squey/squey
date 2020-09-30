@@ -275,6 +275,7 @@ size_t PVRush::PVERFSource::compute_source_row_count(const rapidjson::Value* ent
 					ErfResultIPtr result = nullptr;
 					ErfErrorCode status = _erf.stage()->GetContourResult(
 						state_id, ENTITY_RESULT, entity_type_name, entity_group_name, zone, result);
+					(void) status;
 
 					EString entity_type;
 					ERF_INT node_per_elem;

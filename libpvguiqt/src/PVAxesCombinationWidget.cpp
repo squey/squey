@@ -144,7 +144,8 @@ void PVGuiQt::PVAxesCombinationWidget::axis_up_Slot()
 void PVGuiQt::PVAxesCombinationWidget::axis_down_Slot()
 {
 	DisableDnD ddd(this);
-	auto selected_used = ordered_selected(_list_used).toStdList();
+	const auto& list_used = ordered_selected(_list_used);
+	auto selected_used = std::list<QListWidgetItem*>(list_used.begin(), list_used.end());
 	if (selected_used.empty()) {
 		return;
 	}

@@ -780,7 +780,7 @@ void PVParallelView::PVFullParallelScene::update_scene(bool recenter_view)
  * PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVCombCol col)
+void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVCombCol /*col*/)
 {
 	_sel_rect.clear();
 

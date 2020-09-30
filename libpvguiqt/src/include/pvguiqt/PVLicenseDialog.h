@@ -81,8 +81,9 @@ class PVLicenseDialog : public QDialog
 		license_token_layout->addWidget(token_label);
 		license_token_layout->addWidget(token_text);
 		connect(license_type_combobox,
-		        static_cast<void (QComboBox::*)(const QString&)>(&QComboBox::currentIndexChanged),
-		        [=](const QString& text) {
+		        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged),
+		        [=,this](int index) {
+					const QString& text = license_type_combobox->itemText(index);
 			        assert(text == "Trial" or text == "Paid");
 			        if (text == "Trial") { // Prompt validated email
 				        token_label->setText("Validated email:");
@@ -115,7 +116,7 @@ class PVLicenseDialog : public QDialog
 		QHBoxLayout* offline_layout = new QHBoxLayout();
 		QRadioButton* offline_radiobutton = new QRadioButton();
 		offline_radiobutton->setChecked(true);
-		connect(offline_radiobutton, &QRadioButton::clicked, [=]() {
+		connect(offline_radiobutton, &QRadioButton::clicked, [=,this]() {
 			buttons->button(QDialogButtonBox::Ok)->setEnabled(not _user_license_path.isEmpty());
 		});
 		QGroupBox* offline_groupbox = new QGroupBox("Offline activation");
@@ -128,7 +129,7 @@ class PVLicenseDialog : public QDialog
 		QHBoxLayout* locking_code_layout = new QHBoxLayout;
 		QLineEdit* locking_code_text = new QLineEdit(locking_code);
 		locking_code_text->setFixedWidth(
-		    QFontMetrics(locking_code_text->font()).width(locking_code + "  "));
+		    QFontMetrics(locking_code_text->font()).horizontalAdvance(locking_code + "  "));
 		locking_code_text->setFocusPolicy(Qt::NoFocus);
 		QPushButton* copy_locking_code_button = new QPushButton();
 		connect(copy_locking_code_button, &QPushButton::clicked,
@@ -145,7 +146,7 @@ class PVLicenseDialog : public QDialog
 		// host_id
 		QHBoxLayout* host_id_layout = new QHBoxLayout;
 		QLineEdit* host_id_text = new QLineEdit(host_id);
-		host_id_text->setFixedWidth(QFontMetrics(host_id_text->font()).width(host_id + "  "));
+		host_id_text->setFixedWidth(QFontMetrics(host_id_text->font()).horizontalAdvance(host_id + "  "));
 		host_id_text->setFocusPolicy(Qt::NoFocus);
 		QPushButton* copy_host_id_button = new QPushButton();
 		connect(copy_host_id_button, &QPushButton::clicked,
@@ -163,7 +164,7 @@ class PVLicenseDialog : public QDialog
 		QPushButton* browse_license_file_button = new QPushButton("...");
 		browse_license_file_button->adjustSize();
 		browse_license_file_button->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
-		connect(browse_license_file_button, &QPushButton::clicked, [=]() {
+		connect(browse_license_file_button, &QPushButton::clicked, [=,this]() {
 			_user_license_path = PVWidgets::PVFileDialog::getOpenFileName(
 			    this, "Browse your license file", "", QString("License file (*.lic)"));
 			offline_radiobutton->setChecked(not _user_license_path.isEmpty());
@@ -224,7 +225,7 @@ class PVLicenseDialog : public QDialog
 
 		setLayout(layout);
 
-		connect(buttons, &QDialogButtonBox::accepted, this, [=]() {
+		connect(buttons, &QDialogButtonBox::accepted, this, [=,this]() {
 			PVCore::PVLicenseActivator::EError err_code;
 			if (offline_radiobutton->isChecked()) {
 				if (QFileInfo(_user_license_path).exists()) {

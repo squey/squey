@@ -58,8 +58,8 @@ class PVSeriesTreeItem
 	{
 		if (role == Qt::DisplayRole or role == Qt::ToolTipRole) {
 			return _item_text;
-		} else if (role == Qt::BackgroundColorRole) {
-			return _item_color;
+		} else if (role == Qt::BackgroundRole) {
+			return QBrush(_item_color.value<QColor>());
 		} else if (role == Qt::UserRole) {
 			return _item_data;
 		} else {
@@ -253,7 +253,7 @@ class PVSeriesTreeStyleDelegate : public QStyledItemDelegate
 	           const QStyleOptionViewItem& option,
 	           const QModelIndex& index) const override
 	{
-		const QColor& color = index.model()->data(index, Qt::BackgroundColorRole).value<QColor>();
+		const QColor& color = index.model()->data(index, Qt::BackgroundRole).value<QBrush>().color();
 		if ((option.state & QStyle::State_Selected)) {
 			painter->fillRect(option.rect, color);
 			painter->setPen(Qt::black);
@@ -281,7 +281,7 @@ class PVSeriesTreeView : public QTreeView
 
 	void keyPressEvent(QKeyEvent* event)
 	{
-		if (event->key() == Qt::Key_A and (event->modifiers() == Qt::ControlModifier) or
+		if ((event->key() == Qt::Key_A and (event->modifiers() == Qt::ControlModifier)) or
 		    (event->modifiers() == Qt::ShiftModifier)) {
 			event->ignore();
 			return;
@@ -325,7 +325,7 @@ class PVSeriesTreeView : public QTreeView
 			if (not index.parent().isValid()) { // top level item
 				sel = true;
 				for (int row = 0; row < model()->rowCount(index); row++) {
-					const QModelIndex& child = index.child(row, 0);
+					const QModelIndex& child = model()->index(row, 0, index);
 					new_total_sel.merge(QItemSelection(child, child),
 					                    QItemSelectionModel::SelectCurrent);
 				}
@@ -343,7 +343,7 @@ class PVSeriesTreeView : public QTreeView
 				unsel = true;
 				new_total_unsel.merge(QItemSelection(index, index), QItemSelectionModel::Select);
 				for (int row = 0; row < model()->rowCount(index); row++) {
-					const QModelIndex& child = index.child(row, 0);
+					const QModelIndex& child = model()->index(row, 0, index);
 					new_total_unsel.merge(QItemSelection(child, child),
 					                      QItemSelectionModel::Select);
 				}
@@ -358,7 +358,7 @@ class PVSeriesTreeView : public QTreeView
 				bool all_children_unselected = true;
 				for (PVCol row(0); row < model()->rowCount(parent) and all_children_unselected;
 				     row++) {
-					const QModelIndex& child = parent.child(row, 0);
+					const QModelIndex& child = model()->index(row, 0, parent);
 					all_children_unselected &= not selectionModel()->isSelected(child);
 				}
 				if (all_children_unselected) {

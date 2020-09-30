@@ -17,7 +17,7 @@
 #include <algorithm>
 
 #define DECIMAL_DIGIT_ACCUMULATE(Accum, Digit_val, Type)                                           \
-	((void)(&(Accum) == (Type*)NULL), /* The type matches.  */ /* The type is unsigned.  */        \
+	((void)((void*)&(Accum) == (Type*)NULL), /* The type matches.  */ /* The type is unsigned.  */        \
 	 (((Type)-1 / 10 < (Accum) || (Type)((Accum)*10 + (Digit_val)) < (Accum))                      \
 	      ? false                                                                                  \
 	      : (((Accum) = (Accum)*10 + (Digit_val)), true)))

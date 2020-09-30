@@ -5,12 +5,9 @@ description: |
     parallel programming and heterogeneous computing (intra-node distributed memory programming).
 
 sources:
-- kind: tar
-  #url: https://github.com/oneapi-src/oneTBB/archive/2020_U1.tar.gz
-  #ref: d80ca22c224ab7ef913dfae72c23fc1434b6aa46bfd472916d8c874c90881f5e
-  
-  url: https://github.com/01org/tbb/archive/2018_U5.tar.gz
-  ref: b8dbab5aea2b70cf07844f86fa413e549e099aa3205b6a04059ca92ead93a372
+- kind: tar  
+  url: https://github.com/oneapi-src/oneTBB/archive/v2020.3.tar.gz
+  ref: ebc4f6aa47972daed1f7bf71d100ae5bf6931c2e3144cf299c8cc7d041dca2f3
 
 config:
   configure-commands:

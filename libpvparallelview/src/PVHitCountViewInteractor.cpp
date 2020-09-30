@@ -121,7 +121,7 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
 	}
 
 	PVHitCountView* hcv = get_hit_count_view(zda);
-	int inc = (event->delta() > 0) ? 1 : -1;
+	int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 
 	if (mask & PVZoomableDrawingAreaConstraints::X) {
 
@@ -140,7 +140,7 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
 			return true;
 		}
 	} else if (mask != 0) {
-		int inc = (event->delta() > 0) ? 1 : -1;
+		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 
 		event->setAccepted(true);
 

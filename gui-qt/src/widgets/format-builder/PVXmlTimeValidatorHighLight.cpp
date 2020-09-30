@@ -12,7 +12,7 @@
 #include <unicode/calendar.h>
 #include <unicode/unistr.h>
 
-using namespace icu_64;
+using namespace icu_67;
 
 /******************************************************************************
  *

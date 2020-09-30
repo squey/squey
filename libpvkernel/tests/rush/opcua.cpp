@@ -397,10 +397,10 @@ static UA_Boolean readRaw(const UA_HistoryData* data)
 }
 
 static UA_Boolean readHist(UA_Client* client,
-                           const UA_NodeId* nodeId,
+                           const UA_NodeId* /*nodeId*/,
                            UA_Boolean moreDataAvailable,
                            const UA_ExtensionObject* data,
-                           void* unused)
+                           void* /*unused*/)
 {
 	qDebug() << "Read historical callback (Has more data:" << moreDataAvailable << "):";
 	if (data->content.decoded.type == &UA_TYPES[UA_TYPES_HISTORYDATA]) {
@@ -474,7 +474,7 @@ void qtopcua_connect(int argc, char** argv)
 	app.exec();
 }
 
-int test_source(int argc, char** argv)
+int test_source()
 {
 	std::string const& format_file = TEST_FOLDER "/pvkernel/rush/opcua/opcua-testsuite.format";
 
@@ -555,7 +555,7 @@ int test_source(int argc, char** argv)
 int main([[maybe_unused]] int argc, [[maybe_unused]] char** argv)
 {
 	//return EXIT_SUCCESS; // Bypass test for current prod, FIXME
-	return test_source(argc, argv);
+	return test_source();
 
 	if (!(PKI_DIR = getenv("OPCUA_PKIDIR")) or !(SERVER_URL = getenv("OPCUA_URL")) or
 	    !(SERVER_USER = getenv("OPCUA_USER")) or !(SERVER_PASSWORD = getenv("OPCUA_PASSWORD"))) {

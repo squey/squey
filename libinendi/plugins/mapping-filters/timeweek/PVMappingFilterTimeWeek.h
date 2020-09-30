@@ -19,7 +19,7 @@
 
 #include <omp.h>
 
-using namespace icu_64;
+using namespace icu_67;
 
 namespace Inendi
 {

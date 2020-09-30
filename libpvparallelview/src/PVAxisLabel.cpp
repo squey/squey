@@ -82,7 +82,7 @@ void PVParallelView::PVAxisLabel::set_text(const QString& text)
 {
 	QFontMetrics metrics = QFontMetrics(font());
 
-	if (metrics.width(text) > MAX_WIDTH) {
+	if (metrics.horizontalAdvance(text) > MAX_WIDTH) {
 
 		setText(metrics.elidedText(text, Qt::ElideMiddle, MAX_WIDTH));
 

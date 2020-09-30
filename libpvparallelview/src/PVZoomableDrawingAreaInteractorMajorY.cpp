@@ -90,7 +90,7 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::wheelEvent(
 	}
 
 	if (mask != 0) {
-		int inc = (event->delta() > 0) ? 1 : -1;
+		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 
 		event->setAccepted(true);
 
