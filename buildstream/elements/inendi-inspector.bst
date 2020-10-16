@@ -35,9 +35,9 @@ depends:
 - freedesktop-sdk.bst:components/xcb-util-image.bst
 - freedesktop-sdk.bst:components/xcb-util-keysyms.bst
 - freedesktop-sdk.bst:components/xorg-lib-xcursor.bst
+- freedesktop-sdk.bst:components/python3-pip.bst
 
 - freedesktop-sdk.bst:components/python3.bst
-- freedesktop-sdk.bst:components/python3-pip.bst
 
 - pigz.bst
 - lbzip2.bst
@@ -60,7 +60,8 @@ depends:
 - erf.bst
 - qtopcua.bst
 - pybind11.bst
-- conda.bst
+- python3-pip.bst
+# - conda.bst
 # - numpy.bst
 - inendi-inspector-doc.bst
 
