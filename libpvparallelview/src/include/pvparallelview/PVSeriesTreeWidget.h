@@ -17,6 +17,7 @@
 #include <QStyledItemDelegate>
 #include <QSortFilterProxyModel>
 #include <QKeyEvent>
+#include <QDebug>
 
 #include <assert.h>
 
@@ -248,7 +249,7 @@ class PVSeriesTreeFilterProxyModel : public QSortFilterProxyModel
 class PVSeriesTreeStyleDelegate : public QStyledItemDelegate
 {
   public:
-	PVSeriesTreeStyleDelegate(QWidget* parent = nullptr) : QStyledItemDelegate(parent) {}
+	explicit PVSeriesTreeStyleDelegate(QWidget* parent = nullptr) : QStyledItemDelegate(parent) {}
 	void paint(QPainter* painter,
 	           const QStyleOptionViewItem& option,
 	           const QModelIndex& index) const override
@@ -270,7 +271,7 @@ class PVSeriesTreeView : public QTreeView
 	Q_OBJECT
 
   public:
-	PVSeriesTreeView(bool filtered = false) : QTreeView(nullptr), _filtered(filtered)
+	explicit PVSeriesTreeView(bool filtered = false) : QTreeView(nullptr), _filtered(filtered)
 	{
 		setSelectionMode(QAbstractItemView::MultiSelection);
 		setItemDelegate(new PVSeriesTreeStyleDelegate());
@@ -301,21 +302,21 @@ class PVSeriesTreeView : public QTreeView
 	void selection_changed();
 
   private:
-	void propagate_selection_to_children(const QItemSelection& new_sel,
-	                                     const QItemSelection& old_sel)
+	void propagate_selection_to_children(const QItemSelection& selected_items,
+	                                     const QItemSelection& unselected_items)
 	{
 		if (_filtered) {
 			return;
 		}
 
-		QItemSelection selected_items(new_sel);
-		QItemSelection unselected_items(old_sel);
+		struct filtered_guard {
+			PVSeriesTreeView* p;
+			explicit filtered_guard(decltype(p) parent) : p(parent) { p->_filtered = true; }
+			~filtered_guard() { p->_filtered = false; }
+		} fguard{this};
 
-		selected_items.merge(old_sel, QItemSelectionModel::Deselect);
-		unselected_items.merge(new_sel, QItemSelectionModel::Deselect);
-
-		QItemSelection new_total_sel(new_sel);
-		QItemSelection new_total_unsel(new_sel);
+		QItemSelection new_total_sel(selected_items);
+		QItemSelection new_total_unsel(unselected_items);
 
 		bool unsel = false;
 		bool sel = false;
@@ -324,11 +325,9 @@ class PVSeriesTreeView : public QTreeView
 		for (const QModelIndex& index : selected_items.indexes()) {
 			if (not index.parent().isValid()) { // top level item
 				sel = true;
-				for (int row = 0; row < model()->rowCount(index); row++) {
-					const QModelIndex& child = model()->index(row, 0, index);
-					new_total_sel.merge(QItemSelection(child, child),
-					                    QItemSelectionModel::SelectCurrent);
-				}
+				new_total_sel.merge(
+				    QItemSelection(index.child(0, 0), index.child(model()->rowCount(index) - 1, 0)),
+				    QItemSelectionModel::Select);
 			}
 		}
 
@@ -342,30 +341,24 @@ class PVSeriesTreeView : public QTreeView
 			if (not index.parent().isValid()) { // top level item
 				unsel = true;
 				new_total_unsel.merge(QItemSelection(index, index), QItemSelectionModel::Select);
-				for (int row = 0; row < model()->rowCount(index); row++) {
-					const QModelIndex& child = model()->index(row, 0, index);
-					new_total_unsel.merge(QItemSelection(child, child),
-					                      QItemSelectionModel::Select);
-				}
+				new_total_unsel.merge(
+				    QItemSelection(index.child(0, 0), index.child(model()->rowCount(index) - 1, 0)),
+				    QItemSelectionModel::Select);
 			} else {
 				parents.insert(index.parent());
 			}
 		}
 
 		// Unselect parents too if all children are unselected
-		if (not _filtered) {
-			for (const QModelIndex& parent : parents) {
-				bool all_children_unselected = true;
-				for (PVCol row(0); row < model()->rowCount(parent) and all_children_unselected;
-				     row++) {
-					const QModelIndex& child = model()->index(row, 0, parent);
-					all_children_unselected &= not selectionModel()->isSelected(child);
-				}
-				if (all_children_unselected) {
-					new_total_unsel.merge(QItemSelection(parent, parent),
-					                      QItemSelectionModel::Select);
-					unsel = true;
-				}
+		for (const QModelIndex& parent : parents) {
+			bool all_children_unselected = true;
+			for (PVCol row(0); row < model()->rowCount(parent) and all_children_unselected; row++) {
+				const QModelIndex& child = parent.child(row, 0);
+				all_children_unselected &= not selectionModel()->isSelected(child);
+			}
+			if (all_children_unselected) {
+				new_total_unsel.merge(QItemSelection(parent, parent), QItemSelectionModel::Select);
+				unsel = true;
 			}
 		}
 
