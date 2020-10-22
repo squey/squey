@@ -141,11 +141,11 @@ void PVWidgets::PVLongLongSpinBox::focusOutEvent(QFocusEvent* event)
 
 QAbstractSpinBox::StepEnabled PVWidgets::PVLongLongSpinBox::stepEnabled() const
 {
+	StepEnabled se;
 	if (isReadOnly()) {
-		return 0;
+		return se;
 	}
 
-	StepEnabled se = 0;
 	if (wrapping() || m_value < m_maximum) {
 		se |= StepUpEnabled;
 	}

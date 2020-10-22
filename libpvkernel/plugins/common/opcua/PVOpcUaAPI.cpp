@@ -238,7 +238,7 @@ void PVRush::PVOpcUaAPI::setup_encryption()
 	}
 }
 
-static UA_Boolean read_node_history_static(UA_Client* client,
+static UA_Boolean read_node_history_static(UA_Client* /*client*/,
                                            const UA_NodeId* nodeId,
                                            UA_Boolean moreDataAvailable,
                                            const UA_ExtensionObject* data,
@@ -281,7 +281,7 @@ UA_DateTime PVRush::PVOpcUaAPI::first_historical_datetime(NodeId node_id)
 	return ret_val;
 }
 
-bool PVRush::PVOpcUaAPI::read_history_data(const UA_NodeId* nodeId,
+bool PVRush::PVOpcUaAPI::read_history_data(const UA_NodeId* /*nodeId*/,
                                            UA_Boolean moreDataAvailable,
                                            const UA_ExtensionObject* data)
 {
@@ -342,15 +342,17 @@ std::string PVRush::PVOpcUaAPI::to_json_string(UA_Variant const& value)
 		                                  nullptr, 0, true));
 		auto* json_value_pos = json_value.data();
 		auto* json_value_end = json_value.data() + json_value.size();
-		UA_encodeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], (uint8_t**)&json_value_pos,
+		auto ret = UA_encodeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], (uint8_t**)&json_value_pos,
 		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+		(void) ret;
 	} else {
 		json_value.resize(
 		    UA_calcSizeJson(value.data, value.type, nullptr, 0, nullptr, 0, true));
 		auto* json_value_pos = json_value.data();
 		auto* json_value_end = json_value.data() + json_value.size();
-		UA_encodeJson(value.data, value.type, (uint8_t**)&json_value_pos,
+		auto ret = UA_encodeJson(value.data, value.type, (uint8_t**)&json_value_pos,
 		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+		(void) ret;
 	}
 	return json_value;
 }

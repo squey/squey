@@ -171,11 +171,11 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 		QColor col1 = central_dock->get_view()->get_color();
 		QColor col2 = display_dock->get_view()->get_color();
 		QPalette Pal1(display_dock->palette());
-		Pal1.setColor(QPalette::Background, col2);
+		Pal1.setColor(QPalette::Window, col2);
 		display_dock->setAutoFillBackground(true);
 		display_dock->setPalette(Pal1);
 		QPalette Pal2(central_dock->palette());
-		Pal2.setColor(QPalette::Background, col1);
+		Pal2.setColor(QPalette::Window, col1);
 		central_dock->setAutoFillBackground(true);
 		central_dock->setPalette(Pal2);
 	} else {

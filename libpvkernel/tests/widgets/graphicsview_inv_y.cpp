@@ -26,7 +26,7 @@ class EventFilter : public QObject
 			PVWidgets::PVGraphicsView* view = static_cast<PVWidgets::PVGraphicsView*>(obj);
 			QWheelEvent* wev = static_cast<QWheelEvent*>(ev);
 			if (wev->modifiers() == Qt::AltModifier) {
-				if (wev->delta() > 0) {
+				if (wev->angleDelta().y() > 0) {
 					scale *= 1.2;
 				} else {
 					scale /= 1.2;

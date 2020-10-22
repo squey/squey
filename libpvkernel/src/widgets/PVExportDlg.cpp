@@ -80,7 +80,7 @@ PVWidgets::PVExportDlg::PVExportDlg(
 	stacked_layout->addWidget(_exporter_widget);
 	_groupbox->setLayout(stacked_layout);
 
-	_filter_selected_f = [=](const QString& filter) {
+	_filter_selected_f = [=,this](const QString& filter) {
 		setDefaultSuffix(suffix_from_filter(filter));
 
 		// force filters to reset as setting 'QFileDialog::Directory' erase them

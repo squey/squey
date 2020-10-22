@@ -29,6 +29,7 @@
 #include <QOpcUaPkiConfiguration>
 #include <QOpcUaAuthenticationInformation>
 #include <QOpcUaErrorState>
+#include <QScreen>
 
 // #include <QSslSocket>
 // #include <openssl/ssl.h>
@@ -56,7 +57,7 @@ PVRush::PVOpcUaParamsWidget::PVOpcUaParamsWidget(PVInputTypeOpcUa const* in_t,
 	
 	tabWidget->setCurrentIndex(0);
 
-	resize(QApplication::desktop()->availableGeometry().height() - 50, QApplication::desktop()->availableGeometry().width() / 2);
+	resize(QGuiApplication::screens()[0]->geometry().height() - 50, QGuiApplication::screens()[0]->geometry().width() / 2);
 }
 
 void PVRush::PVOpcUaParamsWidget::reset_columns_tree_widget()
@@ -177,7 +178,7 @@ void PVRush::PVOpcUaParamsWidget::fetch_server_data_slot()
 	fetch_server_data(get_infos());
 }
 
-static bool connecting = false;
+//static bool connecting = false;
 
 void PVRush::PVOpcUaParamsWidget::check_connection_slot()
 {
@@ -239,6 +240,7 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 		    qDebug() << "Client state changed:" << state;
 		    if (state == QOpcUaClient::ClientState::Connected) {
 			    QOpcUaNode* node = client->node("ns=0;i=84");
+				(void) node;
 			    _opcua_treeview = new QTreeView(this);
 			    _opcua_treeview->header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 			    _opcua_treeview->setTextElideMode(Qt::ElideRight);
@@ -256,11 +258,11 @@ bool PVRush::PVOpcUaParamsWidget::check_connection(std::string* error /*= nullpt
 				scroll_area->setWidget(_opcua_treeview);
 				auto tab_index = tabWidget->addTab(scroll_area, "Browse nodes");
 			    connect(_opcua_treeview->selectionModel(), &QItemSelectionModel::selectionChanged,
-			            [this](const QItemSelection& selected, const QItemSelection& deselected) {
+			            [this](const QItemSelection& /*selected*/, const QItemSelection& /*deselected*/) {
 				            reset_columns_tree_widget();
-				            for (auto& selitem : selected) {
-					            //
-				            }
+//				            for (auto& selitem : selected) {
+//					            //
+//				            }
 			            });
 			    _opcua_treeview->setContextMenuPolicy(Qt::CustomContextMenu);
 				connect(_opcua_treeview, &QTreeView::customContextMenuRequested, [this](QPoint const& pos){
@@ -347,7 +349,7 @@ void PVRush::PVOpcUaParamsWidget::export_query_result(PVCore::PVStreamingCompres
                                                       std::string* error)
 {
 	size_t count = 0;
-	bool query_end = false;
+	//bool query_end = false;
 
 	PVRush::PVOpcUaAPI es(get_infos());
 	const PVOpcUaQuery& query = get_query(error);
@@ -503,7 +505,7 @@ PVRush::PVOpcUaInfos PVRush::PVOpcUaParamsWidget::get_infos() const
 	return infos;
 }
 
-QString PVRush::PVOpcUaParamsWidget::get_server_query(std::string* error /* = nullptr */) const
+QString PVRush::PVOpcUaParamsWidget::get_server_query(std::string* /*error  = nullptr */) const
 {
 	QString q = get_serialize_query();
 	return q;
@@ -534,12 +536,12 @@ void PVRush::PVOpcUaParamsWidget::set_query(QString const& query)
 	qDebug() << __func__ << query;
 }
 
-size_t PVRush::PVOpcUaParamsWidget::query_result_count(std::string* error /* = nullptr */)
+size_t PVRush::PVOpcUaParamsWidget::query_result_count(std::string* /*error  = nullptr */)
 {
 	return 0;
 }
 
-bool PVRush::PVOpcUaParamsWidget::fetch_server_data(const PVOpcUaInfos& infos)
+bool PVRush::PVOpcUaParamsWidget::fetch_server_data(const PVOpcUaInfos& /*infos*/)
 {
 	return true;
 }
@@ -615,10 +617,10 @@ void PVRush::PVOpcUaParamsWidget::update_custom_format()
 		auto column_name = deserialized_query[3 * i + 2];
 		auto node_id_open62541 = PVOpcUaAPI::NodeId(deserialized_query[3 * i + 1]).open62541();
 		if (auto* data_type = UA_findDataType(&node_id_open62541)) {
-			PVRush::PVXmlTreeNodeDom* node =
+			/*PVRush::PVXmlTreeNodeDom* node =*/
 				format_root->addOneField(column_name, QString(PVRush::PVOpcUaAPI::pvcop_type(data_type->typeIndex)));
 		} else {
-			PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(column_name, QString("uint8"));
+			/*PVRush::PVXmlTreeNodeDom* node = */format_root->addOneField(column_name, QString("uint8"));
 		}
 	}
 }

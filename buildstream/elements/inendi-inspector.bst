@@ -8,7 +8,7 @@ depends:
 - freedesktop-sdk.bst:bootstrap/openssl.bst
 - freedesktop-sdk.bst:components/zip.bst
 - freedesktop-sdk.bst:components/unzip.bst
-- freedesktop-sdk.bst:components/pcre.bst
+- freedesktop-sdk.bst:components/pcre2.bst
 - freedesktop-sdk.bst:components/ccache.bst
 - freedesktop-sdk.bst:components/curl.bst
 - freedesktop-sdk.bst:components/icu.bst
@@ -48,6 +48,7 @@ depends:
 - google-breakpad.bst
 - portablecl.bst
 - libpcap.bst
+- lightpcapng.bst
 - tshark.bst
 - tbb.bst
 - boost.bst

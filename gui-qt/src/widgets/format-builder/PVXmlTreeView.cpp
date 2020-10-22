@@ -146,22 +146,20 @@ void PVInspector::PVXmlTreeView::addUrlIn()
 void PVInspector::PVXmlTreeView::addNode(AddType type)
 {
 
-	QModelIndex index = getInsertionIndex();
+	QModelIndex idx = getInsertionIndex();
 	QModelIndex indexToSelect;
 
 	switch (type) {
 	// if we want to add a regexp
 	case addRegEx:
-		getModel()->addRegExIn(index);
-		indexToSelect = index.child(getModel()->nodeFromIndex(index)->countChildren() - 1,
-		                            0); // last child of the node.
+		getModel()->addRegExIn(idx);
+		indexToSelect = getModel()->index(getModel()->nodeFromIndex(idx)->countChildren() - 1, 0, idx); // last child of the node.
 		break;
 
 	// if we want to add a splitter url
 	case addUrl:
-		getModel()->addUrlIn(index); // add the element
-		indexToSelect = index.child(getModel()->nodeFromIndex(index)->countChildren() - 1,
-		                            0); // last child of the node.
+		getModel()->addUrlIn(idx); // add the element
+		indexToSelect = getModel()->index(getModel()->nodeFromIndex(idx)->countChildren() - 1, 0, idx); // last child of the node.
 		expandAll();
 		break;
 
@@ -169,8 +167,8 @@ void PVInspector::PVXmlTreeView::addNode(AddType type)
 		break;
 	}
 
-	if (index.isValid()) {
-		expandRecursive(index);
+	if (idx.isValid()) {
+		expandRecursive(idx);
 	}
 
 	// selection of the item just after the creation
@@ -259,7 +257,7 @@ void PVInspector::PVXmlTreeView::expandRecursive(const QModelIndex& index)
 
 	// expand for all child
 	for (int i = 0; i < getModel()->rowCount(index); i++) {
-		expandRecursive(index.child(i, 0));
+		expandRecursive(getModel()->index(i, 0, index));
 	}
 
 	// update size of the first column

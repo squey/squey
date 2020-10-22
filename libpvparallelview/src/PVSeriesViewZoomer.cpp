@@ -19,7 +19,7 @@ PVViewZoomer::PVViewZoomer(QWidget* parent) : QWidget(parent)
 	_zoom_stack.push_back(Zoom{0., 1., 0., 1.});
 }
 
-void PVViewZoomer::zoom_in(QRect zoom_in_rect)
+void PVViewZoomer::zoom_in(QRectF zoom_in_rect)
 {
 	qDebug() << "zoom_in" << zoom_in_rect;
 	_zoom_stack.resize(_current_zoom_index + 1);
@@ -28,13 +28,13 @@ void PVViewZoomer::zoom_in(QRect zoom_in_rect)
 	update_zoom();
 }
 
-void PVViewZoomer::zoom_in(QPoint center, bool rectangular, zoom_f zoom_factor)
+void PVViewZoomer::zoom_in(QPointF center, bool rectangular, zoom_f zoom_factor)
 {
 	qDebug() << "zoom_in" << center;
 	assert(zoom_factor < 1 && zoom_factor > 0);
-	zoom_in(QRect(center.x() - center.x() * zoom_factor,
-	              center.y() - center.y() * (rectangular ? zoom_factor : 1),
-	              zoom_factor * size().width(), (rectangular ? zoom_factor : 1) * size().height()));
+	zoom_in(QRectF(center.x() - center.x() * zoom_factor,
+	               center.y() - center.y() * (rectangular ? zoom_factor : 1),
+	               zoom_factor * size().width(), (rectangular ? zoom_factor : 1) * size().height()));
 }
 
 void PVViewZoomer::zoom_out()
@@ -47,7 +47,7 @@ void PVViewZoomer::zoom_out()
 	update_zoom();
 }
 
-void PVViewZoomer::zoom_out(QPoint center, Zoom old_zoom, Zoom target_zoom)
+void PVViewZoomer::zoom_out(QPointF center, Zoom old_zoom, Zoom target_zoom)
 {
 	qDebug() << "zoom_out" << center;
 
@@ -79,7 +79,7 @@ void PVViewZoomer::zoom_out(QPoint center, Zoom old_zoom, Zoom target_zoom)
 	update_zoom();
 }
 
-void PVViewZoomer::zoom_out(QPoint center)
+void PVViewZoomer::zoom_out(QPointF center)
 {
 	if (_current_zoom_index == 0) {
 		return;
@@ -90,7 +90,7 @@ void PVViewZoomer::zoom_out(QPoint center)
 	zoom_out(center, old_zoom, target_zoom);
 }
 
-void PVViewZoomer::zoom_out(QPoint center, bool rectangular, zoom_f zoom_factor)
+void PVViewZoomer::zoom_out(QPointF center, bool rectangular, zoom_f zoom_factor)
 {
 	if (_current_zoom_index == 0) {
 		return;
@@ -157,7 +157,7 @@ QRect PVViewZoomer::normalized_zoom_rect(QRect zoom_rect, bool rectangular) cons
 	return zr;
 }
 
-auto PVViewZoomer::rect_to_zoom(QRect const& rect) const -> Zoom
+auto PVViewZoomer::rect_to_zoom(QRectF const& rect) const -> Zoom
 {
 	Zoom const& current_zoom = _zoom_stack[_current_zoom_index];
 	return Zoom{current_zoom.minX + current_zoom.width() * (rect.x() / zoom_f(size().width())),
@@ -396,9 +396,9 @@ void PVSeriesViewZoomer::leaveEvent(QEvent*)
 void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 {
 	if (event->angleDelta().y() > 0) {
-		zoom_in(event->pos(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
+		zoom_in(event->position(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
 	} else if (event->angleDelta().y() < 0) {
-		zoom_out(event->pos(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
+		zoom_out(event->position(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
 	}
 }
 

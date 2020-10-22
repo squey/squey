@@ -81,7 +81,7 @@ class PVCrashReportSender
 		postvars.reset(formpost);
 		curl_easy_setopt(curl.get(), CURLOPT_HTTPPOST, postvars.get());
 
-		CURLcode curl_ret = curl_easy_perform(curl.get());
+		/*CURLcode curl_ret =*/ curl_easy_perform(curl.get());
 
 		long http_code = 0;
 		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);

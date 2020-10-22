@@ -89,7 +89,7 @@ class PVZoomableDrawingAreaInteractorHomothetic
 	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override
 	{
 		if (event->modifiers() == Qt::NoModifier) {
-			int inc = (event->delta() > 0) ? 1 : -1;
+			int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 			bool ret =
 			    increment_zoom_value(zda, PVParallelView::PVZoomableDrawingAreaConstraints::X |
 			                                  PVParallelView::PVZoomableDrawingAreaConstraints::Y,
@@ -184,7 +184,7 @@ class PVZoomableDrawingAreaInteractorFree : public PVParallelView::PVZoomableDra
 
 	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override
 	{
-		int inc = (event->delta() > 0) ? 1 : -1;
+		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 		int mask = 0;
 
 		if (event->modifiers() == Qt::NoModifier) {
@@ -289,7 +289,7 @@ class PVZoomableDrawingAreaInteractorZPV : public PVParallelView::PVZoomableDraw
 
 	bool wheelEvent(PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event) override
 	{
-		int inc = (event->delta() > 0) ? 1 : -1;
+		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 
 		if (increment_zoom_value(zda, PVParallelView::PVZoomableDrawingAreaConstraints::X |
 		                                  PVParallelView::PVZoomableDrawingAreaConstraints::Y,

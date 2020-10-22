@@ -39,7 +39,7 @@ DEFAULT_ARGS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 void PVFilter::PVFieldFilterRegexpGrep::set_args(PVCore::PVArgumentList const& args)
 {
 	FilterT::set_args(args);
-	QStringList rxs = args.at("regexp").toString().split("\n", QString::SkipEmptyParts);
+	QStringList rxs = args.at("regexp").toString().split("\n", Qt::SkipEmptyParts);
 	_rxs.resize(rxs.size());
 	for (int i = 0; i < rxs.size(); i++) {
 		_rxs[i].assign(rxs[i].toStdString());

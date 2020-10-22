@@ -91,7 +91,7 @@ void test(const testcase& test)
 	}
 }
 
-int main(int argc, char** argv)
+int main()
 {
 	std::vector<testcase> testsuite = {
 	    {TEST_FOLDER "/picviz/timeserie_iota.csv",

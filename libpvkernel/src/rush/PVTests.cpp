@@ -22,8 +22,8 @@ namespace PVRush
 class PVFormat;
 } // namespace PVRush
 
-bool PVRush::PVTests::get_file_sc(PVInputDescription_p file,
-                                  PVRush::PVFormat const& format,
+bool PVRush::PVTests::get_file_sc(PVInputDescription_p /*file*/,
+                                  PVRush::PVFormat const& /*format*/,
                                   PVSourceCreator_p& sc)
 {
 	// Load source plugins that take a file as input

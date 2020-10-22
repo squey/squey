@@ -91,7 +91,7 @@ class PVNumberRangeEdit : public PVRangeEdit
 		qlonglong min = QString(_minmax.at(0).c_str()).toLongLong();
 		qlonglong max = QString(_minmax.at(1).c_str()).toLongLong();
 
-		int spin_width = QFontMetrics(_from_widget->font()).width(QString::number(max)) + 25;
+		int spin_width = QFontMetrics(_from_widget->font()).horizontalAdvance(QString::number(max)) + 25;
 		_from_widget->setFixedWidth(spin_width);
 		_from_widget->setMinimum(min);
 		_from_widget->setMaximum(max);

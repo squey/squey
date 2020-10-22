@@ -11,11 +11,9 @@
 #include <cassert>
 #include <exception>
 
-extern "C" {
 #include <unicode/ucnv.h>
-}
 
-using namespace icu_64;
+using namespace icu_67;
 
 namespace PVRush
 {

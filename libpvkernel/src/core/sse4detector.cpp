@@ -84,7 +84,7 @@ bool isGenuineIntel()
 	// returns largest function # supported by CPUID if it is a Geniune Intel processor AND it
 	// supports
 	// the CPUID instruction, 0 if not
-	CPUIDinfo Info;
+	CPUIDinfo Info{};
 	char procString[] = "GenuineIntel";
 	unsigned int* psint = (unsigned int*)procString;
 	get_cpuid_infos(&Info, 0x0);

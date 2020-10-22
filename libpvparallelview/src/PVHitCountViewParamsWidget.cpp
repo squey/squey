@@ -24,7 +24,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 {
 	_signal_mapper = new QSignalMapper(this);
 	QObject::connect(_signal_mapper,
-	                 static_cast<void (QSignalMapper::*)(int)>(&QSignalMapper::mapped), this,
+	                 &QSignalMapper::mappedInt, this,
 	                 &PVHitCountViewParamsWidget::set_selection_mode);
 
 	_sel_mode_button =

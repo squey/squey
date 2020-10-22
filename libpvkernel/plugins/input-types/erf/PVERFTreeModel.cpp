@@ -324,7 +324,7 @@ QVariant PVRush::PVERFTreeModel::data(const QModelIndex& index, int role) const
 Qt::ItemFlags PVRush::PVERFTreeModel::flags(const QModelIndex& index) const
 {
 	if (not index.isValid()) {
-		return 0;
+		return {};
 	}
 
 	Qt::ItemFlags flags = QAbstractItemModel::flags(index) | Qt::ItemIsEnabled;

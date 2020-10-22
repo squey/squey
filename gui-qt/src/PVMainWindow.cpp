@@ -601,10 +601,6 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 
 		const PVRush::PVInputType::list_inputs& inputs = it.value();
 
-		PVRush::pair_format_creator const& fc = format_creator[it.key()];
-
-		PVRush::PVFormat const& cur_format = fc.first;
-
 		size_t input_index = 0;
 		for (PVRush::PVFormat const& format : formats) {
 			PVRush::PVInputType::list_inputs in;

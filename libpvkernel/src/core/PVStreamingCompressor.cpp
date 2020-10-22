@@ -343,7 +343,7 @@ void PVCore::PVStreamingDecompressor::init()
 		 * Write compressed file to pipe to store the compressed read bytes count so far
 		 * (used to display proper progression during import)
 		 */
-		_thread = std::thread([=]() {
+		_thread = std::thread([=,this]() {
 			static constexpr const size_t buffer_length = 65536;
 			std::unique_ptr<char> buffer(new char[buffer_length]);
 
