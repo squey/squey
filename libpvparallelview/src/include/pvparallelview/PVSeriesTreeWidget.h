@@ -254,7 +254,7 @@ class PVSeriesTreeStyleDelegate : public QStyledItemDelegate
 	           const QStyleOptionViewItem& option,
 	           const QModelIndex& index) const override
 	{
-		const QColor& color = index.model()->data(index, Qt::BackgroundRole).value<QBrush>().color();
+		QColor color = index.model()->data(index, Qt::BackgroundRole).value<QBrush>().color();
 		if ((option.state & QStyle::State_Selected)) {
 			painter->fillRect(option.rect, color);
 			painter->setPen(Qt::black);
