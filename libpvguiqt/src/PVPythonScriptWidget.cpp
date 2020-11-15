@@ -8,6 +8,7 @@
 #include <pvguiqt/PVPythonScriptWidget.h>
 
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <QGroupBox>
 #include <QVBoxLayout>
@@ -40,7 +41,7 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
 	_exec_python_file_line_edit = new QLineEdit();
 	_exec_python_file_line_edit->setReadOnly(true);
 	QPushButton* exec_python_file_browse =  new QPushButton("&Browse...");
-	QObject::connect(exec_python_file_browse, &QPushButton::clicked, [=]() {
+	QObject::connect(exec_python_file_browse, &QPushButton::clicked, [=,this]() {
 		QString file_path = PVWidgets::PVFileDialog::getOpenFileName(
 			this,
 			"Browse your python file",
@@ -81,13 +82,13 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
 	python_script_radio_group->addButton(_python_script_path_radio);
 	python_script_radio_group->addButton(_python_script_content_radio);
 
-	connect(_python_script_content_radio, &QRadioButton::toggled, this, [=]() {
+	connect(_python_script_content_radio, &QRadioButton::toggled, this, [=,this]() {
 		bool checked = _python_script_content_radio->isChecked();
 		python_script_path_container_widget->setEnabled(not checked);
 		python_script_content_container_widget->setEnabled(checked);
         notify_python_script_updated();
 	});
-	connect(_python_script_path_radio, &QRadioButton::toggled, this, [=]() {
+	connect(_python_script_path_radio, &QRadioButton::toggled, this, [=,this]() {
 		bool checked = _python_script_path_radio->isChecked();
 		python_script_path_container_widget->setEnabled(checked);
 		python_script_content_container_widget->setEnabled(not checked);
@@ -98,8 +99,18 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
         notify_python_script_updated();
     });
 
+    // Help
+    QPushButton* help_button = new QPushButton("&Help");
+    connect(help_button, &QPushButton::clicked, [=,this]() {
+        QVariant data_anchor("_python_scripting");
+        PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL, this, data_anchor);
+        about_dialog->exec();
+        about_dialog->deleteLater();
+    });
+
 	layout->addLayout(python_script_path_radio_layout);
 	layout->addLayout(python_script_content_radio_layout);
+    layout->addWidget(help_button);
 }
 
 

@@ -7,6 +7,7 @@
 
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvguiqt/PVAboutBoxDialog.h>
 
 #include <inendi/PVRoot.h>
 
@@ -98,6 +99,15 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 		}
 	});
 
+    // Help
+    QPushButton* help_button = new QPushButton("&Help");
+    QObject::connect(help_button, &QPushButton::clicked, [=,this]() {
+        QVariant data_anchor("_python_scripting");
+        PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL, parent, data_anchor);
+        about_dialog->exec();
+        about_dialog->deleteLater();
+    });
+
 	QGridLayout* layout = new QGridLayout;
 
 	layout->addWidget(exec_file_label, 0, 0);
@@ -108,6 +118,8 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	layout->addWidget(console_input, 1, 0, 1, 3);
 	layout->addWidget(exec_script, 1, 3);
 	layout->addWidget(console_output, 2, 0, -1, -1);
+	layout->addWidget(help_button, 3, 0, -1, -1);
+
 	console_widget->setLayout(layout);
 
 	return console_widget;

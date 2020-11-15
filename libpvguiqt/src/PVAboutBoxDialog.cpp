@@ -102,7 +102,7 @@ class PVChangeLogWidget : public QWidget
 class PVReferenceManual : public QWebEngineView
 {
   public:
-	PVReferenceManual()
+	PVReferenceManual(const QString& anchor)
 	{
 		setContextMenuPolicy(Qt::NoContextMenu);
 #ifdef INENDI_DEVELOPER_MODE
@@ -115,9 +115,7 @@ class PVReferenceManual : public QWebEngineView
 			}
 		});
 #endif
-		pvlogger::info() << std::string("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html") << std::endl;
-		load(QUrl(std::string("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html")
-		              .c_str()));
+		load(QUrl((QString("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html#") + anchor)));
 	}
 };
 
@@ -214,7 +212,7 @@ Qt3DCore::QEntity* createScene()
 	return rootEntity;
 }
 
-PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* parent /*= 0*/)
+PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* parent /*= 0*/, QVariant data /* = {} */)
     : QDialog(parent)
 {
 	setWindowTitle("About INENDI Inspector");
@@ -379,7 +377,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	_tab_widget->addTab(tab_software, "Software");
 	_changelog_tab = new PVChangeLogWidget;
 	_tab_widget->addTab(_changelog_tab, "Changelog");
-	_reference_manual_tab = new PVReferenceManual;
+	_reference_manual_tab = new PVReferenceManual(data.toString());
 	_tab_widget->addTab(_reference_manual_tab, "Reference Manual");
 	_tab_widget->addTab(new PVOpenSourceSoftwareWidget, "Open source software");
 
@@ -390,7 +388,12 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	connect(ok, &QAbstractButton::clicked, this, &QDialog::accept);
 
-	resize(520, 550);
+	if (tab == PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL) {
+		resize(1550, 950);
+	}
+	else {
+		resize(520, 550);
+	}
 
 	select_tab(tab);
 }

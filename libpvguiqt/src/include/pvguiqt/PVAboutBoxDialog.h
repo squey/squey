@@ -41,7 +41,7 @@ class PVAboutBoxDialog : public QDialog
 	enum Tab { SOFTWARE, CHANGELOG, REFERENCE_MANUAL, OPEN_SOURCE_SOFTWARE };
 
   public:
-	explicit PVAboutBoxDialog(Tab = SOFTWARE, QWidget* parent = nullptr);
+	explicit PVAboutBoxDialog(Tab = SOFTWARE, QWidget* parent = nullptr, QVariant data = {});
 	void select_tab(Tab);
 
   private:
