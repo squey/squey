@@ -169,9 +169,9 @@ class PVLicenseActivator
 	}
 
   public:
-	static std::string get_locking_code()
+	static std::string get_locking_code(const std::string& path = "/app/bin/inendi-echoid")
 	{
-		const std::string& echoid_output = PVCore::exec_cmd("inendi-echoid");
+		const std::string& echoid_output = PVCore::exec_cmd(path.c_str());
 		std::string locking_code;
 		std::istringstream iss(echoid_output);
 		std::string line;
