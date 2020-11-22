@@ -21,7 +21,7 @@ else
         echo "Please, install flatpaked NVIDIA Drivers in order to have GPU acceleration (flatpak install flathub org.freedesktop.Platform.GL.$NVIDIA_VERSION_NAME)"
     fi
 fi
-MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors  --mount files/.slm /var/.slm --mount /srv/tmp-inspector /srv/tmp-inspector"
+MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors  --mount /var/.slm /var/.slm --mount /srv/tmp-inspector /srv/tmp-inspector"
 
 # Install Buildstream and bst-external plugins if needed
 command -v "bst" &> /dev/null || { pip3 install --user BuildStream==1.4.1; }
