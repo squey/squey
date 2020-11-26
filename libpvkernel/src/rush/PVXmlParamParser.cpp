@@ -164,7 +164,7 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromRootNode(QDomElement const&
 			continue;
 		}
 
-		setAxesCombinationFromString(node.text());
+		setAxesCombinationFromString(elt.text());
 		return;
 	}
 	setAxesCombinationFromString(QString());
