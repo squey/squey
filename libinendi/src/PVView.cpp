@@ -709,7 +709,7 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 		mapped.append_column();
 		Inendi::PVPlotted& plotted = get_parent<PVPlotted>();
 		plotted.append_column();
-		mapped.compute(); 
+		mapped.compute();
 
 		// update format
 		PVCol col(nraw.column_count()-1);
