@@ -8,6 +8,7 @@
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 #include <inendi/PVRoot.h>
 
@@ -31,17 +32,30 @@ PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
 {
 }
 
-static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingleton& python_interpreter, QTextEdit* console_output)
+static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingleton& python_interpreter, QTextEdit* console_output, Inendi::PVView* view)
 {
 	auto start = std::chrono::system_clock::now();
 
 	python_interpreter.python_output.clearStdout();
-	try {
-		f();
+
+	std::string exception_msg;
+	PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
+		pbox.set_enable_cancel(false);
+		try {
+			f();
+		} catch (const pybind11::error_already_set &eas) {
+			exception_msg = eas.what();
+			pbox.set_canceled();
+			Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
+		}
+	}, QString("Executing python script"), nullptr);
+
+	if (exception_msg.empty()) {
 		console_output->setText(python_interpreter.python_output.stdoutString().c_str());
 		console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
-	} catch (pybind11::error_already_set &eas) {
-		console_output->setText(eas.what());
+	}
+	else {
+		console_output->setText(exception_msg.c_str());
 		console_output->setStyleSheet("QTextEdit { background-color : black; color : red; }");
 	}
 
@@ -72,7 +86,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
 		run_python([=](){
 			pybind11::exec(console_input->toPlainText().toStdString());
-		}, python_interpreter, console_output);
+		}, python_interpreter, console_output, view);
 	});
 
 	QLabel* exec_file_label = new QLabel("Python file:");
@@ -95,7 +109,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 		if (QFileInfo(file_path).exists()) {
 			run_python([=, &python_interpreter](){
 				pybind11::eval_file(file_path.toStdString());
-			}, python_interpreter, console_output);
+			}, python_interpreter, console_output, view);
 		}
 	});
 

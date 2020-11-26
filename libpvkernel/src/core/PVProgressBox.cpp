@@ -18,6 +18,7 @@
 #include <QMessageBox>
 
 #include <boost/thread.hpp>
+#include "pybind11/pybind11.h"
 
 /******************************************************************************
  *
@@ -236,7 +237,10 @@ void PVCore::PVProgressBox::exec_gui_slot(PVCore::PVProgressBox::func_t f)
 }
 
 PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
-    PVCore::PVProgressBox::process_t f, QString const& name, QWidget* parent)
+	PVCore::PVProgressBox::process_t f,
+	QString const& name,
+	QWidget* parent,
+	bool python_script)
 {
 	PVProgressBox pbox(name, parent);
 
@@ -250,8 +254,27 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
 		}
 	}
 
-	th.join();
+	if (python_script) {
+		pybind11::gil_scoped_release guard{};
+		th.join();
+	}
+	else {
+		th.join();
+	}
+
 	return pbox.get_cancel_state();
+}
+
+PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
+    PVCore::PVProgressBox::process_t f, QString const& name, QWidget* parent)
+{
+	return progress(f, name, parent, false);
+}
+
+PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
+    PVCore::PVProgressBox::process_t f, QString const& name, QWidget* parent)
+{
+	return progress(f, name, parent, true);
 }
 
 void PVCore::PVProgressBox::process(process_t f)

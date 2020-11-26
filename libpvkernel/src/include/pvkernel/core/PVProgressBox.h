@@ -96,6 +96,10 @@ class PVProgressBox : public QDialog
 
   public:
 	static CancelState progress(process_t f, QString const& name, QWidget* parent);
+	static CancelState progress_python(process_t f, QString const& name, QWidget* parent);
+
+  private:
+	static CancelState progress(process_t f, QString const& name, QWidget* parent, bool python_script);
 
   private:
 	void process(process_t f);

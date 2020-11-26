@@ -1083,13 +1083,14 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 		}
 		else {
 			auto& python_interpreter = src.get_parent<Inendi::PVRoot>().python_interpreter();
-			PVCore::PVProgressBox::progress([&](PVCore::PVProgressBox& pbox) {
+			PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
 				pbox.set_enable_cancel(false);
 				try {
 					python_interpreter.execute_script(python_script.toStdString(), is_path);
 				}
-				catch (pybind11::error_already_set &eas) {
-					Q_EMIT pbox.warning_sig("Error while executing Python script", eas.what());
+				catch (const pybind11::error_already_set &eas) {
+					pbox.warning("Error while executing Python script", eas.what());
+					Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
 				}
 			}, QString("Executing python script"), this);
 		}
