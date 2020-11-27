@@ -20,7 +20,7 @@ Inendi::PVPythonSource::PVPythonSource(Inendi::PVSource& source)
     : _source(source)
 {
     auto& python_interpreter = _source.get_parent<Inendi::PVRoot>().python_interpreter();
-    bool ret = QObject::connect(&python_interpreter, &PVPythonAppSingleton::move_to_gui_thread, &python_interpreter, [](Inendi::PVView* view){
+    QObject::connect(&python_interpreter, &PVPythonAppSingleton::move_to_gui_thread, &python_interpreter, [](Inendi::PVView* view){
         view->_axis_combination_updated.emit();
         view->get_parent<Inendi::PVPlotted>().update_plotting();
     }, Qt::QueuedConnection);
@@ -70,8 +70,10 @@ pybind11::array Inendi::PVPythonSource::column(size_t index, StringColumnAs stri
                 return pybind11::array(pybind11::cast(std::move(strings)));
             }
             break;
-            case StringColumnAs::ID :
+            case StringColumnAs::ID : {
                 dtype_str = _map_type.at(pvcop::db::type_index);
+                break;
+            }
             default :
                 [[fallthrough]];
         }
@@ -161,7 +163,7 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection(int layer_index)
         selection = &view->get_real_output_selection();
     }
     else {
-        if (layer_index >= (size_t) layerstack.get_layer_count()) {
+        if (layer_index >= layerstack.get_layer_count()) {
             throw std::out_of_range("Out of range layer index");
         }
         selection = &layerstack.get_layer_n(layer_index).get_selection();
@@ -177,7 +179,7 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection(const std::string& l
     const Inendi::PVView* view = _source.current_view();
     const Inendi::PVLayerStack layerstack = view->get_layer_stack();
     if (layer_name == "") {
-        return selection((size_t)-1);
+        return selection(-1);
     }
     else {
         std::vector<size_t> matching_layers_indexes;

@@ -32,7 +32,7 @@ PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
 {
 }
 
-static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingleton& python_interpreter, QTextEdit* console_output, Inendi::PVView* view)
+static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingleton& python_interpreter, QTextEdit* console_output)
 {
 	auto start = std::chrono::system_clock::now();
 
@@ -86,7 +86,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
 		run_python([=](){
 			pybind11::exec(console_input->toPlainText().toStdString());
-		}, python_interpreter, console_output, view);
+		}, python_interpreter, console_output);
 	});
 
 	QLabel* exec_file_label = new QLabel("Python file:");
@@ -109,7 +109,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 		if (QFileInfo(file_path).exists()) {
 			run_python([=, &python_interpreter](){
 				pybind11::eval_file(file_path.toStdString());
-			}, python_interpreter, console_output, view);
+			}, python_interpreter, console_output);
 		}
 	});
 

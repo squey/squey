@@ -280,7 +280,7 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 	update_layout();
 }
 
-void PVParallelView::PVSeriesViewWidget::select_all_series(bool use_axes_combination /* = true */)
+void PVParallelView::PVSeriesViewWidget::select_all_series(bool /*use_axes_combination  = true */)
 {
 	QAbstractItemModel& model = *_series_tree_widget->model();
 	QItemSelection top_selection{model.index(0, 0), model.index(model.rowCount() - 1, 0)};

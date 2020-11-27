@@ -275,7 +275,7 @@ void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode(QAction* action
 	if (_series_view_widget->_sampler) {
 		set_sampling_mode(_sampling_mode);
 		PVCore::PVProgressBox::progress(
-		    [this](PVCore::PVProgressBox& pbox) { _series_view_widget->_sampler->resubsample(); },
+		    [this](PVCore::PVProgressBox& /*pbox*/) { _series_view_widget->_sampler->resubsample(); },
 		    QObject::tr("Sampling..."), this);
 	}
 

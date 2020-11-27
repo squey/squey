@@ -348,7 +348,7 @@ bool PVRush::PVFormat::is_valid() const
 	return _axes.size() >= 2;
 }
 
-void PVRush::PVFormat::insert_axis(const PVAxisFormat& axis, PVCombCol pos, bool after /* = true */)
+void PVRush::PVFormat::insert_axis(const PVAxisFormat& axis, PVCombCol /*pos*/, bool after /* = true */)
 {
 	_axes.append(axis);
 	_axes_comb.emplace_back(PVCol(_axes.size()-1)); // TODO : don't insert at the end

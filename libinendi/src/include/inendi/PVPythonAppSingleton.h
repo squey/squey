@@ -59,7 +59,7 @@ public:
     }
 };
 
-class PVPythonAppSingleton : public QObject
+class __attribute__((visibility("default"))) PVPythonAppSingleton : public QObject
 {
     Q_OBJECT
 private:
