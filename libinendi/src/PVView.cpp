@@ -704,13 +704,6 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 	bool ret = nraw.append_column(column_type, column);
 
 	if (ret) {
-		// compute mapping and plotting
-		Inendi::PVMapped& mapped = get_parent<PVMapped>();
-		mapped.append_column();
-		Inendi::PVPlotted& plotted = get_parent<PVPlotted>();
-		plotted.append_column();
-		mapped.compute();
-
 		// update format
 		PVCol col(nraw.column_count()-1);
 		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
@@ -723,6 +716,13 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 		axis_format.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 		format.insert_axis(axis_format, PVCombCol(0), true); // FIXME
 		_axes_combination.axis_append(col);
+
+		// compute mapping and plotting
+		Inendi::PVMapped& mapped = get_parent<PVMapped>();
+		mapped.append_column();
+		Inendi::PVPlotted& plotted = get_parent<PVPlotted>();
+		plotted.append_column();
+		mapped.compute();
 	}
 
 	return ret;

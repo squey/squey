@@ -22,6 +22,7 @@ Inendi::PVPythonSource::PVPythonSource(Inendi::PVSource& source)
     auto& python_interpreter = _source.get_parent<Inendi::PVRoot>().python_interpreter();
     bool ret = QObject::connect(&python_interpreter, &PVPythonAppSingleton::move_to_gui_thread, &python_interpreter, [](Inendi::PVView* view){
         view->_axis_combination_updated.emit();
+        view->get_parent<Inendi::PVPlotted>().update_plotting();
     }, Qt::QueuedConnection);
 }
 
