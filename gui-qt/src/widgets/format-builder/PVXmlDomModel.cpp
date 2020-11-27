@@ -1062,7 +1062,12 @@ void PVInspector::PVXmlDomModel::set_python_script(const QString& python_script,
 	newNodeTag.setAttribute("path", is_path ? "1" : "0");
 	newNodeTag.setAttribute("disabled", disabled ? "1" : "0");
 	
-	getRootDom().replaceChild(newNodeTag, python_script_element);
+	if (python_script_element.isNull()) {
+		getRootDom().appendChild(newNodeTag);
+	}
+	else {
+		getRootDom().replaceChild(newNodeTag, python_script_element);
+	}
 
 	QString text_node_content = python_script;
 	if (not is_path) {
