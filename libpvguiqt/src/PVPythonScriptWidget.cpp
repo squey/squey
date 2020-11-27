@@ -21,8 +21,6 @@
 #include <QRadioButton>
 #include <QButtonGroup>
 
-#include <pvlogger.h>
-
 PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*/)
     : QGroupBox(tr("Execute Python script after import"), parent)
 {
@@ -85,12 +83,16 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
 	connect(_python_script_content_radio, &QRadioButton::toggled, this, [=,this]() {
 		bool checked = _python_script_content_radio->isChecked();
 		python_script_path_container_widget->setEnabled(not checked);
-		python_script_content_container_widget->setEnabled(checked);
+        if (isChecked()) {
+		    python_script_content_container_widget->setEnabled(checked);
+        }
         notify_python_script_updated();
 	});
 	connect(_python_script_path_radio, &QRadioButton::toggled, this, [=,this]() {
 		bool checked = _python_script_path_radio->isChecked();
-		python_script_path_container_widget->setEnabled(checked);
+        if (isChecked()) {
+            python_script_path_container_widget->setEnabled(checked);
+        }
 		python_script_content_container_widget->setEnabled(not checked);
         notify_python_script_updated();
 	});
