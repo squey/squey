@@ -24,6 +24,8 @@
 
 #include <functional>
 
+#include <boost/thread.hpp>
+
 PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget,
                       "Python console",
@@ -32,31 +34,40 @@ PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
 {
 }
 
-static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingleton& python_interpreter, QTextEdit* console_output)
+static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingleton& python_interpreter, QTextEdit* console_output, QWidget* parent)
 {
 	auto start = std::chrono::system_clock::now();
 
 	python_interpreter.python_output.clearStdout();
 
 	std::string exception_msg;
-	PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
-		pbox.set_enable_cancel(false);
+	PVCore::PVProgressBox::CancelState cancel_state = PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
+		pbox.set_enable_cancel(true);
 		try {
 			f();
 		} catch (const pybind11::error_already_set &eas) {
-			exception_msg = eas.what();
-			pbox.set_canceled();
-			Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
+			if (eas.matches(PyExc_InterruptedError)) {
+				pbox.set_canceled();
+			}
+			else {
+				exception_msg = eas.what();
+			}
+			throw; // rethrow exception to handle progress box dismiss
 		}
-	}, QString("Executing python script"), nullptr);
+	}, QString("Executing python script"), parent);
 
-	if (exception_msg.empty()) {
-		console_output->setText(python_interpreter.python_output.stdoutString().c_str());
-		console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
+	if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE) { // FIXME : race condition
+		if (exception_msg.empty()) {
+			console_output->setText(python_interpreter.python_output.stdoutString().c_str());
+			console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
+		}
+		else {
+			console_output->setText(exception_msg.c_str());
+			console_output->setStyleSheet("QTextEdit { background-color : black; color : red; }");
+		}
 	}
 	else {
-		console_output->setText(exception_msg.c_str());
-		console_output->setStyleSheet("QTextEdit { background-color : black; color : red; }");
+		console_output->clear();
 	}
 
 	auto end = std::chrono::system_clock::now();
@@ -86,7 +97,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
 		run_python([=](){
 			pybind11::exec(console_input->toPlainText().toStdString());
-		}, python_interpreter, console_output);
+		}, python_interpreter, console_output, parent);
 	});
 
 	QLabel* exec_file_label = new QLabel("Python file:");
@@ -109,7 +120,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 		if (QFileInfo(file_path).exists()) {
 			run_python([=, &python_interpreter](){
 				pybind11::eval_file(file_path.toStdString());
-			}, python_interpreter, console_output);
+			}, python_interpreter, console_output, parent);
 		}
 	});
 
