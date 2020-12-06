@@ -109,6 +109,7 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	connect(this, &PVProgressBox::information_sig, this, &PVProgressBox::information_slot,
 	        Qt::BlockingQueuedConnection);
 	connect(this, &PVProgressBox::finished_sig, this, &PVProgressBox::accept, Qt::QueuedConnection);
+	connect(this, &PVProgressBox::canceled_sig, this, &PVProgressBox::reject, Qt::QueuedConnection);
 
 	/* this one must be in blocking mode because the sender must wait for an user interaction
 	 */
@@ -126,7 +127,8 @@ void PVCore::PVProgressBox::cancel()
 			return;
 		}
 	}
-	reject();
+	_btnCancel->setEnabled(false);
+	Q_EMIT cancel_asked_sig();
 }
 
 void PVCore::PVProgressBox::set_enable_cancel(bool enable)
@@ -248,6 +250,10 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
 {
 	PVProgressBox pbox(name, parent);
 
+	connect(&pbox, &PVProgressBox::cancel_asked_sig, [&](){
+		Q_EMIT pbox.canceled_sig();
+	});
+
 	boost::thread th([&]() {
 		try {
 			f(pbox);
@@ -258,7 +264,7 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
 
 	if (!th.timed_join(boost::posix_time::milliseconds(250))) {
 		if (pbox.exec() != QDialog::Accepted) {
-			pbox.set_extended_status_slot("Cancelling");
+			pbox.set_extended_status_slot("Canceling");
 			pbox.update();
 			th.interrupt();
 		}
@@ -278,34 +284,36 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
 
 	std::atomic<bool> interrupted(false);
 
+	connect(&pbox, &PVProgressBox::cancel_asked_sig, [&](){
+		pbox.message->setText("Canceling python script...");
+		pbox.update();
+		interrupted = true;
+
+		// Cancel python script execution
+		std::string threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
+		unsigned long threadNumber = 0;
+		sscanf(threadId.c_str(), "%lx", &threadNumber);
+		gstate = PyGILState_Ensure();
+		PyThreadState_SetAsyncExc(threadNumber, PyExc_InterruptedError);
+		PyGILState_Release(gstate);
+	});
+
 	boost::thread th([&]() {
 		try {
 			f(pbox);
 		} catch (const pybind11::error_already_set &eas) {
 			if (eas.matches(PyExc_InterruptedError)) {
+				Q_EMIT pbox.canceled_sig();
 				return;
 			}
-			Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
+			Q_EMIT pbox.canceled_sig(); // dismiss progress box in GUI thread
 			return;
 		}
 		Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
 	});
 
 	if (!th.timed_join(boost::posix_time::milliseconds(250))) {
-		if (pbox.exec() != QDialog::Accepted) {
-			pbox.set_extended_status_slot("Cancelling");
-			pbox.update();
-			th.interrupt();
-			interrupted = true;
-
-			// Cancel python script execution
-			std::string threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
-			unsigned long threadNumber = 0;
-			sscanf(threadId.c_str(), "%lx", &threadNumber);
-			gstate = PyGILState_Ensure();
-			PyThreadState_SetAsyncExc(threadNumber, PyExc_InterruptedError);
-			PyGILState_Release(gstate);
-		}
+		pbox.exec();
 	}
 
 	if (not interrupted) {

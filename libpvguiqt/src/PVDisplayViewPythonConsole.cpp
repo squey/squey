@@ -38,8 +38,6 @@ static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingle
 {
 	auto start = std::chrono::system_clock::now();
 
-	python_interpreter.python_output.clearStdout();
-
 	std::string exception_msg;
 	PVCore::PVProgressBox::CancelState cancel_state = PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
 		pbox.set_enable_cancel(true);
@@ -54,11 +52,12 @@ static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingle
 			}
 			throw; // rethrow exception to handle progress box dismiss
 		}
-	}, QString("Executing python script"), parent);
+	}, QString("Executing python script..."), parent);
 
 	if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE) { // FIXME : race condition
 		if (exception_msg.empty()) {
 			console_output->setText(python_interpreter.python_output.stdoutString().c_str());
+			python_interpreter.python_output.clearStdout();
 			console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
 		}
 		else {
