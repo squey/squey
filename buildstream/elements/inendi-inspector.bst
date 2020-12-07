@@ -57,6 +57,7 @@ depends:
 - boost.bst
 - qt5.bst
 - kitemmodels.bst
+- ksyntaxhighlighting.bst
 - erf.bst
 - qtopcua.bst
 - pybind11.bst

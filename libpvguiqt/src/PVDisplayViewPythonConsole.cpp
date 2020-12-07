@@ -6,9 +6,10 @@
  */
 
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
-#include <pvkernel/widgets/PVFileDialog.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
+#include <pvguiqt/PVPythonCodeEditor.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 #include <inendi/PVRoot.h>
 
@@ -86,8 +87,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 
 	QWidget* console_widget = new QWidget(parent);
 
-	QTextEdit* console_input = new QTextEdit(parent);
-	console_input->setStyleSheet("QTextEdit { background-color : black; color : #ffcc00; }");
+	PVGuiQt::PVPythonCodeEditor* console_input = new PVGuiQt::PVPythonCodeEditor(PVGuiQt::PVPythonCodeEditor::EThemeType::DARK, parent);
 
 	QTextEdit* console_output = new QTextEdit(parent);
 	console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");

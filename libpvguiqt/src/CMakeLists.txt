@@ -44,6 +44,7 @@ PVStatsListingWidget.cpp
 PVExportSelectionDlg.cpp
 PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
+PVPythonCodeEditor.cpp
 
 # Displays that will be registered to libpvdisplays
 PVDisplaySourceDataTree.cpp
@@ -81,6 +82,7 @@ include/pvguiqt/PVStatsListingWidget.h
 include/pvguiqt/PVExportSelectionDlg.h
 include/pvguiqt/PVAboutBoxDialog.h
 include/pvguiqt/PVPythonScriptWidget.h
+include/pvguiqt/PVPythonCodeEditor.h
 )
 
 SET(UI_FILES
