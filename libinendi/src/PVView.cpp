@@ -728,6 +728,29 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 	return ret;
 }
 
+void Inendi::PVView::delete_axis(PVCombCol comb_col)
+{
+	// Remove axis (or axes) from axes combination
+	PVCol col = _axes_combination.get_nraw_axis(comb_col);
+	_axes_combination.remove_axes(col);
+
+	// Notifify axes combination update on Qt GUI thread
+	auto& python_interpreter = get_parent<Inendi::PVRoot>().python_interpreter();
+    Q_EMIT python_interpreter.axes_combination_about_to_be_updated_sig(get_parent<Inendi::PVSource>().current_view());
+
+	QObject::connect(&python_interpreter, &PVPythonAppSingleton::axes_combination_updated_sig, [&,col](){
+		pvlogger::info() << "PVPythonAppSingleton::axes_combination_updated_sig" << std::endl;
+		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+		PVRush::PVNraw& nraw = get_rushnraw_parent();
+		
+		// Remove axes
+		//format.delete_axis(col);
+
+		// Delete column from disk
+		//nraw.delete_column(col);
+	});
+}
+
 // Load/save and serialization
 void Inendi::PVView::serialize_write(PVCore::PVSerializeObject& so) const
 {

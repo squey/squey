@@ -80,7 +80,8 @@ Q_SIGNALS:
 	/**
 	 * Qt Signal used to get back to GUI thread to update widgets
 	 */
-    void move_to_gui_thread(Inendi::PVView*);
+    void axes_combination_about_to_be_updated_sig(Inendi::PVView*);
+    void axes_combination_updated_sig();
 
 private:
     pybind11::scoped_interpreter _guard;

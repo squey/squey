@@ -175,6 +175,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void set_selection_from_layer(PVLayer const& layer);
 
 	bool insert_axis(const pvcop::db::type_t& column_type, const pybind11::array& column, const QString& axis_name);
+	void delete_axis(PVCombCol comb_col);
 
 	/**
 	 * Set the current selected events set

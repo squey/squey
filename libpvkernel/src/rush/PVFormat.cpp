@@ -355,6 +355,16 @@ void PVRush::PVFormat::insert_axis(const PVAxisFormat& axis, PVCombCol /*pos*/, 
 	(void) after;
 }
 
+void PVRush::PVFormat::delete_axis(PVCol col)
+{
+	// Remove col from axes
+	_axes.erase(std::remove_if(_axes.begin(), _axes.end(), [&](const PVAxisFormat& axis) { return axis.get_index() == col; }));
+
+	// Remove col from axes combination
+	std::remove(_axes_comb.begin(), _axes_comb.end(), col);
+}
+
+
 char* fill_spaces(QString str, int max_spaces)
 {
 	// Use for debug so we display the different elements

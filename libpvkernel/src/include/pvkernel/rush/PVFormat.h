@@ -112,6 +112,7 @@ class PVFormat
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 
 	void insert_axis(const PVAxisFormat& axis, PVCombCol pos, bool after = true);
+	void delete_axis(PVCol pos);
 
 	size_t get_first_line() const { return _first_line; }
 	void set_first_line(size_t first_line) { _first_line = first_line; }

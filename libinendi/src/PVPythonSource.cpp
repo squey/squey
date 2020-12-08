@@ -20,9 +20,10 @@ Inendi::PVPythonSource::PVPythonSource(Inendi::PVSource& source)
     : _source(source)
 {
     auto& python_interpreter = _source.get_parent<Inendi::PVRoot>().python_interpreter();
-    QObject::connect(&python_interpreter, &PVPythonAppSingleton::move_to_gui_thread, &python_interpreter, [](Inendi::PVView* view){
+    QObject::connect(&python_interpreter, &PVPythonAppSingleton::axes_combination_about_to_be_updated_sig, &python_interpreter, [&](Inendi::PVView* view) {
         view->_axis_combination_updated.emit();
         view->get_parent<Inendi::PVPlotted>().update_plotting();
+        Q_EMIT python_interpreter.axes_combination_updated_sig();
     }, Qt::QueuedConnection);
 }
 
@@ -237,6 +238,29 @@ void Inendi::PVPythonSource::insert_column(const pybind11::array& column, const 
     // Notifify axes combination update on Qt GUI thread
     if (ret) {
         auto& python_interpreter = _source.get_parent<Inendi::PVRoot>().python_interpreter();
-        Q_EMIT python_interpreter.move_to_gui_thread(_source.current_view());
+        Q_EMIT python_interpreter.axes_combination_about_to_be_updated_sig(_source.current_view());
     }
+}
+
+void Inendi::PVPythonSource::delete_column(const std::string& column_name, size_t position  /* = 0 */)
+{
+    Inendi::PVView* view = _source.current_view();
+    size_t column_count = view->get_column_count();
+    std::vector<PVCombCol> matching_columns_indexes;
+    for (PVCombCol comb_col(0); comb_col < (PVCombCol) column_count; comb_col++) {
+        if (column_name == view->get_axis_name(comb_col).toStdString()) {
+            matching_columns_indexes.emplace_back(comb_col);
+        }
+    }
+    if (matching_columns_indexes.empty()) {
+        throw std::domain_error(std::string("No column named \"") + column_name + "\"");
+    }
+    if (position >= matching_columns_indexes.size()) {
+        throw std::domain_error(std::string("The count of columns named \"") + column_name + "\" is <= " + std::to_string(position));
+    }
+
+    // Delete column from disk
+    _source.current_view()->delete_axis(matching_columns_indexes[position]);
+
+    // TODO : edit format ? Investigation ?
 }

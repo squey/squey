@@ -100,6 +100,17 @@ bool PVRush::PVNraw::append_column(const pvcop::db::type_t& column_type, const p
 
 /*****************************************************************************
  *
+ * PVRush::PVNraw::delete_column
+ *
+ ****************************************************************************/
+
+void PVRush::PVNraw::delete_column(PVCol col)
+{
+	_collection->delete_column(col);
+}
+
+/*****************************************************************************
+ *
  * PVRush::PVNraw::add_chunk_utf16
  *
  ****************************************************************************/

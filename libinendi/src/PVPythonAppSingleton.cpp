@@ -36,6 +36,7 @@ Inendi::PVPythonAppSingleton::PVPythonAppSingleton(Inendi::PVRoot& root) : _guar
     python_source.def("selection", pybind11::overload_cast<int>(&PVPythonSource::selection), pybind11::arg("layer_index"));
     python_source.def("selection", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::selection), pybind11::arg("layer_name"), pybind11::arg("position") = 0);
     python_source.def("insert_column", &PVPythonSource::insert_column);
+    python_source.def("delete_column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::delete_column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
 
     pybind11::class_<PVPythonSelection> python_selection(main, "selection");
     python_selection.def("data", &PVPythonSelection::data);
