@@ -35,7 +35,7 @@ PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
 {
 }
 
-static void run_python(const std::function<void()>& f, Inendi::PVPythonAppSingleton& python_interpreter, QTextEdit* console_output, QWidget* parent)
+static void run_python(const std::function<void()>& f, Inendi::PVPythonInterpreter& python_interpreter, QTextEdit* console_output, QWidget* parent)
 {
 	auto start = std::chrono::system_clock::now();
 
@@ -83,7 +83,6 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	// TODO : add drag n drop from axes/columns and sources
 
 	Inendi::PVRoot& root = view->get_parent<Inendi::PVRoot>();
-	Inendi::PVPythonAppSingleton& python_interpreter = root.python_interpreter();
 
 	QWidget* console_widget = new QWidget(parent);
 
@@ -93,7 +92,8 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
 
 	QPushButton* exec_script = new QPushButton("Exec sc&ript");
-	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
+	QObject::connect(exec_script, &QPushButton::clicked, [=,&root](){
+		Inendi::PVPythonInterpreter python_interpreter(root);
 		run_python([=,&python_interpreter](){
 			python_interpreter.execute_script(console_input->toPlainText().toStdString(), false);
 		}, python_interpreter, console_output, parent);
@@ -114,10 +114,11 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 		}
 	});
 	QPushButton* exec_file_button = new QPushButton("Exec &file");
-	QObject::connect(exec_file_button, &QPushButton::clicked, [=,&python_interpreter](){
+	QObject::connect(exec_file_button, &QPushButton::clicked, [=,&root](){
 		const QString& file_path = exec_file_line_edit->text();
 		if (QFileInfo(file_path).exists()) {
-			run_python([=, &python_interpreter](){
+			Inendi::PVPythonInterpreter python_interpreter(root);
+			run_python([=,&python_interpreter](){
 				python_interpreter.execute_script(file_path.toStdString(), true);
 			}, python_interpreter, console_output, parent);
 		}

@@ -25,7 +25,7 @@
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
-#include <inendi/PVPythonAppSingleton.h>
+#include <inendi/PVPythonInterpreter.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -67,7 +67,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 			assert(false && "Missing Python script");
 		}
 		else {
-			auto& python_interpreter = src.get_parent<Inendi::PVRoot>().python_interpreter();
+			Inendi::PVPythonInterpreter python_interpreter(src.get_parent<Inendi::PVRoot>());
 			python_interpreter.execute_script(python_script.toStdString(), is_path);
 		}
 	}

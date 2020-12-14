@@ -730,6 +730,7 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 
 void Inendi::PVView::delete_axis(PVCombCol comb_col)
 {
+#if 0
 	// Remove axis (or axes) from axes combination
 	PVCol col = _axes_combination.get_nraw_axis(comb_col);
 	_axes_combination.remove_axes(col);
@@ -738,7 +739,7 @@ void Inendi::PVView::delete_axis(PVCombCol comb_col)
 	auto& python_interpreter = get_parent<Inendi::PVRoot>().python_interpreter();
     Q_EMIT python_interpreter.axes_combination_about_to_be_updated_sig(get_parent<Inendi::PVSource>().current_view());
 
-	QObject::connect(&python_interpreter, &PVPythonAppSingleton::axes_combination_updated_sig, [&,col](){
+	QObject::connect(&python_interpreter, &PVPythonInterpreter::axes_combination_updated_sig, [&,col](){
 		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
 		PVRush::PVNraw& nraw = get_rushnraw_parent();
 		
@@ -748,6 +749,7 @@ void Inendi::PVView::delete_axis(PVCombCol comb_col)
 		// Delete column from disk
 		//nraw.delete_column(col);
 	});
+#endif
 }
 
 // Load/save and serialization

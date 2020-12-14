@@ -5,8 +5,8 @@
  * @copyright (C) ESI Group INENDI April 2015-2020
  */
 
-#ifndef __PVPYTHONAPPSINGLETON__
-#define __PVPYTHONAPPSINGLETON__
+#ifndef __INENDI_PVPYTHONINTERPRETER__
+#define __INENDI_PVPYTHONINTERPRETER__
 
 #include <inendi/PVPythonSource.h>
 #include <inendi/PVPythonSelection.h>
@@ -59,29 +59,22 @@ public:
     }
 };
 
-class __attribute__((visibility("default"))) PVPythonAppSingleton : public QObject
+class __attribute__((visibility("default"))) PVPythonInterpreter
 {
-    Q_OBJECT
+public:
+    PVPythonInterpreter(Inendi::PVRoot& root);
+    ~PVPythonInterpreter();
+    
 private:
-    PVPythonAppSingleton(Inendi::PVRoot& root);
-    PVPythonAppSingleton(const PVPythonAppSingleton&)= delete;
-    PVPythonAppSingleton& operator=(const PVPythonAppSingleton&)= delete;
+    PVPythonInterpreter(const PVPythonInterpreter&)= delete;
+    PVPythonInterpreter& operator=(const PVPythonInterpreter&)= delete;
 
 public:
-	static PVPythonAppSingleton& instance(Inendi::PVRoot& root);
-
     PYBIND11_EXPORT PVPythonSource source(size_t source_index);
     PYBIND11_EXPORT PVPythonSource source(const std::string& source_name, size_t position);
 
 public:
     void execute_script(const std::string& script, bool is_path);
-
-Q_SIGNALS:
-	/**
-	 * Qt Signal used to get back to GUI thread to update widgets
-	 */
-    void axes_combination_about_to_be_updated_sig(Inendi::PVView*);
-    void axes_combination_updated_sig();
 
 private:
     pybind11::scoped_interpreter _guard;
@@ -93,4 +86,4 @@ public:
 
 } // namespace Inendi
 
-#endif // __PVPYTHONAPPSINGLETON__
+#endif // __INENDI_PVPYTHONINTERPRETER__

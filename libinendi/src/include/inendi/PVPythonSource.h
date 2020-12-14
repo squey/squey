@@ -24,7 +24,6 @@ class PVView;
 
 class PVPythonSource
 {
-
 public:
     enum class StringColumnAs
     {
@@ -54,7 +53,6 @@ public:
 
     PYBIND11_EXPORT void insert_column(const pybind11::array& column, const std::string& axis_name);
     PYBIND11_EXPORT void delete_column(const std::string& column_name, size_t position);
-
 
 private:
     Inendi::PVSource& _source;

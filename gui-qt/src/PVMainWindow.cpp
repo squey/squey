@@ -1082,15 +1082,15 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 				python_script + tr(" is missing"), QMessageBox::Ok);
 		}
 		else {
-			auto& python_interpreter = src.get_parent<Inendi::PVRoot>().python_interpreter();
+			Inendi::PVPythonInterpreter python_interpreter(_root);
 			PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
-				pbox.set_enable_cancel(false);
+				pbox.set_enable_cancel(true);
 				try {
 					python_interpreter.execute_script(python_script.toStdString(), is_path);
 				}
 				catch (const pybind11::error_already_set &eas) {
 					pbox.warning("Error while executing Python script", eas.what());
-					Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
+					throw; // rethrow exception to handle progress box dismiss
 				}
 			}, QString("Executing python script"), this);
 		}

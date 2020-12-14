@@ -1,6 +1,18 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2009-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2020
+ */
+
+#include <pvkernel/core/qmetaobject_helper.h>
+
 #include <inendi/PVPythonSource.h>
-#include <inendi/PVPythonAppSingleton.h>
+#include <inendi/PVPythonInterpreter.h>
 #include <inendi/PVRoot.h>
+
+#include <QApplication>
+
 
 const std::unordered_map<std::string, std::string> Inendi::PVPythonSource::_map_type = {
     {"number_double", "float64"},
@@ -19,12 +31,6 @@ const std::unordered_map<std::string, std::string> Inendi::PVPythonSource::_map_
 Inendi::PVPythonSource::PVPythonSource(Inendi::PVSource& source)
     : _source(source)
 {
-    auto& python_interpreter = _source.get_parent<Inendi::PVRoot>().python_interpreter();
-    QObject::connect(&python_interpreter, &PVPythonAppSingleton::axes_combination_about_to_be_updated_sig, &python_interpreter, [&](Inendi::PVView* view) {
-        view->_axis_combination_updated.emit();
-        view->get_parent<Inendi::PVPlotted>().update_plotting();
-        Q_EMIT python_interpreter.axes_combination_updated_sig();
-    }, Qt::QueuedConnection);
 }
 
 pybind11::array Inendi::PVPythonSource::column(size_t index, StringColumnAs string_as) /*const*/
@@ -237,8 +243,11 @@ void Inendi::PVPythonSource::insert_column(const pybind11::array& column, const 
 
     // Notifify axes combination update on Qt GUI thread
     if (ret) {
-        auto& python_interpreter = _source.get_parent<Inendi::PVRoot>().python_interpreter();
-        Q_EMIT python_interpreter.axes_combination_about_to_be_updated_sig(_source.current_view());
+        Inendi::PVView* view = _source.current_view();
+        QMetaObject::invokeMethod(qApp, [&](){
+            view->_axis_combination_updated.emit();
+            view->get_parent<Inendi::PVPlotted>().update_plotting();
+        }, Qt::QueuedConnection);
     }
 }
 

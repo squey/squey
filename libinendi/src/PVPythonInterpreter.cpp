@@ -1,14 +1,11 @@
-#include <inendi/PVPythonAppSingleton.h>
+#include <inendi/PVPythonInterpreter.h>
 
 #include <inendi/PVRoot.h>
 
-Inendi::PVPythonAppSingleton::PVPythonAppSingleton(Inendi::PVRoot& root) : _guard(), _root(&root)
+Inendi::PVPythonInterpreter::PVPythonInterpreter(Inendi::PVRoot& root) : _guard(), _root(&root)
 {
     pybind11::module main = pybind11::module::import("__main__");
-    pybind11::class_<PVPythonAppSingleton> inspyctor(main, "inspector");
-    inspyctor.def("init", [&]() {
-        return std::unique_ptr<PVPythonAppSingleton, pybind11::nodelete>(this);
-    });
+    pybind11::class_<PVPythonInterpreter> inspyctor(main, "inspector");
     inspyctor.def("source", [&](size_t index) {
         return source(index);
     });
@@ -42,16 +39,13 @@ Inendi::PVPythonAppSingleton::PVPythonAppSingleton(Inendi::PVRoot& root) : _guar
     python_selection.def("data", &PVPythonSelection::data);
     python_selection.def("is_selected", &PVPythonSelection::is_selected, pybind11::arg("index"));
     python_selection.def("set_selected", &PVPythonSelection::set_selected, pybind11::arg("index"), pybind11::arg("value"));
-    python_selection.def("set_selected_fast", &PVPythonSelection::set_selected_fast, pybind11::arg("index"), pybind11::arg("value"));
 }
 
-Inendi::PVPythonAppSingleton& Inendi::PVPythonAppSingleton::instance(Inendi::PVRoot& root)
+Inendi::PVPythonInterpreter::~PVPythonInterpreter()
 {
-    static PVPythonAppSingleton instance(root);
-    return instance;
 }
 
-void Inendi::PVPythonAppSingleton::execute_script(const std::string& script, bool is_path)
+void Inendi::PVPythonInterpreter::execute_script(const std::string& script, bool is_path)
 {
 	if (is_path) {
 		pybind11::eval_file(script);
@@ -61,7 +55,7 @@ void Inendi::PVPythonAppSingleton::execute_script(const std::string& script, boo
 	}
 }
 
-Inendi::PVPythonSource Inendi::PVPythonAppSingleton::source(size_t source_index)
+Inendi::PVPythonSource Inendi::PVPythonInterpreter::source(size_t source_index)
 {
     assert(_root);
     const auto& sources = _root->get_children<Inendi::PVSource>();
@@ -71,7 +65,7 @@ Inendi::PVPythonSource Inendi::PVPythonAppSingleton::source(size_t source_index)
     return PVPythonSource(**std::next(sources.begin(), source_index));
 }
 
-Inendi::PVPythonSource Inendi::PVPythonAppSingleton::source(const std::string& source_name, size_t position /* = 0 */)
+Inendi::PVPythonSource Inendi::PVPythonInterpreter::source(const std::string& source_name, size_t position /* = 0 */)
 {
     assert(_root);
     std::vector<PVPythonSource> matching_sources;

@@ -30,7 +30,6 @@ public:
     PYBIND11_EXPORT const pybind11::array& data() /* const */;
     PYBIND11_EXPORT bool is_selected(size_t row_index) /* const */;
     PYBIND11_EXPORT void set_selected(size_t row_index, bool selected) /* const */;
-    PYBIND11_EXPORT void set_selected_fast(size_t row_index, bool selected) /* const */;
 
 private:
     Inendi::PVView& _view;

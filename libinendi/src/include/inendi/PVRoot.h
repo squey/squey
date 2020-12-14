@@ -10,7 +10,7 @@
 
 #include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
 #include <inendi/PVScene.h>             // for PVScene
-#include <inendi/PVPythonAppSingleton.h>
+#include <inendi/PVPythonInterpreter.h>
 
 #include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeParent
 #include <pvkernel/core/PVSerializeObject.h>
@@ -81,8 +81,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 
 	void set_path(QString path) { _path = path; }
 	const QString& get_path() const { return _path; }
-
-	Inendi::PVPythonAppSingleton& python_interpreter() { return PVPythonAppSingleton::instance(*this); }
 
   public:
 	std::string get_serialize_description() const override { return "Investigation"; }

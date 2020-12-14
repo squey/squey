@@ -23,8 +23,6 @@
 
 #include <pvlogger.h>
 
-PyGILState_STATE gstate;
-
 /******************************************************************************
  *
  * PVCore::PVProgressBox::PVProgressBox
@@ -282,18 +280,15 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
 {
 	PVProgressBox pbox(name, parent);
 
-	std::atomic<bool> interrupted(false);
-
 	connect(&pbox, &PVProgressBox::cancel_asked_sig, [&](){
 		pbox.message->setText("Canceling python script...");
 		pbox.update();
-		interrupted = true;
 
 		// Cancel python script execution
 		std::string threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
 		unsigned long threadNumber = 0;
 		sscanf(threadId.c_str(), "%lx", &threadNumber);
-		gstate = PyGILState_Ensure();
+		PyGILState_STATE gstate = PyGILState_Ensure();
 		PyThreadState_SetAsyncExc(threadNumber, PyExc_InterruptedError);
 		PyGILState_Release(gstate);
 	});
@@ -302,10 +297,6 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
 		try {
 			f(pbox);
 		} catch (const pybind11::error_already_set &eas) {
-			if (eas.matches(PyExc_InterruptedError)) {
-				Q_EMIT pbox.canceled_sig();
-				return;
-			}
 			Q_EMIT pbox.canceled_sig(); // dismiss progress box in GUI thread
 			return;
 		}
@@ -316,10 +307,8 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
 		pbox.exec();
 	}
 
-	if (not interrupted) {
-		pybind11::gil_scoped_release gil_release;
-		th.join();
-	}
+	pybind11::gil_scoped_release gil_release;
+	th.join();
 
 	return pbox.get_cancel_state();
 }
