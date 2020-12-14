@@ -739,7 +739,6 @@ void Inendi::PVView::delete_axis(PVCombCol comb_col)
     Q_EMIT python_interpreter.axes_combination_about_to_be_updated_sig(get_parent<Inendi::PVSource>().current_view());
 
 	QObject::connect(&python_interpreter, &PVPythonAppSingleton::axes_combination_updated_sig, [&,col](){
-		pvlogger::info() << "PVPythonAppSingleton::axes_combination_updated_sig" << std::endl;
 		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
 		PVRush::PVNraw& nraw = get_rushnraw_parent();
 		

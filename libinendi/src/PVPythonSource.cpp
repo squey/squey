@@ -156,7 +156,7 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection()
 
 Inendi::PVPythonSelection Inendi::PVPythonSource::selection(int layer_index)
 {
-    const Inendi::PVView* view = _source.current_view();
+    Inendi::PVView* view = _source.current_view();
     const Inendi::PVLayerStack layerstack = view->get_layer_stack();
     const Inendi::PVSelection* selection = nullptr;
 
@@ -172,7 +172,7 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection(int layer_index)
     pybind11::str dummy_data_owner; // hack to disable ownership
     auto arr = pybind11::array("uint64", selection->chunk_count(), selection->get_buffer(), dummy_data_owner);
     reinterpret_cast<pybind11::detail::PyArray_Proxy*>(arr.ptr())->flags &= ~pybind11::detail::npy_api::NPY_ARRAY_WRITEABLE_; // hack to set flags.writable=false
-    return Inendi::PVPythonSelection(arr, selection->count());
+    return Inendi::PVPythonSelection(*view, arr, selection->count());
 }
 
 Inendi::PVPythonSelection Inendi::PVPythonSource::selection(const std::string& layer_name, size_t position  /* = 0 */)

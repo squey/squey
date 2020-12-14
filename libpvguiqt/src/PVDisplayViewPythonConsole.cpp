@@ -94,8 +94,8 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 
 	QPushButton* exec_script = new QPushButton("Exec sc&ript");
 	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
-		run_python([=](){
-			pybind11::exec(console_input->toPlainText().toStdString());
+		run_python([=,&python_interpreter](){
+			python_interpreter.execute_script(console_input->toPlainText().toStdString(), false);
 		}, python_interpreter, console_output, parent);
 	});
 
@@ -118,7 +118,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 		const QString& file_path = exec_file_line_edit->text();
 		if (QFileInfo(file_path).exists()) {
 			run_python([=, &python_interpreter](){
-				pybind11::eval_file(file_path.toStdString());
+				python_interpreter.execute_script(file_path.toStdString(), true);
 			}, python_interpreter, console_output, parent);
 		}
 	});
