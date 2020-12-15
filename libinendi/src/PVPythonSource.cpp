@@ -163,11 +163,11 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection()
 Inendi::PVPythonSelection Inendi::PVPythonSource::selection(int layer_index)
 {
     Inendi::PVView* view = _source.current_view();
-    const Inendi::PVLayerStack layerstack = view->get_layer_stack();
-    const Inendi::PVSelection* selection = nullptr;
+    Inendi::PVLayerStack layerstack = view->get_layer_stack();
+    Inendi::PVSelection* selection = nullptr;
 
     if (layer_index == -1) {
-        selection = &view->get_real_output_selection();
+        selection = &view->get_layer_stack_output_layer().get_selection();
     }
     else {
         if (layer_index >= layerstack.get_layer_count()) {
@@ -178,7 +178,7 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection(int layer_index)
     pybind11::str dummy_data_owner; // hack to disable ownership
     auto arr = pybind11::array("uint64", selection->chunk_count(), selection->get_buffer(), dummy_data_owner);
     reinterpret_cast<pybind11::detail::PyArray_Proxy*>(arr.ptr())->flags &= ~pybind11::detail::npy_api::NPY_ARRAY_WRITEABLE_; // hack to set flags.writable=false
-    return Inendi::PVPythonSelection(*view, arr, selection->count());
+    return Inendi::PVPythonSelection(*view, *selection, arr);
 }
 
 Inendi::PVPythonSelection Inendi::PVPythonSource::selection(const std::string& layer_name, size_t position  /* = 0 */)

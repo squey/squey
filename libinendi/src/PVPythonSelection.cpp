@@ -7,13 +7,14 @@
 
 #include <inendi/PVPythonSelection.h>
 
-/* TODO :
-    - fix gray row (zombies)
-*/
+
+Inendi::PVPythonSelection::PVPythonSelection(Inendi::PVView& view, Inendi::PVSelection& selection, pybind11::array& data)
+    : _view(view), _selection(selection), _data(data), _row_count(selection.count()), _data_buffer(_data.request()) {};
+
 Inendi::PVPythonSelection::~PVPythonSelection()
 {
     if (_selection_changed) {
-         _view._update_output_selection.emit();
+        _view.set_selection_view(_selection);
     }
 }
 

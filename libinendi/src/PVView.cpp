@@ -41,6 +41,7 @@
 #include <pvcop/collection.h> // for collection
 #include <pvcop/db/array.h>   // for indexes, array
 
+#include <QApplication>
 #include <QList>       // for QList
 #include <QString>     // for QString, operator+
 #include <QStringList> // for QStringList
@@ -730,26 +731,21 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 
 void Inendi::PVView::delete_axis(PVCombCol comb_col)
 {
-#if 0
 	// Remove axis (or axes) from axes combination
 	PVCol col = _axes_combination.get_nraw_axis(comb_col);
 	_axes_combination.remove_axes(col);
 
 	// Notifify axes combination update on Qt GUI thread
-	auto& python_interpreter = get_parent<Inendi::PVRoot>().python_interpreter();
-    Q_EMIT python_interpreter.axes_combination_about_to_be_updated_sig(get_parent<Inendi::PVSource>().current_view());
-
-	QObject::connect(&python_interpreter, &PVPythonInterpreter::axes_combination_updated_sig, [&,col](){
-		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+    QMetaObject::invokeMethod(qApp, [&,col](){
+        PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
 		PVRush::PVNraw& nraw = get_rushnraw_parent();
 		
 		// Remove axes
-		//format.delete_axis(col);
+		format.delete_axis(col);
 
 		// Delete column from disk
-		//nraw.delete_column(col);
-	});
-#endif
+		nraw.delete_column(col);
+    }, Qt::QueuedConnection);
 }
 
 // Load/save and serialization

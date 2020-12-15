@@ -21,7 +21,7 @@ namespace Inendi
 class __attribute__((visibility("hidden"))) PVPythonSelection
 {
 public:
-    PVPythonSelection(Inendi::PVView& view, pybind11::array& data, size_t row_count) : _view(view), _data(data), _row_count(row_count), _data_buffer(_data.request()) {};
+    PVPythonSelection(Inendi::PVView& view, Inendi::PVSelection& selection, pybind11::array& data);
     virtual ~PVPythonSelection();
 
     PVPythonSelection(PVPythonSelection&&) = default;	
@@ -33,6 +33,7 @@ public:
 
 private:
     Inendi::PVView& _view;
+    Inendi::PVSelection& _selection;
     const pybind11::array& _data;
     size_t _row_count;
     pybind11::buffer_info _data_buffer;
