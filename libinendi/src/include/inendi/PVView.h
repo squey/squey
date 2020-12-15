@@ -224,6 +224,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	void delete_selected_layer();
 	void duplicate_selected_layer(const QString& name);
 	void commit_selection_to_layer(PVLayer& layer);
+	void commit_selection_to_new_layer(const QString& layer_name, bool should_hide_layers = true);
 
 	void process_correlation();
 

@@ -186,6 +186,26 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 }
 
 /******************************************************************************
+ * Inendi::PVView::commit_selection_to_new_layer
+ *****************************************************************************/
+
+void Inendi::PVView::commit_selection_to_new_layer(const QString& layer_name, bool should_hide_layers /* = true */)
+{
+	if (should_hide_layers) {
+		hide_layers();
+	}
+
+	add_new_layer(layer_name);
+	Inendi::PVLayer& layer = get_current_layer();
+
+	// We need to configure the layer
+	commit_selection_to_layer(layer);
+	update_current_layer_min_max();
+	compute_selectable_count(layer);
+	process_layer_stack();
+}
+
+/******************************************************************************
  *
  * Inendi::PVView::get_axes_names_list
  *

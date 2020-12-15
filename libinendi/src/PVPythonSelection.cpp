@@ -18,9 +18,9 @@ Inendi::PVPythonSelection::~PVPythonSelection()
     }
 }
 
-const pybind11::array& Inendi::PVPythonSelection::data()
+size_t Inendi::PVPythonSelection::size()
 {
-    return _data;
+    return _row_count;
 }
 
 bool Inendi::PVPythonSelection::is_selected(size_t row_index)
@@ -40,4 +40,19 @@ void Inendi::PVPythonSelection::set_selected(size_t row_index, bool selected)
     size_t d64_pos = (row_index % 64);
     (*p64) ^= ((-(uint64_t)selected ^ (*p64)) & (1UL << d64_pos));
     _selection_changed = true;
+}
+
+void Inendi::PVPythonSelection::reset(bool selected)
+{
+    if (selected) {
+        _selection.select_all();
+    }
+    else {
+        _selection.select_none();
+    }
+}
+
+const pybind11::array& Inendi::PVPythonSelection::data()
+{
+    return _data;
 }

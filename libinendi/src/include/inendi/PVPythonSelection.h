@@ -27,9 +27,11 @@ public:
     PVPythonSelection(PVPythonSelection&&) = default;	
 
 public:
-    PYBIND11_EXPORT const pybind11::array& data() /* const */;
+    PYBIND11_EXPORT size_t size() /* const */;
     PYBIND11_EXPORT bool is_selected(size_t row_index) /* const */;
-    PYBIND11_EXPORT void set_selected(size_t row_index, bool selected) /* const */;
+    PYBIND11_EXPORT void set_selected(size_t row_index, bool selected);
+    PYBIND11_EXPORT void reset(bool selected);
+    PYBIND11_EXPORT const pybind11::array& data() /* const */;
 
 private:
     Inendi::PVView& _view;

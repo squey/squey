@@ -244,7 +244,7 @@ void Inendi::PVPythonSource::insert_column(const pybind11::array& column, const 
     // Notifify axes combination update on Qt GUI thread
     if (ret) {
         Inendi::PVView* view = _source.current_view();
-        QMetaObject::invokeMethod(qApp, [&](){
+        QMetaObject::invokeMethod(qApp, [view](){
             view->_axis_combination_updated.emit();
             view->get_parent<Inendi::PVPlotted>().update_plotting();
         }, Qt::QueuedConnection);
@@ -273,3 +273,12 @@ void Inendi::PVPythonSource::delete_column(const std::string& column_name, size_
 
     // TODO : edit format ? Investigation ?
 }
+
+ void Inendi::PVPythonSource::insert_layer(const std::string& layer_name)
+ {
+    Inendi::PVView* view = _source.current_view();
+
+    QMetaObject::invokeMethod(qApp, [view, layer_name](){
+        view->commit_selection_to_new_layer(layer_name.c_str(), false);
+    }, Qt::QueuedConnection);
+ }

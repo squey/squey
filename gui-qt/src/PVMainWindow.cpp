@@ -241,28 +241,17 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
  * PVInspector::PVMainWindow::commit_selection_to_new_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* inendi_view)
+void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* view)
 {
-	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
+	bool& should_hide_layers = view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
+	    view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
 	if (name.isEmpty()) {
 		return;
 	}
 
-	if (should_hide_layers) {
-		inendi_view->hide_layers();
-	}
-
-	inendi_view->add_new_layer(name);
-	Inendi::PVLayer& layer = inendi_view->get_current_layer();
-
-	// We need to configure the layer
-	inendi_view->commit_selection_to_layer(layer);
-	inendi_view->update_current_layer_min_max();
-	inendi_view->compute_selectable_count(layer);
-	inendi_view->process_layer_stack();
+	view->commit_selection_to_new_layer(name, should_hide_layers);
 }
 
 /******************************************************************************
