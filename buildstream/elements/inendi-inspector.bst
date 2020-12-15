@@ -63,7 +63,7 @@ depends:
 - pybind11.bst
 - python3-pip.bst
 # - conda.bst
-# - numpy.bst
+- numpy.bst
 - inendi-inspector-doc.bst
 
 sources:
