@@ -1071,7 +1071,7 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 				python_script + tr(" is missing"), QMessageBox::Ok);
 		}
 		else {
-			Inendi::PVPythonInterpreter python_interpreter(_root);
+			Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(_root);
 			PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
 				pbox.set_enable_cancel(true);
 				try {

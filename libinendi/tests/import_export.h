@@ -67,7 +67,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 			assert(false && "Missing Python script");
 		}
 		else {
-			Inendi::PVPythonInterpreter python_interpreter(src.get_parent<Inendi::PVRoot>());
+			Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(src.get_parent<Inendi::PVRoot>());
 			python_interpreter.execute_script(python_script.toStdString(), is_path);
 		}
 	}

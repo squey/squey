@@ -55,7 +55,7 @@ static void run_python(const std::function<void()>& f, Inendi::PVPythonInterpret
 		}
 	}, QString("Executing python script..."), parent);
 
-	if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE) { // FIXME : race condition
+	if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE) {
 		if (exception_msg.empty()) {
 			console_output->setText(python_interpreter.python_output.stdoutString().c_str());
 			python_interpreter.python_output.clearStdout();
@@ -80,9 +80,8 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
                                                                QWidget* parent,
                                                                Params const&) const
 {
-	// TODO : add drag n drop from axes/columns and sources
-
 	Inendi::PVRoot& root = view->get_parent<Inendi::PVRoot>();
+	Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(root);
 
 	QWidget* console_widget = new QWidget(parent);
 
@@ -92,8 +91,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
 
 	QPushButton* exec_script = new QPushButton("Exec sc&ript");
-	QObject::connect(exec_script, &QPushButton::clicked, [=,&root](){
-		Inendi::PVPythonInterpreter python_interpreter(root);
+	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
 		run_python([=,&python_interpreter](){
 			python_interpreter.execute_script(console_input->toPlainText().toStdString(), false);
 		}, python_interpreter, console_output, parent);
@@ -114,10 +112,9 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 		}
 	});
 	QPushButton* exec_file_button = new QPushButton("Exec &file");
-	QObject::connect(exec_file_button, &QPushButton::clicked, [=,&root](){
+	QObject::connect(exec_file_button, &QPushButton::clicked, [=,&python_interpreter](){
 		const QString& file_path = exec_file_line_edit->text();
 		if (QFileInfo(file_path).exists()) {
-			Inendi::PVPythonInterpreter python_interpreter(root);
 			run_python([=,&python_interpreter](){
 				python_interpreter.execute_script(file_path.toStdString(), true);
 			}, python_interpreter, console_output, parent);

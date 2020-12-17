@@ -61,13 +61,17 @@ public:
 
 class __attribute__((visibility("default"))) PVPythonInterpreter
 {
-public:
-    PVPythonInterpreter(Inendi::PVRoot& root);
-    ~PVPythonInterpreter();
-    
 private:
-    PVPythonInterpreter(const PVPythonInterpreter&)= delete;
+    PVPythonInterpreter(Inendi::PVRoot& root);
     PVPythonInterpreter& operator=(const PVPythonInterpreter&)= delete;
+    PVPythonInterpreter(const PVPythonInterpreter&)= delete;
+
+public:
+    /* The Python interpreter is a singleton because it should not be restarted
+     * as some Python modules like NumPy do not support to be restarted.
+     * https://pybind11.readthedocs.io/en/stable/advanced/embedding.html#interpreter-lifetime
+     */
+    static PVPythonInterpreter& get(Inendi::PVRoot& root);
 
 public:
     PYBIND11_EXPORT PVPythonSource source(size_t source_index);

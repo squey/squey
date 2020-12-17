@@ -44,17 +44,21 @@ Inendi::PVPythonInterpreter::PVPythonInterpreter(Inendi::PVRoot& root) : _guard(
     python_selection.def("data", &PVPythonSelection::data);
 }
 
-Inendi::PVPythonInterpreter::~PVPythonInterpreter()
-{
-}
+Inendi::PVPythonInterpreter& Inendi::PVPythonInterpreter::get(Inendi::PVRoot& root)
+ {
+    static PVPythonInterpreter instance(root);
+    return instance;
+ }
 
 void Inendi::PVPythonInterpreter::execute_script(const std::string& script, bool is_path)
 {
+    auto global = pybind11::globals();
+    auto local = pybind11::dict(); // local variables are deleted when out of scope
 	if (is_path) {
-		pybind11::eval_file(script);
+		pybind11::eval_file(script, global, local);
 	}
 	else {
-		pybind11::exec(script);
+		pybind11::exec(script, global, local);
 	}
 }
 
