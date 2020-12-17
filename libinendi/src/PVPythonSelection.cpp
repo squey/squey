@@ -7,14 +7,19 @@
 
 #include <inendi/PVPythonSelection.h>
 
-
 Inendi::PVPythonSelection::PVPythonSelection(Inendi::PVView& view, Inendi::PVSelection& selection, pybind11::array& data)
-    : _view(view), _selection(selection), _data(data), _row_count(selection.count()), _data_buffer(_data.request()) {};
+    : _view(view)
+    , _selection(selection)
+    , _data(data)
+    , _row_count(selection.count())
+    , _data_buffer(_data.request())
+    , _is_current_selection(std::addressof(selection) == std::addressof(_view.get_layer_stack_output_layer().get_selection()))
+    {}
 
 Inendi::PVPythonSelection::~PVPythonSelection()
 {
-    if (_selection_changed) {
-        _view.set_selection_view(_selection);
+    if (_selection_changed and _is_current_selection) {
+        _view.set_selection_view(_selection, false);
     }
 }
 

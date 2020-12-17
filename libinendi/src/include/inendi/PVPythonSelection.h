@@ -39,6 +39,7 @@ private:
     const pybind11::array& _data;
     size_t _row_count;
     pybind11::buffer_info _data_buffer;
+    bool _is_current_selection;
     bool _selection_changed = false;
 };
 
