@@ -163,7 +163,7 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection()
 Inendi::PVPythonSelection Inendi::PVPythonSource::selection(int layer_index)
 {
     Inendi::PVView* view = _source.current_view();
-    Inendi::PVLayerStack layerstack = view->get_layer_stack();
+    Inendi::PVLayerStack& layerstack = view->get_layer_stack();
     Inendi::PVSelection* selection = nullptr;
 
     if (layer_index == -1) {
@@ -183,8 +183,8 @@ Inendi::PVPythonSelection Inendi::PVPythonSource::selection(int layer_index)
 
 Inendi::PVPythonSelection Inendi::PVPythonSource::selection(const std::string& layer_name, size_t position  /* = 0 */)
 {
-    const Inendi::PVView* view = _source.current_view();
-    const Inendi::PVLayerStack layerstack = view->get_layer_stack();
+    Inendi::PVView* view = _source.current_view();
+    Inendi::PVLayerStack& layerstack = view->get_layer_stack();
     if (layer_name == "") {
         return selection(-1);
     }

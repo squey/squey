@@ -41,6 +41,9 @@ void Inendi::PVPythonSelection::set_selected(size_t row_index, bool selected)
     if (row_index >= _row_count) {
         throw std::out_of_range("Out of range row index");
     }
+    if (not _is_current_selection) {
+        throw std::runtime_error("Only the current selection can be changed");
+    }
     uint64_t* p64 = (((uint64_t*)_data_buffer.ptr) + (row_index / 64));
     size_t d64_pos = (row_index % 64);
     (*p64) ^= ((-(uint64_t)selected ^ (*p64)) & (1UL << d64_pos));
