@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: https://github.com/pocl/pocl/archive/v1.5.tar.gz
-  ref: 4fcf4618171727d165fc044d465a66e3119217bb4577a97374f94fcd8aed330e
+  url: http://portablecl.org/downloads/pocl-1.6.tar.gz
+  ref: b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c
   
 variables:
   cmake-local: |
