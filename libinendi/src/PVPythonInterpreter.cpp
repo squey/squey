@@ -36,7 +36,8 @@ Inendi::PVPythonInterpreter::PVPythonInterpreter(Inendi::PVRoot& root) : _guard(
     python_source.def("selection", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::selection), pybind11::arg("layer_name"), pybind11::arg("position") = 0);
     python_source.def("insert_column", &PVPythonSource::insert_column),  pybind11::arg("column"), pybind11::arg("column_name");
     python_source.def("delete_column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::delete_column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
-    python_source.def("insert_layer", &PVPythonSource::insert_layer), pybind11::arg("column_name");
+    python_source.def("insert_layer", pybind11::overload_cast<const std::string&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"));
+    python_source.def("insert_layer", pybind11::overload_cast<const std::string&, const pybind11::array&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"), pybind11::arg("selection_array"));
 
     pybind11::class_<PVPythonSelection> python_selection(main, "selection");
     python_selection.def("size", &PVPythonSelection::size);

@@ -58,6 +58,7 @@ public:
     PYBIND11_EXPORT void delete_column(const std::string& column_name, size_t position);
 
     PYBIND11_EXPORT void insert_layer(const std::string& layer_name);
+    PYBIND11_EXPORT void insert_layer(const std::string& layer_name, const pybind11::array& sel_array);
 
 private:
     Inendi::PVSource& _source;

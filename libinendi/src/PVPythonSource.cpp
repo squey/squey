@@ -292,3 +292,29 @@ void Inendi::PVPythonSource::delete_column(const std::string& column_name, size_
         view->commit_selection_to_new_layer(layer_name.c_str(), false);
     }, Qt::QueuedConnection);
  }
+ 
+ void Inendi::PVPythonSource::insert_layer(const std::string& layer_name, const pybind11::array& sel_array)
+ {
+    if (not pybind11::dtype("bool").is(sel_array.dtype())) {
+        throw std::invalid_argument(std::string("invalid dtype, should be bool"));
+    }
+    if (sel_array.size() != row_count()) {
+        throw std::invalid_argument(std::string("Selection array size mismatch, expected size is " + row_count()));
+    }
+    Inendi::PVView* view = _source.current_view();
+    Inendi::PVLayer* layer = view->get_layer_stack().append_new_layer(row_count(), layer_name.c_str());
+    Inendi::PVSelection selection(row_count());
+    pybind11::buffer_info sel_buffer = sel_array.request();
+#pragma omp parallel for
+    for (size_t i = 0; i < row_count(); i++) {
+        bool value = *(((uint8_t*)sel_buffer.ptr) + i) != 0;
+        selection.set_line(i, value);
+    }
+    layer->get_selection() = std::move(selection);
+    layer->compute_selectable_count();
+
+    QMetaObject::invokeMethod(qApp, [view](){
+        view->_layer_stack_refreshed.emit();
+	    view->_update_current_min_max.emit();
+    }, Qt::QueuedConnection);
+ }
