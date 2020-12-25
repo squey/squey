@@ -33,6 +33,16 @@ Inendi::PVPythonSource::PVPythonSource(Inendi::PVSource& source)
 {
 }
 
+size_t Inendi::PVPythonSource::row_count()
+{
+    return _source.get_rushnraw().row_count();
+}
+
+size_t Inendi::PVPythonSource::column_count()
+{
+    return _source.get_rushnraw().column_count();
+}
+
 pybind11::array Inendi::PVPythonSource::column(size_t index, StringColumnAs string_as) /*const*/
 {
     // TODO : check if source is still valid

@@ -40,6 +40,9 @@ public:
     PVPythonSource(Inendi::PVSource& source);
 
 public:
+    PYBIND11_EXPORT size_t row_count();
+    PYBIND11_EXPORT size_t column_count();
+
     PYBIND11_EXPORT pybind11::array column(size_t column_index, StringColumnAs string_as) /*const*/;
     PYBIND11_EXPORT pybind11::array column(const std::string& column_name, size_t position) /*const*/;
     PYBIND11_EXPORT pybind11::array column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/;

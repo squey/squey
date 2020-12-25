@@ -24,6 +24,8 @@ Inendi::PVPythonInterpreter::PVPythonInterpreter(Inendi::PVRoot& root) : _guard(
     .export_values();
 
     pybind11::class_<PVPythonSource> python_source(main, "source");
+    python_source.def("row_count", pybind11::overload_cast<>(&PVPythonSource::row_count));
+    python_source.def("column_count", pybind11::overload_cast<>(&PVPythonSource::column_count));
     python_source.def("column", pybind11::overload_cast<size_t, PVPythonSource::StringColumnAs>(&PVPythonSource::column), pybind11::arg("column_index"), pybind11::arg("string_as") = PVPythonSource::StringColumnAs::STRING);
     python_source.def("column", pybind11::overload_cast<const std::string&, PVPythonSource::StringColumnAs, size_t>(&PVPythonSource::column), pybind11::arg("column_name"), pybind11::arg("string_as"), pybind11::arg("position") = 0);
     python_source.def("column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
@@ -38,17 +40,19 @@ Inendi::PVPythonInterpreter::PVPythonInterpreter(Inendi::PVRoot& root) : _guard(
 
     pybind11::class_<PVPythonSelection> python_selection(main, "selection");
     python_selection.def("size", &PVPythonSelection::size);
-    python_selection.def("is_selected", &PVPythonSelection::is_selected, pybind11::arg("index"));
-    python_selection.def("set_selected", &PVPythonSelection::set_selected, pybind11::arg("index"), pybind11::arg("value"));
+    python_selection.def("get", pybind11::overload_cast<>(&PVPythonSelection::get));
+    python_selection.def("get", pybind11::overload_cast<size_t>(&PVPythonSelection::get), pybind11::arg("index"));
+    python_selection.def("set", pybind11::overload_cast<const pybind11::array&>(&PVPythonSelection::set), pybind11::arg("selection_array"));
+    python_selection.def("set", pybind11::overload_cast<size_t, bool>(&PVPythonSelection::set), pybind11::arg("index"), pybind11::arg("value"));
     python_selection.def("reset", &PVPythonSelection::reset, pybind11::arg("value"));
     python_selection.def("data", &PVPythonSelection::data);
 }
 
 Inendi::PVPythonInterpreter& Inendi::PVPythonInterpreter::get(Inendi::PVRoot& root)
- {
-    static PVPythonInterpreter instance(root);
-    return instance;
- }
+{
+static PVPythonInterpreter instance(root);
+return instance;
+}
 
 void Inendi::PVPythonInterpreter::execute_script(const std::string& script, bool is_path)
 {

@@ -28,15 +28,15 @@ size_t Inendi::PVPythonSelection::size()
     return _row_count;
 }
 
-bool Inendi::PVPythonSelection::is_selected(size_t row_index)
+bool Inendi::PVPythonSelection::get(size_t row_index)
 {
     if (row_index >= _row_count) {
         throw std::out_of_range("Out of range row index");
     }
-    return *(((uint64_t*)_data_buffer.ptr) + (row_index / 64)) & (1UL << row_index % 64);
+    return is_selected_fast(row_index);
 }
 
-void Inendi::PVPythonSelection::set_selected(size_t row_index, bool selected)
+void Inendi::PVPythonSelection::set(size_t row_index, bool selected)
 {
     if (row_index >= _row_count) {
         throw std::out_of_range("Out of range row index");
@@ -44,10 +44,38 @@ void Inendi::PVPythonSelection::set_selected(size_t row_index, bool selected)
     if (not _is_current_selection) {
         throw std::runtime_error("Only the current selection can be changed");
     }
-    uint64_t* p64 = (((uint64_t*)_data_buffer.ptr) + (row_index / 64));
-    size_t d64_pos = (row_index % 64);
-    (*p64) ^= ((-(uint64_t)selected ^ (*p64)) & (1UL << d64_pos));
+    set_selected_fast(row_index, selected);
     _selection_changed = true;
+}
+
+void Inendi::PVPythonSelection::set(const pybind11::array& sel_array)
+{
+    if (not _is_current_selection) {
+        throw std::runtime_error("Only the current selection can be changed");
+    }
+    if (not pybind11::dtype("bool").is(sel_array.dtype())) {
+        throw std::invalid_argument(std::string("invalid dtype, should be bool"));
+    }
+    if (sel_array.size() != (long int)size()) {
+        throw std::invalid_argument(std::string("Selection array size mismatch, expected size is " + size()));
+    }
+    pybind11::buffer_info sel_buffer = sel_array.request();
+    for (size_t i = 0; i < size(); i++) {
+        bool value = *(((uint8_t*)sel_buffer.ptr) + i) != 0;
+        set_selected_fast(i, value);
+    }
+    _selection_changed = true;
+}
+
+pybind11::array_t<uint8_t> Inendi::PVPythonSelection::get()
+{
+    auto sel_array = pybind11::array("bool", size());
+    pybind11::buffer_info sel_buffer = sel_array.request();
+#pragma omp parallel for
+    for (size_t i = 0; i < size(); i++) {
+        *(((uint8_t*)sel_buffer.ptr) + i) = is_selected_fast(i);
+    }
+    return sel_array;
 }
 
 void Inendi::PVPythonSelection::reset(bool selected)
