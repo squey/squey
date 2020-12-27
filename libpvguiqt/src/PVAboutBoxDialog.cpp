@@ -257,7 +257,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	_view3D_layout = new QHBoxLayout();
 
-	if (PVParallelView::egl_support()) {
+	if (PVParallelView::egl_support() && false) { // Disabled for now as it crash with Qt 5.15.2
 		auto widget3d_maker = [this] {
 			auto widget3d = new Qt3DExtras::Qt3DWindow();
 			{
