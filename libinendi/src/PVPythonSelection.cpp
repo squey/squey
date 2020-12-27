@@ -13,7 +13,7 @@ Inendi::PVPythonSelection::PVPythonSelection(Inendi::PVView& view, Inendi::PVSel
     , _data(data)
     , _row_count(selection.count())
     , _data_buffer(_data.request())
-    , _is_current_selection(std::addressof(selection) == std::addressof(_view.get_layer_stack_output_layer().get_selection()))
+    , _is_current_selection(std::addressof(selection) == std::addressof(_view.get_real_output_selection()))
     {}
 
 Inendi::PVPythonSelection::~PVPythonSelection()
