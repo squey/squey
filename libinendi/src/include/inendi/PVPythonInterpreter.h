@@ -88,6 +88,8 @@ public:
     PyStdErrOutStreamRedirect python_output;
 };
 
+using inspyctor_t = pybind11::class_<Inendi::PVPythonInterpreter>;
+
 } // namespace Inendi
 
 #endif // __INENDI_PVPYTHONINTERPRETER__

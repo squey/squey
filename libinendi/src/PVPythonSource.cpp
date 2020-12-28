@@ -13,7 +13,6 @@
 
 #include <QApplication>
 
-
 const std::unordered_map<std::string, std::string> Inendi::PVPythonSource::_map_type = {
     {"number_double", "float64"},
     {"number_float", "float32"},

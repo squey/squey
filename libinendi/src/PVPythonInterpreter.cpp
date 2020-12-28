@@ -1,4 +1,12 @@
+/**
+ * @file
+ *
+ * @copyright (C) Picviz Labs 2009-March 2015
+ * @copyright (C) ESI Group INENDI April 2015-2020
+ */
+
 #include <inendi/PVPythonInterpreter.h>
+#include <inendi/PVPythonInputDialog.h>
 
 #include <inendi/PVRoot.h>
 
@@ -15,6 +23,8 @@ Inendi::PVPythonInterpreter::PVPythonInterpreter(Inendi::PVRoot& root) : _guard(
     inspyctor.def("source", [&](const std::string& source_name, size_t position) {
         return source(source_name, position);
     });
+
+    PVPythonInputDialog::register_functions(inspyctor);
 
     pybind11::enum_<PVPythonSource::StringColumnAs>(inspyctor, "string_as")
     .value("string", PVPythonSource::StringColumnAs::STRING)

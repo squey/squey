@@ -33,6 +33,7 @@ PVRangeSubSampler.cpp
 PVPythonInterpreter.cpp
 PVPythonSource.cpp
 PVPythonSelection.cpp
+PVPythonInputDialog.cpp
 
 plugins.cpp
 )
