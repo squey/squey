@@ -94,7 +94,8 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 		return *it;
 	}
 
-	void append_column();
+	void append_mapped();
+	void delete_mapped(PVCol col);
 
 	/**
 	 * Ask to compute mapping based on Mapping filter for each column.

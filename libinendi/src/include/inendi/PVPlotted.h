@@ -124,7 +124,8 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 		return *begin;
 	}
 
-	void append_column();
+	void append_plotted();
+	void delete_plotted(PVCol col);
 
 	QList<PVCol> get_singleton_columns_indexes();
 	QList<PVCol>

@@ -94,9 +94,14 @@ void PVAxesCombination::axis_append(PVCol comb_col)
 	_axes_comb.push_back(comb_col);
 }
 
-void PVAxesCombination::remove_axes(PVCol col)
+void PVAxesCombination::delete_axes(PVCol col)
 {
-	std::remove(_axes_comb.begin(), _axes_comb.end(), col);
+	_axes_comb.erase(std::remove(_axes_comb.begin(), _axes_comb.end(), col));
+	for (PVCol& c : _axes_comb) {
+		if (c > col) {
+			c--;
+		}
+	}
 }
 
 void PVAxesCombination::reset_to_default()

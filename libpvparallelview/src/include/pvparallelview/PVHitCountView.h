@@ -85,6 +85,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	void about_to_be_deleted();
 	void update_new_selection_async();
 	void update_all_async();
+	void update_all();
 	bool update_zones();
 	void set_enabled(const bool value);
 
@@ -192,7 +193,6 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	void toggle_unselected_zombie_visibility();
 
   private Q_SLOTS:
-	void update_all();
 	void update_sel();
 
   private:

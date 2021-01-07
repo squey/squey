@@ -740,9 +740,9 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 
 		// compute mapping and plotting
 		Inendi::PVMapped& mapped = get_parent<PVMapped>();
-		mapped.append_column();
+		mapped.append_mapped();
 		Inendi::PVPlotted& plotted = get_parent<PVPlotted>();
-		plotted.append_column();
+		plotted.append_plotted();
 		mapped.compute();
 	}
 
@@ -753,19 +753,28 @@ void Inendi::PVView::delete_axis(PVCombCol comb_col)
 {
 	// Remove axis (or axes) from axes combination
 	PVCol col = _axes_combination.get_nraw_axis(comb_col);
-	_axes_combination.remove_axes(col);
 
-	// Notifify axes combination update on Qt GUI thread
+	// Notify axes combination update on Qt GUI thread
     QMetaObject::invokeMethod(qApp, [&,col](){
-        PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
-		PVRush::PVNraw& nraw = get_rushnraw_parent();
-		
 		// Remove axes
+		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+		PVRush::PVFormat& original_format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_original_format()); // FIXME
+		_axis_combination_about_to_update.emit();
+		_axes_combination.delete_axes(col);
 		format.delete_axis(col);
+		if (format.has_multi_inputs() and col != 0) {
+			original_format.delete_axis(col-PVCol(1));
+		}
+		_axis_combination_updated.emit();
+    }, Qt::BlockingQueuedConnection);
 
-		// Delete column from disk
-		nraw.delete_column(col);
-    }, Qt::QueuedConnection);
+	// Delete mapping and plotting
+	get_parent<PVPlotted>().delete_plotted(col);
+	get_parent<PVMapped>().delete_mapped(col);
+
+	// Delete column from disk
+	PVRush::PVNraw& nraw = get_rushnraw_parent();
+	nraw.delete_column(col);
 }
 
 // Load/save and serialization

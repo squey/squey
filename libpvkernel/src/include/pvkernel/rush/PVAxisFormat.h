@@ -40,6 +40,7 @@ class PVAxisFormat
 	node_args_t const& get_args_mapping_string() const { return args_mapping; }
 	node_args_t const& get_args_plotting_string() const { return args_plotting; }
 	PVCol get_index() const { return index; }
+	void set_index(PVCol col) { index = col; }
 
 	void set_color(QString str);
 	void set_color(PVCore::PVColor color_);

@@ -74,7 +74,9 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	void update_new_selection_async();
 	void update_all_async();
+	void update_all();
 	void update_number_of_zones_async();
+	void update_number_of_zones();
 
 	/**
 	 * Reset the zones layout and viewport to the following way: zones are resized to try fit
@@ -102,8 +104,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
   private Q_SLOTS:
 	void update_new_selection();
-	void update_all();
-	void update_number_of_zones();
 	void toggle_unselected_zombie_visibility();
 	void axis_hover_entered(PVCombCol col, bool entered);
 

@@ -121,6 +121,7 @@ class PVFormat
 	bool have_grep_filter() const { return _have_grep_filter; }
 
 	PVFormat add_input_name_column() const;
+	bool has_multi_inputs() const { return _has_multi_inputs; }
 
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
 
@@ -160,6 +161,7 @@ class PVFormat
 	QDomDocument _dom;
 
 	mutable bool _have_grep_filter;
+	mutable bool _has_multi_inputs = false;
 };
 } // namespace PVRush
 ;

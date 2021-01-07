@@ -676,9 +676,9 @@ void PVParallelView::PVFullParallelScene::update_number_of_zones()
 	update_number_of_visible_zones();
 
 	for (size_t i = 0; i < _axes.size(); ++i) {
-
 		removeItem(_axes[i]);
-		delete _axes[i];
+		_axes[i]->setEnabled(false);
+		_axes[i]->deleteLater();
 	}
 
 	_axes.resize(nb_zones + 1, nullptr);
