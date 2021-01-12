@@ -1,3 +1,9 @@
+4.9 "Snake" (2021-01-13)
+----------------
+
+This major release adds the following features:
+* Python 3.8 scripting support (create columns, layers and edit selection)
+
 4.8.5 (2020-09-25)
 ------------------
 
