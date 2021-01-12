@@ -276,7 +276,7 @@ void PVSeriesViewZoomer::mousePressEvent(QMouseEvent* event)
 	if (event->button() == Qt::RightButton) {
 		_moving = true;
 		_move_start = event->pos();
-	} else if (event->button() == Qt::MidButton) {
+	} else if (event->button() == Qt::MiddleButton) {
 		using namespace std::chrono;
 		_animation_timer->callOnTimeout([this] { move_zoom_by({-1, 0}); });
 		_animation_timer->start(36ms);
@@ -309,7 +309,7 @@ void PVSeriesViewZoomer::mouseReleaseEvent(QMouseEvent* event)
 	if (_moving && event->button() == Qt::RightButton) {
 		_moving = false;
 		move_zoom_by(event->pos() - _move_start);
-	} else if (event->button() == Qt::MidButton) {
+	} else if (event->button() == Qt::MiddleButton) {
 		_animation_timer->stop();
 	}
 }

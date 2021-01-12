@@ -296,7 +296,7 @@ void Inendi::PVPythonSource::delete_column(const std::string& column_name, size_
         if (not pybind11::dtype("bool").is(sel_array.dtype())) {
             throw std::invalid_argument(std::string("invalid dtype, should be bool"));
         }
-        if (sel_array.size() != row_count()) {
+        if ((size_t)sel_array.size() != row_count()) {
             throw std::invalid_argument(std::string("Selection array size mismatch, expected size is " + row_count()));
         }
         Inendi::PVSelection selection(row_count());

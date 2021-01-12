@@ -46,7 +46,7 @@ void PVGuiQt::PVSceneTabBar::mouseReleaseEvent(QMouseEvent* event)
 	_drag_ongoing = false;
 
 	// Tabs are closed on middle button click
-	if (event->button() == Qt::MidButton) {
+	if (event->button() == Qt::MiddleButton) {
 		int tab_index = tabAt(event->pos());
 		if (tab_index < count()) {
 			Q_EMIT tabCloseRequested(tab_index);
