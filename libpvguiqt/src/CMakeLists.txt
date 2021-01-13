@@ -43,13 +43,15 @@ PVImportSourceToProjectDlg.cpp
 PVStatsListingWidget.cpp
 PVExportSelectionDlg.cpp
 PVChangelogMessage.cpp
+PVPythonScriptWidget.cpp
+PVPythonCodeEditor.cpp
 
 # Displays that will be registered to libpvdisplays
 PVDisplaySourceDataTree.cpp
 PVDisplayViewAxesCombination.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp
-
+PVDisplayViewPythonConsole.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -79,6 +81,8 @@ include/pvguiqt/PVImportSourceToProjectDlg.h
 include/pvguiqt/PVStatsListingWidget.h
 include/pvguiqt/PVExportSelectionDlg.h
 include/pvguiqt/PVAboutBoxDialog.h
+include/pvguiqt/PVPythonScriptWidget.h
+include/pvguiqt/PVPythonCodeEditor.h
 )
 
 SET(UI_FILES

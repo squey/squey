@@ -240,3 +240,8 @@ add_inspector_test(Tinendi_range_subsampler Tinendi_range_subsampler)
 # multi-inputs
 add_inspector_compile_test(Tinendi_multi_inputs LINKS ${LINK_LIBRARIES} FILES multi_inputs.cpp)
 add_inspector_test(Tinendi_multi_inputs Tinendi_multi_inputs)
+
+# python_scripting
+add_inspector_compile_test(Tinendi_python_scripting LINKS ${LINK_LIBRARIES} FILES python_scripting.cpp)
+add_inspector_test(Tinendi_python_scripting Tinendi_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_python_script.log.format ${TESTS_FILES_DIR}/exports/Tinendi_python_scripting)
+add_inspector_test(Tinendi_embeded_python_scripting Tinendi_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_embeded_python_script.log.format ${TESTS_FILES_DIR}/exports/Tinendi_python_scripting)

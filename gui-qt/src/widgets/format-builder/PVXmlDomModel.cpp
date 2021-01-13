@@ -6,11 +6,13 @@
  */
 
 #include <PVXmlDomModel.h>
+
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include <QString>
 
@@ -1047,4 +1049,43 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 size_t PVInspector::PVXmlDomModel::get_axes_count() const
 {
 	return getRootDom().elementsByTagName("axis").length();
+}
+
+void PVInspector::PVXmlDomModel::set_python_script(const QString& python_script, bool is_path, bool disabled)
+{
+	QDomDocument doc = getRootDom().toDocument();
+
+	const QString& python_script_tag = "python-script";
+	QDomElement python_script_element = getRootDom().firstChildElement(python_script_tag);
+
+	QDomElement newNodeTag = doc.createElement(python_script_tag); 
+	newNodeTag.setAttribute("path", is_path ? "1" : "0");
+	newNodeTag.setAttribute("disabled", disabled ? "1" : "0");
+	
+	if (python_script_element.isNull()) {
+		getRootDom().appendChild(newNodeTag);
+	}
+	else {
+		getRootDom().replaceChild(newNodeTag, python_script_element);
+	}
+
+	QString text_node_content = python_script;
+	if (not is_path) {
+		text_node_content = PVCore::serialize_base64<QString>(text_node_content);
+	}
+	QDomText newNodeText = doc.createTextNode(text_node_content);
+	newNodeTag.appendChild(newNodeText);
+}
+
+QString PVInspector::PVXmlDomModel::get_python_script(bool& is_path, bool& disabled) const
+{
+	QDomElement python_script_element = getRootDom().firstChildElement("python-script");
+
+	QString python_script = python_script_element.text();
+	is_path = python_script_element.attribute("path", "1").toUInt();
+	disabled = python_script_element.attribute("disabled", "1").toUInt();
+	if (not is_path) {
+		python_script = PVCore::deserialize_base64<QString>(python_script);
+	}
+	return python_script;
 }

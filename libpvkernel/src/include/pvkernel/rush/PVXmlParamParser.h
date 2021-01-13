@@ -55,6 +55,7 @@ class PVXmlParamParser
 	void dump_filters();
 	void clearFiltersData();
 	axes_comb_t const& getAxesCombination() const { return _axes_combination; }
+	QString get_python_script(bool& as_path, bool& disabled) const;
 
   private:
 	void pushFilter(const QDomElement& elt, int newId);
@@ -63,6 +64,8 @@ class PVXmlParamParser
 	void setAxesCombinationFromRootNode(QDomElement const& node);
 	void setAxesCombinationFromString(QString const& str);
 	void setLinesRangeFromRootNode(QDomElement const& rootNode);
+	void setPythonScriptFromRootNode(const QDomElement&);
+	void setPythonScriptFromFile(QString const& python_script, bool as_path, bool disabled);
 	static PVAxisFormat::node_args_t
 	getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode);
 
@@ -74,6 +77,9 @@ class PVXmlParamParser
 	size_t _first_line;
 	size_t _line_count;
 	fields_mask_t _fields_mask;
+	QString _python_script;
+	bool _python_script_is_path;
+	bool _python_script_disabled;
 
 	int countChild(QDomElement);
 	QString getNodeName(QDomElement);

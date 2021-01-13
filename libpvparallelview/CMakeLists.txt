@@ -29,6 +29,9 @@ include_directories(SYSTEM ${Qt5OpenGL_INCLUDE_DIRS})
 # For KItemModels
 find_package(KF5ItemModels REQUIRED)
 
+# For KSyntaxHighlighting
+find_package(KF5SyntaxHighlighting REQUIRED)
+
 #################################################
 # Add include directories for inendi's libs
 #################################################

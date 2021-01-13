@@ -7,7 +7,7 @@ export OCL_ICD_VENDORS=/etc/opencl_vendors
 mkdir -p $OCL_ICD_VENDORS
 
 NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"|sed -e "s/nvidia-//"`
-NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed -rn 's/([[:digit:]]+)-([[:digit:]]+)/\1\.\2/p'`
+NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed 's/-/./g'`
 
 echo "/app/lib/libpocl.so" > $OCL_ICD_VENDORS/pocl.icd
 if [ -n "$NVIDIA_VERSION" ]; then

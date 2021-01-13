@@ -241,28 +241,17 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
  * PVInspector::PVMainWindow::commit_selection_to_new_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* inendi_view)
+void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* view)
 {
-	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
+	bool& should_hide_layers = view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
+	    view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
 	if (name.isEmpty()) {
 		return;
 	}
 
-	if (should_hide_layers) {
-		inendi_view->hide_layers();
-	}
-
-	inendi_view->add_new_layer(name);
-	Inendi::PVLayer& layer = inendi_view->get_current_layer();
-
-	// We need to configure the layer
-	inendi_view->commit_selection_to_layer(layer);
-	inendi_view->update_current_layer_min_max();
-	inendi_view->compute_selectable_count(layer);
-	inendi_view->process_layer_stack();
+	view->commit_selection_to_new_layer(name, should_hide_layers);
 }
 
 /******************************************************************************
@@ -1071,6 +1060,29 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 		// Add source as recent source
 		PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),
 		                                               src.get_original_format());
+	}
+
+	// Execute Python script if any
+	bool is_path, disabled;
+	QString python_script = src.get_original_format().get_python_script(is_path, disabled);
+	if (not disabled and not python_script.isEmpty()) {
+		if (is_path and not QFileInfo(python_script).exists()) {
+			QMessageBox::warning(this, tr("Unable to execute Python script"),
+				python_script + tr(" is missing"), QMessageBox::Ok);
+		}
+		else {
+			Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(_root);
+			PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
+				pbox.set_enable_cancel(true);
+				try {
+					python_interpreter.execute_script(python_script.toStdString(), is_path);
+				}
+				catch (const pybind11::error_already_set &eas) {
+					pbox.warning("Error while executing Python script", eas.what());
+					throw; // rethrow exception to handle progress box dismiss
+				}
+			}, QString("Executing python script"), this);
+		}
 	}
 }
 

@@ -41,6 +41,7 @@
 #include <pvcop/collection.h> // for collection
 #include <pvcop/db/array.h>   // for indexes, array
 
+#include <QApplication>
 #include <QList>       // for QList
 #include <QString>     // for QString, operator+
 #include <QStringList> // for QStringList
@@ -182,6 +183,26 @@ void Inendi::PVView::commit_selection_to_layer(PVLayer& new_layer)
 	new_layer.get_selection() = post_filter_layer.get_selection();
 	output_layer.get_lines_properties().A2B_copy_restricted_by_selection(
 	    new_layer.get_lines_properties(), new_layer.get_selection());
+}
+
+/******************************************************************************
+ * Inendi::PVView::commit_selection_to_new_layer
+ *****************************************************************************/
+
+void Inendi::PVView::commit_selection_to_new_layer(const QString& layer_name, bool should_hide_layers /* = true */)
+{
+	if (should_hide_layers) {
+		hide_layers();
+	}
+
+	add_new_layer(layer_name);
+	Inendi::PVLayer& layer = get_current_layer();
+
+	// We need to configure the layer
+	commit_selection_to_layer(layer);
+	update_current_layer_min_max();
+	compute_selectable_count(layer);
+	process_layer_stack();
 }
 
 /******************************************************************************
@@ -695,6 +716,65 @@ void Inendi::PVView::sort_indexes(PVCol col,
 	const pvcop::db::array& column = get_rushnraw_parent().column(col);
 	idxes = column.parallel_sort();
 	BENCH_END(pvcop_sort, "pvcop_sort", 0, 0, 1, idxes.size());
+}
+
+bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pybind11::array& column, const QString& axis_name)
+{
+	// Insert column in Nraw
+	PVRush::PVNraw& nraw = get_rushnraw_parent();
+	bool ret = nraw.append_column(column_type, column);
+
+	if (ret) {
+		// update format
+		PVCol col(nraw.column_count()-1);
+		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+		PVRush::PVAxisFormat axis_format(col);
+		axis_format.set_name(axis_name);
+		axis_format.set_type(column_type.c_str());
+		axis_format.set_mapping("default"); // FIXME : use string for string
+		axis_format.set_plotting("default");
+		axis_format.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
+		axis_format.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+		format.insert_axis(axis_format, PVCombCol(0), true); // FIXME
+		_axes_combination.axis_append(col);
+
+		// compute mapping and plotting
+		Inendi::PVMapped& mapped = get_parent<PVMapped>();
+		mapped.append_mapped();
+		Inendi::PVPlotted& plotted = get_parent<PVPlotted>();
+		plotted.append_plotted();
+		mapped.compute();
+	}
+
+	return ret;
+}
+
+void Inendi::PVView::delete_axis(PVCombCol comb_col)
+{
+	// Remove axis (or axes) from axes combination
+	PVCol col = _axes_combination.get_nraw_axis(comb_col);
+
+	// Notify axes combination update on Qt GUI thread
+    QMetaObject::invokeMethod(qApp, [&,col](){
+		// Remove axes
+		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+		PVRush::PVFormat& original_format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_original_format()); // FIXME
+		_axis_combination_about_to_update.emit();
+		_axes_combination.delete_axes(col);
+		format.delete_axis(col);
+		if (format.has_multi_inputs() and col != 0) {
+			original_format.delete_axis(col-PVCol(1));
+		}
+		_axis_combination_updated.emit();
+    }, Qt::BlockingQueuedConnection);
+
+	// Delete mapping and plotting
+	get_parent<PVPlotted>().delete_plotted(col);
+	get_parent<PVMapped>().delete_mapped(col);
+
+	// Delete column from disk
+	PVRush::PVNraw& nraw = get_rushnraw_parent();
+	nraw.delete_column(col);
 }
 
 // Load/save and serialization

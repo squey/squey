@@ -157,3 +157,10 @@ add_definitions(-DTYPE_SAFE_ENABLE_WRAPPER=0)
 add_definitions(-DTYPE_SAFE_ENABLE_ASSERTIONS=0)
 include_directories(AFTER external/type_safe/external/debug_assert)
 include_directories(AFTER external/type_safe/include)
+
+
+###############################################################################
+# Python3
+###############################################################################
+find_package(Python 3.8 REQUIRED COMPONENTS Development.Embed)
+include_directories(SYSTEM AFTER ${Python_INCLUDE_DIRS})

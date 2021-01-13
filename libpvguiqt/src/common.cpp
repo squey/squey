@@ -12,6 +12,7 @@
 #include <pvguiqt/PVDisplayViewAxesCombination.h>
 #include <pvguiqt/PVDisplayViewListing.h>
 #include <pvguiqt/PVDisplayViewLayerStack.h>
+#include <pvguiqt/PVDisplayViewPythonConsole.h>
 
 void PVGuiQt::common::register_displays()
 {
@@ -19,4 +20,5 @@ void PVGuiQt::common::register_displays()
 	REGISTER_CLASS("guiqt_datatree", PVDisplays::PVDisplaySourceDataTree);
 	REGISTER_CLASS("guiqt_layer-stack", PVDisplays::PVDisplayViewLayerStack);
 	REGISTER_CLASS("guiqt_listing", PVDisplays::PVDisplayViewListing);
+	REGISTER_CLASS("guiqt_pythonconsole", PVDisplays::PVDisplayViewPythonConsole);
 }

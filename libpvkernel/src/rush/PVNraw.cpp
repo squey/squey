@@ -81,6 +81,34 @@ void PVRush::PVNraw::init_collection(const std::string& path)
 	}
 }
 
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::insert_column
+ *
+ ****************************************************************************/
+
+bool PVRush::PVNraw::append_column(const pvcop::db::type_t& column_type, const pybind11::array& column)
+{
+	assert(_collection && "A collection must be open");
+	bool ret = _collection->append_column(column_type, column);
+	if (ret) {
+		_columns.emplace_back(_collection->column(_collection->column_count()-1));
+	}
+	return ret;
+}
+
+/*****************************************************************************
+ *
+ * PVRush::PVNraw::delete_column
+ *
+ ****************************************************************************/
+
+void PVRush::PVNraw::delete_column(PVCol col)
+{
+	_collection->delete_column(col);
+}
+
 /*****************************************************************************
  *
  * PVRush::PVNraw::add_chunk_utf16

@@ -282,4 +282,4 @@ set(OPCUA_SRC_FILES
 ../../plugins/common/opcua/PVOpcUaQuery.cpp
 )
 add_inspector_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt5Network Qt5OpcUa open62541 ssl crypto FILES opcua.cpp ${OPCUA_SRC_FILES})
-add_inspector_test(Topcua Topcua)
+#add_inspector_test(Topcua Topcua)

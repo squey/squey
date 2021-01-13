@@ -25,6 +25,7 @@
 #include <inendi/PVMapped.h>
 #include <inendi/PVPlotted.h>
 #include <inendi/PVView.h>
+#include <inendi/PVPythonInterpreter.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -33,6 +34,8 @@
 #include <QTimer>
 
 #include "common.h"
+
+#include <filesystem>
 
 static constexpr const PVRow STEP_COUNT = 1000;
 
@@ -52,6 +55,23 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 
 	Inendi::PVView* view = env.root.current_view();
 
+	// Execute Python script if any
+	bool is_path, disabled;
+	Inendi::PVSource& src = view->get_parent<Inendi::PVSource>();
+	QString python_script = src.get_original_format().get_python_script(is_path, disabled);
+	if (is_path) {
+		python_script.insert(0, (std::filesystem::current_path().string() + "/").c_str());
+	}
+	if (not disabled and not python_script.isEmpty()) {
+		if (is_path and not QFileInfo(python_script).exists()) {
+			assert(false && "Missing Python script");
+		}
+		else {
+			Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(src.get_parent<Inendi::PVRoot>());
+			python_interpreter.execute_script(python_script.toStdString(), is_path);
+		}
+	}
+
 	// Export selection to temporary file
 	Inendi::PVSelection sel(view->get_row_count());
 	if (test_selection) {
@@ -60,6 +80,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	else {
 		sel.select_all();
 	}
+	view->set_selection_view(sel);
 
 	char temp_pattern[] = "/tmp/fileXXXXXX";
 	close(mkstemp(temp_pattern));

@@ -31,8 +31,11 @@ PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView& view, QObject* parent)
 	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::axes_comb_changed));
 
 	// Call update_filter on selection update
-	view._update_output_selection.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
+	view._update_output_selection.connect([&](){
+		QMetaObject::invokeMethod(qApp, [&](){
+            update_filter();
+        }, Qt::QueuedConnection);
+	});
 
 	// Update filter if we change layer content
 	view._update_output_layer.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));

@@ -396,7 +396,7 @@ static UA_Boolean readRaw(const UA_HistoryData* data)
 	return true;
 }
 
-static UA_Boolean readHist(UA_Client* client,
+static UA_Boolean readHist(UA_Client* /*client*/,
                            const UA_NodeId* /*nodeId*/,
                            UA_Boolean moreDataAvailable,
                            const UA_ExtensionObject* data,

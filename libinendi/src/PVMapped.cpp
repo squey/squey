@@ -134,6 +134,26 @@ pvcop::db::array const& Inendi::PVMapped::get_column(PVCol col) const
 
 /******************************************************************************
  *
+ * Inendi::PVMapped::append_mapped
+ *
+ *****************************************************************************/
+void Inendi::PVMapped::append_mapped()
+{
+	columns.emplace_back(PVMappingProperties("default", PVCore::PVArgumentList()));
+}
+
+/******************************************************************************
+ *
+ * Inendi::PVMapped::delete_mapped
+ *
+ *****************************************************************************/
+void Inendi::PVMapped::delete_mapped(PVCol col)
+{
+	columns.erase(std::next(columns.begin(), col.value()));
+}
+
+/******************************************************************************
+ *
  * Inendi::PVMapped::get_row_count
  *
  *****************************************************************************/

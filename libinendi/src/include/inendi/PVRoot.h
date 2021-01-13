@@ -10,6 +10,7 @@
 
 #include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
 #include <inendi/PVScene.h>             // for PVScene
+#include <inendi/PVPythonInterpreter.h>
 
 #include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeParent
 #include <pvkernel/core/PVSerializeObject.h>

@@ -321,6 +321,11 @@ void PVInspector::PVFormatBuilderWidget::initConnexions()
 	        [&](int first_line) { myTreeModel->set_first_line(first_line); });
 	connect(_options_widget, &PVOptionsWidget::line_count_changed, this,
 	        [&](int line_count) { myTreeModel->set_line_count(line_count); });
+	connect(_options_widget, &PVOptionsWidget::python_script_updated, this,
+	        [&](const QString& python_script, bool is_path, bool disabled)
+	{
+		myTreeModel->set_python_script(python_script, is_path, disabled); 
+	});
 
 	// Connections for the axes combination editor
 	connect(_main_tab, &QTabWidget::currentChanged, this,
@@ -1282,6 +1287,9 @@ bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 		if (myTreeModel->openXml(path)) {
 			_options_widget->set_lines_range(myTreeModel->get_first_line(),
 			                                 myTreeModel->get_line_count());
+			bool is_path, disabled;
+			const QString& python_script = myTreeModel->get_python_script(is_path, disabled);
+			_options_widget->set_python_script(python_script, is_path, disabled);
 			_cur_file = path;
 			setWindowTitleForFile(path);
 			myTreeView->expandAll();

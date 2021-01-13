@@ -111,6 +111,9 @@ class PVFormat
 	QList<PVAxisFormat> const& get_axes() const { return _axes; }
 	std::vector<PVCol> const& get_axes_comb() const { return _axes_comb; }
 
+	void insert_axis(const PVAxisFormat& axis, PVCombCol pos, bool after = true);
+	void delete_axis(PVCol pos);
+
 	size_t get_first_line() const { return _first_line; }
 	void set_first_line(size_t first_line) { _first_line = first_line; }
 	size_t get_line_count() const { return _line_count; }
@@ -118,8 +121,12 @@ class PVFormat
 	bool have_grep_filter() const { return _have_grep_filter; }
 
 	PVFormat add_input_name_column() const;
+	bool has_multi_inputs() const { return _has_multi_inputs; }
 
 	static pvcop::formatter_desc get_datetime_formatter_desc(const std::string& tf);
+
+	void set_python_script(const QString& python_script, bool as_path, bool disabled);
+	QString get_python_script(bool& as_path, bool& disabled) const;
 
   private:
 	PVFilter::PVFieldsBaseFilter_p
@@ -147,10 +154,14 @@ class PVFormat
 	std::vector<PVCol> _axes_comb;
 	size_t _first_line;
 	size_t _line_count;
+	QString _python_script;
+	bool _python_script_is_path;
+	bool _python_script_disabled;
 
 	QDomDocument _dom;
 
 	mutable bool _have_grep_filter;
+	mutable bool _has_multi_inputs = false;
 };
 } // namespace PVRush
 ;

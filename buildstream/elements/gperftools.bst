@@ -8,8 +8,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://github.com/gperftools/gperftools/archive/gperftools-2.6.3.tar.gz
-  ref: 0c067fbef016daea0ff5c73135444624bf6efa89662c1537e54dad7a2b037c1b
+  url: https://github.com/gperftools/gperftools/archive/gperftools-2.8.tar.gz
+  ref: b09193adedcc679df2387042324d0d54b93d35d062ea9bff0340f342a709e860
 
 config:
 

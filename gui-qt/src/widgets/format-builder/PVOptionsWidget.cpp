@@ -2,7 +2,7 @@
  * @file
  *
  * @copyright (C) Picviz Labs 2014-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
+ * @copyright (C) ESI Group INENDI April 2015-2020
  */
 
 #include <pvbase/general.h>
@@ -14,15 +14,16 @@
 #include <QSpacerItem>
 
 #include <PVOptionsWidget.h>
+#include <pvguiqt/PVPythonScriptWidget.h>
 
 #include <iostream>
 
 PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) : QWidget(parent)
 {
 	auto main_layout = new QVBoxLayout();
-	QGroupBox* group_box = new QGroupBox(tr("Import lines range"));
+	QGroupBox* lines_range_group_box = new QGroupBox(tr("Import lines range"));
 
-	auto group_box_layout = new QVBoxLayout(group_box);
+	auto lines_range_group_box_layout = new QVBoxLayout(lines_range_group_box);
 
 	auto ignore_first_lines_layout = new QHBoxLayout();
 
@@ -49,12 +50,17 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	line_count_layout->addItem(
 	    new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
-	group_box_layout->addLayout(ignore_first_lines_layout);
-	group_box_layout->addLayout(line_count_layout);
-	group_box_layout->addItem(
-	    new QSpacerItem(100, 100, QSizePolicy::Minimum, QSizePolicy::MinimumExpanding));
+	lines_range_group_box_layout->addLayout(ignore_first_lines_layout);
+	lines_range_group_box_layout->addLayout(line_count_layout);
+	lines_range_group_box_layout->addItem(
+	    new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
-	main_layout->addWidget(group_box);
+	_python_scripting_widget = new PVGuiQt::PVPythonScriptWidget(this);
+	connect(_python_scripting_widget, &PVGuiQt::PVPythonScriptWidget::python_script_updated, this, &PVInspector::PVOptionsWidget::python_script_updated);
+	
+	main_layout->addWidget(lines_range_group_box);
+	main_layout->addWidget(_python_scripting_widget);
+	main_layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 	setLayout(main_layout);
 
@@ -82,4 +88,9 @@ void PVInspector::PVOptionsWidget::disable_specify_line_count(int checkstate)
 	_line_count_checkbox->setCheckState((Qt::CheckState)checkstate);
 
 	Q_EMIT line_count_changed(line_count());
+}
+
+void PVInspector::PVOptionsWidget::set_python_script(const QString& python_script, bool is_path, bool disabled)
+{
+	_python_scripting_widget->set_python_script(python_script, is_path, disabled);
 }

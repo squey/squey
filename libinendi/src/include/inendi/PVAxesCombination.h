@@ -57,6 +57,7 @@ class PVAxesCombination
   public:
 	void set_combination(std::vector<PVCol> const& comb);
 	void axis_append(PVCol comb_col);
+	void delete_axes(PVCol col);
 	void reset_to_default();
 	bool is_default();
 	void sort_by_name();

@@ -18,6 +18,10 @@
 #include <QMessageBox>
 
 #include <boost/thread.hpp>
+#include <boost/lexical_cast.hpp>
+#include "pybind11/pybind11.h"
+
+#include <pvlogger.h>
 
 /******************************************************************************
  *
@@ -103,6 +107,7 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	connect(this, &PVProgressBox::information_sig, this, &PVProgressBox::information_slot,
 	        Qt::BlockingQueuedConnection);
 	connect(this, &PVProgressBox::finished_sig, this, &PVProgressBox::accept, Qt::QueuedConnection);
+	connect(this, &PVProgressBox::canceled_sig, this, &PVProgressBox::reject, Qt::QueuedConnection);
 
 	/* this one must be in blocking mode because the sender must wait for an user interaction
 	 */
@@ -120,7 +125,8 @@ void PVCore::PVProgressBox::cancel()
 			return;
 		}
 	}
-	reject();
+	_btnCancel->setEnabled(false);
+	Q_EMIT cancel_asked_sig();
 }
 
 void PVCore::PVProgressBox::set_enable_cancel(bool enable)
@@ -236,30 +242,73 @@ void PVCore::PVProgressBox::exec_gui_slot(PVCore::PVProgressBox::func_t f)
 }
 
 PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
-    PVCore::PVProgressBox::process_t f, QString const& name, QWidget* parent)
+	PVCore::PVProgressBox::process_t f,
+	QString const& name,
+	QWidget* parent)
 {
 	PVProgressBox pbox(name, parent);
 
-	boost::thread th([&]() { pbox.process(f); });
+	connect(&pbox, &PVProgressBox::cancel_asked_sig, [&](){
+		Q_EMIT pbox.canceled_sig();
+	});
+
+	boost::thread th([&]() {
+		try {
+			f(pbox);
+		} catch (boost::thread_interrupted) {
+		}
+		Q_EMIT pbox.finished_sig();
+	});
 
 	if (!th.timed_join(boost::posix_time::milliseconds(250))) {
 		if (pbox.exec() != QDialog::Accepted) {
-			pbox.set_extended_status_slot("Cancelling");
+			pbox.set_extended_status_slot("Canceling");
 			pbox.update();
 			th.interrupt();
 		}
 	}
 
 	th.join();
+
 	return pbox.get_cancel_state();
 }
 
-void PVCore::PVProgressBox::process(process_t f)
+PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
+	PVCore::PVProgressBox::process_t f,
+	QString const& name,
+	QWidget* parent)
 {
-	try {
-		f(*this);
-	} catch (boost::thread_interrupted) {
+	PVProgressBox pbox(name, parent);
+
+	connect(&pbox, &PVProgressBox::cancel_asked_sig, [&](){
+		pbox.message->setText("Canceling python script...");
+		pbox.update();
+
+		// Cancel python script execution
+		std::string threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
+		unsigned long threadNumber = 0;
+		sscanf(threadId.c_str(), "%lx", &threadNumber);
+		PyGILState_STATE gstate = PyGILState_Ensure();
+		PyThreadState_SetAsyncExc(threadNumber, PyExc_InterruptedError);
+		PyGILState_Release(gstate);
+	});
+
+	boost::thread th([&]() {
+		try {
+			f(pbox);
+		} catch (const pybind11::error_already_set &eas) {
+			Q_EMIT pbox.canceled_sig(); // dismiss progress box in GUI thread
+			return;
+		}
+		Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
+	});
+
+	if (!th.timed_join(boost::posix_time::milliseconds(250))) {
+		pbox.exec();
 	}
 
-	Q_EMIT finished_sig();
+	pybind11::gil_scoped_release gil_release;
+	th.join();
+
+	return pbox.get_cancel_state();
 }

@@ -326,7 +326,7 @@ class PVSeriesTreeView : public QTreeView
 			if (not index.parent().isValid()) { // top level item
 				sel = true;
 				new_total_sel.merge(
-				    QItemSelection(index.child(0, 0), index.child(model()->rowCount(index) - 1, 0)),
+				    QItemSelection(model()->index(0, 0, index), model()->index(model()->rowCount(index) - 1, 0, index)),
 				    QItemSelectionModel::Select);
 			}
 		}
@@ -342,7 +342,7 @@ class PVSeriesTreeView : public QTreeView
 				unsel = true;
 				new_total_unsel.merge(QItemSelection(index, index), QItemSelectionModel::Select);
 				new_total_unsel.merge(
-				    QItemSelection(index.child(0, 0), index.child(model()->rowCount(index) - 1, 0)),
+				    QItemSelection(model()->index(0, 0, index), model()->index(model()->rowCount(index) - 1, 0, index)),
 				    QItemSelectionModel::Select);
 			} else {
 				parents.insert(index.parent());
@@ -353,7 +353,7 @@ class PVSeriesTreeView : public QTreeView
 		for (const QModelIndex& parent : parents) {
 			bool all_children_unselected = true;
 			for (PVCol row(0); row < model()->rowCount(parent) and all_children_unselected; row++) {
-				const QModelIndex& child = parent.child(row, 0);
+				const QModelIndex& child = model()->index(row, 0, parent);
 				all_children_unselected &= not selectionModel()->isSelected(child);
 			}
 			if (all_children_unselected) {

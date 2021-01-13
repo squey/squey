@@ -18,6 +18,11 @@
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
 
+namespace pybind11
+{
+class array;
+}
+
 namespace PVCore
 {
 class PVSelBitField;
@@ -105,6 +110,10 @@ class PVNraw
 
 		return _columns[col];
 	}
+
+	bool append_column(const pvcop::db::type_t& column_type, const pybind11::array& column);
+
+	void delete_column(PVCol col);
 
 	const pvcop::db::read_dict* column_dict(PVCol col) const { return _collection->dict(col); }
 

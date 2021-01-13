@@ -75,6 +75,8 @@ class PVProgressBox : public QDialog
 
 	void exec_gui_sig(std::function<void(void)> f);
 
+	void cancel_asked_sig();
+	void canceled_sig();
 	void finished_sig();
 
   public Q_SLOTS:
@@ -96,9 +98,9 @@ class PVProgressBox : public QDialog
 
   public:
 	static CancelState progress(process_t f, QString const& name, QWidget* parent);
+	static CancelState progress_python(process_t f, QString const& name, QWidget* parent);
 
   private:
-	void process(process_t f);
 	void cancel();
 
   private:
@@ -109,6 +111,7 @@ class PVProgressBox : public QDialog
 	QLabel* _extended_detail_label;
 	std::atomic<CancelState> _cancel_state;
 	std::atomic<bool> _need_confirmation;
+	std::atomic<bool> _cancel_asked;
 };
 } // namespace PVCore
 

@@ -355,7 +355,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	for (PVFullParallelScene* view : _parallel_scenes) {
 		view->set_enabled(true);
-		view->update_number_of_zones_async();
+		view->update_number_of_zones();
 	}
 
 	zoomed_scene_list_t new_zps;
@@ -401,7 +401,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 	    [&](PVCore::PVProgressBox& /*pbox*/) {
 		    for (PVHitCountView* view : _hit_count_views) {
 			    view->set_enabled(true);
-			    view->update_all_async();
+			    view->update_all();
 		    }
 		},
 	    "Updating hit-count views", nullptr);

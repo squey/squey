@@ -35,6 +35,9 @@ depends:
 - freedesktop-sdk.bst:components/xcb-util-image.bst
 - freedesktop-sdk.bst:components/xcb-util-keysyms.bst
 - freedesktop-sdk.bst:components/xorg-lib-xcursor.bst
+- freedesktop-sdk.bst:components/python3-pip.bst
+
+- freedesktop-sdk.bst:components/python3.bst
 
 - pigz.bst
 - lbzip2.bst
@@ -54,9 +57,13 @@ depends:
 - boost.bst
 - qt5.bst
 - kitemmodels.bst
+- ksyntaxhighlighting.bst
 - erf.bst
 - qtopcua.bst
-#- openssl.bst
+- pybind11.bst
+- python3-pip.bst
+# - conda.bst
+- numpy.bst
 - inendi-inspector-doc.bst
 
 sources:
