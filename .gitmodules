@@ -3,22 +3,19 @@
 	url = https://github.com/foonathan/type_safe
 [submodule "libpvcop"]
 	path = libpvcop
-	url = git@gitlab.srv.picviz:picviz/libpvcop.git
-    	branch = master
+	url = ../libpvcop.git
 [submodule "inendi-utils"]
 	path = inendi-utils
-	url = git@gitlab.srv.picviz:picviz/inendi-utils.git
-	branch = master
+	url = ../utils.git
 [submodule "furl"]
 	path = furl
-	url = git@gitlab.srv.picviz:picviz/furl.git
-	branch = master
+	url = ../furl.git
 [submodule "doc"]
 	path = doc
-	url = git@gitlab.srv.picviz:picviz/inendi-inspector-manual.git
+	url = ../inspector-reference-manual.git
 [submodule "tests"]
 	path = tests
-	url = git@gitlab.srv.picviz:picviz/inendi-inspector-testsuite.git
+	url = ../inspector-testsuite.git
 [submodule "buildstream/scripts/ostree-releng-scripts"]
 	path = buildstream/scripts/ostree-releng-scripts
 	url = https://github.com/ostreedev/ostree-releng-scripts.git
@@ -27,4 +24,4 @@
 	url = https://gitlab.com/BuildStream/bst-external.git
 [submodule "external/breakpad"]
 	path = external/breakpad
-	url = ssh://git@gitlab.srv.picviz/picviz/breakpad
+	url = ../breakpad

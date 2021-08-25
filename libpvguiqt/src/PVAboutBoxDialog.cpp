@@ -249,7 +249,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	content += EMAIL_ADDRESS_SUPPORT;
 	content += "</a><br/>";
 	content += "website - <a "
-	           "href=\"https://gitlab.com/jbleonesio/inendi-inspector\">gitlab.com/jbleonesio/inendi-inspector</a><br/><br/>";
+	           "href=\"https://gitlab.com/inendi/inspector\">gitlab.com/inendi/inspector</a><br/><br/>";
 
 	if (PVParallelView::egl_support()) {
 		content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();
