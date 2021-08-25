@@ -68,7 +68,7 @@ class PVCrashReporterDialog : public QDialog
   private:
 	void send_crash()
 	{
-		std::string locking_code = PVCore::PVLicenseActivator::get_locking_code();
+		std::string locking_code = "";
 		int ret = PVCore::PVCrashReportSender::send(_minidump_path, INENDI_CURRENT_VERSION_STR,
 		                                            locking_code);
 		if (ret == 413) { // Payload Too Large

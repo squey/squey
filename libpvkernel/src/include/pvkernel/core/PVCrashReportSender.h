@@ -14,7 +14,6 @@
 #include <curl/curl.h>
 
 #include <pvkernel/core/PVRESTAPI.h>
-#include <pvkernel/core/PVLicenseActivator.h>
 
 #include <QFileInfo>
 

@@ -29,7 +29,6 @@
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/opencl/common.h>
-#include <License.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/PVUtils.h>
 
@@ -40,7 +39,6 @@
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVNrawDirectoryMessageBox.h>
-#include <pvguiqt/PVLicenseDialog.h>
 #include <pvguiqt/PVChangelogMessage.h>
 
 #include <pvdisplays/PVDisplaysImpl.h>
@@ -141,64 +139,6 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	product_name = vm["product"].as<std::string>();
 	PVCore::PVConfig::set_product_name(product_name);
 
-	static QString inendi_license_path = INENDI_GLOBAL_LICENSE_PATH;
-	if (not QFileInfo(inendi_license_path).exists()) {
-		inendi_license_path = QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
-		const QString& license_server = PVCore::PVConfig::value("license_server").toString();
-		if (not QFileInfo(inendi_license_path).exists() and license_server.isEmpty()) {
-			if (not PVGuiQt::PVLicenseDialog::show_no_license(
-			        inendi_license_path, QString::fromStdString(product_name))) {
-				return 1;
-			}
-		}
-	}
-
-	bool license_ok = false;
-	do {
-		try {
-			const QString& license_server = PVCore::PVConfig::value("license_server").toString();
-			if (not license_server.isEmpty()) {
-				inendi_license_path = license_server;
-			}
-
-			Inendi::Utils::License::RAII_InitLicense license_manager(
-			    inendi_license_path.toStdString().c_str());
-
-			Inendi::Utils::License::RAII_LicenseFeature full_program_license(
-			    INENDI_LICENSE_PREFIX, INENDI_LICENSE_FEATURE);
-			license_ok = true;
-		} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
-			if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::
-			                         LICENSE_EXPIRED) {
-				PVGuiQt::PVLicenseDialog::show_license_expired(
-				    inendi_license_path, QString::fromStdString(product_name));
-			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
-			                                STATUS_CODE::HARDWARE_IDENTIFICATION_FAILED) {
-				PVGuiQt::PVLicenseDialog::show_bad_license(inendi_license_path,
-				                                           QString::fromStdString(product_name));
-			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
-			                                STATUS_CODE::UNABLE_TO_RESOLVE_HOSTNAME or
-			           e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
-			                                STATUS_CODE::UNABLE_TO_CONTACT_SERVER) {
-				PVGuiQt::PVLicenseDialog::show_unable_to_contact_server_error(
-				    inendi_license_path, QString::fromStdString(product_name));
-			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
-			                                STATUS_CODE::NO_MORE_AVAILABLE_USER_TOKEN) {
-				PVGuiQt::PVLicenseDialog::show_no_more_user_token_available_error(
-				    inendi_license_path, QString::fromStdString(product_name));
-			} else if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::
-			                                STATUS_CODE::UNKOWN_STATUS) {
-				PVGuiQt::PVLicenseDialog::show_license_unknown_error(
-				    inendi_license_path, QString::fromStdString(product_name));
-			}
-		}
-	} while (not license_ok);
-	Inendi::Utils::License::RAII_InitLicense license_manager(
-	    inendi_license_path.toStdString().c_str());
-	Inendi::Utils::License::RAII_LicenseFeature full_program_license(INENDI_LICENSE_PREFIX,
-	                                                                 INENDI_LICENSE_FEATURE);
-
-
 	// Check at least two CPU cores are available
 	if (std::thread::hardware_concurrency() == 1) {
 
@@ -213,17 +153,6 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	// Ensure nraw tmp directory exists and is writable
 	{
 		PVNrawDirectoryMessageBox nraw_tmp_checker;
-	}
-
-	try {
-		Inendi::Utils::License::check_ram(INENDI_LICENSE_PREFIX, INENDI_LICENSE_FEATURE,
-		                                  INENDI_LICENSE_MAXMEM);
-	} catch (const Inendi::Utils::License::NotAvailableFeatureException& e) {
-		if (e.status_code == Inendi::Utils::License::NotAvailableFeatureException::STATUS_CODE::
-		                         AUTHORISED_MEMORY_EXCEEDED) {
-			PVGuiQt::PVLicenseDialog::show_memory_exceeded(inendi_license_path,
-			                                               QString::fromStdString(product_name));
-		}
 	}
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));

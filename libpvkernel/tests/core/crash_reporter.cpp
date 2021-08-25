@@ -9,7 +9,6 @@
 
 #include <pvbase/general.h>
 #include <pvkernel/core/PVCrashReportSender.h>
-#include <pvkernel/core/PVLicenseActivator.h>
 #include <pvkernel/core/inendi_assert.h>
 
 #include <algorithm>

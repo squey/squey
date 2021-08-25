@@ -1,7 +1,5 @@
 #!/bin/bash
 
-inendi-lsinit &> /dev/null
-
 GL_TARGET_DIR="/usr/lib/x86_64-linux-gnu/GL"
 export OCL_ICD_VENDORS=/etc/opencl_vendors
 mkdir -p $OCL_ICD_VENDORS

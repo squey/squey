@@ -25,11 +25,5 @@ add_inspector_test(Tcore_network Tcore_network)
 add_inspector_compile_test(Tcore_timeformat LINKS ${LINK_LIBRARIES} ${ICU_LIBRARY} FILES time-format.cpp)
 add_inspector_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
 
-add_inspector_compile_test(Tcore_license_activation LINKS ${LINK_LIBRARIES} curl FILES license_activation.cpp)
-add_inspector_test(Tcore_license_activation Tcore_license_activation)
-
 add_inspector_compile_test(Tcore_crash_reporter LINKS ${LINK_LIBRARIES} curl FILES crash_reporter.cpp)
 add_inspector_test(Tcore_crash_reporter Tcore_crash_reporter)
-
-add_inspector_compile_test(Tcore_network_license LINKS ${LINK_LIBRARIES} FILES network_license.cpp)
-add_inspector_test(Tcore_network_license Tcore_network_license)

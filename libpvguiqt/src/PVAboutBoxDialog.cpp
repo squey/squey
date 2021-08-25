@@ -9,8 +9,6 @@
 
 #include <pvguiqt/PVAboutBoxDialog.h>
 
-#include <License.h>
-
 #include <iostream>
 #include <iterator>
 #include <sstream>
@@ -236,10 +234,6 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	content += "</a><br/>";
 	content += "website - <a "
 	           "href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/><br/>";
-
-	content += QString("Licence expires in %1 days.<br/>")
-	               .arg(Inendi::Utils::License::get_remaining_days(INENDI_LICENSE_PREFIX,
-	                                                               INENDI_LICENSE_FEATURE));
 
 	if (PVParallelView::egl_support()) {
 		content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();

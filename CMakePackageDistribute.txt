@@ -33,18 +33,6 @@ install(FILES "pvconfig.ini" DESTINATION ${INENDI_CONFIG})
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME inendi-inspector.png)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
-# Install Gemalto Sentinel RMS echoid and lsinit
-INSTALL(
-    FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/customization/echoid"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-echoid
-    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE
-)
-INSTALL(
-    FILES "${CMAKE_CURRENT_SOURCE_DIR}/inendi-utils/core/license/src/sentinel/out/x86_64/initdemo"
-    DESTINATION ${CMAKE_INSTALL_PREFIX}/bin RENAME inendi-lsinit
-    PERMISSIONS OWNER_READ OWNER_WRITE OWNER_EXECUTE GROUP_READ GROUP_EXECUTE WORLD_READ WORLD_EXECUTE 
-)
-
 set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
 
 set(QTLIBS_MAJOR "5")

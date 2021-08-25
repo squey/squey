@@ -117,12 +117,6 @@ add_definitions(-DFURL_UTF8_CHAR)
 ###############################################################################
 SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils/libpvlogger/src/libpvlogger.so)
 SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/inendi-utils/libpvhwloc/src/libpvhwloc.so)
-SET(PVLICENSE_LIBRARIES
-    ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/lib/flexnet/libesiflex.a
-    ${CMAKE_SOURCE_DIR}/inendi-utils/core/license/lib/sentinel/liblssrv64.a
-    dl
-)
-include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/core/license/include)
 include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/libpvlogger/include)
 include_directories(${CMAKE_SOURCE_DIR}/inendi-utils/libpvhwloc/include)
 add_subdirectory(inendi-utils)

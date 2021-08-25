@@ -15,7 +15,6 @@
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <inendi/common.h>
 
-#include <License.h>
 #include <QDir>
 
 static void init_env()
@@ -24,17 +23,11 @@ static void init_env()
 	setenv("PVKERNEL_PLUGIN_PATH", INENDI_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
 	setenv("INENDI_PLUGIN_PATH", INENDI_BUILD_DIRECTORY "/libinendi/plugins", 0);
 
-	static const QString inendi_license_path =
-	    QString(INENDI_LICENSE_PATH).replace(0, 1, QDir::homePath());
-	Inendi::Utils::License::Init(inendi_license_path.toStdString().c_str());
-
 	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
 	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
 	Inendi::common::load_mapping_filters();
 	Inendi::common::load_plotting_filters();
-
-	Inendi::Utils::License::Deinit();
 }
 
 #endif
