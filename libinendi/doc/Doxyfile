@@ -1,9 +1,3 @@
-#
-# @file
-#
-# @copyright (C) Picviz Labs 2010-March 2015
-# @copyright (C) ESI Group INENDI April 2015-2015
-
 # Doxyfile 1.7.1
 
 # This file describes the settings to be used by the documentation system
@@ -905,7 +899,7 @@ DOCSET_PUBLISHER_ID    = org.doxygen.Publisher
 
 # The GENERATE_PUBLISHER_NAME tag identifies the documentation publisher.
 
-DOCSET_PUBLISHER_NAME  = ESI Group
+DOCSET_PUBLISHER_NAME  = Jean-Baptiste Leonesio
 
 # If the GENERATE_HTMLHELP tag is set to YES, additional index files
 # will be generated that can be used as input for tools like the

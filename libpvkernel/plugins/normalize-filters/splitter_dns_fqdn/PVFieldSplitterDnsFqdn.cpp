@@ -1,40 +1,27 @@
-/**
- * @file
- *
- * @copyright (C) Picviz Labs 2014-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
- */
-
-/**
- * about this splitter
- *
- * It permit to split a FQDN in a DNS context into:
- * - TLD1: 'com' in 'www.en.example.com'
- * - TLD2: 'example.com' in 'www.en.example.com'
- * - TLD3: 'en.example.com' in 'www.en.example.com'
- * - SUBD1: 'www.en.example' in 'www.en.example.com'
- * - SUBD2: 'www.en' in 'www.en.example.com'
- * - SUBD3: 'www' in 'www.en.example.com'
- *
- * In case of PTR DNS query, the third level domain is an IP address (the
- * SLD+TLD is also "in-addr.arpa" for IPv4 and "ip6.arpa" for IPv6); the
- * fields behavior is also:
- * - TLD3 remains empty
- * - IP addresses appear in the SUBD* fields
- *
- * When SUBD* contain IPs, they can be reversed to look in the "right order".
- *
- * Note: A FQDN may start with a dot ('.') but it is insightful. As it can
- * have a meaning for the user, it is not removed.
- *
- * Note 2: A FQDN may end with a dot ('.') but it is insightful. While it has
- * a meaning while processing a hostname (to expand it with the domain name
- * or not), it has none in any other cases. It is also removed from the
- * splitting proccess (and result).
- *
- * Note 3: TLDs like "co.uk" or "notaires.fr" are not handled by this
- * splitter.
- */
+//
+// MIT License
+//
+// © ESI Group, 2015
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+//
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+//
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
 #include "PVFieldSplitterDnsFqdn.h"
 

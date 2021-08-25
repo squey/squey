@@ -1,8 +1,6 @@
 #
 # @file
 #
-# @copyright (C) Picviz Labs 2010-March 2015
-# @copyright (C) ESI Group INENDI April 2015-2015
 
 add_inspector_compile_test(Twidgets_color-picker LINKS ${LINK_LIBRARIES} FILES color-picker.cpp)
 add_inspector_compile_test(Twidgets_color-dialog LINKS ${LINK_LIBRARIES} FILES color-dialog.cpp)

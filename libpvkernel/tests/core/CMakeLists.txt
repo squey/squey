@@ -1,8 +1,6 @@
 #
 # @file
 #
-# @copyright (C) Picviz Labs 2010-March 2015
-# @copyright (C) ESI Group INENDI April 2015-2015
 
 add_inspector_compile_test(Tcore_file_helper LINKS ${LINK_LIBRARIES} FILES file_helper.cpp)
 add_inspector_test(Tcore_file_helper Tcore_file_helper)

@@ -1,8 +1,6 @@
 #
 # @file
 #
-# @copyright (C) Picviz Labs 2010-March 2015
-# @copyright (C) ESI Group INENDI April 2015-2015
 
 # Default build type is debug
 if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
@@ -67,8 +65,8 @@ add_definitions(-DINENDI_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 # Define email addresses
 ###############################################################################
 
-set(EMAIL_ADDRESS_CONTACT "contact@esi-inendi.com")
-set(EMAIL_ADDRESS_SUPPORT "support@esi-inendi.com")
+set(EMAIL_ADDRESS_CONTACT "jean-baptiste@leonesio.fr")
+set(EMAIL_ADDRESS_SUPPORT "jean-baptiste@leonesio.fr")
 
 add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
 add_definitions(-DEMAIL_ADDRESS_SUPPORT="${EMAIL_ADDRESS_SUPPORT}")

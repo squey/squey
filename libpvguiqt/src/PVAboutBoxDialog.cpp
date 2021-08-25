@@ -1,9 +1,27 @@
-/**
- * @file
- *
- * @copyright (C) Picviz Labs 2012-March 2015
- * @copyright (C) ESI Group INENDI April 2015-2015
- */
+//
+// MIT License
+//
+// © ESI Group, 2015
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+//
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+//
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
 #include <pvbase/general.h>
 
@@ -218,9 +236,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	auto main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 
-	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"" +
-	                  QString(INENDI_VERSION_NAME) + "\"<br/>© 2015 Picviz Labs SAS<br/>© 2015-" +
-	                  QString::number(QDate::currentDate().year()) + " ESI Group<br/>";
+	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"";
 
 	content += "<br/>contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
@@ -233,7 +249,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	content += EMAIL_ADDRESS_SUPPORT;
 	content += "</a><br/>";
 	content += "website - <a "
-	           "href=\"http://www.esi-inendi.com\">www.esi-inendi.com</a><br/><br/>";
+	           "href=\"https://gitlab.com/jbleonesio/inendi-inspector\">gitlab.com/jbleonesio/inendi-inspector</a><br/><br/>";
 
 	if (PVParallelView::egl_support()) {
 		content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();
@@ -325,10 +341,6 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 		logo_icon_label->setMinimumSize(100, 100);
 		_view3D_layout->addWidget(logo_icon_label, 0, Qt::AlignRight);
 	}
-
-	auto logo = new QLabel;
-	logo->setPixmap(QPixmap(":/logo_text.png"));
-	_view3D_layout->addWidget(logo, 0, Qt::AlignLeft);
 
 	auto text = new QLabel(content);
 	text->setAlignment(Qt::AlignCenter);

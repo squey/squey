@@ -1,33 +1,27 @@
-/*   Copyright 2009 Intel Corporation
- * sse41andsse42detection.cpp
- *   This file uses code first published by Intel as part of the processor enumeration
- * article available on the internet at:
- * http://software.intel.com/en-us/articles/intel-64-architecture-processor-topology-            *
- *enumeration/
- *  Some of the original code from cpu_topo.c
- * has been removed, while other code has been added to illustrate the CPUID usage
- *   to determine if the processor supports the SSE 4.1 and SSE 4.2 instruction sets.
- *  The reference code provided in this file is for demonstration purpose only. It assumes
- *    the hardware topology configuration within a coherent domain does not change during
- *   the life of an OS session. If an OS support advanced features that can change
- *    hardware topology configurations, more sophisticated adaptation may be necessary
- *  to account for the hardware configuration change that might have added and reduced
- *   the number of logical processors being managed by the OS.
- *
- *   Users of this code should be aware that the provided code
- * relies on CPUID instruction providing raw data reflecting the native hardware
- *    configuration. When an application runs inside a virtual machine hosted by a
- * Virtual Machine Monitor (VMM), any CPUID instructions issued by an app (or a guest OS)
- *   are trapped by the VMM and it is the VMM's responsibility and decision to emulate
- *   CPUID return data to the virtual machines. When deploying topology enumeration code based
- *  on CPUID inside a VM environment, the user must consult with the VMM vendor on how an VMM
- * will emulate CPUID instruction relating to topology enumeration.
- *
- *    Original code written by Patrick Fay, Ronen Zohar and Shihjong Kuo .
- *  Modified by Garrett Drysdale for current application note.
- */
-
-// AG: add a function for SSE4.1 detection only
+//
+// MIT License
+//
+// © ESI Group, 2015
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+//
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+//
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+//
 
 #include <pvkernel/core/sse4detector.h>
 #include <cpuid.h>

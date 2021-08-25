@@ -2,8 +2,6 @@
 #
 # @file
 #
-# @copyright (C) Picviz Labs 2010-March 2015
-# @copyright (C) ESI Group INENDI April 2015-2015
 
 ISRD=@CMAKE_SOURCE_DIR@
 IBRD=@CMAKE_BINARY_DIR@
@@ -13,28 +11,6 @@ export INENDI_PLUGIN_PATH=$IBRD/libinendi/plugins
 export QUERY_BUILDER_PATH=$ISRD/libpvkernel/src/widgets/querybuilder
 export COPYING_DIR=$ISRD/COPYING
 export PVFORMAT_HELPER=$ISRD/libpvkernel/plugins
-
-# Migration from picviz to inendi
-if [ ! -d "$HOME/.inendi" ] && [ -d "$HOME/.picviz" ]
-then
-	mv "$HOME/.picviz" "$HOME/.inendi"
-	ln -s "$HOME/.inendi" "$HOME/.picviz"
-fi
-
-if [ ! -d "$HOME/.config/ESI Group" ] && [ -d "$HOME/.config/Picviz Labs" ]
-then
-	mv "$HOME/.config/Picviz Labs" "$HOME/.config/ESI Group"
-	mv "$HOME/.config/ESI Group/Picviz Inspector.conf" "$HOME/.config/ESI Group/INENDI Inspector.conf"
-	ln -s "$HOME/.config/ESI Group" "$HOME/.config/Picviz Labs"
-	ln -s "$HOME/.config/ESI Group/INENDI Inspector.conf" "$HOME/.config/ESI Group/Picviz Inspector.conf"
-fi
-
-if [ -d "$HOME/.config/Picviz" ] && [ ! -h "$HOME/.config/Picviz" ]
-then
-	mv "$HOME"/.config/Picviz/* "$HOME/.config/ESI Group"
-	rmdir "$HOME/.config/Picviz"
-	ln -s "$HOME/.config/ESI Group" "$HOME/.config/Picviz"
-fi
 
 # AG: we don't need this anymore, because
 # the locale is automatically found for times in log files

@@ -1,6 +1,4 @@
 <!-- @file -->
-<!-- @copyright (C) Picviz Labs 2011-March 2015 -->
-<!-- @copyright (C) ESI Group INENDI April 2015-2019 -->
 <RCC>
     <qresource prefix="/">
 	<!-- OLD STUFF to be checked or changed -->
@@ -9,7 +7,6 @@
 	<file alias="window-icon.png">resources/inspector.png</file>
 	<file alias="logo.png">resources/logo.png</file>
 	<file alias="logo_icon.png">resources/logo_icon.png</file>
-	<file alias="logo_text.png">resources/logo_text.png</file>
 	<file>resources/filelink-32.png</file>
 	<file>resources/standardbutton-open-32.png</file>
 	<file alias="save">resources/standardbutton-save-32.png</file>

@@ -1,5 +1,5 @@
 FROM nvidia/cudagl:10.1-runtime-ubuntu18.04
-LABEL maintainer="jean-baptiste.leonesio@esi-group.com"
+LABEL maintainer="jean-baptiste@leonesio.fr"
 
 ARG INSTALL_PATH
 ARG INSTALL_MODE

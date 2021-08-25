@@ -1,8 +1,6 @@
 #
 # @file
 #
-# @copyright (C) Picviz Labs 2010-March 2015
-# @copyright (C) ESI Group INENDI April 2015-2015
 
 This is the source code for the INENDI Project. This project is built with various libraries. 
 The goal of this README is to explain what each library is to understand the project better.
