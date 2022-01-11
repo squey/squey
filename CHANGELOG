@@ -1,3 +1,10 @@
+4.9.1 (2022-01-31)
+------------------
+
+This minor release fixes or improves:
+* source code license is now MIT
+* cleaned repository and improved contributing documentation
+
 4.9 "Snake" (2021-01-13)
 ----------------
 
