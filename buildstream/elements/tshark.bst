@@ -8,8 +8,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://www.wireshark.org/download/src/wireshark-3.2.2.tar.xz
-  ref: 5f5923ef4c3fee370ed0ca1bb324f37c246015eba4a7e74ab95d9208feeded79
+  url: https://www.wireshark.org/download/src/wireshark-3.6.1.tar.xz
+  ref: 0434eda8fb6bf88e2b42a67eb5d1de254a67d505bec3bb51fee9d7cad7925a38
 
 variables:
   cmake-local: |
