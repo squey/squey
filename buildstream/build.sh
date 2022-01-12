@@ -62,7 +62,7 @@ else
     BRANCH_NAME=$CURRENT_BRANCH
 fi
 if [ $USER_TARGET == "customer" ]; then
-    BRANCH_NAME="master"
+    BRANCH_NAME="main"
 fi
 
 
