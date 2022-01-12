@@ -51,6 +51,7 @@ function open_workspace()
         fi
     
         bst workspace close inendi-inspector.bst || true
+        bst fetch freedesktop-sdk.bst
         if [ ! -d "$WORKSPACE_PATH" ]; then
             bst workspace open inendi-inspector.bst $WORKSPACE_PATH
         else
