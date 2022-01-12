@@ -24,8 +24,8 @@ fi
 MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-inspector /srv/tmp-inspector"
 
 # Install Buildstream and bst-external plugins if needed
-command -v "bst" &> /dev/null || { pip3 install --user BuildStream==1.4.1; }
-python3 -c "import bst_external" &> /dev/null || pip3 install --user "$DIR/plugins/bst-external"
+command -v "bst" &> /dev/null || { pip install --user BuildStream==1.6.3; }
+python3 -c "import bst_external" &> /dev/null || pip install --user -e "$DIR/plugins/bst-external"
 
 function check_bindfs()
 {
