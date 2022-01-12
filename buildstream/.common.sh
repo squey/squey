@@ -42,6 +42,7 @@ function open_workspace()
     if [ "$CURRENT_WORKSPACE" != "$WORKSPACE_PATH" ]; then
         if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
             check_bindfs
+            mkdir -p "$DIR/../release_build" "$DIR/../debug_build"
             bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../release_build"
             bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../debug_build"
         elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
