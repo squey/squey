@@ -23,8 +23,8 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 ################################################################################
 
-__author__ = "Jean-Baptiste Leonesio <jean-baptiste@leonesio.fr>"
-__copyright__ = "Copyright 2021, Jean-Baptiste Leonesio <jean-baptiste@leonesio.fr>"
+__author__ = "Jean-Baptiste Leonesio <jean-baptiste+inspector@leonesio.fr>"
+__copyright__ = "Copyright 2021, Jean-Baptiste Leonesio <jean-baptiste+inspector@leonesio.fr>"
 
 from http.server import SimpleHTTPRequestHandler, HTTPServer
 from socketserver import ThreadingMixIn

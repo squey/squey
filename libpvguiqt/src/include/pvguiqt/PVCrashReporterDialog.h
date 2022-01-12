@@ -50,6 +50,7 @@ class PVCrashReporterDialog : public QDialog
 		setWindowTitle("Crash Reporter");
 
 		QPushButton* send_report = new QPushButton("Send crash report");
+		send_report->setEnabled(false); // disable send button until API is up again
 		QPushButton* cancel = new QPushButton("Don't send");
 
 		QDialogButtonBox* button_box = new QDialogButtonBox();

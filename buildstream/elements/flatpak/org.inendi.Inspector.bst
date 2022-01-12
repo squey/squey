@@ -3,7 +3,7 @@ kind: flatpak_image
 depends:
 - filename: flatpak/flatpak-image.bst
   type: build
-- filename: flatpak/com.pcap_inspector.Inspector_export.bst
+- filename: flatpak/org.inendi.Inspector_export.bst
   type: build
 
 config:
@@ -12,11 +12,10 @@ config:
 
   metadata:
     Application:
-      name: com.pcap_inspector.Inspector
-      base: com.esi_inendi.Inspector
+      name: org.inendi.Inspector
       runtime: org.freedesktop.Platform/%{gcc_arch}/%{runtime-branch}
       sdk: org.freedesktop.Sdk/%{gcc_arch}/%{runtime-branch}
-      command: pcap-inspector_launcher.sh
+      command: inspector_launcher.sh
       branch: "%{branch}"
 
     Context:
@@ -25,5 +24,5 @@ config:
       devices: "all;"
       filesystems: "host;xdg-download;/opt/inendi;~/.inendi;/tmp;"
 
-    'Extension com.esi_inendi.Inspector.Debug':
+    'Extension org.inendi.Inspector.Debug':
       directory: lib/debug

@@ -15,11 +15,11 @@ minidump-2-core /tmp/inendi-inspector_<version>_coredumps/xxxxxxxx-xxxx-xxxx-xxx
 
 3. Install the debug symbols from the proper flatpak branch (usually master)
 
-flatpak install <repo> com.esi_inendi.Inspector.Debug//<branch_name>
+flatpak install <repo> org.inendi.Inspector.Debug//<branch_name>
 
 4. Run flatpak with the debug symbols
 
-flatpak run --devel --command=bash com.esi_inendi.Inspector//<branch_name>
+flatpak run --devel --command=bash org.inendi.Inspector//<branch_name>
 
 5. Run gdb with the core dump
 

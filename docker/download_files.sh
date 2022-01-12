@@ -13,7 +13,7 @@ then
     command -v wget &> /dev/null || { echo >&2 "'wget' executable is required to execute this script."; exit 1; }
 
     flatpak remote-add --user --if-not-exists flathub "${FLATHUB_REPO}"
-    flatpak remote-add --user --if-not-exists --no-gpg-verify inendi_tmp https://repo.esi-inendi.com/flatpak/
+    flatpak remote-add --user --if-not-exists --no-gpg-verify inendi_tmp https://inendi.gitlab.io/flatpak/
 
     # Export Freedesktop runtime bundle
     echo "[1/4] Exporting Flatpak runtime bundle ..."

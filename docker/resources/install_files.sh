@@ -22,7 +22,7 @@ then
     flatpak install -y "${DIR}/inendi-inspector.flatpak"
     rm -rf "${DIR}/*.flatpak"
 else # online installation
-    flatpak install -y https://repo.esi-inendi.com/inendi-inspector.flatpakref
+    flatpak install -y https://inendi.gitlab.io/inspector/flatpak/inspector.flatpakref
     flatpak install -y flathub "$SDK_NAME//$RUNTIME_BRANCH"
     if [ ! -z ${GL_DRIVERS_VERSION} ]
     then

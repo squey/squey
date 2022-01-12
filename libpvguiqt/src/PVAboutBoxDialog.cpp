@@ -236,20 +236,15 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	auto main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 
-	QString content = "INENDI Inspector version " + QString(INENDI_CURRENT_VERSION_STR) + " \"";
+	QString content = "INENDI Inspector version \"" + QString(INENDI_CURRENT_VERSION_STR) + "\"";
 
-	content += "<br/>contact - <a href=\"mailto:";
+	content += "<br/>website - <a "
+	           "href=\"https://gitlab.com/inendi/inspector\">gitlab.com/inendi/inspector</a><br/>";
+	content += "contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
 	content += "?subject=%5BINENDI%5D\">";
 	content += EMAIL_ADDRESS_CONTACT;
-	content += "</a><br/>";
-	content += "support - <a href=\"mailto:";
-	content += EMAIL_ADDRESS_SUPPORT;
-	content += "?subject=%5BINENDI%5D\">";
-	content += EMAIL_ADDRESS_SUPPORT;
-	content += "</a><br/>";
-	content += "website - <a "
-	           "href=\"https://gitlab.com/inendi/inspector\">gitlab.com/inendi/inspector</a><br/><br/>";
+	content += "</a><br/><br/>";
 
 	if (PVParallelView::egl_support()) {
 		content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();
@@ -360,22 +355,11 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	assert(DOC_PATH && "The documentation path is not defined.");
 
-	auto doc = new QLabel();
-	doc->setText("<br/>Reference Manual: <a href=\"file://" DOC_PATH
-	             "/inendi_inspector_reference_manual/index.html\">HTML</a> | "
-	             "<a href=\"file://" DOC_PATH
-	             "/inendi_inspector_reference_manual.pdf\">PDF</a><br/><br/>");
-	doc->setTextFormat(Qt::RichText);
-	doc->setTextInteractionFlags(Qt::TextBrowserInteraction);
-	doc->setOpenExternalLinks(true);
-	doc->setAlignment(Qt::AlignCenter);
-
 	QGridLayout* software_layout = new QGridLayout;
 	software_layout->setHorizontalSpacing(0);
 	software_layout->addLayout(_view3D_layout, 0, 0);
 	software_layout->addWidget(text, 1, 0);
-	software_layout->addWidget(doc, 2, 0);
-	software_layout->addWidget(crash, 3, 1);
+	software_layout->addWidget(crash, 2, 1);
 
 	QWidget* tab_software = new QWidget;
 	tab_software->setLayout(software_layout);

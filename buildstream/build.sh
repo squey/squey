@@ -5,7 +5,7 @@ set -x
 
 usage() {
 echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--user-target=<USER_TARGET>]"
-echo "                  [--repo=<repository_path>] [--upload=<upload_url>] [--port=<scp_port>] [--pcap-inspector]" 1>&2; exit 1;
+echo "                  [--repo=<repository_path>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
 }
 
 source .common.sh
@@ -18,14 +18,13 @@ BUILD_TYPE=RelWithDebInfo
 USER_TARGET=developer
 USER_TARGET_SPECIFIED=false
 EXPORT_BUILD=false
-EXPORT_PCAP_BUILD=false
 REPO_DIR="repo"
 UPLOAD_URL=
 UPLOAD_PORT=22
 RUN_TESTSUITE=true
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:u:d:p:i --long help,repo:,branch:,build-type:,user-target:,disable-testsuite,upload:,port,pcap-inspector -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:u:d:p --long help,repo:,branch:,build-type:,user-target:,disable-testsuite,upload:,port -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -38,7 +37,6 @@ while true; do
     -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
     -u | --upload ) UPLOAD_URL="$2"; shift 2 ;;
     -p | --port ) UPLOAD_PORT="$2"; shift 2 ;;
-    -i | --pcap-inspector ) EXPORT_PCAP_BUILD=true; shift 1 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -85,25 +83,16 @@ fi
 
 # Export flatpak image
 rm -rf $DIR/build
-bst $BUILD_OPTIONS build flatpak/com.esi_inendi.Inspector.bst
-bst $BUILD_OPTIONS checkout flatpak/com.esi_inendi.Inspector.bst "$DIR/build"
+bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.bst
+bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.bst "$DIR/build"
 flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
 
 
 # Export flatpak Debug image
 rm -rf $DIR/build
-bst $BUILD_OPTIONS build flatpak/com.esi_inendi.Inspector.Debug.bst
-bst $BUILD_OPTIONS checkout flatpak/com.esi_inendi.Inspector.Debug.bst "$DIR/build"
+bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.Debug.bst
+bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.Debug.bst "$DIR/build"
 flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-
-
-if [ $EXPORT_PCAP_BUILD = true ]; then
-    # Export flatpak image
-    rm -rf $DIR/build
-    bst $BUILD_OPTIONS build flatpak/com.pcap_inspector.Inspector.bst
-    bst $BUILD_OPTIONS checkout flatpak/com.pcap_inspector.Inspector.bst "$DIR/build"
-    flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-fi
 
 # Upload flatpak image to remote repository
 if [ ! -z "$UPLOAD_URL" -a ! -z "$REPO_DIR" ]; then

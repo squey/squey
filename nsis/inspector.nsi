@@ -34,8 +34,8 @@ ManifestDPIAware true
     ; Customizable values
 	;!define DISPLAY_NAME "PCAP Inspector"
 	;!define PRODUCT_NAME "pcap-inspector"
-	;!define FLATPAK_PACKAGE_NAME "com.pcap_inspector.Inspector"
-	;!define FLATPAKREF_URL "https://pcap-inspector.com/inspector.flatpakref"
+	;!define FLATPAK_PACKAGE_NAME "org.inendi.Inspector"
+	;!define FLATPAKREF_URL "https://inendi.gitlab.io/inspector/flatpak/inspector.flatpakref"
 
     !define INTERNAL_NAME "INENDI Inspector"
     !define NAME "Inspector"
@@ -65,7 +65,7 @@ ManifestDPIAware true
     VIAddVersionKey ProductName "${INTERNAL_NAME}"
     VIAddVersionKey FileVersion "${FILE_VERSION}"
     VIAddVersionKey ProductVersion "${PRODUCT_VERSION}"
-    VIAddVersionKey LegalCopyright "(C) Jean-Baptiste Leonesio <jean-baptiste@leonesio.fr> ${YEAR}"
+    VIAddVersionKey LegalCopyright "(C) Jean-Baptiste Leonesio <jean-baptiste+inspector@leonesio.fr> ${YEAR}"
 
 !macro StrRep output string old new
     Push `${string}`

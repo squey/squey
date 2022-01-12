@@ -20,8 +20,8 @@ systemctl restart docker
 # Build Docker image
 mkdir -p "${INSTALL_DIR}"
 cd "${INSTALL_DIR}"
-wget https://repo.esi-inendi.com/inendi-inspector_docker.tar.gz
-tar zxvf inendi-inspector_docker.tar.gz --strip 1
+wget https://inendi.gitlab.io/inspector/inendi-inspector_docker.zip
+unzip inendi-inspector_docker.zip
 mv env_aws.conf env.conf
 ./build.sh
 

@@ -65,8 +65,6 @@ add_definitions(-DINENDI_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 # Define email addresses
 ###############################################################################
 
-set(EMAIL_ADDRESS_CONTACT "jean-baptiste@leonesio.fr")
-set(EMAIL_ADDRESS_SUPPORT "jean-baptiste@leonesio.fr")
+set(EMAIL_ADDRESS_CONTACT "jean-baptiste+inspector@leonesio.fr")
 
 add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
-add_definitions(-DEMAIL_ADDRESS_SUPPORT="${EMAIL_ADDRESS_SUPPORT}")
