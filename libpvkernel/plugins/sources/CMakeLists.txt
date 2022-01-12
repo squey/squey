@@ -105,26 +105,26 @@ set(PCAP_SRC_FILES
 add_library(source_pcap SHARED ${PCAP_SRC_FILES})
 target_link_libraries(source_pcap pvkernel)
 
-###############################################################################
-# ERF sources
-###############################################################################
-
-# Define ressources
-set(ERF_SRC_FILES
-	../common/erf/PVERFAPI.cpp
-	erf/PVERFSource.cpp
-	erf/PVSourceCreatorERF.cpp
-	erf/register.cpp
-)
-
-set(ERF_LIBS
-    /app/lib/libhdf5_cpp.so
-	/app/lib/liberf_cpp_sp.so
-)
-
-# Create lib
-add_library(source_erf SHARED ${ERF_SRC_FILES})
-target_link_libraries(source_erf pvkernel ${ERF_LIBS})
+################################################################################
+## ERF sources
+################################################################################
+#
+## Define ressources
+#set(ERF_SRC_FILES
+#	../common/erf/PVERFAPI.cpp
+#	erf/PVERFSource.cpp
+#	erf/PVSourceCreatorERF.cpp
+#	erf/register.cpp
+#)
+#
+#set(ERF_LIBS
+#    /app/lib/libhdf5_cpp.so
+#	/app/lib/liberf_cpp_sp.so
+#)
+#
+## Create lib
+#add_library(source_erf SHARED ${ERF_SRC_FILES})
+#target_link_libraries(source_erf pvkernel ${ERF_LIBS})
 
 ###############################################################################
 # OpcUa sources
@@ -159,7 +159,7 @@ source_text_file
 source_elasticsearch
 source_splunk
 source_pcap
-source_erf
+#source_erf
 source_opcua
 )
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources

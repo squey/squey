@@ -210,34 +210,34 @@ QT5_WRAP_UI(SPLUNK_UI_SRCS ${SPLUNK_UI})
 add_library(input_type_splunk SHARED ${SPLUNK_UI_SRCS} ${SPLUNK_SRC_FILES} ${SPLUNK_MOC_SRCS})
 target_link_libraries(input_type_splunk pvkernel curl)
 
-###############################################################################
-# ERF input plugin
-###############################################################################
-# Declare ressources
-SET(ERF_MOC_HEADERS
-erf/PVERFParamsWidget.h
-erf/PVERFTreeView.h
-erf/PVERFTreeModel.h)
-
-set(ERF_SRC_FILES
-../common/erf/PVERFAPI.cpp
-erf/PVERFParamsWidget.cpp
-erf/PVERFTreeView.cpp
-erf/PVERFTreeModel.cpp
-erf/PVInputTypeERF.cpp
-erf/register.cpp)
-
-# Generate Qt Specific files
-QT5_WRAP_CPP(ERF_MOC_SRCS ${ERF_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-
-set(ERF_LIBS
-    /app/lib/libhdf5_cpp.so
-    /app/lib/liberf_cpp_sp.so
-)
-
-# Generate linkage configuration
-add_library(input_type_erf SHARED ${ERF_MOC_SRCS} ${ERF_SRC_FILES})
-target_link_libraries(input_type_erf pvkernel ${ERF_LIBS})
+################################################################################
+## ERF input plugin
+################################################################################
+## Declare ressources
+#SET(ERF_MOC_HEADERS
+#erf/PVERFParamsWidget.h
+#erf/PVERFTreeView.h
+#erf/PVERFTreeModel.h)
+#
+#set(ERF_SRC_FILES
+#../common/erf/PVERFAPI.cpp
+#erf/PVERFParamsWidget.cpp
+#erf/PVERFTreeView.cpp
+#erf/PVERFTreeModel.cpp
+#erf/PVInputTypeERF.cpp
+#erf/register.cpp)
+#
+## Generate Qt Specific files
+#QT5_WRAP_CPP(ERF_MOC_SRCS ${ERF_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+#
+#set(ERF_LIBS
+#    /app/lib/libhdf5_cpp.so
+#    /app/lib/liberf_cpp_sp.so
+#)
+#
+## Generate linkage configuration
+#add_library(input_type_erf SHARED ${ERF_MOC_SRCS} ${ERF_SRC_FILES})
+#target_link_libraries(input_type_erf pvkernel ${ERF_LIBS})
 
 ###############################################################################
 # OpcUa
@@ -283,7 +283,7 @@ set(INPUTS_DIST_LIST
 	input_type_database
 	input_type_elasticsearch
 	input_type_splunk
-	input_type_erf
+#	input_type_erf
 	input_type_opcua
 	)
 
