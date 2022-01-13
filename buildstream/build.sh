@@ -100,7 +100,7 @@ if [ ! -z "$UPLOAD_URL" -a ! -z "$REPO_DIR" ]; then
 fi
 
 # Push artifacts
-#bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '`
+bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '`
 
 function cleanup {
   rm -rf $XDG_CONFIG_HOME/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
