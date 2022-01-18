@@ -140,7 +140,7 @@ add_inspector_compile_test(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 	FILES elasticsearch_source.cpp helpers.cpp
 	../../plugins/common/elasticsearch/PVElasticsearchInfos.cpp
 	../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp)
-add_inspector_test(Trush_elasticsearch_source Trush_elasticsearch_source)
+#add_inspector_test(Trush_elasticsearch_source Trush_elasticsearch_source)
 add_bench(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 	FILES elasticsearch_source.cpp helpers.cpp
 	../../plugins/common/elasticsearch/PVElasticsearchInfos.cpp
@@ -187,7 +187,7 @@ set(ELASTICSEARCH_SRC_FILES
 ../../plugins/common/elasticsearch/PVElasticsearchJsonConverter.cpp
 )
 add_inspector_compile_test(Trush_elasticsearch LINKS ${LINK_LIBRARIES} pvkernel curl FILES elasticsearch.cpp ${ELASTICSEARCH_SRC_FILES})
-add_inspector_test(Trush_elasticsearch Trush_elasticsearch ${TESTS_FILES_DIR}/exports/Trush_elasticsearch)
+#add_inspector_test(Trush_elasticsearch Trush_elasticsearch ${TESTS_FILES_DIR}/exports/Trush_elasticsearch)
 
 # Splunk plugin test
 set(SPLUNK_SRC_FILES
