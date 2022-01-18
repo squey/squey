@@ -1,10 +1,8 @@
-kind: import
+kind: manual
 
 sources:
   - kind: local
     path: buildstream/files
-
-kind: manual
 
 build-depends:
 - base.bst
