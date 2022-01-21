@@ -5,13 +5,13 @@ set -x
 
 usage() {
 echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--user-target=<USER_TARGET>]"
-echo "                  [--repo=<repository_path>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
+echo "                  [--repo=<repository_path>] [--gpg-private-key-path=<key>] [--gpg-sign-key=<key>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
 }
 
 source .common.sh
 
 # Set default options
-BRANCH_NAME=master
+BRANCH_NAME=main
 BRANCH_SPECIFIED=false
 TAG_NAME=
 BUILD_TYPE=RelWithDebInfo
@@ -22,9 +22,11 @@ REPO_DIR="repo"
 UPLOAD_URL=
 UPLOAD_PORT=22
 RUN_TESTSUITE=true
+GPG_PRIVATE_KEY_PATH=
+GPG_SIGN_KEY=
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:u:d:p --long help,repo:,branch:,build-type:,user-target:,disable-testsuite,upload:,port -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:u:d:p:g:k --long help,repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite,upload:,port -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -35,6 +37,8 @@ while true; do
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
     -d | --disable-testsuite ) RUN_TESTSUITE=false; shift 1 ;;
     -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
+    -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
+    -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -u | --upload ) UPLOAD_URL="$2"; shift 2 ;;
     -p | --port ) UPLOAD_PORT="$2"; shift 2 ;;
     -- ) shift; break ;;
@@ -81,22 +85,27 @@ if  [ "$RUN_TESTSUITE" = true ]; then
     bash -c "bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c  'cp -r /build . && ln -s /tests . && cd build && run_cmd.sh ctest --output-on-failure -T test -R INSPECTOR_TEST'"
 fi
 
-# Export flatpak image
-rm -rf $DIR/build
-bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.bst
-bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.bst "$DIR/build"
-flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+# Export flatpak images
+if [ "$EXPORT_BUILD" = true ]; then
+  # Import GPG private key
+  gpg --import --no-tty --batch --yes $GPG_PRIVATE_KEY_PATH
 
+  # Export flatpak Release image
+  rm -rf $DIR/build
+  bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.bst
+  bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.bst "$DIR/build"
+  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
 
-# Export flatpak Debug image
-rm -rf $DIR/build
-bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.Debug.bst
-bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.Debug.bst "$DIR/build"
-flatpak build-export --gpg-sign=3C88A1109C7272D88C1DA28ABEEF7E7DF6D0F465 --gpg-homedir="$DIR/gnupg" --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  # Export flatpak Debug image
+  rm -rf $DIR/build
+  bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.Debug.bst
+  bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.Debug.bst "$DIR/build"
+  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
 
-# Upload flatpak image to remote repository
-if [ ! -z "$UPLOAD_URL" -a ! -z "$REPO_DIR" ]; then
-    $DIR/scripts/ostree-releng-scripts/rsync-repos --rsync-opt "-e ssh -p $UPLOAD_PORT" --src $REPO_DIR/ --dest $UPLOAD_URL
+  # Upload flatpak image to remote repository
+  if [ ! -z "$UPLOAD_URL" -a ! -z "$REPO_DIR" ]; then
+      $DIR/scripts/ostree-releng-scripts/rsync-repos --rsync-opt "-e ssh -p $UPLOAD_PORT" --src $REPO_DIR/ --dest $UPLOAD_URL
+  fi
 fi
 
 # Push artifacts
