@@ -32,12 +32,12 @@ if (USE_LD_GOLD)
 endif () 
 
 # Use ccache if installed
-find_program(CCACHE_FOUND ccache)
-if(CCACHE_FOUND)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_COMPILE ccache)
-    set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK ccache)
+find_program(CCACHE_PROGRAM ccache)
+if(CCACHE_PROGRAM)
+    set(CXX_LAUNCHER "${CCACHE_PROGRAM}")
     message(STATUS "Compilation will be done with CCache")
-endif(CCACHE_FOUND)
+    message(STATUS "CCACHE_DIR=${CCACHE_DIR}")
+endif(CCACHE_PROGRAM)
 
 MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 

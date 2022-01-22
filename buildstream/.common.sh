@@ -8,6 +8,9 @@ command -v "flatpak" &> /dev/null || { echo >&2 "'flatpak' executable not found,
 source env.conf
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+if [ -z "$WORKSPACE_PREFIX" ]; then
+    WORKSPACE_PREFIX="$DIR"
+fi
 
 NVIDIA_VERSION_NAME=$(flatpak --gl-drivers|grep "nvidia") || true
 GL_HOST_DIR="$HOME/.local/share/flatpak/runtime/org.freedesktop.Platform.GL.$NVIDIA_VERSION_NAME/x86_64/1.4/active/files"
@@ -36,7 +39,7 @@ function check_bindfs()
 function open_workspace()
 {
     WORKSPACE_NAME="$1"
-    WORKSPACE_PATH="$DIR/$WORKSPACE_NAME"
+    WORKSPACE_PATH="$WORKSPACE_PREFIX/$WORKSPACE_NAME"
 
     CURRENT_WORKSPACE=`bst workspace list | grep "directory:" | awk -F ': ' '{print $2}'`
     if [ "$CURRENT_WORKSPACE" != "$WORKSPACE_PATH" ]; then

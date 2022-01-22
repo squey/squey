@@ -69,6 +69,9 @@ depends:
 sources:
 - kind: local
   path: .
+
+environment:
+  CCACHE_DIR: ".ccache"
   
 variables:
   build-dir: "build"
@@ -77,8 +80,7 @@ variables:
     -DCMAKE_INSTALL_PREFIX=%{prefix} \
     -DARCH_TYPE=corei7 \
     -DUSER_TARGET=%{user_target} \
-    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-    -DCCACHE_DIR=.ccache
+    -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
   copy-launchers: "cp -r buildstream/files/{run_cmd.sh,inspector_launcher.sh} %{install-root}%{prefix}/bin"
     
 config:

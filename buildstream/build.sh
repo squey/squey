@@ -5,10 +5,9 @@ set -x
 
 usage() {
 echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--user-target=<USER_TARGET>]"
-echo "                  [--repo=<repository_path>] [--gpg-private-key-path=<key>] [--gpg-sign-key=<key>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
+echo "                  [--workspace-prefix=<prefix>] [--repo=<repository_path>] [--gpg-private-key-path=<key>]"
+echo "                  [--gpg-sign-key=<key>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
 }
-
-source .common.sh
 
 # Set default options
 BRANCH_NAME=main
@@ -17,6 +16,7 @@ TAG_NAME=
 BUILD_TYPE=RelWithDebInfo
 USER_TARGET=developer
 USER_TARGET_SPECIFIED=false
+WORKSPACE_PREFIX=
 EXPORT_BUILD=false
 REPO_DIR="repo"
 UPLOAD_URL=
@@ -26,7 +26,7 @@ GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:u:d:p:g:k --long help,repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite,upload:,port -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:u:d:p:g:k:w --long help,repo:,workspace-prefix:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite,upload:,port -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -36,6 +36,7 @@ while true; do
     -t | --build-type ) BUILD_TYPE="$2"; shift 2 ;;
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
     -d | --disable-testsuite ) RUN_TESTSUITE=false; shift 1 ;;
+    -w | --workspace-prefix ) WORKSPACE_PREFIX="$2"; shift 2 ;;
     -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
@@ -45,6 +46,8 @@ while true; do
     * ) break ;;
   esac
 done
+
+source .common.sh
 
 WORKSPACE_NAME="workspace_build"
 open_workspace "$WORKSPACE_NAME"
@@ -57,7 +60,7 @@ fi
 CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [ $CURRENT_BRANCH == "HEAD" -o $BRANCH_SPECIFIED = true ]; then
     pushd .
-    cd "$DIR/$WORKSPACE_NAME"
+    cd "$WORKSPACE_PREFIX/$WORKSPACE_NAME"
     git fetch -a
     git checkout -B $BRANCH_NAME $ORIGIN/$BRANCH_NAME
     git submodule update --recursive
@@ -112,8 +115,8 @@ fi
 bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '`
 
 function cleanup {
-  rm -rf $XDG_CONFIG_HOME/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
-  rm -rf $XDG_CONFIG_HOME/buildstream/build
+  rm -rf $HOME/.cache/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
+  rm -rf $HOME/.cache/buildstream/build
   rm -rf /srv/tmp-inspector/tomjon/*
 }
 
