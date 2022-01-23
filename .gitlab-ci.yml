@@ -1,0 +1,69 @@
+image: registry.gitlab.com/inendi/docker-images/inspector_build:main
+
+variables:
+  GIT_SUBMODULE_STRATEGY: recursive
+  CACHE_COMPRESSION_LEVEL: "fastest"
+  FF_USE_FASTZIP: 1
+
+stages:
+  - build
+  - pages
+
+.build:
+  stage: build
+  tags:
+    - privileged-docker
+  before_script:
+    - for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
+    - mkdir -p "$CI_PROJECT_DIR/public/flatpak"
+    - cd buildstream
+  interruptible: true
+
+build testsuite:
+  extends: .build
+  script:
+    - ./build.sh 
+      --branch="${CI_COMMIT_REF_NAME}" 
+      --workspace-prefix="/bst_workspace"
+  rules:
+    - if: '$CI_COMMIT_TAG =~ "/^$/"'
+
+build release:
+  extends: .build
+  script:
+    - ./build.sh 
+      --user-target=customer 
+      --branch="${CI_COMMIT_REF_NAME}" 
+      --workspace-prefix="/bst_workspace" 
+      --repo="$CI_PROJECT_DIR/public/flatpak" 
+      --gpg-private-key-path=$GPG_PRIVATE_KEY 
+      --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63
+  artifacts:
+    paths:
+    - public/flatpak
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
+      when: manual
+  allow_failure: false
+
+pages:
+  stage: pages
+  tags:
+    - privileged-docker
+  needs:
+    - build release
+  dependencies:
+    - build release
+  script:
+    - cp buildstream/install.flatpakref public
+    - cp -r docker inendi-inspector_docker && 
+      zip -r public/inendi-inspector_docker.zip inendi-inspector_docker && 
+      rm -rf inendi-inspector_docker
+  artifacts:
+    paths:
+      - public
+    when: on_success
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
+  interruptible: true
+  
