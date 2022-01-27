@@ -61,7 +61,7 @@ CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [ $CURRENT_BRANCH == "HEAD" -o $BRANCH_SPECIFIED = true ]; then
     pushd .
     cd "$WORKSPACE_PREFIX/$WORKSPACE_NAME"
-    git fetch -a
+    git fetch -a --tags --force
     git checkout -B $BRANCH_NAME $ORIGIN/$BRANCH_NAME
     git submodule update --recursive
     popd
