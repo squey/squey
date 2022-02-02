@@ -18,7 +18,7 @@ It can be used for different purposes:
 
 ### Linux
 
-Installating the software (as a user) :
+Installing the software (as a user) :
 
 ```
 flatpak install --user -y https://inendi.gitlab.io/inspector/install.flatpakref
