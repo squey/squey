@@ -156,6 +156,7 @@ QUrl PVWidgets::PVFileDialog::getExistingDirectoryUrl(
 {
 	QFileDialog dialog(parent, caption, dir.toLocalFile());
 	dialog.setOptions(get_options(options));
+	dialog.setFileMode(QFileDialog::Directory);
 
 	dialog.setSupportedSchemes(supportedSchemes);
 	if (dialog.exec() == QDialog::Accepted)
