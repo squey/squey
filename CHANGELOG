@@ -1,3 +1,9 @@
+4.9.2 (2022-02-03)
+------------------
+
+This minor release fixes or improves:
+* Fix temporary working directory dialog selection
+
 4.9.1 (2022-01-31)
 ------------------
 
