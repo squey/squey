@@ -27,15 +27,16 @@
 
 ; Make the installer DPI Aware to properly render fonts
 ManifestDPIAware true
+Unicode true
 
 ;--------------------------------
 ;       Define constants
 ;--------------------------------
     ; Customizable values
-	;!define DISPLAY_NAME "PCAP Inspector"
-	;!define PRODUCT_NAME "pcap-inspector"
-	;!define FLATPAK_PACKAGE_NAME "org.inendi.Inspector"
-	;!define FLATPAKREF_URL "https://inendi.gitlab.io/inspector/flatpak/inspector.flatpakref"
+	!define DISPLAY_NAME "INENDI Inspector"
+	!define PRODUCT_NAME "inendi-inspector"
+	!define FLATPAK_PACKAGE_NAME "org.inendi.Inspector"
+	!define FLATPAKREF_URL "https://inendi.gitlab.io/inspector/install.flatpakref"
 
     !define INTERNAL_NAME "INENDI Inspector"
     !define NAME "Inspector"
@@ -47,12 +48,8 @@ ManifestDPIAware true
 	!define VCXSRV_HTTP_LINK "https://sourceforge.net/projects/vcxsrv/files/latest/download"
 	!define VCXSRV_SETUP "vcxsrv_installer.exe"
 	
-	; LxRunOffline
-	!define LXRUNOFFLINE_HTTP_LINK "https://github.com/DDoSolitary/LxRunOffline/releases/download/v3.2.0/LxRunOffline-v3.2.0.zip"
-	!define LXRUNOFFLINE_ARCHIVE "LxRunOffline.zip"
-	
 	; Linux
-	!define LINUX_HTTP_LINK "https://aka.ms/wsl-ubuntu-1804"
+	!define LINUX_HTTP_LINK "https://aka.ms/wsl-debian-gnulinux"
 	!define LINUX_ARCHIVE "wsl.zip"
 	!define WSL_DISTRO_NAME "inspector_linux"
 	
@@ -242,26 +239,13 @@ Function InstallInspector
 	${EndIf}
 	CreateDirectory "$INSTDIR\wsl"
 	Rename ${LINUX_ARCHIVE} "wsl\${LINUX_ARCHIVE}"
-	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C cd wsl && ..\7z.exe -aoa x "${LINUX_ARCHIVE}"'
-	
-	; Download LxRunOffline
-	inetc::get "${LXRUNOFFLINE_HTTP_LINK}" "${LXRUNOFFLINE_ARCHIVE}"
-	Pop $R0
-	${If} $R0 != "OK"
-		MessageBox MB_OK "Download failed: $R0"
-		Delete "${LINUX_ARCHIVE}"
-		Quit
-	${EndIf}
-	CreateDirectory "$INSTDIR\LxRunOffline"
-	Rename ${LXRUNOFFLINE_ARCHIVE} LxRunOffline\${LXRUNOFFLINE_ARCHIVE}
-	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C cd LxRunOffline && ..\7z.exe -aoa x "${LXRUNOFFLINE_ARCHIVE}"'
-	Delete "LxRunOffline\${LXRUNOFFLINE_ARCHIVE}"
+	nsExec::ExecToLog '$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "cd wsl; Expand-Archive -F wsl.zip; cd wsl ; move DistroLauncher-Appx_*_x64.appx wsl.zip ; Expand-Archive -F wsl.zip'
 	Delete "7z.exe"
 	Delete "7z.dll"
 	
 	; Install Linux for WSL
     DetailPrint "Preparing WSL..."
-	nsExec::ExecToLog 'LxRunOffline\LxRunOffline.exe install -n ${WSL_DISTRO_NAME} -d linux -f wsl\install.tar.gz'
+	nsExec::ExecToLog '$WINDIR\SysNative\wsl.exe --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz'
 	AccessControl::GrantOnFile "$INSTDIR\linux" "(BU)" "FullAccess" ; Give builtin users full access to modify linux files
 	RMDir /r "$INSTDIR\wsl"
 	Delete "${LINUX_ARCHIVE}"
@@ -273,7 +257,7 @@ Function InstallInspector
 	Pop $1
 	Strcpy $1 $1 -1 ; Remove carriage return in the end
 	${StrRep} "$1" "$1" " " "\ " ; Escape spaces
-	nsExec::ExecToLog 'LxRunOffline\LxRunOffline.exe run -n ${WSL_DISTRO_NAME} -c "$1/install_inspector.sh ${FLATPAKREF_URL}"'
+	nsExec::ExecToLog 'wsl --user root -d inspector_linux --exec bash -c "$1/install_inspector.sh ${FLATPAKREF_URL}"'
 	Delete "install_inspector.sh"
 FunctionEnd
 
@@ -282,7 +266,7 @@ FunctionEnd
 ;--------------------------------
 Section
 	SetRegView 64
-	AddSize 4204790
+	AddSize 2537554
 
     SetOutPath "$INSTDIR"
 	File "resources\7z.exe"
@@ -328,19 +312,21 @@ Function .onInit
 	; Check windows version
 	${WinVerGetBuild} $0
 	${IfNot} ${AtLeastWin10}
-	${OrIf} $0 < 17134
-		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL : $\r$\n > Windows 10 64 bits version 1803$\r$\n > Windows Server 2019"
+	${OrIf} $0 < 19041
+		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL2 : $\r$\n > Windows 10 64 bits version 2004$\r$\n > Windows Server 2019"
 		Quit
 	${EndIf}
 
 	; Check if WSL needs to be enabled
 	IfFileExists "$WINDIR\SysNative\wslconfig.exe" skip
-	MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL) needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
+	MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL2) and Microsoft Virtual Machine Platform needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
 	ok:
 		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
+		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:VirtualMachinePlatform            /NoRestart /Quiet'
+		ExecDos::exec '$WINDIR\SysNative\powershell.exe New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)" -Action Allow'
 		Pop $0
 		${If} $0 != 3010 ; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
-			MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL failed. Aborting."
+			MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL2 failed. Aborting."
 			Quit
 		${EndIf}
 
@@ -348,7 +334,7 @@ Function .onInit
 		WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "${NAME}" "$EXEPATH"
 
 		; Ask user for a reboot
-		MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
+		MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL2.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
 		yes:
 			Reboot
 		no:

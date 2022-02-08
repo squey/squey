@@ -35,12 +35,13 @@ if %errorlevel% == 1 (
 	set stop_vcxsrv=true
 )
 
-@REM Register WSL distro for user
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" rg -n inspector_linux -d "%inspector_path%\linux" > nul 2>&1
-
 @REM Run Inspector
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 1000 -n inspector_linux
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' %1"
+set display_cmd=wsl --exec bash -c "echo -n `cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'`:0.0"
+for /F "tokens=*" %%i in ('%display_cmd%') do set display=%%i
+set display=%display: =\ %
+wsl -d inspector_linux --user root --exec bash -c "service dbus start"
+wsl -d inspector_linux --user inendi --exec bash -c "%inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --device=shm --nofilesystem=/tmp --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --command=bash %1 -c 'DISPLAY=%display% /app/bin/inendi-inspector'"
+@REM /app/bin/run_cmd.sh inendi-inspector
 
 @REM Stop VcXsrv if needed
 set instance_count_cmd="tasklist /FI "imagename eq inendi-inspector" 2>nul | find /I /C "inendi-inspector""
@@ -51,7 +52,5 @@ if %stop_vcxsrv% == true if %instance_count% == 0 (
 )
 
 @REM Update WSL and Inspector
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 0 -n inspector_linux
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/update_wsl.sh"
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" su -v 1000 -n inspector_linux
-"%inspector_path%\LxRunOffline\LxRunOffline.exe" run -n inspector_linux -c "bash %inspector_path_linux%/update_inspector.sh"
+wsl --user root --exec bash -c "%inspector_path_linux%/update_wsl.sh"
+wsl --user inendi --exec bash -c "%inspector_path_linux%/update_inspector.sh"
