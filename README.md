@@ -29,6 +29,12 @@ Running the software :
 * from CLI locally : ```flatpak run org.inendi.Inspector```
 * from CLI on a remote machine with SSH export display : ```flatpak run --command=bash org.inendi.Inspector -c "DISPLAY=$DISPLAY inspector_launcher.sh"```
 
+### Windows
+
+Windows support is available through the use of WSL2 :
+
+https://inendi.gitlab.io/inspector/inendi-inspector_installer.exe
+
 ### Docker
 
 Deploying the software as a service in a private cloud:
