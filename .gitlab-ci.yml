@@ -3,7 +3,9 @@ image: registry.gitlab.com/inendi/docker-images/inspector_build:main
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
   CACHE_COMPRESSION_LEVEL: "fastest"
-  FF_USE_FASTZIP: 1
+  UPDATE_INSTALLERS_ONLY:
+    value: "false"
+    description: "Only update the various installers, do not build the software"
 
 stages:
   - build
@@ -26,24 +28,27 @@ build testsuite:
       --branch="${CI_COMMIT_REF_NAME}" 
       --workspace-prefix="/bst_workspace"
   rules:
-    - if: '$CI_COMMIT_TAG =~ "/^$/"'
+    - if: '$CI_COMMIT_TAG =~ "/^$/" && $UPDATE_INSTALLERS_ONLY == "false"'
 
 build release:
   extends: .build
   script:
-    - ./build.sh 
+    - if [ "$UPDATE_INSTALLERS_ONLY" = "false" ]; then
+      ./build.sh 
       --user-target=customer 
       --branch="${CI_COMMIT_REF_NAME}" 
       --workspace-prefix="/bst_workspace" 
       --repo="$CI_PROJECT_DIR/public/flatpak" 
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
-      --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63
+      --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
+      ; fi
   artifacts:
     paths:
     - public/flatpak
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
       when: manual
+    - if: '$UPDATE_INSTALLERS_ONLY == "true"'
   allow_failure: false
 
 pages:
@@ -54,7 +59,12 @@ pages:
     - build release
   dependencies:
     - build release
+  before_script:
+    - cp nsis/resources/{AccessControl.dll,ExecDos.dll,INetC.dll,KillProcDLL.dll} /usr/share/nsis/Plugins/x86-unicode/
   script:
+    - PAGES=`curl -s -X GET -I ${CI_PAGES_URL}/install.flatpakref | head -n 1 | cut -d$' ' -f2 | grep -c 200` || true
+    - 'if [ $PAGES -eq 1 ] && [ $UPDATE_INSTALLERS_ONLY = "true" ]; then rm -rf $CI_PROJECT_DIR/public/flatpak && curl -XGET -L ${CI_PROJECT_URL}/-/jobs/artifacts/main/download?job=pages | bsdtar -xvf-; fi'
+    - cd nsis && ./build.sh && cp inendi-inspector_installer.exe "$CI_PROJECT_DIR/public" ; cd -
     - cp buildstream/install.flatpakref public
     - cp -r docker inendi-inspector_docker && 
       zip -r public/inendi-inspector_docker.zip inendi-inspector_docker && 
@@ -65,5 +75,5 @@ pages:
     when: on_success
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
+    - if: '$UPDATE_INSTALLERS_ONLY == "true"'
   interruptible: true
-  
