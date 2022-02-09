@@ -1,5 +1,11 @@
 #!/bin/bash
 
+# Use host X server if we are running under WSL
+WSL=$(uname -a | grep -q -i "microsoft" && echo 1)
+if [[ "$WSL" == 1 ]]; then
+    export DISPLAY=$(echo `cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'`:0.0)
+fi
+
 cd "$SOURCE_DIR"
 source buildstream/env.conf
 export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$GL_TARGET_DIR/lib"
