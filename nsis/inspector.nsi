@@ -245,7 +245,7 @@ Function InstallInspector
 	
 	; Install Linux for WSL
     DetailPrint "Preparing WSL..."
-	nsExec::ExecToLog '$WINDIR\SysNative\wsl.exe --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz'
+	nsExec::ExecToLog '$WINDIR\SysNative\wsl.exe --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz --version 2'
 	AccessControl::GrantOnFile "$INSTDIR\linux" "(BU)" "FullAccess" ; Give builtin users full access to modify linux files
 	RMDir /r "$INSTDIR\wsl"
 	Delete "${LINUX_ARCHIVE}"
@@ -391,7 +391,7 @@ Section "un.Uninstaller Section"
 	KillProcDLL::KillProc "inendi-inspector"
 	
 	; Unregister WSL distro
-	ExecDos::exec '"$INSTDIR\LxRunOffline\LxRunOffline.exe" ui -n "${WSL_DISTRO_NAME}"'
+	ExecDos::exec 'wsl --unregister "${WSL_DISTRO_NAME}"'
 	
     ; Remove installation directory
     RMDir /r "$INSTDIR"
