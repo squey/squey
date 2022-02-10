@@ -46,7 +46,7 @@ class PVWSLHelper
 		bool is_microsoft_wsl = false;
 
 		uname(&uname_buf);
-		is_microsoft_wsl = strstr(uname_buf.release, "Microsoft") != NULL;
+		is_microsoft_wsl = strcasestr(uname_buf.release, "Microsoft") != NULL;
 
 		return is_microsoft_wsl;
 	}
