@@ -26,7 +26,7 @@ GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:u:d:p:g:k:w --long help,repo:,workspace-prefix:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite,upload:,port -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:u:d:p:g:k:w:i --long help,repo:,workspace-prefix:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -40,8 +40,6 @@ while true; do
     -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
-    -u | --upload ) UPLOAD_URL="$2"; shift 2 ;;
-    -p | --port ) UPLOAD_PORT="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -71,7 +69,6 @@ fi
 if [ $USER_TARGET == "customer" ]; then
     BRANCH_NAME="main"
 fi
-
 
 # Build INENDI Inspector
 BUILD_OPTIONS=""
