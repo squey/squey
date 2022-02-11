@@ -245,7 +245,8 @@ Function InstallInspector
 	
 	; Install Linux for WSL
     DetailPrint "Preparing WSL..."
-	nsExec::ExecToLog '$WINDIR\SysNative\wsl.exe --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz --version 2'
+	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --update'
+	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz --version 2'
 	AccessControl::GrantOnFile "$INSTDIR\linux" "(BU)" "FullAccess" ; Give builtin users full access to modify linux files
 	RMDir /r "$INSTDIR\wsl"
 	Delete "${LINUX_ARCHIVE}"
@@ -257,7 +258,7 @@ Function InstallInspector
 	Pop $1
 	Strcpy $1 $1 -1 ; Remove carriage return in the end
 	${StrRep} "$1" "$1" " " "\ " ; Escape spaces
-	nsExec::ExecToLog 'wsl --user root -d inspector_linux --exec bash -c "$1/install_inspector.sh ${FLATPAKREF_URL}"'
+	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --user root -d inspector_linux --exec bash -c "$1/install_inspector.sh ${FLATPAKREF_URL}"'
 	Delete "install_inspector.sh"
 FunctionEnd
 
