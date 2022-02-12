@@ -63,7 +63,9 @@ pages:
     - cp nsis/resources/{AccessControl.dll,ExecDos.dll,INetC.dll,KillProcDLL.dll} /usr/share/nsis/Plugins/x86-unicode/
   script:
     - PAGES=`curl -s -X GET -I ${CI_PAGES_URL}/install.flatpakref | head -n 1 | cut -d$' ' -f2 | grep -c 200` || true
-    - 'if [ $PAGES -eq 1 ] && [ $UPDATE_INSTALLERS_ONLY = "true" ]; then rm -rf $CI_PROJECT_DIR/public/flatpak && curl -XGET -L ${CI_PROJECT_URL}/-/jobs/artifacts/main/download?job=pages | bsdtar -xvf-; fi'
+    - PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines?scope=tags | jq -r .[0].id`
+    - JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
+    - 'if [ $PAGES -eq 1 ] && [ $UPDATE_INSTALLERS_ONLY = "true" ]; then rm -rf $CI_PROJECT_DIR/public/flatpak && curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf-; fi'
     - cd nsis && ./build.sh && cp inendi-inspector_installer.exe "$CI_PROJECT_DIR/public" ; cd -
     - cp buildstream/install.flatpakref public
     - cp -r docker inendi-inspector_docker && 
