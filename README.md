@@ -51,7 +51,7 @@ See ```README.md``` contained in archive file
 
 ```
 git clone --recursive https://gitlab.com/inendi/inspector.git
-cd buildstream && ./dev_shell.sh
+cd inspector/buildstream && ./dev_shell.sh
 ```
 
 Compiling and running the software from the development shell:
