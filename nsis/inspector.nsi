@@ -247,6 +247,7 @@ Function InstallInspector
     DetailPrint "Preparing WSL..."
 	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --update'
 	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz --version 2'
+	ExecDos::exec '$WINDIR\SysNative\powershell.exe New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)" -Action Allow'
 	AccessControl::GrantOnFile "$INSTDIR\linux" "(BU)" "FullAccess" ; Give builtin users full access to modify linux files
 	RMDir /r "$INSTDIR\wsl"
 	Delete "${LINUX_ARCHIVE}"
@@ -323,11 +324,19 @@ Function .onInit
 	MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL2) and Microsoft Virtual Machine Platform needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
 	ok:
 		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
-		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:VirtualMachinePlatform            /NoRestart /Quiet'
-		ExecDos::exec '$WINDIR\SysNative\powershell.exe New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)" -Action Allow'
 		Pop $0
-		${If} $0 != 3010 ; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
+		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:VirtualMachinePlatform            /NoRestart /Quiet'
+		Pop $1
+		${If} $0 != 3010
+		${AndIf} $0 != 0
+		; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
 			MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL2 failed. Aborting."
+			Quit
+		${EndIf}
+		${If} $1 != 3010
+		${AndIf} $1 != 0
+		; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
+			MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling Microsoft Virtual Machine Platform failed. Aborting."
 			Quit
 		${EndIf}
 
@@ -335,11 +344,14 @@ Function .onInit
 		WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "${NAME}" "$EXEPATH"
 
 		; Ask user for a reboot
-		MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL2.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
-		yes:
-			Reboot
-		no:
-			Quit
+		${If} $0 == 3010
+		${OrIf} $1 == 3010
+			MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL2.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
+			yes:
+				Reboot
+			no:
+				Quit
+		${EndIf}
 	cancel:
 		Quit
 	skip:
