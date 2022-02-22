@@ -151,6 +151,54 @@ class PVCrashReportSender
 			return http_code;
 		}
 	}
+
+	static bool test_auth()
+	{
+		std::unique_ptr<CURL, std::function<void(CURL*)>> curl(
+		    curl_easy_init(), [](CURL* curl) { curl_easy_cleanup(curl); });
+
+		curl_easy_setopt(curl.get(), CURLOPT_TIMEOUT, 10L);
+		curl_easy_setopt(curl.get(), CURLOPT_FOLLOWLOCATION, 1L);
+		curl_easy_setopt(curl.get(), CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+#ifndef NDEBUG
+		curl_easy_setopt(curl.get(), CURLOPT_VERBOSE, 1L);
+#endif
+
+		std::unique_ptr<curl_slist, std::function<void(curl_slist*)>> headers(
+		    nullptr, [](curl_slist* headers) { curl_slist_free_all(headers); });
+		std::string auth_token_header{std::string("PRIVATE-TOKEN: ").append(INSPECTOR_CRASH_REPORTER_TOKEN)};
+		curl_slist* headers_list = nullptr;
+		headers_list = curl_slist_append(headers_list, auth_token_header.c_str());
+		headers.reset(headers_list);
+
+		curl_easy_setopt(curl.get(), CURLOPT_HTTPHEADER, headers.get());
+		curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_callback);
+		std::string result;
+		curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &result);
+
+		curl_easy_setopt(curl.get(), CURLOPT_URL, "https://gitlab.com/api/v4/personal_access_tokens");
+
+		/*CURLcode curl_ret =*/ curl_easy_perform(curl.get());
+
+		long http_code = 0;
+		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
+
+		if (http_code == 200) {
+			rapidjson::Document json;
+			json.Parse<0>(result.c_str());
+			if (json.IsArray()) {
+				const auto& token = json[0];
+				const std::string& token_name = token["name"].GetString();
+				const bool& token_revoked = token["revoked"].GetBool();
+				const bool& token_active = token["active"].GetBool();
+				if (token_name == "inspector_crashreporter" and not token_revoked and token_active) {
+					return true;
+				}
+			}
+		}
+
+		return false;
+	}
 };
 } // namespace PVCore
 
