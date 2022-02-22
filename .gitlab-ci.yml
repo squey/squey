@@ -41,6 +41,7 @@ build release:
       --repo="$CI_PROJECT_DIR/public/flatpak" 
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
       --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
+      --crash-reporter-token=$INSPECTOR_CRASH_REPORTER_TOKEN 
       ; fi
   artifacts:
     paths:

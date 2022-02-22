@@ -26,7 +26,7 @@ GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:u:d:p:g:k:w:i --long help,repo:,workspace-prefix:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w --long help,repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -38,6 +38,7 @@ while true; do
     -d | --disable-testsuite ) RUN_TESTSUITE=false; shift 1 ;;
     -w | --workspace-prefix ) WORKSPACE_PREFIX="$2"; shift 2 ;;
     -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
+    -c | --crash-reporter-token) INSPECTOR_CRASH_REPORTER_TOKEN="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -- ) shift; break ;;
@@ -59,6 +60,7 @@ CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
 if [ $CURRENT_BRANCH == "HEAD" -o $BRANCH_SPECIFIED = true ]; then
     pushd .
     cd "$WORKSPACE_PREFIX/$WORKSPACE_NAME"
+    git reset --hard HEAD # Clean env
     git fetch -a --tags --force
     git checkout -B $BRANCH_NAME $ORIGIN/$BRANCH_NAME
     git submodule update --recursive
@@ -69,6 +71,10 @@ fi
 if [ $USER_TARGET == "customer" ]; then
     BRANCH_NAME="main"
 fi
+
+# Fill-in crash reporter token
+INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/src/include/pvkernel/core/PVCrashReporterToken.h"
+sed -e "s|\(INSPECTOR_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$INSPECTOR_CRASH_REPORTER_TOKEN\"|" -i "$INSPECTOR_CRASH_REPORTER_TOKEN_FILE"
 
 # Build INENDI Inspector
 BUILD_OPTIONS=""

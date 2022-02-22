@@ -39,7 +39,7 @@ int main()
 	std::string version = std::string(INENDI_CURRENT_VERSION_STR) + "_dry-run";
 
 	int ret =
-	    PVCore::PVCrashReportSender::send(minidump_path, version, "1111-*111 1111 1111 1111");
+	    PVCore::PVCrashReportSender::send(minidump_path, version);
 
 	std::remove(minidump_path.c_str());
 

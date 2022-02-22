@@ -25,26 +25,40 @@
 #ifndef __PVCRASHREPORTSENDER_H__
 #define __PVCRASHREPORTSENDER_H__
 
+#include "PVCrashReporterToken.h"
+
 #include <memory>
 #include <string>
 
 #include <curl/curl.h>
 
-#include <pvkernel/core/PVRESTAPI.h>
+#include <rapidjson/document.h>
 
 #include <QFileInfo>
 
 #include <sys/stat.h>
+
+#include <pvlogger.h>
+
+static size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+	((std::string*)userp)->append((char*)contents, size * nmemb);
+
+	return size * nmemb;
+}
 
 namespace PVCore
 {
 
 class PVCrashReportSender
 {
+  private:
+    constexpr static std::string_view INSPECTOR_GITLAB_API_ENDPOINT = "https://gitlab.com/api/v4/projects/inendi%2Finspector";
+	constexpr static std::string_view INSPECTOR_GITLAB_API_ISSUES_TITLE = "Crash report";
+
   public:
 	static int send(const std::string& minidump_path,
-	                const std::string& version,
-	                const std::string& locking_code)
+	                const std::string& version)
 	{
 		struct stat file_info;
 		FILE* fd = fopen(minidump_path.c_str(), "rb");
@@ -60,39 +74,31 @@ class PVCrashReportSender
 		curl_easy_setopt(curl.get(), CURLOPT_VERBOSE, 1L);
 #endif
 
-		const std::string INSPECTOR_REST_API_ENDPOINT =
-		    std::string(INSPECTOR_REST_API_SOCKET) + "/report/crash/";
-		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_REST_API_ENDPOINT.c_str());
-
 		std::unique_ptr<curl_slist, std::function<void(curl_slist*)>> headers(
 		    nullptr, [](curl_slist* headers) { curl_slist_free_all(headers); });
-		std::string auth_token_header{std::string("Authorization: Token ") +
-		                              INSPECTOR_REST_API_AUTH_TOKEN};
+		std::string auth_token_header{std::string("PRIVATE-TOKEN: ").append(INSPECTOR_CRASH_REPORTER_TOKEN)};
 		curl_slist* headers_list = nullptr;
 		headers_list = curl_slist_append(headers_list, auth_token_header.c_str());
 		headers.reset(headers_list);
 
 		curl_easy_setopt(curl.get(), CURLOPT_HTTPHEADER, headers.get());
+		curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_callback);
+		std::string result;
+		curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &result);
 
 		std::unique_ptr<curl_httppost, std::function<void(curl_httppost*)>> postvars(
-		    nullptr, [](curl_httppost* formpost) { curl_formfree(formpost); });
+			nullptr, [](curl_httppost* formpost) { curl_formfree(formpost); });
+
+		// Upload crash report
+		const std::string INSPECTOR_GITLAB_API_UPLOAD_ENDPOINT =
+		    std::string(INSPECTOR_GITLAB_API_ENDPOINT) + "/uploads";
+		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_GITLAB_API_UPLOAD_ENDPOINT.c_str());
 
 		struct curl_httppost* formpost = nullptr;
 		struct curl_httppost* lastptr = nullptr;
 
-		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "minidump", CURLFORM_FILE,
-		             minidump_path.c_str(), CURLFORM_END);
-
-		curl_formadd(
-		    &formpost, &lastptr, CURLFORM_COPYNAME, "minidump_name", CURLFORM_COPYCONTENTS,
-		    QFileInfo(QString::fromStdString(minidump_path)).fileName().toStdString().c_str(),
-		    CURLFORM_END);
-
-		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "version", CURLFORM_COPYCONTENTS,
-		             version.c_str(), CURLFORM_END);
-
-		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "locking_code", CURLFORM_COPYCONTENTS,
-		             locking_code.c_str(), CURLFORM_END);
+		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "file", CURLFORM_FILE,
+				minidump_path.c_str(), CURLFORM_END);
 
 		postvars.reset(formpost);
 		curl_easy_setopt(curl.get(), CURLOPT_HTTPPOST, postvars.get());
@@ -102,7 +108,44 @@ class PVCrashReportSender
 		long http_code = 0;
 		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
 
-		if (http_code == 200) {
+		if (http_code != 201) {
+			return http_code;
+		}
+
+		rapidjson::Document json;
+		json.Parse<0>(result.c_str());
+		std::string minidump_link(json["markdown"].GetString());
+
+		// Create Issue
+		const std::string INSPECTOR_GITLAB_API_ISSUES_ENDPOINT =
+		    std::string(INSPECTOR_GITLAB_API_ENDPOINT) + "/issues/";
+		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_GITLAB_API_ISSUES_ENDPOINT.c_str());
+
+		std::string description = minidump_link + " (version " + version + ")";
+
+		formpost = nullptr;
+		lastptr = nullptr;
+
+		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "title", CURLFORM_COPYCONTENTS,
+		             INSPECTOR_GITLAB_API_ISSUES_TITLE.data(), CURLFORM_END);
+		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "issue_type", CURLFORM_COPYCONTENTS,
+		             "incident", CURLFORM_END);
+		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "confidential", CURLFORM_COPYCONTENTS,
+					 "true", CURLFORM_END);
+		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "labels", CURLFORM_COPYCONTENTS,
+					 "kind::crash", CURLFORM_END);
+		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "description", CURLFORM_COPYCONTENTS,
+					 description.c_str(), CURLFORM_END);
+					 
+		postvars.reset(formpost);
+		curl_easy_setopt(curl.get(), CURLOPT_HTTPPOST, postvars.get());
+
+		/*CURLcode curl_ret =*/ curl_easy_perform(curl.get());
+
+		http_code = 0;
+		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
+
+		if (http_code == 201) {
 			return 0;
 		} else {
 			return http_code;
