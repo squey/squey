@@ -25,8 +25,11 @@ build testsuite:
   extends: .build
   script:
     - ./build.sh 
-      --branch="${CI_COMMIT_REF_NAME}" 
-      --workspace-prefix="/bst_workspace"
+        --branch="${CI_COMMIT_REF_NAME}" 
+        --workspace-prefix="/bst_workspace" 
+        --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
+        --flatpak-repo="/srv/flatpak_repo" 
+        --crash-reporter-token=$INSPECTOR_CRASH_REPORTER_TOKEN
   rules:
     - if: '$CI_MERGE_REQUEST_IID && $CI_COMMIT_TAG =~ "/^$/" && $UPDATE_INSTALLERS_ONLY == "false"'
 
@@ -38,7 +41,8 @@ build release:
       --user-target=customer 
       --branch="${CI_COMMIT_REF_NAME}" 
       --workspace-prefix="/bst_workspace" 
-      --repo="$CI_PROJECT_DIR/public/flatpak" 
+      --flatpak-export=true 
+      --flatpak-repo="$CI_PROJECT_DIR/public/flatpak" 
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
       --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
       --crash-reporter-token=$INSPECTOR_CRASH_REPORTER_TOKEN 

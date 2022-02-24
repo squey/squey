@@ -26,7 +26,7 @@ GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w --long help,repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -37,7 +37,8 @@ while true; do
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
     -d | --disable-testsuite ) RUN_TESTSUITE=false; shift 1 ;;
     -w | --workspace-prefix ) WORKSPACE_PREFIX="$2"; shift 2 ;;
-    -r | --repo ) EXPORT_BUILD=true; REPO_DIR="$2"; shift 2 ;;
+    -e | --flatpak-export ) EXPORT_BUILD="$2"; shift 2 ;;
+    -r | --flatpak-repo ) REPO_DIR="$2"; shift 2 ;;
     -c | --crash-reporter-token) INSPECTOR_CRASH_REPORTER_TOKEN="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
@@ -93,24 +94,29 @@ fi
 
 # Export flatpak images
 if [ "$EXPORT_BUILD" = true ]; then
-  # Import GPG private key
-  gpg --import --no-tty --batch --yes $GPG_PRIVATE_KEY_PATH
+  if [[ ! -z "$GPG_PRIVATE_KEY_PATH" ]]; then
+    # Import GPG private key
+    gpg --import --no-tty --batch --yes $GPG_PRIVATE_KEY_PATH
+  fi
 
   # Export flatpak Release image
   rm -rf $DIR/build
   bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.bst
   bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.bst "$DIR/build"
-  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  if [[ ! -z "$GPG_SIGN_KEY" ]]; then
+    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  else
+    flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  fi
 
   # Export flatpak Debug image
   rm -rf $DIR/build
   bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.Debug.bst
   bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.Debug.bst "$DIR/build"
-  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-
-  # Upload flatpak image to remote repository
-  if [ ! -z "$UPLOAD_URL" -a ! -z "$REPO_DIR" ]; then
-      $DIR/scripts/ostree-releng-scripts/rsync-repos --rsync-opt "-e ssh -p $UPLOAD_PORT" --src $REPO_DIR/ --dest $UPLOAD_URL
+  if [[ ! -z "$GPG_SIGN_KEY" ]]; then
+    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  else
+    flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
   fi
 fi
 
