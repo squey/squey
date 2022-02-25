@@ -50,7 +50,8 @@ class PVCrashReporterDialog : public QDialog
 		setWindowTitle("Crash Reporter");
 
 		QPushButton* send_report = new QPushButton("Send crash report");
-		send_report->setEnabled(false); // disable send button until API is up again
+		bool crash_reporting_enabled = QFile::exists(QString::fromStdString(minidump_path));
+		send_report->setEnabled(crash_reporting_enabled);
 		QPushButton* cancel = new QPushButton("Don't send");
 
 		QDialogButtonBox* button_box = new QDialogButtonBox();
@@ -66,8 +67,10 @@ class PVCrashReporterDialog : public QDialog
 		    "<b>The program has crashed and we apologize for the inconvenience.</b><br/><br/>"
 		    "Please send us the crash report so we can diagnose and fix the problem.<br/>"
 		    "We will treat this report as confidential and only to improve this "
-		    "product.<br/><br/>"
-			"The generated crash report is locally stored at the following path : <br/>%1").arg(minidump_path.c_str()));
+		    "product.<br/><br/>%1").arg(crash_reporting_enabled ?
+				"The generated crash report is locally stored at the following path : <br/>" + QString::fromStdString(minidump_path)+ "<br/><br/>" :
+				"Please install 'org.freedesktop.Sdk' flatpak package to enable crash reporting<br/>"
+				"and start the program using the '--devel' option"));
 		QHBoxLayout* text_layout = new QHBoxLayout();
 		QLabel* icon_label = new QLabel();
 		QPixmap pixmap = QApplication::style()
@@ -87,8 +90,7 @@ class PVCrashReporterDialog : public QDialog
 	void send_crash()
 	{
 		std::string locking_code = "";
-		int ret = PVCore::PVCrashReportSender::send(_minidump_path, INENDI_CURRENT_VERSION_STR,
-		                                            locking_code);
+		int ret = PVCore::PVCrashReportSender::send(_minidump_path, INENDI_CURRENT_VERSION_STR);
 		if (ret == 413) { // Payload Too Large
 			QMessageBox::critical(this, "Error sending crash report",
 			                      "The crash report size exceeded the server accepted "

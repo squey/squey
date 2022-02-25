@@ -33,17 +33,10 @@
 
 int main()
 {
-	std::string minidump_path = pvtest::get_tmp_filename();
-	std::ofstream out(minidump_path, std::ofstream::trunc);
-	out << "this is the crash report data" << std::endl;
-	std::string version = std::string(INENDI_CURRENT_VERSION_STR) + "_dry-run";
-
-	int ret =
-	    PVCore::PVCrashReportSender::send(minidump_path, version, "1111-*111 1111 1111 1111");
-
-	std::remove(minidump_path.c_str());
-
-	PV_ASSERT_VALID(ret == 0);
+	if (not INENDI_DEVELOPER_MODE) {
+		bool auth_successful = PVCore::PVCrashReportSender::test_auth();
+		PV_ASSERT_VALID(auth_successful);
+	}
 
 	return 0;
 }
