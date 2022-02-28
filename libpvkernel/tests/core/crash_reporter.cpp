@@ -33,10 +33,11 @@
 
 int main()
 {
-	if (not INENDI_DEVELOPER_MODE) {
-		bool auth_successful = PVCore::PVCrashReportSender::test_auth();
-		PV_ASSERT_VALID(auth_successful);
-	}
+
+#ifdef INENDI_DEVELOPER_MODE
+	bool auth_successful = PVCore::PVCrashReportSender::test_auth();
+	PV_ASSERT_VALID(auth_successful);
+#endif
 
 	return 0;
 }
