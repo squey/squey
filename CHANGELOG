@@ -1,3 +1,10 @@
+4.9.4 (2022-02-28)
+------------------
+
+This minor release fixes or improves:
+* Reactivate send crash reports feature (using Gitlab API)
+* Fix import regression impacting PCAP loading
+
 4.9.3 (2022-02-10)
 ------------------
 

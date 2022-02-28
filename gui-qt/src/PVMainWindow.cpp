@@ -505,10 +505,12 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		} else {
 			QFileInfo fi(choosenFormat);
 			QString format_name = choosenFormat;
-			PVRush::PVFormat format(format_name, choosenFormat);
-			formats[format_name] = format;
-			PVRush::hash_format_creator::mapped_type v(format, sc);
-			format_creator[format_name] = v;
+			if (formats.size() == 0) {
+				PVRush::PVFormat format(format_name, choosenFormat);
+				formats[format_name] = format;
+				PVRush::hash_format_creator::mapped_type v(format, sc);
+				format_creator[format_name] = v;
+			}
 			if (fi.isReadable()) {
 				file_type_found = true;
 				discovered[format_name] = inputs;

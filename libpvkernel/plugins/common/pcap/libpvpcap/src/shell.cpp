@@ -119,9 +119,10 @@ extract_csv(splitted_files_t files,
 	    env_vars.begin(), env_vars.end(), [&xdg_config_home](std::string_view env_var) {
 		    return env_var.substr(0, xdg_config_home.size()).compare(xdg_config_home) == 0;
 		});
-	assert(it != env_vars.end());
-	std::string xdg_config_home_value = get_wireshark_profiles_dir();
-	*it = xdg_config_home_value.data();
+	if(it != env_vars.end()) {
+		std::string xdg_config_home_value = get_wireshark_profiles_dir();
+		*it = xdg_config_home_value.data();
+	}
 
 	const size_t max_number_of_live_token =
 	    std::min(files.size(), (size_t)std::thread::hardware_concurrency());
