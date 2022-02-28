@@ -34,7 +34,7 @@
 int main()
 {
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifndef INENDI_DEVELOPER_MODE
 	bool auth_successful = PVCore::PVCrashReportSender::test_auth();
 	PV_ASSERT_VALID(auth_successful);
 #endif
