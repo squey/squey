@@ -44,7 +44,7 @@ RUN echo 'kernel.core_pattern=|/bin/false' > /etc/sysctl.d/50-coredump.conf
 RUN mkdir -p "${INSTALL_PATH}"
 COPY download_files.sh env.conf resources/* data/* "${INSTALL_PATH}/"
 RUN "${INSTALL_PATH}/download_files.sh" "${INSTALL_MODE}"
-RUN "chmod g+w ${INSTALL_PATH}/kwinr*"
+RUN chmod g+w "${INSTALL_PATH}"/kwinr*
 
 # Workaround to avoid nvidia drivers to prevent flatpak container to be executed
 COPY resources/umount_proc_driver_nvidia.service "${INSTALL_PATH}"
