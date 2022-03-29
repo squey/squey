@@ -513,7 +513,6 @@ QImage PVParallelView::PVAxisGraphicsItem::get_axis_density()
 			_axis_density_worker = std::thread([this, axis_length = _axis_length] {
 				render_density(_axis_length);
 				_axis_density_worker_finished.clear();
-				update(boundingRect());
 			});
 		} else {
 			_axis_density_worker_canceled.clear();
