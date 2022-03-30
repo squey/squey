@@ -1,3 +1,9 @@
+4.9.5 (2022-03-30)
+------------------
+
+This minor release fixes or improves:
+* Fix parallel coordinates refresh when axes density is activated
+
 4.9.4 (2022-02-28)
 ------------------
 
