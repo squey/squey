@@ -183,21 +183,7 @@ class PVCrashReportSender
 		long http_code = 0;
 		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
 
-		if (http_code == 200) {
-			rapidjson::Document json;
-			json.Parse<0>(result.c_str());
-			if (json.IsArray()) {
-				const auto& token = json[0];
-				const std::string& token_name = token["name"].GetString();
-				const bool& token_revoked = token["revoked"].GetBool();
-				const bool& token_active = token["active"].GetBool();
-				if (token_name == "inspector_crashreporter" and not token_revoked and token_active) {
-					return true;
-				}
-			}
-		}
-
-		return false;
+		return http_code == 200;
 	}
 };
 } // namespace PVCore
