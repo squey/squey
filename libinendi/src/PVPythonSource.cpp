@@ -125,7 +125,7 @@ pybind11::array Inendi::PVPythonSource::column(const std::string& column_name, s
 
 pybind11::array Inendi::PVPythonSource::column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/
 {
-    const Inendi::PVView* view = _source.current_view();
+    const Inendi::PVView* view = *_source.get_children<Inendi::PVView>().begin();
     size_t column_count = view->get_column_count();
     std::vector<PVCol> matching_columns_indexes;
     for (PVCombCol comb_col(0); comb_col < (PVCombCol) column_count; comb_col++) {
