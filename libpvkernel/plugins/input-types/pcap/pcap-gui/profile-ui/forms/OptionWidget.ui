@@ -130,55 +130,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="wireshark_filter_group">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-     <property name="autoFillBackground">
-      <bool>false</bool>
-     </property>
-     <property name="styleSheet">
-      <string notr="true">QGroupBox
-{
-border:
-        1px solid gray;
-        margin - top : 0.5em;
-}
-
-QGroupBox::title
-{
-        subcontrol - origin : margin;
-left:
-        10px;
-padding:
-        0 3px 0 3px;
-}</string>
-     </property>
-     <property name="title">
-      <string>Wireshark
-        filters</string>
-     </property>
-     <property name="flat">
-      <bool>false</bool>
-     </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <item>
-       <widget class="QLineEdit" name="filters_edit">
-        <property name="toolTip">
-         <string/>
-        </property>
-        <property name="placeholderText">
-         <string>Enter filters</string>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
-   </item>
-   <item>
     <widget class="QGroupBox" name="wireshark_rewrite_ptions_group">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -427,6 +378,39 @@ padding:
       </item>
      </layout>
      <zorder></zorder>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_4">
+     <property name="title">
+      <string>Wireshark read filters</string>
+     </property>
+     <layout class="QGridLayout" name="gridLayout_4">
+      <item row="0" column="0">
+       <layout class="QGridLayout" name="gridLayout_3">
+        <property name="sizeConstraint">
+         <enum>QLayout::SetMaximumSize</enum>
+        </property>
+        <item row="0" column="0">
+         <widget class="QPlainTextEdit" name="filters_edit">
+          <property name="placeholderText">
+           <string>Type your read filters here, eg. &quot;frame.protocols == eth:ethertype:ip:tcp:sip&quot;</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item row="1" column="0">
+       <widget class="QLabel" name="label_6">
+        <property name="text">
+         <string>See &lt;a href=&quot;https://wiki.wireshark.org/DisplayFilters&quot;&gt;https://wiki.wireshark.org/DisplayFilters&lt;/a&gt;</string>
+        </property>
+        <property name="textFormat">
+         <enum>Qt::RichText</enum>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
