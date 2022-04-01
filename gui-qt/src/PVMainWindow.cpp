@@ -1001,7 +1001,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 			               "try to load <strong>another set of data</strong>.</p>");
 		} else {
 			msg += QString("Indeed, the sources <strong>were empty</strong> (empty "
-			               "files, bad database query, etc...) because no elements "
+			               "files, bad database query, bad filtering parameters, etc...) because no elements "
 			               "have been extracted.</p><p>You should try to load "
 			               "another set of data.</p>");
 		}

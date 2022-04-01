@@ -110,7 +110,7 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 	// Get chunk from current input
 	PVCore::PVChunk* ret = (*_cur_input)->operator()();
 
-	if (ret == nullptr) {
+	while (ret == nullptr) {  // source could be empty because of filtering
 		// Release input on-the-fly to reduce resources consumption
 		(*_cur_input)->release_input(false);
 		_cur_input++;
@@ -122,9 +122,6 @@ PVCore::PVChunk* PVRush::PVAggregator::next_chunk()
 		(*_cur_input)->prepare_for_nelts(_nend - _nread_elements);
 		ret = (*_cur_input)->operator()();
 		_begin_of_input = true;
-	}
-	if (ret == nullptr) {
-		throw PVRush::PVInputException((*_cur_input)->human_name().toStdString() + " is empty");
 	}
 	if (_begin_of_input and ret->rows_count() < _skip_lines_count) {
 		throw PVRush::PVInputException((*_cur_input)->human_name().toStdString() +
