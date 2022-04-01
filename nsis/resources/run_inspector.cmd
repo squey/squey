@@ -36,7 +36,7 @@ if %errorlevel% == 1 (
 )
 
 @REM Run Inspector
-set display_cmd=wsl --exec bash -c "echo -n `cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'`:0.0"
+set display_cmd=wsl -d inspector_linux --exec bash -c "echo -n `cat /etc/resolv.conf | grep nameserver | awk '{print $2; exit;}'`:0.0"
 for /F "tokens=*" %%i in ('%display_cmd%') do set display=%%i
 set display=%display: =\ %
 wsl -d inspector_linux --user root --exec bash -c "service dbus start"
@@ -52,5 +52,5 @@ if %stop_vcxsrv% == true if %instance_count% == 0 (
 )
 
 @REM Update WSL and Inspector
-wsl --user root --exec bash -c "%inspector_path_linux%/update_wsl.sh"
-wsl --user inendi --exec bash -c "%inspector_path_linux%/update_inspector.sh"
+wsl -d inspector_linux --user root --exec bash -c "%inspector_path_linux%/update_wsl.sh"
+wsl -d inspector_linux --user inendi --exec bash -c "%inspector_path_linux%/update_inspector.sh"

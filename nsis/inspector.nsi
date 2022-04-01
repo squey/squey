@@ -318,43 +318,58 @@ Function .onInit
 		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL2 : $\r$\n > Windows 10 64 bits version 2004$\r$\n > Windows Server 2019"
 		Quit
 	${EndIf}
+	
+	# Check if WSL needs to be enabled
+	var /GLOBAL WSLStatus
+	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux | Out-String -Stream | Select-String -Pattern 'State.* : (.*)' | % { $$($$_.matches.groups[1].value) }"`
+	Pop $0
+	Pop $WSLStatus
+	Strcpy $WSLStatus $WSLStatus -2 ; Remove carriage return
 
-	; Check if WSL needs to be enabled
-	IfFileExists "$WINDIR\SysNative\wslconfig.exe" skip
-	MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL2) and Microsoft Virtual Machine Platform needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
-	ok:
-		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
-		Pop $0
-		ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:VirtualMachinePlatform            /NoRestart /Quiet'
-		Pop $1
-		${If} $0 != 3010
-		${AndIf} $0 != 0
-		; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
-			MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL2 failed. Aborting."
-			Quit
-		${EndIf}
-		${If} $1 != 3010
-		${AndIf} $1 != 0
-		; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
-			MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling Microsoft Virtual Machine Platform failed. Aborting."
-			Quit
-		${EndIf}
-
-		; Automatically setup installer to autostart once after reboot
-		WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "${NAME}" "$EXEPATH"
-
-		; Ask user for a reboot
-		${If} $0 == 3010
-		${OrIf} $1 == 3010
-			MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL2.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
-			yes:
-				Reboot
-			no:
+	# Check if VirtualMachinePlatform needs to be enabled
+	var /GLOBAL VirtualMachinePlatformStatus
+	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform | Out-String -Stream | Select-String -Pattern 'State.* : (.*)' | % { $$($$_.matches.groups[1].value) }"`
+	Pop $0
+	Pop $VirtualMachinePlatformStatus
+	Strcpy $VirtualMachinePlatformStatus $VirtualMachinePlatformStatus -2 ; Remove carriage return
+	
+	; Enable WSL and/or VirtualMachinePlatform if needed
+	${If} $WSLStatus == "Disabled"
+	${OrIf} $VirtualMachinePlatformStatus == "Disabled"
+		MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL2) and Microsoft Virtual Machine Platform needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
+		ok:
+			ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
+			Pop $0
+			ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:VirtualMachinePlatform            /NoRestart /Quiet'
+			Pop $1
+			${If} $0 != 3010
+			${AndIf} $0 != 0
+			; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
+				MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL2 failed. Aborting."
 				Quit
-		${EndIf}
-	cancel:
-		Quit
-	skip:
+			${EndIf}
+			${If} $1 != 3010
+			${AndIf} $1 != 0
+			; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
+				MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling Microsoft Virtual Machine Platform failed. Aborting."
+				Quit
+			${EndIf}
+
+			; Automatically setup installer to autostart once after reboot
+			WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "${NAME}" "$EXEPATH"
+
+			; Ask user for a reboot
+			${If} $0 == 3010
+			${OrIf} $1 == 3010
+				MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL2.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
+				yes:
+					Reboot
+				no:
+					Quit
+			${EndIf}
+		cancel:
+			Quit
+	${EndIf}
 
 FunctionEnd
 
@@ -440,7 +455,7 @@ Function un.LeaveCustomPage
 		nsExec::ExecToStack '$WINDIR\SysNative\cmd.exe /C echo %APPDATA%'
 		Pop $0
 		Pop $1
-		Strcpy $1 $1 -2 ; Remove carriage return in the end
+		Strcpy $1 $1 -2 ; Remove carriage return
 		RMDir /r "$1\Inspector"
 	${EndIf}
 
