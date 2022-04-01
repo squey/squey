@@ -577,7 +577,8 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 	                                                    "time", "duration", "number_float", "number_double" };
 
 	// Don't show correlation menu for unsupported axes types
-	if (not correlation_types_for_range.contains(this_axis_type)) {
+	if (not correlation_types_for_range.contains(this_axis_type) and
+	    not correlation_types_for_values.contains(this_axis_type)) {
 		return;
 	}
 
