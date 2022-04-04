@@ -1,3 +1,11 @@
+4.9.6 (2022-04-04)
+------------------
+
+This minor release fixes or improves:
+* fixed a regression in correlations with string columns
+* fixed a crash when accessing a column from another source with Python
+* [PCAP] added support for Wireshark read filters
+
 4.9.5 (2022-03-30)
 ------------------
 
