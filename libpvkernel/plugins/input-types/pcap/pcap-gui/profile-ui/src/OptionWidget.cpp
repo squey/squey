@@ -42,7 +42,6 @@ OptionWidget::OptionWidget(rapidjson::Document& json_data, QWidget* parent)
 {
 	_ui->setupUi(this);
 
-	_ui->wireshark_filter_group->setVisible(false);
 	_ui->wireshark_rewrite_ptions_group->setVisible(false);
 
 	// Populate wireshark profiles combo box
@@ -51,6 +50,8 @@ OptionWidget::OptionWidget(rapidjson::Document& json_data, QWidget* parent)
 		    QFileInfo(QString::fromStdString(profile_path)).fileName());
 	}
 	_ui->ws_profiles_combobox->setCurrentText("Default");
+
+	connect(_ui->filters_edit, &QPlainTextEdit::textChanged, [this](){ on_filters_edit_textChanged(_ui->filters_edit->toPlainText());});
 }
 
 OptionWidget::~OptionWidget()
@@ -70,6 +71,8 @@ void OptionWidget::load_option_from_json()
 
 		_ui->occurrence_edit->setText(options["occurrence"].GetString());
 		_ui->aggregator_edit->setText(options["aggregator"].GetString());
+
+		_ui->filters_edit->setPlainText(options["filters"].GetString());
 
 		// TCP/IP
 		if (options.HasMember("tcp.desegment_tcp_streams")) {
@@ -147,7 +150,7 @@ void OptionWidget::on_header_check_clicked(bool checked)
 	}
 }
 
-void OptionWidget::on_filters_edit_textEdited(const QString& text)
+void OptionWidget::on_filters_edit_textChanged(const QString& text)
 {
 	// Fixme: validate filters string regexp
 

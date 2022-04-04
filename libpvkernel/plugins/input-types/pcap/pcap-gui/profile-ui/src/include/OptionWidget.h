@@ -67,7 +67,7 @@ class OptionWidget : public QWidget
 	void on_query_dn_server_checkbox_clicked(bool checked = false);
 	void on_geoip_db_button_clicked(bool checked = false);
 
-	void on_filters_edit_textEdited(const QString& text);
+	void on_filters_edit_textChanged(const QString& text);
 
 	void on_header_check_clicked(bool checked = false);
 
