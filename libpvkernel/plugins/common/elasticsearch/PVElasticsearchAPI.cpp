@@ -341,7 +341,14 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 					_mapping_type = mappings.GetObject().MemberBegin()->name.GetString();
 				}
 			} else {
-				_mapping_type = "_default_";
+				if (_version < PVCore::PVVersion(7, 0, 0)) {
+					if (not mappings.HasMember("_default_")) {
+						_mapping_type = "_default_";
+					}
+				}
+				else {
+					_mapping_type = "";
+				}
 			}
 		}
 
