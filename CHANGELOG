@@ -1,3 +1,9 @@
+4.9.7 (2022-04-06)
+------------------
+
+This minor release fixes or improves:
+* fixed Elasticsearch 7+ mapping removal compatibility
+
 4.9.6 (2022-04-04)
 ------------------
 
