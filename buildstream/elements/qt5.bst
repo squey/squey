@@ -100,6 +100,7 @@ depends:
 - freedesktop-sdk.bst:components/xorg-lib-xcb.bst
 - freedesktop-sdk.bst:components/libglvnd.bst
 - mysql.bst
+- libpq.bst
   
 # QWebEngine
 - python2.bst
