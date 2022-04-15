@@ -25,7 +25,7 @@
 #ifndef PVGUIQT_PVLISTDISPLAYDLG_H
 #define PVGUIQT_PVLISTDISPLAYDLG_H
 
-#include <pvguiqt/ui_PVListDisplayDlg.h>
+#include "pvguiqt/ui_PVListDisplayDlg.h"
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvguiqt/PVAbstractTableModel.h>

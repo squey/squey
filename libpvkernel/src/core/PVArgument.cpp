@@ -35,20 +35,19 @@
 #include <QString>
 #include <QStringList>
 #include <QVariant>
+#include <QDataStream>
 
 #include <vector> // for vector
 
-class QDataStream;
-
 QHash<QString, QString> PVCore::PVArgumentKey::_key_desc;
 
-QDataStream& operator<<(QDataStream& out, const PVCore::PVArgumentTypeBase& obj)
+QDataStream& PVCore::operator<<(QDataStream& out, const PVCore::PVArgumentTypeBase& obj)
 {
 	obj.serialize(out);
 	return out;
 }
 
-QDataStream& operator>>(QDataStream& in, const PVCore::PVArgumentTypeBase& obj)
+QDataStream& PVCore::operator>>(QDataStream& in, const PVCore::PVArgumentTypeBase& obj)
 {
 	obj.unserialize(in);
 	return in;

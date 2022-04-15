@@ -7,20 +7,20 @@ include(CTest)
 set(CTEST_PROJECT_NAME "PVKernel")
 
 ################################################
-# QT5 related include and check
+# QT6 related include and check
 ################################################
 
 # For QDomElement
-find_package(Qt5Xml REQUIRED)
-include_directories(SYSTEM ${Qt5Xml_INCLUDE_DIRS})
+find_package(Qt6Xml REQUIRED)
+include_directories(SYSTEM ${Qt6Xml_INCLUDE_DIRS})
 
 # For colors
-find_package(Qt5Gui REQUIRED)
-include_directories(SYSTEM ${Qt5Gui_INCLUDE_DIRS})
+find_package(Qt6Gui REQUIRED)
+include_directories(SYSTEM ${Qt6Gui_INCLUDE_DIRS})
 
 # For Dialog
-find_package(Qt5Widgets REQUIRED)
-include_directories(SYSTEM ${Qt5Widgets_INCLUDE_DIRS})
+find_package(Qt6Widgets REQUIRED)
+include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
 
 # FIXME : This is a hack waiting for Qt 5.4 and QOpenGLWidgets
 set(QT_NO_OPENGL 1)
@@ -28,17 +28,19 @@ if(${QT_NO_OPENGL})
 	add_definitions("-DQT_NO_OPENGL")
 else(${QT_NO_OPENGL})
 # For QGLWidget
-find_package(Qt5OpenGL REQUIRED)
-include_directories(SYSTEM ${Qt5OpenGL_INCLUDE_DIRS})
+find_package(Qt6OpenGL REQUIRED)
+include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
 endif(${QT_NO_OPENGL})
 
 # For QtWebKit or QtWebEngine
 if(${QT_WEBKIT})
-	find_package(Qt5WebKitWidgets REQUIRED)
-	include_directories(SYSTEM ${Qt5WebKitWidgets_INCLUDE_DIRS})
+	find_package(Qt6WebKitWidgets REQUIRED)
+	include_directories(SYSTEM ${Qt6WebKitWidgets_INCLUDE_DIRS})
 else(${QT_WEBKIT})
-	find_package(Qt5WebEngineWidgets REQUIRED)
-	include_directories(SYSTEM ${Qt5WebEngineWidgets_INCLUDE_DIRS})
+	find_package(Qt6WebEngineWidgets REQUIRED)
+	include_directories(SYSTEM ${Qt6WebEngineWidgets_INCLUDE_DIRS})
+	find_package(Qt6WebEngineCore REQUIRED)
+	include_directories(SYSTEM ${Qt6WebEngineCore_INCLUDE_DIRS})
 endif(${QT_WEBKIT})
 
 ##################################################################

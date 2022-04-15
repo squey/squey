@@ -44,4 +44,6 @@ struct PVSerializedSource {
 };
 } // namespace PVCore
 
+Q_DECLARE_METATYPE(PVCore::PVSerializedSource);
+
 #endif

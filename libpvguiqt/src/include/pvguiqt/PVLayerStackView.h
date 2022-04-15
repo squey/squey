@@ -75,7 +75,7 @@ class PVLayerStackView : public QTableView
 	void show_ctxt_menu(QPoint const& pt);
 
   protected:
-	void enterEvent(QEvent* event) override;
+	void enterEvent(QEnterEvent* event) override;
 	void leaveEvent(QEvent* event) override;
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;

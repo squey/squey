@@ -225,8 +225,8 @@ widgets/PVColorDialog.ui
 set(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES} ${OPENCL_SRC_FILES})
 set(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS} ${WIDGETS_MOC_HEADERS})
 
-QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} TARGET pvkernel OPTIONS ${QT5_WRAP_OPTIONS})
-PV_QT5_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
+QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+PV_QT6_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
 
 ################################################
 # Declare the new library and linkage options
@@ -238,24 +238,22 @@ add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
 # Define third_party libs we have to link with for the library
-set(QT5_LIBS Qt5Core Qt5OpenGL Qt5Widgets Qt5Gui Qt5Xml)
+set(QT6_LIBS Qt6Core Qt6OpenGL Qt6Widgets Qt6Gui Qt6Xml)
+find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
 
-if(${QT_WEBKIT})
-	set(QT5_LIBS ${QT5_LIBS} Qt5WebKitWidgets)
-else(${QT_WEBKIT})
-	set(QT5_LIBS ${QT5_LIBS} Qt5WebEngineWidgets)
-endif(${QT_WEBKIT})
+set(QT6_LIBS ${QT6_LIBS} Qt6WebEngineWidgets Qt6WebEngineCore)
 
-set(PVKERNEL_LINK_LIBRARIES ${QT5_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
+set(PVKERNEL_LINK_LIBRARIES ${QT6_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 	${OpenMP_LIBRARIES} ${Boost_LIBRARIES}
 	${ARCHIVE_LIBRARIES} ${BREAKPAD_LIBRARIES} ${WINSOCK_LIB} ${HWLOC_LIBRARIES}
-	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES} ${Python_LIBRARIES})
+	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES} ${Python_LIBRARIES} Qt6::Core5Compat)
 
 if(OPENCL_FOUND)
 	list(APPEND PVKERNEL_LINK_LIBRARIES ${OPENCL_LIBRARIES})
 endif(OPENCL_FOUND)
 
 target_link_libraries(pvkernel ${PVKERNEL_LINK_LIBRARIES})
+
 
 # Define installation directory
 INSTALL(TARGETS pvkernel LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib

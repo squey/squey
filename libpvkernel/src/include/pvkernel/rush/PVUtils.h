@@ -26,7 +26,7 @@
 #define PVRUSH_PVUTILS_H
 
 class QString;
-class QStringList;
+#include <QStringList>
 #include <QByteArray>
 
 #include <pvkernel/rush/PVNraw.h>

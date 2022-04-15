@@ -33,7 +33,6 @@
 #include <QResizeEvent>
 #include <QSurface>
 #include <EGL/egl.h>
-#include <QtPlatformHeaders/QEGLNativeContext>
 
 namespace PVParallelView
 {

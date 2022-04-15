@@ -14,5 +14,4 @@ variables:
     -DQT_MAJOR_VERSION=6
 
 build-depends:
-- base.bst
 - cmake-extra-modules.bst

@@ -33,7 +33,6 @@
 
 #include <QMessageBox>
 #include <QPushButton>
-#include <QDesktopWidget>
 #include <QScreen>
 
 static const char* query_types[] = {"Query Builder", "JSON", "SQL"};

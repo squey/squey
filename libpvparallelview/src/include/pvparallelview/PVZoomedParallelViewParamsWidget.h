@@ -30,7 +30,7 @@
 #include <pvbase/types.h>
 #include <inendi/widgets/PVAxisComboBox.h>
 
-class QStringList;
+#include <QStringList>
 class QMenu;
 class QToolButton;
 

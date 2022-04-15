@@ -158,9 +158,9 @@ double load_investigation()
 	/**
 	 * Check axes
 	 */
-	PV_VALID(view->get_axes_combination().get_nraw_names().size(), 15);
+	PV_VALID(view->get_axes_combination().get_nraw_names().size(), 15LL);
 	auto axes = view->get_axes_names_list();
-	PV_VALID(axes.size(), 14);
+	PV_VALID(axes.size(), 14LL);
 	constexpr const char* expected_axes_name[] = {
 	    "domain",   "host",        "http_method", "http_status", "login_id", "mime_type",  "port",
 	    "protocol", "result_code", "src_ip",      "subdomain",   "time",     "time_spent", "tld",

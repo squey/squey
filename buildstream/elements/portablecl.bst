@@ -14,6 +14,7 @@ sources:
   
 variables:
   cmake-local: |
+    -DINSTALL_OPENCL_HEADERS=1 \
     -DEXTRA_HOST_LD_FLAGS=-L%{prefix}/lib \
     -DCMAKE_BUILD_TYPE=Release \
     -DLLC_HOST_CPU=corei7

@@ -36,7 +36,6 @@
 #include <inendi/PVSource.h>
 #include <pvdisplays/PVDisplayIf.h>
 
-#include <QStateMachine>
 #include <QKeyEvent>
 #include <QPainter>
 #include <QScrollBar>
@@ -44,7 +43,7 @@
 #include <QMenu>
 #include <QMessageBox>
 
-#include <KF5/KItemModels/klinkitemselectionmodel.h>
+#include <KF6/KItemModels/klinkitemselectionmodel.h>
 
 #include <memory>
 
@@ -506,7 +505,7 @@ void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
 	QWidget::keyPressEvent(event);
 }
 
-void PVParallelView::PVSeriesViewWidget::enterEvent(QEvent*)
+void PVParallelView::PVSeriesViewWidget::enterEvent(QEnterEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }

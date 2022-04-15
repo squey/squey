@@ -403,7 +403,7 @@ void PVSeriesViewZoomer::keyReleaseEvent(QKeyEvent* event)
 	QWidget::keyReleaseEvent(event);
 }
 
-void PVSeriesViewZoomer::enterEvent(QEvent*)
+void PVSeriesViewZoomer::enterEvent(QEnterEvent*)
 {
 	activateWindow();
 	setFocus(Qt::MouseFocusReason);

@@ -25,7 +25,6 @@
 
 #include <QSplitter>
 #include <QDesktopServices>
-#include <QDesktopWidget>
 #include <QScreen>
 
 #include <PVFormatBuilderWidget.h>
@@ -108,7 +107,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	 * ****************************************************************************
 	 */
 	auto vb = new QVBoxLayout();
-	vb->setMargin(0);
+	vb->setContentsMargins(0, 0, 0, 0);
 	auto vertical_splitter = new QSplitter(Qt::Horizontal);
 	vbParam = new QVBoxLayout();
 	vbParam->setSizeConstraint(QLayout::SetMinimumSize);

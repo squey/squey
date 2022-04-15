@@ -26,7 +26,7 @@
 #define PVWIDGETS_PVCOLORDIALOG_H
 
 #include <pvkernel/core/PVHSVColor.h>
-#include <pvkernel/ui_PVColorDialog.h>
+#include "pvkernel/ui_PVColorDialog.h"
 
 namespace PVCore
 {

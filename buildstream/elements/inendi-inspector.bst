@@ -56,6 +56,7 @@ depends:
 - tbb.bst
 - boost.bst
 - qt6.bst
+- open62541.bst
 - kitemmodels.bst
 - ksyntaxhighlighting.bst
 # - erf.bst

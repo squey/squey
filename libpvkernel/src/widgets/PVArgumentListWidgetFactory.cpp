@@ -71,16 +71,16 @@ QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_
 
 	// And register them into the factory
 	args_widget_factory->registerEditor(QVariant::Bool, pv_checkbox_creator);
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVEnumType>(),
+	args_widget_factory->registerEditor(( QMetaType::Type)qMetaTypeId<PVCore::PVEnumType>(),
 	                                    pv_enum_creator);
 	args_widget_factory->registerEditor(
-	    (QVariant::Type)qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVPlainTextType>(),
+	    ( QMetaType::Type)qMetaTypeId<PVCore::PVColorGradientDualSliderType>(), dualslider_creator);
+	args_widget_factory->registerEditor((QMetaType::Type)qMetaTypeId<PVCore::PVPlainTextType>(),
 	                                    plaintext_creator);
-	args_widget_factory->registerEditor(QVariant::RegExp, regexp_creator);
+	args_widget_factory->registerEditor((QMetaType::Type)QMetaType::QRegularExpression, regexp_creator);
 	args_widget_factory->registerEditor(QVariant::String, qstr_creator);
 
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVPercentRangeType>(),
+	args_widget_factory->registerEditor((QMetaType::Type)qMetaTypeId<PVCore::PVPercentRangeType>(),
 	                                    percentrange_creator);
 
 	return args_widget_factory;

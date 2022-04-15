@@ -6,7 +6,7 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 add_definitions(${INENDI_DEFINITIONS})
 include_directories(AFTER ${INENDI_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
 set(LINK_LIBRARIES ${INENDI_LIBRARY} ${PVKERNEL_LIBRARY} ${PVLICENSE_LIBRARIES} pvparallelview)
 include_directories(${PVLICENSE_INCLUDE_DIR})
@@ -52,7 +52,7 @@ add_inspector_test(Trendering_pipeline_base Trendering_pipeline_base 1000)
 add_bench(rendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)
 
 #GL Timeseries
-add_inspector_compile_test(Tgl_timeseries LINKS ${LINK_LIBRARIES} Qt5OpenGL FILES gl_timeseries.cpp)
+add_inspector_compile_test(Tgl_timeseries LINKS ${LINK_LIBRARIES} Qt6OpenGL FILES gl_timeseries.cpp)
 #add_inspector_test(Tgl_timeseries Tgl_timeseries)
 add_bench(gl_timeseries LINKS ${LINK_LIBRARIES} FILES gl_timeseries.cpp)
 

@@ -14,6 +14,8 @@ variables:
     -DQT_MAJOR_VERSION=6 \
     -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fpermissive"
 
-build-depends:
+depends:
 - base.bst
+
+build-depends:
 - cmake-extra-modules.bst

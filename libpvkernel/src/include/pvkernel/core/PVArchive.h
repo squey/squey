@@ -27,7 +27,7 @@
 
 #include <stdexcept>
 
-class QStringList;
+#include <QStringList>
 class QString;
 
 namespace PVCore

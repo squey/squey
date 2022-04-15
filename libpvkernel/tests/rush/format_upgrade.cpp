@@ -33,6 +33,7 @@
 #include <QDomDocument>
 #include <QDomElement>
 #include <QTextStream>
+#include <QHashSeed>
 
 static constexpr const char* xml_origin = TEST_FOLDER "/pvkernel/rush/formats/apache.access.format";
 static constexpr const char* xml_ref =
@@ -55,6 +56,9 @@ QDomDocument get_dom_from_filename(std::string const& filename)
 
 int main()
 {
+	// We need to set this as we dump QDom which use a QHash. Without a seed, printing is random.
+	QHashSeed::setDeterministicGlobalSeed();
+
 	QDomDocument xml = get_dom_from_filename(xml_origin);
 
 	PVRush::PVFormatVersion::to_current(xml);

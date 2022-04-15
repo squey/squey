@@ -112,7 +112,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	/**
 	 * Handle focus to correctly handle mouseMoveEvent
 	 */
-	void enterEvent(QEvent* event) override;
+	void enterEvent(QEnterEvent* event) override;
 	void leaveEvent(QEvent* event) override;
 
 	/**

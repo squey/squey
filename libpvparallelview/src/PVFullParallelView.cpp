@@ -248,7 +248,7 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent* event)
  * PVParallelView::PVFullParallelView::enterEvent
  *****************************************************************************/
 
-void PVParallelView::PVFullParallelView::enterEvent(QEvent*)
+void PVParallelView::PVFullParallelView::enterEvent(QEnterEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }

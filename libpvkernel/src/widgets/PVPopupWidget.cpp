@@ -26,7 +26,6 @@
 #include <pvkernel/widgets/PVPopupWidget.h>
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QScreen>
 

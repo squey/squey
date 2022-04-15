@@ -75,19 +75,19 @@ include/inendi/PVPythonInterpreter.h
 ###############################################################################
 # Generate Qt files
 ###############################################################################
-QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 ###############################################################################
 # Define libs
 ###############################################################################
 
-set(QT5_LIBS Qt5Core Qt5Xml Qt5Gui Qt5Widgets)
+set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets)
 
 add_library(inendi SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${MOC_SRC})
 
 set_target_properties(inendi PROPERTIES SOVERSION 1)
 
-target_link_libraries(inendi ${QT5_LIBS} ${TBB_LIBRARIES}
+target_link_libraries(inendi ${QT6_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
 			     ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} ${SIGCPP_LIBRARIES} pvkernel curl)
 

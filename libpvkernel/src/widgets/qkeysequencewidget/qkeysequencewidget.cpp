@@ -275,7 +275,7 @@ void PVWidgets::QKeySequenceWidgetPrivate::init(const QKeySequence keySeq, const
 	Q_Q(PVWidgets::QKeySequenceWidget);
 	Q_UNUSED(q);
 	layout = new QHBoxLayout(q_func());
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(1);
 
 	clearButton = new QToolButton(q_func());

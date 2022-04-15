@@ -272,7 +272,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
  * PVGuiQt::PVListingView::enterEvent
  *
  *****************************************************************************/
-void PVGuiQt::PVListingView::enterEvent(QEvent*)
+void PVGuiQt::PVListingView::enterEvent(QEnterEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }

@@ -121,7 +121,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
  * PVGuiQt::PVRootTreeView::enterEvent
  *****************************************************************************/
 
-void PVGuiQt::PVRootTreeView::enterEvent(QEvent*)
+void PVGuiQt::PVRootTreeView::enterEvent(QEnterEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }

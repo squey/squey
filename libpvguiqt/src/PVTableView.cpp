@@ -47,7 +47,9 @@ bool PVGuiQt::PVTableView::viewportEvent(QEvent* event)
 		// and column give same width for every row
 		QModelIndex index = indexAt(helpEvent->pos());
 		if (index.isValid()) {
-			QSize sizeHint = itemDelegate(index)->sizeHint(viewOptions(), index);
+			QStyleOptionViewItem option;
+			initViewItemOption(&option);
+			QSize sizeHint = itemDelegate(index)->sizeHint(option, index);
 			QRect rItem(0, 0, sizeHint.width(), sizeHint.height());
 			QRect rVisual = visualRect(index);
 			if (rItem.width() <= rVisual.width()) {

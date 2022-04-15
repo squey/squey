@@ -31,16 +31,16 @@ install(FILES "pvconfig.ini" DESTINATION ${INENDI_CONFIG})
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME inendi-inspector.png)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
-set(LINUX_QT5_PATH "/usr/lib/x86_64-linux-gnu")
+set(LINUX_QT6_PATH "/usr/lib/x86_64-linux-gnu")
 
-set(QTLIBS_MAJOR "5")
-set(QTLIBS_MINOR "3")
-set(QTLIBS_PATCH "2")
+set(QTLIBS_MAJOR "6")
+set(QTLIBS_MINOR "4")
+set(QTLIBS_PATCH "0")
 
 if(NOT ${QT_WEBKIT})
-	set(QTWEBENGINE_MAJOR "5")
-	set(QTWEBENGINE_MINOR "3")
-	set(QTWEBENGINE_PATCH "2")
+	set(QTWEBENGINE_MAJOR "6")
+	set(QTWEBENGINE_MINOR "4")
+	set(QTWEBENGINE_PATCH "0")
 endif(NOT ${QT_WEBKIT})
 
 ###############################################################################

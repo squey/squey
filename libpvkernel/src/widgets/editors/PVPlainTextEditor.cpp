@@ -111,7 +111,7 @@ void PVWidgets::PVPlainTextEditor::save_to_file(const bool append)
 	}
 
 	QTextStream out(&outfile);
-	out.setCodec(QTextCodec::codecForName("UTF-8"));
+	out.setEncoding(QStringConverter::Utf8); // by default anyway
 	QString text_write = _text_edit->toPlainText();
 	if (*(text_write.constEnd() - 1) != QChar('\n')) {
 		text_write.append(QChar('\n'));

@@ -114,15 +114,15 @@ add_inspector_test(Trush_filter_composition Trush_filter_composition)
 add_bench(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 
 # Plugin database
-find_package(Qt5Sql REQUIRED)
-include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
+find_package(Qt6Sql REQUIRED)
+include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
 set(DATABASE_SRC_FILES
 ../../plugins/common/database/PVDBInfos.cpp
 ../../plugins/common/database/PVDBQuery.cpp
 ../../plugins/common/database/PVSQLTypeMap.cpp
 helpers.cpp)
 
-add_inspector_compile_test(Trush_database LINKS ${LINK_LIBRARIES} pvkernel Qt5Sql FILES database.cpp ${DATABASE_SRC_FILES})
+add_inspector_compile_test(Trush_database LINKS ${LINK_LIBRARIES} pvkernel Qt6Sql FILES database.cpp ${DATABASE_SRC_FILES})
 #add_inspector_test(Trush_database Trush_database ${TESTS_FILES_DIR})
 
 # Plugin sources
@@ -227,8 +227,6 @@ add_inspector_test(Trush_filtered_with_header Trush_format_import_export ${TESTS
 
 add_inspector_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
 add_inspector_test(Trush_format_upgrade Trush_format_upgrade)
-# We need to set this env variable as we dump QDom which use a QHash. Without a seed, printing is random.
-set_tests_properties(INSPECTOR_TEST_Trush_format_upgrade PROPERTIES ENVIRONMENT "QT_HASH_SEED=0")
 
 add_inspector_compile_test(Trush_filter_guess_csv LINKS ${LINK_LIBRARIES} FILES filter_guess_csv.cpp)
 add_inspector_test(Trush_filter_guess_csv_correct Trush_filter_guess_csv 4 "," "\"" ${PVRUSH_TEST_FILES}/csv/tiny.csv)
@@ -263,14 +261,14 @@ add_inspector_test(Trush_logstats Trush_logstats)
 #)
 
 # OPC-UA
-find_package(Qt5OpcUa REQUIRED)
-include_directories(SYSTEM ${Qt5OpcUa_INCLUDE_DIRS})
+find_package(Qt6OpcUa REQUIRED)
+include_directories(SYSTEM ${Qt6OpcUa_INCLUDE_DIRS})
 
-find_package(Qt5Network REQUIRED)
-include_directories(SYSTEM ${Qt5Network_INCLUDE_DIRS})
+find_package(Qt6Network REQUIRED)
+include_directories(SYSTEM ${Qt6Network_INCLUDE_DIRS})
 
-find_package(open62541 REQUIRED)
-include_directories(SYSTEM ${open62541_INCLUDE_DIRS})
+#find_package(open62541 REQUIRED)
+#include_directories(SYSTEM ${open62541_INCLUDE_DIRS})
 
 set(OPCUA_SRC_FILES
 ../../plugins/common/opcua/PVOpcUaTreeItem.cpp
@@ -279,5 +277,5 @@ set(OPCUA_SRC_FILES
 ../../plugins/common/opcua/PVOpcUaInfos.cpp
 ../../plugins/common/opcua/PVOpcUaQuery.cpp
 )
-add_inspector_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt5Network Qt5OpcUa open62541 ssl crypto FILES opcua.cpp ${OPCUA_SRC_FILES})
+add_inspector_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt6Network Qt6OpcUa open62541 ssl crypto FILES opcua.cpp ${OPCUA_SRC_FILES})
 #add_inspector_test(Topcua Topcua)

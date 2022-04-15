@@ -50,7 +50,7 @@ converter_substitution/register.cpp
 )
 
 # Generate Qt files
-QT5_WRAP_CPP(Substitution_MOC_SRCS ${Substitution_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(Substitution_MOC_SRCS ${Substitution_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_converter_substitution SHARED ${SUBSTITUTION_SRCS} ${Substitution_MOC_SRCS})
@@ -75,7 +75,7 @@ converter_struct/register.cpp
 )
 
 # Generate Qt files
-QT5_WRAP_CPP(Struct_MOC_SRCS ${Struct_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(Struct_MOC_SRCS ${Struct_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_converter_struct SHARED ${STRUCT_SRCS} ${Struct_MOC_SRCS})
@@ -100,7 +100,7 @@ splitter_csv/register.cpp
 	)
 
 # Generate Qt files
-QT5_WRAP_CPP(CSV_MOC_SRCS ${CSV_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(CSV_MOC_SRCS ${CSV_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_csv SHARED ${CSV_SRC} ${CSV_MOC_SRCS})
@@ -123,7 +123,7 @@ splitter_regexp/register.cpp
 )
 
 # Genrate Qt files
-QT5_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_regexp SHARED ${REGEX_SRC} ${REGEXP_MOC_SRCS})
@@ -161,7 +161,7 @@ splitter_key_value/register.cpp
 )
 
 # Generate Qt files
-QT5_WRAP_CPP(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_key_value SHARED ${KEYVALUE_SRCS} ${KEYVALUE_MOC_SRCS})
@@ -184,7 +184,7 @@ splitter_ip/register.cpp
 )
 
 # Generate Qt files
-QT5_WRAP_CPP(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_ip SHARED ${IP_SRC} ${SPLITTERIP_MOC_SRCS})
@@ -207,7 +207,7 @@ splitter_duplicate/register.cpp
 )
 
 # Generate Qt files
-QT5_WRAP_CPP(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_duplicate SHARED ${DUPLICATE_SRC} ${DUPLICATE_MOC_SRCS})
@@ -230,7 +230,7 @@ splitter_mac_address/register.cpp
 )
 
 #Generate Qt files
-QT5_WRAP_CPP(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_mac_address SHARED ${MACADDRESS_SRC} ${MACADDRESS_MOC_SRCS})
@@ -253,7 +253,7 @@ splitter_dns_fqdn/register.cpp
 )
 
 # Generate Qt files
-QT5_WRAP_CPP(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_dns_fqdn SHARED ${DNSFQDN_SRC} ${DNSFQDN_MOC_SRCS})
@@ -276,7 +276,7 @@ splitter_length/register.cpp
 )
 
 # Generate Qt files
-QT5_WRAP_CPP(LENGTH_MOC_SRCS ${LENGTH_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(LENGTH_MOC_SRCS ${LENGTH_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Create lib
 add_library(normalize_filter_splitter_length SHARED ${LENGTH_SRC} ${LENGTH_MOC_SRCS})

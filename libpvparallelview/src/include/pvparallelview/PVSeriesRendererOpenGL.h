@@ -27,7 +27,7 @@
 
 #include <pvparallelview/PVSeriesAbstractRenderer.h>
 
-#include <QOpenGLWidget>
+#include <QtOpenGLWidgets/QOpenGLWidget>
 #include <QOpenGLExtraFunctions>
 #include <QOpenGLVertexArrayObject>
 #include <QOpenGLBuffer>

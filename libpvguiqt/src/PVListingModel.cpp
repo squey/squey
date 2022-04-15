@@ -194,9 +194,9 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 	// Define header alignment
 	case (Qt::TextAlignmentRole):
 		if (orientation == Qt::Horizontal) {
-			return (Qt::AlignLeft + Qt::AlignTop);
+			return QVariant(Qt::AlignLeft | Qt::AlignTop);
 		} else {
-			return (Qt::AlignRight + Qt::AlignVCenter);
+			return QVariant(Qt::AlignRight | Qt::AlignVCenter);
 		}
 		break;
 	// Define tooltip text

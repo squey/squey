@@ -41,7 +41,6 @@
 #include <QMessageBox>
 #include <QPushButton>
 #include <QScrollArea>
-#include <QDesktopWidget>
 #include <QOpcUaClient>
 #include <QOpcUaProvider>
 #include <QOpcUaPkiConfiguration>

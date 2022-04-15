@@ -44,7 +44,6 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 
   public:
 	PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss);
-	virtual ~PVSeriesRendererOffscreen();
 
 	static bool capability();
 

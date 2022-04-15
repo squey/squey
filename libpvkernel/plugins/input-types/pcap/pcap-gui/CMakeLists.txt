@@ -4,16 +4,16 @@
 
 project(pcap-gui-widget)
 
-find_package(Qt5Core REQUIRED)
-include_directories(${Qt5Core_INCLUDE_DIRS})
+find_package(Qt6Core REQUIRED)
+include_directories(${Qt6Core_INCLUDE_DIRS})
 
-find_package(Qt5Widgets REQUIRED)
-include_directories(${Qt5Widgets_INCLUDE_DIRS})
+find_package(Qt6Widgets REQUIRED)
+include_directories(${Qt6Widgets_INCLUDE_DIRS})
 
-find_package(Qt5Gui REQUIRED)
-include_directories(${Qt5Gui_INCLUDE_DIRS})
+find_package(Qt6Gui REQUIRED)
+include_directories(${Qt6Gui_INCLUDE_DIRS})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
 include_directories("${CMAKE_SOURCE_DIR}/libpvpcap/include/")
 #include_directories(AFTER ${pcap-gui-widget_SOURCE_DIR}/src)
@@ -21,7 +21,7 @@ include_directories("${CMAKE_SOURCE_DIR}/libpvpcap/include/")
 # Add the binary dir as ui file we be generated there
 include_directories(AFTER ${pcap-gui-widget_BINARY_DIR}/)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 #SET(PCAP_GUI_QRC resources.qrc )
 
@@ -69,19 +69,19 @@ SET(PCAP_GUI_UI
     profile-ui/forms/OptionWidget.ui
 )
 
-QT5_WRAP_UI(UI_SRC ${PCAP_GUI_UI})
-QT5_WRAP_CPP(MOC_SRC ${PCAP_GUI_MOC_HEADER} OPTIONS ${QT5_WRAP_OPTIONS})
-#QT5_ADD_RESOURCES(QRC_FILES_SRCS ${PCAP_GUI_QRC})
+QT6_WRAP_UI(UI_SRC ${PCAP_GUI_UI})
+QT6_WRAP_CPP(MOC_SRC ${PCAP_GUI_MOC_HEADER} OPTIONS ${QT6_WRAP_OPTIONS})
+#QT6_ADD_RESOURCES(QRC_FILES_SRCS ${PCAP_GUI_QRC})
 
 #add_executable(pcapsicum-gui ${PCAP_GUI_SRC} ${MOC_SRC} ${QRC_FILES_SRCS})
-#target_link_libraries(pcapsicum-gui Qt5Widgets Qt5Gui Qt5Core pcapsicum)
+#target_link_libraries(pcapsicum-gui Qt6Widgets Qt6Gui Qt6Core pcapsicum)
 
 # Set rpath
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${PVKERNEL_PLUGIN}/input-types/")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_library(pcap-gui-widget SHARED ${PCAP_GUI_SRC} ${UI_SRC} ${MOC_SRC}) # ${QRC_FILES_SRCS})
-target_link_libraries(pcap-gui-widget Qt5Widgets Qt5Gui Qt5Core pvpcap)
+target_link_libraries(pcap-gui-widget Qt6Widgets Qt6Gui Qt6Core pvpcap)
 
 #INSTALL(TARGETS pcapsicum-gui DESTINATION bin)
 #INSTALL(FILES ${CMAKE_SOURCE_DIR}/pcapsicum-gui/config.ini DESTINATION bin)

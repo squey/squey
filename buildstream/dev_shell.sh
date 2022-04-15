@@ -2,6 +2,8 @@
 
 set -e
 
+xhost +
+
 source .common.sh
 scripts/cuda-devices &> /dev/null || true
 

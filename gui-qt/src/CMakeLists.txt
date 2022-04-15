@@ -68,8 +68,8 @@ inendi-inspector_resource.qrc
 # Generate extra QT files (moc, uic, rcc)
 ################################################
 
-QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+QT6_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
 
 ################################################
 # Handle licences for inendi-inspector
@@ -78,9 +78,9 @@ QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
 add_executable(inendi-inspector ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 
 set_property(TARGET inendi-inspector APPEND PROPERTY LINK_FLAGS)
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Widgets_EXECUTABLE_COMPILE_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
-set(PV_QT_LIBS Qt5Core Qt5Widgets Qt5Network Qt5Xml Qt5Widgets)
+set(PV_QT_LIBS Qt6Core Qt6Widgets Qt6Network Qt6Xml Qt6Widgets)
 
 target_link_libraries(inendi-inspector ssl ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
     pvguiqt pvparallelview inendi pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY}

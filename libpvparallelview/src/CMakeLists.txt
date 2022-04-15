@@ -140,13 +140,13 @@ include/pvparallelview/PVSeriesTreeWidget.h
 # Generate extra QT files (moc, uic, rcc)
 ################################################
 
-QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 ################################################
 # Declare the new library and linkage options
 ################################################
 
-set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5OpenGL)
+set(QT6_LIBS Qt6Core Qt6Gui Qt6Widgets Qt6Xml Qt6OpenGL Qt6OpenGLWidgets)
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h

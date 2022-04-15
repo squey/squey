@@ -251,17 +251,17 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	/* set the screenshot shortcuts as global shortcuts
 	 */
 	QShortcut* sc;
-	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_P), &pv_mw);
+	sc = new QShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
 	                 &PVInspector::PVMainWindow::get_screenshot_widget);
 
-	sc = new QShortcut(QKeySequence(Qt::SHIFT + Qt::Key_P), &pv_mw);
+	sc = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
 	                 &PVInspector::PVMainWindow::get_screenshot_window);
 
-	sc = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_P), &pv_mw);
+	sc = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
 	                 &PVInspector::PVMainWindow::get_screenshot_desktop);
