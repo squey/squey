@@ -1,5 +1,6 @@
 # About
 
+![](inspector_screenshot.png)
 
 ## What is INENDI Inspector?
 
