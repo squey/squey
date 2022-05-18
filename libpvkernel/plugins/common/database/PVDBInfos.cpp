@@ -87,7 +87,9 @@ bool PVRush::PVDBServ::connect()
 	_db.setPassword(_password);
 	_db.setPort(_port);
 	_db.setDatabaseName(_dbname);
-	_db.setConnectOptions(_options);
+	if (_type == "QPSQL") {
+		_db.setConnectOptions("requiressl=1");
+	}
 	bool ret = _db.open();
 	if (ret) {
 		PVLOG_DEBUG("Connection successful.\n");

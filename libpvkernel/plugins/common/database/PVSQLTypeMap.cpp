@@ -25,11 +25,15 @@
 
 #include "PVSQLTypeMap.h"
 #include "mysql_types.h"
+#include "postgresql_types.h"
 
 PVRush::PVSQLTypeMap_p PVRush::PVSQLTypeMap::get_map(QString const& driver)
 {
 	if (driver == "QMYSQL") {
 		return p_type(new PVSQLTypeMapMysql());
+	}
+	if (driver == "QPSQL") {
+		return p_type(new PVSQLTypeMapPostgres());
 	}
 	if (driver == "QSQLITE") {
 		return p_type(new PVSQLTypeMapSQLite());
@@ -129,5 +133,76 @@ QString PVRush::PVSQLTypeMapMysql::map_inendi(int type) const
 		return "string";
 	};
 
+	return "string";
+}
+
+QString PVRush::PVSQLTypeMapPostgres::map(int type) const
+{
+	switch (type) {
+	case QBOOLOID:
+		return "bool";
+    case QINT2OID:
+    case QINT4OID:
+	case QINT8OID:
+    case QOIDOID:
+    case QREGPROCOID:
+    case QXIDOID:
+    case QCIDOID:
+		return "integer";
+	case QNUMERICOID:
+    case QFLOAT4OID:
+    case QFLOAT8OID:
+		return "double";
+	case QABSTIMEOID:
+    case QRELTIMEOID:
+    case QDATEOID:
+		return "date";
+	case QTIMEOID:
+    case QTIMETZOID:
+		return "time";
+	case QTIMESTAMPOID:
+    case QTIMESTAMPTZOID:
+		return "datetime";
+	case QBYTEAOID:
+		return "bytearray";
+	}
+	return "unknown";
+}
+
+QString PVRush::PVSQLTypeMapPostgres::map_inendi(int type) const
+{
+	switch (type) {
+	case QBOOLOID:
+		return "string";
+    case QINT2OID:
+		return "number_int16";
+	case QINT4OID:
+	case QOIDOID:
+	case QREGPROCOID:
+	case QXIDOID:
+	case QCIDOID:
+		return "number_int32";
+	case QINT8OID:
+		return "number_int64";
+	case QNUMERICOID:
+    case QFLOAT4OID:
+		return "number_float";
+    case QFLOAT8OID:
+		return "number_double";
+
+	// TODO : dates must be propely supported
+	case QABSTIMEOID:
+    case QRELTIMEOID:
+    case QDATEOID:
+		return "string";
+	case QTIMEOID:
+    case QTIMETZOID:
+		return "string";
+	case QTIMESTAMPOID:
+    case QTIMESTAMPTZOID:
+		return "string";
+	case QBYTEAOID:
+		return "string";
+	}
 	return "string";
 }

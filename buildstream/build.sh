@@ -109,15 +109,15 @@ if [ "$EXPORT_BUILD" = true ]; then
     flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
   fi
 
-  # Export flatpak Debug image
-  rm -rf $DIR/build
-  bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.Debug.bst
-  bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.Debug.bst "$DIR/build"
-  if [[ ! -z "$GPG_SIGN_KEY" ]]; then
-    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-  else
-    flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-  fi
+  ## Export flatpak Debug image
+  #rm -rf $DIR/build
+  #bst $BUILD_OPTIONS build flatpak/org.inendi.Inspector.Debug.bst
+  #bst $BUILD_OPTIONS checkout flatpak/org.inendi.Inspector.Debug.bst "$DIR/build"
+  #if [[ ! -z "$GPG_SIGN_KEY" ]]; then
+  #  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  #else
+  #  flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  #fi
 fi
 
 # Push artifacts

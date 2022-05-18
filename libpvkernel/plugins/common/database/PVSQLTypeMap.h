@@ -57,6 +57,13 @@ class PVSQLTypeMapMysql : public PVSQLTypeMap
 	QString map_inendi(int type) const;
 };
 
+class PVSQLTypeMapPostgres : public PVSQLTypeMap
+{
+  public:
+	QString map(int type) const;
+	QString map_inendi(int type) const;
+};
+
 class PVSQLTypeMapODBC : public PVSQLTypeMap
 {
   public:

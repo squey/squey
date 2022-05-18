@@ -479,6 +479,6 @@ void PVRush::PVDatabaseParamsWidget::update_tables_list()
 		return;
 	}
 
-	QStringList tables = srv->to_database().tables();
+	QStringList tables = srv->to_database().tables(QSql::AllTables);
 	_tables_list->addItems(tables);
 }
