@@ -20,4 +20,5 @@ config:
     Icon=com.gitlab.inendi.Inspector
     Categories=Graphics;Network;
     EOF
-    install -D -m 0644 -t "%{install-root}/export/share/applications" com.gitlab.inendi.Inspector.desktop
+    install -D -m 0644 "com.gitlab.inendi.Inspector.desktop" -t "%{install-root}/export/share/applications"
+  - install -D -m 0644 "com.gitlab.inendi.Inspector.metainfo.xml" -t "%{install-root}/app/share/metainfo"
