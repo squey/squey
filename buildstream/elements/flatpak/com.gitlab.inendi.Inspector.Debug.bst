@@ -9,7 +9,7 @@ config:
 
   metadata:
     Runtime:
-      name: org.inendi.Inspector.Debug
+      name: com.gitlab.inendi.Inspector.Debug
 
     ExtensionOf:
-      ref: org.inendi.Inspector/%{gcc_arch}/%{branch}
+      ref: com.gitlab.inendi.Inspector/%{gcc_arch}/%{branch}

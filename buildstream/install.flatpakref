@@ -1,5 +1,5 @@
 [Flatpak Ref]
-Name=org.inendi.Inspector
+Name=com.gitlab.inendi.Inspector
 Branch=main
 Title=INENDI Inspector
 Url=https://inendi.gitlab.io/inspector/flatpak/

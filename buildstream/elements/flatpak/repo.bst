@@ -5,9 +5,9 @@ depends:
   junction: freedesktop-sdk.bst
   type: build
 
-- filename: flatpak/org.inendi.Inspector.bst
+- filename: flatpak/com.gitlab.inendi.Inspector.bst
   type: build
-- filename: flatpak/org.inendi.Inspector.Debug.bst
+- filename: flatpak/com.gitlab.inendi.Inspector.Debug.bst
   type: build
 
 config:
