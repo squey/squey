@@ -27,8 +27,8 @@ flatpak install --user -y https://inendi.gitlab.io/inspector/install.flatpakref
 
 Running the software :
 * from the desktop environment : Simply click on the "INENDI Inspector" shortcut
-* from CLI locally : ```flatpak run org.inendi.Inspector```
-* from CLI on a remote machine with SSH export display : ```flatpak run --command=bash org.inendi.Inspector -c "DISPLAY=$DISPLAY inspector_launcher.sh"```
+* from CLI locally : ```flatpak run com.gitlab.inendi.Inspector```
+* from CLI on a remote machine with SSH export display : ```flatpak run --command=bash com.gitlab.inendi.Inspector -c "DISPLAY=$DISPLAY inspector_launcher.sh"```
 
 ### Windows
 
