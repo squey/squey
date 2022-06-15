@@ -77,6 +77,9 @@ fi
 INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/src/include/pvkernel/core/PVCrashReporterToken.h"
 sed -e "s|\(INSPECTOR_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$INSPECTOR_CRASH_REPORTER_TOKEN\"|" -i "$INSPECTOR_CRASH_REPORTER_TOKEN_FILE"
 
+# Fill-in release and date
+jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" files/com.gitlab.inendi.Inspector.metainfo.xml.j2 > files/com.gitlab.inendi.Inspector.metainfo.xml
+
 # Build INENDI Inspector
 BUILD_OPTIONS=""
 if [ $USER_TARGET_SPECIFIED = true ]; then
