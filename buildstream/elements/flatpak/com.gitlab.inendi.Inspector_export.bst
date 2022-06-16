@@ -10,7 +10,7 @@ build-depends:
 
 config:
   install-commands:
-  - install -D -m 0644 "com.gitlab.inendi.Inspector.png" -t "%{install-root}/export/share/icons/hicolor/64x64/apps/"
+  - install -D -m 0644 "com.gitlab.inendi.Inspector.png" -t "%{install-root}/export/share/icons/hicolor/128x128/apps/"
   - |
     cat <<EOF >com.gitlab.inendi.Inspector.desktop
     [Desktop Entry]
