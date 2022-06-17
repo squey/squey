@@ -10,7 +10,8 @@ build-depends:
 
 config:
   install-commands:
-  - install -D -m 0644 "com.gitlab.inendi.Inspector.png" -t "%{install-root}/app/share/app-info/icons/flatpak/128x128/"
+  - install -D -m 0644 "com.gitlab.inendi.Inspector.png" -t "%{install-root}/export/share/icons/hicolor/128x128/apps/"
+  - install -D -m 0644 "com.gitlab.inendi.Inspector.png" -t "%{install-root}/share/app-info/icons/flatpak/128x128/"
   - |
     cat <<EOF >com.gitlab.inendi.Inspector.desktop
     [Desktop Entry]
@@ -20,5 +21,6 @@ config:
     Icon=com.gitlab.inendi.Inspector
     Categories=Graphics;Network;
     EOF
+    install -D -m 0644 "com.gitlab.inendi.Inspector.desktop" -t "%{install-root}/export/share/applications"
     install -D -m 0644 "com.gitlab.inendi.Inspector.desktop" -t "%{install-root}/app/share/applications"
   - install -D -m 0644 "com.gitlab.inendi.Inspector.metainfo.xml" -t "%{install-root}/app/share/metainfo"
