@@ -21,8 +21,11 @@ It can be used for different purposes:
 
 Installing the software (as a user) :
 
+<a href='https://flathub.org/apps/details/com.gitlab.inendi.Inspector'><img width='190px' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
+
+
 ```
-flatpak install --user -y https://inendi.gitlab.io/inspector/install.flatpakref
+flatpak install --user -y https://dl.flathub.org/repo/appstream/com.gitlab.inendi.Inspector.flatpakref
 ```
 
 Running the software :
