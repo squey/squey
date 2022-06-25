@@ -36,7 +36,7 @@ Unicode true
 	!define DISPLAY_NAME "INENDI Inspector"
 	!define PRODUCT_NAME "inendi-inspector"
 	!define FLATPAK_PACKAGE_NAME "com.gitlab.inendi.Inspector"
-	!define FLATPAKREF_URL "https://inendi.gitlab.io/inspector/install.flatpakref"
+	!define FLATPAKREF_URL "https://dl.flathub.org/repo/appstream/com.gitlab.inendi.Inspector.flatpakref"
 
     !define INTERNAL_NAME "INENDI Inspector"
     !define NAME "Inspector"
