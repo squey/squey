@@ -210,13 +210,13 @@ Function InstallVcXsrv
 		Pop $1
 		Delete curl.exe
 
-		; Download installer
+		; Download VcXSrv installer
 		inetc::get "$1" "${VCXSRV_SETUP}"
 		Pop $R0
 		${If} $R0 != "OK"
 			MessageBox MB_OK "Download failed: $R0"
 			Delete "${VCXSRV_SETUP}"
-			Quit
+			Abort
 		${EndIf}
 		
 		CreateDirectory "$INSTDIR\VcXsrv"
@@ -238,7 +238,7 @@ Function InstallInspector
 	${If} $R0 != "OK"
 		MessageBox MB_OK "Download failed: $R0"
 		Delete "${LINUX_ARCHIVE}"
-		Quit
+		Abort
 	${EndIf}
 	CreateDirectory "$INSTDIR\wsl"
 	Rename ${LINUX_ARCHIVE} "wsl\${LINUX_ARCHIVE}"
@@ -315,17 +315,21 @@ Function .onInit
 	${WinVerGetBuild} $0
 	${IfNot} ${AtLeastWin10}
 	${OrIf} $0 < 19041
+		IfSilent +2
 		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL2 : $\r$\n > Windows 10 64 bits version 2004$\r$\n > Windows Server 2019"
-		Quit
+		SetErrorlevel 1000
+		Abort
 	${EndIf}
 
 	# Check if WSL needs to be enabled
 	nsExec::ExecToStack `$WINDIR\SysNative\wsl.exe --status`
 	Pop $0
 	${If} $0 != 0
-	MessageBox MB_OK|MB_ICONSTOP "Microsoft WSL2 feature is required to run this software."
-	ExecShell open "https://docs.microsoft.com/windows/wsl/install"
-	Quit
+		IfSilent +3
+		MessageBox MB_OK|MB_ICONSTOP "Microsoft WSL2 feature is required to run this software."
+		ExecShell open "https://docs.microsoft.com/windows/wsl/install"
+		SetErrorlevel 1001
+		Abort
 	${EndIf}
 
 	; Check if WSLg is available
@@ -336,11 +340,15 @@ Function .onInit
 	Strcpy $WSLG_VERSION $WSLG_VERSION -2 ; Remove carriage return
 	no_wslg:
 	${If} $WSLG_VERSION == ""
+		IfSilent cancel
 		MessageBox MB_YESNO|MB_ICONEXCLAMATION "Microsoft WSLg is not supported by your system.$\n$\nIt is recommended to install WSL2 from Microsoft Store to benefit from WSLg.$\n$\nDo you want to install WSL2 from Microsoft store ?" IDYES true IDNO false
 		true:
 			ExecShell open "https://aka.ms/wslstorepage"
 		false:
-			MessageBox MB_YESNO|MB_ICONINFORMATION "Do you want to use VcXSrv instead of WSLg ? " IDYES +2 IDNO no_wslg
+			MessageBox MB_YESNOCANCEL|MB_ICONINFORMATION "Do you want to use VcXSrv instead of WSLg ?" IDYES +2 IDNO no_wslg
+			cancel:
+			SetErrorlevel 1002
+			Abort
 	${Endif}
 
 FunctionEnd
@@ -378,6 +386,7 @@ Function un.onInit
 	SetShellVarContext all
  
 	; Ask for confirmation
+	IfSilent +3
 	MessageBox MB_OKCANCEL "Permanantly remove ${DISPLAY_NAME}?" IDOK +2
 		Abort
 FunctionEnd
@@ -409,6 +418,7 @@ SectionEnd
 Var CheckboxConfig
 
 Function un.CustomUninstallerPage
+	IfSilent skip_config_files_section
 	nsDialogs::Create 1018
 	Pop $0
 	
@@ -417,13 +427,16 @@ Function un.CustomUninstallerPage
 	${NSD_SetState} $CheckboxConfig ${BST_CHECKED}
 
 	nsDialogs::Show
+	skip_config_files_section:
 FunctionEnd
 
 Function un.LeaveCustomPage
 	SetRegView 64
+	IfSilent delete_config_files
 
 	${NSD_GetState} $CheckboxConfig $0
 	${If} $0 == ${BST_UNCHECKED}
+		delete_config_files:
 		nsExec::ExecToStack '$WINDIR\SysNative\cmd.exe /C echo %APPDATA%'
 		Pop $0
 		Pop $1
