@@ -19,7 +19,7 @@ config:
     Name=INENDI Inspector
     Exec=inspector_launcher.sh
     Icon=com.gitlab.inendi.Inspector
-    Categories=Graphics;Network;
+    Categories=Science,Graphics;Network;
     EOF
     install -D -m 0644 "com.gitlab.inendi.Inspector.desktop" -t "%{install-root}%{prefix}/share/applications"
   - install -D -m 0644 "com.gitlab.inendi.Inspector.metainfo.xml" -t "%{install-root}%{prefix}/share/metainfo"
