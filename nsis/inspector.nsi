@@ -201,27 +201,30 @@ Function InstallVcXsrv
 
 	SetOutPath "$INSTDIR"
 
-	; Get final installer URL from public latest-version installer URL (as 'inetc::get' doesn't handle redirections)
-	File "resources\curl.exe"
-	nsExec::ExecToStack "curl.exe --insecure ${VCXSRV_HTTP_LINK} -o NUL -s -L -I -w %{url_effective}"
-	Pop $0
-	Pop $1
-	Delete curl.exe
+	; Download and install VcXSrv if WSLg is not available
+	${If} $WSLG_VERSION == ""
+		; Get final installer URL from public latest-version installer URL (as 'inetc::get' doesn't handle redirections)
+		File "resources\curl.exe"
+		nsExec::ExecToStack "curl.exe --insecure ${VCXSRV_HTTP_LINK} -o NUL -s -L -I -w %{url_effective}"
+		Pop $0
+		Pop $1
+		Delete curl.exe
 
-	; Download installer
-	inetc::get "$1" "${VCXSRV_SETUP}"
-	Pop $R0
-	${If} $R0 != "OK"
-		MessageBox MB_OK "Download failed: $R0"
+		; Download installer
+		inetc::get "$1" "${VCXSRV_SETUP}"
+		Pop $R0
+		${If} $R0 != "OK"
+			MessageBox MB_OK "Download failed: $R0"
+			Delete "${VCXSRV_SETUP}"
+			Quit
+		${EndIf}
+		
+		CreateDirectory "$INSTDIR\VcXsrv"
+		Rename ${VCXSRV_SETUP} "VcXsrv\${VCXSRV_SETUP}"
+		nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C cd VcXsrv && ..\7z.exe -aoa x "${VCXSRV_SETUP}"'
+		
 		Delete "${VCXSRV_SETUP}"
-		Quit
 	${EndIf}
-	
-	CreateDirectory "$INSTDIR\VcXsrv"
-	Rename ${VCXSRV_SETUP} "VcXsrv\${VCXSRV_SETUP}"
-	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C cd VcXsrv && ..\7z.exe -aoa x "${VCXSRV_SETUP}"'
-	
-	Delete "${VCXSRV_SETUP}"
 		
 FunctionEnd
 
@@ -331,6 +334,14 @@ Function .onInit
 	Pop $0
 	Pop $WSLG_VERSION
 	Strcpy $WSLG_VERSION $WSLG_VERSION -2 ; Remove carriage return
+	no_wslg:
+	${If} $WSLG_VERSION == ""
+		MessageBox MB_YESNO|MB_ICONEXCLAMATION "Microsoft WSLg is not supported by your system.$\n$\nIt is recommended to install WSL2 from Microsoft Store to benefit from WSLg.$\n$\nDo you want to install WSL2 from Microsoft store ?" IDYES true IDNO false
+		true:
+			ExecShell open "https://aka.ms/wslstorepage"
+		false:
+			MessageBox MB_YESNO|MB_ICONINFORMATION "Do you want to use VcXSrv instead of WSLg ? " IDYES +2 IDNO no_wslg
+	${Endif}
 
 FunctionEnd
 
