@@ -135,7 +135,7 @@ Unicode true
 ;--------------------------------
 
 	; Request application privileges
-	RequestExecutionLevel admin
+	RequestExecutionLevel user
 
 	; Name and file
 	Name "${DISPLAY_NAME}"
@@ -143,10 +143,10 @@ Unicode true
 	SetCompressor /SOLID lzma
 
 	; Default installation folder
-	InstallDir "$PROGRAMFILES64\${NAME}"
+	InstallDir "$LocalAppData\Programs\${NAME}"
 
 	; Override installation folder from registry if available
-	InstallDirRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" ""
+	InstallDirRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" ""
 	
 	; Include logic instructions
 	!include LogicLib.nsh
@@ -245,10 +245,7 @@ Function InstallInspector
 	
 	; Install Linux for WSL
     DetailPrint "Preparing WSL..."
-	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --update'
 	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz --version 2'
-	ExecDos::exec '$WINDIR\SysNative\powershell.exe New-NetFirewallRule -DisplayName "WSL" -Direction Inbound  -InterfaceAlias "vEthernet (WSL)" -Action Allow'
-	AccessControl::GrantOnFile "$INSTDIR\linux" "(BU)" "FullAccess" ; Give builtin users full access to modify linux files
 	RMDir /r "$INSTDIR\wsl"
 	Delete "${LINUX_ARCHIVE}"
 	
@@ -285,23 +282,23 @@ Section
 	Call InstallInspector
 	
 	; Configure uninstaller
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "" "$INSTDIR"
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayName" "${DISPLAY_NAME}"
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "UninstallString" "$INSTDIR\uninstall.exe"
-	WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayIcon" "$INSTDIR\${PRODUCT_NAME}.ico"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "" "$INSTDIR"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayName" "${DISPLAY_NAME}"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "UninstallString" "$INSTDIR\uninstall.exe"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayIcon" "$INSTDIR\${PRODUCT_NAME}.ico"
 	WriteUninstaller "$INSTDIR\uninstall.exe"
 	
 SectionEnd
 
 Section "Start Menu Shortcut" SecStartMenuShortcut
 	; Create start menu shortcut
-	SetShellVarContext all
+	SetShellVarContext current
 	CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
 SectionEnd
 
 Section "Desktop Shortcut" SecDesktopShortcut
     ; Create desktop shortcut
-	SetShellVarContext all
+	SetShellVarContext current
 	CreateShortCut "$DESKTOP\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_inspector.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
 SectionEnd
 
@@ -318,58 +315,22 @@ Function .onInit
 		MessageBox MB_OK|MB_ICONEXCLAMATION "Your OS needs to be one of the following (or newer) to support WSL2 : $\r$\n > Windows 10 64 bits version 2004$\r$\n > Windows Server 2019"
 		Quit
 	${EndIf}
-	
+
 	# Check if WSL needs to be enabled
-	var /GLOBAL WSLStatus
-	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux | Out-String -Stream | Select-String -Pattern 'State.* : (.*)' | % { $$($$_.matches.groups[1].value) }"`
+	nsExec::ExecToStack `$WINDIR\SysNative\wsl.exe --status`
 	Pop $0
-	Pop $WSLStatus
-	Strcpy $WSLStatus $WSLStatus -2 ; Remove carriage return
-
-	# Check if VirtualMachinePlatform needs to be enabled
-	var /GLOBAL VirtualMachinePlatformStatus
-	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "Get-WindowsOptionalFeature -Online -FeatureName VirtualMachinePlatform | Out-String -Stream | Select-String -Pattern 'State.* : (.*)' | % { $$($$_.matches.groups[1].value) }"`
-	Pop $0
-	Pop $VirtualMachinePlatformStatus
-	Strcpy $VirtualMachinePlatformStatus $VirtualMachinePlatformStatus -2 ; Remove carriage return
-	
-	; Enable WSL and/or VirtualMachinePlatform if needed
-	${If} $WSLStatus == "Disabled"
-	${OrIf} $VirtualMachinePlatformStatus == "Disabled"
-		MessageBox MB_OKCANCEL|MB_ICONINFORMATION "Windows Subsystem for Linux (WSL2) and Microsoft Virtual Machine Platform needs to be enabled in order to continue." IDOK ok IDCANCEL cancel
-		ok:
-			ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:Microsoft-Windows-Subsystem-Linux /NoRestart /Quiet'
-			Pop $0
-			ExecDos::exec '$WINDIR\SysNative\cmd.exe /C dism.exe /Online /Enable-Feature /All /FeatureName:VirtualMachinePlatform            /NoRestart /Quiet'
-			Pop $1
-			${If} $0 != 3010
-			${AndIf} $0 != 0
-			; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
-				MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling WSL2 failed. Aborting."
-				Quit
-			${EndIf}
-			${If} $1 != 3010
-			${AndIf} $1 != 0
-			; 3010=ERROR_SUCCESS_REBOOT_REQUIRED (The requested operation is successful. Changes will not be effective until the system is rebooted.)
-				MessageBox MB_OK|MB_ICONEXCLAMATION  "Enabling Microsoft Virtual Machine Platform failed. Aborting."
-				Quit
-			${EndIf}
-
-			; Automatically setup installer to autostart once after reboot
-			WriteRegStr "HKLM" "SOFTWARE\Microsoft\Windows\CurrentVersion\RunOnce" "${NAME}" "$EXEPATH"
-
-			; Ask user for a reboot
-			${If} $0 == 3010
-			${OrIf} $1 == 3010
-				MessageBox MB_YESNO|MB_ICONQUESTION "Rebooting the system is necessary to finish enabling WSL2.$\r$\nDo you wish to reboot the system now?" IDYES yes IDNO no
-				yes:
-					Reboot
-				no:
-					Quit
-			${EndIf}
-		cancel:
-			Quit
+	${If} $0 != 0
+	MessageBox MB_OK|MB_ICONSTOP "Microsoft WSL2 feature is required to run this software."
+	ExecShell open "https://docs.microsoft.com/windows/wsl/install"
+	Quit
 	${EndIf}
+
+	; Check if WSLg is available
+	var /GLOBAL WSLG_VERSION
+	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "[Console]::OutputEncoding = [System.Text.Encoding]::Unicode;  wsl -v | Select-String 'WSLg : (.*)' | % { $$($$_.matches.groups[1].value) }"`
+	Pop $0
+	Pop $WSLG_VERSION
+	Strcpy $WSLG_VERSION $WSLG_VERSION -2 ; Remove carriage return
 
 FunctionEnd
 
@@ -430,7 +391,7 @@ Section "un.Uninstaller Section"
 	Delete "$DESKTOP\${DISPLAY_NAME}.lnk"
 
     ; Delete registry key
-	DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}"
+	DeleteRegKey HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}"
 
 SectionEnd
 
