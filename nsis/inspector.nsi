@@ -49,8 +49,8 @@ Unicode true
 	!define VCXSRV_SETUP "vcxsrv_installer.exe"
 	
 	; Linux
-	!define LINUX_HTTP_LINK "https://aka.ms/wsl-debian-gnulinux"
-	!define LINUX_ARCHIVE "wsl.zip"
+	!define ALPINE_LINUX_LATEST_STABLE_URL "https://dl-cdn.alpinelinux.org/alpine/latest-stable/releases/x86_64"
+	!define ALPINE_LINUX_LATEST_RELEASES_FILENAME "latest-releases.yaml"
 	!define WSL_DISTRO_NAME "inspector_linux"
 	
 	!define StrRep "!insertmacro StrRep"
@@ -204,11 +204,9 @@ Function InstallVcXsrv
 	; Download and install VcXSrv if WSLg is not available
 	${If} $WSLG_VERSION == ""
 		; Get final installer URL from public latest-version installer URL (as 'inetc::get' doesn't handle redirections)
-		File "resources\curl.exe"
 		nsExec::ExecToStack "curl.exe --insecure ${VCXSRV_HTTP_LINK} -o NUL -s -L -I -w %{url_effective}"
 		Pop $0
 		Pop $1
-		Delete curl.exe
 
 		; Download VcXSrv installer
 		inetc::get "$1" "${VCXSRV_SETUP}"
@@ -222,6 +220,8 @@ Function InstallVcXsrv
 		CreateDirectory "$INSTDIR\VcXsrv"
 		Rename ${VCXSRV_SETUP} "VcXsrv\${VCXSRV_SETUP}"
 		nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C cd VcXsrv && ..\7z.exe -aoa x "${VCXSRV_SETUP}"'
+		Delete 7z.exe
+		Delete 7z.dll
 		
 		Delete "${VCXSRV_SETUP}"
 	${EndIf}
@@ -232,34 +232,34 @@ FunctionEnd
 ;        Inspector
 ;--------------------------------
 Function InstallInspector
-    ; Download Linux for WSL
-	inetc::get "${LINUX_HTTP_LINK}" "${LINUX_ARCHIVE}"
+    ; Download Alpine Linux for WSL
+	var /GLOBAL ALPINE_LINUX_FILENAME
+	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command .\curl.exe -s -k ${ALPINE_LINUX_LATEST_STABLE_URL}/${ALPINE_LINUX_LATEST_RELEASES_FILENAME} | .\yq.exe -M '.[] | select(.title == \"\"\"Mini root filesystem\"\"\") .file'`
+	Pop $0
+	Pop $ALPINE_LINUX_FILENAME
+	Strcpy $ALPINE_LINUX_FILENAME $ALPINE_LINUX_FILENAME -1 ; Remove LF
+	inetc::get "${ALPINE_LINUX_LATEST_STABLE_URL}/$ALPINE_LINUX_FILENAME" "$ALPINE_LINUX_FILENAME"
 	Pop $R0
 	${If} $R0 != "OK"
 		MessageBox MB_OK "Download failed: $R0"
-		Delete "${LINUX_ARCHIVE}"
+		Delete "$ALPINE_LINUX_FILENAME"
 		Abort
 	${EndIf}
-	CreateDirectory "$INSTDIR\wsl"
-	Rename ${LINUX_ARCHIVE} "wsl\${LINUX_ARCHIVE}"
-	nsExec::ExecToLog '$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "cd wsl; Expand-Archive -F wsl.zip; cd wsl ; move DistroLauncher-Appx_*_x64.appx wsl.zip ; Expand-Archive -F wsl.zip'
-	Delete "7z.exe"
-	Delete "7z.dll"
-	
+	Delete yq.exe
+
 	; Install Linux for WSL
     DetailPrint "Preparing WSL..."
-	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --import ${WSL_DISTRO_NAME} linux wsl\wsl\wsl\install.tar.gz --version 2'
-	RMDir /r "$INSTDIR\wsl"
-	Delete "${LINUX_ARCHIVE}"
+	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --import ${WSL_DISTRO_NAME} linux $ALPINE_LINUX_FILENAME --version 2'
+	Delete "$ALPINE_LINUX_FILENAME"
 	
 	; Install Inspector
 	DetailPrint "Installing Inspector..."
 	nsExec::ExecToStack '$WINDIR\SysNative\cmd.exe /C wsl wslpath -a "$INSTDIR"'
 	Pop $0
 	Pop $1
-	Strcpy $1 $1 -1 ; Remove carriage return in the end
+	Strcpy $1 $1 -1 ; Remove CRLF in the end
 	${StrRep} "$1" "$1" " " "\ " ; Escape spaces
-	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --user root -d inspector_linux --exec bash -c "$1/install_inspector.sh ${FLATPAKREF_URL}"'
+	nsExec::ExecToLog '$WINDIR\SysNative\cmd.exe /C wsl --user root -d inspector_linux --exec sh -c "$1/install_inspector.sh ${FLATPAKREF_URL}"'
 	Delete "install_inspector.sh"
 FunctionEnd
 
@@ -271,13 +271,14 @@ Section
 	AddSize 2537554
 
     SetOutPath "$INSTDIR"
+	File "resources\curl.exe"
 	File "resources\7z.exe"
 	File "resources\7z.dll"
+	File "resources\yq.exe"
 	File "resources\install_inspector.sh"
 	File "resources\setup_config_dir.sh"
 	File "resources\run_inspector.cmd"
-	File "resources\update_wsl.sh"
-	File "resources\update_inspector.sh"
+	File "resources\update.sh"
 	File "resources\hideexec.exe" ; http://code.kliu.org/misc/hideexec/
 	File "resources\${PRODUCT_NAME}.ico"
 	
@@ -337,7 +338,7 @@ Function .onInit
 	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "[Console]::OutputEncoding = [System.Text.Encoding]::Unicode;  wsl -v | Select-String 'WSLg : (.*)' | % { $$($$_.matches.groups[1].value) }"`
 	Pop $0
 	Pop $WSLG_VERSION
-	Strcpy $WSLG_VERSION $WSLG_VERSION -2 ; Remove carriage return
+	Strcpy $WSLG_VERSION $WSLG_VERSION -2 ; Remove CRLF
 	no_wslg:
 	${If} $WSLG_VERSION == ""
 		IfSilent cancel
@@ -440,7 +441,7 @@ Function un.LeaveCustomPage
 		nsExec::ExecToStack '$WINDIR\SysNative\cmd.exe /C echo %APPDATA%'
 		Pop $0
 		Pop $1
-		Strcpy $1 $1 -2 ; Remove carriage return
+		Strcpy $1 $1 -2 ; Remove CRLF
 		RMDir /r "$1\Inspector"
 	${EndIf}
 

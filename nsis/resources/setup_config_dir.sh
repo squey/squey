@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 if [ $# -ne 1 ]; then
 	echo "usage : `basename $0` <appdata_path_linux>"
