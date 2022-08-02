@@ -268,7 +268,7 @@ FunctionEnd
 ;--------------------------------
 Section
 	SetRegView 64
-	AddSize 2537554
+	AddSize 2529285
 
     SetOutPath "$INSTDIR"
 	File "resources\curl.exe"
