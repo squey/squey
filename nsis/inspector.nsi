@@ -153,6 +153,7 @@ Unicode true
 	!include nsDialogs.nsh
     !include x64.nsh
 	!include WinVer.nsh
+	!include "FileFunc.nsh"
 	
 ;--------------------------------
 ;       Interface Settings
@@ -194,6 +195,18 @@ Unicode true
  
   !insertmacro MUI_LANGUAGE "English"
   
+
+;--------------------------------
+;        ConfigureUninstaller
+;--------------------------------
+Function ConfigureUninstaller
+   	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "" "$INSTDIR"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayName" "${DISPLAY_NAME}"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "UninstallString" "$INSTDIR\uninstall.exe"
+	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayIcon" "$INSTDIR\${PRODUCT_NAME}.ico"
+	WriteUninstaller "$INSTDIR\uninstall.exe"
+FunctionEnd
+  
 ;--------------------------------
 ;        VcXsrv
 ;--------------------------------
@@ -232,6 +245,16 @@ FunctionEnd
 ;        Inspector
 ;--------------------------------
 Function InstallInspector
+	; Extract files
+	File "resources\7z.exe"
+	File "resources\7z.dll"
+	File "resources\yq.exe"
+	File "resources\install_inspector.sh"
+	File "resources\setup_config_dir.sh"
+	File "resources\run_inspector.cmd"
+	File "resources\update.sh"
+	File "resources\hideexec.exe" ; http://code.kliu.org/misc/hideexec/
+
     ; Download Alpine Linux for WSL
 	var /GLOBAL ALPINE_LINUX_FILENAME
 	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command .\curl.exe -s -k ${ALPINE_LINUX_LATEST_STABLE_URL}/${ALPINE_LINUX_LATEST_RELEASES_FILENAME} | .\yq.exe -M '.[] | select(.title == \"\"\"Mini root filesystem\"\"\") .file'`
@@ -269,29 +292,10 @@ FunctionEnd
 Section
 	SetRegView 64
 	AddSize 2529285
-
-    SetOutPath "$INSTDIR"
-	File "resources\curl.exe"
-	File "resources\7z.exe"
-	File "resources\7z.dll"
-	File "resources\yq.exe"
-	File "resources\install_inspector.sh"
-	File "resources\setup_config_dir.sh"
-	File "resources\run_inspector.cmd"
-	File "resources\update.sh"
-	File "resources\hideexec.exe" ; http://code.kliu.org/misc/hideexec/
-	File "resources\${PRODUCT_NAME}.ico"
 	
+	Call ConfigureUninstaller
 	Call InstallVcXsrv
 	Call InstallInspector
-	
-	; Configure uninstaller
-	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "" "$INSTDIR"
-	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayName" "${DISPLAY_NAME}"
-	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "UninstallString" "$INSTDIR\uninstall.exe"
-	WriteRegStr HKCU "Software\Microsoft\Windows\CurrentVersion\Uninstall\${INTERNAL_NAME}" "DisplayIcon" "$INSTDIR\${PRODUCT_NAME}.ico"
-	WriteUninstaller "$INSTDIR\uninstall.exe"
-	
 SectionEnd
 
 Section "Start Menu Shortcut" SecStartMenuShortcut
@@ -311,6 +315,24 @@ SectionEnd
 ;--------------------------------
 Function .onInit
 	SetRegView 64
+	
+	SetOutPath "$INSTDIR"
+
+	File "resources\${PRODUCT_NAME}.ico"
+
+	; Copy installer and exit if installing from Microsoft Store
+   	${GetParameters} $R0
+	${If} $R0 == "/S /N"
+		; Copy installer
+		CopyFiles "$ExePath" "$InstDir\"
+
+		; Create shortcut to installer
+		SetShellVarContext current
+		CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$InstDir\$ExeFile" "$INSTDIR\${PRODUCT_NAME}.ico"
+		Quit
+	${EndIf}
+
+	File "resources\curl.exe"
 
 	; Check windows version
 	${WinVerGetBuild} $0
@@ -401,11 +423,12 @@ Section "un.Uninstaller Section"
 	KillProcDLL::KillProc "inendi-inspector"
 	
 	; Unregister WSL distro
-	ExecDos::exec 'wsl --unregister "${WSL_DISTRO_NAME}"'
+	ExecDos::exec 'wsl --unregister ${WSL_DISTRO_NAME}'
 	
     ; Remove installation directory
+	SetOutPath $TEMP ; Because we cannot remove current working directory
     RMDir /r "$INSTDIR"
-	ExecDos::exec 'rmdir /S /Q "$INSTDIR"'
+	ExecDos::exec 'rmdir /S /Q $INSTDIR'
 	
 	; Remove start menu & desktop shortcuts
 	Delete "$SMPROGRAMS\${DISPLAY_NAME}.lnk"
