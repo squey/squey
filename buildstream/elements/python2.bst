@@ -53,7 +53,7 @@ sources:
   ref: d2b73d2d2607ec3f67bc10cef2d383008f95b835150d97cd00e55283d4afe360
   
 depends:
-- freedesktop-sdk.bst:bootstrap/openssl.bst
+- freedesktop-sdk.bst:components/openssl.bst
 - freedesktop-sdk.bst:bootstrap/xz.bst
 - freedesktop-sdk.bst:components/expat.bst
 - freedesktop-sdk.bst:components/gdbm.bst
