@@ -12,4 +12,4 @@ environment:
 
 depends:
 - base.bst
-- python2.bst
+- freedesktop-sdk.bst:components/python3.bst

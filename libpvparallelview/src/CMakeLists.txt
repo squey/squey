@@ -158,8 +158,9 @@ include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
 
 list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 
-set(LINK_LIBRARIES pvdisplays inendi pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES} KF5::ItemModels KF5::SyntaxHighlighting)
+set(LINK_LIBRARIES pvdisplays inendi pvkernel ${QT6_LIBS} ${OPENGL_LIBRARIES}
+	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES} 
+	${PVHWLOC_LIBRARIES} /app/lib/libKF5ItemModels.so)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)

@@ -27,7 +27,7 @@
 
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvhwloc.h>
 
 #include <inendi/PVSelection.h>
 #include <inendi/PVPlotted.h>
@@ -86,7 +86,7 @@ class PVZoneTree : public PVZoneTreeBase
 		friend class __impl::TBBMergeTreesTask;
 		friend class __impl::TBBComputeAllocSizeAndFirstElts;
 
-		explicit ProcessData(uint32_t n = PVCore::PVHardwareConcurrency::get_physical_core_number())
+		explicit ProcessData(uint32_t n = pvhwloc::core_count())
 		    : ntasks(n)
 		{
 			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t) * ntasks +

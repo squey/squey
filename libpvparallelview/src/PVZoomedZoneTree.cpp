@@ -27,7 +27,7 @@
 
 #include <omp.h>
 
-#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvhwloc.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVUtils.h>
 

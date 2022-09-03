@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvhwloc.h>
 #include <pvkernel/core/PVSelBitField.h> // for PVSelBitField, etc
 #include <pvkernel/core/PVSerializeObject.h>
 

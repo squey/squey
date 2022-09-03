@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvhwloc.h>
 #include <inendi/PVView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoneProcessing.h>
@@ -92,7 +92,7 @@ void PVParallelView::PVZonesManager::update_all(bool reinit_zones)
 
 	__impl::ZoneCreation zc;
 	zc._zm = this;
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	const size_t nthreads = pvhwloc::core_count();
 	tbb::task_scheduler_init init(nthreads);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, nzones, 8), zc);
 }
@@ -236,7 +236,7 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const&
  *****************************************************************************/
 void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 {
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	const size_t nthreads = pvhwloc::core_count();
 	tbb::task_scheduler_init init(nthreads);
 
 	PVZoomedZoneTree& zztree = get_zoom_zone_tree(zone_id);

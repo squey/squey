@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://github.com/mysql/mysql-server/archive/mysql-5.7.29.tar.gz
-  ref: 991aad054fcf3ccf48e823478122bdf34c69e892cafd7fb80ec017dcc7114d0c
+  url: https://github.com/mysql/mysql-server/archive/refs/tags/mysql-8.0.30.tar.gz
+  ref: e76636197f9cb764940ad8d800644841771def046ce6ae75c346181d5cdd879a
 
   
 variables:
@@ -21,3 +21,4 @@ variables:
 depends:
 - base.bst
 - boost.bst
+- freedesktop-sdk.bst:components/openssl.bst

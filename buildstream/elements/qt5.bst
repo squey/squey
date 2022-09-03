@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://download.qt.io/archive/qt/5.15/5.15.2/single/qt-everywhere-src-5.15.2.tar.xz
-  ref: 3a530d1b243b5dec00bc54937455471aaa3e56849d2593edb8ded07228202240
+  url: https://download.qt.io/archive/qt/5.15/5.15.5/single/qt-everywhere-opensource-src-5.15.5.tar.xz
+  ref: 5a97827bdf9fd515f43bc7651defaf64fecb7a55e051c79b8f80510d0e990f06
   
 - kind: patch
   path: buildstream/patches/qt5/xcbegl.patch
