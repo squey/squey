@@ -7,7 +7,12 @@ sources:
 - kind: git
 
   url: https://anongit.kde.org/kitemmodels.git
-  ref: b55c6d90f393d29ed5830e3e39880c732f4c5ea6
+  ref: 78cde10a52194c24db7b676b13dbd8e6847c2424
+
+variables:
+  cmake-local: |
+    -DQT_MAJOR_VERSION=6 \
+    -DCMAKE_CXX_FLAGS="${CMAKE_CXX_FLAGS} -fpermissive"
 
 build-depends:
 - base.bst

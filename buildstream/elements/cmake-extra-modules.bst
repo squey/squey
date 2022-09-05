@@ -7,8 +7,8 @@ sources:
 - kind: git
 
   url: https://anongit.kde.org/extra-cmake-modules.git
-  ref: 8d7229b25fb82744182b7dc40d1a4868bf27e3e2
+  ref: ce726d388a59b941e2e6f6f487132532511af03d
 
 depends:
 - base.bst
-- qt5.bst
+- qt6.bst

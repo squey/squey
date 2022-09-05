@@ -55,7 +55,7 @@ depends:
 - tshark.bst
 - tbb.bst
 - boost.bst
-- qt5.bst
+- qt6.bst
 - kitemmodels.bst
 - ksyntaxhighlighting.bst
 # - erf.bst

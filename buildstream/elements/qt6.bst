@@ -5,24 +5,15 @@ description: |
 
 sources:
 - kind: tar
-
-  url: https://download.qt.io/archive/qt/5.15/5.15.5/single/qt-everywhere-opensource-src-5.15.5.tar.xz
-  ref: 5a97827bdf9fd515f43bc7651defaf64fecb7a55e051c79b8f80510d0e990f06
-  
-- kind: patch
-  path: buildstream/patches/qt5/xcbegl.patch
-  strip-level: 1
+  url: https://download.qt.io/archive/qt/6.4/6.4.0/single/qt-everywhere-src-6.4.0.tar.xz
+  ref: 8936b0354d95fa26e87be65cc9c840495360ad93fd09b069bc780cbcab4a2ca1
 
 - kind: patch
-  path: buildstream/patches/qt5/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
+  path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
   strip-level: 1
   
 - kind: patch
-  path: buildstream/patches/qt5/Fix-rectangle-intersection-issue-because-of-floating.patch
-  strip-level: 1
-  
-- kind: patch
-  path: buildstream/patches/qtwebengine/Fix_compiler_error_SIOCGSTAMP_not_declared.patch
+  path: buildstream/patches/qt6/Fix-rectangle-intersection-issue-because-of-floating.patch
   strip-level: 1
 
 variables:
@@ -30,11 +21,11 @@ variables:
     -prefix %{prefix} \
     -libdir %{libdir} \
     -sysconfdir %{sysconfdir}/xdg \
-    -archdatadir %{libdir}/qt5 \
-    -datadir %{prefix}/share/qt5 \
-    -docdir %{prefix}/share/doc/qt5 \
-    -headerdir %{prefix}/include/qt5 \
-    -plugindir %{libdir}/qt5/plugins \
+    -archdatadir %{libdir}/qt6 \
+    -datadir %{prefix}/share/qt6 \
+    -docdir %{prefix}/share/doc/qt6 \
+    -headerdir %{prefix}/include/qt6 \
+    -plugindir %{libdir}/qt6/plugins \
     -confirm-license \
     -opensource \
     -release \
@@ -55,32 +46,33 @@ variables:
     -no-feature-renameat2 \
     -no-feature-getentropy \
     -no-feature-statx \
-    -gtk #\
-    #-ccache
+    -gtk
     
 config:
+  create-dev-shm: true
+
   configure-commands:
     - ./configure %{conf-local}
       
   build-commands:
-    - make -j%{max-jobs}
+    - cmake --build . --parallel
 
   install-commands:
     - |
-      make -j1 INSTALL_ROOT=%{install-root} install
+      cmake --install . --prefix=%{install-root}%{prefix}
       rm -f "%{install-root}%{libdir}"/*.a
 
 
 environment:
   OPENSSL_LIBS: "-L/%{prefix}/lib -lssl -lcrypto"
-  
+  PYTHONPATH: "/usr/lib/python3.10/site-packages:/%{prefix}/lib/python3.10/site-packages"
+
 depends:
 - base.bst
 - freedesktop-sdk.bst:bootstrap/linux-headers.bst
 - freedesktop-sdk.bst:components/pkg-config.bst
 - freedesktop-sdk.bst:components/openssl.bst
 - freedesktop-sdk.bst:components/perl.bst
-- freedesktop-sdk.bst:components/python3.bst
 - freedesktop-sdk.bst:components/which.bst
 - freedesktop-sdk.bst:components/giflib.bst
 - freedesktop-sdk.bst:components/glib.bst
@@ -101,14 +93,21 @@ depends:
 - freedesktop-sdk.bst:components/libglvnd.bst
 - mysql.bst
 - libpq.bst
-  
+
 # QWebEngine
-- python2.bst
-- freedesktop-sdk.bst:components/nss.bst
-- freedesktop-sdk.bst:components/libdrm.bst
-- freedesktop-sdk.bst:components/xorg-lib-xcursor.bst
-- freedesktop-sdk.bst:components/xorg-lib-xtst.bst
+- freedesktop-sdk.bst:components/python3.bst
+- freedesktop-sdk.bst:components/python3-six.bst
+- freedesktop-sdk.bst:components/python3-html5lib.bst
+- freedesktop-sdk.bst:components/gperf.bst
 - freedesktop-sdk.bst:components/bison.bst
 - freedesktop-sdk.bst:components/flex.bst
-- freedesktop-sdk.bst:components/gperf.bst
+- freedesktop-sdk.bst:components/libdrm.bst
+- freedesktop-sdk.bst:components/xorg-lib-xcursor.bst
+- freedesktop-sdk.bst:components/xorg-lib-xshmfence.bst
+- freedesktop-sdk.bst:components/xorg-lib-xtst.bst
+- freedesktop-sdk.bst:components/nss.bst
+- freedesktop-sdk.bst:components/llvm.bst
 
+build-depends:
+- nodejs.bst
+- python3-webencodings.bst

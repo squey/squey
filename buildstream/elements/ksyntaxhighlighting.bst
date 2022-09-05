@@ -6,8 +6,12 @@ description: |
 sources:
 - kind: tar
 
-  url: https://github.com/KDE/syntax-highlighting/archive/v5.76.0.tar.gz 
-  ref: 67b5116b20709ebdf2684a6684a77311f9274d17797ee7fb9dd43c2ff83cb390
+  url: https://github.com/KDE/syntax-highlighting/archive/refs/tags/v5.97.0.tar.gz 
+  ref: 2476a85ab680c5a970cbaf8b9af9f1c82f3d2e45315193110bda2dfda3d53ba4
+
+variables:
+  cmake-local: |
+    -DQT_MAJOR_VERSION=6
 
 build-depends:
 - base.bst
