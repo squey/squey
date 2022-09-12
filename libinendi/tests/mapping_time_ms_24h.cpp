@@ -34,7 +34,7 @@
 
 #include <unicode/calendar.h>
 
-using namespace icu_67;
+using namespace icu_71;
 
 #ifdef INSPECTOR_BENCH
 // 10 000 000 lines.
