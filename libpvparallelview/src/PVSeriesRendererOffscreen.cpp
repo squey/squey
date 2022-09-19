@@ -265,8 +265,6 @@ PVSeriesRendererOffscreen::PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler c
 	         << "\nEGL_VENDOR:" << eglQueryString(display, EGL_VENDOR)
 	         << "\nEGL_VERSION:" << eglQueryString(display, EGL_VERSION);
 
-	EGLContext context = choose_config(display);
-
 	QSurfaceFormat format;
 	format.setRenderableType(QSurfaceFormat::OpenGLES);
 	format.setVersion(OpenGLES_version_major, OpenGLES_version_minor);

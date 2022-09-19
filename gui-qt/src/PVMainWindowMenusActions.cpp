@@ -68,7 +68,7 @@ void PVInspector::PVMainWindow::create_actions()
 	export_selection_to_mineset_Action->setToolTip(tr("Export the current selection to Mineset"));
 
 	quit_Action = new QAction(tr("&Quit"), this);
-	quit_Action->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Q));
+	quit_Action->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
 
 	/************************
 	 * For the "Selection" menu entry
@@ -84,15 +84,15 @@ void PVInspector::PVMainWindow::create_actions()
 	selection_from_layer_Action = new QAction(tr("Set selection from layer..."), this);
 
 	commit_selection_to_new_layer_Action = new QAction(tr("Create new layer from selection"), this);
-	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_K));
+	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT | Qt::Key_K));
 	move_selection_to_new_layer_Action = new QAction(tr("Move selection to new layer"), this);
-	move_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT + Qt::Key_M));
+	move_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT | Qt::Key_M));
 
 	/******************************
 	 * For the "Filter" menu entry
 	 ******************************/
 	filter_reprocess_last_filter = new QAction(tr("Apply last filter..."), this);
-	filter_reprocess_last_filter->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_F));
+	filter_reprocess_last_filter->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_F));
 
 	/************************
 	 * For the "Tools" menu entry
@@ -116,11 +116,11 @@ void PVInspector::PVMainWindow::create_actions()
 	 ***************************/
 	events_display_unselected_listing_Action =
 	    new QAction(tr("Toggle unselected events in listing"), this);
-	events_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_U));
+	events_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_U));
 
 	events_display_zombies_listing_Action =
 	    new QAction(tr("Toggle zombies events in listing"), this);
-	events_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT + Qt::Key_Z));
+	events_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Z));
 
 	events_display_unselected_zombies_parallelview_Action =
 	    new QAction(tr("Toggle unselected and zombies events"), this);

@@ -577,7 +577,7 @@ void PVSeriesViewZoomer::update_chronotips(QRect rect_in)
 	Zoom coveredZoom = clamp_zoom(rect_to_zoom(rect));
 	pvcop::db::array subrange = _rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
 	_chronotips[0]->setText((subrange.at(0) + ">").c_str());
-	_chronotips[1]->setText(("<" + subrange.at(1)).c_str());
+	_chronotips[1]->setText(QString::fromStdString(std::string("<") + std::string(subrange.at(1)) + std::string("")));
 	_chronotips[2]->setText((std::to_string(coveredZoom.minY) + "%").c_str());
 	_chronotips[3]->setText((std::to_string(coveredZoom.maxY) + "%").c_str());
 	for (auto* chronotip : _chronotips) {

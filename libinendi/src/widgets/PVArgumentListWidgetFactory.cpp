@@ -72,19 +72,19 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Inendi::PVVi
 	    new PVViewArgumentEditorCreator<PVWidgets::PVZoneIndexEditor>(view);
 
 	// And register them into the factory
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
+	args_widget_factory->registerEditor((QMetaType::Type)qMetaTypeId<PVCore::PVAxisIndexType>(),
 	                                    axis_index_creator);
 	args_widget_factory->registerEditor(
-	    (QVariant::Type)qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(),
+	    (QMetaType::Type)qMetaTypeId<PVCore::PVAxisIndexCheckBoxType>(),
 	    axis_index_checkbox_creator);
 	args_widget_factory->registerEditor(
-	    (QVariant::Type)qMetaTypeId<PVCore::PVOriginalAxisIndexType>(),
+	    (QMetaType::Type)qMetaTypeId<PVCore::PVOriginalAxisIndexType>(),
 	    original_axis_index_creator);
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVSpinBoxType>(),
+	args_widget_factory->registerEditor((QMetaType::Type)qMetaTypeId<PVCore::PVSpinBoxType>(),
 	                                    rowsspinbox_creator);
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<PVCore::PVZoneIndexType>(),
+	args_widget_factory->registerEditor((QMetaType::Type)qMetaTypeId<PVCore::PVZoneIndexType>(),
 	                                    zone_index_creator);
-	args_widget_factory->registerEditor((QVariant::Type)qMetaTypeId<Inendi::PVLayer*>(),
+	args_widget_factory->registerEditor((QMetaType::Type)qMetaTypeId<Inendi::PVLayer*>(),
 	                                    layerenum_creator);
 
 	return args_widget_factory;

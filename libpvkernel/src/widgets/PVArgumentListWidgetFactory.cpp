@@ -34,7 +34,7 @@
 #include <QItemEditorFactory>
 #include <QLineEdit> // for QLineEdit
 #include <QMetaType> // for qMetaTypeId
-#include <QVariant>  // for QVariant, QVariant::Type, etc
+#include <QVariant>  // for QVariant, QMetaType::Type, etc
 
 namespace PVCore
 {

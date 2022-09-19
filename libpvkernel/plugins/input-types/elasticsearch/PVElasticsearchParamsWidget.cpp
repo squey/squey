@@ -446,7 +446,7 @@ PVRush::PVElasticsearchInfos PVRush::PVElasticsearchParamsWidget::get_infos() co
 		visit_selected_columns(_root_item, [&](const QTreeWidgetItem* item) {
 			selected_columns.emplace_back(item->data(0, Qt::UserRole).toString().toStdString());
 		});
-		const std::string& filter_path = boost::algorithm::join(selected_columns, ",");
+		const std::string& filter_path = boost::algorithm::join(selected_columns, std::string(","));
 		infos.set_filter_path(QString::fromStdString(filter_path));
 	}
 

@@ -90,7 +90,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseDoubleClickEvent(PVGraphicsV
 {
 	obj->_mouse_pressed_button = event->button();
 
-	obj->_mouse_pressed_screen_coord = event->globalPos();
+	obj->_mouse_pressed_screen_coord = event->globalPosition().toPoint();
 	obj->_mouse_pressed_view_coord = event->pos();
 	obj->_mouse_pressed_scene_coord = obj->map_to_scene(obj->_mouse_pressed_view_coord);
 
@@ -134,7 +134,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mousePressEvent(PVGraphicsView* o
 {
 	obj->_mouse_pressed_button = event->button();
 
-	obj->_mouse_pressed_screen_coord = event->globalPos();
+	obj->_mouse_pressed_screen_coord = event->globalPosition().toPoint();
 	obj->_mouse_pressed_view_coord = event->pos();
 	obj->_mouse_pressed_scene_coord = obj->map_to_scene(obj->_mouse_pressed_view_coord);
 
@@ -185,7 +185,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseReleaseEvent(PVGraphicsView*
 	                                   obj->_mouse_pressed_screen_coord);
 
 	scene_event.setScenePos(obj->map_to_scene(event->pos()));
-	scene_event.setScreenPos(event->globalPos());
+	scene_event.setScreenPos(event->globalPosition().toPoint());
 	scene_event.setLastScenePos(obj->_last_mouse_move_scene_coord);
 	scene_event.setLastScreenPos(obj->_last_mouse_move_screen_coord);
 
@@ -221,7 +221,7 @@ bool PVWidgets::PVGraphicsViewInteractorScene::mouseMoveEvent(PVGraphicsView* ob
 	                                   obj->_mouse_pressed_screen_coord);
 
 	scene_event.setScenePos(obj->map_to_scene(event->pos()));
-	scene_event.setScreenPos(event->globalPos());
+	scene_event.setScreenPos(event->globalPosition().toPoint());
 	scene_event.setLastScenePos(obj->_last_mouse_move_scene_coord);
 	scene_event.setLastScreenPos(obj->_last_mouse_move_screen_coord);
 

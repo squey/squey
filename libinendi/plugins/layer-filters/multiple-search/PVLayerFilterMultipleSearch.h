@@ -57,8 +57,7 @@ class PVLayerFilterMultipleSearch : public PVLayerFilter
 	void show_error(QWidget* parent) const override;
 
   private:
-	using strings_t = std::remove_reference<decltype(
-	    ((pvcop::db::exception::partially_converted_error*)nullptr)->bad_values())>::type;
+	using strings_t = pvcop::db::exception::partially_converted_error::strings_t;
 	strings_t _unconverted_values;
 
 	CLASS_FILTER(Inendi::PVLayerFilterMultipleSearch)

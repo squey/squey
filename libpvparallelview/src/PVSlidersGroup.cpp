@@ -184,11 +184,11 @@ PVParallelView::PVSlidersGroup::get_selection_ranges() const
 {
 	selection_ranges_t ranges;
 
-	for (const auto it : _selection_sliders) {
+	for (const auto& it : _selection_sliders) {
 		ranges.push_back(it.second->get_range());
 	}
 
-	for (const auto it : _zoomed_selection_sliders) {
+	for (const auto& it : _zoomed_selection_sliders) {
 		ranges.push_back(it.second->get_range());
 	}
 

@@ -165,7 +165,7 @@ void PVWidgets::PVColorPicker::resizeEvent(QResizeEvent* /*event*/)
 
 void PVWidgets::PVColorPicker::process_mouse_event(QMouseEvent* event)
 {
-	uint8_t h = screen_x_to_h(event->x());
+	uint8_t h = screen_x_to_h(event->position().toPoint().x());
 	if (event->buttons() == Qt::LeftButton) {
 		if (h > _c1.h()) {
 			return;

@@ -113,7 +113,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 	// List all usable OpenCL devices and create appropriate structures
 	const auto fun = [&](cl::Context& ctx, cl::Device& dev) {
-		device_t device;
+		device_t device{};
 		cl_int err;
 
 		device.dev = dev;

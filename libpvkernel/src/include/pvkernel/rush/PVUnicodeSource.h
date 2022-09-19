@@ -274,9 +274,9 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 			UErrorCode status = U_ZERO_ERROR;
 
 			PVConverter target_converter(
-			    ucnv_safeClone(&_utf8_converter.get(), nullptr, nullptr, &status));
+			    ucnv_clone(&_utf8_converter.get(), &status));
 			PVConverter source_converter(
-			    ucnv_safeClone(&_origin_converter->get(), nullptr, nullptr, &status));
+			    ucnv_clone(&_origin_converter->get(), &status));
 
 			status = U_ZERO_ERROR;
 

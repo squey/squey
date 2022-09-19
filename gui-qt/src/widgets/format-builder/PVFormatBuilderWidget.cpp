@@ -270,7 +270,7 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation()
 	actionAddUrl = new QAction("add URL splitter", (QObject*)this);
 
 	actionSave = new QAction("&Save format", (QObject*)this);
-	actionSave->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
+	actionSave->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
 	actionSave->setIcon(QIcon(":/save"));
 	actionSaveAs = new QAction("Save format as...", (QObject*)this);
 	actionDelete = new QAction("Delete", (QObject*)this);
@@ -284,12 +284,12 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation()
 	actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
 	actionMoveUp->setIcon(QIcon(":/go-up.png"));
 	actionOpen = new QAction(tr("Open format..."), (QObject*)this);
-	actionOpen->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_O));
+	actionOpen->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
 	actionOpen->setIcon(QIcon(":/document-open.png"));
 
 	actionNewWindow = new QAction(tr("New window"), (QObject*)this);
 	actionCloseWindow = new QAction(tr("Close window"), (QObject*)this);
-	actionCloseWindow->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_W));
+	actionCloseWindow->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_W));
 }
 
 /******************************************************************************
@@ -891,7 +891,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	// add all splitting plugins
 	_splitters = menuBar->addMenu(tr("&Splitters"));
 
-	for (const auto it : LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list()) {
+	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list()) {
 		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
 		assert(pluginsSplitter);
 		QAction* action = pluginsSplitter->get_action_menu(this);
@@ -908,7 +908,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	// add all conversion plugins
 	_converters = menuBar->addMenu(tr("&Converters"));
 
-	for (const auto it : LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list()) {
+	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list()) {
 		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = it.value();
 		assert(pluginsConverter);
 		QAction* action = pluginsConverter->get_action_menu(this);

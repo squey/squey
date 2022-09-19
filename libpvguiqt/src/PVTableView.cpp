@@ -49,7 +49,7 @@ bool PVGuiQt::PVTableView::viewportEvent(QEvent* event)
 		if (index.isValid()) {
 			QStyleOptionViewItem option;
 			initViewItemOption(&option);
-			QSize sizeHint = itemDelegate(index)->sizeHint(option, index);
+			QSize sizeHint = itemDelegateForIndex(index)->sizeHint(option, index);
 			QRect rItem(0, 0, sizeHint.width(), sizeHint.height());
 			QRect rVisual = visualRect(index);
 			if (rItem.width() <= rVisual.width()) {

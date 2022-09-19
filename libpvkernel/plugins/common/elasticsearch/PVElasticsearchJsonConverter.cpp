@@ -285,7 +285,7 @@ void PVElasticSearchJsonConverter::inject_not(std::vector<std::string> const& sa
 {
 	_current_writer->RawString(",\"must_not\":[");
 
-	const std::string& all = boost::algorithm::join(saved, ",");
+	const std::string& all = boost::algorithm::join(saved, std::string(","));
 	_current_writer->RawString(all.c_str());
 
 	_current_writer->RawString("]");

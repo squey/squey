@@ -230,7 +230,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	pv_mw.show();
 	splash.finish(&pv_mw);
 
-	putenv("QMLSCENE_DEVICE=softwarecontext");
+	setenv("QMLSCENE_DEVICE", "softwarecontext", 1);
 	QWebEngineView dummy_webengine(&pv_mw); // workaround to avoid Chromium terminate with
 	// "FATAL:file_path_watcher_linux.cc(226)] Check failed: 1024 >
 	// inotify_fd_"

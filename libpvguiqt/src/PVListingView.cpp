@@ -1080,7 +1080,7 @@ bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 		                                          // would have been
 		                                          // "QEvent::MouseMove"...
 		QHoverEvent* mouse_event = dynamic_cast<QHoverEvent*>(ev);
-		PVCombCol index = (PVCombCol)logicalIndexAt(mouse_event->pos());
+		PVCombCol index = (PVCombCol)logicalIndexAt(mouse_event->position().toPoint());
 		if (index != _index) {
 			if (_index != -1) {
 				Q_EMIT mouse_hovered_section(_index, false);

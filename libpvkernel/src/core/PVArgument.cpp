@@ -81,7 +81,7 @@ PVCore::QString_to_PVArgument(const QString& s, const QVariant& v, bool* res_ok 
 		var = static_cast<const PVArgumentTypeBase*>(v.constData())->from_string(s, &ok);
 	} else // builtin type
 	{
-		switch (v.type()) {
+		switch (v.typeId()) {
 		case QMetaType::Bool:
 			var = s.compare("true", Qt::CaseInsensitive) == 0;
 			break;
@@ -153,7 +153,7 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings,
 		QString const& key = keys.at(i);
 		if (def_args.contains(key)) {
 			QString str;
-			if (settings.value(key).type() == static_cast<QVariant::Type>(QMetaType::QStringList)) {
+			if (settings.value(key).typeId() == static_cast<QMetaType::Type>(QMetaType::QStringList)) {
 				// QSettings returns strings containing commas as QStringList
 				str = settings.value(key).toStringList().join(",");
 			} else {

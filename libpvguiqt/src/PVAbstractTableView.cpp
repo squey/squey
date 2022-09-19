@@ -269,7 +269,7 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent* event)
 {
 	if (event->button() == Qt::LeftButton) {
 		Qt::KeyboardModifiers mod = event->modifiers();
-		int clc_row = rowAt(event->y());
+		int clc_row = rowAt(event->position().y());
 
 		if (clc_row < 0) {
 			// No valid row under the mouse
@@ -314,7 +314,7 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent* event)
 		QModelIndex index = indexAt(event->pos());
 
 		if ((index.isValid()) && (not table_model()->is_selected(index))) {
-			int clc_row = rowAt(event->y());
+			int clc_row = rowAt(event->position().y());
 
 			table_model()->reset_selection();
 			table_model()->start_selection(clc_row);
@@ -421,7 +421,7 @@ void PVAbstractTableView::mouseReleaseEvent(QMouseEvent* event)
  *****************************************************************************/
 void PVAbstractTableView::mouseMoveEvent(QMouseEvent* event)
 {
-	int pos = event->y();
+	int pos = event->position().y();
 	// Scroll up while the clicked mouse is above the listing
 	while (pos < 0) {
 		move_by(-1);
