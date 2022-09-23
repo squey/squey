@@ -180,7 +180,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	// Center the main window
 	QRect r = geometry();
-	r.moveCenter(QGuiApplication::screenAt(rect().topLeft())->availableGeometry().center());
+	r.moveCenter(QGuiApplication::primaryScreen()->availableGeometry().center());
 	setGeometry(r);
 
 	// Set stylesheet
