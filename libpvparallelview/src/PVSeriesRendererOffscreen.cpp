@@ -302,6 +302,12 @@ bool PVSeriesRendererOffscreen::capability()
 		         << "\nEGL_EXTENSIONS:" << eglQueryString(display, EGL_EXTENSIONS)
 		         << "\nEGL_VENDOR:" << eglQueryString(display, EGL_VENDOR)
 		         << "\nEGL_VERSION:" << eglQueryString(display, EGL_VERSION);
+		
+		if (auto vendor = eglQueryString(display, EGL_VENDOR); vendor != std::string("NVIDIA")) {
+			qDebug() << "Only supports NVIDIA, got " << vendor;
+			g_EGL_instance.release(display);
+			return false;
+		}
 
 		EGLContext context = choose_config(display);
 

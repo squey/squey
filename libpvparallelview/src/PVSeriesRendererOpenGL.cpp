@@ -87,6 +87,11 @@ bool PVSeriesRendererOpenGL::capability()
 			qDebug() << "Expecting" << qMakePair(OpenGLES_version_major, OpenGLES_version_minor)
 			         << "but QOpenGLWidget could only deliver " << qoglwg.format().version();
 		} else {
+			qoglwg.makeCurrent();
+			if (auto vendor = qoglwg.context()->functions()->glGetString(GL_VENDOR); reinterpret_cast<const char*>(vendor) != std::string("NVIDIA")) {
+				qDebug() << "Unsupported GL_VENDOR (" << vendor << ") currently supports only NVIDIA";
+				return false;
+			}
 			return true;
 		}
 		return false;
