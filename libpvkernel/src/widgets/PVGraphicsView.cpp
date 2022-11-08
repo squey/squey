@@ -355,7 +355,7 @@ void PVWidgets::PVGraphicsView::center_on(const QPointF& pos)
 
 void PVWidgets::PVGraphicsView::fake_mouse_move()
 {
-	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), Qt::NoButton, Qt::NoButton,
+	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), QCursor::pos(), Qt::NoButton, Qt::NoButton,
 	              Qt::NoModifier);
 	QApplication::sendEvent(get_viewport(), &e);
 }

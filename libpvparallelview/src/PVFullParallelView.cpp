@@ -268,7 +268,7 @@ void PVParallelView::PVFullParallelView::leaveEvent(QEvent*)
 
 void PVParallelView::PVFullParallelView::fake_mouse_move()
 {
-	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), Qt::NoButton, Qt::NoButton,
+	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), QCursor::pos(), Qt::NoButton, Qt::NoButton,
 	              Qt::NoModifier);
 	QApplication::sendEvent(viewport(), &e);
 }

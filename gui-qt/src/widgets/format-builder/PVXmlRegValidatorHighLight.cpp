@@ -77,7 +77,7 @@ void PVInspector::PVXmlRegValidatorHighLight::highlightBlock(const QString& text
 	QRegExp regExp(aRegExp); // init regexp
 
 	if (regExp.exactMatch(text)) {                   // if line is matching
-		setFormat(0, text.count(), formatMacthLine); // set text color black
+		setFormat(0, text.size(), formatMacthLine); // set text color black
 		regExp.indexIn(text, 0);
 
 		// selection coloring
@@ -87,6 +87,6 @@ void PVInspector::PVXmlRegValidatorHighLight::highlightBlock(const QString& text
 		}
 
 	} else {                                       // if line is not matching
-		setFormat(0, text.count(), formatNoMatch); // set text color gray
+		setFormat(0, text.size(), formatNoMatch); // set text color gray
 	}
 }

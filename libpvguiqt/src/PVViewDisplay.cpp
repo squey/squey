@@ -136,7 +136,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 			if (workspace && workspace != parent()) {
 
 				QMouseEvent* fake_mouse_release =
-				    new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton,
+				    new QMouseEvent(QEvent::MouseButtonRelease, mapFromGlobal(mouse_event->pos()), mouse_event->pos(), Qt::LeftButton,
 				                    Qt::LeftButton, Qt::NoModifier);
 				QApplication::postEvent(this, fake_mouse_release);
 				QApplication::processEvents(QEventLoop::AllEvents);
@@ -163,7 +163,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 				move(mapToGlobal(_press_pt));
 
 				QMouseEvent* fake_mouse_press =
-				    new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton,
+				    new QMouseEvent(QEvent::MouseButtonPress, mapToGlobal(_press_pt), _press_pt, Qt::LeftButton,
 				                    Qt::LeftButton, Qt::NoModifier);
 				QApplication::postEvent(this, fake_mouse_press);
 

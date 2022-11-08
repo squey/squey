@@ -84,14 +84,14 @@ void PVInspector::PVXmlTimeValidatorHighLight::highlightBlock(const QString& tex
 	formatNoMatch.setForeground(QColor("#FF0000"));
 
 	// default color
-	setFormat(0, text.count(), formatNoMatch);
+	setFormat(0, text.size(), formatNoMatch);
 
 	// Check if this is parseable
 	PVCore::PVDateTimeParser parser(formatStr);
 	UErrorCode err = U_ZERO_ERROR;
 	Calendar* cal = Calendar::createInstance(err);
 	if (parser.mapping_time_to_cal(text, cal)) {
-		setFormat(0, text.count(), formatMacthLine);
+		setFormat(0, text.size(), formatMacthLine);
 	}
 	delete cal;
 }
