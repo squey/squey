@@ -67,6 +67,9 @@ depends:
 - numpy.bst
 - inendi-inspector-doc.bst
 
+build-depends:
+- freedesktop-sdk.bst:components/git.bst
+
 sources:
 - kind: local
   path: .
