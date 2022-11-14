@@ -81,6 +81,7 @@ pages:
       zip -r public/inendi-inspector_docker.zip inendi-inspector_docker && 
       rm -rf inendi-inspector_docker
     - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && tar -I lbzip2 -cf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak.tar.bz2" . && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
+    - rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     paths:
       - public
