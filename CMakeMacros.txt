@@ -13,7 +13,7 @@ macro(declare_internal_library libname)
 	add_subdirectory(lib${libname_lower})
 endmacro()
 
-function(pv_qt5_wrap_ui outfiles include_dir)
+function(pv_qt6_wrap_ui outfiles include_dir)
 	set(options)
 	set(oneValueArgs)
 	set(multiValueArgs OPTIONS)
@@ -28,7 +28,7 @@ function(pv_qt5_wrap_ui outfiles include_dir)
 		get_filename_component(infile ${it} ABSOLUTE)
 		set(outfile ${CMAKE_CURRENT_BINARY_DIR}/include/${include_dir}/ui_${outfile}.h)
 		add_custom_command(OUTPUT ${outfile}
-			COMMAND ${Qt5Widgets_UIC_EXECUTABLE}
+			COMMAND Qt6::uic
 			ARGS ${ui_options} -o ${outfile} ${infile}
 			MAIN_DEPENDENCY ${infile} VERBATIM)
 		list(APPEND ${outfiles} ${outfile})

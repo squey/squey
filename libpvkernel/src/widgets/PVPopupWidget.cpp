@@ -26,7 +26,6 @@
 #include <pvkernel/widgets/PVPopupWidget.h>
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QMouseEvent>
 #include <QScreen>
 
@@ -119,8 +118,8 @@ bool PVWidgets::PVPopupWidget::is_close_key(int key)
 
 void PVWidgets::PVPopupWidget::mouseMoveEvent(QMouseEvent* event)
 {
-	QMouseEvent pevent(QEvent::MouseMove, parentWidget()->mapFromGlobal(event->globalPos()),
-	                   event->globalPos(), event->button(), event->buttons(), event->modifiers());
+	QMouseEvent pevent(QEvent::MouseMove, parentWidget()->mapFromGlobal(event->globalPosition()),
+	                   event->globalPosition(), event->button(), event->buttons(), event->modifiers());
 
 	QApplication::sendEvent(parentWidget(), &pevent);
 	event->ignore();

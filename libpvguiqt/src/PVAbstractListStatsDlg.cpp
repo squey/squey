@@ -49,6 +49,7 @@
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
 
+#include <QActionGroup>
 #include <QComboBox>
 #include <QGroupBox>
 #include <QRadioButton>
@@ -479,7 +480,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_copy_values_act->setMenu(_copy_values_menu);
 	_copy_values_with_count_act = new QAction("with count", this);
 	_copy_values_with_count_act->setShortcut(
-	    QKeySequence(Qt::ControlModifier + Qt::ShiftModifier + Qt::Key_C));
+	    QKeySequence(Qt::ControlModifier | Qt::ShiftModifier | Qt::Key_C));
 	_copy_values_menu->addAction(_copy_values_with_count_act);
 	_copy_values_without_count_act = new QAction("without count", this);
 	_copy_values_without_count_act->setShortcut(QKeySequence::Copy);

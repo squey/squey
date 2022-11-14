@@ -64,7 +64,7 @@ class PVWSLHelper
 
 		QDirIterator dir_it(WSL_WINDOWS_ROOT, QDir::Dirs | QDir::NoDotAndDotDot);
 		while (dir_it.hasNext()) {
-			const QFileInfo& file_info(dir_it.next());
+			QFileInfo file_info(dir_it.next());
 			drives_list.emplace_back(file_info.baseName().toStdString(),
 			                         file_info.absoluteFilePath().toStdString());
 		}

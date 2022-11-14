@@ -661,7 +661,7 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 		    PVCore::PVRecentItemsManager::get().get_string_from_entry(sd);
 
 		QVariant var;
-		var.setValue<PVCore::PVSerializedSource>(sd);
+		var.setValue(PVCore::PVSerializedSource(sd));
 		__impl::PVListWidgetItem* item_widget = new __impl::PVListWidgetItem(
 		    PVCore::Category::SOURCES, long_string, filenames, var, index, list, this);
 		list->setItemWidget(item_widget, item_widget->widget());

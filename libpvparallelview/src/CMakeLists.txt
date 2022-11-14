@@ -140,13 +140,13 @@ include/pvparallelview/PVSeriesTreeWidget.h
 # Generate extra QT files (moc, uic, rcc)
 ################################################
 
-QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 ################################################
 # Declare the new library and linkage options
 ################################################
 
-set(QT5_LIBS Qt5Core Qt5Gui Qt5Widgets Qt5Xml Qt5OpenGL)
+set(QT6_LIBS Qt6Core Qt6Gui Qt6Widgets Qt6Xml Qt6OpenGL Qt6OpenGLWidgets)
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
@@ -158,8 +158,9 @@ include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
 
 list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 
-set(LINK_LIBRARIES pvdisplays inendi pvkernel ${QT5_LIBS} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES} KF5::ItemModels KF5::SyntaxHighlighting)
+set(LINK_LIBRARIES pvdisplays inendi pvkernel ${QT6_LIBS} ${OPENGL_LIBRARIES}
+	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES} 
+	${PVHWLOC_LIBRARIES} /app/lib/libKF5ItemModels.so)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)

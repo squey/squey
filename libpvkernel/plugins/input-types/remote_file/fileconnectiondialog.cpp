@@ -43,7 +43,7 @@ FileNameSelectorWidget::FileNameSelectorWidget(QWidget* parent) : QWidget(parent
 	QHBoxLayout* layout = new QHBoxLayout;
 	m_path = new QLineEdit;
 	layout->addWidget(m_path);
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 
 	m_selectPath = new QPushButton;
 	m_selectPath->setText(QLatin1String("..."));

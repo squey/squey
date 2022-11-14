@@ -32,7 +32,7 @@
 #include <QSettings>
 
 class QString;
-class QStringList;
+#include <QStringList>
 
 namespace PVRush
 {

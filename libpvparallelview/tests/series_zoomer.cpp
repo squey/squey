@@ -57,7 +57,7 @@ int main(int argc, char* argv[])
 
 	PVViewZoomer vz;
 	vz.resize(1000, 1000);
-	PV_VALID(vz.current_zoom(), mk_zoom(0., 1., 0., 1.));
+	PV_ASSERT_VALID(vz.current_zoom() == mk_zoom(0., 1., 0., 1.));
 	vz.zoom_in(QRect{400, 0, 200, 1000});
-	PV_VALID(vz.current_zoom(), mk_zoom(0.4, 0.6, 0., 1.));
+	PV_ASSERT_VALID(vz.current_zoom() == mk_zoom(0.4, 0.6, 0., 1.));
 }

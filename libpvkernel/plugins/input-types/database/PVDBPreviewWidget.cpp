@@ -65,7 +65,7 @@ void PVRush::PVDBPreviewWidget::preview()
 	PVDBQuery query(_serv, _query_str);
 	QSqlQuery sqlq = query.to_query(0, _nrows);
 	sqlq.exec();
-	_table_model->setQuery(sqlq);
+	_table_model->setQuery(std::move(sqlq));
 	if (_table_model->lastError().isValid()) {
 		QMessageBox err(QMessageBox::Critical, tr("Error while previewing..."),
 		                tr("Unable to execute query: ") + _table_model->lastError().driverText(),

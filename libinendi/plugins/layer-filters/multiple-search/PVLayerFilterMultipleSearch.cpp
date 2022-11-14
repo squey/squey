@@ -137,10 +137,11 @@ void Inendi::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer&
 	size_t opts = ((REGULAR_EXPRESSION * is_rx) | (EXACT_MATCH * exact_match) |
 	               (CASE_INSENSITIVE * (not case_match)));
 
-	const QString& txt = _args[ARG_NAME_EXPS].value<PVCore::PVPlainTextType>().get_text();
+	const QString txt = _args[ARG_NAME_EXPS].value<PVCore::PVPlainTextType>().get_text();
 
 	// Remove last carriage return if present otherwise we would search for empty strings as well
-	QStringList exps = (txt.right(1) == "\n" ? txt.left(txt.size() - 1) : txt).split("\n");
+	QString exps_str = (txt.right(1) == "\n" ? txt.left(txt.size() - 1) : txt);
+	QStringList exps = exps_str.split("\n");
 
 	std::vector<std::string> exps_utf8;
 	exps_utf8.resize(exps.size());

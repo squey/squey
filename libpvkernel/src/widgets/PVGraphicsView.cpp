@@ -44,7 +44,6 @@
 
 // to mimic QGraphicsView::::sizeHint() :-D
 #include <QApplication>
-#include <QDesktopWidget>
 
 #include <iostream>
 #include <cassert>
@@ -356,7 +355,7 @@ void PVWidgets::PVGraphicsView::center_on(const QPointF& pos)
 
 void PVWidgets::PVGraphicsView::fake_mouse_move()
 {
-	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), Qt::NoButton, Qt::NoButton,
+	QMouseEvent e((QEvent::MouseMove), mapFromGlobal(QCursor::pos()), QCursor::pos(), Qt::NoButton, Qt::NoButton,
 	              Qt::NoModifier);
 	QApplication::sendEvent(get_viewport(), &e);
 }
@@ -625,7 +624,7 @@ void PVWidgets::PVGraphicsView::resizeEvent(QResizeEvent* event)
  * PVWidgets::PVGraphicsView::enterEvent
  *****************************************************************************/
 
-void PVWidgets::PVGraphicsView::enterEvent(QEvent*)
+void PVWidgets::PVGraphicsView::enterEvent(QEnterEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }
@@ -806,7 +805,7 @@ QSize PVWidgets::PVGraphicsView::sizeHint() const
 {
 	if (get_scene()) {
 		QSizeF s = _transform.mapRect(get_scene_rect()).size();
-		return s.boundedTo((3 * QApplication::desktop()->size()) / 4).toSize();
+		return s.boundedTo((3 * QGuiApplication::primaryScreen()->availableSize()) / 4).toSize();
 	}
 	return QSize(256, 192);
 }

@@ -780,7 +780,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url)
 		return false;
 	}
 	QTextStream tmpTextXml(&fichier);
-	tmpTextXml.setCodec("UTF-8"); // AG: as defined in the XML header (and saved, cf. saveXML)
+	tmpTextXml.setEncoding(QStringConverter::Utf8); // by default anyway
 	QString err_msg;
 	int err_line, err_col;
 	QDomDocument doc;

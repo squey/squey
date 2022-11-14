@@ -30,6 +30,7 @@
 #include <QDebug>
 #include <QVariant>
 #include <QSyntaxHighlighter>
+#include <QRegExp>
 
 namespace PVInspector
 {

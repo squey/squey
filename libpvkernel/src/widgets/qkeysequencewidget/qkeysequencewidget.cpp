@@ -38,7 +38,7 @@ char PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(QKeySequence key)
 	// Key_Tab = 0x01000001,
 	// Key_Backtab = 0x01000002,
 
-	switch (key[0]) {
+	switch (key[0].key()) {
 	case Qt::Key_Tab:
 		return '\t';
 	case Qt::Key_Backtab:
@@ -49,7 +49,7 @@ char PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(QKeySequence key)
 	case Qt::Key_Enter:
 		return 0x0a;
 	default:
-		return key[0];
+		return key[0].key();
 	}
 }
 
@@ -275,7 +275,7 @@ void PVWidgets::QKeySequenceWidgetPrivate::init(const QKeySequence keySeq, const
 	Q_Q(PVWidgets::QKeySequenceWidget);
 	Q_UNUSED(q);
 	layout = new QHBoxLayout(q_func());
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(1);
 
 	clearButton = new QToolButton(q_func());

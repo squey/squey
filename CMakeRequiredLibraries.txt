@@ -11,9 +11,13 @@ link_directories(/app/lib)
 ###############################################################################
 ADD_DEFINITIONS(-DQT_SHARED)
 ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
-FIND_PACKAGE(Qt5Core REQUIRED)
-message(STATUS "QtCore include dirs: " ${Qt5Core_INCLUDE_DIR})
-include_directories(SYSTEM ${Qt5Core_INCLUDE_DIRS})
+FIND_PACKAGE(Qt6Core REQUIRED)
+message(STATUS "QtCore include dirs: " ${Qt6Core_INCLUDE_DIR})
+message(STATUS "QtCore include dirs: " ${Qt${QT_MAJOR_VERSION}_INCLUDE_DIRS})
+include_directories("/usr/include/qt5/QtCore")
+
+
+
 
 ###############################################################################
 # Define the Intel TBB Library

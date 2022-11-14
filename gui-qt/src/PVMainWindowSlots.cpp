@@ -55,10 +55,10 @@
 #include <PVFormatBuilderWidget.h>
 #include <PVSaveDataTreeDialog.h>
 
+#include <QApplication>
 #include <QPainter>
 #include <QDockWidget>
 #include <QDesktopServices>
-#include <QDesktopWidget>
 #include <QWindow>
 #include <QScreen>
 
@@ -822,7 +822,7 @@ void PVInspector::PVMainWindow::get_screenshot_window()
 
 void PVInspector::PVMainWindow::get_screenshot_desktop()
 {
-	QPixmap pixmap = get_screen()->grabWindow(QApplication::desktop()->winId());
+	QPixmap pixmap = get_screen()->grabWindow(0);
 
 	save_screenshot(pixmap, "Save desktop capture", "desktop");
 }

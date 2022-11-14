@@ -25,7 +25,6 @@
 
 #include <pvkernel/core/inendi_bench.h>
 #include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
 
 #include <QApplication>
 
@@ -246,7 +245,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 
 	BENCH_START(compute_selection_from_plotted_range_sse);
 
-#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())    \
+#pragma omp parallel for num_threads(pvhwloc::core_count())    \
     schedule(guided, 16)
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
 		uint64_t chunk = 0;
@@ -351,7 +350,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 
 	BENCH_START(b);
 	PVRow i;
-#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())
+#pragma omp parallel for num_threads(pvhwloc::core_count())
 	for (i = 0; i < nrows_sse; i += 32) {
 		// Compute one chunk of the selection
 		int32_t chunk = 0;
@@ -471,7 +470,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 
 	BENCH_START(compute_selection_from_plotteds_ranges_sse);
 
-#pragma omp parallel for num_threads(PVCore::PVHardwareConcurrency::get_physical_core_number())    \
+#pragma omp parallel for num_threads(pvhwloc::core_count())    \
     schedule(guided, 16)
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
 		uint64_t chunk = 0;

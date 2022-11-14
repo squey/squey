@@ -364,7 +364,7 @@ void PVCore::PVStreamingDecompressor::init()
 		 */
 		_thread = std::thread([=,this]() {
 			static constexpr const size_t buffer_length = 65536;
-			std::unique_ptr<char> buffer(new char[buffer_length]);
+			std::unique_ptr<char[]> buffer(new char[buffer_length]);
 
 			/*
 			 * ignore "broken pipe" error

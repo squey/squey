@@ -104,7 +104,7 @@ void PVCore::remove_common_folders(std::vector<std::string>& paths)
 			path_folders.erase(path_folders.begin(), path_folders.size() > common_folders_depth+1 ? path_folders.begin() + common_folders_depth+1 : path_folders.end());
 		}
 		for (size_t i = 0; i < paths.size(); i++) {
-			paths[i] = boost::join(paths_folders[i], "/");
+			paths[i] = boost::join(paths_folders[i], std::string("/"));
 		}
 	}
  }

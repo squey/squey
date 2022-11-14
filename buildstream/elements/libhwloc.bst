@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://www.open-mpi.org/software/hwloc/v1.11/downloads/hwloc-1.11.8.tar.bz2
-  ref: ecef10265084d9123dc0b03d82ff5ee06fbf5ba755a912e7511ae590c9ee594d
+  url: https://download.open-mpi.org/release/hwloc/v2.8/hwloc-2.8.0.tar.bz2
+  ref: 348a72fcd48c32a823ee1da149ae992203e7ad033549e64aed6ea6eeb01f42c1
 
 depends:
 - base.bst

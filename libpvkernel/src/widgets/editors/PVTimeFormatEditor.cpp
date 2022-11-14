@@ -296,7 +296,7 @@ void PVWidgets::PVTimeValidatorHighLight::set_time_format(QString const& str)
 void PVWidgets::PVTimeValidatorHighLight::highlightBlock(QString const& text)
 {
 	if (_format_has_changed) {
-		setFormat(0, text.count(), _format_changed);
+		setFormat(0, text.size(), _format_changed);
 		return;
 	}
 
@@ -304,12 +304,12 @@ void PVWidgets::PVTimeValidatorHighLight::highlightBlock(QString const& text)
 		UErrorCode err = U_ZERO_ERROR;
 		Calendar* cal = Calendar::createInstance(err);
 		if (_cur_parser->mapping_time_to_cal(text, cal)) {
-			setFormat(0, text.count(), _format_match);
+			setFormat(0, text.size(), _format_match);
 			delete cal;
 			return;
 		}
 		delete cal;
 	}
 
-	setFormat(0, text.count(), _format_no_match);
+	setFormat(0, text.size(), _format_no_match);
 }

@@ -74,7 +74,7 @@ class PVFullParallelView : public QGraphicsView
 
   protected:
 	void resizeEvent(QResizeEvent* event) override;
-	void enterEvent(QEvent* event) override;
+	void enterEvent(QEnterEvent* event) override;
 	void leaveEvent(QEvent* event) override;
 
 	void drawForeground(QPainter* painter, const QRectF& rect) override;

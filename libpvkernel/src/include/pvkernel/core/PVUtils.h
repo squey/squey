@@ -30,6 +30,7 @@
 #include <QByteArray>
 #include <QDataStream>
 #include <QString>
+#include <QIODevice>
 
 #include <sys/sysinfo.h>
 

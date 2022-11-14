@@ -27,10 +27,10 @@
 
 #include <QMimeData>
 
-#include <KF5/KSyntaxHighlighting/syntaxhighlighter.h>
-#include <KF5/KSyntaxHighlighting/repository.h>
-#include <KF5/KSyntaxHighlighting/definition.h>
-#include <KF5/KSyntaxHighlighting/theme.h>
+#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/syntaxhighlighter.h>
+#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/repository.h>
+#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/definition.h>
+#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/theme.h>
 
 const char* PVGuiQt::PVPythonCodeEditor::PVPythonCodeEditor::_theme_types_name[] = {"ayu Light", "ayu Dark"};
 

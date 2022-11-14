@@ -65,8 +65,8 @@ class PVCSVExporter : public PVRush::PVExporterBase
 			column_names.insert(0, "row_index");
 		}
 		PVRush::PVUtils::safe_export(column_names, _sep_char, _quote_char);
-		_header = std::string("#") +
-		          column_names.join(QString::fromStdString(_sep_char)).toStdString() + "\n";
+		const std::string& column_names_str = column_names.join(QString::fromStdString(_sep_char)).toStdString();
+		_header = std::string("#") + column_names_str + std::string("\n");
 	}
 	void set_export_internal_values(bool export_internal_values)
 	{

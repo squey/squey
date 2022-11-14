@@ -319,7 +319,6 @@ bool loadAllFilesInDirectory(const QString& location, UA_ByteString** target, in
 void basic_openssl()
 {
 	SSL_load_error_strings();
-	ERR_load_BIO_strings();
 	OpenSSL_add_all_algorithms();
 	OpenSSL_add_all_digests();
 

@@ -159,7 +159,7 @@ PVGuiQt::PVLayerStackModel* PVGuiQt::PVLayerStackView::ls_model()
  * PVGuiQt::PVLayerStackView::enterEvent
  *****************************************************************************/
 
-void PVGuiQt::PVLayerStackView::enterEvent(QEvent*)
+void PVGuiQt::PVLayerStackView::enterEvent(QEnterEvent*)
 {
 	setFocus(Qt::MouseFocusReason);
 }

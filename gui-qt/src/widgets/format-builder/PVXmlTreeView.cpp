@@ -281,7 +281,7 @@ void PVInspector::PVXmlTreeView::expandRecursive(const QModelIndex& index)
 	// update size of the first column
 	// calculate column size needed.
 	if (index.isValid()) {
-		int l_width = itemDelegate(index)->sizeHint(QStyleOptionViewItem(), index).width();
+		int l_width = itemDelegateForIndex(index)->sizeHint(QStyleOptionViewItem(), index).width();
 		int l_offset = getModel()->countParent(index) * 20;
 
 		// resize column

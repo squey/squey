@@ -4,9 +4,10 @@ description: |
     NumPy is the fundamental package needed for scientific computing with Python.
 
 sources:
-- kind: tar
-  url: https://codeload.github.com/numpy/numpy/tar.gz/v1.19.4
-  ref: 6082884371a5998fa8b006b506f4827c0617d789d7b3ee78549bb044139a9a8e
+- kind: git
+  url: https://github.com/numpy/numpy
+  ref: 21cacafbeeff812cf49ca0102d1dd582b6d77e2b
+  checkout-submodules: True
   
 config:
   configure-commands:
@@ -27,4 +28,5 @@ depends:
 build-depends:
 - freedesktop-sdk.bst:components/python3-setuptools.bst
 - freedesktop-sdk.bst:components/cython.bst
+- freedesktop-sdk.bst:components/git.bst
  

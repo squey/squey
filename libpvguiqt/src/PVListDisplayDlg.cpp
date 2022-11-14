@@ -24,7 +24,7 @@
 //
 
 #include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvhwloc.h>
 #include <pvkernel/core/PVUtils.h>
 
 #include <pvkernel/rush/PVNraw.h>
@@ -234,7 +234,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 	}
 
 	// Define parallel execution environment
-	const size_t nthreads = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	const size_t nthreads = pvhwloc::core_count();
 	tbb::task_scheduler_init init(nthreads);
 
 	auto res = PVCore::PVProgressBox::progress(

@@ -37,6 +37,7 @@
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVAlgorithms.h>
 
+#include <QActionGroup>
 #include <QApplication>
 #include <QClipboard>
 #include <QMenu>

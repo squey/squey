@@ -31,8 +31,7 @@
 
 #include <inendi/PVAxesCombination.h>
 
-#include <pvguiqt/ui_PVAxesCombinationWidget.h>
-
+#include "pvguiqt/ui_PVAxesCombinationWidget.h"
 namespace Inendi
 {
 class PVView;

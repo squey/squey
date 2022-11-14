@@ -99,9 +99,9 @@ SET(QRC_FILES
 set(SRC_FILES ${LIBGUIQT_SRC_FILES})
 set(HEADER_FILES ${LIBGUIQT_HEADER_FILES})
 set(MOC_HEADERS ${LIBGUIQT_MOC_HEADERS})
-QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
-PV_QT5_WRAP_UI(UI_SRC pvguiqt ${UI_FILES})
+QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+QT6_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
+PV_QT6_WRAP_UI(UI_SRC pvguiqt ${UI_FILES})
 
 ################################################
 # Declare the new library and linkage options
@@ -111,17 +111,17 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES}
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(QT5_LIBS Qt5Core Qt5Xml Qt5Gui Qt5Widgets Qt5OpenGL Qt53DCore Qt53DRender Qt53DInput Qt53DExtras)
+set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6OpenGL Qt63DCore Qt63DRender Qt63DInput Qt63DExtras)
 
 set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT5_LIBS})
+	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT6_LIBS} /app/lib/libKF5SyntaxHighlighting.so)
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 
 INSTALL(TARGETS pvguiqt LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
                         RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
                         
-                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt5Core_EXECUTABLE_COMPILE_FLAGS}")
+                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
 ################################################
 # Crash reporter
@@ -144,6 +144,6 @@ function(compile_and_install_tool tool_exe)
 	INSTALL(TARGETS ${tool_exe} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endfunction()
 
-compile_and_install_tool(inendi-crashreport LINKS ${LINK_LIBRARIES} ${QT5_LIBS} pvkernel curl FILES crash_report.cpp)
+compile_and_install_tool(inendi-crashreport LINKS ${LINK_LIBRARIES} ${QT6_LIBS} pvkernel curl FILES crash_report.cpp)
 
 

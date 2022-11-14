@@ -92,10 +92,9 @@ class PVFilterableMenu : public QMenu
 	{
 		const QStringList& items = _list_model.stringList();
 		const QString& txt = _search_edit->text();
-		const QRegExp regexp(txt, Qt::CaseInsensitive, QRegExp::Wildcard);
 		for (const QString& item : items) {
-			if (item.indexOf(regexp) > -1) {
-				_proxy_model.setFilterRegExp(regexp);
+			if (item.indexOf(txt) > -1) {
+				_proxy_model.setFilterRegularExpression(txt);
 				return;
 			}
 		}

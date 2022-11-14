@@ -54,8 +54,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 	QTextStream in(&file);
-	// Cf. http://www.iana.org/assignments/character-sets, UTF-8 has the MIB number 106.
-	in.setCodec(QTextCodec::codecForMib(106));
 
 	UErrorCode err_ = U_ZERO_ERROR;
 	Calendar* cal = Calendar::createInstance(err_);

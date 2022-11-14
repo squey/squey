@@ -114,13 +114,13 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 	case (Qt::TextAlignmentRole):
 		switch (index.column()) {
 		case 0:
-			return (Qt::AlignCenter + Qt::AlignVCenter);
+			return QVariant(Qt::AlignCenter | Qt::AlignVCenter);
 
 		case 2:
-			return (Qt::AlignRight + Qt::AlignVCenter);
+			return QVariant(Qt::AlignRight | Qt::AlignVCenter);
 
 		default:
-			return (Qt::AlignLeft + Qt::AlignVCenter);
+			return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
 		}
 		break;
 

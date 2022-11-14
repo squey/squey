@@ -95,7 +95,7 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
 	connect(fileDownLoader, &FileDownLoader::downloadError, qq, &LogViewerWidget::downloadError);
 
 	QHBoxLayout* layout = new QHBoxLayout;
-	layout->setMargin(0);
+	layout->setContentsMargins(0, 0, 0, 0);
 	machineListWidget = new QListWidget;
 	layout->addWidget(machineListWidget);
 	connect(machineListWidget, &QListWidget::currentItemChanged, qq,

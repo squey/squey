@@ -27,7 +27,7 @@
 
 #include <pvparallelview/PVBCIBackendImage.h>
 
-#include <CL/cl.hpp>
+#include <CL/cl.h>
 
 #include <QImage>
 

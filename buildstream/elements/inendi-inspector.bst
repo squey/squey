@@ -5,10 +5,10 @@ depends:
 - freedesktop-sdk.bst:bootstrap/gcc.bst
 - freedesktop-sdk.bst:bootstrap/zlib.bst
 - freedesktop-sdk.bst:bootstrap/glibc.bst
-- freedesktop-sdk.bst:bootstrap/openssl.bst
+- freedesktop-sdk.bst:components/openssl.bst
 - freedesktop-sdk.bst:components/zip.bst
 - freedesktop-sdk.bst:components/unzip.bst
-- freedesktop-sdk.bst:components/pcre2.bst
+- freedesktop-sdk.bst:bootstrap/pcre2.bst
 - freedesktop-sdk.bst:components/ccache.bst
 - freedesktop-sdk.bst:components/curl.bst
 - freedesktop-sdk.bst:components/icu.bst
@@ -55,7 +55,8 @@ depends:
 - tshark.bst
 - tbb.bst
 - boost.bst
-- qt5.bst
+- qt6.bst
+- open62541.bst
 - kitemmodels.bst
 - ksyntaxhighlighting.bst
 # - erf.bst
@@ -65,6 +66,9 @@ depends:
 # - conda.bst
 - numpy.bst
 - inendi-inspector-doc.bst
+
+build-depends:
+- freedesktop-sdk.bst:components/git.bst
 
 sources:
 - kind: local

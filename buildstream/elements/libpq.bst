@@ -20,4 +20,4 @@ config:
 
 depends:
 - base.bst
-- freedesktop-sdk.bst:bootstrap/openssl.bst
+- freedesktop-sdk.bst:components/openssl.bst

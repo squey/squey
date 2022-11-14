@@ -24,7 +24,6 @@
 //
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QDialog>
 #include <QFile>
 #include <QLabel>
@@ -181,7 +180,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	// Center the main window
 	QRect r = geometry();
-	r.moveCenter(QApplication::desktop()->screenGeometry(this).center());
+	r.moveCenter(QGuiApplication::primaryScreen()->availableGeometry().center());
 	setGeometry(r);
 
 	// Set stylesheet

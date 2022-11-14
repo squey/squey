@@ -10,10 +10,8 @@ description: |
 sources:
 - kind: tar
 
-  #url: https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.tar.bz2
-  #ref: 59c9b274bc451cf91a9ba1dd2c7fdcaf5d60b1b3aa83f2c9fa143417cc660722
-  url: https://netcologne.dl.sourceforge.net/project/boost/boost/1.59.0/boost_1_59_0.tar.bz2
-  ref: 727a932322d94287b62abb1bd2d41723eec4356a7728909e38adb65ca25241ca
+  url: https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2
+  ref: fc9f85fc030e233142908241af7a846e60630aa7388de9a5fafb1f3a26840854
   
 config:
   configure-commands:

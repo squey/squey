@@ -28,7 +28,6 @@
 #include <QTabWidget>
 #include <QStyle>
 #include <QWidget>
-#include <QDesktopWidget>
 #include <QSplitter>
 #include <QTabBar>
 #include <QTextEdit>

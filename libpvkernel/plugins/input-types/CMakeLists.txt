@@ -3,16 +3,16 @@
 #
 
 ################################################
-# QT5 related include and check
+# QT6 related include and check
 ################################################
 
 # For QSQLDatabase
-find_package(Qt5Sql REQUIRED)
-include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
+find_package(Qt6Sql REQUIRED)
+include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
 
 # For QOpcUaClient
-find_package(Qt5OpcUa REQUIRED)
-include_directories(SYSTEM ${Qt5OpcUa_INCLUDE_DIRS})
+find_package(Qt6OpcUa REQUIRED)
+include_directories(SYSTEM ${Qt6OpcUa_INCLUDE_DIRS})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
@@ -29,7 +29,7 @@ file/register.cpp
 )
 
 # Generate moc files
-QT5_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(FILE_MOC_SRC ${FILE_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Generate linkage configuration
 add_library(input_type_file SHARED ${FILE_SRC} ${FILE_MOC_SRC})
@@ -64,7 +64,7 @@ set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${PVKERNEL_PLUGIN}/input-types/"
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 # Generate moc files
-QT5_WRAP_CPP(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Generate linkage configuration
 add_library(input_type_pcap SHARED ${PCAP_SRC_FILES} ${PCAP_MOC_SRC})
@@ -105,11 +105,11 @@ set(DB_UI
 database/db_params.ui
 database/db_preview.ui)
 
-set(DB_LIBS Qt5Sql)
+set(DB_LIBS Qt6Sql)
 
 # Generate moc and ui files
-QT5_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_WRAP_UI(DB_UI_SRCS ${DB_UI})
+QT6_WRAP_CPP(DB_MOC_SRCS ${DB_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+QT6_WRAP_UI(DB_UI_SRCS ${DB_UI})
 
 # Generate linkage configuration
 add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} ${DB_SRC_FILES})
@@ -141,7 +141,7 @@ file/PVImportFileDialog.cpp
 )
 
 # Generate moc files
-QT5_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Generate linkage configuration
 include_directories(SYSTEM AFTER ${CURL_INCLUDE_DIR})
@@ -173,8 +173,8 @@ set(ELASTICSEARCH_UI
 common/widget_params.ui)
 
 # Generate Qt Specific files
-QT5_WRAP_CPP(ELASTICSEARCH_MOC_SRCS ${ELASTICSEARCH_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_WRAP_UI(ELASTICSEARCH_UI_SRCS ${ELASTICSEARCH_UI})
+QT6_WRAP_CPP(ELASTICSEARCH_MOC_SRCS ${ELASTICSEARCH_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+QT6_WRAP_UI(ELASTICSEARCH_UI_SRCS ${ELASTICSEARCH_UI})
 
 add_library(input_type_elasticsearch SHARED ${ELASTICSEARCH_UI_SRCS} ${ELASTICSEARCH_SRC_FILES} ${ELASTICSEARCH_MOC_SRCS})
 target_link_libraries(input_type_elasticsearch pvkernel curl)
@@ -204,8 +204,8 @@ set(SPLUNK_UI
 common/widget_params.ui)
 
 # Generate Qt Specific files
-QT5_WRAP_CPP(SPLUNK_MOC_SRCS ${SPLUNK_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_WRAP_UI(SPLUNK_UI_SRCS ${SPLUNK_UI})
+QT6_WRAP_CPP(SPLUNK_MOC_SRCS ${SPLUNK_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+QT6_WRAP_UI(SPLUNK_UI_SRCS ${SPLUNK_UI})
 
 add_library(input_type_splunk SHARED ${SPLUNK_UI_SRCS} ${SPLUNK_SRC_FILES} ${SPLUNK_MOC_SRCS})
 target_link_libraries(input_type_splunk pvkernel curl)
@@ -228,7 +228,7 @@ target_link_libraries(input_type_splunk pvkernel curl)
 #erf/register.cpp)
 #
 ## Generate Qt Specific files
-#QT5_WRAP_CPP(ERF_MOC_SRCS ${ERF_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+#QT6_WRAP_CPP(ERF_MOC_SRCS ${ERF_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 #
 #set(ERF_LIBS
 #    /app/lib/libhdf5_cpp.so
@@ -265,10 +265,10 @@ set(OPCUA_UI
 common/widget_params.ui)
 
 # Generate Qt Specific files
-QT5_WRAP_CPP(OPCUA_MOC_SRCS ${OPCUA_MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
-QT5_WRAP_UI(OPCUA_UI_SRCS ${OPCUA_UI})
+QT6_WRAP_CPP(OPCUA_MOC_SRCS ${OPCUA_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+QT6_WRAP_UI(OPCUA_UI_SRCS ${OPCUA_UI})
 
-set(OPCUA_LIBS Qt5OpcUa open62541 ssl crypto)
+set(OPCUA_LIBS Qt6OpcUa open62541 ssl crypto)
 
 add_library(input_type_opcua SHARED ${OPCUA_UI_SRCS} ${OPCUA_SRC_FILES} ${OPCUA_MOC_SRCS})
 target_link_libraries(input_type_opcua pvkernel ${OPCUA_LIBS})

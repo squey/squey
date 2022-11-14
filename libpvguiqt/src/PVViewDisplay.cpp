@@ -25,11 +25,11 @@
 
 #include <functional>
 
+#include <QGuiApplication>
 #include <QAbstractScrollArea>
 #include <QAction>
 #include <QApplication>
 #include <QContextMenuEvent>
-#include <QDesktopWidget>
 #include <QEvent>
 #include <QMenu>
 #include <QMouseEvent>
@@ -136,7 +136,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 			if (workspace && workspace != parent()) {
 
 				QMouseEvent* fake_mouse_release =
-				    new QMouseEvent(QEvent::MouseButtonRelease, mouse_event->pos(), Qt::LeftButton,
+				    new QMouseEvent(QEvent::MouseButtonRelease, mapFromGlobal(mouse_event->pos()), mouse_event->pos(), Qt::LeftButton,
 				                    Qt::LeftButton, Qt::NoModifier);
 				QApplication::postEvent(this, fake_mouse_release);
 				QApplication::processEvents(QEventLoop::AllEvents);
@@ -163,7 +163,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 				move(mapToGlobal(_press_pt));
 
 				QMouseEvent* fake_mouse_press =
-				    new QMouseEvent(QEvent::MouseButtonPress, _press_pt, Qt::LeftButton,
+				    new QMouseEvent(QEvent::MouseButtonPress, mapToGlobal(_press_pt), _press_pt, Qt::LeftButton,
 				                    Qt::LeftButton, Qt::NoModifier);
 				QApplication::postEvent(this, fake_mouse_press);
 
@@ -238,7 +238,8 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 			ctxt_menu->addAction(switch_action);
 		}
 
-		int screen_number = QApplication::desktop()->screenNumber(this);
+		QScreen* screen = QGuiApplication::screenAt(rect().topLeft());
+		int screen_number = QGuiApplication::screens().indexOf(screen);
 
 		// Maximize & Restore
 		if (_state == EState::CAN_MAXIMIZE) {
@@ -281,7 +282,8 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 	_x = x();
 	_y = y();
 
-	bool can_restore = QApplication::desktop()->screenNumber(this) == screen_number;
+	QScreen* screen = QGuiApplication::screenAt(rect().topLeft());
+	bool can_restore = QGuiApplication::screens().indexOf(screen) == screen_number;
 
 	QRect screenres = QGuiApplication::screens()[screen_number]->geometry();
 

@@ -131,7 +131,7 @@ typename PVCore::list_type<category>::type PVCore::PVRecentItemsManager::items_l
 {
 	QStringList v = _recents_settings.value(_recents_items_keys[category]).toStringList();
 	std::vector<std::string> res(v.size());
-	std::transform(v.begin(), v.end(), res.begin(), std::mem_fun_ref(&QString::toStdString));
+	std::transform(v.begin(), v.end(), res.begin(), std::mem_fn(&QString::toStdString));
 	return res;
 }
 

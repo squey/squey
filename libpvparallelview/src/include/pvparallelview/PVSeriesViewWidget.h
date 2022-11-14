@@ -67,7 +67,7 @@ class PVSeriesViewWidget : public QWidget
 
   protected:
 	void keyPressEvent(QKeyEvent* event) override;
-	void enterEvent(QEvent*) override;
+	void enterEvent(QEnterEvent*) override;
 	void leaveEvent(QEvent*) override;
 
   private:

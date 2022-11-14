@@ -76,9 +76,9 @@ class PVStatsModel : public PVAbstractTableModel
 		} break;
 		case (Qt::TextAlignmentRole):
 			if (orientation == Qt::Horizontal) {
-				return (Qt::AlignLeft + Qt::AlignVCenter);
+				return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
 			} else {
-				return (Qt::AlignRight + Qt::AlignVCenter);
+				return QVariant(Qt::AlignRight | Qt::AlignVCenter);
 			}
 			break;
 		case Qt::InitialSortOrderRole:

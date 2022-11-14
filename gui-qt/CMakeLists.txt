@@ -8,20 +8,20 @@ include(CTest)
 set(CTEST_PROJECT_NAME "GuiQt")
 
 ################################################
-# QT5 related include and check
+# QT6 related include and check
 ################################################
 
 # For QApplication
-find_package(Qt5Widgets REQUIRED)
-include_directories(SYSTEM ${Qt5Widgets_INCLUDE_DIRS})
+find_package(Qt6Widgets REQUIRED)
+include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
 
 # For QDomElement
-find_package(Qt5Xml REQUIRED)
-include_directories(SYSTEM ${Qt5Xml_INCLUDE_DIRS})
+find_package(Qt6Xml REQUIRED)
+include_directories(SYSTEM ${Qt6Xml_INCLUDE_DIRS})
 
 # For QDesktopWidget
-find_package(Qt5Widgets REQUIRED)
-include_directories(SYSTEM ${Qt5Widgets_INCLUDE_DIRS})
+find_package(Qt6Widgets REQUIRED)
+include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

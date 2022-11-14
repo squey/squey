@@ -163,10 +163,10 @@ std::string Inendi::PVSource::hash() const
 	    500000UL; // Just use a subset. It is not optimal but it have to be "fast enough"
 	for (size_t j = 0; j < std::min<size_t>(_nraw.row_count(), max_line_hash); j++) {
 		std::string r = get_value(j, PVCol(0));
-		hasher.addData(r.c_str(), r.size());
+		hasher.addData(QString::fromStdString(r).toUtf8());
 	}
 	std::string size = std::to_string(_nraw.row_count());
-	hasher.addData(size.c_str(), size.size());
+	hasher.addData(QString::fromStdString(size).toUtf8());
 	return hasher.result().data();
 }
 

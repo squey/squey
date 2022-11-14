@@ -30,7 +30,6 @@
 #include <tuple>
 #include <QDebug>
 #include <EGL/egl.h>
-#include <QtPlatformHeaders/QEGLNativeContext>
 #include <GL/gl.h>
 
 namespace PVParallelView
@@ -266,28 +265,14 @@ PVSeriesRendererOffscreen::PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler c
 	         << "\nEGL_VENDOR:" << eglQueryString(display, EGL_VENDOR)
 	         << "\nEGL_VERSION:" << eglQueryString(display, EGL_VERSION);
 
-	EGLContext context = choose_config(display);
-
 	QSurfaceFormat format;
 	format.setRenderableType(QSurfaceFormat::OpenGLES);
 	format.setVersion(OpenGLES_version_major, OpenGLES_version_minor);
 	format.setProfile(QSurfaceFormat::CoreProfile);
 	QOffscreenSurface::setFormat(format);
-	QOffscreenSurface::setNativeHandle(new QEGLNativeContext(context, display));
 	QOffscreenSurface::create();
 	_gl_renderer.setFormat(QOffscreenSurface::format());
-	_gl_renderer.setNativeContext(QVariant::fromValue(QEGLNativeContext(context, display)));
 	qDebug() << "Could init QOffscreenSurface:" << isValid();
-}
-
-PVSeriesRendererOffscreen::~PVSeriesRendererOffscreen()
-{
-	auto native = static_cast<QEGLNativeContext*>(QOffscreenSurface::nativeHandle());
-	if (native) {
-		eglDestroyContext(native->display(), native->context());
-		g_EGL_instance.release(native->display());
-		delete native;
-	}
 }
 
 bool PVSeriesRendererOffscreen::capability()
@@ -334,8 +319,6 @@ bool PVSeriesRendererOffscreen::capability()
 
 		QOffscreenSurface offsc;
 		offsc.setFormat(format);
-		auto native_handle = std::make_unique<QEGLNativeContext>(context, display);
-		offsc.setNativeHandle(native_handle.get());
 		offsc.create();
 		if (not offsc.isValid()) {
 			qDebug() << "Imposible to create QOffscreenSurface";
@@ -344,7 +327,6 @@ bool PVSeriesRendererOffscreen::capability()
 		}
 		QOpenGLContext qogl;
 		qogl.setFormat(offsc.format());
-		qogl.setNativeHandle(QVariant::fromValue(QEGLNativeContext(context, display)));
 		if (not qogl.create()) {
 			qDebug() << "Could not create a QOpenGLContext out of the QOffscreenSurface";
 		} else if (auto expected_version =

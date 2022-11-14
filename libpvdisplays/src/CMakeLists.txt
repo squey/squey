@@ -21,7 +21,7 @@ include/pvdisplays/PVDisplaysContainer.h
 
 set(SRC_FILES ${LIBDISPLAYS_SRC_FILES})
 set(MOC_HEADERS ${LIBDISPLAYS_MOC_HEADERS})
-QT5_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT5_WRAP_OPTIONS})
+QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 ################################################
 # Declare the new library and linkage options
@@ -33,9 +33,9 @@ add_library(pvdisplays SHARED ${SRC_FILES} ${MOC_SRC})
 
 set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
 
-set(QT5_LIBS Qt5Core Qt5Xml Qt5Widgets)
+set(QT6_LIBS Qt6Core Qt6Xml Qt6Widgets)
 
-set(PVDISPLAYS_LINK_LIBRARIES inendi pvkernel ${QT5_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(PVDISPLAYS_LINK_LIBRARIES inendi pvkernel ${QT6_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvdisplays ${PVDISPLAYS_LINK_LIBRARIES})
 

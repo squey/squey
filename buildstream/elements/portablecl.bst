@@ -5,11 +5,16 @@ description: |
 
 sources:
 - kind: tar
-  url: http://portablecl.org/downloads/pocl-1.6.tar.gz
-  ref: b0a4c0c056371b6f0db726b88fbb76bbee94948fb2abd4dbc8d958f7c42f766c
+  url: http://portablecl.org/downloads/pocl-3.0.tar.gz
+  ref: a3fd3889ef7854b90b8e4c7899c5de48b7494bf770e39fba5ad268a5cbcc719d
+
+- kind: patch
+  path: buildstream/patches/portablecl/cl.hpp.patch
+  strip-level: 1
   
 variables:
   cmake-local: |
+    -DINSTALL_OPENCL_HEADERS=1 \
     -DEXTRA_HOST_LD_FLAGS=-L%{prefix}/lib \
     -DCMAKE_BUILD_TYPE=Release \
     -DLLC_HOST_CPU=corei7

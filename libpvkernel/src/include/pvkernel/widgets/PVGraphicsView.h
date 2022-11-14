@@ -754,7 +754,7 @@ class PVGraphicsView : public QWidget
 	/**
 	 * reimplements QWidget::enterEvent
 	 */
-	void enterEvent(QEvent* event) override;
+	void enterEvent(QEnterEvent* event) override;
 
 	/**
 	 * reimplements QWidget::leaveEvent

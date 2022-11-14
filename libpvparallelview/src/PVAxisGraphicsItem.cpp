@@ -39,7 +39,6 @@
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 
 #include <QApplication>
-#include <QDesktopWidget>
 #include <QPainter>
 #include <QGraphicsScene>
 #include <QToolTip>

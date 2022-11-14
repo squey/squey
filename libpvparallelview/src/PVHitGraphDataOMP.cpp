@@ -24,7 +24,7 @@
 //
 
 #include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/PVHardwareConcurrency.h>
+#include <pvhwloc.h>
 
 #include <inendi/PVSelection.h>
 
@@ -48,7 +48,7 @@ PVParallelView::PVHitGraphDataOMP::omp_ctx_t::omp_ctx_t(uint32_t size)
 {
 	// "size" is the number of integers of a thread-specific buffer
 	// (thus = nblocks * size_int_block)
-	_core_num = PVCore::PVHardwareConcurrency::get_physical_core_number();
+	_core_num = pvhwloc::core_count();
 	_buffers = new uint32_t*[_core_num];
 	_buffer_size = size;
 

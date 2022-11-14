@@ -3,12 +3,12 @@
 #
 
 ################################################
-# QT5 related include and check
+# QT6 related include and check
 ################################################
 
 # For QSQLQuery
-find_package(Qt5Sql REQUIRED)
-include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
+find_package(Qt6Sql REQUIRED)
+include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
 
 ################################################
 # Ressource declaration
@@ -48,12 +48,12 @@ database/register.cpp
 )
 
 # For QSQLDatabase
-find_package(Qt5Sql REQUIRED)
-include_directories(SYSTEM ${Qt5Sql_INCLUDE_DIRS})
+find_package(Qt6Sql REQUIRED)
+include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
 
 # Create lib
 add_library(source_database SHARED ${DB_SRC})
-target_link_libraries(source_database pvkernel Qt5Sql)
+target_link_libraries(source_database pvkernel Qt6Sql)
 
 ###############################################################################
 # Elasticsearch
@@ -141,15 +141,15 @@ set(OPCUA_SRC_FILES
 )
 
 # For QOpcUaClient
-find_package(Qt5OpcUa REQUIRED)
-include_directories(SYSTEM ${Qt5OpcUa_INCLUDE_DIRS})
+find_package(Qt6OpcUa REQUIRED)
+include_directories(SYSTEM ${Qt6OpcUa_INCLUDE_DIRS})
 
-find_package(open62541 REQUIRED)
-include_directories(SYSTEM ${open62541_INCLUDE_DIRS})
+#find_package(open62541 REQUIRED)
+#include_directories(SYSTEM ${open62541_INCLUDE_DIRS})
 
 # Create lib
 add_library(source_opcua SHARED ${OPCUA_SRC_FILES})
-target_link_libraries(source_opcua pvkernel Qt5OpcUa open62541)
+target_link_libraries(source_opcua pvkernel Qt6OpcUa open62541)
 
 ###############################################################################
 # Define installation folders

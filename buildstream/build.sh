@@ -124,7 +124,7 @@ if [ "$EXPORT_BUILD" = true ]; then
 fi
 
 # Push artifacts
-bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '`
+bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '` || true
 
 function cleanup {
   rm -rf $HOME/.cache/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
