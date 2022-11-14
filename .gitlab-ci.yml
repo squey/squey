@@ -98,11 +98,13 @@ flathub:
   needs:
     - pages
   before_script:
+    - export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
     - eval $(ssh-agent -s)
     - echo "$SSH_FLATHUB_PRIVATE_KEY_B64" | base64 -d | ssh-add - > /dev/null
-    - rm -rf com.gitlab.inendi.Inspector && git clone git@github.com:flathub/com.gitlab.inendi.Inspector.git
-    - git config user.name "$FLATHUBGITCREDENTIALUSERNAME"
-    - git config user.email "$FLATHUBGITCREDENTIALEMAIL"
+    - rm -rf com.gitlab.inendi.Inspector
+    - git clone git@github.com:flathub/com.gitlab.inendi.Inspector.git
+    - git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
+    - git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
   script:
     - cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector"
     - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/inendi-inspector_flatpak.tar.bz2" | awk '{print $1 }') $CI_PROJECT_DIR/flathub/com.gitlab.inendi.Inspector.yaml.j2 > "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector/com.gitlab.inendi.Inspector.yaml"
