@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: https://download.qt.io/archive/qt/6.4/6.4.0/single/qt-everywhere-src-6.4.0.tar.xz
-  ref: 8936b0354d95fa26e87be65cc9c840495360ad93fd09b069bc780cbcab4a2ca1
+  url: https://download.qt.io/archive/qt/6.4/6.4.1/single/qt-everywhere-src-6.4.1.tar.xz
+  ref: e20b850b6134098a7f2e7701cfddfb213c6cf394b9e848e6fbc5b0e89dcfcc09
 
 - kind: patch
   path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
