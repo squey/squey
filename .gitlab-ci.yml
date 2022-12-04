@@ -69,6 +69,7 @@ pages:
   before_script:
     - cp nsis/resources/{AccessControl.dll,ExecDos.dll,INetC.dll,KillProcDLL.dll} /usr/share/nsis/Plugins/x86-unicode/
   script:
+    - VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
     - PAGES=`curl -s -X GET -I ${CI_PAGES_URL}/install.flatpakref | head -n 1 | cut -d$' ' -f2 | grep -c 200` || true
     - PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines?scope=tags | jq -r .[0].id`
     - JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
@@ -80,7 +81,7 @@ pages:
     - cp -r docker inendi-inspector_docker && 
       zip -r public/inendi-inspector_docker.zip inendi-inspector_docker && 
       rm -rf inendi-inspector_docker
-    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && tar -I lbzip2 -cf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak.tar.bz2" . && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
+    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && tar -I lbzip2 -cf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.bz2" . && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
     - rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     paths:
@@ -106,12 +107,18 @@ flathub:
     - git clone git@github.com:flathub/com.gitlab.inendi.Inspector.git
     - git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
     - git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
+    - export VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
+    - export BRANCH_NAME="publish-$VERSION"
+    - cd "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector"
+    - git checkout -b "$BRANCH_NAME"
   script:
     - cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector"
-    - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/inendi-inspector_flatpak.tar.bz2" | awk '{print $1 }') $CI_PROJECT_DIR/flathub/com.gitlab.inendi.Inspector.yaml.j2 > "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector/com.gitlab.inendi.Inspector.yaml"
-    - cd "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector"
-    - git commit -a -m "Publish version $(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')" || echo "No changes to commit"
-    - git push
+    - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.bz2" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/com.gitlab.inendi.Inspector.yaml.j2 > "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector/com.gitlab.inendi.Inspector.yaml"
+    - git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
+    - git push -f --set-upstream origin "$BRANCH_NAME"
+    - echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
+    - gh pr --repo "flathub/com.gitlab.inendi.Inspector" create --base "$BRANCH_NAME" --fill || true
+    - gh pr --repo "flathub/com.gitlab.inendi.Inspector" merge "$BRANCH_NAME" --auto --merge --delete-branch
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
   

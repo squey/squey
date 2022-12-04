@@ -1,6 +1,6 @@
 app-id: com.gitlab.inendi.Inspector
 runtime: org.freedesktop.Platform
-runtime-version: '20.08'
+runtime-version: '22.08'
 sdk: org.freedesktop.Sdk
 command: inspector_launcher.sh
 finish-args:
@@ -19,5 +19,5 @@ modules:
       - cp -r files/* /app
     sources:
       - type: archive
-        url: https://inendi.gitlab.io/inspector/inendi-inspector_flatpak.tar.bz2
+        url: https://inendi.gitlab.io/inspector/inendi-inspector_flatpak_{{version}}.tar.bz2
         sha256: {{sha256}}
