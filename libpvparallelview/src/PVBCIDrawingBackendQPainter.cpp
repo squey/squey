@@ -58,10 +58,10 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 		const auto height_bits = backend->height_bits();
 		const auto height = backend->height() * zoom_y +
 		                    2; // FIXME: this +2 is a workaround for similarity with OpenCL
-		backend->pixmap() = QImage(width, height, QImage::Format_ARGB32);
-		backend->pixmap().fill(Qt::transparent);
+		QImage paint_image(width, height, QImage::Format_ARGB32);
+		paint_image.fill(Qt::transparent);
 
-		QPainter painter(&backend->pixmap());
+		QPainter painter(&paint_image);
 
 		std::sort(codes, codes + n, [](PVBCICodeBase const& a, PVBCICodeBase const& b) {
 			return a.as_10.int_v > b.as_10.int_v;
@@ -103,6 +103,8 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 				}
 			}
 		}
+
+		backend->set_pixmap(std::move(paint_image));
 
 		render_done();
 	});
