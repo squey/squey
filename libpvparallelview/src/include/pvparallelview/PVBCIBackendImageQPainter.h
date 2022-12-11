@@ -43,10 +43,15 @@ class PVBCIBackendImageQPainter : public PVParallelView::PVBCIBackendImage
   public:
 	QImage qimage(size_t crop_height) const override;
 
-	QImage& pixmap() { return _pixmap; }
+	void set_pixmap(QImage image)
+	{
+		std::lock_guard lg(_guard);
+		_pixmap = std::move(image);
+	}
 
   private:
 	QImage _pixmap;
+	mutable std::mutex _guard;
 };
 
 } // namespace PVParallelView

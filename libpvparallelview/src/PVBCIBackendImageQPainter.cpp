@@ -34,6 +34,7 @@ PVParallelView::PVBCIBackendImageQPainter::PVBCIBackendImageQPainter(const uint3
 QImage PVParallelView::PVBCIBackendImageQPainter::qimage([[maybe_unused]] size_t crop_height) const
 {
 	assert(crop_height <= PVBCIBackendImage::height());
-
+	
+	std::lock_guard lg(_guard);
 	return _pixmap;
 }
