@@ -85,9 +85,6 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 	connect(this, &QDockWidget::dockLocationChanged, this, &PVViewDisplay::drag_ended);
 	connect(view_widget, &QObject::destroyed, this, &QWidget::close);
 
-	_screenSignalMapper = new QSignalMapper(this);
-	connect(_screenSignalMapper, SIGNAL(mapped(int)), this, SLOT(maximize_on_screen(int)));
-
 	register_view(view);
 }
 
@@ -238,54 +235,56 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 			ctxt_menu->addAction(switch_action);
 		}
 
-		QScreen* screen = QGuiApplication::screenAt(rect().topLeft());
-		int screen_number = QGuiApplication::screens().indexOf(screen);
-
 		// Maximize & Restore
-		if (_state == EState::CAN_MAXIMIZE) {
-			QAction* maximize_action = new QAction(tr("Maximize"), this);
-			connect(maximize_action, SIGNAL(triggered(bool)), _screenSignalMapper, SLOT(map()));
-			_screenSignalMapper->setMapping(maximize_action, screen_number);
-			ctxt_menu->addAction(maximize_action);
-		} else if (_state == EState::CAN_RESTORE) {
-			QAction* restore_action = new QAction(tr("Restore"), this);
+		if (_state == EState::CAN_RESTORE) {
+			QAction* restore_action = new QAction(tr("Restore floating"), this);
 			connect(restore_action, &QAction::triggered, this, &PVViewDisplay::restore);
+			ctxt_menu->addAction(restore_action);
+		} else if (_state == EState::HIDDEN && isFloating()) {
+			QAction* restore_action = new QAction(tr("Restore docking"), this);
+			connect(restore_action, &QAction::triggered, [this]{ setFloating(false); });
 			ctxt_menu->addAction(restore_action);
 		}
 
-		// Maximize on left monitor
-		if (screen_number > 0) {
-			QAction* maximize_left_action = new QAction(tr("<< Maximize on left screen"), this);
-			connect(maximize_left_action, SIGNAL(triggered(bool)), _screenSignalMapper,
-			        SLOT(map()));
-			_screenSignalMapper->setMapping(maximize_left_action, screen_number - 1);
-			ctxt_menu->addAction(maximize_left_action);
-		}
+		/*
+			Extract from https://doc.qt.io/qt-6/qscreen.html#availableGeometry-prop Qt6.4
+				Note, on X11 this will return the true available geometry only on systems with one monitor and if window manager has set _NET_WORKAREA atom.
+				In all other cases this is equal to geometry(). This is a limitation in X11 window manager specification.
+		*/
+		const bool X11_bug = QGuiApplication::primaryScreen()->availableGeometry() == QGuiApplication::primaryScreen()->geometry();
 
-		// Maximize on right monitor
-		if (screen_number < QGuiApplication::screens().size() - 1) {
-			QAction* maximize_right_action = new QAction(tr(">> Maximize on right screen"), this);
-			connect(maximize_right_action, SIGNAL(triggered(bool)), _screenSignalMapper,
-			        SLOT(map()));
-			_screenSignalMapper->setMapping(maximize_right_action, screen_number + 1);
-			ctxt_menu->addAction(maximize_right_action);
+		for (int i = 0; i < QGuiApplication::screens().size(); ++i) {
+			auto* screen_i = QGuiApplication::screens()[i];
+			char const* action_text = (screen() == screen_i) ? "Maximize on screen %n (current)" : "Maximize on screen %n";
+			QAction* maximize_action = new QAction(tr(action_text, "", i), this);
+			if (_workspace->screen() == screen_i
+			|| (screen() == screen_i && _state != EState::CAN_MAXIMIZE)
+			|| (X11_bug && screen_i == QGuiApplication::primaryScreen())) {
+				maximize_action->setEnabled(false);
+			} else {
+				connect(maximize_action, &QAction::triggered, [this, i]{
+					if (QGuiApplication::screens().size() > i) {
+						maximize_on_screen(QGuiApplication::screens()[i]);
+					}
+				});
+			}
+			ctxt_menu->addAction(maximize_action);
 		}
 
 		ctxt_menu->popup(QCursor::pos());
 	}
 }
 
-void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
+void PVGuiQt::PVViewDisplay::maximize_on_screen(QScreen* screen)
 {
-	_width = width();
-	_height = height();
-	_x = x();
-	_y = y();
+	if (_state == EState::CAN_MAXIMIZE) {
+		_width = width();
+		_height = height();
+		_x = x();
+		_y = y();
+	}
 
-	QScreen* screen = QGuiApplication::screenAt(rect().topLeft());
-	bool can_restore = QGuiApplication::screens().indexOf(screen) == screen_number;
-
-	QRect screenres = QGuiApplication::screens()[screen_number]->geometry();
+	QRect screenres = screen->availableGeometry();
 
 	// JBL: You may be wondering why the hell I am messing so much with the
 	// floating state of the widget,
@@ -300,10 +299,8 @@ void PVGuiQt::PVViewDisplay::maximize_on_screen(int screen_number)
 	resize(screenres.width(), screenres.height());
 	move(QPoint(screenres.x(), screenres.y()));
 
-	if (can_restore) {
+	if (_state != EState::HIDDEN) {
 		_state = EState::CAN_RESTORE;
-	} else {
-		_state = EState::HIDDEN;
 	}
 }
 
