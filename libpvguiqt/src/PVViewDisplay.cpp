@@ -236,13 +236,14 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		}
 
 		// Maximize & Restore
+		if (isFloating()) {
+			QAction* restore_action = new QAction(tr("Restore docking"), this);
+			connect(restore_action, &QAction::triggered, [this]{ setFloating(false); });
+			ctxt_menu->addAction(restore_action);
+		}
 		if (_state == EState::CAN_RESTORE) {
 			QAction* restore_action = new QAction(tr("Restore floating"), this);
 			connect(restore_action, &QAction::triggered, this, &PVViewDisplay::restore);
-			ctxt_menu->addAction(restore_action);
-		} else if (_state == EState::HIDDEN && isFloating()) {
-			QAction* restore_action = new QAction(tr("Restore docking"), this);
-			connect(restore_action, &QAction::triggered, [this]{ setFloating(false); });
 			ctxt_menu->addAction(restore_action);
 		}
 
