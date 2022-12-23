@@ -1,3 +1,10 @@
+4.9.10 (2022-12-23)
+------------------
+
+This minor release fixes or improves:
+* fixed a crash in the software parallel coordinates rendering backend
+* improved multiple screen support for maximize/restore and docking/floating 
+
 4.9.9 (2022-12-04)
 ------------------
 
