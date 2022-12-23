@@ -106,7 +106,7 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 
 	/*! \brief Maximize a view display on a given screen.
 	 */
-	void maximize_on_screen(int screen_number);
+	void maximize_on_screen(QScreen* screen);
 
   Q_SIGNALS:
 	/*! \brief Signal emited when the display is moved in order to detected a potential tab change.
@@ -149,8 +149,6 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	int _x;
 	int _y;
 	EState _state = HIDDEN;
-
-	QSignalMapper* _screenSignalMapper;
 };
 } // namespace PVGuiQt
 
