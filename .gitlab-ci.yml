@@ -117,7 +117,7 @@ flathub:
     - git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
     - git push -f --set-upstream origin "$BRANCH_NAME"
     - echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
-    - gh pr --repo "flathub/com.gitlab.inendi.Inspector" create --base "$BRANCH_NAME" --fill || true
+    - gh pr --repo "flathub/com.gitlab.inendi.Inspector" create --head master --base "$BRANCH_NAME" --fill || true
     - gh pr --repo "flathub/com.gitlab.inendi.Inspector" merge "$BRANCH_NAME" --auto --merge --delete-branch
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
