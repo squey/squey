@@ -11,7 +11,6 @@ set(NORMALIZE_FILTERS_DIST_FILES
 
 # Macro to list all plugins define for normalize-filter
 macro(declare_library target)
-	get_target_property(LIB_NAME ${target} LOCATION)
 	set(NORMALIZE_FILTERS_DIST_LIST
 		${NORMALIZE_FILTERS_DIST_LIST}
 		${target})
