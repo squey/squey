@@ -39,16 +39,16 @@ plugins.cpp
 set(SRC_FILES ${SRC_FILES} PVMineset.cpp)
 
 set(WIDGETS_MOC_HEADERS
-include/inendi/widgets/PVAxisComboBox.h
-include/inendi/widgets/PVMappingPlottingEditDialog.h
-include/inendi/widgets/PVNewLayerDialog.h
+../include/inendi/widgets/PVAxisComboBox.h
+../include/inendi/widgets/PVMappingPlottingEditDialog.h
+../include/inendi/widgets/PVNewLayerDialog.h
 
-include/inendi/widgets/editors/PVAxisIndexCheckBoxEditor.h
-include/inendi/widgets/editors/PVAxisIndexEditor.h
-include/inendi/widgets/editors/PVLayerEnumEditor.h
-include/inendi/widgets/editors/PVOriginalAxisIndexEditor.h
-include/inendi/widgets/editors/PVViewRowsSpinBoxEditor.h
-include/inendi/widgets/editors/PVZoneIndexEditor.h
+../include/inendi/widgets/editors/PVAxisIndexCheckBoxEditor.h
+../include/inendi/widgets/editors/PVAxisIndexEditor.h
+../include/inendi/widgets/editors/PVLayerEnumEditor.h
+../include/inendi/widgets/editors/PVOriginalAxisIndexEditor.h
+../include/inendi/widgets/editors/PVViewRowsSpinBoxEditor.h
+../include/inendi/widgets/editors/PVZoneIndexEditor.h
 )
 
 set(WIDGETS_SRC_FILES
@@ -69,7 +69,7 @@ widgets/editors/PVZoneIndexEditor.cpp
 )
 
 set(MOC_HEADERS
-include/inendi/PVPythonInterpreter.h
+../include/inendi/PVPythonInterpreter.h
 )
 
 ###############################################################################

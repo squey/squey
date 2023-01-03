@@ -37,7 +37,7 @@ include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
 include_directories(AFTER ${PVLICENSE_INCLUDE_DIR})
 include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
 
-include_directories(AFTER src/include)
-include_directories(AFTER src/widgets/format-builder/include)
+include_directories(AFTER include)
+include_directories(AFTER include/widgets/format-builder)
 
 add_subdirectory(src)

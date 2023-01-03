@@ -74,7 +74,7 @@ if [ $USER_TARGET == "customer" ]; then
 fi
 
 # Fill-in crash reporter token
-INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/src/include/pvkernel/core/PVCrashReporterToken.h"
+INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/include/pvkernel/core/PVCrashReporterToken.h"
 sed -e "s|\(INSPECTOR_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$INSPECTOR_CRASH_REPORTER_TOKEN\"|" -i "$INSPECTOR_CRASH_REPORTER_TOKEN_FILE"
 
 # Fill-in release and date

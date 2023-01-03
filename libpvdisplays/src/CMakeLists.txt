@@ -12,7 +12,7 @@ PVDisplaysImpl.cpp
 )
 
 SET(LIBDISPLAYS_MOC_HEADERS
-include/pvdisplays/PVDisplaysContainer.h
+../include/pvdisplays/PVDisplaysContainer.h
 )
 
 ################################################

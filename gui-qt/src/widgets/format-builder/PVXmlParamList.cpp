@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include "include/PVXmlParamList.h"
+#include <PVXmlParamList.h>
 
 PVInspector::PVXmlParamList::PVXmlParamList(QString name) : QListWidget(), _name(std::move(name))
 {
