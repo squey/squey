@@ -26,7 +26,7 @@
 #include <QApplication>
 
 #include <iostream>
-#include "include/pvguiqt/PVCrashReporterDialog.h"
+#include <pvguiqt/PVCrashReporterDialog.h>
 
 int main(int argc, char* argv[])
 {

@@ -11,24 +11,24 @@ include_directories(SYSTEM AFTER ${ICU_INCLUDE})
 set(INSPECTOR_ICON "resources////inspector.ico")
 
 SET(MOC_HEADERS
-include/PVFilesTypesSelWidget.h
-include/PVMainWindow.h
-include/PVStringListChooserWidget.h
+../include/PVFilesTypesSelWidget.h
+../include/PVMainWindow.h
+../include/PVStringListChooserWidget.h
 
-widgets/format-builder/include/PVFormatBuilderWidget.h
-widgets/format-builder/include/PVNrawListingWidget.h
-widgets/format-builder/include/PVXmlTreeView.h 
-widgets/format-builder/include/PVXmlParamColorDialog.h
-widgets/format-builder/include/PVXmlParamComboBox.h
-widgets/format-builder/include/PVXmlParamList.h
-widgets/format-builder/include/PVXmlParamTextEdit.h
-widgets/format-builder/include/PVXmlParamWidget.h
-widgets/format-builder/include/PVXmlParamWidgetBoardAxis.h
-widgets/format-builder/include/PVXmlParamWidgetBoardFilter.h
-widgets/format-builder/include/PVXmlParamWidgetBoardSplitterRegEx.h
-widgets/format-builder/include/PVXmlRegValidatorHighLight.h
-widgets/format-builder/include/PVXmlTimeValidatorHighLight.h
-widgets/format-builder/include/PVOptionsWidget.h
+../include/widgets/format-builder/PVFormatBuilderWidget.h
+../include/widgets/format-builder/PVNrawListingWidget.h
+../include/widgets/format-builder/PVXmlTreeView.h 
+../include/widgets/format-builder/PVXmlParamColorDialog.h
+../include/widgets/format-builder/PVXmlParamComboBox.h
+../include/widgets/format-builder/PVXmlParamList.h
+../include/widgets/format-builder/PVXmlParamTextEdit.h
+../include/widgets/format-builder/PVXmlParamWidget.h
+../include/widgets/format-builder/PVXmlParamWidgetBoardAxis.h
+../include/widgets/format-builder/PVXmlParamWidgetBoardFilter.h
+../include/widgets/format-builder/PVXmlParamWidgetBoardSplitterRegEx.h
+../include/widgets/format-builder/PVXmlRegValidatorHighLight.h
+../include/widgets/format-builder/PVXmlTimeValidatorHighLight.h
+../include/widgets/format-builder/PVOptionsWidget.h
 )
 
 SET(SRC_FILES

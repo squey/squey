@@ -8,8 +8,8 @@ macro(declare_internal_library libname)
 	# Add dev includes and build includes as possible include dir
 	# Build includes are required because of ui_xxx.h generated files
 	# Dev includes are required because they are use before being copy in build directory
-	set(${libname_upper}_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/lib${libname_lower}/src/include"
-					  "${CMAKE_CURRENT_SOURCE_DIR}/lib${libname_lower}/src/include")
+	set(${libname_upper}_INCLUDE_DIRS "${CMAKE_CURRENT_BINARY_DIR}/lib${libname_lower}/include"
+					  "${CMAKE_CURRENT_SOURCE_DIR}/lib${libname_lower}/include")
 	add_subdirectory(lib${libname_lower})
 endmacro()
 
@@ -26,7 +26,7 @@ function(pv_qt6_wrap_ui outfiles include_dir)
 	foreach(it ${ui_files})
 		get_filename_component(outfile ${it} NAME_WE)
 		get_filename_component(infile ${it} ABSOLUTE)
-		set(outfile ${CMAKE_CURRENT_BINARY_DIR}/include/${include_dir}/ui_${outfile}.h)
+		set(outfile ${CMAKE_CURRENT_BINARY_DIR}/../include/${include_dir}/ui_${outfile}.h)
 		add_custom_command(OUTPUT ${outfile}
 			COMMAND Qt6::uic
 			ARGS ${ui_options} -o ${outfile} ${infile}

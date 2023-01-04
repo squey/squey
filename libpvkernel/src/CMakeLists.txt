@@ -51,7 +51,7 @@ core/PVVersion.cpp
 )
 
 SET(CORE_MOC_HEADERS
-include/pvkernel/core/PVProgressBox.h
+../include/pvkernel/core/PVProgressBox.h
 )
 
 set(OPENCL_SRC_FILES
@@ -77,7 +77,7 @@ filter/PVPluginsLoad.cpp
 )
 
 SET(FILTER_MOC_HEADERS
-include/pvkernel/filter/PVFieldsFilterParamWidget.h
+../include/pvkernel/filter/PVFieldsFilterParamWidget.h
 )
 
 #########################################################################
@@ -147,38 +147,38 @@ third_party/uchardetect/LangModels/LangVietnameseModel.cpp
 )
 
 set(RUSH_MOC_HEADERS
-include/pvkernel/rush/PVControllerJob.h
-include/pvkernel/rush/PVXmlTreeNodeDom.h
-include/pvkernel/rush/PVInputType.h
+../include/pvkernel/rush/PVControllerJob.h
+../include/pvkernel/rush/PVXmlTreeNodeDom.h
+../include/pvkernel/rush/PVInputType.h
 )
 
 #########################################################################
 # Ressources for pvkernel/widgets
 #########################################################################
 set(WIDGETS_MOC_HEADERS
-include/pvkernel/widgets/qkeysequencewidget.h
-include/pvkernel/widgets/qkeysequencewidget_p.h
-include/pvkernel/widgets/PVArgumentListWidget.h
-include/pvkernel/widgets/PVColorDialog.h
-include/pvkernel/widgets/PVColorPicker.h
-include/pvkernel/widgets/PVPresetsWidget.h
-include/pvkernel/widgets/PVGraphicsView.h
-include/pvkernel/widgets/PVGraphicsViewInteractor.h
+../include/pvkernel/widgets/qkeysequencewidget.h
+../include/pvkernel/widgets/qkeysequencewidget_p.h
+../include/pvkernel/widgets/PVArgumentListWidget.h
+../include/pvkernel/widgets/PVColorDialog.h
+../include/pvkernel/widgets/PVColorPicker.h
+../include/pvkernel/widgets/PVPresetsWidget.h
+../include/pvkernel/widgets/PVGraphicsView.h
+../include/pvkernel/widgets/PVGraphicsViewInteractor.h
 
-include/pvkernel/widgets/PVAbstractRangePicker.h
+../include/pvkernel/widgets/PVAbstractRangePicker.h
 
-include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
-include/pvkernel/widgets/editors/PVEnumEditor.h
-include/pvkernel/widgets/editors/PVPlainTextEditor.h
-include/pvkernel/widgets/editors/PVRegexpEditor.h
-include/pvkernel/widgets/editors/PVTimeFormatEditor.h
+../include/pvkernel/widgets/editors/PVColorGradientDualSliderEditor.h
+../include/pvkernel/widgets/editors/PVEnumEditor.h
+../include/pvkernel/widgets/editors/PVPlainTextEditor.h
+../include/pvkernel/widgets/editors/PVRegexpEditor.h
+../include/pvkernel/widgets/editors/PVTimeFormatEditor.h
 
-include/pvkernel/widgets/editors/PVPercentRangeEditor.h
+../include/pvkernel/widgets/editors/PVPercentRangeEditor.h
 
-include/pvkernel/widgets/PVQueryBuilder.h
-include/pvkernel/widgets/PVLongLongSpinBox.h
-include/pvkernel/widgets/PVExportDlg.h
-include/pvkernel/widgets/PVCSVExporterWidget.h
+../include/pvkernel/widgets/PVQueryBuilder.h
+../include/pvkernel/widgets/PVLongLongSpinBox.h
+../include/pvkernel/widgets/PVExportDlg.h
+../include/pvkernel/widgets/PVCSVExporterWidget.h
 )
 
 set(WIDGETS_SRC_FILES
