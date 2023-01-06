@@ -7,6 +7,7 @@ description: |
 config:
   root-read-only: False
   commands:
+    - rm -rf %{prefix}/compilation
     - rm -rf %{prefix}/include
     - rm -rf %{prefix}/lib/cmake
     - rm -rf %{prefix}/sbin

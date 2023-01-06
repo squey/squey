@@ -6,7 +6,8 @@ set -x
 usage() {
 echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--cxx_compiler=<g++/clang++>] [--user-target=<USER_TARGET>]"
 echo "                  [--workspace-prefix=<prefix>] [--repo=<repository_path>] [--gpg-private-key-path=<key>]"
-echo "                  [--gpg-sign-key=<key>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
+echo "                  [--gpg-sign-key=<key>] [--code-coverage=<true/false>]" 1>&2; exit 1;
+
 }
 
 # Set default options
@@ -20,14 +21,13 @@ USER_TARGET_SPECIFIED=false
 WORKSPACE_PREFIX=
 EXPORT_BUILD=false
 REPO_DIR="repo"
-UPLOAD_URL=
-UPLOAD_PORT=22
 RUN_TESTSUITE=true
 GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
+CODE_COVERAGE_ENABLED=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e:p --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e:p,l --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite,code-coverage: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -44,6 +44,7 @@ while true; do
     -c | --crash-reporter-token) INSPECTOR_CRASH_REPORTER_TOKEN="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
+    -l | --code-coverage ) CODE_COVERAGE_ENABLED="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -76,8 +77,10 @@ if [ $USER_TARGET == "customer" ]; then
 fi
 
 # Fill-in crash reporter token
-INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/include/pvkernel/core/PVCrashReporterToken.h"
-sed -e "s|\(INSPECTOR_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$INSPECTOR_CRASH_REPORTER_TOKEN\"|" -i "$INSPECTOR_CRASH_REPORTER_TOKEN_FILE"
+if [ ! -z "$INSPECTOR_CRASH_REPORTER_TOKEN" ]; then
+  INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/include/pvkernel/core/PVCrashReporterToken.h"
+  sed -e "s|\(INSPECTOR_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$INSPECTOR_CRASH_REPORTER_TOKEN\"|" -i "$INSPECTOR_CRASH_REPORTER_TOKEN_FILE"
+fi
 
 # Fill-in release and date
 jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" files/com.gitlab.inendi.Inspector.metainfo.xml.j2 > files/com.gitlab.inendi.Inspector.metainfo.xml
@@ -90,11 +93,23 @@ fi
 if  [ "$RUN_TESTSUITE" = false ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option disable_testsuite True"
 fi
+if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
+  BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
+fi
 bst $BUILD_OPTIONS build inendi-inspector.bst
 
 # Run testsuite with "bst shell" to have network access (bst hasn't a "test-commands" (yet?) like in flatpak-builder)
 if  [ "$RUN_TESTSUITE" = true ]; then
-    bash -c "bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c  'cp -r /build . && ln -s /tests . && cd build && run_cmd.sh ctest --output-on-failure -T test -R INSPECTOR_TEST'"
+    bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c " \
+    cp --preserve -r /compilation/* .
+    TESTS=\"-R INSPECTOR_TEST\"
+    if [ $CODE_COVERAGE_ENABLED = true ]; then CODE_COVERAGE_COMMAND=\"-T coverage\"; TESTS=\"-R 'INSPECTOR_TEST|PVCOP_TEST'\"; fi
+    cd build && run_cmd.sh ctest --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS}
+    # Generate code coverage report
+    if [ $CODE_COVERAGE_ENABLED = true ]; then
+        ./scripts/gen_code_coverage_report.sh
+        cp -r code_coverage_report /srv/tmp-inspector
+    fi"
 fi
 
 # Export flatpak images
