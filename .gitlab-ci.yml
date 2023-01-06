@@ -81,7 +81,7 @@ pages:
     - cp -r docker inendi-inspector_docker && 
       zip -r public/inendi-inspector_docker.zip inendi-inspector_docker && 
       rm -rf inendi-inspector_docker
-    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && tar -I lbzip2 -cf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.bz2" . && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
+    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.xz" . && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
     - rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     paths:
@@ -113,7 +113,7 @@ flathub:
     - git checkout -b "$BRANCH_NAME"
   script:
     - cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector"
-    - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.bz2" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/com.gitlab.inendi.Inspector.yaml.j2 > "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector/com.gitlab.inendi.Inspector.yaml"
+    - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/com.gitlab.inendi.Inspector.yaml.j2 > "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector/com.gitlab.inendi.Inspector.yaml"
     - git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
     - git push -f --set-upstream origin "$BRANCH_NAME"
     - echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
