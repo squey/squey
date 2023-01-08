@@ -132,9 +132,16 @@ sast:
   stage: test
   tags:
     - privileged-docker
-  rules:
-  - if: $CI_PIPELINE_SOURCE == "schedule"
-    when: manual
-    allow_failure: true
 include:
 - template: Security/SAST.gitlab-ci.yml
+
+flawfinder-sast:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+semgrep-sast:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+
+
+
