@@ -4,7 +4,7 @@ set -e
 set -x
 
 usage() {
-echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--user-target=<USER_TARGET>]"
+echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--cxx_compiler=<g++/clang++>] [--user-target=<USER_TARGET>]"
 echo "                  [--workspace-prefix=<prefix>] [--repo=<repository_path>] [--gpg-private-key-path=<key>]"
 echo "                  [--gpg-sign-key=<key>] [--upload=<upload_url>] [--port=<scp_port>]" 1>&2; exit 1;
 }
@@ -14,6 +14,7 @@ BRANCH_NAME=main
 BRANCH_SPECIFIED=false
 TAG_NAME=
 BUILD_TYPE=RelWithDebInfo
+CXX_COMPILER=clang++
 USER_TARGET=developer
 USER_TARGET_SPECIFIED=false
 WORKSPACE_PREFIX=
@@ -26,7 +27,7 @@ GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e:p --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -34,6 +35,7 @@ while true; do
     -h | --help ) usage >&2 ; exit 0 ;;
     -b | --branch ) BRANCH_SPECIFIED=true; BRANCH_NAME="$2"; shift 2 ;;
     -t | --build-type ) BUILD_TYPE="$2"; shift 2 ;;
+    -p | --cxx_compiler ) CXX_COMPILER="$2"; shift 2 ;;
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
     -d | --disable-testsuite ) RUN_TESTSUITE=false; shift 1 ;;
     -w | --workspace-prefix ) WORKSPACE_PREFIX="$2"; shift 2 ;;
@@ -81,7 +83,7 @@ sed -e "s|\(INSPECTOR_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$INSPECTOR_CRASH_REPORTER
 jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" files/com.gitlab.inendi.Inspector.metainfo.xml.j2 > files/com.gitlab.inendi.Inspector.metainfo.xml
 
 # Build INENDI Inspector
-BUILD_OPTIONS=""
+BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER"
 if [ $USER_TARGET_SPECIFIED = true ]; then
   BUILD_OPTIONS="--option user_target $USER_TARGET"
 fi

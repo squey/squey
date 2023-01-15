@@ -115,6 +115,7 @@ add_subdirectory(inendi-utils)
 ###############################################################################
 # libpvcop
 ###############################################################################
+add_definitions("-DDISABLE_STD_HASH_UINT128=ON")
 add_subdirectory(libpvcop)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
 SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop/src/libpvcop.so)

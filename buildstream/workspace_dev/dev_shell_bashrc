@@ -18,9 +18,12 @@ echo "/app/lib/libpocl.so" > "$GL_TARGET_DIR/OpenCL/vendors/pocl.icd" 2> /dev/nu
 
 for build_type in debug release
 do
-    BUILD_FOLDER="$build_type"_build
-    if [ ! -d "$BUILD_FOLDER" ]
-    then
-        cmake -B"$BUILD_FOLDER" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
-    fi
+    for compiler in g++ clang++
+    do
+        BUILD_FOLDER="builds/$compiler/$build_type"
+        if [ ! -d "$BUILD_FOLDER" ]
+        then
+            cmake -B"$BUILD_FOLDER" -DCMAKE_CXX_COMPILER="$compiler" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+        fi
+    done
 done

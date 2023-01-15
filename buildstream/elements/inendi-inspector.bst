@@ -66,6 +66,7 @@ depends:
 # - conda.bst
 - numpy.bst
 - inendi-inspector-doc.bst
+- libomp.bst
 
 build-depends:
 - freedesktop-sdk.bst:components/git.bst
@@ -84,6 +85,7 @@ variables:
     -DCMAKE_INSTALL_PREFIX=%{prefix} \
     -DARCH_TYPE=corei7 \
     -DUSER_TARGET=%{user_target} \
+    -DCMAKE_CXX_COMPILER=%{cxx_compiler} \
     -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
   copy-launchers: "cp -r buildstream/files/{run_cmd.sh,inspector_launcher.sh} %{install-root}%{prefix}/bin"
     

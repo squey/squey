@@ -23,7 +23,7 @@
  */
 
 #ifndef __PVGUIQT_PVCSVEXPORTERWIDGET_H__
-#define __BPVGUIQT_PVCSVEXPORTERWIDGET_H__
+#define __PVGUIQT_PVCSVEXPORTERWIDGET_H__
 
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/widgets/PVCSVExporterWidget.h>
@@ -177,4 +177,4 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 
 } // namespace PVGuiQt
 
-#endif // __BPVGUIQT_PVCSVEXPORTERWIDGET_H__
+#endif // __PVGUIQT_PVCSVEXPORTERWIDGET_H__

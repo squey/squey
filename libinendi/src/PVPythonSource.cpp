@@ -109,7 +109,9 @@ pybind11::array Inendi::PVPythonSource::column(size_t index, StringColumnAs stri
                 break;
             }
             default :
-                [[fallthrough]];
+            {
+                break;
+            }
         }
     }
     pybind11::str dummy_data_owner; // hack to disable ownership
