@@ -97,6 +97,8 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 }};
 // clang-format on
 
+std::mutex g_mutex;
+
 static std::string get_user_time_formats_path()
 {
 	return PVCore::PVConfig::user_dir() + USER_TIME_FORMATS_FILENAME;
@@ -294,8 +296,8 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 		local_row++;
 	}
 
-// merge structs
-#pragma omp critical
+	// merge structs
+	std::lock_guard<std::mutex> guard(g_mutex);
 	{
 		for (size_t col = 0; col < _column_count; col++) {
 			for (size_t idx = 0; idx < _formatters.size(); idx++) {

@@ -39,6 +39,9 @@
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
 
 #include <omp.h>
+#include <mutex>
+
+std::mutex g_mutex;
 
 struct PVLineEqInt {
 	int a;
@@ -95,7 +98,7 @@ void PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_
 			}
 		}
 
-#pragma omp critical
+		std::lock_guard<std::mutex> guard(g_mutex);
 		sel |= local_sel;
 	}
 
