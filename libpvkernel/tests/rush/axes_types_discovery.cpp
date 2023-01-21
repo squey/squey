@@ -81,6 +81,7 @@ int main()
 
 #ifndef INSPECTOR_BENCH
 	PVCol col(0);
+	(void) col;
 	for (PVCol col(0); col < (PVCol)types_fmt.get_storage_format().size(); col++) {
 		std::string type;
 		std::string type_format;

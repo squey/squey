@@ -243,7 +243,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	                     tbb::simple_partitioner());
 
 	if (_tree_data) {
-		PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, 0);
+		PVCore::PVAlignedAllocator<PVRow, 4>().deallocate(_tree_data, 0);
 	}
 	_tree_data = PVCore::PVAlignedAllocator<PVRow, 16>().allocate(reduce_body.alloc_size());
 

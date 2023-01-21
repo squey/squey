@@ -80,7 +80,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	    : PVSource(scene, descr.get_inputs(), descr.get_source_creator(), descr.get_format())
 	{
 	}
-	~PVSource();
+	virtual ~PVSource();
 
   public:
 	void load_data() { wait_extract_end(extract(0)); }

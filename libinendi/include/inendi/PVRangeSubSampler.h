@@ -108,7 +108,7 @@ class PVRangeSubSampler
 	template <SAMPLING_MODE mode>
 	void set_sampling_mode()
 	{
-		_compute_ranges_reduction_f = [this](auto... args) {
+		_compute_ranges_reduction_f = [&](auto... args) {
 			compute_ranges_reduction<mode>(args...);
 		};
 	}

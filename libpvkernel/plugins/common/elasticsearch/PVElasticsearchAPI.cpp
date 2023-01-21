@@ -876,7 +876,7 @@ bool PVRush::PVElasticsearchAPI::extract(const PVRush::PVElasticsearchQuery& que
 
 		scroll(curl, query, _init_scroll, i, _slice_count, _max_result_window, json_buffer, error);
 
-		end = end | parse_scroll_results(curl, json_buffer, _scroll_ids[i], local_rows[i]);
+		end = end || parse_scroll_results(curl, json_buffer, _scroll_ids[i], local_rows[i]);
 	}
 	_init_scroll = false;
 

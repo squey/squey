@@ -83,7 +83,6 @@ PVCore::PVTextChunk* PVRush::PVElasticsearchSource::operator()()
 
 	// Create a chunk w/ no memory for its internal buffer
 	PVCore::PVTextChunk* chunk = PVCore::PVTextChunkMem<>::allocate(0, this);
-	size_t chunk_size = 0;
 	chunk->set_index(_next_index);
 
 	for (const std::vector<std::string>& row : rows) {
@@ -92,7 +91,6 @@ PVCore::PVTextChunk* PVRush::PVElasticsearchSource::operator()()
 		for (const std::string& field : row) {
 			PVCore::PVField f(*elt);
 			f.allocate_new(field.size());
-			chunk_size += field.size();
 			memcpy(f.begin(), field.c_str(), field.size());
 			elt->fields().push_back(f);
 		}

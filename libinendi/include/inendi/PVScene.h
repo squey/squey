@@ -59,7 +59,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 {
   public:
 	PVScene(PVRoot& root, std::string const& scene_name);
-	~PVScene();
+	virtual ~PVScene();
 
   public:
 	template <class... T>

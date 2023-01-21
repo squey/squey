@@ -100,7 +100,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
   public:
 	explicit PVView(PVPlotted& plotted);
-	~PVView();
+	virtual ~PVView();
 
   public:
 	std::string get_serialize_description() const override { return "View: " + get_name(); }

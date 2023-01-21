@@ -141,7 +141,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 
     // Help
     QPushButton* help_button = new QPushButton("&Help");
-    QObject::connect(help_button, &QPushButton::clicked, [=,this]() {
+    QObject::connect(help_button, &QPushButton::clicked, [=]() {
         QVariant data_anchor("_python_scripting");
         PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL, parent, data_anchor);
         about_dialog->exec();

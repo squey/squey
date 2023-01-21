@@ -463,8 +463,8 @@ class FlowSplitter : public PacketSplitter
 	stream_infos_t extract_flow(const pcap_pkthdr* header, const u_char* packet)
 	{
 		uint16_t protocol = (uint8_t)IPPROTO_MAX;
-		in6_addr ip_src = {{0, 0, 0, 0}};
-		in6_addr ip_dst = {{0, 0, 0, 0}};
+		in6_addr ip_src = {{ .__u6_addr32 = { 0, 0, 0, 0 }}};
+		in6_addr ip_dst = {{ .__u6_addr32 = { 0, 0, 0, 0 }}};
 		uint16_t ip_src_port = 0;
 		uint16_t ip_dst_port = 0;
 		time_t timestamp = header->ts.tv_sec;

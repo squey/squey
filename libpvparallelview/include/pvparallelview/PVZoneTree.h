@@ -173,7 +173,7 @@ class PVZoneTree : public PVZoneTreeBase
 	~PVZoneTree() override
 	{
 		if (_tree_data) {
-			PVCore::PVAlignedAllocator<PVRow, 16>().deallocate(_tree_data, 0);
+			PVCore::PVAlignedAllocator<PVRow, 4>().deallocate(_tree_data, 0);
 		}
 	}
 

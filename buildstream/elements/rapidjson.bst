@@ -4,10 +4,10 @@ description: |
     A fast JSON parser/generator for C++ with both SAX/DOM style API
 
 sources:
-- kind: tar
+- kind: git
 
-  url: https://github.com/Tencent/rapidjson/archive/v1.1.0.tar.gz
-  ref: bf7ced29704a1e696fbccf2a2b4ea068e7774fa37f6d7dd4039d0787f8bed98e
+  url: https://github.com/Tencent/rapidjson
+  ref: 012be8528783cdbf4b7a9e64f78bd8f056b97e24
   
 variables:
   cmake-local: |

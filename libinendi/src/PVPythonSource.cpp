@@ -239,7 +239,7 @@ void Inendi::PVPythonSource::insert_column(const pybind11::array& column, const 
     // Check array size
     const PVRush::PVNraw& nraw = _source.get_rushnraw();
     if (column.size() != nraw.row_count()) {
-        throw std::invalid_argument(std::string("Array size mismatch, expected size is " + nraw.row_count()));
+        throw std::invalid_argument(std::string("Array size mismatch, expected size is ") + std::to_string(nraw.row_count()));
     }
 
     // Check array type
@@ -312,12 +312,12 @@ void Inendi::PVPythonSource::delete_column(const std::string& column_name, size_
  {
     Inendi::PVView* view = _source.current_view();
     Inendi::PVLayer* layer = view->get_layer_stack().append_new_layer(row_count(), layer_name.c_str());
-    if (not sel_array.size() == 0) {
+    if (sel_array.size() != 0) {
         if (not pybind11::dtype("bool").is(sel_array.dtype())) {
             throw std::invalid_argument(std::string("invalid dtype, should be bool"));
         }
         if ((size_t)sel_array.size() != row_count()) {
-            throw std::invalid_argument(std::string("Selection array size mismatch, expected size is " + row_count()));
+            throw std::invalid_argument(std::string("Selection array size mismatch, expected size is ") + std::to_string(row_count()));
         }
         Inendi::PVSelection selection(row_count());
         pybind11::buffer_info sel_buffer = sel_array.request();

@@ -302,7 +302,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 		for (size_t col = 0; col < _column_count; col++) {
 			for (size_t idx = 0; idx < _formatters.size(); idx++) {
 				_matching_formatters[col][idx] =
-				    _matching_formatters[col][idx] & matching_formatters[col][idx];
+				    _matching_formatters[col][idx] && matching_formatters[col][idx];
 			}
 		}
 		_row_count += elts.size();
