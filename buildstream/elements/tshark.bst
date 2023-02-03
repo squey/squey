@@ -6,10 +6,10 @@ description: |
     either global or a member function, regardless of whether it is static or virtual. 
 
 sources:
-- kind: tar
+- kind: git
 
-  url: https://www.wireshark.org/download/src/wireshark-3.6.7.tar.xz
-  ref: cce10a35caa2f79b73d3e6e4dc5388dd47d216114a550fdeb06ae78da0edb7c5
+  url: https://gitlab.com/wireshark/wireshark
+  ref: 4a304d7ec2224a766b7c32b37bbff295f51b9e77
 
 variables:
   cmake-local: |
