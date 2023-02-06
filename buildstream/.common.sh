@@ -13,10 +13,14 @@ if [ -z "$WORKSPACE_PREFIX" ]; then
 fi
 
 NVIDIA_VERSION_NAME=$(flatpak --gl-drivers|grep "nvidia") || true
-GL_HOST_DIR="$HOME/.local/share/flatpak/runtime/org.freedesktop.Platform.GL.$NVIDIA_VERSION_NAME/x86_64/1.4/active/files"
+GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.$NVIDIA_VERSION_NAME/x86_64/1.4/active/files"
+GL_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_HOST_DIR"
+GL_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_HOST_DIR"
 GL_MOUNT_OPTS=""
-if [ -d "$GL_HOST_DIR" ]; then
-    GL_MOUNT_OPTS="--mount $GL_HOST_DIR $GL_TARGET_DIR"
+if [ -d "$GL_HOST_DIR_USER" ]; then
+    GL_MOUNT_OPTS="--mount $GL_HOST_DIR_USER $GL_TARGET_DIR"
+elif [ -d "$GL_HOST_DIR_SYSTEM" ]; then
+    GL_MOUNT_OPTS="--mount $GL_HOST_DIR_SYSTEM $GL_TARGET_DIR"
 else
     if [ -z "$NVIDIA_VERSION_NAME" ]; then
         echo "Please, install NVIDIA Drivers in order to have GPU acceleration."

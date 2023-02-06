@@ -12,7 +12,16 @@ export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$GL_TARGET_DIR/lib"
 python_version=`python3 -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
 export PYTHONPATH="/app/lib/python${python_version}/site-packages"
 runtime_branch=`sed -n "s/  track: 'freedesktop-sdk-\(.*\)'\.*$/\1/ p" "${SOURCE_DIR}/buildstream/elements/freedesktop-sdk.bst" | cut -d "." -f 1,2`
-export PYTHONPATH=$PYTHONPATH:"$HOME/.local/share/flatpak/runtime/org.freedesktop.Sdk/x86_64/${runtime_branch}/active/files/lib/python${python_version}/site-packages"
+
+PYTHONPATH_DIR="runtime/org.freedesktop.Sdk/x86_64/${runtime_branch}/active/files/lib/python${python_version}/site-packages"
+PYTHONPATH_DIR_USER="$HOME/.local/share/flatpak/$PYTHONPATH_DIR"
+PYTHONPATH_DIR_SYSTEM="/var/lib/flatpak/$PYTHONPATH_DIR"
+if [ -d "$PYTHONPATH_DIR_USER" ]; then
+    export PYTHONPATH="$PYTHONPATH_DIR_USER"
+elif [ -d "$PYTHONPATH_DIR_SYSTEM" ]; then
+    export PYTHONPATH="$PYTHONPATH_DIR_SYSTEM"
+fi
+
 
 echo "/app/lib/libpocl.so" > "$GL_TARGET_DIR/OpenCL/vendors/pocl.icd" 2> /dev/null
 
