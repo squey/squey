@@ -121,3 +121,9 @@ QString PVFieldsFilter<many_to_many>::type_name()
 	return QString("generic");
 }
 } // namespace PVFilter
+
+// Explicit template instanciation is needed for clang to avoid creating multiple
+// instances of the same singleton type
+template class PVCore::PVClassLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_one>>;
+template class PVCore::PVClassLibrary<PVFilter::PVFieldsFilter<PVFilter::one_to_many>>;
+template class PVCore::PVClassLibrary<PVFilter::PVFieldsFilter<PVFilter::many_to_many>>;
