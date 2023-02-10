@@ -27,6 +27,7 @@ build testsuite:
   extends: .build
   script:
     - ./build.sh 
+        --cxx_compiler=clang++
         --branch="${CI_COMMIT_REF_NAME}" 
         --workspace-prefix="/bst_workspace" 
         --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
@@ -41,6 +42,7 @@ build release:
     - if [ "$UPDATE_INSTALLERS_ONLY" = "false" ]; then
       ./build.sh 
       --user-target=customer 
+      --cxx_compiler=g++ 
       --branch="${CI_COMMIT_REF_NAME}" 
       --workspace-prefix="/bst_workspace" 
       --flatpak-export=true 

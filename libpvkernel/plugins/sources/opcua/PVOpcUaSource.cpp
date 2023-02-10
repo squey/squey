@@ -210,7 +210,7 @@ void PVRush::PVOpcUaSource::download_full()
 
 		_api.read_node_history(
 		    _node_ids[node], chunk_start, _query_end, _chunk_size,
-		    [this, elm_size, &node_data](UA_HistoryData* data, bool has_more) {
+		    [elm_size, &node_data](UA_HistoryData* data, bool has_more) {
 			    for (size_t i = 0; i < data->dataValuesSize; ++i) {
 				    auto& dataval = data->dataValues[i];
 				    if (dataval.value.type != node_data.type) {

@@ -115,7 +115,7 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 {
 	auto replaceable = [this](auto** widget_ptr, auto replacer = nullptr) {
 		QWidget* widget = *widget_ptr ? *widget_ptr : new QWidget();
-		_updaters.push_back([this, widget_ptr, widget, replacer]() mutable {
+		_updaters.push_back([=]() mutable {
 			auto new_widget = *widget_ptr;
 			if (new_widget != nullptr and widget != new_widget) {
 				if constexpr (std::is_same_v<decltype(replacer), std::nullptr_t>) {

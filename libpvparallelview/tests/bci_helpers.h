@@ -136,14 +136,24 @@ struct PVBCIPatterns {
 	static const int _nfuncs = NUMBER_BCI_PATTERNS;
 };
 
-#define INIT_STATIC_PATTERNS(BBITS)                                                                \
-	template <>                                                                                    \
-	const PVParallelView::PVBCIPatterns<BBITS>::init_func_t                                        \
-	    PVParallelView::PVBCIPatterns<BBITS>::_funcs[NUMBER_BCI_PATTERNS] = {                      \
-	        init_random_codes, init_gradient_codes, init_updown_codes, init_updown2_codes};        \
-	template <>                                                                                    \
-	const char* PVParallelView::PVBCIPatterns<BBITS>::_patterns_str[NUMBER_BCI_PATTERNS] = {       \
+template <> const PVParallelView::PVBCIPatterns<10>::init_func_t PVParallelView::PVBCIPatterns<10>::_funcs[NUMBER_BCI_PATTERNS];
+template <> const PVParallelView::PVBCIPatterns<11>::init_func_t PVParallelView::PVBCIPatterns<11>::_funcs[NUMBER_BCI_PATTERNS];
+
+template <> const char* PVParallelView::PVBCIPatterns<10>::_patterns_str[NUMBER_BCI_PATTERNS];
+template <> const char* PVParallelView::PVBCIPatterns<11>::_patterns_str[NUMBER_BCI_PATTERNS];
+
+template <> const int PVParallelView::PVBCIPatterns<10>::_nfuncs;
+template <> const int PVParallelView::PVBCIPatterns<11>::_nfuncs;
+
+#define INIT_STATIC_PATTERNS(BBITS)                                                                          \
+	template <>                                                                                              \
+	const PVParallelView::PVBCIPatterns<BBITS>::init_func_t                                                  \
+	    PVParallelView::PVBCIPatterns<BBITS>::_funcs[NUMBER_BCI_PATTERNS] = {                                \
+	        init_random_codes, init_gradient_codes, init_updown_codes, init_updown2_codes};                  \
+	template <>                                                                                              \
+	const char* PVParallelView::PVBCIPatterns<BBITS>::_patterns_str[NUMBER_BCI_PATTERNS] = {                 \
 	    "random", "gardient", "updown", "updown2"};
 }
 
 #endif
+

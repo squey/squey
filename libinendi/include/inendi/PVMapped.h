@@ -77,6 +77,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	PVMapped(PVSource& src,
 	         std::string const& name,
 	         std::list<Inendi::PVMappingProperties>&& columns);
+	virtual ~PVMapped(){};
 
   public:
 	/**

@@ -392,7 +392,7 @@ void PVParallelView::PVLinesView::translate(int32_t view_x, uint32_t view_width,
 			}
 		}
 	};
-	auto draw_zones = [this, fzone_draw](size_t draw_begin, size_t draw_end) {
+	auto draw_zones = [fzone_draw](size_t draw_begin, size_t draw_end) {
 		for (size_t zone_index = draw_begin; zone_index < draw_end; ++zone_index) {
 			fzone_draw(zone_index);
 		}

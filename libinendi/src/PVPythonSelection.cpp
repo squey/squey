@@ -75,7 +75,7 @@ void Inendi::PVPythonSelection::set(const pybind11::array& sel_array)
         throw std::invalid_argument(std::string("invalid dtype, should be bool"));
     }
     if (sel_array.size() != (long int)size()) {
-        throw std::invalid_argument(std::string("Selection array size mismatch, expected size is " + size()));
+        throw std::invalid_argument(std::string("Selection array size mismatch, expected size is ") + std::to_string(size()));
     }
     pybind11::buffer_info sel_buffer = sel_array.request();
     for (size_t i = 0; i < size(); i++) {

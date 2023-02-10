@@ -369,7 +369,7 @@ void PVRush::PVOpcUaParamsWidget::export_query_result(PVCore::PVStreamingCompres
 	//bool query_end = false;
 
 	PVRush::PVOpcUaAPI es(get_infos());
-	const PVOpcUaQuery& query = get_query(error);
+	//const PVOpcUaQuery& query = get_query(error);
 
 	using PVRush::PVUtils::safe_export;
 

@@ -96,7 +96,7 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	          std::string const& name = "default");
 
   public:
-	~PVPlotted();
+	virtual ~PVPlotted();
 
   public:
 	// Serialization

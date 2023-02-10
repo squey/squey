@@ -59,7 +59,7 @@ PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& 
 	set_draw_mode(PVSeriesView::DrawMode::Lines);
 }
 
-PVSeriesRendererOpenGL::~PVSeriesRendererOpenGL()
+PVSeriesRendererOpenGL::~PVSeriesRendererOpenGL() noexcept
 {
 	cleanupGL();
 }
@@ -355,7 +355,7 @@ void PVSeriesRendererOpenGL::fill_dbo_GL()
 	    static_cast<DrawArraysIndirectCommand*>(_dbo.map(QOpenGLBuffer::WriteOnly));
 	assert(dbo_bytes);
 	std::generate(dbo_bytes, dbo_bytes + _lines_per_vbo_count,
-	              [line = 0u, vertices_per_line, this]() mutable {
+	              [line = 0u, vertices_per_line]() mutable {
 		              uint32_t draw_index = line++;
 		              return DrawArraysIndirectCommand{GLuint(vertices_per_line), 1,
 		                                               GLuint(draw_index * vertices_per_line),

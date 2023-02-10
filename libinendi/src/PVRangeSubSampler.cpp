@@ -198,7 +198,7 @@ void Inendi::PVRangeSubSampler::set_split_column(const pvcop::db::array* split)
 	} else {
 		_time = std::cref(_original_time);
 	}
-	_minmax = std::move(_time.get().minmax());
+	_minmax = _time.get().minmax();
 	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
 	_sorted_indexes = _time.get().parallel_sort();
 	_sort = _sorted_indexes.to_core_array();

@@ -60,9 +60,6 @@
 
 #include <pvlogger.h>
 
-static constexpr const size_t ts_count = 40000;
-static constexpr const size_t points_count = 2000;
-
 static constexpr const char* csv_file = TEST_FOLDER "/picviz/timeserie_fusion.csv";
 static constexpr const char* csv_file_format = TEST_FOLDER "/picviz/timeserie_fusion.csv.format";
 

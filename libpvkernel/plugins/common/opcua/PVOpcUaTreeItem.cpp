@@ -306,7 +306,7 @@ QVariant PVOpcUaTreeItem::user_data(int column)
 
 QString PVOpcUaTreeItem::variantToString(const QVariant& value, const QString& typeNodeId) const
 {
-	if (value.typeId() == QVariant::List) {
+	if (value.typeId() == QMetaType::QVariantList) {
 		const auto list = value.toList();
 		QStringList concat;
 
@@ -331,9 +331,9 @@ QString PVOpcUaTreeItem::variantToString(const QVariant& value, const QString& t
 		return QString::number(value.toInt());
 	else if (typeNodeId == QLatin1String("ns=0;i=5")) // UInt16
 		return QString::number(value.toUInt());
-	else if (value.typeId() == QVariant::ByteArray)
+	else if (value.typeId() == QMetaType::QByteArray)
 		return QLatin1String("0x") + value.toByteArray().toHex();
-	else if (value.typeId() == QVariant::DateTime)
+	else if (value.typeId() == QMetaType::QDateTime)
 		return value.toDateTime().toString(Qt::ISODate);
 	else if (value.canConvert<QOpcUaQualifiedName>()) {
 		const auto name = value.value<QOpcUaQualifiedName>();

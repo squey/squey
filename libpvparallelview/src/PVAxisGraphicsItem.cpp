@@ -242,15 +242,12 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 			                   get_axis_density());
 		}
 
-		int width = _axis_width;
-
 		// draw a circle for invalid/empty values
 		if (invalid == pvcop::db::INVALID_TYPE::EMPTY) {
 			painter->setBrush(_axis_fmt.get_color().toQColor());
 		} else {
 			painter->setBrush(Qt::black);
 			painter->setPen(QPen(_axis_fmt.get_color().toQColor(), 1));
-			width--;
 		}
 
 		painter->drawEllipse(QPoint(1, _axis_length - 1), 3, 3);
@@ -509,8 +506,8 @@ QImage PVParallelView::PVAxisGraphicsItem::get_axis_density()
 		if (not _axis_density_worker.joinable()) {
 			_axis_density_worker_canceled.test_and_set();
 			_axis_density_worker_finished.test_and_set();
-			_axis_density_worker = std::thread([this, axis_length = _axis_length] {
-				render_density(_axis_length);
+			_axis_density_worker = std::thread([axis_length = _axis_length, this] {
+				render_density(axis_length);
 				_axis_density_worker_finished.clear();
 			});
 		} else {
