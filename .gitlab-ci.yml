@@ -146,6 +146,7 @@ sast:
     - privileged-docker
 include:
 - template: Security/SAST.gitlab-ci.yml
+- template: Code-Quality.gitlab-ci.yml
 
 flawfinder-sast:
   rules:
@@ -154,6 +155,4 @@ flawfinder-sast:
 semgrep-sast:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
-
 
