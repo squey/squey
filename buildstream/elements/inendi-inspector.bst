@@ -94,13 +94,13 @@ variables:
 config:
   configure-commands:
     - CCACHE_COMPILER=$([ %{code_coverage} == 1 ] && echo %{cxx_compiler} || echo ccache)
+    - '[[ %{code_coverage} == 1 ]] && rm -rf %{build-dir}  || true' # Avoid build cache to interfere with code coverage
     - rm -rf %{build-dir}/CMakeCache.txt # Clear CMake cache to use different compilers
     - cmake -B%{build-dir} -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER
     
   (?):
   - disable_testsuite == False:
       build-commands:
-        - '[[ %{code_coverage} == 1 ]] && find . \( -name *.gcno -o -name *.gcda \) -exec rm -rf "{}" \; || true'
         - "%{make}"
         - cd %{build-dir} && ninja inspector_testsuite
         - 'cd %{build-dir} ; if [[ %{code_coverage} == 1 ]]; then ninja pvcop_testsuite; fi'
