@@ -155,3 +155,9 @@ semgrep-sast:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
+gitguardian-scan:
+  image: gitguardian/ggshield:latest
+  stage: test
+  script: ggshield secret scan ci
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule"'
