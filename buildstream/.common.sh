@@ -31,7 +31,7 @@ fi
 MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-inspector /srv/tmp-inspector"
 
 # Install Buildstream and bst-external plugins if needed
-command -v "bst" &> /dev/null || { pip install --user BuildStream==1.6.3; }
+command -v "bst" &> /dev/null || { pip install --user BuildStream==1.6.7; }
 python3 -c "import bst_external" &> /dev/null || pip install --user -e "$DIR/plugins/bst-external"
 
 function check_bindfs()
@@ -49,12 +49,11 @@ function open_workspace()
     if [ "$CURRENT_WORKSPACE" != "$WORKSPACE_PATH" ]; then
         if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
             check_bindfs
-            mkdir -p "$DIR/../release_build" "$DIR/../debug_build"
-            bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../release_build"
-            bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../debug_build"
+            mkdir -p "$DIR/../builds"
+            bindfs --no-allow-other "$DIR/empty/" "$DIR/../builds"
         elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
             check_bindfs
-            bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/workspace_build"
+            bindfs --no-allow-other "$DIR/empty/" "$DIR/workspace_build"
         fi
     
         bst workspace close inendi-inspector.bst || true
@@ -66,8 +65,7 @@ function open_workspace()
         fi
         
         if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
-            fusermount -u "$DIR/../release_build"
-            fusermount -u "$DIR/../debug_build"
+            fusermount -u "$DIR/../builds"
         elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
             fusermount -u "$DIR/workspace_build"
         fi

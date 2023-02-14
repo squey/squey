@@ -136,6 +136,7 @@ struct PVBCIPatterns {
 	static const int _nfuncs = NUMBER_BCI_PATTERNS;
 };
 
+#ifdef __clang__ // fix warning with clang but would break build with gcc
 template <> const PVParallelView::PVBCIPatterns<10>::init_func_t PVParallelView::PVBCIPatterns<10>::_funcs[NUMBER_BCI_PATTERNS];
 template <> const PVParallelView::PVBCIPatterns<11>::init_func_t PVParallelView::PVBCIPatterns<11>::_funcs[NUMBER_BCI_PATTERNS];
 
@@ -144,6 +145,7 @@ template <> const char* PVParallelView::PVBCIPatterns<11>::_patterns_str[NUMBER_
 
 template <> const int PVParallelView::PVBCIPatterns<10>::_nfuncs;
 template <> const int PVParallelView::PVBCIPatterns<11>::_nfuncs;
+#endif
 
 #define INIT_STATIC_PATTERNS(BBITS)                                                                          \
 	template <>                                                                                              \

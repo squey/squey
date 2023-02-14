@@ -14,8 +14,17 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_ARCH_FLAGS "-march=${ARCH_TYPE}")
 
 set(CMAKE_CXX_COMMON_FLAGS "-Wall -Wextra ${CMAKE_CXX_ARCH_FLAGS} -fPIC")
+if (WARNINGS_AS_ERRORS)
+    set(CMAKE_CXX_COMMON_FLAGS "$CMAKE_CXX_COMMON_FLAGS" -Werror)
+endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_COMMON_FLAGS}")
+if (CODE_COVERAGE)
+	set(CODE_COVERAGE_FLAGS "-O0 --coverage")
+    set(CTEST_COVERAGE_COMMAND "gcov")
+    message(STATUS "Code coverage instrumentation enabled")
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")
 
 ###############################################################################
 # Configure linker
@@ -36,11 +45,13 @@ endif ()
 
 # Use ccache if installed
 find_program(CCACHE_PROGRAM ccache)
-if(CCACHE_PROGRAM)
-    set(CXX_LAUNCHER "${CCACHE_PROGRAM}")
-    message(STATUS "Compilation will be done with CCache")
-    message(STATUS "CCACHE_DIR=${CCACHE_DIR}")
-endif(CCACHE_PROGRAM)
+if(NOT CODE_COVERAGE)
+    if(CCACHE_PROGRAM)
+        set(CXX_LAUNCHER "${CCACHE_PROGRAM}")
+        message(STATUS "Compilation will be done with CCache")
+        message(STATUS "CCACHE_DIR=${CCACHE_DIR}")
+    endif()
+endif()
 
 MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
