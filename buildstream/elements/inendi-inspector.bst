@@ -96,7 +96,8 @@ config:
     - CCACHE_COMPILER=$([ %{code_coverage} == 1 ] && echo %{cxx_compiler} || echo ccache)
     - '[[ %{code_coverage} == 1 ]] && rm -rf %{build-dir}  || true' # Avoid build cache to interfere with code coverage
     - rm -rf %{build-dir}/CMakeCache.txt # Clear CMake cache to use different compilers
-    - cmake -B%{build-dir} -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER
+    - WARNINGS_AS_ERRORS=$([[ %{cxx_compiler} == "clang++" ]] && echo 1 || echo 0)
+    - cmake -B%{build-dir} -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER -DWARNINGS_AS_ERRORS=$(WARNINGS_AS_ERRORS)
     
   (?):
   - disable_testsuite == False:
