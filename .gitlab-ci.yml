@@ -11,8 +11,8 @@ variables:
     description: "Only update the code coverage report"
 
 stages:
-  - build
   - test
+  - build
   - pages
   - publish
 
@@ -146,6 +146,7 @@ sast:
 include:
 - template: Security/SAST.gitlab-ci.yml
 - template: Code-Quality.gitlab-ci.yml
+- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
 
 flawfinder-sast:
   rules:
@@ -155,9 +156,7 @@ semgrep-sast:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-gitguardian-scan:
-  image: gitguardian/ggshield:latest
-  stage: test
-  script: ggshield secret scan ci
+secret_detection:
   rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
