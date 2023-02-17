@@ -61,7 +61,6 @@
 	<file alias="preferences-system-windows.png">resources/22x22/preferences-system-windows.png</file>
 	<file alias="user-trash.png">resources/22x22/user-trash.png</file>
 
-	<file alias="gmaps.html">resources/gmaps.html</file>
     <file alias="log-icon">resources/log-icon.png</file>
 
 	<!-- Boolean operator -->
