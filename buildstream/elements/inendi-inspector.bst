@@ -83,7 +83,6 @@ environment:
 variables:
   build-dir: "build"
   cmake-local: |
-    -DCMAKE_BUILD_TYPE=RelWithDebInfo \
     -DCMAKE_INSTALL_PREFIX=%{prefix} \
     -DARCH_TYPE=corei7 \
     -DUSER_TARGET=%{user_target} \
@@ -97,7 +96,10 @@ config:
     - '[[ %{code_coverage} == 1 ]] && rm -rf %{build-dir}  || true' # Avoid build cache to interfere with code coverage
     - rm -rf %{build-dir}/CMakeCache.txt # Clear CMake cache to use different compilers
     - WARNINGS_AS_ERRORS=$([[ %{cxx_compiler} == "clang++" ]] && echo 1 || echo 0)
-    - cmake -B%{build-dir} -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER -DWARNINGS_AS_ERRORS=$(WARNINGS_AS_ERRORS)
+    - CMAKE_BUILD_TYPE=$([ %{code_coverage} == 1 ] && echo "Debug" || echo "RelWithDebInfo")
+    - cmake -B%{build-dir} -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER \
+                                                        -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
+                                                        -DWARNINGS_AS_ERRORS=$(WARNINGS_AS_ERRORS)
     
   (?):
   - disable_testsuite == False:
