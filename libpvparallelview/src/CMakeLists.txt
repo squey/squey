@@ -148,12 +148,6 @@ QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 set(QT6_LIBS Qt6Core Qt6Gui Qt6Widgets Qt6Xml Qt6OpenGL Qt6OpenGLWidgets)
 
-add_custom_command(
-  OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
-  COMMAND ${CMAKE_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
-  )
-
 include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
 
 list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)

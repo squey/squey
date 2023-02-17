@@ -36,8 +36,6 @@ PVPythonInputDialog.cpp
 plugins.cpp
 )
 
-set(SRC_FILES ${SRC_FILES} PVMineset.cpp)
-
 set(WIDGETS_MOC_HEADERS
 ../include/inendi/widgets/PVAxisComboBox.h
 ../include/inendi/widgets/PVMappingPlottingEditDialog.h

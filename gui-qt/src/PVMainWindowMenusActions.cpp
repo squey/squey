@@ -26,8 +26,6 @@
 #include <PVMainWindow.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
-#include <inendi/PVMineset.h>
-
 #include <QAction>
 #include <QMenuBar>
 
@@ -63,9 +61,6 @@ void PVInspector::PVMainWindow::create_actions()
 	// Export our selection Action
 	export_selection_Action = new QAction(tr("&Selection..."), this);
 	export_selection_Action->setToolTip(tr("Export the current selection"));
-
-	export_selection_to_mineset_Action = new QAction(tr("&Selection to Mineset..."), this);
-	export_selection_to_mineset_Action->setToolTip(tr("Export the current selection to Mineset"));
 
 	quit_Action = new QAction(tr("&Quit"), this);
 	quit_Action->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
@@ -165,9 +160,6 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addMenu(import_Menu);
 	QMenu* export_Menu = new QMenu(tr("E&xport"));
 	export_Menu->addAction(export_selection_Action);
-	if (Inendi::PVMineset::is_enabled()) {
-		export_Menu->addAction(export_selection_to_mineset_Action);
-	}
 	file_Menu->addMenu(export_Menu);
 	file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
@@ -231,7 +223,6 @@ void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
 void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
 	export_selection_Action->setEnabled(cond);
-	export_selection_to_mineset_Action->setEnabled(cond);
 
 	filter_Menu->setEnabled(cond);
 	events_Menu->setEnabled(cond);
@@ -260,8 +251,6 @@ void PVInspector::PVMainWindow::connect_actions()
 	        SLOT(project_new_Slot())); // new connect syntax breaks compilation
 	connect(export_selection_Action, &QAction::triggered, this,
 	        &PVMainWindow::export_selection_Slot);
-	connect(export_selection_to_mineset_Action, &QAction::triggered, this,
-	        &PVMainWindow::export_selection_to_mineset_Slot);
 	connect(quit_Action, &QAction::triggered, this, &PVMainWindow::quit_Slot);
 
 	connect(view_display_inv_elts_Action, &QAction::triggered, this,

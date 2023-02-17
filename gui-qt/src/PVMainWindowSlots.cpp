@@ -33,8 +33,6 @@
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
-#include <inendi/PVMineset.h>
-
 #include <inendi/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvparallelview/PVParallelView.h>
@@ -177,29 +175,6 @@ void PVInspector::PVMainWindow::export_selection_Slot()
 	Inendi::PVSelection const& sel = view->get_real_output_selection();
 
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel);
-}
-
-/******************************************************************************
- *
- * PVInspector::PVMainWindow::export_selection_to_mineset_Slot
- *
- *****************************************************************************/
-void PVInspector::PVMainWindow::export_selection_to_mineset_Slot()
-{
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
-
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_enable_cancel(false);
-		    try {
-			    std::string dataset_url = Inendi::PVMineset::import_dataset(*current_view());
-			    current_view()->add_mineset_dataset(dataset_url);
-			    QDesktopServices::openUrl(QUrl(dataset_url.c_str()));
-		    } catch (const Inendi::PVMineset::mineset_error& e) {
-			    pbox.critical("Error when exporting current selection to Mineset", e.what());
-		    }
-	    },
-	    "Exporting data to Mineset...", this);
 }
 
 /******************************************************************************
