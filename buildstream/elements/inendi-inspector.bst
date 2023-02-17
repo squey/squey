@@ -43,7 +43,6 @@ depends:
 - lbzip2.bst
 - gperftools.bst
 - libhwloc.bst
-- pwgen.bst
 - mm-common.bst
 - libsigcplusplus.bst
 - rapidjson.bst
