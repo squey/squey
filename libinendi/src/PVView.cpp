@@ -23,8 +23,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVMineset.h>
-
 #include <inendi/PVAxesCombination.h>   // for PVAxesCombination
 #include <inendi/PVCorrelationEngine.h> // for PVCorrelationEngine
 #include <inendi/PVLayer.h>             // for PVLayer
@@ -137,11 +135,6 @@ Inendi::PVView::~PVView()
 
 	// remove correlation
 	get_parent<Inendi::PVRoot>().correlations().remove(this, true /*both_ways*/);
-
-	for (const std::string& mineset_dataset : _mineset_datasets) {
-		std::thread req(Inendi::PVMineset::delete_dataset, mineset_dataset);
-		req.detach();
-	}
 
 	get_parent<PVRoot>().view_being_deleted(this);
 }

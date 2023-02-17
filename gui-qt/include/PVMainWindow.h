@@ -133,11 +133,6 @@ class PVMainWindow : public QMainWindow
 	void selection_set_from_layer_Slot();
 	void export_selection_Slot();
 
-	/**
-	 * Export selection and import it on mineset using there REST API.
-	 */
-	void export_selection_to_mineset_Slot();
-
 	void filter_Slot();
 	void new_format_Slot();
 	void cur_format_Slot();
@@ -228,7 +223,6 @@ class PVMainWindow : public QMainWindow
 	QAction* solution_save_Action;
 	QAction* solution_saveas_Action;
 	QAction* export_selection_Action;
-	QAction* export_selection_to_mineset_Action; //!< Menu to trigger mineset export
 	QAction* new_file_Action;
 	QAction* new_scene_Action;
 	QAction* quit_Action;
