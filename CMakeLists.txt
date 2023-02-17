@@ -79,6 +79,7 @@ else()
         --force-new-ctest-process --output-on-failure)
 endif()
 
+add_dependencies(inspector_testsuite inendi-inspector)
 add_dependencies(inspector_run_testsuite inspector_testsuite)
 add_custom_target(inspector_bench COMMAND ${CMAKE_CTEST_COMMAND} -R INSPECTOR_BENCH_)
 add_dependencies(inspector_bench inspector_testsuite)
