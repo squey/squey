@@ -94,7 +94,7 @@ config:
   configure-commands:
     - CCACHE_COMPILER=$([ %{code_coverage} == 1 ] && echo %{cxx_compiler} || echo ccache)
     - '[[ %{code_coverage} == 1 ]] && rm -rf %{build-dir}  || true' # Avoid build cache to interfere with code coverage
-    - rm -rf %{build-dir}/CMakeCache.txt # Clear CMake cache to use different compilers
+    - 'if grep "CMAKE_CXX_COMPILER:STRING" %{build-dir}/CMakeCache.txt | grep -v -q "%{cxx_compiler}" ; then rm -rf %{build-dir}/CMakeCache.txt; fi' # Clear CMake cache to use different compilers
     - WARNINGS_AS_ERRORS=$([[ %{cxx_compiler} == "clang++" ]] && echo 1 || echo 0)
     - CMAKE_BUILD_TYPE=$([ %{code_coverage} == 1 ] && echo "Debug" || echo "RelWithDebInfo")
     - cmake -B%{build-dir} -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER \
