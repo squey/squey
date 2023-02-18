@@ -104,12 +104,12 @@ if  [ "$RUN_TESTSUITE" = true ]; then
     cp --preserve -r /compilation/* .
     TESTS=\"-R INSPECTOR_TEST\"
     if [ $CODE_COVERAGE_ENABLED = true ]; then CODE_COVERAGE_COMMAND=\"-T coverage\"; TESTS=\"-R 'INSPECTOR_TEST|PVCOP_TEST'\"; fi
-    cd build && run_cmd.sh ctest --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS}
+    cd build && run_cmd.sh ctest --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS} || exit 1
     # Generate code coverage report
     if [ $CODE_COVERAGE_ENABLED = true ]; then
         ./scripts/gen_code_coverage_report.sh
         cp -r code_coverage_report /srv/tmp-inspector
-    fi"
+    fi" || exit 1 # fail the testsuite on errors
 fi
 
 # Export flatpak images
