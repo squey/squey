@@ -3,6 +3,14 @@
 set -e
 set -x
 
+function cleanup {
+  rm -rf $HOME/.cache/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
+  rm -rf $HOME/.cache/buildstream/build
+  rm -rf /srv/tmp-inspector/tomjon/*
+}
+
+trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
+
 usage() {
 echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--cxx_compiler=<g++/clang++>] [--user-target=<USER_TARGET>]"
 echo "                  [--workspace-prefix=<prefix>] [--repo=<repository_path>] [--gpg-private-key-path=<key>]"
@@ -142,11 +150,3 @@ fi
 
 # Push artifacts
 bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '` || true
-
-function cleanup {
-  rm -rf $HOME/.cache/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
-  rm -rf $HOME/.cache/buildstream/build
-  rm -rf /srv/tmp-inspector/tomjon/*
-}
-
-trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
