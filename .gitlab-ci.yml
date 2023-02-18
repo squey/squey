@@ -161,6 +161,7 @@ secret_detection:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "push"'
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+  interruptible: true
 
 code_quality_html:
   extends: code_quality
