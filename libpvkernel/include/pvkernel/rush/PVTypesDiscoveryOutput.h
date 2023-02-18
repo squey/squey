@@ -34,6 +34,7 @@
 #include <pvbase/general.h>
 
 #include <unordered_set>
+#include <memory>
 
 namespace pvcop
 {
@@ -77,7 +78,7 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 	using types_desc_t = std::vector<type_desc_t>;
 
 	autodet_type_t _types;
-	std::vector<pvcop::types::formatter_interface*> _formatters;
+	std::vector<std::unique_ptr<pvcop::types::formatter_interface>> _formatters;
 	types_desc_t _types_desc;
 	std::vector<std::string> _names;
 	matching_formatters_t _matching_formatters;

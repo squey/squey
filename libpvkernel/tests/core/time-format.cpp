@@ -56,8 +56,8 @@ int main(int argc, char** argv)
 	QTextStream in(&file);
 
 	UErrorCode err_ = U_ZERO_ERROR;
-	Calendar* cal = Calendar::createInstance(err_);
-	Calendar* cal_copy = Calendar::createInstance(err_);
+	std::unique_ptr<Calendar> cal(Calendar::createInstance(err_));
+	std::unique_ptr<Calendar> cal_copy(Calendar::createInstance(err_));
 	size_t line_num = 0;
 	while (!in.atEnd()) {
 		QString line = in.readLine().trimmed();
@@ -85,13 +85,13 @@ int main(int argc, char** argv)
 
 		PVCore::PVDateTimeParser parser(QStringList() << time_format);
 
-		PV_ASSERT_VALID(parser.mapping_time_to_cal(time_str, cal), "time_str",
+		PV_ASSERT_VALID(parser.mapping_time_to_cal(time_str, cal.get()), "time_str",
 		                qPrintable(time_str));
 
 		// Copy the date time parser and try it !
 		PVCore::PVDateTimeParser parser_copy(parser);
 
-		PV_ASSERT_VALID(parser_copy.mapping_time_to_cal(time_str, cal_copy), "time_str",
+		PV_ASSERT_VALID(parser_copy.mapping_time_to_cal(time_str, cal_copy.get()), "time_str",
 		                qPrintable(time_str));
 
 		UErrorCode err = U_ZERO_ERROR;
@@ -112,8 +112,6 @@ int main(int argc, char** argv)
 
 		++line_num;
 	}
-
-	delete cal;
 
 	return 0;
 }
