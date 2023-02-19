@@ -104,7 +104,7 @@ config:
   (?):
   - disable_testsuite == False:
       build-commands:
-        - cd %{build-dir} && ninja inspector_testsuite
+        - cd %{build-dir} && ninja && ninja inspector_testsuite
         - 'cd %{build-dir} ; if [[ %{code_coverage} == 1 ]]; then ninja pvcop_testsuite; fi'
         - cp -r scripts %{build-dir}
       install-commands:
