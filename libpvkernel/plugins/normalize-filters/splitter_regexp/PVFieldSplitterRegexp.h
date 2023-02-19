@@ -50,7 +50,7 @@ class PVFieldSplitterRegexp : public PVFieldsFilter<one_to_many>
 
   protected:
 	std::regex _regexp;
-	bool _full_line;
+	bool _full_line = false;
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterRegexp)
 };

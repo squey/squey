@@ -68,7 +68,7 @@ class PVFieldSplitterIP : public PVFieldsSplitter
 	                                           PVCore::PVField& field) override;
 
   private:
-	bool _ipv6;                   //!< Wether we split on ipv6 (or ipv4)
+	bool _ipv6 = false;           //!< Wether we split on ipv6 (or ipv4)
 	std::vector<size_t> _indexes; //!< Elements to keep from previous position.
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterIP)

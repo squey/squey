@@ -83,7 +83,7 @@ class PVDBInfos
 	QString _options;
 	QString _type;
 	QString _dbname;
-	uint16_t _port;
+	uint16_t _port = 0;
 };
 
 class PVDBServ : public PVDBInfos

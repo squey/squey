@@ -48,13 +48,13 @@ class PVFieldSplitterCSVParamWidget : public PVFieldsSplitterParamWidget
 	// PVFieldSplitterCSVParamWidget(const PVFieldSplitterCSVParamWidget& src);
 
   private:
-	QWidget* param_widget;
-	QSpinBox* _child_number_edit; //!< Widget to select number of child (number of column in csv)
-	PVWidgets::QKeySequenceWidget* separator_text;
-	PVWidgets::QKeySequenceWidget* quote_text;
+	QWidget* param_widget = nullptr;
+	QSpinBox* _child_number_edit = nullptr; //!< Widget to select number of child (number of column in csv)
+	PVWidgets::QKeySequenceWidget* separator_text = nullptr;
+	PVWidgets::QKeySequenceWidget* quote_text = nullptr;
 	// QLineEdit* separator_text;
-	QLabel* _recommands_label;
-	int id;
+	QLabel* _recommands_label = nullptr;
+	int id = 0;
 
   public:
 	QWidget* get_param_widget() override;

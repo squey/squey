@@ -319,8 +319,8 @@ class PVElasticsearchAPI
 	PVRush::PVElasticsearchInfos _infos; // Contains all the info to reach Elasticsearch server
 	size_t _scroll_count = 0; // total count of event that will be returned by a scrolling session
 	bool _init_scroll = true;
-	size_t _slice_count;
-	size_t _max_result_window;
+	size_t _slice_count = 0;
+	size_t _max_result_window = 0;
 	PVCore::PVVersion _version;
 	mutable std::string _mapping_type; // for retro-compatibility
 	using curlp_t = std::unique_ptr<CURL, std::function<void(CURL*)>>;

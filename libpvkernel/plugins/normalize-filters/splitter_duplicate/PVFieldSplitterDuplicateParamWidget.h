@@ -53,8 +53,8 @@ class PVFieldSplitterDuplicateParamWidget : public PVFieldsSplitterParamWidget
 	void updateNChilds(int n);
 
   private:
-	QWidget* _param_widget;
-	QSpinBox* _duplications_spin_box;
+	QWidget* _param_widget = nullptr;
+	QSpinBox* _duplications_spin_box = nullptr;
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterDuplicateParamWidget)

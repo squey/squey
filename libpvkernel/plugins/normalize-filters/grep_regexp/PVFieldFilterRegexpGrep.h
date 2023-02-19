@@ -44,7 +44,7 @@ class PVFieldFilterRegexpGrep : public PVFieldFilterGrep
 
   private:
 	std::vector<std::regex> _rxs;
-	bool _inverse;
+	bool _inverse = false;
 
 	CLASS_FILTER(PVFilter::PVFieldFilterRegexpGrep)
 };

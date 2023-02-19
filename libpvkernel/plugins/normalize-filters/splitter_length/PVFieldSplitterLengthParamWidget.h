@@ -54,7 +54,7 @@ class PVFieldSplitterLengthParamWidget : public PVFieldsSplitterParamWidget
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterLengthParamWidget)
 
   private:
-	QPushButton* _side;
+	QPushButton* _side = nullptr;
 };
 }
 

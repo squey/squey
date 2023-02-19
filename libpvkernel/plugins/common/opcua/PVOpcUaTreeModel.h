@@ -54,7 +54,7 @@ class PVOpcUaTreeModel : public QAbstractItemModel
 	Qt::ItemFlags flags(const QModelIndex& index) const override;
 
   private:
-	QOpcUaClient* m_client;
+	QOpcUaClient* m_client = nullptr;
 	std::unique_ptr<PVOpcUaTreeItem> m_root_item;
 
 	friend class PVOpcUaTreeItem;

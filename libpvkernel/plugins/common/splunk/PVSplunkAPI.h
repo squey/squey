@@ -219,7 +219,7 @@ class PVSplunkAPI
 	std::string _data;              //! the internal buffer filled by an extract query
 	fd_set _fdset;                  //! file descriptor needed by cURL polling API
 	int _ongoing_extract_query = 0; //! used the cURL polling API
-	bool _extract_canceled;         //! used the to abort an angoing extract query
+	bool _extract_canceled = false; //! used the to abort an angoing extract query
 	std::mutex _mutex;              //! used to protected the internel buffer when accessing it
 	struct timeval _tv;             //! used by cURL timeout
 	CURLM* _multi;                  //! cURL multi request handler

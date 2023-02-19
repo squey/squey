@@ -74,23 +74,23 @@ class PVFieldConverterSubstitutionParamWidget : public PVFieldsConverterParamWid
 	void move_rows_down();
 
   private:
-	QPushButton* _invert_button;
-	QGroupBox* _whole_field_group_box;
-	QWidget* _param_widget;
-	QLineEdit* _file_path_line_edit;
-	QLineEdit* _default_value_line_edit;
-	QCheckBox* _use_default_value_checkbox;
-	PVWidgets::QKeySequenceWidget* _separator_char;
-	PVWidgets::QKeySequenceWidget* _quote_char;
+	QPushButton* _invert_button = nullptr;
+	QGroupBox* _whole_field_group_box = nullptr;
+	QWidget* _param_widget = nullptr;
+	QLineEdit* _file_path_line_edit = nullptr;
+	QLineEdit* _default_value_line_edit = nullptr;
+	QCheckBox* _use_default_value_checkbox = nullptr;
+	PVWidgets::QKeySequenceWidget* _separator_char = nullptr;
+	PVWidgets::QKeySequenceWidget* _quote_char = nullptr;
 
-	QGroupBox* _substrings_group_box;
-	QLineEdit* _replace_line_edit;
-	QLineEdit* _by_line_edit;
-	QPushButton* _del_button;
-	QPushButton* _up_button;
-	QPushButton* _down_button;
+	QGroupBox* _substrings_group_box = nullptr;
+	QLineEdit* _replace_line_edit = nullptr;
+	QLineEdit* _by_line_edit = nullptr;
+	QPushButton* _del_button = nullptr;
+	QPushButton* _up_button = nullptr;
+	QPushButton* _down_button = nullptr;
 
-	QTableWidget* _substrings_table_widget;
+	QTableWidget* _substrings_table_widget = nullptr;
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterSubstitutionParamWidget)

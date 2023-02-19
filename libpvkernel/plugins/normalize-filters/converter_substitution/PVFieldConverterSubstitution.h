@@ -47,14 +47,14 @@ class PVFieldConverterSubstitution : public PVFieldsConverter
 	PVCore::PVField& one_to_one(PVCore::PVField& field) override;
 
   private:
-	size_t _modes;
-	bool _invert_order;
+	size_t _modes = ESubstitutionModes::NONE;
+	bool _invert_order = false;
 
 	// whole fields mode
 	std::string _default_value;
-	bool _use_default_value;
-	char _sep_char;
-	char _quote_char;
+	bool _use_default_value = false;
+	char _sep_char = ',';
+	char _quote_char = '"';
 	std::unordered_map<std::string, std::string> _key;
 
 	// substrings mode

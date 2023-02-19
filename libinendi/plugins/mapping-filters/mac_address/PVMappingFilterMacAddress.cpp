@@ -50,12 +50,12 @@ using mac_t = uint64_t;
 using vendor_t = uint64_t;
 using nic_t = uint64_t;
 
-inline vendor_t mac_to_vendor(const mac_t mac)
+inline vendor_t mac_to_vendor(mac_t mac)
 {
 	return mac >> 24;
 }
 
-inline nic_t mac_to_nic(const mac_t mac)
+inline nic_t mac_to_nic(mac_t mac)
 {
 	return mac % nic_max_count;
 }

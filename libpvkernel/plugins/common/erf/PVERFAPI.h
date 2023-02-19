@@ -223,10 +223,10 @@ class PVERFAPI
 	                       bool multi_inputs) const;
 
   private:
-	std::string _stage_name;
+	std::string _stage_name = "post";
 	bool _lib_Initialized = false;
-	std::unique_ptr<ErfFilerI> _filer;
-	ErfStageIPtr _stage;
+	std::unique_ptr<ErfFilerI> _filer = nullptr;
+	ErfStageIPtr _stage = nullptr;
 };
 
 } // namespace PVRush

@@ -80,7 +80,8 @@ void PVFilter::PVFieldSplitterIP::set_args(PVCore::PVArgumentList const& args)
 	}
 
 	std::sort(_indexes.begin(), _indexes.end());
-	std::unique(_indexes.begin(), _indexes.end());
+	auto last = std::unique(_indexes.begin(), _indexes.end());
+	_indexes.erase(last, _indexes.end());
 	std::adjacent_difference(_indexes.begin(), _indexes.end(), _indexes.begin());
 
 	set_number_expected_fields(_indexes.size());

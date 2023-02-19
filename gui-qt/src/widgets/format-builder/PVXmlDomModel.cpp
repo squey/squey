@@ -1055,7 +1055,7 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 		_axes_combination.reset_to_default();
 	} else {
 		auto comb = _axes_combination.get_combination();
-		std::remove_if(comb.begin(), comb.end(), [this](PVCol c) { return c >= _axes.size(); });
+		comb.erase(std::remove_if(comb.begin(), comb.end(), [this](PVCol c) { return c >= _axes.size(); }));
 		if (comb.empty()) {
 			comb.resize(_axes.size());
 			std::iota(comb.begin(), comb.end(), PVCol(0));

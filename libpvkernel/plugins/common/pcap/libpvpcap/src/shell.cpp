@@ -55,7 +55,7 @@ namespace pvpcap
  * execute_cmd
  *
  ******************************************************************************/
-std::vector<std::string> execute_cmd(const std::string cmd)
+std::vector<std::string> execute_cmd(const std::string& cmd)
 {
 	// TODO: cmd size limite
 
@@ -212,7 +212,7 @@ extract_csv(splitted_files_t files,
  * save_to_file
  *
  ******************************************************************************/
-void save_to_file(std::string const file_name, std::vector<std::string> const& text_to_save)
+void save_to_file(const std::string& file_name, std::vector<std::string> const& text_to_save)
 {
 	std::cout << "Save to " << file_name << "..." << std::endl;
 
@@ -232,7 +232,7 @@ void save_to_file(std::string const file_name, std::vector<std::string> const& t
  * is_directory
  *
  ******************************************************************************/
-bool is_directory(std::string path_name)
+bool is_directory(const std::string& path_name)
 {
 	struct stat info;
 
@@ -250,7 +250,7 @@ bool is_directory(std::string path_name)
  * get_directory_files
  *
  ******************************************************************************/
-std::vector<std::string> get_directory_files(std::string path_name)
+std::vector<std::string> get_directory_files(const std::string& path_name)
 {
 	std::vector<std::string> files; // = new std::vector<std::string>();
 	DIR* dir;
@@ -277,7 +277,7 @@ std::vector<std::string> get_directory_files(std::string path_name)
  * get_file_extension
  *
  ******************************************************************************/
-std::string get_file_extension(std::string file_name)
+std::string get_file_extension(const std::string& file_name)
 {
 	const char* ext = strchr(file_name.c_str(), '.');
 

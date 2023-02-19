@@ -39,9 +39,9 @@ PVRush::PVERFTreeItem::PVERFTreeItem(const QList<QVariant>& data,
                                      bool is_node,
                                      PVERFTreeItem* parent /*= 0*/)
     : _is_node(is_node)
+	, _parent(parent)
+	, _data(data)
 {
-	_parent = parent;
-	_data = data;
 
 	if (_parent) {
 		_parent->append_child(this);
@@ -195,8 +195,8 @@ int PVRush::PVERFTreeItem::selected_row() const
  *
  *****************************************************************************/
 PVRush::PVERFTreeModel::PVERFTreeModel(const QString& path)
+	: _path(path)
 {
-	_path = path;
 	load(path);
 }
 

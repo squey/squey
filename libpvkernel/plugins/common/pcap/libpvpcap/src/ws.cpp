@@ -472,7 +472,7 @@ std::vector<std::string> ws_get_tshark_fields()
 		if ((*i).at(0) != 'F')
 			i = fields.erase(i); // delete all not fields line
 		else
-			i++;
+			++i;
 	}
 
 	return fields;

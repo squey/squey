@@ -310,7 +310,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	Inendi::PVLayerFilter::p_type fclone = search_multiple->clone<Inendi::PVLayerFilter>();
 	Inendi::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
 	Inendi::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
-	for (it_ent = entries.begin(); it_ent != entries.end(); it_ent++) {
+	for (it_ent = entries.begin(); it_ent != entries.end(); ++it_ent) {
 		QAction* act = new QAction(it_ent->key(), _values_view);
 		act->setData(QVariant(search_multiples)); // Save the name of the layer
 		                                          // filter associated to this
