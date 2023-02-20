@@ -1,2 +1,1 @@
-libpvkernel/src/third_party/*
-libpvkernel/src/widgets/querybuilder/*
+.ignore
