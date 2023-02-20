@@ -110,7 +110,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	// We should add a connect for every plugins action and save a context which
 	// will be updated before sending the signal so that we can process plugins
 	// widgets
-	for (const_layer_iterator it = lf.begin(); it != lf.end(); it++) {
+	for (const_layer_iterator it = lf.begin(); it != lf.end(); ++it) {
 		Inendi::PVLayerFilter::hash_menu_function_t const& entries =
 		    it->value()->get_menu_entries();
 		using const_layer_menu_iterator =
@@ -118,7 +118,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n",
 		            qPrintable(it->key()), entries.size());
 		for (const_layer_menu_iterator it_ent = entries.begin(); it_ent != entries.end();
-		     it_ent++) {
+		     ++it_ent) {
 			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n",
 			            qPrintable(it_ent->key()), qPrintable(it->key()));
 			QAction* act = new QAction(it_ent->key(), &_ctxt_menu);

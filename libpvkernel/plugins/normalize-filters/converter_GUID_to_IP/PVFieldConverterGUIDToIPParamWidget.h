@@ -47,10 +47,10 @@ class PVFieldConverterGUIDToIPParamWidget : public PVFieldsConverterParamWidget
 	void update_params();
 
   private:
-	QWidget* _param_widget;
+	QWidget* _param_widget = nullptr;
 
-	QRadioButton* _ipv4;
-	QRadioButton* _ipv6;
+	QRadioButton* _ipv4 = nullptr;
+	QRadioButton* _ipv6 = nullptr;
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterGUIDToIPParamWidget)

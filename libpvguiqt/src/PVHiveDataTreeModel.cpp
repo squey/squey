@@ -104,7 +104,7 @@ namespace
 {
 struct get_size {
 	template <class T>
-	size_t call(T* v) const
+	static size_t call(T* v)
 	{
 		return v->size();
 	}
@@ -204,7 +204,7 @@ namespace
 {
 struct obj_pos {
 	template <class T>
-	int call(T* v) const
+	static int call(T* v)
 	{
 		auto children = v->get_parent().get_children();
 		return std::distance(children.begin(), std::find(children.begin(), children.end(), v));

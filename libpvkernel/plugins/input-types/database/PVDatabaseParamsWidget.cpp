@@ -203,7 +203,7 @@ void PVRush::PVDatabaseParamsWidget::populate_presets()
 	// List presets
 	PVDBPresets::list_id_names_t l = PVDBPresets::get().list_id_names();
 	PVDBPresets::list_id_names_t::const_iterator it;
-	for (it = l.begin(); it != l.end(); it++) {
+	for (it = l.begin(); it != l.end(); ++it) {
 		_presets_widget->add_preset(it->second, it->first);
 	}
 }

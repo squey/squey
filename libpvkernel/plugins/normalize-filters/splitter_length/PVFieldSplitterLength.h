@@ -51,8 +51,8 @@ class PVFieldSplitterLength : public PVFieldsFilter<one_to_many>
 	CLASS_FILTER(PVFilter::PVFieldSplitterLength)
 
   private:
-	size_t _length;
-	bool _from_left;
+	size_t _length = 0;
+	bool _from_left = false;
 };
 }
 

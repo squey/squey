@@ -63,17 +63,17 @@ class PVFieldSplitterKeyValueParamWidget : public PVFieldsSplitterParamWidget
 	void add_new_keys(QStringList& keys);
 
   private:
-	QWidget* _param_widget;
+	QWidget* _param_widget = nullptr;
 
-	PVWidgets::QKeySequenceWidget* _quote_char;
-	QLineEdit* _separator_char_lineedit;
-	QLineEdit* _affectation_operator_lineedit;
-	QPushButton* _del_button;
-	QPushButton* _up_button;
-	QPushButton* _down_button;
-	QPushButton* _copy_button;
+	PVWidgets::QKeySequenceWidget* _quote_char = nullptr;
+	QLineEdit* _separator_char_lineedit = nullptr;
+	QLineEdit* _affectation_operator_lineedit = nullptr;
+	QPushButton* _del_button = nullptr;
+	QPushButton* _up_button = nullptr;
+	QPushButton* _down_button = nullptr;
+	QPushButton* _copy_button = nullptr;
 
-	QListWidget* _keys_list;
+	QListWidget* _keys_list = nullptr;
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterKeyValueParamWidget)

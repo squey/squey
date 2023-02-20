@@ -57,9 +57,9 @@ class PVFieldSplitterDnsFqdnParamWidget : public PVFieldsSplitterParamWidget
 	void rev_cb_changed(int state);
 
   private:
-	QWidget* _param_widget;
-	QCheckBox* _split_cb[6];
-	QCheckBox* _rev_cb[3];
+	QWidget* _param_widget = nullptr;
+	QCheckBox* _split_cb[6] = { nullptr, nullptr, nullptr, nullptr, nullptr, nullptr};
+	QCheckBox* _rev_cb[3] = { nullptr, nullptr, nullptr };
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterDnsFqdnParamWidget)

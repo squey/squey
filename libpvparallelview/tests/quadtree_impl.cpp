@@ -74,9 +74,9 @@ int main(int argc, char** argv)
 	std::cout << "sizeof(node): " << sizeof(*qt) << std::endl;
 	std::cout << "memory used : " << qt->memory() << std::endl;
 
-	PVParallelView::pv_quadtree_buffer_entry_t* buffer =
-	    new PVParallelView::pv_quadtree_buffer_entry_t[QUADTREE_BUFFER_SIZE];
-	pvquadtree::pv_tlr_buffer_t* tlr = new pvquadtree::pv_tlr_buffer_t;
+	std::unique_ptr<PVParallelView::pv_quadtree_buffer_entry_t> buffer_uptr(new PVParallelView::pv_quadtree_buffer_entry_t[QUADTREE_BUFFER_SIZE]);
+	PVParallelView::pv_quadtree_buffer_entry_t* buffer = buffer_uptr.get();
+	std::unique_ptr<pvquadtree::pv_tlr_buffer_t> tlr(new pvquadtree::pv_tlr_buffer_t);
 
 	for (unsigned i = 1; i < 9; ++i) {
 		size_t num = 0;

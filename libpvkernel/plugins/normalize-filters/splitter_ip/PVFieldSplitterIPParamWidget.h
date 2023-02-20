@@ -59,13 +59,13 @@ class PVFieldSplitterIPParamWidget : public PVFieldsSplitterParamWidget
 	void set_groups_check_state(bool check_all = false);
 
   private:
-	QRadioButton* _ipv4;
-	QRadioButton* _ipv6;
+	QRadioButton* _ipv4 = nullptr;
+	QRadioButton* _ipv6 = nullptr;
 
 	QList<QCheckBox*> _cb_list;
 	QList<QLabel*> _label_list;
 
-	size_t _group_count;
+	size_t _group_count = 0;
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterIPParamWidget)

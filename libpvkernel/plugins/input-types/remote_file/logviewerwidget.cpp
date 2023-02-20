@@ -55,14 +55,7 @@ class LogViewerWidget::LogViewerWidgetPrivate
 {
   public:
 	LogViewerWidgetPrivate(LogViewerWidget* q)
-	    : machineListWidget(0)
-	    , filesTableWidget(0)
-	    , addFileToDownload(0)
-	    , removeFileToDownload(0)
-	    , configureFileToDownload(0)
-	    , addMachineAction(0)
-	    , removeMachineAction(0)
-	    , qq(q)
+	    : qq(q)
 	{
 	}
 	enum LogViewerMachineConfigItem { typeMachineConfigItem = Qt::UserRole + 1 };
@@ -75,17 +68,17 @@ class LogViewerWidget::LogViewerWidgetPrivate
 
 	QMap<MachineConfig, QList<RegisteredFile>> listOfMachine;
 
-	QListWidget* machineListWidget;
-	QTableWidget* filesTableWidget;
+	QListWidget* machineListWidget = nullptr;
+	QTableWidget* filesTableWidget = nullptr;
 
-	FileDownLoader* fileDownLoader;
+	FileDownLoader* fileDownLoader = nullptr;
 
-	QPushButton* addFileToDownload;
-	QPushButton* removeFileToDownload;
-	QPushButton* configureFileToDownload;
+	QPushButton* addFileToDownload = nullptr;
+	QPushButton* removeFileToDownload = nullptr;
+	QPushButton* configureFileToDownload = nullptr;
 
-	QAction* addMachineAction;
-	QAction* removeMachineAction;
+	QAction* addMachineAction  = nullptr;
+	QAction* removeMachineAction = nullptr;
 	LogViewerWidget* qq;
 };
 

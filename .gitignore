@@ -5,6 +5,7 @@ inspector.sh
 */tests/*/bin
 .gdb_history
 third-party/*
+buildstream/.venv
 
 #Ignore doxygen compile documentation
 collection.qhc

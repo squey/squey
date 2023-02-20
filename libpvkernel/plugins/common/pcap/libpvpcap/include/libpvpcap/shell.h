@@ -55,7 +55,7 @@ namespace pvpcap
  *
  * @return the result of the command.
  */
-std::vector<std::string> execute_cmd(const std::string cmd);
+std::vector<std::string> execute_cmd(const std::string& cmd);
 
 splitted_files_t
 extract_csv(splitted_files_t files,
@@ -71,7 +71,7 @@ extract_csv(splitted_files_t files,
  * @param text_to_save text to save.
  *
  */
-void save_to_file(std::string const file_name, std::vector<std::string> const& text_to_save);
+void save_to_file(const std::string& file_name, std::vector<std::string> const& text_to_save);
 
 /**
  * Test if it is directory.
@@ -80,7 +80,7 @@ void save_to_file(std::string const file_name, std::vector<std::string> const& t
  * @return true or false
  *
  */
-bool is_directory(std::string path_name);
+bool is_directory(const std::string& path_name);
 
 /**
  * Return a list of files within directory.
@@ -89,7 +89,7 @@ bool is_directory(std::string path_name);
  * @return list of file
  *
  */
-std::vector<std::string> get_directory_files(std::string path_name);
+std::vector<std::string> get_directory_files(const std::string& path_name);
 
 /**
  * Return a file extension.
@@ -98,7 +98,7 @@ std::vector<std::string> get_directory_files(std::string path_name);
  * @return file extension
  *
  */
-std::string get_file_extension(std::string file_name);
+std::string get_file_extension(const std::string& file_name);
 
 /**
  * Return the user configuration directory for pcapsicum.

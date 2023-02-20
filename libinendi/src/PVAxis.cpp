@@ -90,7 +90,7 @@ PVCore::PVArgumentList Inendi::PVAxis::args_from_node(node_args_t const& args_st
 {
 	PVCore::PVArgumentList ret;
 	node_args_t::const_iterator it;
-	for (it = args_str.begin(); it != args_str.end(); it++) {
+	for (it = args_str.begin(); it != args_str.end(); ++it) {
 		QString const& key(it.key());
 		if (def_args.contains(key)) {
 			ret[it.key()] = PVCore::QString_to_PVArgument(it.value(), def_args.at(key));

@@ -29,11 +29,6 @@ constexpr const char input_column_name[] = "filename";
 
 PVRush::PVERFAPI::PVERFAPI(const std::string& erf_path)
 {
-	_filer = nullptr;
-	_stage = nullptr;
-	_lib_Initialized = false;
-	_stage_name = "post";
-
 	// Initialize the ERF library once and for all
 	static ErfErrorCode Status = []() { return ErfLibManager::LibInitialize(); }();
 

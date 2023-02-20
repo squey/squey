@@ -124,7 +124,7 @@ class LRUList
 
 		if (m_CacheItemsList.size() > m_MaxSize) {
 			ListIterator lruIter = m_CacheItemsList.end();
-			lruIter--;
+			--lruIter;
 			T* deletedValue = new T(*lruIter);
 			m_CacheItemsMap.erase(*lruIter);
 			m_CacheItemsList.erase(lruIter);
@@ -245,7 +245,7 @@ class PacketSplitter
 	pvpcap::splitted_files_t files() { return _files; }
 
   protected:
-	std::string get_filename(const std::string& output_pcap_dir,
+	static std::string get_filename(const std::string& output_pcap_dir,
 	                         const std::string& input_pcap_filename,
 	                         size_t file_idx)
 	{
@@ -339,13 +339,13 @@ class FlowSplitter : public PacketSplitter
 			if (hash != prev_hash /*or ((timestamp - prev_timestamp) > TIMEOUT)*/) {
 				stream_id++;
 
-				if (hash != prev_hash) {
+				//if (hash != prev_hash) {
 					file_idx = _flow_table[hash];
 					if (_streams_ids[file_idx].get() == nullptr) {
 						_streams_ids[file_idx].reset(new pvpcap::splitted_file_t::vector_uint32_t(
 						    _packet_indexes[file_idx]->size()));
 					}
-				}
+				//}
 			}
 
 			(*_streams_ids[file_idx])[_stream_infos[frame_numbers[i]].rel_packet_index] = stream_id;

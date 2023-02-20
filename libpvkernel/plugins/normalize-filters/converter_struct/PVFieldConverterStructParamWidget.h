@@ -45,7 +45,7 @@ class PVFieldConverterStructParamWidget : public PVFieldsConverterParamWidget
 	QWidget* get_param_widget() override;
 
   private:
-	QWidget* _param_widget;
+	QWidget* _param_widget = nullptr;
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldConverterStructParamWidget)

@@ -47,18 +47,18 @@ class PVFieldSplitterRegexpParamWidget : public PVFieldsSplitterParamWidget
 	Q_OBJECT;
 
   private:
-	QWidget* param_widget;
-	int id;
+	QWidget* param_widget = nullptr;
+	int id = 0;
 
 	// widget showed
-	QLineEdit* expression_lineEdit;
-	QLabel* child_count_text;
-	QTextEdit* validator_textEdit;
-	QTableWidget* table_validator_TableWidget;
-	QPushButton* btn_apply;
-	QCheckBox* fullline_checkBox;
+	QLineEdit* expression_lineEdit = nullptr;
+	QLabel* child_count_text = nullptr;
+	QTextEdit* validator_textEdit = nullptr;
+	QTableWidget* table_validator_TableWidget = nullptr;
+	QPushButton* btn_apply = nullptr;
+	QCheckBox* fullline_checkBox = nullptr;
 
-	bool expressionChanged;
+	bool expressionChanged = false;
 
 	void initWidget();
 

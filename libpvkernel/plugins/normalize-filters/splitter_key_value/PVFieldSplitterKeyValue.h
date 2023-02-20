@@ -46,7 +46,7 @@ class PVFieldSplitterKeyValue : public PVFieldsSplitter
 
   private:
 	std::string _separator;
-	char _quote;
+	char _quote = '"';
 	std::string _affect;
 
 	std::vector<std::string> _keys;

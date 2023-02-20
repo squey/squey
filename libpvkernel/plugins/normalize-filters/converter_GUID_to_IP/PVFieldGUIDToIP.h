@@ -42,7 +42,7 @@ class PVFieldGUIDToIP : public PVFieldsConverter
 	PVCore::PVField& one_to_one(PVCore::PVField& field) override;
 
   private:
-	bool _ipv6;
+	bool _ipv6 = false;
 
 	CLASS_FILTER(PVFilter::PVFieldGUIDToIP)
 };

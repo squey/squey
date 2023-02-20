@@ -114,8 +114,7 @@ int main()
 		const pvcop::formatter_desc& fd =
 		    PVRush::PVFormat::get_datetime_formatter_desc(testcase.time_format);
 
-		pvcop::types::formatter_interface* fi =
-		    pvcop::types::factory::create(fd.name(), fd.parameters());
+		std::unique_ptr<pvcop::types::formatter_interface> fi(pvcop::types::factory::create(fd.name(), fd.parameters()));
 
 		pvcop::db::array out_array(fi->name(), 1);
 

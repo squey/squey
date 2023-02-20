@@ -46,7 +46,7 @@ class PVFieldSplitterMacAddressParamWidget : public PVFieldsSplitterParamWidget
 	size_t force_number_children() override { return 2; }
 
   private:
-	QWidget* _param_widget;
+	QWidget* _param_widget = nullptr;
 
   private:
 	CLASS_REGISTRABLE_NOCOPY(PVFieldSplitterMacAddressParamWidget)

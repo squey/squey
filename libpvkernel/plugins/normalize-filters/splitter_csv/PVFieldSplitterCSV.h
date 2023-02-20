@@ -47,8 +47,8 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 	void set_args(PVCore::PVArgumentList const& args) override;
 
   private:
-	char _sep;
-	char _quote;
+	char _sep = ',';
+	char _quote = '"';
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterCSV)
 };

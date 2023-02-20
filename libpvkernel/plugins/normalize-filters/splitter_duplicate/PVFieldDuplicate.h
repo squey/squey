@@ -44,7 +44,7 @@ class PVFieldDuplicate : public PVFieldsFilter<one_to_many>
 	                                           PVCore::PVField& field) override;
 
   private:
-	size_t _n;
+	size_t _n = 0;
 
 	CLASS_FILTER(PVFilter::PVFieldDuplicate)
 };
