@@ -97,8 +97,8 @@ class Handler(SimpleHTTPRequestHandler):
 
         # Add authentification token to virtual session
         token=secrets.token_hex()
-        subprocess.run([f'/usr/bin/dcvsimpleextauth', 'add-user', '--append', '--user={user}', '--session={session_id}'], input=token, encoding='ascii')
-        
+        subprocess.run(['/usr/bin/dcvsimpleextauth', 'add-user', '--append', f'--user={user}', f'--session={session_id}'], input=token, encoding='ascii')
+
         self.send_response(301)
         host = self.headers.get('Host')
         self.send_header('Location', f'https://{host}/dcv/?authToken={token}#{session_id}')

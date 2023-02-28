@@ -4,8 +4,6 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source "${DIR}/.env.conf"
 
-apt update && apt -y install software-properties-common && add-apt-repository ppa:alexlarsson/flatpak && apt install -y flatpak && rm -rf /var/lib/apt/lists/*
-
 install_mode="$1"
 if [[ ${install_mode} == "offline" ]]
 then
@@ -20,7 +18,7 @@ then
     fi
     flatpak uninstall -y "${INSPECTOR_NAME}" &> /dev/null
     flatpak install -y "${DIR}/inendi-inspector.flatpak"
-    rm -rf "${DIR}/*.flatpak"
+    rm -rf "${DIR}"/*.flatpak
 else # online installation
     flatpak install -y https://dl.flathub.org/repo/appstream/com.gitlab.inendi.Inspector.flatpakref
     flatpak install -y flathub "$SDK_NAME//$RUNTIME_BRANCH"
