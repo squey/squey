@@ -7,7 +7,6 @@ command -v "${DOCKER}" &> /dev/null || { echo >&2 "'${DOCKER}' executable is req
 # Source environment variables
 source env.conf
 source resources/.env.conf
-source resources/check_nvidia-docker.sh
 
 # Copy SSL certificates
 if [[ -f "${DCV_SSL_KEY_PATH}" ]] && [[ -f "${DCV_SSL_CERT_PATH}" ]]
