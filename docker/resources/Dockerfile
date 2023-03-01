@@ -1,4 +1,4 @@
-FROM docker.io/nvidia/cudagl:10.1-runtime-ubuntu18.04
+FROM docker.io/nvidia/cudagl:11.4.2-runtime-ubuntu20.04
 LABEL maintainer="jean-baptiste+inspector@leonesio.fr"
 
 ARG INSTALL_PATH
