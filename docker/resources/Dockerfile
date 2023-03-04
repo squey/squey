@@ -20,7 +20,7 @@ libglu1 pciutils xorg xserver-xorg-input-all xinit xserver-xorg xserver-xorg-vid
 xserver-xorg-video-dummy xutils-dev kwin software-properties-common flatpak python3 python3-pip \
 crudini pamtester nginx ssl-cert pocl-opencl-icd mesa-utils ocl-icd-libopencl1 clinfo wget patch \
 xterm kdialog systemd libxcb-xtest0 libcairo2 libcrack2 libgstreamer-plugins-base1.0-0 libgtk-3-0 \
-v4l2loopback-dkms libvdpau1 libva-drm2 && \
+v4l2loopback-dkms libvdpau1 libva-drm2 qdbus-qt5 && \
 echo "/usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
 cd /lib/systemd/system/sysinit.target.wants/ && \
 ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 && \
