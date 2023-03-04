@@ -91,7 +91,6 @@ RUN ln -s "${INSTALL_PATH}/dcvlogin/dcvlogin.service" /lib/systemd/system || tru
 RUN rm -rf /etc/nginx/sites-available/default || true
 RUN ln -s "${INSTALL_PATH}/dcvlogin/nginx_proxy" /etc/nginx/sites-available/default || true
 
-
 # Configure KWin window manager
 RUN mkdir /etc/kde5
 RUN ln -s "${INSTALL_PATH}/kwinrc" /etc/kde5 || true
@@ -100,7 +99,10 @@ RUN chown inendi: /etc/kde5
 RUN chmod g+w /etc/kde5 -R
 
 # Configure services to run uppon container launch
+RUN cp /usr/lib/systemd/system/nginx.service /etc/systemd/system
+RUN sed -i 's/After=network.target/After=dcvlogin.service/' /etc/systemd/system/nginx.service
 RUN systemctl enable dcvserver dcvlogin dcvsimpleextauth nginx
+
 
 VOLUME [ "/sys/fs/cgroup" ]
 CMD [ "/lib/systemd/systemd" ]
