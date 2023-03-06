@@ -19,7 +19,7 @@ It can be used for different purposes:
 
 ### Linux
 
-Installing the software (as a user) :
+Installing the software (as a user):
 
 <a href='https://flathub.org/apps/details/com.gitlab.inendi.Inspector'><img width='190px' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
 
@@ -35,17 +35,21 @@ Running the software :
 
 ### Windows
 
-Windows support is available through the use of WSL2 :
+Windows support is available through the use of WSL2:
 
 https://inendi.gitlab.io/inspector/inendi-inspector_installer.exe
 
-### Docker
+### Container
 
 Deploying the software as a service in a private cloud:
 
-```
+[![dockeri.co](https://dockerico.blankenship.io/image/inendi/inspector)](https://hub.docker.com/r/inendi/inspector)
+
+
+Or building your own container image:
+
 https://inendi.gitlab.io/inspector/inendi-inspector_docker.zip
-```
+
 
 See ```README.md``` contained in archive file
 
