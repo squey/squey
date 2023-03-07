@@ -7,7 +7,16 @@ source resources/.env.conf
 
 command -v "${DOCKER}" &> /dev/null || { echo >&2 "'${DOCKER}' executable is required to execute this script."; exit 1; }
 
-#${DOCKER} ${DOCKER_OPTS} run --privileged ${NVIDIA_DOCKER_RUNTIME} --name inendi-inspector --tmpfs /run --tmpfs /tmp -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 443:443 -d --restart unless-stopped inendi/inspector
-${DOCKER} ${DOCKER_OPTS} run --privileged ${NVIDIA_DOCKER_RUNTIME} --name inendi-inspector --rm --tmpfs /run --tmpfs /tmp -v /sys/fs/cgroup:/sys/fs/cgroup:rw --cgroupns=host -p 8443:443 inendi/inspector
-
-#TODO : use flatpak dir as a volume
+${DOCKER} volume create inendi-inspector_flatpak_system_data &> /dev/null || true
+${DOCKER} ${DOCKER_OPTS} run \
+    --privileged \
+    --name inendi-inspector \
+    --tmpfs /run \
+    --tmpfs /tmp \
+    --mount type=volume,source=inendi-inspector_flatpak_system_data,target=/var/lib/flatpak \
+    -v /sys/fs/cgroup:/sys/fs/cgroup:rw \
+    --cgroupns=host \
+    -p 8443:443 \
+    -d \
+    --rm \
+    inendi/inspector
