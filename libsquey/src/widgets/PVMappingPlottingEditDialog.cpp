@@ -107,9 +107,25 @@ void PVWidgets::PVMappingPlottingEditDialog::finish_layout()
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
-	auto* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
-	connect(btns, &QDialogButtonBox::accepted, this, &PVMappingPlottingEditDialog::save_settings);
-	connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
+	auto* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel | QDialogButtonBox::Apply);
+	connect(btns, &QDialogButtonBox::clicked, [this, btns](auto* button){
+		switch (btns->buttonRole(button))
+		{
+		case QDialogButtonBox::AcceptRole:
+			save_settings();
+			accept();
+			break;
+		case QDialogButtonBox::ApplyRole:
+			save_settings();
+			break;
+		case QDialogButtonBox::RejectRole:
+			reject();
+			break;
+		
+		default:
+			break;
+		}
+	});
 	_main_layout->addWidget(btns);
 }
 
@@ -234,6 +250,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 
 	int row = 1;
 	for (PVRush::PVAxisFormat const& axis : _axes) {
+		int col = 0;
 		if (has_mapping()) {
 			QString type = axis.get_type();
 			Squey::PVMappingProperties& prop = _mapping->get_properties_for_col(axis.index);
@@ -241,7 +258,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			// Mapping mode
 			auto* map_combo =
 			    dynamic_cast<PVWidgets::PVMappingModeWidget*>(
-			        _main_grid->itemAtPosition(row, 2)->widget());
+			        _main_grid->itemAtPosition(row, col += 2)->widget());
 			assert(map_combo);
 			QString mode = map_combo->get_mode();
 
@@ -249,7 +266,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 		}
 		if (has_plotting()) {
 			auto* combo = dynamic_cast<PVWidgets::PVPlottingModeWidget*>(
-			    _main_grid->itemAtPosition(row, 1)->widget());
+			    _main_grid->itemAtPosition(row, col += 1)->widget());
 			assert(combo);
 			QString mode = combo->get_mode();
 			_plotting->get_properties_for_col(axis.index).set_mode(mode.toStdString());
@@ -257,5 +274,10 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 		row++;
 	}
 
-	accept();
+	if (_mapping && !_mapping->is_uptodate()) {
+		_mapping->update_mapping();
+	}
+	if (_plotting && !_plotting->is_uptodate()) {
+		_plotting->update_plotting();
+	}
 }

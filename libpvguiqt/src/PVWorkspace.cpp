@@ -304,16 +304,32 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 		PVToolbarComboViews(decltype(_source) source) : QComboBox(), _source(source)
 		{
 			fill_views();
+			setToolTip("Current coherent viewset for this source");
+			connect(this, &QComboBox::activated, [this](int index){
+				if (index == count() - 1) {
+					if (auto plotteds = _source->get_children<Squey::PVPlotted>(); plotteds.size() > 0) {
+						// At time of writing, there is only one mapping/plotting per source
+						plotteds.back()->emplace_add_child();
+						fill_views();
+						setCurrentIndex(count() - 2);
+					}
+				}
+			});
 		}
 		void fill_views()
 		{
 			clear();
 			QPixmap pm(24, 24);
 			for (Squey::PVView* view : _source->get_children<Squey::PVView>()) {
-				pm.fill(view->get_color());
-				addItem(QIcon(pm), QString::fromStdString(view->get_name()),
-				        QVariant::fromValue(view));
+				add_view_item(view, pm);
 			}
+			addItem(QIcon(":/more.png"), "Create new coherent viewset");
+		}
+		void add_view_item(Squey::PVView* view, QPixmap& pm)
+		{
+			pm.fill(view->get_color());
+			addItem(QIcon(pm), QString::fromStdString(view->get_name()),
+					QVariant::fromValue(view));
 		}
 
 	  protected:

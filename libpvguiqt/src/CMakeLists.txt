@@ -69,6 +69,7 @@ format-builder/PVOptionsWidget.cpp
 # Displays that will be registered to libpvdisplays
 PVDisplaySourceDataTree.cpp
 PVDisplayViewAxesCombination.cpp
+PVDisplayViewMappingPlotting.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp
 PVDisplayViewPythonConsole.cpp

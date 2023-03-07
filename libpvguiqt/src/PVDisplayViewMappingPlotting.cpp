@@ -23,22 +23,29 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/PVClassLibrary.h>
-#include <pvguiqt/common.h>
-
-#include <pvguiqt/PVDisplaySourceDataTree.h>
-#include <pvguiqt/PVDisplayViewAxesCombination.h>
 #include <pvguiqt/PVDisplayViewMappingPlotting.h>
-#include <pvguiqt/PVDisplayViewListing.h>
-#include <pvguiqt/PVDisplayViewLayerStack.h>
-#include <pvguiqt/PVDisplayViewPythonConsole.h>
 
-void PVGuiQt::common::register_displays()
+#include <squey/widgets/PVMappingPlottingEditDialog.h>
+#include <squey/PVView.h>
+#include <squey/PVPlotted.h>
+#include <squey/PVMapped.h>
+
+PVDisplays::PVDisplayViewMappingPlotting::PVDisplayViewMappingPlotting()
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters,
+                      "Mapping/Plotting",
+                      QIcon(":/view-datatree"))
 {
-	REGISTER_CLASS("guiqt_axes-combination", PVDisplays::PVDisplayViewAxesCombination);
-	REGISTER_CLASS("guiqt_mapping-plotting", PVDisplays::PVDisplayViewMappingPlotting);
-	REGISTER_CLASS("guiqt_datatree", PVDisplays::PVDisplaySourceDataTree);
-	REGISTER_CLASS("guiqt_layer-stack", PVDisplays::PVDisplayViewLayerStack);
-	REGISTER_CLASS("guiqt_listing", PVDisplays::PVDisplayViewListing);
-	REGISTER_CLASS("guiqt_pythonconsole", PVDisplays::PVDisplayViewPythonConsole);
+}
+
+QWidget* PVDisplays::PVDisplayViewMappingPlotting::create_widget(Squey::PVView* view,
+                                                                 QWidget* parent,
+                                                                 Params const&) const
+{
+	auto* dlg = new PVWidgets::PVMappingPlottingEditDialog(&view->get_parent<Squey::PVMapped>(), &view->get_parent<Squey::PVPlotted>(), parent);
+
+	dlg->connect(dlg, &QDialog::finished, [dlg] {
+        delete dlg;
+    });
+
+	return dlg;
 }
