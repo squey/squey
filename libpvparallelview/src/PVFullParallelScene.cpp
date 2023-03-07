@@ -202,26 +202,6 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 	        &PVFullParallelScene::emit_new_zoomed_parallel_view);
 	connect(axisw, &PVAxisGraphicsItem::mouse_hover_entered, this,
 	        &PVFullParallelScene::axis_hover_entered);
-	connect(axisw, &PVAxisGraphicsItem::change_mapping, [this, axisw](QString mode) {
-		auto& mapped = _lib_view.get_parent<Squey::PVMapped>();
-		Squey::PVMappingProperties& plp =
-		    mapped.get_properties_for_col(axisw->get_original_axis_column());
-		plp.set_mode(mode.toStdString());
-		PVCore::PVProgressBox::progress(
-		    [&mapped](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
-		    QObject::tr("Updating mapping..."), nullptr);
-		axisw->refresh_density();
-	});
-	connect(axisw, &PVAxisGraphicsItem::change_plotting, [this, axisw](QString mode) {
-		auto& plotted = _lib_view.get_parent<Squey::PVPlotted>();
-		Squey::PVPlottingProperties& plp =
-		    plotted.get_properties_for_col(axisw->get_original_axis_column());
-		plp.set_mode(mode.toStdString());
-		PVCore::PVProgressBox::progress(
-		    [&plotted](PVCore::PVProgressBox& /*pbox*/) { plotted.update_plotting(); },
-		    QObject::tr("Updating plotting..."), nullptr);
-		axisw->refresh_density();
-	});
 
 	addItem(axisw);
 

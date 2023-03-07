@@ -24,7 +24,7 @@
 //
 
 #include <pvguiqt/PVStatsListingWidget.h>
-#include <pvguiqt/PVQNraw.h>
+#include <pvguiqt/PVDisplayViewDistinctValues.h>
 
 #include <squey/PVSource.h>
 
@@ -634,22 +634,13 @@ void PVGuiQt::__impl::PVUniqueValuesCellWidget::refresh_impl()
 
 void PVGuiQt::__impl::PVUniqueValuesCellWidget::show_unique_values_dlg()
 {
-	if (!_dialog) {
-		bool empty_sel = _view.get_output_layer().get_selection().is_empty();
-		if (not empty_sel) {
-			PVQNraw::show_unique_values(_view, get_real_axis_col(), this, &_dialog);
-			connect(_dialog, &QDialog::finished, this,
-			        &PVUniqueValuesCellWidget::unique_values_dlg_closed);
-		}
-	} else {
-		_dialog->close();
+	bool empty_sel = _view.get_output_layer().get_selection().is_empty();
+	if (not empty_sel) {
+		auto container = PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this);
+		container->create_view_widget(
+		    PVDisplays::display_view_if<PVDisplays::PVDisplayViewDistinctValues>(), &_view,
+		    {get_real_axis_col()});
 	}
-}
-
-void PVGuiQt::__impl::PVUniqueValuesCellWidget::unique_values_dlg_closed()
-{
-	disconnect(_dialog, SIGNAL(finished(int)));
-	_dialog = nullptr;
 }
 
 /******************************************************************************

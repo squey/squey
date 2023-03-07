@@ -26,7 +26,6 @@ PVAbstractTableModel.cpp
 PVListingView.cpp
 PVAbstractTableView.cpp
 PVTableView.cpp
-PVQNraw.cpp
 PVWorkspacesTabWidget.cpp
 PVWorkspace.cpp
 PVViewDisplay.cpp
@@ -62,8 +61,11 @@ format-builder/PVXmlTimeValidatorHighLight.cpp
 format-builder/PVOptionsWidget.cpp
 
 # Displays that will be registered to libpvdisplays
+PVDisplayViewCorrelation.cpp
 PVDisplayViewAxesCombination.cpp
 PVDisplayViewMappingPlotting.cpp
+PVDisplayViewDistinctValues.cpp
+PVDisplayViewGroupBy.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp
 PVDisplayViewPythonConsole.cpp

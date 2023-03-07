@@ -25,13 +25,17 @@
 
 #include <pvguiqt/PVDisplayViewMappingPlotting.h>
 
+#include <pvkernel/core/PVProgressBox.h>
+
 #include <squey/widgets/PVMappingPlottingEditDialog.h>
 #include <squey/PVView.h>
 #include <squey/PVPlotted.h>
 #include <squey/PVMapped.h>
 
+#include <QActionGroup>
+
 PVDisplays::PVDisplayViewMappingPlotting::PVDisplayViewMappingPlotting()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters,
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters | ShowInCtxtMenu,
                       "Mapping/Plotting",
                       QIcon(":/view-datatree"))
 {
@@ -48,4 +52,60 @@ QWidget* PVDisplays::PVDisplayViewMappingPlotting::create_widget(Squey::PVView* 
     });
 
 	return dlg;
+}
+
+
+void PVDisplays::PVDisplayViewMappingPlotting::add_to_axis_menu(
+    QMenu& menu, PVCol axis, PVCombCol axis_comb,
+    Squey::PVView* view, PVDisplays::PVDisplaysContainer* container)
+{
+    std::string axis_type = view->get_axes_combination().get_axis(axis).get_type().toStdString();
+
+	Squey::PVMapped& mapped = view->get_parent<Squey::PVMapped>();
+	Squey::PVMappingProperties& mpp =
+	    mapped.get_properties_for_col(axis);
+
+	QMenu* chm = menu.addMenu("Change mapping to...");
+	QActionGroup* chm_group = new QActionGroup(chm);
+
+	for (auto& kvnode : LIB_CLASS(Squey::PVMappingFilter)::get().get_list()) {
+		auto usable_list = kvnode.value()->list_usable_type();
+		if (usable_list.empty() or usable_list.contains(axis_type)) {
+			QAction* chm_filter = chm->addAction(kvnode.value()->get_human_name());
+			chm_group->addAction(chm_filter);
+			chm_filter->setCheckable(true);
+            auto filter_name = kvnode.key().toStdString();
+			chm_filter->setChecked(mpp.get_mode() == filter_name);
+			QObject::connect(chm_filter, &QAction::triggered, [&mapped, &mpp, filter_name]() {
+                mpp.set_mode(filter_name);
+                PVCore::PVProgressBox::progress(
+                    [&mapped](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
+                    QObject::tr("Updating mapping..."), nullptr);
+            });
+		}
+	}
+
+	Squey::PVPlotted& plotted = view->get_parent<Squey::PVPlotted>();
+	Squey::PVPlottingProperties& plp =
+	    plotted.get_properties_for_col(axis);
+
+	QMenu* chp = menu.addMenu("Change plotting to...");
+	QActionGroup* chp_group = new QActionGroup(chp);
+
+	for (auto& kvnode : LIB_CLASS(Squey::PVPlottingFilter)::get().get_list()) {
+		auto usable_list = kvnode.value()->list_usable_type();
+		if (usable_list.empty() or usable_list.contains(std::make_pair(axis_type, mpp.get_mode()))) {
+			QAction* chp_filter = chp->addAction(kvnode.value()->get_human_name());
+			chp_group->addAction(chp_filter);
+			chp_filter->setCheckable(true);
+            auto filter_name = kvnode.key().toStdString();
+			chp_filter->setChecked(plp.get_mode() == filter_name);
+			QObject::connect(chp_filter, &QAction::triggered,  [&plotted, &plp, filter_name]() {
+                plp.set_mode(filter_name);
+                PVCore::PVProgressBox::progress(
+                    [&plotted](PVCore::PVProgressBox& /*pbox*/) { plotted.update_plotting(); },
+                    QObject::tr("Updating plotting..."), nullptr);
+            });
+		}
+	}
 }

@@ -27,6 +27,9 @@
 
 #include <squey/PVView.h>
 
+#include <QApplication>
+#include <QClipboard>
+
 namespace PVDisplays
 {
 
@@ -54,6 +57,14 @@ void add_displays_view_axis_menu(QMenu& menu,
                                  PVCol axis,
                                  PVCombCol axis_comb)
 {
+	auto action_col_copy = new QAction(QObject::tr("Copy axis name to clipboard"), &menu);
+	action_col_copy->setIcon(QIcon(":/edit-paste.png"));
+	QObject::connect(action_col_copy, &QAction::triggered, [view, axis_comb]{
+		QApplication::clipboard()->setText(view->get_axis_name(axis_comb));
+	});
+    menu.addAction(action_col_copy);
+	menu.addSeparator();
+
 	visit_displays_by_if<PVDisplayViewIf>(
 	    [&](PVDisplayViewIf& interface) {
 		    interface.add_to_axis_menu(menu, axis, axis_comb, view, container);

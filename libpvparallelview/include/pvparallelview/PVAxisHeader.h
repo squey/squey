@@ -86,8 +86,6 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 	void mouse_clicked(PVCombCol col);
 	void new_zoomed_parallel_view(PVCombCol axis_index);
 	void new_selection_slider();
-	void change_mapping(QString const& selected_plotting);
-	void change_plotting(QString const& selected_plotting);
 
   private Q_SLOTS:
 	void new_zoomed_parallel_view();

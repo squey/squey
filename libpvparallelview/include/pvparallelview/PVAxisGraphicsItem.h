@@ -152,8 +152,6 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	void new_zoomed_parallel_view(PVCombCol comb_col);
 	void mouse_hover_entered(PVCombCol axis, bool entered);
 	void mouse_clicked(PVCombCol axis);
-	void change_mapping(QString const& selected_mapping);
-	void change_plotting(QString const& selected_plotting);
 	void density_changed();
 
   private:

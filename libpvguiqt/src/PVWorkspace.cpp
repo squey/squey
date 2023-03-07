@@ -121,7 +121,15 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
 	// note : new connect syntax is causing a crash (Qt bug ?)
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 
-	addDockWidget(area, view_display);
+	auto all_dock_widgets = findChildren<QDockWidget*>();
+	auto other_in_same_area_it = std::ranges::find_if(all_dock_widgets, [this, area](auto* dw){ return dockWidgetArea(dw) == area; });
+	if ((area & (Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea)) && other_in_same_area_it != all_dock_widgets.end()) {
+		tabifyDockWidget(*other_in_same_area_it, view_display);
+		view_display->show();
+		view_display->raise();
+	} else {
+		addDockWidget(area, view_display, Qt::Horizontal);
+	}
 	resizeDocks({view_display}, {500}, Qt::Horizontal); // Hack to fix children widgets sizes
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
 	        &PVWorkspaceBase::try_automatic_tab_switch);
@@ -253,9 +261,10 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& d
 	}
 
 	QWidget* w = PVDisplays::get_widget(display_if, view, nullptr, params);
+	auto area = display_if.default_position_hint();
 	add_view_display(view, w, display_if.widget_title(view),
 	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
-	                 true);
+	                 true, area ? area : Qt::TopDockWidgetArea);
 }
 
 /******************************************************************************

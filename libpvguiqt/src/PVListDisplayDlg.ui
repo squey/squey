@@ -22,13 +22,6 @@
     </widget>
    </item>
    <item>
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>List of values:</string>
-     </property>
-     <property name="alignment">
-      <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-     </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
       <item>
        <widget class="PVGuiQt::PVAbstractTableView" name="_values_view" native="true"/>
@@ -104,7 +97,6 @@
        </layout>
       </item>
      </layout>
-    </widget>
    </item>
    <item>
     <widget class="QGroupBox" name="_select_groupbox">
@@ -289,19 +281,6 @@
            <string>Append to file...</string>
           </property>
          </widget>
-        </item>
-        <item>
-         <spacer name="horizontalSpacer_2">
-          <property name="orientation">
-           <enum>Qt::Horizontal</enum>
-          </property>
-          <property name="sizeHint" stdset="0">
-           <size>
-            <width>40</width>
-            <height>20</height>
-           </size>
-          </property>
-         </spacer>
         </item>
        </layout>
       </item>

@@ -274,10 +274,6 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 
   private Q_SLOTS:
 	void show_unique_values_dlg();
-	void unique_values_dlg_closed();
-
-  private:
-	QDialog* _dialog = nullptr;
 };
 
 class PVSumCellWidget : public PVCellWidgetBase
