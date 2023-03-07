@@ -32,18 +32,6 @@
 namespace PVCore
 {
 
-/**
- * it is a diamon base class for every child use to dynamic cast to correct type asap.
- */
-class PVDataTreeObject
-{
-  public:
-	/**
-	 * Human readable description of a node.
-	 */
-	virtual std::string get_serialize_description() const = 0;
-};
-
 namespace __impl
 {
 
@@ -103,7 +91,7 @@ struct ChildrenAccessor<T, T> {
  * DataTree node as parent (containing children)
  */
 template <class Child, class Derived>
-class PVDataTreeParent : virtual public PVDataTreeObject
+class PVDataTreeParent
 {
   public:
 	PVDataTreeParent() = default;
@@ -172,7 +160,7 @@ struct ParentAccessor<T, T> {
 } // namespace __impl
 
 template <class Parent, class Derived>
-class PVDataTreeChild : virtual public PVDataTreeObject
+class PVDataTreeChild
 {
   public:
 	explicit PVDataTreeChild(Parent& parent) : _parent(parent) {}

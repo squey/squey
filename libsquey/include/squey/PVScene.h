@@ -90,8 +90,6 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
   public:
 	inline bool is_empty() const { return size() == 0; }
 
-	std::string get_serialize_description() const override { return get_name(); }
-
   public:
 	inline void set_last_active_source(PVSource* src) { _last_active_src = src; }
 

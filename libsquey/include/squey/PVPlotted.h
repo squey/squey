@@ -114,8 +114,6 @@ class PVPlotted : public PVCore::PVDataTreeChild<PVMapped, PVPlotted>,
 	void set_name(std::string const& name) { _name = name; }
 	std::string const& get_name() const { return _name; }
 
-	std::string get_serialize_description() const override { return "Plotting: " + get_name(); }
-
   public:
 	PVRush::PVNraw& get_rushnraw_parent();
 	const PVRush::PVNraw& get_rushnraw_parent() const;

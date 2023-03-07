@@ -133,9 +133,6 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 	pvcop::db::array const& get_column(PVCol col) const;
 
   public:
-	std::string get_serialize_description() const override { return "Mapping: " + get_name(); }
-
-  public:
 	void serialize_write(PVCore::PVSerializeObject& so) const;
 	static Squey::PVMapped& serialize_read(PVCore::PVSerializeObject& so,
 	                                        Squey::PVSource& parent);

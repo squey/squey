@@ -103,8 +103,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	virtual ~PVView();
 
   public:
-	std::string get_serialize_description() const override { return "View: " + get_name(); }
-
 	/* Functions */
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination
