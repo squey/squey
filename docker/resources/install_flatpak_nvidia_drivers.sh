@@ -17,8 +17,8 @@ if [ ! -z $nvidia_drivers ]; then
     fi
 
     # Install NVIDIA drivers flatpak package
-    flatpak remote-add --user --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
-    bash -i -c "flatpak install --user -y flathub $flatpak_nvidia_drivers" &> "$tmp_output_file" &
+    sudo flatpak remote-add --if-not-exists flathub https://flathub.org/repo/flathub.flatpakrepo
+    sudo flatpak install -y flathub $flatpak_nvidia_drivers &> "$tmp_output_file" &
 
     # Handle progress bar dialog
     dbus_process=$(kdialog --title "NVIDIA drivers" --progressbar "Installing $flatpak_nvidia_drivers ...")
