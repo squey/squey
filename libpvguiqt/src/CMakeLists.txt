@@ -13,7 +13,6 @@ common.cpp
 PVAxesCombinationDialog.cpp
 PVAxesCombinationWidget.cpp
 PVCredentialDialog.cpp
-PVHiveDataTreeModel.cpp
 PVLayerFilterProcessWidget.cpp
 PVLayerStackDelegate.cpp
 PVLayerStackModel.cpp
@@ -26,12 +25,8 @@ PVListingModel.cpp
 PVAbstractTableModel.cpp
 PVListingView.cpp
 PVAbstractTableView.cpp
-PVRootTreeModel.cpp
-PVRootTreeView.cpp
 PVTableView.cpp
 PVQNraw.cpp
-PVQMapped.cpp
-PVQPlotted.cpp
 PVWorkspacesTabWidget.cpp
 PVWorkspace.cpp
 PVViewDisplay.cpp
@@ -67,7 +62,6 @@ format-builder/PVXmlTimeValidatorHighLight.cpp
 format-builder/PVOptionsWidget.cpp
 
 # Displays that will be registered to libpvdisplays
-PVDisplaySourceDataTree.cpp
 PVDisplayViewAxesCombination.cpp
 PVDisplayViewMappingPlotting.cpp
 PVDisplayViewLayerStack.cpp
@@ -91,9 +85,6 @@ SET(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVListingView.h
 ../include/pvguiqt/PVAbstractTableView.h
 ../include/pvguiqt/PVTableView.h
-../include/pvguiqt/PVRootTreeModel.h
-../include/pvguiqt/PVRootTreeView.h
-../include/pvguiqt/PVHiveDataTreeModel.h
 ../include/pvguiqt/PVWorkspacesTabWidget.h
 ../include/pvguiqt/PVWorkspace.h
 ../include/pvguiqt/PVViewDisplay.h
