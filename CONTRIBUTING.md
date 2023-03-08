@@ -25,6 +25,10 @@ Merge Requests aim is to ensure that :
 If after opening a Merge Request you spot something wrong, temporarily change its status to "Draft" to prevent it to be merged. \
 Do not use the draft status otherwise because it prevents to use Gitlab "Merge when pipeline succeeds" feature.
 
+### External contributions
+
+If you do not have a [Developer](https://docs.gitlab.com/ee/user/permissions.html) role on this project, you can follow the [forking workflow](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html) and [request your branch to be merged upstream](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html#merging-upstream). A Developer will then review your changes before running a [CI pipeline in the project](https://docs.gitlab.com/ee/ci/pipelines/merge_request_pipelines.html#run-pipelines-in-the-parent-project).
+
 ## Code reviews
 
 Code reviews are a solid way to catch problems early in the development process, but are also a good way to share the knowledge through the team on what has been changed. \
