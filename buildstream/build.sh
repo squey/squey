@@ -63,27 +63,6 @@ source .common.sh
 WORKSPACE_NAME="workspace_build"
 open_workspace "$WORKSPACE_NAME"
 
-# Use proper branch if specified
-ORIGIN="origin"
-if git rev-parse "tags/$BRANCH_NAME"; then
-    ORIGIN="tags"
-fi
-CURRENT_BRANCH=`git rev-parse --abbrev-ref HEAD`
-if [ $CURRENT_BRANCH == "HEAD" -o $BRANCH_SPECIFIED = true ]; then
-    pushd .
-    cd "$WORKSPACE_PREFIX/$WORKSPACE_NAME"
-    git reset --hard HEAD # Clean env
-    git fetch -a --tags --force
-    git checkout -B $BRANCH_NAME $ORIGIN/$BRANCH_NAME
-    git submodule update --recursive
-    popd
-else
-    BRANCH_NAME=$CURRENT_BRANCH
-fi
-if [ $USER_TARGET == "customer" ]; then
-    BRANCH_NAME="main"
-fi
-
 # Fill-in crash reporter token
 if [ ! -z "$INSPECTOR_CRASH_REPORTER_TOKEN" ]; then
   INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/include/pvkernel/core/PVCrashReporterToken.h"
