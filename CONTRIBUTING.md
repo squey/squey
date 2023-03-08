@@ -18,12 +18,16 @@ Major and minor release must be associated with a branch for backports & bugfixe
 Since branch "main" is protected, any code located on a short-lived branch being merged is therefore subject to a Merge Request. \
 Merge Requests aim is to ensure that :
 
-1. The CI/CD pipeline is passing and no regression was induced.
+1. The CI/CD pipeline is passing and no regression was introduced.
 2. The code has been reviewed by someone else with Developer, Maintainer or Owner role.
 3. The commits are clean (squash some of them if using [git rebase -i](https://gitlab.com/inendi/inspector/-/wikis/rebase) if necessary).
 
 If after opening a Merge Request you spot something wrong, temporarily change its status to "Draft" to prevent it to be merged. \
 Do not use the draft status otherwise because it prevents to use Gitlab "Merge when pipeline succeeds" feature.
+
+### External contributions
+
+If you do not have a [Developer](https://docs.gitlab.com/ee/user/permissions.html) role on this project, you can follow the [forking workflow](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html) and [request your branch to be merged upstream](https://docs.gitlab.com/ee/user/project/repository/forking_workflow.html#merging-upstream). A Developer will then review your changes before running a [CI pipeline in the project](https://docs.gitlab.com/ee/ci/pipelines/merge_request_pipelines.html#run-pipelines-in-the-parent-project).
 
 ## Code reviews
 
