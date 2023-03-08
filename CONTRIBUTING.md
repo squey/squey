@@ -18,7 +18,7 @@ Major and minor release must be associated with a branch for backports & bugfixe
 Since branch "main" is protected, any code located on a short-lived branch being merged is therefore subject to a Merge Request. \
 Merge Requests aim is to ensure that :
 
-1. The CI/CD pipeline is passing and no regression was induced.
+1. The CI/CD pipeline is passing and no regression was introduced.
 2. The code has been reviewed by someone else with Developer, Maintainer or Owner role.
 3. The commits are clean (squash some of them if using [git rebase -i](https://gitlab.com/inendi/inspector/-/wikis/rebase) if necessary).
 
