@@ -96,7 +96,7 @@ jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" f
 # Build INENDI Inspector
 BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER"
 if [ $USER_TARGET_SPECIFIED = true ]; then
-  BUILD_OPTIONS="--option user_target $USER_TARGET"
+  BUILD_OPTIONS="$BUILD_OPTIONS --option user_target $USER_TARGET"
 fi
 if  [ "$RUN_TESTSUITE" = false ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option disable_testsuite True"
