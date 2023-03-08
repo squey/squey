@@ -83,16 +83,16 @@ pages:
     - PAGES=`curl -s -X GET -I ${CI_PAGES_URL}/install.flatpakref | head -n 1 | cut -d$' ' -f2 | grep -c 200` || true
     - PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines?scope=tags | jq -r .[0].id`
     - JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
-    - 'if [ $PAGES -eq 1 ] && [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then rm -rf $CI_PROJECT_DIR/public/flatpak && curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- && rm -rf $CI_PROJECT_DIR/public/inendi-inspector_installer_*.exe || true; fi'
+    - 'if [ $PAGES -eq 1 ] && [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi'
     - 'if [ $CODE_COVERAGE = "true" ]; then cp -r /srv/tmp-inspector/code_coverage_report $CI_PROJECT_DIR/public; cp $CI_PROJECT_DIR/gl-code-quality-report.html $CI_PROJECT_DIR/public/code_quality_report/index.html; exit 0; fi'
     - cd nsis && ./build.sh ; cd -
-    - rm -rf "$CI_PROJECT_DIR/public/inendi-inspector_installer.exe" && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "INENDI Inspector" -i "https://gitlab.com/inendi/inspector" -t "http://timestamp.comodoca.com/authenticode" -in nsis/inendi-inspector_installer.exe -out "$CI_PROJECT_DIR/public/inendi-inspector_installer.exe"
+    - rm -rf $CI_PROJECT_DIR/public/inendi-inspector_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "INENDI Inspector" -i "https://gitlab.com/inendi/inspector" -t "http://timestamp.comodoca.com/authenticode" -in nsis/inendi-inspector_installer.exe -out "$CI_PROJECT_DIR/public/inendi-inspector_installer.exe"
     - cp "public/inendi-inspector_installer.exe" "public/inendi-inspector_installer_$(md5sum public/inendi-inspector_installer.exe | awk '{ print $1 }').exe"
     - cp buildstream/install.flatpakref public
     - cp -r docker inendi-inspector_docker && 
       zip -r public/inendi-inspector_docker.zip inendi-inspector_docker && 
       rm -rf inendi-inspector_docker
-    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.xz" . && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
+    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
     - rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     reports:
