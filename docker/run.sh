@@ -9,8 +9,8 @@ command -v "${DOCKER}" &> /dev/null || { echo >&2 "'${DOCKER}' executable is req
 
 ${DOCKER} volume create inendi-inspector_flatpak_system_data &> /dev/null || true
 ${DOCKER} ${DOCKER_OPTS} run \
-    --privileged \
     --name inendi-inspector \
+    --privileged \
     --tmpfs /run \
     --tmpfs /tmp \
     --mount type=volume,source=inendi-inspector_flatpak_system_data,target=/var/lib/flatpak \
