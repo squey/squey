@@ -20,7 +20,7 @@ then
     FLATPAK_USER_REPO_DIR="~/.local/share/flatpak/repo"
 
     # Export Freedesktop runtime bundle
-    echo "[1/4] Exporting Flatpak runtime bundle ..."
+    echo "[1/3] Exporting Flatpak runtime bundle ..."
     flatpak_install_type=$(flatpak info "$RUNTIME_NAME//$RUNTIME_BRANCH" | grep "Installation: " | cut -d " " -f 2)
     runtime_not_installed=$?
     if [ $flatpak_install_type == "user" ]; then
@@ -42,7 +42,7 @@ then
     fi
 
     # Export Freedesktop Sdk bundle
-    echo "[2/4] Exporting Flatpak SDK bundle ..."
+    echo "[2/3] Exporting Flatpak SDK bundle ..."
     flatpak info "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
     sdk_not_installed=$?
     if [ $sdk_not_installed -eq 1 ]
@@ -58,7 +58,7 @@ then
     fi
 
     # Export INENDI Inspector bundle
-    echo "[3/4] Exporting INENDI Inspector bundle ..."
+    echo "[3/3] Exporting INENDI Inspector bundle ..."
     flatpak info "${INSPECTOR_NAME}"  &> /dev/null
     inspector_not_installed=$?
     if [ $inspector_not_installed  -eq 1 ]
@@ -71,25 +71,6 @@ then
     if [ $inspector_not_installed -eq 1 ]
     then
         flatpak uninstall $USER_OPT -y "${INSPECTOR_NAME}" &> /dev/null
-    fi
-
-    # Export NVIDIA drivers bundle
-    if [ ! -z ${GL_DRIVERS_VERSION} ]
-    then
-        echo "[4/4] Exporting NVIDIA drivers bundle ..."
-        if [ $runtime_not_installed -eq 1 ]
-        then
-            flatpak install $USER_OPT -y flathub "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
-        else
-            flatpak update $USER_OPT -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
-        fi
-        flatpak build-bundle --repo-url="${FLATHUB_REPO}" --runtime $FLATPAK_REPO_DIR "${DATA_PATH}/drivers.flatpak" "$DRIVERS_NAME" "$DRIVERS_BRANCH"
-        if [ $runtime_not_installed -eq 1 ]
-        then
-            flatpak uninstall $USER_OPT -y "$DRIVERS_NAME//$DRIVERS_BRANCH" &> /dev/null
-        fi
-    else
-        echo "[4/4] Skipping exporting NVIDIA drivers bundle as we don't have any GPU"
     fi
 
     # Download NICE DCV
