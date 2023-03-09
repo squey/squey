@@ -56,19 +56,18 @@ RUN systemctl enable umount_proc_driver_nvidia.service
 RUN chmod +x "${INSTALL_PATH}/install_files.sh"
 RUN "${INSTALL_PATH}/install_files.sh" "${INSTALL_MODE}"
 
+# Configure authentification
+RUN chmod +x "${INSTALL_PATH}/configure_auth.sh"
+RUN "${INSTALL_PATH}/configure_auth.sh"
+
 # Configure INENDI Inspector
 RUN echo "ALL ALL=(ALL:ALL) NOPASSWD: /usr/bin/flatpak" | tee /etc/sudoers.d/flatpak
 RUN chmod +x "${INSTALL_PATH}/inspector_loop.sh"
 RUN chmod +x "${INSTALL_PATH}/cuda-devices"
 RUN mkdir -p /srv/tmp-inspector
-RUN useradd --system inendi
 RUN usermod -a -G inendi inspector
 RUN chown inendi: /srv/tmp-inspector
 RUN chmod g+w /srv/tmp-inspector
-
-# Configure authentification
-RUN chmod +x "${INSTALL_PATH}/configure_auth.sh"
-RUN "${INSTALL_PATH}/configure_auth.sh"
 
 # Install DCV server
 RUN chmod +x "${INSTALL_PATH}/install_dcv_server.sh"
