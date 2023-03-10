@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source /opt/inendi/inspector/install_flatpak_nvidia_drivers.sh
+source /opt/inendi/inspector/update_flatpak_packages.sh
 
 while true; do
     # Run INENDI Inspector with "--devel" option to be able to generate crash reports
