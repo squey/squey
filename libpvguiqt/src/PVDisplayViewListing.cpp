@@ -55,6 +55,6 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Squey::PVView* view,
 	listing_view->setHorizontalHeader(hheaderview);
 
 	auto* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);
-
+    stats_listing->setWindowTitle(default_window_title(*view));
 	return stats_listing;
 }

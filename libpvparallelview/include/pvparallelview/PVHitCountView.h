@@ -171,6 +171,8 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	QString get_x_value_at(const qint64 value) override;
 	QString get_y_value_at(const qint64 value) override;
 
+	void update_window_title(PVCol axis);
+
   protected Q_SLOTS:
 	void toggle_auto_x_zoom_sel();
 	void toggle_log_color();

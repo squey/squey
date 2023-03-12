@@ -46,7 +46,7 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Squey::PVView* vie
                                                               QWidget* parent,
                                                               Params const&) const
 {
-	PVParallelView::PVLibView* lib_view;
+	PVParallelView::PVLibView* lib_view = nullptr;
 
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
@@ -55,6 +55,7 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Squey::PVView* vie
 		},
 	    "Initializing full parallel view...", parent);
 
-	return lib_view->create_view(parent);
-	;
+	auto w = lib_view->create_view(parent);
+	w->setWindowTitle(default_window_title(*view));
+	return w;
 }

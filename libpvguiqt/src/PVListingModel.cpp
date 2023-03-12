@@ -212,12 +212,12 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 
 			if (correlation and correlation->col1 == col) {
 
-				const QString& orig_source =
+				QString orig_source =
 				    QString::fromStdString(_view.get_parent<Squey::PVSource>().get_name());
-				const QString& orig_axis = _view.get_axis_name(comb_col);
-				const QString& dest_source = QString::fromStdString(
+				QString orig_axis = _view.get_axis_name(comb_col);
+				QString dest_source = QString::fromStdString(
 				    correlation->view2->get_parent<Squey::PVSource>().get_name());
-				const QString& dest_axis =
+				QString dest_axis =
 				    correlation->view2->get_nraw_axis_name(correlation->col2);
 
 				return QString("Active correlation :\n%1 (%2) -> %3 (%4)")

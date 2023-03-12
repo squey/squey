@@ -51,6 +51,7 @@ QWidget* PVDisplays::PVDisplayViewMappingPlotting::create_widget(Squey::PVView* 
         delete dlg;
     });
 
+	dlg->setWindowTitle(default_window_title(*view));
 	return dlg;
 }
 

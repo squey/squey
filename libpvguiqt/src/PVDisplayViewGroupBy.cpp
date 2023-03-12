@@ -46,11 +46,9 @@ QWidget* PVDisplays::PVDisplayViewGroupBy::create_widget(Squey::PVView* view,
                                                          QWidget* parent,
                                                          Params const& params) const
 {
-	auto [col1, col2] = many_cast<PVCol, PVCol>(params);
-	// auto col1 = std::any_cast<PVCol>(params.at(0));
-	// auto col2 = std::any_cast<PVCol>(params.at(1));
-
-	PVGuiQt::PVGroupByStringsDlg* dlg = show_group_by(*view, col1, col2, view->get_selection_visible_listing(), parent);
+	PVGuiQt::PVGroupByStringsDlg* dlg =
+	    show_group_by(*view, col_param(view, params, 0), col_param(view, params, 1),
+	                  view->get_selection_visible_listing(), parent);
 	delete dlg->findChild<QWidget*>("buttonBox");
 	return dlg;
 }

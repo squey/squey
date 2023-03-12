@@ -120,6 +120,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 
 	connect(_zpview->params_widget(), &PVZoomedParallelViewParamsWidget::change_to_col, this,
 	        &PVZoomedParallelScene::change_to_col);
+	
+	_zpview->update_window_title(_pvview, axis_index);
 
 	_sliders_group =
 	    std::make_unique<PVParallelView::PVSlidersGroup>(_sliders_manager_p, _axis_index);
@@ -404,6 +406,8 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(PVCombCol index)
 	configure_axis(true);
 
 	update_all();
+
+	_zpview->update_window_title(_pvview, index);
 }
 
 /*****************************************************************************

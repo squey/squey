@@ -186,6 +186,8 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 	auto y_legend = new PVWidgets::PVAxisComboBox(
 	    pvview_sp.get_axes_combination(),
 	    PVWidgets::PVAxisComboBox::AxesShown::BothOriginalCombinationAxes);
+	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
+			[this](PVCol axis, PVCombCol){ update_window_title(axis); });
 	y_legend->set_current_axis(axis);
 	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
 	        [this](PVCol axis, PVCombCol) {
@@ -716,4 +718,12 @@ QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value)
 	} else {
 		return {};
 	}
+}
+
+void PVParallelView::PVHitCountView::update_window_title(PVCol axis)
+{
+	setWindowTitle(QString("%1 (%2) [%3]").arg(
+		QObject::tr("Hit count"),
+		_pvview.get_nraw_axis_name(axis),
+		QString::fromStdString(_pvview.get_name())));
 }

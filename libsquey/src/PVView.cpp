@@ -253,14 +253,14 @@ PVRush::PVAxisFormat const& Squey::PVView::get_axis(PVCombCol index) const
  * Squey::PVView::get_axis_name
  *
  *****************************************************************************/
-const QString& Squey::PVView::get_axis_name(PVCombCol index) const
+QString Squey::PVView::get_axis_name(PVCombCol index) const
 {
-	return _axes_combination.get_axis(index).get_name();
+	return index == PVCombCol() ? "" : _axes_combination.get_axis(index).get_name();
 }
 
 QString Squey::PVView::get_nraw_axis_name(PVCol axis_id) const
 {
-	return get_parent<Squey::PVSource>().get_format().get_axes()[axis_id].get_name();
+	return axis_id == PVCol() ? "" : _axes_combination.get_axis(axis_id).get_name();
 }
 
 // FIXME: This function should be removed
@@ -627,8 +627,7 @@ void Squey::PVView::select_inverse()
 std::string Squey::PVView::get_name() const
 {
 	if (_name.empty()) {
-		return std::to_string(get_display_view_id()) + " (" + get_parent<PVMapped>().get_name() +
-		       "/" + get_parent<PVPlotted>().get_name() + ")";
+		return std::to_string(get_display_view_id()) + ":" + get_parent<PVSource>().get_name();
 	}
 	return _name;
 }

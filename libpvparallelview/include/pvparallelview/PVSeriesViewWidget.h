@@ -73,6 +73,7 @@ class PVSeriesViewWidget : public QWidget
   private:
 	void setup_layout();
 	void update_layout();
+	void update_window_title(PVCol axis);
 	void set_abscissa(PVCol axis);
 	void set_split(PVCol axis);
 	bool is_splitted() const { return _sampler->group_count() > 1; }

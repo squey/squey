@@ -160,6 +160,6 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* vi
 	layout->addWidget(help_button, 3, 0, -1, -1);
 
 	console_widget->setLayout(layout);
-
+	console_widget->setWindowTitle(default_window_title(*view));
 	return console_widget;
 }

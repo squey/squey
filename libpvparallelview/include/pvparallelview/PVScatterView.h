@@ -139,6 +139,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	QString get_y_value_at(const qint64 value) override;
 
   protected:
+	void update_window_title();
 	void set_params_widget_position();
 
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }

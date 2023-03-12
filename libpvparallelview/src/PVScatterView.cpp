@@ -455,6 +455,7 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 	recompute_decorations();
 	reconfigure_view();
 	do_update_all();
+	update_window_title();
 }
 
 /*****************************************************************************
@@ -538,6 +539,15 @@ QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value)
 	} else {
 		return {};
 	}
+}
+
+void PVParallelView::PVScatterView::update_window_title()
+{
+	setWindowTitle(QString("%1 (x:%2|y:%3) [%4]").arg(
+		QObject::tr("Scatter"),
+		_view.get_nraw_axis_name(_zone_id.first),
+		_view.get_nraw_axis_name(_zone_id.second),
+		QString::fromStdString(_view.get_name())));
 }
 
 ////

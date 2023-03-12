@@ -26,6 +26,7 @@
 #define PVPARALLELVIEW_PVZOOMEDPARALLELVIEW_H
 
 #include <pvkernel/widgets/PVGraphicsView.h>
+#include <pvbase/types.h>
 
 class QPainter;
 class QStyleOptionGraphicsItem;
@@ -34,6 +35,7 @@ class QWidget;
 namespace Squey
 {
 class PVAxesCombination;
+class PVView;
 }
 
 namespace PVWidgets
@@ -79,6 +81,8 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	 * @param event then resize event
 	 */
 	void resizeEvent(QResizeEvent* event) override;
+
+	void update_window_title(Squey::PVView& view, PVCombCol combcol);
 
   protected:
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }

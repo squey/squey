@@ -106,7 +106,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] view The underlying PVView.
 	 *  \param[in] view_widget The widget displayed by the dock widget.
-	 *  \param[in] name The function returning the name of the display based on its type.
 	 *  \param[in] can_be_central_widget Specifies if the display can be set as central display.
 	 *  \param[in] delete_on_close Specifies if the display is deleted when closed.
 	 *  \param[in] area The area of the QDockWidget on the QMainWindow.
@@ -115,7 +114,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	PVViewDisplay* add_view_display(Squey::PVView* view,
 	                                QWidget* view_display,
-	                                QString name,
 	                                bool can_be_central_display = true,
 	                                bool delete_on_close = true,
 	                                Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
@@ -124,14 +122,12 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] view The underlying PVView.
 	 *  \param[in] view_widget The widget displayed by the dock widget.
-	 *  \param[in] name The function returning the name of the display based on its type.
 	 *  \param[in] delete_on_close Specifies if the display is deleted when closed.
 	 *
 	 *  \return A pointer to the view display.
 	 */
 	PVViewDisplay* set_central_display(Squey::PVView* view,
 	                                   QWidget* view_widget,
-	                                   QString name,
 	                                   bool delete_on_close);
 
 	/*! \brief Create or display the widget used by the view display.

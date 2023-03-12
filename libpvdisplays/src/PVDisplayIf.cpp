@@ -33,9 +33,11 @@
 namespace PVDisplays
 {
 
-QString PVDisplayViewIf::widget_title(Squey::PVView* view) const
+QString PVDisplayViewIf::default_window_title(Squey::PVView& view) const
 {
-	return tooltip_str() + " [" + QString::fromStdString(view->get_name()) + "]";
+	return QString("%1 [%2]").arg(
+		tooltip_str(),
+		QString::fromStdString(view.get_name()));
 }
 
 void PVDisplayViewIf::add_to_axis_menu(QMenu& menu,

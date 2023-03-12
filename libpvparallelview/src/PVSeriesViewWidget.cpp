@@ -182,6 +182,8 @@ void PVParallelView::PVSeriesViewWidget::update_layout()
 
 void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 {
+	update_window_title(abscissa);
+
 	if (abscissa == PVCol()) {
 		update_layout();
 		return;
@@ -514,3 +516,12 @@ void PVParallelView::PVSeriesViewWidget::leaveEvent(QEvent*)
 {
 	clearFocus();
 }
+
+void PVParallelView::PVSeriesViewWidget::update_window_title(PVCol axis)
+{
+	setWindowTitle(QString("%1 (%2) [%3]").arg(
+		QObject::tr("Series"),
+		_view->get_nraw_axis_name(axis),
+		QString::fromStdString(_view->get_name())));
+}
+

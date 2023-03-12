@@ -46,18 +46,17 @@
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
                                       QWidget* view_widget,
-                                      QString name,
                                       bool can_be_central_widget,
                                       bool delete_on_close,
                                       PVWorkspaceBase* workspace)
     : QDockWidget((QWidget*)workspace)
     , _view(view)
-    , _name(name)
     , _workspace(workspace)
     , _can_be_central_widget(can_be_central_widget)
 {
 	setWidget(view_widget);
-	setWindowTitle(_name);
+	setWindowTitle(view_widget->windowTitle());
+	connect(view_widget, &QWidget::windowTitleChanged, this, &QWidget::setWindowTitle);
 
 	setFocusPolicy(Qt::StrongFocus);
 	view_widget->setFocusPolicy(Qt::StrongFocus);
@@ -84,17 +83,6 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
 	connect(this, &QDockWidget::topLevelChanged, this, &PVViewDisplay::drag_started);
 	connect(this, &QDockWidget::dockLocationChanged, this, &PVViewDisplay::drag_ended);
 	connect(view_widget, &QObject::destroyed, this, &QWidget::close);
-
-	register_view(view);
-}
-
-void PVGuiQt::PVViewDisplay::register_view(Squey::PVView* view)
-{
-	if (view) {
-
-		view->get_parent<Squey::PVPlotted>()._plotted_updated.connect(
-		    sigc::mem_fun(*this, &PVGuiQt::PVViewDisplay::plotting_updated));
-	}
 }
 
 bool PVGuiQt::PVViewDisplay::event(QEvent* event)
@@ -317,9 +305,4 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 	if (_view) {
 		_view->get_parent<Squey::PVRoot>().select_view(*_view);
 	}
-}
-
-void PVGuiQt::PVViewDisplay::plotting_updated(QList<PVCol> const& /*cols_updated*/)
-{
-	setWindowTitle(_name);
 }

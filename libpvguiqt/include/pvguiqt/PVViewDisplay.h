@@ -98,10 +98,6 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	 */
 	void drag_ended();
 
-	/*! \brief Create the view display right click menu.
-	 */
-	void plotting_updated(QList<PVCol> const& cols_updated);
-
 	void restore();
 
 	/*! \brief Maximize a view display on a given screen.
@@ -114,15 +110,9 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	void try_automatic_tab_switch();
 
   private:
-	/*! \brief Register the view to handle several events.
-	 */
-	void register_view(Squey::PVView* view);
-
-  private:
 	/*! \brief Creates a view display.
 	 *  \param[in] view The underlying PVView.
 	 *  \param[in] view_widget The widget displayed by the dock widget.
-	 *  \param[in] name The function returning the name of the display based on its type.
 	 *  \param[in] can_be_central_widget Specifies if the display can be set as central display.
 	 *  \param[in] delete_on_close Specifies if the display is deleted when closed.
 	 *  \param[in] workspace The parent workspace.
@@ -132,7 +122,6 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	 */
 	PVViewDisplay(Squey::PVView* view,
 	              QWidget* view_widget,
-	              QString name,
 	              bool can_be_central_widget,
 	              bool delete_on_close,
 	              PVWorkspaceBase* parent);

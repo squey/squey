@@ -114,8 +114,6 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 
 	using PVDisplayIf::PVDisplayIf;
 
-	virtual QString widget_title(value_type* /*obj*/) const { return tooltip_str(); }
-
 	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {})
 	{
 		if (auto it = _widgets.find(obj); it != _widgets.end()) {
@@ -154,8 +152,6 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Squey::PVView>,
 	{
 	}
 
-	QString widget_title(Squey::PVView* view) const override;
-
 	virtual QString axis_menu_name() const { return _axis_menu_name; }
 	virtual void add_to_axis_menu(QMenu& menu,
 	                              PVCol axis,
@@ -163,6 +159,10 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Squey::PVView>,
 	                              Squey::PVView* view,
 	                              PVDisplaysContainer* container);
 
+	/** @brief Can be used with QWidget::setWindowTitle() when no other info is needed */
+	QString default_window_title(Squey::PVView& view) const;
+
+  private:
 	QString _axis_menu_name;
 };
 

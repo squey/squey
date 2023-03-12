@@ -109,14 +109,13 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent* event)
 PVGuiQt::PVViewDisplay*
 PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
                                            QWidget* view_widget,
-                                           QString name,
                                            bool can_be_central_display /*= true*/,
                                            bool delete_on_close /* = true*/,
                                            Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
 )
 {
 	auto* view_display =
-	    new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
+	    new PVViewDisplay(view, view_widget, can_be_central_display, delete_on_close, this);
 
 	// note : new connect syntax is causing a crash (Qt bug ?)
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
@@ -140,11 +139,10 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Squey::PVView* view,
                                                                       QWidget* view_widget,
-                                                                      QString name,
                                                                       bool delete_on_close)
 {
 	auto* view_display =
-	    new PVViewDisplay(view, view_widget, name, true, delete_on_close, this);
+	    new PVViewDisplay(view, view_widget, true, delete_on_close, this);
 	view_display->setStyleSheet("QDockWidget { font: bold }");
 	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	view_display->setSizePolicy(
@@ -189,9 +187,7 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 		Squey::PVView* central_view = central_dock->get_view();
 		Squey::PVView* display_view = display_dock->get_view();
 		central_dock->set_view(display_view);
-		central_dock->register_view(display_view);
 		display_dock->set_view(central_view);
-		display_dock->register_view(central_view);
 
 		// Exchange colors
 		QColor col1 = central_dock->get_view()->get_color();
@@ -205,7 +201,7 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 		central_dock->setAutoFillBackground(true);
 		central_dock->setPalette(Pal2);
 	} else {
-		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->_name,
+		set_central_display(display_dock->get_view(), display_dock->widget(),
 		                    display_dock->testAttribute(Qt::WA_DeleteOnClose));
 		removeDockWidget(display_dock);
 	}
@@ -243,8 +239,8 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
 		view_d->setVisible(!view_d->isVisible());
 	} else {
 		view_d = add_view_display(
-		    nullptr, w, display_if.widget_title(src),
-		    display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), false);
+		    nullptr, w, display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
+		    false);
 		/* when the dock widget's "close" button is pressed, the
 		 * associated QAction has to be unchecked
 		 */
@@ -262,9 +258,9 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& d
 
 	QWidget* w = PVDisplays::get_widget(display_if, view, nullptr, params);
 	auto area = display_if.default_position_hint();
-	add_view_display(view, w, display_if.widget_title(view),
-	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
-	                 true, area ? area : Qt::TopDockWidgetArea);
+	add_view_display(view, w,
+	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true,
+	                 area ? area : Qt::TopDockWidgetArea);
 }
 
 /******************************************************************************
@@ -366,21 +362,20 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 		    [&](PVDisplays::PVDisplayViewIf& obj) {
 			    QWidget* w = PVDisplays::get_widget(obj, view);
 
-			    QString name = obj.widget_title(view);
 			    const bool as_central = obj.default_position_as_central_hint();
 
 			    const bool delete_on_close =
 			        !obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
 			    if (as_central && !already_center) {
 				    already_center = true;
-				    set_central_display(view, w, name, delete_on_close);
+				    set_central_display(view, w, delete_on_close);
 			    } else {
 				    Qt::DockWidgetArea pos = obj.default_position_hint();
 				    if (as_central && already_center) {
 					    pos = Qt::TopDockWidgetArea;
 				    }
 				    add_view_display(
-				        view, w, name,
+				        view, w,
 				        obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
 				        delete_on_close, pos);
 			    }

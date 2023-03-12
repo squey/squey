@@ -78,3 +78,11 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent* event)
 		zps->resize_display(need_recomputation);
 	}
 }
+
+void PVParallelView::PVZoomedParallelView::update_window_title(Squey::PVView& view, PVCombCol combcol)
+{
+	setWindowTitle(QString("%1 (%2) [%3]").arg(
+		QObject::tr("Zoomed"),
+		view.get_axis_name(combcol),
+		QString::fromStdString(view.get_name())));
+}
