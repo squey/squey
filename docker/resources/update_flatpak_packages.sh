@@ -1,6 +1,39 @@
 #!/bin/bash
 
-tmp_output_file="/tmp/$(basename "$0").$$"
+tmp_output_file="/tmp/$(basename "$0").output"
+tmp_pid_file="/tmp/$(basename "$0").pid.$$"
+tmp_cmdline_file="/tmp/$(basename "$0").cmdline"
+
+function process_running {
+    pid="$1"
+    cmdline="$2"
+    [ -f "$tmp_output_file" ] && [ -n "$pid" ] && [ -d "/proc/$pid" ] && [ "$(tr -d '\0' < /proc/$pid/cmdline)" == "$cmdline" ]
+}
+
+function ongoing_installation {
+    pid_path=$(ls "${tmp_pid_file%.*}."* 2> /dev/null)
+    if [ -n "$pid_path" ] ; then
+        owner_pid="${pid_path##*.}"
+        if [ "$owner_pid" = "$$" ]; then
+            return 1 # this script is doing the installation
+        else
+            pid=$(cat "$pid_path")
+            cmdline=$(cat "$tmp_cmdline_file")
+            if process_running "$pid" "$cmdline"; then
+                return 0 # another script is doing the installation
+            else
+                return 1 # some garbage file was left behind
+            fi
+        fi
+    fi
+    return 1 # no ongoing installation
+}
+
+function cleanup {
+    rm -rf "$tmp_output_file" &> /dev/null
+    rm -rf "$tmp_pid_file" &> /dev/null
+    rm -rf "$tmp_cmdline_file" &> /dev/null
+}
 
 function get_package_count {
     package_count=$(grep -P '\d+\.\t' "$tmp_output_file" | cut -f 3,4 | wc -l)
@@ -15,8 +48,13 @@ function get_package_name_from_index {
 
 function get_current_package_index {
     local index
-    while [ -z "$index" ]; do
-        index=$(tail -n 1 "$tmp_output_file" | strings | tail -n 2 | grep -E "Installing|Updating" | sed -n 1p | cut -d " " -f 2 | cut -d "/" -f 1)
+    while [ -z "$index" ] && [ -f "$tmp_output_file" ]; do
+        res=$(tail -n 1 "$tmp_output_file" | strings | tail -n 2 | grep -E "Installing|Updating" | sed -n 1p | cut -d " " -f 2)
+        if grep -q "?" <<< "$res" ; then
+            index="1"
+        else
+            index="$(echo "$res"| cut -d "/" -f 1)"
+        fi
     done
     echo "$index"
 }
@@ -37,55 +75,49 @@ function monitor_package_installation {
     qdbus $dbus_process close > /dev/null;
 }
 
-function process_running {
-    pid="$1"
-    cmdline="$2"
-    [ -n "${pid}" ] && [ -d "/proc/${pid}" ] && [ "$(tr -d '\0' < /proc/$pid/cmdline)" == "$cmdline" ]
-}
+if ! ongoing_installation ; then
+    trap cleanup EXIT SIGQUIT SIGSEGV SIGABRT
 
-function ongoing_installation {
-    pid_path=$(ls "${tmp_output_file%.*}."* 2> /dev/null)
-    if [ -n "$pid_path" ] ; then
-        pid="${pid_path##*.}"
-        if [ -z "${pid}" ] || [ ! -d "/proc/${pid}" ]; then
-            rm -rf "$pid_path" # cleanup garbage file
-            return 1
-        else
-            return 0
+    # Check if NVIDIA flatpak drivers needs to be installed/updated
+    nvidia_drivers=$(flatpak --gl-drivers | grep -i nvidia)
+    if [ -n $nvidia_drivers ]; then
+        flatpak_nvidia_drivers="org.freedesktop.Platform.GL.$nvidia_drivers"
+        if ! flatpak info "$flatpak_nvidia_drivers" &>/dev/null; then
+            flatpak_commands+=( "sudo flatpak install -y flathub $flatpak_nvidia_drivers" )
         fi
     fi
-    return 1
-}
 
-function cleanup {
-    if ! ongoing_installation ; then
-        rm -rf "$tmp_output_file" &> /dev/null
+    # Check if INENDI Inspector flatpak package needs to be updated
+    inspector_flatpak_package="com.gitlab.inendi.Inspector"
+    flatpak remote-ls --updates | grep -q "$inspector_flatpak_package"
+    if [ "$?" = "0" ]; then
+        flatpak_commands+=( "sudo flatpak update -y $inspector_flatpak_package" )
     fi
-}
-
-trap cleanup EXIT SIGQUIT SIGSEGV SIGABRT
-
-# Check if there is any update for INENDI Inspector
-flatpak remote-ls --updates | grep -q com.gitlab.inendi.Inspector
-update_inspector=$([ $? = 0 ] && echo "true" || echo "false")
-
-if [ "$update_inspector" = "true" ]; then
-    if ! ongoing_installation ; then
-        sudo flatpak update -y | tee "$tmp_output_file" & # Update all flatpak packages
+    
+    # Run flatpak commands
+    for flatpak_command in "${flatpak_commands[@]}"; do
+        bash -c "$flatpak_command" > "$tmp_output_file" &
         pid=$!
-    else
-        pid_path=$(ls "${tmp_output_file%.*}."* 2> /dev/null)
-        pid="${pid_path##*.}"
-        tmp_output_file="${tmp_output_file%.*}.$pid"
-    fi
-    cmdline=$(tr -d '\0' < /proc/$pid/cmdline)
+        sleep 1
+        cmdline="$(tr -d '\0' < /proc/$pid/cmdline)"
+        echo "$pid" > "$tmp_pid_file"
+        echo "$cmdline" > "$tmp_cmdline_file"
 
-    while process_running "$pid" "$cmdline"; do
+        while process_running "$pid" "$cmdline"; do
+            current_package_index=$(get_current_package_index)
+            monitor_package_installation "$current_package_index" "$pid" "$cmdline"
+        done
+    done
+
+    sudo flatpak uninstall --unused -y
+else
+    while [ -f "$tmp_output_file" ] ; do
+        owner_pid_path=$(ls "${tmp_pid_file%.*}."* 2> /dev/null)
+        pid=$(cat "$owner_pid_path")
+        cmdline=$(cat "$tmp_cmdline_file")
         current_package_index=$(get_current_package_index)
         monitor_package_installation "$current_package_index" "$pid" "$cmdline"
     done
-
-    if ! ongoing_installation ; then
-        sudo flatpak uninstall --unused -y
-    fi
 fi
+
+

@@ -1,6 +1,5 @@
 #!/bin/bash
 
-source /opt/inendi/inspector/install_flatpak_nvidia_drivers.sh
 source /opt/inendi/inspector/update_flatpak_packages.sh
 
 while true; do
