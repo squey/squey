@@ -20,7 +20,7 @@ then
     FLATPAK_USER_REPO_DIR="~/.local/share/flatpak/repo"
 
     # Export Freedesktop runtime bundle
-    echo "[1/3] Exporting Flatpak runtime bundle ..."
+    echo "[1/2] Exporting Flatpak runtime bundle ..."
     flatpak_install_type=$(flatpak info "$RUNTIME_NAME//$RUNTIME_BRANCH" | grep "Installation: " | cut -d " " -f 2)
     runtime_not_installed=$?
     if [ $flatpak_install_type == "user" ]; then
@@ -41,24 +41,8 @@ then
         flatpak uninstall $USER_OPT -y "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
     fi
 
-    # Export Freedesktop Sdk bundle
-    echo "[2/3] Exporting Flatpak SDK bundle ..."
-    flatpak info "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
-    sdk_not_installed=$?
-    if [ $sdk_not_installed -eq 1 ]
-    then
-        flatpak install $USER_OPT -y flathub "$SDK_NAME//$RUNTIME_BRANCH"  &> /dev/null
-    else
-        flatpak update $USER_OPT -y "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
-    fi
-    flatpak build-bundle --runtime $FLATPAK_REPO_DIR "${DATA_PATH}/sdk.flatpak" "$SDK_NAME" "$RUNTIME_BRANCH"
-    if [ $sdk_not_installed -eq 1 ]
-    then
-        flatpak uninstall $USER_OPT -y "$SDK_NAME//$RUNTIME_BRANCH" &> /dev/null
-    fi
-
     # Export INENDI Inspector bundle
-    echo "[3/3] Exporting INENDI Inspector bundle ..."
+    echo "[2/2] Exporting INENDI Inspector bundle ..."
     flatpak info "${INSPECTOR_NAME}"  &> /dev/null
     inspector_not_installed=$?
     if [ $inspector_not_installed  -eq 1 ]
