@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 
 ################################################################################
 # MIT License
@@ -78,7 +79,7 @@ class Handler(SimpleHTTPRequestHandler):
         while True:
             try:
                 if not user in [s['id'] for s in sessions]:
-                    subprocess.check_output(['/usr/bin/dcv', 'create-session', '--user={}'.format(user), '--owner={}'.format(user), session_id], stderr=subprocess.STDOUT)
+                    subprocess.check_output(['/usr/bin/dcv', 'create-session', f'--user={user}', f'--owner={user}', session_id], stderr=subprocess.STDOUT)
                 break
             except subprocess.CalledProcessError as e:
                 error_msg = e.output.decode()
@@ -88,7 +89,7 @@ class Handler(SimpleHTTPRequestHandler):
                     if len(idle_sessions) > 0:  # Close oldest idle session and remove associated auth token(s)
                         idle_session_id=idle_sessions[0]['id']
                         subprocess.call(['/usr/bin/dcv', 'close-session', idle_session_id])
-                        subprocess.run(['/usr/bin/dcvsimpleextauth', 'remove-auth', '--session={}'.format(idle_session_id)])
+                        subprocess.run(['/usr/bin/dcvsimpleextauth', 'remove-auth', f'--session={idle_session_id}'])
                     else: # No idle session to close
                         self.send_response(403)
                         self.end_headers()
@@ -96,12 +97,12 @@ class Handler(SimpleHTTPRequestHandler):
 
         # Add authentification token to virtual session
         token=secrets.token_hex()
-        subprocess.run(['/usr/bin/dcvsimpleextauth', 'add-user', '--append', '--user={}'.format(user), '--session={}'.format(session_id)], input=token, encoding='ascii')
-        
-        self.send_response(200)
-        self.end_headers()
+        subprocess.run(['/usr/bin/dcvsimpleextauth', 'add-user', '--append', f'--user={user}', f'--session={session_id}'], input=token, encoding='ascii')
+
+        self.send_response(301)
         host = self.headers.get('Host')
-        self.wfile.write(bytes('https://{}/dcv/?authToken={}#{}'.format(host, token, session_id), 'utf-8'))
+        self.send_header('Location', f'https://{host}/dcv/?authToken={token}#{session_id}')
+        self.end_headers()
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""

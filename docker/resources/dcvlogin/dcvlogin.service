@@ -1,9 +1,12 @@
 [Unit]
 Description=INENDI Inspector login handler for NICE DCV
+Requires=dcvserver.service
+After=dcvserver.service
 After=dcvsimpleextauth.service
 
 [Service]
 Type=simple
+ExecStartPre=/bin/sleep 1
 ExecStart=/opt/inendi/inspector/dcvlogin/dcvlogin.py
 
 [Install]

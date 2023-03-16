@@ -3,6 +3,8 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/env.conf"
 
+useradd --system inendi
+
 if [ ! -z "${LDAP_URI}" ] # Configure PAM LDAP authentication if specified
 then
     export DEBIAN_FRONTEND=noninteractive

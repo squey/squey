@@ -9,12 +9,16 @@ variables:
   CODE_COVERAGE:
     value: "false"
     description: "Only update the code coverage report"
+  PUBLISH_CONTAINER_IMAGE:
+    value: "false"
+    description: "Publish container image to registry"
 
 stages:
   - test
   - build
   - pages
   - publish
+  - stop
 
 workflow:
   rules:
@@ -71,6 +75,52 @@ build release:
       when: manual
     - if: '$UPDATE_INSTALLERS_ONLY == "true"'
   allow_failure: false
+
+build container image:
+  image: quay.io/buildah/stable:v1.29.1
+  stage: build
+  tags:
+    - privileged-docker
+  before_script:
+    - cd docker
+  script:
+    - PRODUCTION=1 ./build.sh
+    - if [ $PUBLISH_CONTAINER_IMAGE = "true" ] && [ $CI_COMMIT_REF_PROTECTED = "true" ]; then
+        echo $DOCKERHUB_TOKEN | buildah login -u inendi --password-stdin registry-1.docker.io &&
+        buildah push localhost/inendi/inspector registry-1.docker.io/inendi/inspector:latest
+      ; else
+        echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
+        buildah push localhost/inendi/inspector $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+      ; fi
+  rules:
+    - changes:
+      - docker/**/*
+    - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
+  interruptible: true
+  environment:
+    on_stop: build container image stop
+    name: review/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    url: $CI_MERGE_REQUEST_PROJECT_URL
+
+build container image stop: # Delete container image when branch is merged
+  stage: stop
+  tags:
+   - privileged-docker
+  script:
+    - if [ "$PUBLISH_CONTAINER_IMAGE" = "false" ]; then
+      echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
+      buildah image rm $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+      ; fi
+  environment:
+    name: review/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    action: stop
+  rules:
+  - changes:
+    - docker/**/*
+    when: manual
+  - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
+    when: manual
+  allow_failure: true
 
 pages:
   stage: pages
@@ -149,6 +199,7 @@ include:
 - template: Security/SAST.gitlab-ci.yml
 - template: Code-Quality.gitlab-ci.yml
 - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
+- template: Jobs/Container-Scanning.gitlab-ci.yml
 
 flawfinder-sast:
   rules:
@@ -170,3 +221,10 @@ code_quality_html:
     REPORT_FORMAT: html
   artifacts:
     paths: [gl-code-quality-report.html]
+
+container_scanning:
+  variables:
+    CS_IMAGE: registry-1.docker.io/inendi/inspector:latest
+    CS_REGISTRY_USER: inendi
+    CS_REGISTRY_PASSWORD: "$DOCKERHUB_TOKEN"
+

@@ -1,38 +1,29 @@
 #!/bin/bash
 
+: "${DOCKER:=buildah}"
+
+command -v "${DOCKER}" &> /dev/null || { echo >&2 "'${DOCKER}' executable is required to execute this script."; exit 1; }
+
+# Source environment variables
 source env.conf
 source resources/.env.conf
-source resources/check_nvidia-docker.sh
 
-INSTALL_MODE="online"
-[[ -d "data" ]] && INSTALL_MODE="offline"
-
-# Build base image
-docker build --build-arg INSTALL_PATH="${INSTALL_PATH}" --build-arg INSTALL_MODE="${INSTALL_MODE}" --build-arg DCV_LICENSE_SERVER="${DCV_LICENSE_SERVER}" --build-arg INSPECTOR_LICENSE_SERVER="${INSPECTOR_LICENSE_SERVER}" --build-arg APT_PROXY="${APT_PROXY}" . -f resources/Dockerfile -t inendi/inspector
-
-# Install INENDI Inspector
-docker run --privileged ${NVIDIA_DOCKER_RUNTIME} --rm --name inspector-install -v /sys/fs/cgroup:/sys/fs/cgroup:ro -d inendi/inspector
-docker cp resources/install_files.sh inspector-install:"${INSTALL_PATH}/"
-docker exec inspector-install bash "${INSTALL_PATH}/install_files.sh" "${INSTALL_MODE}"
-
-docker cp resources/configure_auth.sh inspector-install:"${INSTALL_PATH}/"
-docker exec inspector-install bash "${INSTALL_PATH}/configure_auth.sh"
-
-# Configure DCV SSL certificate
+# Copy SSL certificates
 if [[ -f "${DCV_SSL_KEY_PATH}" ]] && [[ -f "${DCV_SSL_CERT_PATH}" ]]
 then
-    docker cp "${DCV_SSL_CERT_PATH}" inspector-install:"${INSTALL_PATH}/"
-    docker cp "${DCV_SSL_KEY_PATH}" inspector-install:"${INSTALL_PATH}/"
-
+    cp "${DCV_SSL_CERT_PATH}" "${DCV_SSL_KEY_PATH}" resources
 fi
-docker cp resources/configure_ssl.sh inspector-install:"${INSTALL_PATH}/"
-docker exec inspector-install bash "${INSTALL_PATH}/configure_ssl.sh"
 
-docker commit inspector-install inendi/inspector
+# Configure installation type (online/offline)
+mkdir -p "data"
+INSTALL_MODE="online"
+[ "$(ls -A data)" ] && INSTALL_MODE="offline"
+echo "INSTALL_MODE=$INSTALL_MODE"
 
-function finish {
-    docker stop inspector-install
-}
-trap finish EXIT TERM KILL
-
-chmod +x run.sh
+OPTS=$([ -z "$PRODUCTION" ] && echo "--layers" || echo "--squash")
+${DOCKER} build-using-dockerfile $OPTS \
+    --build-arg INSTALL_PATH="${INSTALL_PATH}" \
+    --build-arg INSTALL_MODE="${INSTALL_MODE}" \
+    --build-arg DCV_LICENSE_SERVER="${DCV_LICENSE_SERVER}" \
+    --build-arg APT_PROXY="${APT_PROXY}" \
+    -f resources/Dockerfile --tag inendi/inspector
