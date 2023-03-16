@@ -99,10 +99,11 @@ build container image:
   interruptible: true
   environment:
     on_stop: build container image stop
-    name: review/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
-    url: $CI_MERGE_REQUEST_PROJECT_URL
+    name: review/$CI_COMMIT_REF_SLUG
+    url: $CI_PROJECT_URL
 
 build container image stop: # Delete container image when branch is merged
+  image: quay.io/buildah/stable:v1.29.1
   stage: stop
   tags:
    - privileged-docker
@@ -112,7 +113,7 @@ build container image stop: # Delete container image when branch is merged
       buildah image rm $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
       ; fi
   environment:
-    name: review/$CI_MERGE_REQUEST_SOURCE_BRANCH_NAME
+    name: review/$CI_COMMIT_REF_SLUG
     action: stop
   rules:
   - changes:
