@@ -93,7 +93,8 @@ build container image:
         buildah push localhost/inendi/inspector $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
       ; fi
   rules:
-    - changes:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
       - docker/**/*
     - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
   interruptible: true
@@ -102,26 +103,28 @@ build container image:
     name: review/$CI_COMMIT_REF_SLUG
     url: $CI_PROJECT_URL
 
-build container image stop: # Delete container image when branch is merged
-  image: docker.io/curlimages/curl:7.88.1
+build container image stop: # Retag merged branch container to $CI_DEFAULT_BRANCH
+  image: gcr.io/go-containerregistry/crane:debug
   stage: stop
   tags:
    - privileged-docker
   script:
     - if [ "$PUBLISH_CONTAINER_IMAGE" = "false" ]; then
-      curl --fail --show-error --location "https://github.com/genuinetools/reg/releases/download/v0.16.1/reg-linux-amd64" --output ./reg &&
+      crane tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME $CI_DEFAULT_BRANCH &&
+      wget "https://github.com/genuinetools/reg/releases/download/v0.16.1/reg-linux-amd64" -O ./reg &&
       chmod a+x ./reg &&
-      ./reg rm -d --auth-url $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_COMMIT_REF_NAME
+      ./reg rm -d --auth-url $CI_REGISTRY -u $ CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_COMMIT_REF_NAME
       ; fi
   environment:
     name: review/$CI_COMMIT_REF_SLUG
     action: stop
   rules:
-  - changes:
-    - docker/**/*
-    when: manual
-  - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
-    when: manual
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+      - docker/**/*
+      when : manual
+    - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
+      when : manual
   allow_failure: true
 
 pages:
@@ -226,7 +229,5 @@ code_quality_html:
 
 container_scanning:
   variables:
-    CS_IMAGE: registry-1.docker.io/inendi/inspector:latest
-    CS_REGISTRY_USER: inendi
-    CS_REGISTRY_PASSWORD: "$DOCKERHUB_TOKEN"
+    CS_IMAGE: $CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH
 
