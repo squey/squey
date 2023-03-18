@@ -1,5 +1,8 @@
 #!/bin/bash
 
+PS1='[\u@\h \W]\$ '
+alias ls='ls --color=auto'
+
 # Use host X server if we are running under WSL
 WSL=$(uname -a | grep -q -i "microsoft" && echo 1)
 if [[ "$WSL" == 1 ]]; then
