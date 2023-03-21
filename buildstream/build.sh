@@ -74,18 +74,18 @@ if [ "$CURRENT_BRANCH" == "HEAD" ] || [ "$BRANCH_SPECIFIED" = "true" ]; then
     cd "$WORKSPACE_PREFIX/$WORKSPACE_NAME"
     git reset --hard HEAD # Clean env
     if [ -n "$CI_PROJECT_PATH" ]; then
-      if [ "$CI_MERGE_REQUEST_SOURCE_PROJECT_PATH" != "$CI_PROJECT_PATH" ]; then
+      if [ "$CI_MERGE_REQUEST_SOURCE_PROJECT_PATH" != "$CI_PROJECT_PATH" ] && [ -n "$CI_MERGE_REQUEST_SOURCE_PROJECT_PATH" ]; then
           git fetch -a --tags --force
           git checkout $CI_MERGE_REQUEST_TARGET_BRANCH_SHA
           git submodule update --recursive
           git remote set-url origin $CI_MERGE_REQUEST_SOURCE_PROJECT_URL
       else
-          git remote set-url origin $CI_MERGE_REQUEST_PROJECT_URL
+          git remote set-url origin $CI_PROJECT_URL
       fi
     fi
     git fetch -a --tags --force
     git checkout -B $BRANCH_NAME $ORIGIN/$BRANCH_NAME
-    if [ "$CI_MERGE_REQUEST_SOURCE_PROJECT_PATH" == "$CI_PROJECT_PATH" ]; then
+    if [ "$CI_MERGE_REQUEST_SOURCE_PROJECT_PATH" == "$CI_PROJECT_PATH" ] || [ -z "$CI_MERGE_REQUEST_SOURCE_PROJECT_PATH" ]; then
       git submodule update --recursive
     fi
     popd
