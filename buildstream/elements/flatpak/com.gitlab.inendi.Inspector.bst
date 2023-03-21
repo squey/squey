@@ -23,6 +23,7 @@ config:
       sockets: "x11;wayland;pulseaudio;"
       devices: "all;"
       filesystems: "host;xdg-download;/opt/inendi;~/.inendi;/tmp;"
+      features: "devel"
 
     'Extension com.gitlab.inendi.Inspector.Debug':
       directory: lib/debug
