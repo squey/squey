@@ -41,6 +41,7 @@
 #include <QApplication>
 #include <QPainter>
 #include <QGraphicsScene>
+#include <QTimer>
 #include <QToolTip>
 #include <QDebug>
 
@@ -509,6 +510,18 @@ QImage PVParallelView::PVAxisGraphicsItem::get_axis_density()
 			_axis_density_worker = std::thread([axis_length = _axis_length, this] {
 				render_density(axis_length);
 				_axis_density_worker_finished.clear();
+
+				// Update bounding rect from main thread
+				QTimer* timer = new QTimer();
+				timer->moveToThread(qApp->thread());
+				timer->setSingleShot(true);
+				QObject::connect(timer, &QTimer::timeout, [=]() {
+					// main thread
+					update(boundingRect());
+					timer->deleteLater();
+				});
+				QMetaObject::invokeMethod(timer, "start", Qt::QueuedConnection, Q_ARG(int, 0));
+				
 			});
 		} else {
 			_axis_density_worker_canceled.clear();
