@@ -114,4 +114,5 @@ then
 	exit 0
 fi
 
+export PATH=$PATH:$IBRD/libpvguiqt/src/
 $IBRD/gui-qt/src/inendi-inspector $LOAD_PROJECT $@

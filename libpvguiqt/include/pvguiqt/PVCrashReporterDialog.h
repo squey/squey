@@ -50,8 +50,6 @@ class PVCrashReporterDialog : public QDialog
 		setWindowTitle("Crash Reporter");
 
 		QPushButton* send_report = new QPushButton("Send crash report");
-		bool crash_reporting_enabled = QFile::exists(QString::fromStdString(minidump_path));
-		send_report->setEnabled(crash_reporting_enabled);
 		QPushButton* cancel = new QPushButton("Don't send");
 
 		QDialogButtonBox* button_box = new QDialogButtonBox();
@@ -67,10 +65,8 @@ class PVCrashReporterDialog : public QDialog
 		    "<b>The program has crashed and we apologize for the inconvenience.</b><br/><br/>"
 		    "Please send us the crash report so we can diagnose and fix the problem.<br/>"
 		    "We will treat this report as confidential and only to improve this "
-		    "product.<br/><br/>%1").arg(crash_reporting_enabled ?
-				"The generated crash report is locally stored at the following path : <br/>" + QString::fromStdString(minidump_path)+ "<br/><br/>" :
-				"Please install 'org.freedesktop.Sdk' flatpak package to enable crash reporting<br/>"
-				"and start the program using the '--devel' option"));
+		    "software.<br/><br/>%1").arg("The generated crash report is locally stored at the following path : <br/>" +
+			QString::fromStdString(minidump_path)+ "<br/><br/>"));
 		QHBoxLayout* text_layout = new QHBoxLayout();
 		QLabel* icon_label = new QLabel();
 		QPixmap pixmap = QApplication::style()

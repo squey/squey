@@ -33,9 +33,10 @@ RUN_TESTSUITE=true
 GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 CODE_COVERAGE_ENABLED=false
+UPLOAD_DEBUG_SYMBOLS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e:p,l --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite,code-coverage: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e:p,l,u --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite,code-coverage:,upload-debug-symbols: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -53,6 +54,7 @@ while true; do
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -l | --code-coverage ) CODE_COVERAGE_ENABLED="$2"; shift 2 ;;
+    -u | --upload-debug-symbols ) UPLOAD_DEBUG_SYMBOLS="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -130,6 +132,19 @@ if  [ "$RUN_TESTSUITE" = true ]; then
         ./scripts/gen_code_coverage_report.sh
         cp -r code_coverage_report /srv/tmp-inspector
     fi" || exit 1 # fail the testsuite on errors
+fi
+
+# Upload debug symbols
+if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
+  VERSION="$(cat $WORKSPACE_PREFIX/$WORKSPACE_NAME/VERSION.txt)"
+  bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c " \
+      SYM_DIR=\"/tmp/inendi-inspector.sym.d\"
+      rm -rf \"\$SYM_DIR\" && mkdir -p \"\$SYM_DIR\"
+      cd /compilation/build
+      find . -type f \( -name *.so* -o -name \"inendi-inspector\" \) -exec sh -c 'dump_syms \"\$0\" > \"\$1\"/\"\$(basename \"\$0\").sym\"' \"{}\" \"\$SYM_DIR\" \;
+      find \"\$SYM_DIR\" -type f -exec sed 's|/buildstream/inendi-inspector/inendi-inspector.bst/||' -i \"{}\" \;
+      find \"\$SYM_DIR\" -type f -exec sym_upload \"{}\" \"https://inendi_inspector.bugsplat.com/post/bp/symbol/breakpadsymbols.php?appName=INENDI%20Inspector&appVer=$VERSION\" \;
+      "
 fi
 
 # Export flatpak images

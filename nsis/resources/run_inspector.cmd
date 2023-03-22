@@ -46,7 +46,7 @@ If [%WSLG_VERSION%]==[] (
 )
 
 @REM Run Inspector
-wsl -d inspector_linux --user inendi --exec sh -c "%inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --user --device=shm --nofilesystem=/tmp --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/inendi-inspector'"
+wsl -d inspector_linux --user inendi --exec sh -c "%inspector_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --user --device=shm --allow=devel --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/inendi-inspector'"
 
 @REM Stop VcXsrv if needed
 set instance_count_cmd="tasklist /FI "imagename eq inendi-inspector" 2>nul | find /I /C "inendi-inspector""
