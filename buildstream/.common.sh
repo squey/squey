@@ -50,10 +50,10 @@ function open_workspace()
         if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
             check_bindfs
             mkdir -p "$DIR/../builds"
-            bindfs --no-allow-other "$DIR/empty/" "$DIR/../builds"
+            bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../builds"
         elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
             check_bindfs
-            bindfs --no-allow-other "$DIR/empty/" "$DIR/workspace_build"
+            bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/workspace_build"
         fi
     
         bst workspace close inendi-inspector.bst || true
