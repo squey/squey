@@ -40,6 +40,8 @@
 
 #include <pvlogger.h>
 
+#define SEND_CRASH_REPORTS_AS_GITLAB_ISSUES 0
+
 static size_t write_callback(void* contents, size_t size, size_t nmemb, void* userp)
 {
 	((std::string*)userp)->append((char*)contents, size * nmemb);
@@ -52,10 +54,6 @@ namespace PVCore
 
 class PVCrashReportSender
 {
-  private:
-    constexpr static std::string_view INSPECTOR_GITLAB_API_ENDPOINT = "https://gitlab.com/api/v4/projects/inendi%2Finspector";
-	constexpr static std::string_view INSPECTOR_GITLAB_API_ISSUES_TITLE = "Crash report";
-
   public:
 	static int send(const std::string& minidump_path,
 	                const std::string& version)
@@ -67,12 +65,16 @@ class PVCrashReportSender
 		std::unique_ptr<CURL, std::function<void(CURL*)>> curl(
 		    curl_easy_init(), [](CURL* curl) { curl_easy_cleanup(curl); });
 
-		curl_easy_setopt(curl.get(), CURLOPT_TIMEOUT, 10L);
+		curl_easy_setopt(curl.get(), CURLOPT_TIMEOUT, 60L);
 		curl_easy_setopt(curl.get(), CURLOPT_FOLLOWLOCATION, 1L);
-		curl_easy_setopt(curl.get(), CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
+		curl_easy_setopt(curl.get(), CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_DEFAULT);
 #ifndef NDEBUG
 		curl_easy_setopt(curl.get(), CURLOPT_VERBOSE, 1L);
 #endif
+
+#if SEND_CRASH_REPORTS_AS_GITLAB_ISSUES
+		constexpr static std::string_view INSPECTOR_GITLAB_API_ENDPOINT = "https://gitlab.com/api/v4/projects/inendi%2Finspector";
+		constexpr static std::string_view INSPECTOR_GITLAB_API_ISSUES_TITLE = "Crash report";
 
 		std::unique_ptr<curl_slist, std::function<void(curl_slist*)>> headers(
 		    nullptr, [](curl_slist* headers) { curl_slist_free_all(headers); });
@@ -150,10 +152,75 @@ class PVCrashReportSender
 		} else {
 			return http_code;
 		}
+#else // Send crash reports to bugsplat.com
+		#define INSPECTOR_BUGSPLAT_DATABASE "inendi_inspector"
+		#define INSPECTOR_BUGSPLAT_API_ENDPOINT "https://" INSPECTOR_BUGSPLAT_DATABASE ".bugsplat.com/post/bp/crash/crashpad.php"
+
+		// Compress minidump file to speed upload
+		std::string compressed_minidump_path(minidump_path + ".zip");
+		std::string zip_cmd = std::string("zip ") + compressed_minidump_path + " " + minidump_path;
+		system(zip_cmd.c_str());
+
+		curl_easy_setopt(curl.get(), CURLOPT_ACCEPT_ENCODING, "zstd, br, gzip, deflate");
+		curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_callback);
+		std::string result;
+		curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &result);
+
+		std::unique_ptr<curl_httppost, std::function<void(curl_httppost*)>> postvars(
+			nullptr, [](curl_httppost* formpost) { curl_formfree(formpost); });
+
+		struct curl_httppost* formpost = nullptr;
+		struct curl_httppost* lastptr = nullptr;
+
+		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_BUGSPLAT_API_ENDPOINT);
+		curl_formadd(
+			&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME,
+			"upload_file_minidump",
+			CURLFORM_FILE,
+			compressed_minidump_path.c_str(),
+			CURLFORM_END
+		);
+		curl_formadd(
+			&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME,
+			"product",
+			CURLFORM_COPYCONTENTS,
+			"INENDI Inspector",
+			CURLFORM_END
+		);
+		curl_formadd(
+			&formpost,
+			&lastptr,
+			CURLFORM_COPYNAME,
+			"version",
+			CURLFORM_COPYCONTENTS,
+			version.c_str(),
+			CURLFORM_END
+		);
+
+		postvars.reset(formpost);
+		curl_easy_setopt(curl.get(), CURLOPT_HTTPPOST, postvars.get());
+
+		// Upload crash report
+		curl_easy_perform(curl.get());
+
+		long http_code = 0;
+		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
+
+		if (http_code == 200) {
+			return 0;
+		} else {
+			return http_code;
+		}
+#endif
 	}
 
 	static bool test_auth()
 	{
+#if SEND_CRASH_REPORTS_AS_GITLAB_ISSUES
 		std::unique_ptr<CURL, std::function<void(CURL*)>> curl(
 		    curl_easy_init(), [](CURL* curl) { curl_easy_cleanup(curl); });
 
@@ -184,6 +251,9 @@ class PVCrashReportSender
 		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
 
 		return http_code == 200;
+#else
+		return true;
+#endif
 	}
 };
 } // namespace PVCore
