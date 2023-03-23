@@ -92,24 +92,25 @@ variables:
     
 config:
   configure-commands:
-    - CCACHE_COMPILER=$([ %{code_coverage} == 1 ] && echo %{cxx_compiler} || echo ccache)
-    - '[[ %{code_coverage} == 1 ]] && rm -rf %{build-dir}  || true' # Avoid build cache to interfere with code coverage
-    - 'if grep "CMAKE_CXX_COMPILER:STRING" %{build-dir}/CMakeCache.txt | grep -v -q "%{cxx_compiler}" ; then rm -rf %{build-dir}/CMakeCache.txt; fi' # Clear CMake cache to use different compilers
-    - WARNINGS_AS_ERRORS=$([[ %{cxx_compiler} == "clang++" ]] && echo 1 || echo 0)
-    - CMAKE_BUILD_TYPE=$([ %{code_coverage} == 1 ] && echo "Debug" || echo "RelWithDebInfo")
-    - cmake -B%{build-dir} -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER \
-                                                        -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
-                                                        -DWARNINGS_AS_ERRORS=$(WARNINGS_AS_ERRORS)
+    - |
+      CCACHE_COMPILER=$([ "%{code_coverage}" = "1" ] && echo "%{cxx_compiler}" || echo "ccache")
+      [ "%{code_coverage}" = "1" ] && rm -rf "%{build-dir}" || true
+      if grep "CMAKE_CXX_COMPILER:STRING" "%{build-dir}/CMakeCache.txt" | grep -v -q "%{cxx_compiler}" ; then rm -rf "%{build-dir}/CMakeCache.txt"; fi
+      WARNINGS_AS_ERRORS=$([ "%{cxx_compiler}" = "clang++" ] && echo 1 || echo 0)
+      CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
+      cmake -B"%{build-dir}" -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER \
+                                                          -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
+                                                          -DWARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS
     
   (?):
   - disable_testsuite == False:
       build-commands:
-        - cd %{build-dir} && ninja && ninja inspector_testsuite
-        - 'cd %{build-dir} ; if [[ %{code_coverage} == 1 ]]; then ninja pvcop_testsuite; fi'
-        - cp -r scripts %{build-dir}
+        - cd "%{build-dir}" && ninja && ninja inspector_testsuite
+        - cd "%{build-dir}" ; if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
+        - cp -r scripts "%{build-dir}"
       install-commands:
         - "%{make-install}"
-        - cp --preserve -r . %{install-root}/compilation
+        - cp --preserve -r . "%{install-root}/compilation"
         - "%{copy-launchers}"
   - disable_testsuite == True:
       build-commands:
