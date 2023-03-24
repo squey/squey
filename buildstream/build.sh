@@ -29,14 +29,14 @@ USER_TARGET_SPECIFIED=false
 WORKSPACE_PREFIX=
 EXPORT_BUILD=false
 REPO_DIR="repo"
-RUN_TESTSUITE=true
+TESTSUITE_DISABLED=false
 GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 CODE_COVERAGE_ENABLED=false
 UPLOAD_DEBUG_SYMBOLS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e:p,l,u --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite,code-coverage:,upload-debug-symbols: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:c:d:g:k:w:e:p,l,u --long help,flatpak-export:,flatpak-repo:,workspace-prefix:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -46,7 +46,7 @@ while true; do
     -t | --build-type ) BUILD_TYPE="$2"; shift 2 ;;
     -p | --cxx_compiler ) CXX_COMPILER="$2"; shift 2 ;;
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
-    -d | --disable-testsuite ) RUN_TESTSUITE=false; shift 1 ;;
+    -d | --disable-testsuite ) TESTSUITE_DISABLED="$2"; shift 2 ;;
     -w | --workspace-prefix ) WORKSPACE_PREFIX="$2"; shift 2 ;;
     -e | --flatpak-export ) EXPORT_BUILD="$2"; shift 2 ;;
     -r | --flatpak-repo ) REPO_DIR="$2"; shift 2 ;;
@@ -121,7 +121,7 @@ fi
 bst $BUILD_OPTIONS build inendi-inspector.bst
 
 # Run testsuite with "bst shell" to have network access (bst hasn't a "test-commands" (yet?) like in flatpak-builder)
-if  [ "$RUN_TESTSUITE" = true ]; then
+if  [ "$TESTSUITE_DISABLED" = "false" ]; then
     bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c " \
     cp --preserve -r /compilation/* .
     TESTS=\"-R INSPECTOR_TEST\"
