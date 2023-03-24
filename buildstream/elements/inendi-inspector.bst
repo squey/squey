@@ -114,7 +114,7 @@ config:
         - "%{copy-launchers}"
   - disable_testsuite == True:
       build-commands:
-        - "%{make}"
+        - cd "%{build-dir}" && ninja
       install-commands:
         - "%{make-install}"
         - "%{copy-launchers}"
