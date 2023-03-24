@@ -40,12 +40,11 @@ workflow:
 build testsuite:
   extends: .build
   script:
-    - FLATPAK_EXPORT=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false)
     - ./build.sh 
-        --cxx_compiler=$([ "$CODE_COVERAGE" = "true" -o "$FLATPAK_EXPORT" = "true" ] && echo "g++" || echo "clang++")
+        --cxx_compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
         --branch="${CI_COMMIT_REF_NAME}" 
         --workspace-prefix="/bst_workspace" 
-        --flatpak-export=$FLATPAK_EXPORT
+        --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
         --flatpak-repo="/srv/flatpak_repo" 
         --crash-reporter-token=$INSPECTOR_CRASH_REPORTER_TOKEN
         --code-coverage=$CODE_COVERAGE
