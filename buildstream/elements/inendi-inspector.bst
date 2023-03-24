@@ -100,7 +100,7 @@ config:
       CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
       cmake -B"%{build-dir}" -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER \
                                                           -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
-                                                          -DWARNINGS_AS_ERRORS=$WARNINGS_AS_ERRORS
+                                                          -DCMAKE_COMPILE_WARNING_AS_ERROR=$WARNINGS_AS_ERRORS
     
   (?):
   - disable_testsuite == False:
