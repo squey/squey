@@ -515,13 +515,13 @@ QImage PVParallelView::PVAxisGraphicsItem::get_axis_density()
 				QTimer* timer = new QTimer();
 				timer->moveToThread(qApp->thread());
 				timer->setSingleShot(true);
-				QObject::connect(timer, &QTimer::timeout, [=]() {
+				QObject::connect(timer, &QTimer::timeout, [this,timer]() {
 					// main thread
 					update(boundingRect());
 					timer->deleteLater();
 				});
 				QMetaObject::invokeMethod(timer, "start", Qt::QueuedConnection, Q_ARG(int, 0));
-				
+
 			});
 		} else {
 			_axis_density_worker_canceled.clear();
