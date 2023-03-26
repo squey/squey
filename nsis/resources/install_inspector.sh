@@ -10,4 +10,4 @@ apk add -U flatpak
 addgroup -S inendi && adduser -D inendi -G inendi
 mkdir -p /srv/tmp-inspector
 chown inendi: -R /srv/tmp-inspector
-su - inendi -s "/bin/ash" -c "flatpak install --user -y $1"
+su - inendi -s "/bin/ash" -c "flatpak install --user -y --no-related $1"
