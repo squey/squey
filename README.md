@@ -53,6 +53,10 @@ https://inendi.gitlab.io/inspector/inendi-inspector_docker.zip
 
 See ```README.md``` contained in archive file
 
+## Reference manual
+
+https://inendi.gitlab.io/inspector-reference-manual
+
 ## Development
 
 ### Getting a development shell
