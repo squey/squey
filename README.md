@@ -69,7 +69,7 @@ cd inspector/buildstream && ./dev_shell.sh
 Compiling and running the software from the development shell:
 
 ```
-cd {debug,release}_build && cmake --build . && ./inspector.sh
+cd builds/{clang++,g++}/{debug,release} && cmake --build . && ./inspector.sh
 ```
 
 ### Generating a flatpak package
