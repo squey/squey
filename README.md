@@ -53,6 +53,10 @@ https://inendi.gitlab.io/inspector/inendi-inspector_docker.zip
 
 See ```README.md``` contained in archive file
 
+## Reference manual
+
+https://inendi.gitlab.io/inspector-reference-manual
+
 ## Development
 
 ### Getting a development shell
@@ -65,7 +69,7 @@ cd inspector/buildstream && ./dev_shell.sh
 Compiling and running the software from the development shell:
 
 ```
-cd {debug,release}_build && cmake --build . && ./inspector.sh
+cd builds/{clang++,g++}/{debug,release} && cmake --build . && ./inspector.sh
 ```
 
 ### Generating a flatpak package
