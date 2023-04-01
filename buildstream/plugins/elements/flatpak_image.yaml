@@ -1,4 +1,0 @@
-config:
-  include: []
-  exclude: []
-  export: 'export'
