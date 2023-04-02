@@ -222,7 +222,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 
 	_range_edit = PVWidgets::PVRangeEditFactory::create(
 	    _sampler->minmax_time(),
-	    std::bind(&PVSeriesViewWidget::minmax_changed, this, std::placeholders::_1));
+	    [this](auto && PH1) { minmax_changed(std::forward<decltype(PH1)>(PH1)); });
 
 	QObject::connect(_zoomer, &PVSeriesViewZoomer::zoom_updated, [this](PVViewZoomer::Zoom zoom) {
 		_range_edit->set_minmax(_sampler->ratio_to_minmax(zoom.minX, zoom.maxX));
@@ -290,7 +290,7 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 	// Update range widget
 	_range_edit = PVWidgets::PVRangeEditFactory::create(
 	    _sampler->minmax_time(),
-	    std::bind(&PVSeriesViewWidget::minmax_changed, this, std::placeholders::_1));
+	    [this](auto && PH1) { minmax_changed(std::forward<decltype(PH1)>(PH1)); });
 
 	setup_series_tree(_abscissa_axis);
 	setup_selected_series_tree(_abscissa_axis);
