@@ -61,27 +61,27 @@ bool PVRush::PVInputTypeSplunk::createWidget(hash_formats& formats,
 
 QString PVRush::PVInputTypeSplunk::name() const
 {
-	return QString("splunk");
+	return {"splunk"};
 }
 
 QString PVRush::PVInputTypeSplunk::human_name() const
 {
-	return QString("Splunk import plugin");
+	return {"Splunk import plugin"};
 }
 
 QString PVRush::PVInputTypeSplunk::human_name_serialize() const
 {
-	return QString("Splunk");
+	return {"Splunk"};
 }
 
 QString PVRush::PVInputTypeSplunk::internal_name() const
 {
-	return QString("05-splunk");
+	return {"05-splunk"};
 }
 
 QString PVRush::PVInputTypeSplunk::menu_input_name() const
 {
-	return QString("Splunk...");
+	return {"Splunk..."};
 }
 
 QString PVRush::PVInputTypeSplunk::tab_name_of_inputs(list_inputs const& in) const
@@ -98,5 +98,5 @@ bool PVRush::PVInputTypeSplunk::get_custom_formats(PVInputDescription_p /*in*/,
 
 QKeySequence PVRush::PVInputTypeSplunk::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

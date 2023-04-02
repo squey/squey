@@ -254,7 +254,7 @@ QVariant PVInspector::PVXmlParamWidget::getParam(int i)
 	} else if (i == 2) {
 		id = 5;
 	} else {
-		return QVariant();
+		return {};
 	}
 	return ((PVXmlParamWidgetEditorBox*)lesWidgetDuLayout.at(id))->val();
 }

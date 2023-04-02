@@ -120,7 +120,7 @@ QUrl PVWidgets::PVFileDialog::getOpenFileUrl(
 			*selectedFilter = dialog.selectedNameFilter();
 		return dialog.selectedUrls().value(0);
 	}
-	return QUrl();
+	return {};
 }
 
 QList<QUrl>
@@ -144,7 +144,7 @@ PVWidgets::PVFileDialog::getOpenFileUrls(QWidget* parent /* = nullptr */,
 			*selectedFilter = dialog.selectedNameFilter();
 		return dialog.selectedUrls();
 	}
-	return QList<QUrl>();
+	return {};
 }
 
 QUrl PVWidgets::PVFileDialog::getExistingDirectoryUrl(
@@ -162,7 +162,7 @@ QUrl PVWidgets::PVFileDialog::getExistingDirectoryUrl(
 	dialog.setSupportedSchemes(supportedSchemes);
 	if (dialog.exec() == QDialog::Accepted)
 		return dialog.selectedUrls().value(0);
-	return QUrl();
+	return {};
 }
 
 QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
@@ -188,7 +188,7 @@ QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
 			*selectedFilter = dialog.selectedNameFilter();
 		return dialog.selectedUrls().value(0);
 	}
-	return QUrl();
+	return {};
 }
 
 void PVWidgets::PVFileDialog::setOptions(Options options)

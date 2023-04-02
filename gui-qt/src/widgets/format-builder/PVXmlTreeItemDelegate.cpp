@@ -64,5 +64,5 @@ PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate() = default;
 QSize PVInspector::PVXmlTreeItemDelegate::sizeHint(const QStyleOptionViewItem& /*option*/,
                                                    const QModelIndex& /*index*/) const
 {
-	return QSize(300, 30);
+	return {300, 30};
 }

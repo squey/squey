@@ -41,7 +41,7 @@ PVRush::PVSQLTypeMap_p PVRush::PVSQLTypeMap::get_map(QString const& driver)
 	if (driver == "QODBC") {
 		return p_type(new PVSQLTypeMapODBC());
 	}
-	return p_type();
+	return {};
 }
 
 QString PVRush::PVSQLTypeMapMysql::map(int type) const

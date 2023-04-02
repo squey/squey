@@ -804,7 +804,7 @@ QSize PVWidgets::PVGraphicsView::sizeHint() const
 		QSizeF s = _transform.mapRect(get_scene_rect()).size();
 		return s.boundedTo((3 * QGuiApplication::primaryScreen()->availableSize()) / 4).toSize();
 	}
-	return QSize(256, 192);
+	return {256, 192};
 }
 
 /*****************************************************************************

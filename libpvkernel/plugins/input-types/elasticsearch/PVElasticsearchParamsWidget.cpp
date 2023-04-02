@@ -485,7 +485,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_serialize_query() const
 	int query_type = _query_type_cb->currentIndex();
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
-		return QString(_querybuilder->get_rules().c_str());
+		return {_querybuilder->get_rules().c_str()};
 	} else {
 		return _txt_query->toPlainText();
 	}

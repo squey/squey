@@ -208,7 +208,7 @@ JsonTreeItem* JsonTreeItem::load(rapidjson::Value* value, JsonTreeItem* parent)
 QModelIndex PcapTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
 	if (not hasIndex(row, column, parent))
-		return QModelIndex();
+		return {};
 
 	JsonTreeItem* parent_item;
 
@@ -226,7 +226,7 @@ QModelIndex PcapTreeModel::index(int row, int column, const QModelIndex& parent)
 	if (child_item)
 		return createIndex(row, column, child_item);
 	else
-		return QModelIndex();
+		return {};
 }
 
 /**************************************************************************
@@ -237,14 +237,14 @@ QModelIndex PcapTreeModel::index(int row, int column, const QModelIndex& parent)
 QModelIndex PcapTreeModel::parent(const QModelIndex& index) const
 {
 	if (not index.isValid()) {
-		return QModelIndex();
+		return {};
 	}
 
 	JsonTreeItem* child_item = static_cast<JsonTreeItem*>(index.internalPointer());
 	JsonTreeItem* parent_item = child_item->parent();
 
 	if (parent_item == _root_item)
-		return QModelIndex();
+		return {};
 
 	int position = (_with_selection) ? parent_item->selected_row() : parent_item->row();
 	return createIndex(position, 0, parent_item);
@@ -326,7 +326,7 @@ bool PcapTreeModel::setData(const QModelIndex& index, const QVariant& value, int
 QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 {
 	if (not index.isValid())
-		return QVariant();
+		return {};
 
 	// Display protocol data.
 	switch (role) {
@@ -355,7 +355,7 @@ QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 			return QString::number(ratio * 100, 'f', 2);
 		default:
 			assert(false && "We only have 7 columns");
-			return QVariant();
+			return {};
 		}
 		break;
 	}
@@ -377,7 +377,7 @@ QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 		case 6: /* % Bytes */
 			return Qt::AlignRight;
 		default:
-			return QVariant();
+			return {};
 		}
 		break;
 
@@ -399,7 +399,7 @@ QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 		}
 	}
 
-	return QVariant();
+	return {};
 }
 
 /**************************************************************************
@@ -427,10 +427,10 @@ QVariant PcapTreeModel::headerData(int section, Qt::Orientation orientation, int
 			return "% Bytes";
 		default:
 			assert(false && "We only have 7 columns");
-			return QVariant();
+			return {};
 		}
 	}
-	return QVariant();
+	return {};
 }
 
 /**************************************************************************

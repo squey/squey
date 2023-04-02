@@ -67,7 +67,7 @@ int PVInspector::PVFilesTypesSelModel::columnCount(const QModelIndex& parent) co
 QVariant PVInspector::PVFilesTypesSelModel::data(const QModelIndex& index, int role) const
 {
 	if (role != Qt::DisplayRole && role != Qt::EditRole)
-		return QVariant();
+		return {};
 	map_files_types::const_iterator it = _files_types.begin();
 	std::advance(it, index.row());
 	if (index.column() == 0)

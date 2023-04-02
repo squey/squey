@@ -98,12 +98,12 @@ Inendi::PVLayerFilterAxisGradient::get_args_keys_for_preset() const
 
 QString Inendi::PVLayerFilterAxisGradient::status_bar_description()
 {
-	return QString("Apply a gradient of color on a given axis.");
+	return {"Apply a gradient of color on a given axis."};
 }
 
 QString Inendi::PVLayerFilterAxisGradient::detailed_description()
 {
-	return QString("<b>Purpose</b><br/>This filter applies a color gradient on a wanted "
+	return {"<b>Purpose</b><br/>This filter applies a color gradient on a wanted "
 	               "axis<hr><b>Behavior</b><br/>It will colorize with a gradient from green to red "
-	               "from the lowest axis value to the highest.");
+	               "from the lowest axis value to the highest."};
 }

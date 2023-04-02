@@ -72,13 +72,13 @@ QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& p
 {
 
 	if (!rootNode || r < 0 || c < 0)
-		return QModelIndex();
+		return {};
 
 	PVRush::PVXmlTreeNodeDom* parentNode = nodeFromIndex(parent);
 	PVRush::PVXmlTreeNodeDom* childNode = parentNode->getChildren().value(r);
 
 	if (!childNode)
-		return QModelIndex();
+		return {};
 
 	return createIndex(r, c, childNode);
 }
@@ -103,7 +103,7 @@ QModelIndex PVInspector::PVXmlDomModel::indexOfChild(const QModelIndex& parent,
 		model_index = index(i++, 0, parent);
 	}
 
-	return QModelIndex();
+	return {};
 }
 
 /******************************************************************************
@@ -120,15 +120,15 @@ QModelIndex PVInspector::PVXmlDomModel::parent(const QModelIndex& child) const
 
 	PVRush::PVXmlTreeNodeDom* node = nodeFromIndex(child);
 	if (!node)
-		return QModelIndex();
+		return {};
 
 	PVRush::PVXmlTreeNodeDom* parentNode = node->getParent();
 	if (!parentNode)
-		return QModelIndex();
+		return {};
 
 	PVRush::PVXmlTreeNodeDom* grandParentNode = parentNode->getParent();
 	if (!grandParentNode)
-		return QModelIndex();
+		return {};
 
 	int row = grandParentNode->getChildren().indexOf(parentNode);
 	return createIndex(row, 0, parentNode);
@@ -220,8 +220,8 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex& index, int role) co
 			}
 		}
 	} else
-		return QVariant();
-	return QVariant();
+		return {};
+	return {};
 }
 
 /******************************************************************************
@@ -292,15 +292,15 @@ PVInspector::PVXmlDomModel::headerData(int section, Qt::Orientation orientation,
 		if (orientation == Qt::Horizontal) {
 			switch (section) {
 			case 0: // edit first column
-				return QVariant("Type");
+				return {"Type"};
 				break;
 			case 1: // edit second column
-				return QVariant("Name");
+				return {"Name"};
 				break;
 			}
 		}
 	}
-	return QVariant();
+	return {};
 }
 
 /******************************************************************************

@@ -237,7 +237,7 @@ PVRush::PVElasticsearchAPI::indexes(std::string* error /*= nullptr*/) const
 		json.Parse<0>(json_buffer.c_str());
 
 		if (has_error(json, error)) {
-			return indexes_t();
+			return {};
 		}
 
 		rapidjson::Value& json_indexes = json["indices"];
@@ -267,7 +267,7 @@ PVRush::PVElasticsearchAPI::aliases(std::string* error /*= nullptr*/) const
 		json.Parse<0>(json_buffer.c_str());
 
 		if (json.IsNull() or has_error(json, error)) {
-			return aliases_t();
+			return {};
 		}
 
 		for (rapidjson::SizeType i = 0; i < json.Size(); i++) {
@@ -954,7 +954,7 @@ std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql,
 		if (error) {
 			*error = "Unable to URL-encode SQL query";
 		}
-		return std::string();
+		return {};
 	}
 
 	url = socket() + "/_sql/_explain?sql=" + sql_url_encoded;
@@ -966,7 +966,7 @@ std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql,
 		json.Parse<0>(json_buffer.c_str());
 
 		if (has_error(json, error)) {
-			return std::string();
+			return {};
 		}
 
 		rapidjson::StringBuffer strbuf;
@@ -980,7 +980,7 @@ std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql,
 		return query.str();
 	}
 
-	return std::string();
+	return {};
 }
 
 bool PVRush::PVElasticsearchAPI::is_sql_available() const

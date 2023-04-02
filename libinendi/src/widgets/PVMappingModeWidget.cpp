@@ -82,7 +82,7 @@ QSize PVWidgets::PVMappingModeWidget::sizeHint() const
 	if (l) {
 		return l->sizeHint();
 	}
-	return QSize();
+	return {};
 }
 
 bool PVWidgets::PVMappingModeWidget::set_mode(QString const& mode)

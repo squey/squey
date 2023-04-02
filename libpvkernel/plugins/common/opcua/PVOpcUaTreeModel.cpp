@@ -55,7 +55,7 @@ QOpcUaClient* PVOpcUaTreeModel::opcUaClient() const
 QVariant PVOpcUaTreeModel::data(const QModelIndex& index, int role) const
 {
 	if (!index.isValid())
-		return QVariant();
+		return {};
 
 	auto item = static_cast<PVOpcUaTreeItem*>(index.internalPointer());
 
@@ -67,13 +67,13 @@ QVariant PVOpcUaTreeModel::data(const QModelIndex& index, int role) const
 		return item->user_data(index.column());
 	}
 
-	return QVariant();
+	return {};
 }
 
 QVariant PVOpcUaTreeModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	if (role != Qt::DisplayRole)
-		return QVariant();
+		return {};
 
 	if (orientation == Qt::Horizontal) {
 		switch (section) {
@@ -93,7 +93,7 @@ QVariant PVOpcUaTreeModel::headerData(int section, Qt::Orientation orientation, 
 QModelIndex PVOpcUaTreeModel::index(int row, int column, const QModelIndex& parent) const
 {
 	if (!hasIndex(row, column, parent))
-		return QModelIndex();
+		return {};
 
 	PVOpcUaTreeItem* item = nullptr;
 
@@ -106,19 +106,19 @@ QModelIndex PVOpcUaTreeModel::index(int row, int column, const QModelIndex& pare
 	if (item)
 		return createIndex(row, column, item);
 	else
-		return QModelIndex();
+		return {};
 }
 
 QModelIndex PVOpcUaTreeModel::parent(const QModelIndex& index) const
 {
 	if (!index.isValid())
-		return QModelIndex();
+		return {};
 
 	auto child_item = static_cast<PVOpcUaTreeItem*>(index.internalPointer());
 	auto parent_item = child_item->parentItem();
 
 	if (child_item == m_root_item.get() || !parent_item)
-		return QModelIndex();
+		return {};
 
 	return createIndex(parent_item->row(), 0, parent_item);
 }

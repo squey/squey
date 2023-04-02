@@ -62,27 +62,27 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats& formats,
 
 QString PVRush::PVInputTypeElasticsearch::name() const
 {
-	return QString("elasticsearch");
+	return {"elasticsearch"};
 }
 
 QString PVRush::PVInputTypeElasticsearch::human_name() const
 {
-	return QString("Elasticsearch import plugin");
+	return {"Elasticsearch import plugin"};
 }
 
 QString PVRush::PVInputTypeElasticsearch::human_name_serialize() const
 {
-	return QString("Elasticsearch");
+	return {"Elasticsearch"};
 }
 
 QString PVRush::PVInputTypeElasticsearch::internal_name() const
 {
-	return QString("04-elasticsearch");
+	return {"04-elasticsearch"};
 }
 
 QString PVRush::PVInputTypeElasticsearch::menu_input_name() const
 {
-	return QString("Elasticsearch...");
+	return {"Elasticsearch..."};
 }
 
 QString PVRush::PVInputTypeElasticsearch::tab_name_of_inputs(list_inputs const& in) const
@@ -99,5 +99,5 @@ bool PVRush::PVInputTypeElasticsearch::get_custom_formats(PVInputDescription_p /
 
 QKeySequence PVRush::PVInputTypeElasticsearch::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

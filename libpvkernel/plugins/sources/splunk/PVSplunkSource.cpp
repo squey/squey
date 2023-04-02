@@ -45,7 +45,7 @@ PVRush::PVSplunkSource::~PVSplunkSource() {}
 
 QString PVRush::PVSplunkSource::human_name()
 {
-	return QString("splunk");
+	return {"splunk"};
 }
 
 void PVRush::PVSplunkSource::seek_begin() {}

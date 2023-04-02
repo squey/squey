@@ -83,7 +83,7 @@ void PVWidgets::PVAxisComboBox::set_current_axis(PVCol axis)
 PVCol PVWidgets::PVAxisComboBox::current_axis() const
 {
 	if (currentIndex() == -1) {
-		return PVCol();
+		return {};
 	}
 	return currentData().value<PVCol>();
 }

@@ -63,27 +63,27 @@ PVRush::PVInputTypeDatabase::~PVInputTypeDatabase() {}
 
 QString PVRush::PVInputTypeDatabase::name() const
 {
-	return QString("database");
+	return {"database"};
 }
 
 QString PVRush::PVInputTypeDatabase::human_name() const
 {
-	return QString("Database import plugin");
+	return {"Database import plugin"};
 }
 
 QString PVRush::PVInputTypeDatabase::human_name_serialize() const
 {
-	return QString("Databases");
+	return {"Databases"};
 }
 
 QString PVRush::PVInputTypeDatabase::internal_name() const
 {
-	return QString("02-database");
+	return {"02-database"};
 }
 
 QString PVRush::PVInputTypeDatabase::menu_input_name() const
 {
-	return QString("Database...");
+	return {"Database..."};
 }
 
 QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) const
@@ -100,5 +100,5 @@ bool PVRush::PVInputTypeDatabase::get_custom_formats(PVInputDescription_p /*in*/
 
 QKeySequence PVRush::PVInputTypeDatabase::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

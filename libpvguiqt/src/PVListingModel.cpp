@@ -133,7 +133,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 		    !_view.get_line_state_in_layer_stack_output_layer(r)) {
 			return QBrush(Qt::white);
 		}
-		return QVariant();
+		return {};
 	}
 
 	// Set value in italic if conversion during import has failed
@@ -194,9 +194,9 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 	// Define header alignment
 	case (Qt::TextAlignmentRole):
 		if (orientation == Qt::Horizontal) {
-			return QVariant(Qt::AlignLeft | Qt::AlignTop);
+			return {Qt::AlignLeft | Qt::AlignTop};
 		} else {
-			return QVariant(Qt::AlignRight | Qt::AlignVCenter);
+			return {Qt::AlignRight | Qt::AlignVCenter};
 		}
 		break;
 	// Define tooltip text
@@ -225,7 +225,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 		break;
 	}
 
-	return QVariant();
+	return {};
 }
 
 /******************************************************************************

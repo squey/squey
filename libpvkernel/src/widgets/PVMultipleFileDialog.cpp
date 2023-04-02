@@ -171,5 +171,5 @@ QList<QUrl> PVWidgets::PVMultipleFileDialog::getOpenFileUrls(
 			*selectedFilter = dialog.selectedNameFilter();
 		return dialog.selectedUrls();
 	}
-	return QList<QUrl>();
+	return {};
 }

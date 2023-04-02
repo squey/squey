@@ -537,13 +537,13 @@ QString PVInspector::PVFormatBuilderWidget::slotOpen()
 	_file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
 
 	if (!_file_dialog.exec()) {
-		return QString();
+		return {};
 	}
 
 	const QString urlFile = _file_dialog.selectedFiles().at(0);
 
 	if (urlFile.isEmpty() || (openFormat(urlFile) == false)) {
-		return QString();
+		return {};
 	}
 
 	return urlFile;
@@ -1266,7 +1266,7 @@ QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol
 	QModelIndex index = QModelIndex();
 
 	if (!parent.isValid())
-		return QModelIndex();
+		return {};
 
 	int sibling = 0;
 	do {

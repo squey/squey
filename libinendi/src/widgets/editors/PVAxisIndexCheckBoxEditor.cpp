@@ -85,5 +85,5 @@ PVCore::PVAxisIndexCheckBoxType PVWidgets::PVAxisIndexCheckBoxEditor::get_axis_i
 	// return PVCore::PVAxisIndexCheckBoxType(currentIndex(), is_checked());
 	PVLOG_INFO("WE GET THE INDEX OF CHECK BOX FROM THE EDITOR\n");
 
-	return PVCore::PVAxisIndexCheckBoxType((PVCol)combobox->currentIndex(), false);
+	return {(PVCol)combobox->currentIndex(), false};
 }

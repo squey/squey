@@ -51,7 +51,7 @@ PVRush::PVElasticsearchSource::~PVElasticsearchSource() {}
 
 QString PVRush::PVElasticsearchSource::human_name()
 {
-	return QString("elasticsearch");
+	return {"elasticsearch"};
 }
 
 void PVRush::PVElasticsearchSource::seek_begin() {}

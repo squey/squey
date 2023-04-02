@@ -70,7 +70,7 @@ PVRush::PVOpcUaSource::PVOpcUaSource(PVRush::PVInputDescription_p input)
 
 QString PVRush::PVOpcUaSource::human_name()
 {
-	return QString("opcua");
+	return {"opcua"};
 }
 
 void PVRush::PVOpcUaSource::seek_begin() {}

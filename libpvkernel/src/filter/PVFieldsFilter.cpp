@@ -106,19 +106,19 @@ PVCore::list_fields& PVFieldsFilter<many_to_many>::operator()(PVCore::list_field
 template <>
 QString PVFieldsFilter<one_to_one>::type_name()
 {
-	return QString("converter");
+	return {"converter"};
 }
 
 template <>
 QString PVFieldsFilter<one_to_many>::type_name()
 {
-	return QString("splitter");
+	return {"splitter"};
 }
 
 template <>
 QString PVFieldsFilter<many_to_many>::type_name()
 {
-	return QString("generic");
+	return {"generic"};
 }
 } // namespace PVFilter
 

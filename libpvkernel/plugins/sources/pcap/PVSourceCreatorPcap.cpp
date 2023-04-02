@@ -54,10 +54,10 @@ PVPcapsicum::PVSourceCreatorPcap::create_source_from_input(PVRush::PVInputDescri
 
 QString PVPcapsicum::PVSourceCreatorPcap::supported_type() const
 {
-	return QString("pcap");
+	return {"pcap"};
 }
 
 QString PVPcapsicum::PVSourceCreatorPcap::name() const
 {
-	return QString("pcap");
+	return {"pcap"};
 }

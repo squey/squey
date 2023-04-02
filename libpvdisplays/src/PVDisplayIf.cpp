@@ -74,7 +74,7 @@ void add_displays_view_axis_menu(QMenu& menu,
 PVCol col_param(Inendi::PVView* view, std::vector<std::any> const& params, size_t index)
 {
 	if (index >= params.size()) {
-		return PVCol();
+		return {};
 	}
 	if (auto* comb_col = std::any_cast<PVCombCol>(&params[index])) {
 		return view->get_axes_combination().get_nraw_axis(*comb_col);

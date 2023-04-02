@@ -51,7 +51,7 @@ PVRush::PVSourceCreator_p PVRush::PVSourceCreatorFactory::get_by_input_type(PVIn
 		return sc_clone;
 	}
 
-	return PVRush::PVSourceCreator_p();
+	return {};
 }
 
 float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_,

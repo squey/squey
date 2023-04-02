@@ -68,12 +68,12 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
 
 QString PVRush::PVInputTypeRemoteFilename::name() const
 {
-	return QString("remote_file");
+	return {"remote_file"};
 }
 
 QString PVRush::PVInputTypeRemoteFilename::human_name() const
 {
-	return QString("Remote file import plugin");
+	return {"Remote file import plugin"};
 }
 
 QString PVRush::PVInputTypeRemoteFilename::human_name_serialize() const
@@ -83,7 +83,7 @@ QString PVRush::PVInputTypeRemoteFilename::human_name_serialize() const
 
 QString PVRush::PVInputTypeRemoteFilename::internal_name() const
 {
-	return QString("01-remote_file");
+	return {"01-remote_file"};
 }
 QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(PVInputDescription_p in) const
 {
@@ -124,7 +124,7 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 
 QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const
 {
-	return QString("Remote files...");
+	return {"Remote files..."};
 }
 
 bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p /*in*/,
@@ -135,5 +135,5 @@ bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p 
 
 QKeySequence PVRush::PVInputTypeRemoteFilename::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

@@ -85,7 +85,7 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 	cl::Platform::get(&platforms);
 
 	if (platforms.size() == 0) {
-		return cl::Context();
+		return {};
 	}
 
 	auto& config = PVCore::PVConfig::get().config();
@@ -165,7 +165,7 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 
 	PVLOG_INFO("No %s OpenCL backend found\n", type_name);
 
-	return cl::Context();
+	return {};
 }
 
 /*****************************************************************************

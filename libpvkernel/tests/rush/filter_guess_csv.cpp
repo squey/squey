@@ -51,7 +51,7 @@ PVFilter::PVFieldsSplitter_p guess_filter(const char* filename, PVCol& axes_coun
 	// Process that file with the found source creator thanks to the extractor
 	PVRush::PVSourceCreator::source_p src = sc_file->create_source_from_input(file);
 	if (!src) {
-		return PVFilter::PVFieldsSplitter_p();
+		return {};
 	}
 
 	return PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(src, axes_count);

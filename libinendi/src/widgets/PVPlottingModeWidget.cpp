@@ -57,7 +57,7 @@ QSize PVWidgets::PVPlottingModeWidget::sizeHint() const
 	if (l) {
 		return l->sizeHint();
 	}
-	return QSize();
+	return {};
 }
 
 void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type, QString const& mapped)

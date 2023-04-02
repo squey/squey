@@ -675,7 +675,7 @@ QString PVRush::PVXmlTreeNodeDom::attribute(QString name, bool flagReadInXml)
 		return otherData[name];
 	}
 
-	return QString();
+	return {};
 }
 
 /******************************************************************************
@@ -940,7 +940,7 @@ PVCol PVRush::PVXmlTreeNodeDom::setAxesNames(QStringList const& names, PVCol id)
 QDomElement PVRush::PVXmlTreeNodeDom::getMappingElement()
 {
 	if (type != Type::axis) {
-		return QDomElement();
+		return {};
 	}
 
 	QDomNodeList elts_mapping = getDom().elementsByTagName(PVFORMAT_XML_TAG_MAPPING);
@@ -956,7 +956,7 @@ QDomElement PVRush::PVXmlTreeNodeDom::getMappingElement()
 QDomElement PVRush::PVXmlTreeNodeDom::getPlottingElement()
 {
 	if (type != Type::axis) {
-		return QDomElement();
+		return {};
 	}
 
 	QDomNodeList elts_mapping = getDom().elementsByTagName(PVFORMAT_XML_TAG_PLOTTING);
@@ -974,7 +974,7 @@ QString PVRush::PVXmlTreeNodeDom::getMappingProperties(PVCore::PVArgumentList co
 {
 	QDomElement elt = getMappingElement();
 	if (elt.isNull()) {
-		return QString();
+		return {};
 	}
 
 	toArgumentList(elt, def_args, args);
@@ -987,7 +987,7 @@ QString PVRush::PVXmlTreeNodeDom::getPlottingProperties(PVCore::PVArgumentList c
 {
 	QDomElement elt = getPlottingElement();
 	if (elt.isNull()) {
-		return QString();
+		return {};
 	}
 
 	toArgumentList(elt, def_args, args);

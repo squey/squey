@@ -56,10 +56,10 @@ PcapTreeSelectionModel::headerData(int section, Qt::Orientation orientation, int
 
 		default:
 			assert(false && "We only have 7 columns");
-			return QVariant();
+			return {};
 		}
 	}
-	return QVariant();
+	return {};
 }
 
 /**************************************************************************
@@ -70,7 +70,7 @@ PcapTreeSelectionModel::headerData(int section, Qt::Orientation orientation, int
 QVariant PcapTreeSelectionModel::data(const QModelIndex& index, int role) const
 {
 	if (not index.isValid())
-		return QVariant();
+		return {};
 
 	// Display protocol data.
 	switch (role) {
@@ -84,7 +84,7 @@ QVariant PcapTreeSelectionModel::data(const QModelIndex& index, int role) const
 			return value["filter_name"].GetString();
 		default:
 			assert(false && "We only have 7 columns");
-			return QVariant();
+			return {};
 		}
 		break;
 	}
@@ -94,11 +94,11 @@ QVariant PcapTreeSelectionModel::data(const QModelIndex& index, int role) const
 		case 0: /* Name */
 			return Qt::AlignLeft;
 		default:
-			return QVariant();
+			return {};
 		}
 		break;
 	}
-	return QVariant();
+	return {};
 }
 
 /*************************************************************************

@@ -64,7 +64,7 @@ void PVRush::PVInputFile::seek_begin()
 
 QString PVRush::PVInputFile::human_name()
 {
-	return QString(_path.c_str());
+	return {_path.c_str()};
 }
 
 uint64_t PVRush::PVInputFile::file_size()

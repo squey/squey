@@ -44,7 +44,7 @@ bool PVRush::PVSplunkQuery::operator==(const PVInputDescription& other) const
 
 QString PVRush::PVSplunkQuery::human_name() const
 {
-	return QString("Splunk");
+	return {"Splunk"};
 }
 
 void PVRush::PVSplunkQuery::serialize_write(PVCore::PVSerializeObject& so) const

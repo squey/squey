@@ -55,10 +55,10 @@ PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p i
 
 QString PVRush::PVSourceCreatorTextfile::supported_type() const
 {
-	return QString("file");
+	return {"file"};
 }
 
 QString PVRush::PVSourceCreatorTextfile::name() const
 {
-	return QString("text");
+	return {"text"};
 }

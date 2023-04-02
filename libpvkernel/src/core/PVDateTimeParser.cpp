@@ -33,7 +33,7 @@
 // No copy is made. The QString must remain valid as long as the UnicodeString object is !
 UnicodeString PVCore::PVDateTimeParser::icuFromQStringAlias(const QString& src)
 {
-	return UnicodeString(0, reinterpret_cast<const UChar*>(src.constData()), src.size());
+	return {0, reinterpret_cast<const UChar*>(src.constData()), static_cast<int32_t>(src.size())};
 }
 
 PVCore::PVDateTimeParser::PVDateTimeParser()

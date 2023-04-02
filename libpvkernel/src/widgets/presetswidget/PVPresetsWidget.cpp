@@ -91,7 +91,7 @@ QVariant PVWidgets::PVPresetsWidget::get_preset_data() const
 {
 	QListWidgetItem* item = _list->currentItem();
 	if (!item) {
-		return QVariant();
+		return {};
 	}
 	return item->data(Qt::UserRole);
 }

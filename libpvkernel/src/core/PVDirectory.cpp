@@ -66,7 +66,7 @@ QString PVCore::PVDirectory::temp_dir(QDir const& directory, QString const& patt
 	QByteArray tmp_dir_ba = tmp_dir_pattern.toLocal8Bit();
 	char* tmp_dir_p = mkdtemp(tmp_dir_ba.data());
 	if (tmp_dir_p == nullptr) {
-		return QString();
+		return {};
 	}
 	QString tmp_dir(tmp_dir_p);
 	return tmp_dir;

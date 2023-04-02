@@ -44,7 +44,7 @@ bool PVRush::PVOpcUaQuery::operator==(const PVInputDescription& other) const
 
 QString PVRush::PVOpcUaQuery::human_name() const
 {
-	return QString("opcua");
+	return {"opcua"};
 }
 
 void PVRush::PVOpcUaQuery::serialize_write(PVCore::PVSerializeObject& so) const

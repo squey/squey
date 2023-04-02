@@ -42,10 +42,10 @@ PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p i
 
 QString PVRush::PVSourceCreatorDatabase::supported_type() const
 {
-	return QString("database");
+	return {"database"};
 }
 
 QString PVRush::PVSourceCreatorDatabase::name() const
 {
-	return QString("database");
+	return {"database"};
 }

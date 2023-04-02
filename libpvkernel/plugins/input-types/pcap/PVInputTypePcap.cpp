@@ -208,27 +208,27 @@ QString PVPcapsicum::PVInputTypePcap::get_exporter_filter_string(const list_inpu
 
 QString PVPcapsicum::PVInputTypePcap::name() const
 {
-	return QString("pcap");
+	return {"pcap"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::human_name() const
 {
-	return QString("Pcap import plugin");
+	return {"Pcap import plugin"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::human_name_serialize() const
 {
-	return QString("Pcap");
+	return {"Pcap"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::internal_name() const
 {
-	return QString("06-pcap");
+	return {"06-pcap"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::menu_input_name() const
 {
-	return QString("Pcap...");
+	return {"Pcap..."};
 }
 
 QString
@@ -256,5 +256,5 @@ bool PVPcapsicum::PVInputTypePcap::get_custom_formats(PVRush::PVInputDescription
 
 QKeySequence PVPcapsicum::PVInputTypePcap::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

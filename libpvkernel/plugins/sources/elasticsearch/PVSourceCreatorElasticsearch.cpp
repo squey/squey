@@ -37,10 +37,10 @@ PVRush::PVSourceCreatorElasticsearch::create_source_from_input(PVInputDescriptio
 
 QString PVRush::PVSourceCreatorElasticsearch::supported_type() const
 {
-	return QString("elasticsearch");
+	return {"elasticsearch"};
 }
 
 QString PVRush::PVSourceCreatorElasticsearch::name() const
 {
-	return QString("elasticsearch");
+	return {"elasticsearch"};
 }
