@@ -50,7 +50,7 @@
 class CustomMainWindow : public QMainWindow
 {
   public:
-	CustomMainWindow(QWidget* parent = 0) : QMainWindow(parent)
+	CustomMainWindow(QWidget* parent = nullptr) : QMainWindow(parent)
 	{
 		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
 		                                QGuiApplication::screens()[0]->geometry()));
@@ -61,7 +61,7 @@ class CustomMainWindow : public QMainWindow
 class PVSplitterHandle : public QSplitterHandle
 {
   public:
-	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0)
+	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = nullptr)
 	    : QSplitterHandle(orientation, parent)
 	{
 	}

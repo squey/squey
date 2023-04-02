@@ -36,7 +36,7 @@
 class FileDownLoader::FileDownLoaderPrivate
 {
   public:
-	FileDownLoaderPrivate() : curl(0), tempFile(0) {}
+	FileDownLoaderPrivate() : curl(nullptr), tempFile(nullptr) {}
 	void initialize();
 	void cleanup();
 	void initializeDownload(const QString& remoteFile,
@@ -64,7 +64,7 @@ void FileDownLoader::FileDownLoaderPrivate::cleanup()
 	if (tempFile) {
 		tempFile->close();
 		tempFile->deleteLater();
-		tempFile = 0;
+		tempFile = nullptr;
 	}
 	/* always cleanup */
 	if (curl)

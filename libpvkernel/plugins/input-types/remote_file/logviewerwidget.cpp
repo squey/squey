@@ -409,7 +409,7 @@ bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
 
 void LogViewerWidget::slotUpdateButtons()
 {
-	const bool itemSelected = (d->filesTableWidget->currentItem() != 0);
+	const bool itemSelected = (d->filesTableWidget->currentItem() != nullptr);
 	d->removeFileToDownload->setEnabled(itemSelected);
 	d->configureFileToDownload->setEnabled(itemSelected);
 	d->addFileToDownload->setEnabled(d->machineListWidget->currentItem());

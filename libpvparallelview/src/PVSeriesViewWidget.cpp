@@ -399,7 +399,7 @@ void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*absc
 	_selected_series_tree->setMaximumHeight(0);
 	_selected_series_tree->setSelectionMode(QAbstractItemView::MultiSelection);
 
-	disconnect(_zoomer, &PVSeriesViewZoomer::cursor_moved, 0, 0);
+	disconnect(_zoomer, &PVSeriesViewZoomer::cursor_moved, nullptr, nullptr);
 
 	connect(_zoomer, &PVSeriesViewZoomer::cursor_moved, [this, filter_proxy_model](QRect region) {
 		if (_zoomer->current_selector_mode() != PVSeriesViewZoomer::SelectorMode::Hunting) {

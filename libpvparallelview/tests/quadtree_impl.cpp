@@ -35,8 +35,8 @@ unsigned depth;
 
 typedef PVParallelView::PVQuadTree<10000, 1000, 10000> pvquadtree;
 
-pvquadtree* qt = 0;
-PVParallelView::PVQuadTreeEntry* entries = 0;
+pvquadtree* qt = nullptr;
+PVParallelView::PVQuadTreeEntry* entries = nullptr;
 
 #define MAX_VALUE ((1 << 22) - 1)
 

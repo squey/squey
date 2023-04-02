@@ -399,7 +399,7 @@ void PVCore::PVStreamingDecompressor::init()
 			// reset default SIGPIPE handler
 			while (sigtimedwait(&newset, &si, &ts) >= 0 || errno != EAGAIN)
 				;
-			pthread_sigmask(SIG_SETMASK, &oldset, 0);
+			pthread_sigmask(SIG_SETMASK, &oldset, nullptr);
 
 			if (read_count < 0) {
 				throw PVStreamingDecompressorError(

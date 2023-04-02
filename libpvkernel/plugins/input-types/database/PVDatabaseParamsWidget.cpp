@@ -359,8 +359,8 @@ void PVRush::PVDatabaseParamsWidget::show_odbc()
 
 void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout, bool show)
 {
-	QLayoutItem* item = 0;
-	QWidget* widget = 0;
+	QLayoutItem* item = nullptr;
+	QWidget* widget = nullptr;
 
 	for (int i = 0; i < layout->count(); ++i) {
 		item = layout->itemAt(i);

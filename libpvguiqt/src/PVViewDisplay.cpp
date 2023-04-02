@@ -152,7 +152,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 
 				_workspace = workspace;
 
-				disconnect(this, SIGNAL(try_automatic_tab_switch()), 0, 0);
+				disconnect(this, SIGNAL(try_automatic_tab_switch()), nullptr, nullptr);
 				connect(this, &PVViewDisplay::try_automatic_tab_switch, workspace,
 				        &PVWorkspaceBase::try_automatic_tab_switch);
 

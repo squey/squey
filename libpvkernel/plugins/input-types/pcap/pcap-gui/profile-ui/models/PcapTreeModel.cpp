@@ -50,7 +50,7 @@ JsonTreeItem::JsonTreeItem(rapidjson::Value* value, JsonTreeItem* parent)
 JsonTreeItem::JsonTreeItem(JsonTreeItem* parent)
 {
 	_parent = parent;
-	_value = 0;
+	_value = nullptr;
 }
 
 JsonTreeItem::~JsonTreeItem()

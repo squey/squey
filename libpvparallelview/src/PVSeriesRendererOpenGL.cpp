@@ -195,7 +195,7 @@ void PVSeriesRendererOpenGL::initializeGL()
 		_vbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
 
 		glEnableVertexAttribArray(0);
-		glVertexAttribPointer(0, 1, GL_UNSIGNED_SHORT, GL_FALSE, 0, 0x0);
+		glVertexAttribPointer(0, 1, GL_UNSIGNED_SHORT, GL_FALSE, 0, nullptr);
 
 		_vbo.release();
 	}
@@ -205,7 +205,7 @@ void PVSeriesRendererOpenGL::initializeGL()
 		_cbo.setUsagePattern(QOpenGLBuffer::StreamDraw);
 
 		glEnableVertexAttribArray(1);
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, 0x0);
+		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, nullptr);
 		glVertexAttribDivisor(1, 1);
 
 		_cbo.release();
@@ -445,7 +445,7 @@ void PVSeriesRendererOpenGL::fill_cbo_GL(size_t const line_begin, size_t const l
 void PVSeriesRendererOpenGL::draw_GL(size_t const line_begin, size_t const line_end)
 {
 	_dbo.bind();
-	glMultiDrawArraysIndirect(_gl_draw_mode, 0, line_end - line_begin,
+	glMultiDrawArraysIndirect(_gl_draw_mode, nullptr, line_end - line_begin,
 	                          sizeof(DrawArraysIndirectCommand));
 	_dbo.release();
 

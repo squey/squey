@@ -216,7 +216,7 @@ static bool loadAllFilesInDirectory(const QString& location, UA_ByteString** tar
 		if (!loadFileToByteString(dir.path() + QChar('/') + entries.at(i), &list[i])) {
 			qWarning() << "Failed to open file" << entries.at(i);
 			UA_Array_delete(list, tempSize, &UA_TYPES[UA_TYPES_BYTESTRING]);
-			size = 0;
+			size = nullptr;
 			*target = nullptr;
 			return false;
 		}

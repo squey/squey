@@ -132,7 +132,7 @@ class LRUList
 			return deletedValue;
 		}
 
-		return NULL;
+		return nullptr;
 	}
 
 	/**

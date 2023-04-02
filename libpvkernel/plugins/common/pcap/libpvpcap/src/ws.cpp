@@ -49,7 +49,7 @@ std::string get_wireshark_profiles_dir()
 
 	struct stat info;
 	const char* homedir;
-	if ((homedir = getenv("HOME")) == NULL) {
+	if ((homedir = getenv("HOME")) == nullptr) {
 		homedir = getpwuid(getuid())->pw_dir;
 	}
 

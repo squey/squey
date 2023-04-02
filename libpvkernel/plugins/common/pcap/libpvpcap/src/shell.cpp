@@ -70,7 +70,7 @@ std::vector<std::string> execute_cmd(const std::string& cmd)
 		exit(EXIT_FAILURE);
 	}
 
-	while (fgets(buffer, sizeof(buffer), output) != NULL) {
+	while (fgets(buffer, sizeof(buffer), output) != nullptr) {
 		result.push_back(buffer);
 	}
 
@@ -110,7 +110,7 @@ extract_csv(splitted_files_t files,
 
 	// Override XDG_CONFIG_HOME variable to find wireshark profiles
 	const char* homedir;
-	if ((homedir = getenv("HOME")) == NULL) {
+	if ((homedir = getenv("HOME")) == nullptr) {
 		homedir = getpwuid(getuid())->pw_dir;
 	}
 	std::basic_string<char*> env_vars(environ);
@@ -255,9 +255,9 @@ std::vector<std::string> get_directory_files(const std::string& path_name)
 	std::vector<std::string> files; // = new std::vector<std::string>();
 	DIR* dir;
 	struct dirent* ent;
-	if ((dir = opendir(path_name.c_str())) != NULL) {
+	if ((dir = opendir(path_name.c_str())) != nullptr) {
 		/* get only all the files */
-		while ((ent = readdir(dir)) != NULL) {
+		while ((ent = readdir(dir)) != nullptr) {
 			if (!is_directory(path_name + "/" + ent->d_name)) {
 				files.push_back(ent->d_name);
 			}

@@ -35,7 +35,7 @@
 
 PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent) : QDialog(parent)
 {
-	QMenuBar* rl_menuBar = new QMenuBar(0);
+	QMenuBar* rl_menuBar = new QMenuBar(nullptr);
 	QMenu* rl_fileMenu = rl_menuBar->addMenu(tr("Machine"));
 
 	QDialogButtonBox* buttonBox =

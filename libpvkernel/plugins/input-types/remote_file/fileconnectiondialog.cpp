@@ -81,17 +81,17 @@ class FileConnectionDialog::FileConnectionDialogPrivate
 {
   public:
 	FileConnectionDialogPrivate(FileConnectionDialog* q)
-	    : protocols(0)
-	    , port(0)
-	    , hostname(0)
-	    , remotefile(0)
-	    , sshkey(0)
-	    , certificate(0)
-	    , ignoreSslError(0)
-	    , password(0)
-	    , login(0)
-	    , buttons(0)
-	    , formLayout(0)
+	    : protocols(nullptr)
+	    , port(nullptr)
+	    , hostname(nullptr)
+	    , remotefile(nullptr)
+	    , sshkey(nullptr)
+	    , certificate(nullptr)
+	    , ignoreSslError(nullptr)
+	    , password(nullptr)
+	    , login(nullptr)
+	    , buttons(nullptr)
+	    , formLayout(nullptr)
 	    , qq(q)
 	{
 	}
