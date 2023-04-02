@@ -29,6 +29,7 @@
 #include <cstdlib>
 #include <iostream>
 #include <fstream>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <iomanip>
@@ -603,9 +604,9 @@ split_pcap(const std::string& input_pcap_filename,
 
 	std::unique_ptr<PacketSplitter> splitter;
 	if (preserve_flows) {
-		splitter.reset(new FlowSplitter(input_pcap_filename, output_pcap_dir.toStdString()));
+		splitter = std::make_unique<FlowSplitter>(input_pcap_filename, output_pcap_dir.toStdString());
 	} else {
-		splitter.reset(new PacketSplitter(input_pcap_filename, output_pcap_dir.toStdString()));
+		splitter = std::make_unique<PacketSplitter>(input_pcap_filename, output_pcap_dir.toStdString());
 	}
 
 	// open input pcap file for reading

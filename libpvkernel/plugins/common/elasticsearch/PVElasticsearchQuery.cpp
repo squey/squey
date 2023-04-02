@@ -25,6 +25,8 @@
 
 #include "PVElasticsearchQuery.h"
 
+#include <memory>
+
 PVRush::PVElasticsearchQuery::PVElasticsearchQuery(PVElasticsearchInfos const& infos,
                                                    QString const& query,
                                                    QString const& query_type)
@@ -62,8 +64,8 @@ PVRush::PVElasticsearchQuery::serialize_read(PVCore::PVSerializeObject& so)
 	auto query = so.attribute_read<QString>("query");
 	auto query_type = so.attribute_read<QString>("query_type");
 	PVElasticsearchInfos infos = PVElasticsearchInfos::serialize_read(*so.create_object("server"));
-	return std::unique_ptr<PVElasticsearchQuery>(
-	    new PVElasticsearchQuery(infos, query, query_type));
+	return std::make_unique<PVElasticsearchQuery>(
+	    infos, query, query_type);
 }
 
 void PVRush::PVElasticsearchQuery::save_to_qsettings(QSettings& settings) const
@@ -101,8 +103,8 @@ PVRush::PVElasticsearchQuery::load_from_string(std::vector<std::string> const& v
 		infos.set_password(QString::fromStdString(vl[10]));
 	}
 
-	return std::unique_ptr<PVElasticsearchQuery>(
-	    new PVElasticsearchQuery(infos, query, query_type));
+	return std::make_unique<PVElasticsearchQuery>(
+	    infos, query, query_type);
 }
 
 std::vector<std::string> PVRush::PVElasticsearchQuery::desc_from_qsetting(QSettings const& s)

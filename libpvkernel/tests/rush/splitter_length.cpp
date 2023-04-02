@@ -30,6 +30,7 @@
 #include "common.h"
 
 #include <iostream>
+#include <memory>
 
 static constexpr const char* log_file = "/tmp/test-splitter-length.input";
 static constexpr const char* ref_file = "/tmp/test-splitter-length.ref";
@@ -62,7 +63,7 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("length");
 
 	auto ff =
-	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	    std::make_unique<PVFilter::PVElementFilterByFields>();
 	ff->add_filter(sp_lib_p);
 	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 

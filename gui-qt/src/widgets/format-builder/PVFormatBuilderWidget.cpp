@@ -46,6 +46,7 @@
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 #include <boost/thread.hpp>
+#include <memory>
 
 QList<QUrl> PVInspector::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl>();
 
@@ -1112,8 +1113,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			update_types_autodetection_count(format);
 		}
 
-		_nraw.reset(new PVRush::PVNraw());
-		_nraw_output.reset(new PVRush::PVNrawOutput(*_nraw));
+		_nraw = std::make_unique<PVRush::PVNraw>();
+		_nraw_output = std::make_unique<PVRush::PVNrawOutput>(*_nraw);
 		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
 		list_inputs << _log_input;
 
@@ -1146,8 +1147,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		_log_input = PVRush::PVInputDescription_p();
 		_log_source.reset();
 		_log_sc.reset();
-		_nraw.reset(new PVRush::PVNraw());
-		_nraw_output.reset(new PVRush::PVNrawOutput(*_nraw));
+		_nraw = std::make_unique<PVRush::PVNraw>();
+		_nraw_output = std::make_unique<PVRush::PVNrawOutput>(*_nraw);
 		return;
 	}
 

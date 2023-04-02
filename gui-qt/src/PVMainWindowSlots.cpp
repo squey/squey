@@ -61,6 +61,7 @@
 #include <QScreen>
 
 #include <boost/thread/scoped_thread.hpp>
+#include <memory>
 
 /******************************************************************************
  *
@@ -423,8 +424,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		        pbox.set_extended_status("Opening investigation for loading...");
 		        std::unique_ptr<PVCore::PVSerializeArchive> ar;
 		        try {
-			        ar.reset(new PVCore::PVSerializeArchiveZip(
-			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
+			        ar = std::make_unique<PVCore::PVSerializeArchiveZip>(
+			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION);
 		        } catch (const PVCore::PVSerializeArchiveError& e) {
 			        read_exception = e;
 			        return;

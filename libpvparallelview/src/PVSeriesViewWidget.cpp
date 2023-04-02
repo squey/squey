@@ -208,9 +208,9 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
 		}
 
-		_sampler.reset(new Inendi::PVRangeSubSampler(
+		_sampler = std::make_unique<Inendi::PVRangeSubSampler>(
 		    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
-		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis)));
+		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis));
 	}
 	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 	_plot->set_background_color(QColor(10, 10, 10, 255));

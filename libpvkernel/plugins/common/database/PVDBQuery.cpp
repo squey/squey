@@ -137,8 +137,8 @@ PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
 	so.set_current_status("Loading database information...");
 	auto query = so.attribute_read<QString>("query");
 	PVDBInfos infos = PVDBInfos::serialize_read(*so.create_object("server"));
-	return std::unique_ptr<PVDBQuery>(
-	    new PVDBQuery(std::make_shared<PVDBServ>(infos), query));
+	return std::make_unique<PVDBQuery>(
+	    std::make_shared<PVDBServ>(infos), query);
 }
 
 void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const

@@ -32,6 +32,7 @@
 #include <pvkernel/core/inendi_assert.h>
 
 #include <iostream>
+#include <memory>
 
 #include "common.h"
 #include "helpers.h"
@@ -91,7 +92,7 @@ int main()
 
 	// Final composition
 	auto ff =
-	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	    std::make_unique<PVFilter::PVElementFilterByFields>();
 	ff->add_filter(std::move(regexp_lib_p));
 	ff->add_filter(std::move(mapping_duplicate));
 	ff->add_filter(std::move(mapping_grep));

@@ -248,7 +248,7 @@ void PVRush::PVNrawCacheManager::compatibility_move_nraws_to_user_nraws_dir()
 		    user_nraw_dir_base + QDir::separator() + QFileInfo(_cache_file->fileName()).fileName();
 		_cache_file->sync();
 		QFile::rename(_cache_file->fileName(), new_cache_file_path);
-		_cache_file.reset(
-		    new QSettings(new_cache_file_path, QSettings::IniFormat)); // reload cache file
+		_cache_file = std::make_unique<QSettings>(
+		    new_cache_file_path, QSettings::IniFormat); // reload cache file
 	}
 }

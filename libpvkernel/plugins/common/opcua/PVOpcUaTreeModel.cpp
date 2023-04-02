@@ -29,6 +29,7 @@
 
 #include <QOpcUaClient>
 #include <QPixmap>
+#include <memory>
 
 namespace PVRush
 {
@@ -40,8 +41,8 @@ void PVOpcUaTreeModel::setOpcUaClient(QOpcUaClient* client)
 	beginResetModel();
 	m_client = client;
 	if (m_client)
-		m_root_item.reset(
-		    new PVOpcUaTreeItem(client->node("ns=0;i=84"), this /* model */, nullptr /* parent */));
+		m_root_item = std::make_unique<PVOpcUaTreeItem>(
+		    client->node("ns=0;i=84"), this /* model */, nullptr /* parent */);
 	else
 		m_root_item.reset(nullptr);
 	endResetModel();

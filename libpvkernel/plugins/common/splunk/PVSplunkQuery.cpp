@@ -25,6 +25,8 @@
 
 #include "PVSplunkQuery.h"
 
+#include <memory>
+
 PVRush::PVSplunkQuery::PVSplunkQuery(PVSplunkInfos const& infos,
                                      QString const& query,
                                      QString const& query_type)
@@ -64,7 +66,7 @@ PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so)
 	auto query_type = so.attribute_read<QString>("query_type");
 	PVSplunkInfos infos = PVSplunkInfos::serialize_read(*so.create_object("server"));
 
-	return std::unique_ptr<PVSplunkQuery>(new PVSplunkQuery(infos, query, query_type));
+	return std::make_unique<PVSplunkQuery>(infos, query, query_type);
 }
 
 void PVRush::PVSplunkQuery::save_to_qsettings(QSettings& settings) const
@@ -94,7 +96,7 @@ PVRush::PVSplunkQuery::load_from_string(std::vector<std::string> const& vl, bool
 		infos.set_password(QString::fromStdString(vl[6]));
 	}
 
-	return std::unique_ptr<PVSplunkQuery>(new PVSplunkQuery(infos, query, query_type));
+	return std::make_unique<PVSplunkQuery>(infos, query, query_type);
 }
 
 std::vector<std::string> PVRush::PVSplunkQuery::desc_from_qsetting(QSettings const& s)
