@@ -110,19 +110,19 @@ int main()
 	std::vector<std::pair<PVRow, PVRow>> ranges;
 	// Ranges are semi-open ([X, Y[)
 	// Only 1 chunk (64-bits per chunk) involved
-	ranges.push_back(std::make_pair(0, 5));
-	ranges.push_back(std::make_pair(0, 11));
-	ranges.push_back(std::make_pair(7, 10));
-	ranges.push_back(std::make_pair(8, 18));
+	ranges.emplace_back(0, 5);
+	ranges.emplace_back(0, 11);
+	ranges.emplace_back(7, 10);
+	ranges.emplace_back(8, 18);
 	// 2 chunks (64-bits per chunk) involved
-	ranges.push_back(std::make_pair(63, 67));
-	ranges.push_back(std::make_pair(60, 67));
+	ranges.emplace_back(63, 67);
+	ranges.emplace_back(60, 67);
 	// 3 chunks (64-bits per chunk) involved
-	ranges.push_back(std::make_pair(60, 140));
-	ranges.push_back(std::make_pair(63, 150));
+	ranges.emplace_back(60, 140);
+	ranges.emplace_back(63, 150);
 	// 4 chunks (64-bits per chunk) involved
-	ranges.push_back(std::make_pair(60, 205));
-	ranges.push_back(std::make_pair(63, 215));
+	ranges.emplace_back(60, 205);
+	ranges.emplace_back(63, 215);
 #ifdef TESTS_LONG
 	// More than 4 chunks involved
 	ranges.push_back(std::make_pair(65, std::min(1000008, SELECTION_COUNT)));

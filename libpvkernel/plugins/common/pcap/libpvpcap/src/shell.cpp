@@ -71,7 +71,7 @@ std::vector<std::string> execute_cmd(const std::string& cmd)
 	}
 
 	while (fgets(buffer, sizeof(buffer), output) != nullptr) {
-		result.push_back(buffer);
+		result.emplace_back(buffer);
 	}
 
 	if (pclose(output) != 0) { // en cas d'erreur
@@ -259,7 +259,7 @@ std::vector<std::string> get_directory_files(const std::string& path_name)
 		/* get only all the files */
 		while ((ent = readdir(dir)) != nullptr) {
 			if (!is_directory(path_name + "/" + ent->d_name)) {
-				files.push_back(ent->d_name);
+				files.emplace_back(ent->d_name);
 			}
 		}
 		closedir(dir);

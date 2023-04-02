@@ -395,8 +395,7 @@ void PVGuiQt::PVAxesCombinationWidget::update_combination()
 	std::vector<PVCol> new_comb;
 	new_comb.reserve(_list_used->count());
 	for (int i = 0; i < _list_used->count(); ++i) {
-		new_comb.push_back(
-		    PVCol(_list_used->item(i)->data(Qt::UserRole).value<PVCol::value_type>()));
+		new_comb.emplace_back(_list_used->item(i)->data(Qt::UserRole).value<PVCol::value_type>());
 	}
 	_axes_combination.set_combination(new_comb);
 	_label_axes_used->setText(QString::number(_list_used->count()) + " Axes");

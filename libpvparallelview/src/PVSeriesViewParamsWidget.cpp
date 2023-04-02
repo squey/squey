@@ -119,7 +119,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enab
 		    checked ? PVSeriesViewZoomer::SelectorMode::Selecting
 		            : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	_bind_connections.push_back([sel, this] {
+	_bind_connections.emplace_back([sel, this] {
 		sel->setEnabled(true);
 		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 		        [sel](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
@@ -147,7 +147,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator(bool enable
 		    checked ? PVSeriesViewZoomer::SelectorMode::Hunting
 		            : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	_bind_connections.push_back([hunt, this] {
+	_bind_connections.emplace_back([hunt, this] {
 		hunt->setEnabled(true);
 		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 		        [hunt](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
