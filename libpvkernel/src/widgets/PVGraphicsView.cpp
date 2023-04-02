@@ -90,9 +90,7 @@ void __print_transform(const char* text, const T& t)
 	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
 }
 
-namespace PVWidgets
-{
-namespace __impl
+namespace PVWidgets::__impl
 {
 
 class PVViewportEventFilter : public QObject
@@ -122,7 +120,6 @@ class PVViewportEventFilter : public QObject
   private:
 	PVWidgets::PVGraphicsView* _view;
 };
-} // namespace __impl
 } // namespace PVWidgets
 
 /*****************************************************************************

@@ -75,9 +75,7 @@ static QLabel* label_from_sender(QObject* obj_sender)
 	return qobject_cast<QLabel*>(act->parent());
 }
 
-namespace PVWidgets
-{
-namespace __impl
+namespace PVWidgets::__impl
 {
 
 class PVLabelEventFilter : public QObject
@@ -111,7 +109,6 @@ class PVLabelEventFilter : public QObject
 		return static_cast<PVWidgets::PVColorDialog*>(parent());
 	}
 };
-} // namespace __impl
 } // namespace PVWidgets
 
 PVWidgets::PVColorDialog::PVColorDialog(QWidget* parent)

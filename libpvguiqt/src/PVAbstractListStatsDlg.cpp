@@ -91,10 +91,7 @@ static inline double count_to_freq_max(double value, double count)
 	return trunc(((value / count) * 1000.) + 0.5) / 10.;
 }
 
-namespace PVGuiQt
-{
-
-namespace __impl
+namespace PVGuiQt::__impl
 {
 
 class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
@@ -284,7 +281,6 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
 	bool _use_absolute_max_count = true;
 	bool _use_percent_mode = false;
 };
-} // namespace __impl
 } // namespace PVGuiQt
 
 /******************************************************************************

@@ -49,9 +49,7 @@
 
 using Inendi::PVSelection;
 
-namespace PVParallelView
-{
-namespace __impl
+namespace PVParallelView::__impl
 {
 
 class TBBCreateTreeTask
@@ -205,7 +203,6 @@ class TBBMergeTreesTask
 	PVParallelView::PVZoneTree::PVTreeParams const& _params;
 	uint32_t _task_num;
 };
-} // namespace __impl
 } // namespace PVParallelView
 
 // PVZoneTree implementation

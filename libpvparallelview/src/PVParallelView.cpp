@@ -125,9 +125,7 @@ void PVParallelView::PVParallelViewImpl::remove_lib_view(Inendi::PVView& view)
 	}
 }
 
-namespace PVParallelView
-{
-namespace common
+namespace PVParallelView::common
 {
 /************************************************************
  *
@@ -142,5 +140,4 @@ RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelVi
 		_instance->init_backends<PVBCIDrawingBackendQPainter>();
 	}
 }
-} // namespace common
 } // namespace PVParallelView

@@ -65,9 +65,7 @@ set_item_text_value(QGraphicsTextItem* text_item, QString text, QColor const& co
 	text_item->setDefaultTextColor(color);
 }
 
-namespace PVParallelView
-{
-namespace __impl
+namespace PVParallelView::__impl
 {
 
 class PVToolTipEventFilter : public QObject
@@ -102,7 +100,6 @@ class PVToolTipEventFilter : public QObject
 		return static_cast<PVAxisGraphicsItem*>(parent());
 	}
 };
-} // namespace __impl
 } // namespace PVParallelView
 
 /*****************************************************************************
