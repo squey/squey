@@ -355,7 +355,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 			// // qDebug("actions_name[0]=%s\n", qPrintable(actions_name[0]));
 			// // We add the various submenus
 			for (int i = 0; i < actions_name.count(); i++) {
-				bool is_last = i == actions_name.count() - 1 ? 1 : 0;
+				bool is_last = i == actions_name.count() - 1 ? true : false;
 
 				// Step 1: we add the different menus into the hash
 				QMenu* menu_exists = create_filters_menu_exists(actions_list, actions_name[i], i);

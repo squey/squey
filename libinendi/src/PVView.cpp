@@ -586,9 +586,9 @@ void Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 	PVLayer& layer = layer_stack.get_layer_n(n);
 
 	if (layer.get_visible()) {
-		layer.set_visible(0);
+		layer.set_visible(false);
 	} else {
-		layer.set_visible(1);
+		layer.set_visible(true);
 	}
 	_layer_stack_refreshed.emit();
 }

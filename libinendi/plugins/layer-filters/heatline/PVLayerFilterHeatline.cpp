@@ -186,6 +186,6 @@ void Inendi::PVLayerFilterHeatline::post(
 
 	// UnSelect line out of min/max choosen frequency.
 	if ((ratio < fmin) || (ratio > fmax)) {
-		out.get_selection().set_line(line_id, 0);
+		out.get_selection().set_line(line_id, false);
 	}
 }
