@@ -80,27 +80,27 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 	_param_widget->setObjectName("splitter");
 
 	_split_cb[0] = new QCheckBox("get TLD1");
-	_split_cb[0]->setToolTip("get \"com\" in \"www.en.example.com\"");
+	_split_cb[0]->setToolTip(R"(get "com" in "www.en.example.com")");
 	_split_cb[0]->setChecked(tld1);
 
 	_split_cb[1] = new QCheckBox("get TLD2");
-	_split_cb[1]->setToolTip("get \"example.com\" in \"www.en.example.com\"");
+	_split_cb[1]->setToolTip(R"(get "example.com" in "www.en.example.com")");
 	_split_cb[1]->setChecked(tld2);
 
 	_split_cb[2] = new QCheckBox("get TLD3");
-	_split_cb[2]->setToolTip("get \"en.example.com\" in \"www.en.example.com\"");
+	_split_cb[2]->setToolTip(R"(get "en.example.com" in "www.en.example.com")");
 	_split_cb[2]->setChecked(tld3);
 
 	_split_cb[3] = new QCheckBox("get SUBD1");
-	_split_cb[3]->setToolTip("get \"www.en.example\" in \"www.en.example.com\"");
+	_split_cb[3]->setToolTip(R"(get "www.en.example" in "www.en.example.com")");
 	_split_cb[3]->setChecked(subd1);
 
 	_split_cb[4] = new QCheckBox("get SUBD2");
-	_split_cb[4]->setToolTip("get \"www.en\" in \"www.en.example.com\"");
+	_split_cb[4]->setToolTip(R"(get "www.en" in "www.en.example.com")");
 	_split_cb[4]->setChecked(subd2);
 
 	_split_cb[5] = new QCheckBox("get SUBD3");
-	_split_cb[5]->setToolTip("get \"www\" in \"www.en.example.com\"");
+	_split_cb[5]->setToolTip(R"(get "www" in "www.en.example.com")");
 	_split_cb[5]->setChecked(subd3);
 
 	for (int i = 0; i < 6; ++i) {

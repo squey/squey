@@ -112,7 +112,7 @@ PVWidgets::PVExportDlg::PVExportDlg(
 QString PVWidgets::PVExportDlg::file_extension() const
 {
 	const std::string& str = selectedNameFilter().toStdString();
-	const std::regex base_regex(".*\\(\\*(.*)\\)");
+	const std::regex base_regex(R"(.*\(\*(.*)\))");
 	std::smatch base_match;
 	std::regex_match(str, base_match, base_regex);
 	assert(base_match.length() == 1);

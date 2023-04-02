@@ -88,7 +88,7 @@ void PVRush::PVOpcUaParamsWidget::reset_columns_tree_widget()
 	_root_item->setText(0, "properties");
 	_root_item->setCheckState(0, Qt::Unchecked);
 
-	auto deserialized_query = get_serialize_query().split(QRegularExpression("\\;\\$\\;"));
+	auto deserialized_query = get_serialize_query().split(QRegularExpression(R"(\;\$\;)"));
 	size_t nodes_count = deserialized_query.size() / 3;
 	for (size_t i = 0; i < nodes_count; ++i) {
 		// configure node per node
@@ -568,7 +568,7 @@ size_t PVRush::PVOpcUaParamsWidget::get_selected_columns_count() const
 	if (_opcua_treeview) {
 		return _opcua_treeview->selectionModel()->selectedRows().size();
 	} else {
-		return _serialized_query.split(QRegularExpression("\\;\\$\\;")).size() / 3;
+		return _serialized_query.split(QRegularExpression(R"(\;\$\;)")).size() / 3;
 	}
 }
 
@@ -627,7 +627,7 @@ void PVRush::PVOpcUaParamsWidget::update_custom_format()
 
 	set_query(get_serialize_query());
 
-	auto deserialized_query = _serialized_query.split(QRegularExpression("\\;\\$\\;"));
+	auto deserialized_query = _serialized_query.split(QRegularExpression(R"(\;\$\;)"));
 	size_t nodes_count = deserialized_query.size() / 3;
 	for (size_t i = 0; i < nodes_count; ++i) {
 		// configure node per node

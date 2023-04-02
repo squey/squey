@@ -48,7 +48,7 @@ PVRush::PVOpcUaSource::PVOpcUaSource(PVRush::PVInputDescription_p input)
     : _query(dynamic_cast<PVOpcUaQuery&>(*input)), _api(_query.infos())
 {
 	auto serialized_query = _query.get_query();
-	auto deserialized_query = serialized_query.split(QRegularExpression("\\;\\$\\;"));
+	auto deserialized_query = serialized_query.split(QRegularExpression(R"(\;\$\;)"));
 	qDebug() << deserialized_query;
 	_nodes_count = deserialized_query.size() / 3;
 	_data.resize(_nodes_count);

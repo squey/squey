@@ -424,7 +424,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName()
 {
 	PVLOG_DEBUG("PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName\n");
 	// char we want to detecte in the name
-	QRegExp reg(".*(\\*|\\[|\\{|\\]|\\}).*");
+	QRegExp reg(R"(.*(\*|\[|\{|\]|\}).*)");
 	if (reg.exactMatch(name->text())) { // if there is
 		// create the confirm popup
 		QDialog confirm(this);

@@ -205,7 +205,7 @@ PVRush::PVSplunkAPI::columns_t PVRush::PVSplunkAPI::columns(std::string* error /
 	for (auto& col : cols) {
 		const std::string& column_name = col.first;
 		search_query += std::string("| eval ") + INENDI_PREFIX + column_name + "=if(isnum(" +
-		                column_name + "),\"1\",\"0\") ";
+		                column_name + R"(),"1","0") )";
 	}
 	buffer.clear();
 	if (perform_query(search_query, buffer, "json", error)) {

@@ -71,7 +71,7 @@ void PVRush::PVXmlTreeNodeDom::init(Type _type,
 
 PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::new_format(QDomDocument& file)
 {
-	file.createProcessingInstruction("xml", "version=\"1.0\" encoding=\"utf-8\"");
+	file.createProcessingInstruction("xml", R"(version="1.0" encoding="utf-8")");
 	QString header(PVXmlTreeNodeDom_initXml);
 	QString err;
 
