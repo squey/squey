@@ -90,8 +90,8 @@ template <typename T>
 class LRUList
 {
   public:
-	typedef typename std::list<T>::iterator ListIterator;
-	typedef typename std::map<T, ListIterator>::iterator MapIterator;
+	using ListIterator = typename std::list<T>::iterator;
+	using MapIterator = typename std::map<T, ListIterator>::iterator;
 
 	/**
 	 * A c'tor for this class

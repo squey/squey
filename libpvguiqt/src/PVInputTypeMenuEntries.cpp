@@ -39,7 +39,7 @@ static void map_input_by_sorted_internal_name(const F& f)
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
 
-	typedef std::pair<QString, QString> ele_t;
+	using ele_t = std::pair<QString, QString>;
 	std::list<ele_t> pairs;
 
 	for (const auto& it : lf) {

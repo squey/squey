@@ -33,7 +33,7 @@
 unsigned count;
 unsigned depth;
 
-typedef PVParallelView::PVQuadTree<10000, 1000, 10000> pvquadtree;
+using pvquadtree = PVParallelView::PVQuadTree<10000, 1000, 10000>;
 
 pvquadtree* qt = nullptr;
 PVParallelView::PVQuadTreeEntry* entries = nullptr;

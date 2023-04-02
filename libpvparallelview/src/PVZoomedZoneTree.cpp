@@ -211,8 +211,8 @@ static inline uint32_t compute_sec_coord_count_y1(const uint32_t t1,
                                                   const uint32_t width,
                                                   const float beta)
 {
-	typedef PVParallelView::PVZoomedZoneTree::pv_bci_code_t bci_code_t;
-	typedef PVParallelView::PVZoomedZoneTree::zzt_constants constants;
+	using bci_code_t = PVParallelView::PVZoomedZoneTree::pv_bci_code_t;
+	using constants = PVParallelView::PVZoomedZoneTree::zzt_constants;
 
 	bci_code_t bci_min, bci_max;
 	uint32_t y1_count;
@@ -286,8 +286,8 @@ static inline uint32_t compute_sec_coord_count_y2(const uint32_t t1,
                                                   const uint32_t width,
                                                   const float beta)
 {
-	typedef PVParallelView::PVZoomedZoneTree::pv_bci_code_t bci_code_t;
-	typedef PVParallelView::PVZoomedZoneTree::zzt_constants constants;
+	using bci_code_t = PVParallelView::PVZoomedZoneTree::pv_bci_code_t;
+	using constants = PVParallelView::PVZoomedZoneTree::zzt_constants;
 
 	bci_code_t bci_min, bci_max;
 	uint32_t y2_count;

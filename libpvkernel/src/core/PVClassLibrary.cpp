@@ -38,7 +38,7 @@
 // Helper class to load external plugins
 
 // Register function type
-typedef void (*register_class_func)();
+using register_class_func = void (*)();
 #define register_class_func_string "register_class"
 
 bool PVCore::PVClassLibraryLibLoader::load_class(QString const& path)

@@ -112,7 +112,7 @@ void init_hori_box(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QGraphicsV
 	scene->setSceneRect(-3., -2., 6., 4.);
 }
 
-typedef enum { MODE_BIG = 0, MODE_SMALL = 1, MODE_HBOX = 2 } MODE;
+using MODE = enum { MODE_BIG = 0, MODE_SMALL = 1, MODE_HBOX = 2 };
 
 int main(int argc, char** argv)
 {

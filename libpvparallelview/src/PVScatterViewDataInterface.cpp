@@ -31,7 +31,7 @@
 
 #include <tbb/task.h>
 
-typedef PVParallelView::PVScatterViewDataInterface::ProcessParams ProcessParamsImpl;
+using ProcessParamsImpl = PVParallelView::PVScatterViewDataInterface::ProcessParams;
 
 ProcessParamsImpl::dirty_rect ProcessParamsImpl::rect_1() const
 {

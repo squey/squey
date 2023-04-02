@@ -34,8 +34,8 @@
 #define VALUE_MAX (1UL << 22)
 #define VALUE_MASK (VALUE_MAX - 1)
 
-typedef PVParallelView::PVQuadTree<> quadtree_t;
-typedef PVParallelView::PVQuadTreeEntry quadtree_entry_t;
+using quadtree_t = PVParallelView::PVQuadTree<>;
+using quadtree_entry_t = PVParallelView::PVQuadTreeEntry;
 
 int main(int argc, char** argv)
 {

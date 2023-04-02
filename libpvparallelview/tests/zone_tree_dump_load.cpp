@@ -36,7 +36,7 @@
 const std::string filename = TEST_FOLDER "/picviz/heat_line.csv";
 const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
-typedef PVParallelView::PVZoneTree zt_t;
+using zt_t = PVParallelView::PVZoneTree;
 
 int main()
 {

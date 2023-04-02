@@ -90,7 +90,7 @@ static void debug_config(EGLDisplay display, EGLConfig conf)
 	PRINT_CONFIGATTR(EGL_TRANSPARENT_BLUE_VALUE);
 }
 
-typedef void* EGLDeviceEXT;
+using EGLDeviceEXT = void *;
 
 static std::vector<EGLDeviceEXT> get_devices()
 {
