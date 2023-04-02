@@ -33,6 +33,7 @@
 #include "helpers.h"
 
 #include <fstream>
+#include <memory>
 
 #ifndef INSPECTOR_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/sources/database.out";
@@ -59,7 +60,7 @@ int main()
 
 	// setup import structures
 	auto* qr =
-	    new PVRush::PVDBQuery(PVRush::PVDBServ_p(new PVRush::PVDBServ(infos)), query_str.c_str());
+	    new PVRush::PVDBQuery(std::make_shared<PVRush::PVDBServ>(infos), query_str.c_str());
 	PV_ASSERT_VALID(qr->connect_serv());
 	PVRush::PVSourceCreator_p sc =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("database");

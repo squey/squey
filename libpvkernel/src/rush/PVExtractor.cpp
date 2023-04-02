@@ -112,8 +112,8 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	// PVControllerJob_p is a boost shared pointer, that will automatically take care of the
 	// deletion of this
 	// object when it is not needed anymore !
-	PVControllerJob_p job = PVControllerJob_p(new PVControllerJob(
-	    start, end, _agg, _chk_flt, _output, _chunks, _format.have_grep_filter()));
+	PVControllerJob_p job = std::make_shared<PVControllerJob>(
+	    start, end, _agg, _chk_flt, _output, _chunks, _format.have_grep_filter());
 	job->run_job();
 
 	return job;

@@ -66,7 +66,7 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
 			}
 		}
 
-		g_presets_settings = QSettings_p(new QSettings(fi.filePath(), QSettings::IniFormat));
+		g_presets_settings = std::make_shared<QSettings>(fi.filePath(), QSettings::IniFormat);
 	}
 }
 

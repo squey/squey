@@ -28,6 +28,7 @@
 
 #include <QSqlRecord>
 #include <QSqlField>
+#include <memory>
 
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include "PVSQLTypeMap.h"
@@ -137,7 +138,7 @@ PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
 	auto query = so.attribute_read<QString>("query");
 	PVDBInfos infos = PVDBInfos::serialize_read(*so.create_object("server"));
 	return std::unique_ptr<PVDBQuery>(
-	    new PVDBQuery(std::shared_ptr<PVDBServ>(new PVDBServ(infos)), query));
+	    new PVDBQuery(std::make_shared<PVDBServ>(infos), query));
 }
 
 void PVRush::PVDBQuery::save_to_qsettings(QSettings& settings) const
