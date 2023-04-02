@@ -911,8 +911,8 @@ bool PVRush::PVElasticsearchAPI::clear_scroll()
 		json.SetObject();
 
 		rapidjson::Value scroll_ids(rapidjson::kArrayType);
-		for (size_t slice_id = 0; slice_id < _scroll_ids.size(); slice_id++) {
-			rapidjson::Value sid(_scroll_ids[slice_id].c_str(), json.GetAllocator());
+		for (auto & _scroll_id : _scroll_ids) {
+			rapidjson::Value sid(_scroll_id.c_str(), json.GetAllocator());
 			scroll_ids.PushBack(sid, json.GetAllocator());
 		}
 

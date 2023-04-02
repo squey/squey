@@ -474,12 +474,12 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 			PVRush::hash_formats custom_formats;
 			PVRush::list_creators pre_discovered_creators;
 
-			for (auto input_it = inputs.begin(); input_it != inputs.end(); ++input_it) {
-				QString in_str = (*input_it)->human_name();
-				hash_input_name[in_str] = *input_it;
+			for (const auto & input : inputs) {
+				QString in_str = input->human_name();
+				hash_input_name[in_str] = input;
 
 				pre_discovered_creators.push_back(sc);
-				in_t->get_custom_formats(*input_it, custom_formats);
+				in_t->get_custom_formats(input, custom_formats);
 
 				for (auto hf_it = custom_formats.begin(); hf_it != custom_formats.end(); ++hf_it) {
 					formats.insert(hf_it.key(), hf_it.value());
@@ -1165,8 +1165,8 @@ void PVInspector::PVMainWindow::treat_invalid_formats(
 
 	// And remove them from the error list
 	QHash<QString, std::pair<QString, QString>> errors_ = errors;
-	for (int i = 0; i < formats_ignored.size(); i++) {
-		errors_.remove(formats_ignored[i]);
+	for (auto & i : formats_ignored) {
+		errors_.remove(i);
 	}
 
 	if (errors_.size() == 0) {

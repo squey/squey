@@ -88,9 +88,8 @@ bool PVPcapsicum::PVInputTypePcap::load_files(pvpcap::splitted_files_t&& splitte
 		streams_id_offset += offset;
 	}
 
-	for (size_t i = 0; i < splitted_files.size(); i++) {
-		pvpcap::splitted_file_t& filename = splitted_files[i];
-		inputs.push_back(PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
+	for (auto & filename : splitted_files) {
+			inputs.push_back(PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
 		    QString::fromStdString(filename.path()),
 		    QString::fromStdString(filename.original_pcap_path()),
 		    pcap_offsets[filename.original_pcap_path()].first, filename.packets_indexes(),

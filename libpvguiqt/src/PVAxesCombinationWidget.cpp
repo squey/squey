@@ -297,8 +297,8 @@ void PVGuiQt::PVAxesCombinationWidget::sort_Slot()
 		for (int i = _list_used->count(); i-- > 0;) {
 			_list_used->takeItem(i);
 		}
-		for (size_t i = 0; i < sorted_selected.size(); ++i) {
-			_list_used->addItem(sorted_selected[i]);
+		for (auto & i : sorted_selected) {
+			_list_used->addItem(i);
 		}
 		_list_used->selectAll();
 	} else {

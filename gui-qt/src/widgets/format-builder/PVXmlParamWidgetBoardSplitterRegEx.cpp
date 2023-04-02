@@ -79,8 +79,8 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields()
 	checkSaveValidLog = new QCheckBox("Save log sample in format file", this);
 
 	QString textVal;
-	for (int i = 0; i < _data.size(); i++) {
-		textVal += _data[i];
+	for (auto & i : _data) {
+		textVal += i;
 		textVal += QChar('\n');
 	}
 

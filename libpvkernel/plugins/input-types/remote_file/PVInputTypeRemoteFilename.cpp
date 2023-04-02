@@ -59,8 +59,8 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
 
 	_hash_real_filenames = RemoteLogDialog->getDlFiles();
 	QStringList const& files = _hash_real_filenames.keys();
-	for (int i = 0; i < files.size(); i++) {
-		PVLOG_INFO("%s\n", qPrintable(files[i]));
+	for (const auto & file : files) {
+		PVLOG_INFO("%s\n", qPrintable(file));
 	}
 	format = RemoteLogDialog->getSelFormat();
 	return load_files(files, inputs, parent);
@@ -104,8 +104,8 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 
 	bool found_url = false;
 	QUrl url;
-	for (int i = 0; i < in.size(); i++) {
-		PVFileDescription* f = dynamic_cast<PVFileDescription*>(in[i].get());
+	for (const auto & i : in) {
+		PVFileDescription* f = dynamic_cast<PVFileDescription*>(i.get());
 		assert(f);
 		QString tmp_name = f->path();
 		if (_hash_real_filenames.contains(tmp_name)) {

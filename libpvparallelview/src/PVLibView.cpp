@@ -378,9 +378,9 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	zoomed_scene_list_t new_zps;
 
-	for (size_t i = 0; i < _zoomed_parallel_scenes.size(); ++i) {
-		PVZoomedParallelScene* scene = _zoomed_parallel_scenes[i];
-		_zoomed_parallel_scenes[i] = nullptr;
+	for (auto & _zoomed_parallel_scene : _zoomed_parallel_scenes) {
+		PVZoomedParallelScene* scene = _zoomed_parallel_scene;
+		_zoomed_parallel_scene = nullptr;
 
 		if (scene->update_zones()) {
 			// the ZPS can still exist

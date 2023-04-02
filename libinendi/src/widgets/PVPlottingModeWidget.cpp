@@ -64,14 +64,14 @@ void PVWidgets::PVPlottingModeWidget::populate_from_type(QString const& type, QS
 {
 	LIB_CLASS(Inendi::PVPlottingFilter)
 	::list_classes const& map_filters = LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list();
-	for (auto it = map_filters.begin(); it != map_filters.end(); it++) {
-		Inendi::PVPlottingFilter::p_type filter = it->value();
+	for (const auto & map_filter : map_filters) {
+		Inendi::PVPlottingFilter::p_type filter = map_filter.value();
 		auto usable_type = filter->list_usable_type();
 		if (usable_type.empty() or
 		    std::find(usable_type.begin(), usable_type.end(),
 		              std::make_pair(type.toStdString(), mapped.toStdString())) !=
 		        usable_type.end()) {
-			QString const& name = it->key();
+			QString const& name = map_filter.key();
 			QString human_name = filter->get_human_name();
 			_combo->addItem(human_name, name);
 		}

@@ -98,9 +98,8 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 
 	// List the supported QtSql drivers
 	QStringList drivers = QSqlDatabase::drivers();
-	for (int i = 0; i < drivers.size(); i++) {
-		QString d = drivers[i];
-		QString name = g_drivers_name.name(d);
+	for (auto d : drivers) {
+			QString name = g_drivers_name.name(d);
 		if (!name.isEmpty()) {
 			_combo_type->addItem(name, d);
 		}

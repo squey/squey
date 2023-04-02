@@ -375,9 +375,8 @@ bool LogViewerWidget::downloadSelectedFiles(QHash<QString, QUrl>& dl_files)
 	QList<QTableWidgetItem*> sel_files = d->filesTableWidget->selectedItems();
 	// And download them one by one
 	bool ret = false;
-	for (int i = 0; i < sel_files.size(); i++) {
-		QTableWidgetItem* item = sel_files[i];
-		if (item->column() != 0) {
+	for (auto item : sel_files) {
+			if (item->column() != 0) {
 			continue;
 		}
 		RegisteredFile& registered = lstRegistered[item->row()];

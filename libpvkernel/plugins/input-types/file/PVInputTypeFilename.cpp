@@ -104,9 +104,9 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
 
 PVRush::PVInputTypeFilename::~PVInputTypeFilename()
 {
-	for (int i = 0; i < _tmp_dir_to_delete.size(); i++) {
-		PVLOG_INFO("Delete temporary directory %s...\n", qPrintable(_tmp_dir_to_delete[i]));
-		PVCore::PVDirectory::remove_rec(_tmp_dir_to_delete[i]);
+	for (auto & i : _tmp_dir_to_delete) {
+		PVLOG_INFO("Delete temporary directory %s...\n", qPrintable(i));
+		PVCore::PVDirectory::remove_rec(i);
 	}
 }
 

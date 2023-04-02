@@ -57,11 +57,11 @@ void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
 {
 	LIB_CLASS(Inendi::PVMappingFilter)
 	::list_classes const& map_filters = LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
-	for (auto it = map_filters.begin(); it != map_filters.end(); it++) {
-		Inendi::PVMappingFilter::p_type filter = it->value();
+	for (const auto & map_filter : map_filters) {
+		Inendi::PVMappingFilter::p_type filter = map_filter.value();
 		auto available_type = filter->list_usable_type();
 		if (available_type.find(type.toStdString()) != available_type.end()) {
-			_combo->addItem(filter->get_human_name(), it->key());
+			_combo->addItem(filter->get_human_name(), map_filter.key());
 		}
 	}
 }

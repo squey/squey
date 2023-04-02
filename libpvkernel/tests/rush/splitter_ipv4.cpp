@@ -127,8 +127,8 @@ int main()
 		check_valid_params(sp_lib_p, valid_params_list[i], valid_params_result[i]);
 	}
 
-	for (size_t i = 0; i < invalid_params_list.size(); ++i) {
-		check_invalid_params(sp_lib_p, invalid_params_list[i]);
+	for (const auto & i : invalid_params_list) {
+		check_invalid_params(sp_lib_p, i);
 	}
 #endif
 

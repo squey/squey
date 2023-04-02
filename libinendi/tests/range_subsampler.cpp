@@ -57,8 +57,8 @@ void test(const testcase& test)
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 
 	std::vector<pvcop::core::array<uint32_t>> timeseries;
-	for (size_t i = 0; i < plotteds_vector.size(); i++) {
-		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
+	for (const auto & i : plotteds_vector) {
+		timeseries.emplace_back(i.to_core_array<uint32_t>());
 	}
 
 	Inendi::PVRangeSubSampler sampler(nraw.column(test.col_time), timeseries, nraw,

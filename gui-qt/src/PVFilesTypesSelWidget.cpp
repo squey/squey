@@ -158,9 +158,8 @@ void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
 	listBox->clear();
 
 	// Insert items
-	for (int i = 0; i < org_list.size(); i++) {
-		QString const& f = org_list[i];
-		bool issel = sel_list.contains(f);
+	for (auto & f : org_list) {
+			bool issel = sel_list.contains(f);
 		auto item = new QListWidgetItem(f, listBox);
 		listBox->insertItem(-1, item);
 		item->setSelected(issel);

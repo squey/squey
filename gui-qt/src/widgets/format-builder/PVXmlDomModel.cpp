@@ -609,11 +609,11 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitterWithAxes(
 {
 	PVRush::PVXmlTreeNodeDom* splitter_node = addSplitter(index, splitterPlugin);
 
-	for (int i = 0; i < axesName.size(); i++) {
+	for (auto & i : axesName) {
 		// TODO: we should be able to create a field and/or an axis from separate functions !!!!!
 		QDomElement newField = xmlFile.createElement(PVFORMAT_XML_TAG_FIELD_STR);
 		QDomElement newAxis = xmlFile.createElement(PVFORMAT_XML_TAG_AXIS_STR);
-		newAxis.setAttribute(PVFORMAT_AXIS_NAME_STR, axesName[i]);
+		newAxis.setAttribute(PVFORMAT_AXIS_NAME_STR, i);
 		setDefaultAttributesForAxis(newAxis);
 
 		newField.appendChild(newAxis);

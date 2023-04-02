@@ -51,8 +51,8 @@ int main(int argc, char** argv)
 	dir_files.setFilter(QDir::Files | QDir::Readable);
 	QStringList files = dir_files.entryList(QStringList() << QString("*.format"));
 
-	for (int i = 0; i < files.size(); i++) {
-		QString fpath = dir_files.absoluteFilePath(files[i]);
+	for (auto & file : files) {
+		QString fpath = dir_files.absoluteFilePath(file);
 		PVRush::PVFormat format("format", fpath);
 		format.create_tbb_filters();
 	}

@@ -100,8 +100,8 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 
-	for (auto it = lf.begin(); it != lf.end(); it++) {
-		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
+	for (const auto & it : lf) {
+		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
 	}
 
 	_layer_stack_about_to_refresh.emit();
