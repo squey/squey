@@ -26,7 +26,7 @@
 #include <libpvpcap/pcap_splitter.h>
 #include <libpvpcap/sniff_def.h>
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <iostream>
 #include <fstream>
 #include <sstream>

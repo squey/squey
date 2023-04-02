@@ -27,7 +27,7 @@
 #include <pvparallelview/PVHitGraphBuffer.h>
 
 #include <iostream>
-#include <string.h>
+#include <cstring>
 
 void test_left_shift(PVParallelView::PVHitGraphBuffer const& b, uint32_t n)
 {

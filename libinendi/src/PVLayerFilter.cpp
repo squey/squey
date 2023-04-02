@@ -28,7 +28,7 @@
 
 #include <boost/thread.hpp>
 
-#include <assert.h>
+#include <cassert>
 
 /******************************************************************************
  *

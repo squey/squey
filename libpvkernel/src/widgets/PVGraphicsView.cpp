@@ -48,7 +48,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 static inline qint64 sb_round(const qreal& d)
 {

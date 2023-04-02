@@ -25,7 +25,7 @@
 
 #include <pvparallelview/PVScatterViewImage.h>
 
-#include <assert.h>
+#include <cassert>
 
 #include <QImage>
 #include <QPainter>

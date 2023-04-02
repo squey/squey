@@ -37,7 +37,7 @@
 #include <pvcop/db/algo.h>
 #include <pvcop/core/algo/selection.h>
 
-#include <locale.h>
+#include <clocale>
 
 #include <tbb/enumerable_thread_specific.h>
 

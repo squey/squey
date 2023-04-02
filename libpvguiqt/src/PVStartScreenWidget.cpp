@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <assert.h>
+#include <cassert>
 
 #include <QApplication>
 #include <QCheckBox>

@@ -30,7 +30,7 @@
 #include <iostream>
 #include <cstring> // for std::strerror
 
-#include <assert.h>
+#include <cassert>
 #include <fcntl.h>
 #include <sys/stat.h>
 #include <sys/wait.h>

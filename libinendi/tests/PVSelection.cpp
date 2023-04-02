@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/core/inendi_bench.h>
 

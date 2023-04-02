@@ -40,7 +40,7 @@
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 
 #define print_rect(R) __print_rect(#R, R)
 

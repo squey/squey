@@ -29,7 +29,7 @@
 
 #include "common.h"
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #define VALUE_MAX (1UL << 22)
 #define VALUE_MASK (VALUE_MAX - 1)

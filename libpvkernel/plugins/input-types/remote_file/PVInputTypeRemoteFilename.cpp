@@ -33,7 +33,7 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <sys/time.h>
 #include <sys/resource.h>
