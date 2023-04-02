@@ -36,7 +36,7 @@
 class FileDownLoader::FileDownLoaderPrivate
 {
   public:
-	FileDownLoaderPrivate() : curl(nullptr), tempFile(nullptr) {}
+	FileDownLoaderPrivate()  {}
 	void initialize();
 	void cleanup();
 	void initializeDownload(const QString& remoteFile,
@@ -47,8 +47,8 @@ class FileDownLoader::FileDownLoaderPrivate
 	void initializeSsl(const ConnectionSettings& settings);
 	static size_t writeData(void* buffer, size_t size, size_t nmemb, void* stream);
 	static void download_thread(FileDownLoaderPrivate* d, QString* tempFile, CURLcode* curlResult);
-	CURL* curl;
-	QTemporaryFile* tempFile;
+	CURL* curl{nullptr};
+	QTemporaryFile* tempFile{nullptr};
 	static bool _cancel_dl;
 };
 

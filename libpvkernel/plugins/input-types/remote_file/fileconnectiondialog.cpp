@@ -81,18 +81,8 @@ class FileConnectionDialog::FileConnectionDialogPrivate
 {
   public:
 	FileConnectionDialogPrivate(FileConnectionDialog* q)
-	    : protocols(nullptr)
-	    , port(nullptr)
-	    , hostname(nullptr)
-	    , remotefile(nullptr)
-	    , sshkey(nullptr)
-	    , certificate(nullptr)
-	    , ignoreSslError(nullptr)
-	    , password(nullptr)
-	    , login(nullptr)
-	    , buttons(nullptr)
-	    , formLayout(nullptr)
-	    , qq(q)
+	    : 
+	     qq(q)
 	{
 	}
 
@@ -101,17 +91,17 @@ class FileConnectionDialog::FileConnectionDialogPrivate
 	void protocolChanged(int index);
 	void setFieldEnabled(QWidget* field, bool enabled);
 
-	QComboBox* protocols;
-	QSpinBox* port;
-	QLabel* hostname;
-	QLineEdit* remotefile;
-	FileNameSelectorWidget* sshkey;
-	FileNameSelectorWidget* certificate;
-	QCheckBox* ignoreSslError;
-	QLineEdit* password;
-	QLineEdit* login;
-	QDialogButtonBox* buttons;
-	QFormLayout* formLayout;
+	QComboBox* protocols{nullptr};
+	QSpinBox* port{nullptr};
+	QLabel* hostname{nullptr};
+	QLineEdit* remotefile{nullptr};
+	FileNameSelectorWidget* sshkey{nullptr};
+	FileNameSelectorWidget* certificate{nullptr};
+	QCheckBox* ignoreSslError{nullptr};
+	QLineEdit* password{nullptr};
+	QLineEdit* login{nullptr};
+	QDialogButtonBox* buttons{nullptr};
+	QFormLayout* formLayout{nullptr};
 	FileConnectionDialog* qq;
 };
 

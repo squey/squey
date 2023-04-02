@@ -35,12 +35,12 @@
 class AddMachineDialog::AddMachineDialogPrivate
 {
   public:
-	AddMachineDialogPrivate(AddMachineDialog* q) : machineName(nullptr), hostName(nullptr), buttons(nullptr), qq(q) {}
+	AddMachineDialogPrivate(AddMachineDialog* q) :  qq(q) {}
 	void initWidget();
 	void machineNameChanged();
-	QLineEdit* machineName;
-	QLineEdit* hostName;
-	QDialogButtonBox* buttons;
+	QLineEdit* machineName{nullptr};
+	QLineEdit* hostName{nullptr};
+	QDialogButtonBox* buttons{nullptr};
 	AddMachineDialog* qq;
 };
 
