@@ -59,7 +59,7 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats& formats,
 	return true;
 }
 
-PVRush::PVInputTypeDatabase::~PVInputTypeDatabase() {}
+PVRush::PVInputTypeDatabase::~PVInputTypeDatabase() = default;
 
 QString PVRush::PVInputTypeDatabase::name() const
 {

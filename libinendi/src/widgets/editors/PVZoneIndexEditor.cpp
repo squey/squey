@@ -57,8 +57,7 @@ PVWidgets::PVZoneIndexEditor::PVZoneIndexEditor(Inendi::PVView const& view, QWid
  *
  *****************************************************************************/
 PVWidgets::PVZoneIndexEditor::~PVZoneIndexEditor()
-{
-}
+= default;
 
 /******************************************************************************
  *

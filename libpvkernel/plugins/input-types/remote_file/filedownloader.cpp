@@ -36,7 +36,7 @@
 class FileDownLoader::FileDownLoaderPrivate
 {
   public:
-	FileDownLoaderPrivate()  {}
+	FileDownLoaderPrivate()  = default;
 	void initialize();
 	void cleanup();
 	void initializeDownload(const QString& remoteFile,

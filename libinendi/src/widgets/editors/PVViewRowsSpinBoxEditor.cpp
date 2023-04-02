@@ -45,8 +45,7 @@ PVWidgets::PVViewRowsSpinBoxEditor::PVViewRowsSpinBoxEditor(Inendi::PVView const
  *
  *****************************************************************************/
 PVWidgets::PVViewRowsSpinBoxEditor::~PVViewRowsSpinBoxEditor()
-{
-}
+= default;
 
 /******************************************************************************
  *

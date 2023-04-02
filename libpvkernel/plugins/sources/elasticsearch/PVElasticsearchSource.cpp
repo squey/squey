@@ -47,7 +47,7 @@ PVRush::PVElasticsearchSource::PVElasticsearchSource(PVInputDescription_p input)
 	           qPrintable(infos.get_host()), infos.get_port(), qPrintable(infos.get_index()));
 }
 
-PVRush::PVElasticsearchSource::~PVElasticsearchSource() {}
+PVRush::PVElasticsearchSource::~PVElasticsearchSource() = default;
 
 QString PVRush::PVElasticsearchSource::human_name()
 {

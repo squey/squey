@@ -37,8 +37,7 @@ UnicodeString PVCore::PVDateTimeParser::icuFromQStringAlias(const QString& src)
 }
 
 PVCore::PVDateTimeParser::PVDateTimeParser()
-{
-}
+= default;
 
 PVCore::PVDateTimeParser::PVDateTimeParser(const PVDateTimeParser& src)
 {

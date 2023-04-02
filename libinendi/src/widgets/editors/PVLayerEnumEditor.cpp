@@ -43,8 +43,7 @@ PVWidgets::PVLayerEnumEditor::PVLayerEnumEditor(Inendi::PVView const& view, QWid
  *
  *****************************************************************************/
 PVWidgets::PVLayerEnumEditor::~PVLayerEnumEditor()
-{
-}
+= default;
 
 /******************************************************************************
  *

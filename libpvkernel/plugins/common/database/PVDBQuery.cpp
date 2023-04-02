@@ -36,8 +36,7 @@
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 PVRush::PVDBQuery::PVDBQuery()
-{
-}
+= default;
 
 PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos) : _infos(infos)
 {
@@ -49,8 +48,7 @@ PVRush::PVDBQuery::PVDBQuery(PVDBServ_p infos, QString const& query) : _infos(in
 }
 
 PVRush::PVDBQuery::~PVDBQuery()
-{
-}
+= default;
 
 bool PVRush::PVDBQuery::operator==(const PVInputDescription& other) const
 {

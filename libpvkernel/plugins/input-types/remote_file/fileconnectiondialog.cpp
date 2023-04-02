@@ -57,8 +57,7 @@ FileNameSelectorWidget::FileNameSelectorWidget(QWidget* parent) : QWidget(parent
 }
 
 FileNameSelectorWidget::~FileNameSelectorWidget()
-{
-}
+= default;
 
 QString FileNameSelectorWidget::text() const
 {
