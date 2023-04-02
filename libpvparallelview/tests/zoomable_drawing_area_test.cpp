@@ -424,7 +424,7 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 		set_ticks_per_level(8);
 	}
 
-	~MyPlottingZDAWA()
+	~MyPlottingZDAWA() override
 	{
 		// PVZoomableDrawingArea does not care about the constraints deletion
 		delete get_constraints();
@@ -501,7 +501,7 @@ class MyZoomingZDA : public PVParallelView::PVZoomableDrawingArea
 		               0);
 	}
 
-	~MyZoomingZDA()
+	~MyZoomingZDA() override
 	{
 		// PVZoomableDrawingArea does not care about the constraints deletion
 		delete get_constraints();

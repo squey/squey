@@ -282,7 +282,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 			std::function<bool(QEvent*)> verif;
 			std::function<void()> f;
 			EvFilter(decltype(verif) ver, decltype(f) fun) : verif(ver), f(fun) {}
-			bool eventFilter(QObject* obj, QEvent* event)
+			bool eventFilter(QObject* obj, QEvent* event) override
 			{
 				if (verif(event)) {
 					f();

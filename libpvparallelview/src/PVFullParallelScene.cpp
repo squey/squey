@@ -116,7 +116,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	struct EventFilter : public QObject {
 		std::function<void()> callback;
-		bool eventFilter(QObject* obj, QEvent* event)
+		bool eventFilter(QObject* obj, QEvent* event) override
 		{
 			if (event->type() == QEvent::MouseButtonRelease) {
 				callback();
