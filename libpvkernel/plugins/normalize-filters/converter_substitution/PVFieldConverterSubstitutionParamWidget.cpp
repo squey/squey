@@ -83,26 +83,26 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	_whole_field_group_box->setCheckable(true);
 	_whole_field_group_box->setChecked(modes & PVFieldConverterSubstitution::WHOLE_FIELD);
 
-	QVBoxLayout* layout = new QVBoxLayout(_param_widget);
-	QVBoxLayout* entier_field_layout = new QVBoxLayout();
+	auto* layout = new QVBoxLayout(_param_widget);
+	auto* entier_field_layout = new QVBoxLayout();
 	_whole_field_group_box->setLayout(entier_field_layout);
 
-	QHBoxLayout* file_layout = new QHBoxLayout();
+	auto* file_layout = new QHBoxLayout();
 
-	QLabel* file_label = new QLabel("Conversion file:");
+	auto* file_label = new QLabel("Conversion file:");
 	_file_path_line_edit = new QLineEdit();
 	_file_path_line_edit->setReadOnly(true);
 	_file_path_line_edit->setText(args["path"].toString());
 
-	QPushButton* browse_pushbutton = new QPushButton("...");
+	auto* browse_pushbutton = new QPushButton("...");
 
 	file_layout->addWidget(file_label);
 	file_layout->addWidget(_file_path_line_edit);
 	file_layout->addWidget(browse_pushbutton);
 
 	// Fields separator
-	QHBoxLayout* fields_separator_layout = new QHBoxLayout();
-	QLabel* separator_label = new QLabel(tr("Fields separator:"));
+	auto* fields_separator_layout = new QHBoxLayout();
+	auto* separator_label = new QLabel(tr("Fields separator:"));
 	_separator_char = new PVWidgets::QKeySequenceWidget();
 	_separator_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_separator_char->setKeySequence(QKeySequence(args["sep"].toString()));
@@ -113,8 +113,8 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
 	// Quote character
-	QHBoxLayout* quote_character_layout = new QHBoxLayout();
-	QLabel* quote_label = new QLabel(tr("Quote character:"));
+	auto* quote_character_layout = new QHBoxLayout();
+	auto* quote_label = new QLabel(tr("Quote character:"));
 	_quote_char = new PVWidgets::QKeySequenceWidget();
 	_quote_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_quote_char->setKeySequence(QKeySequence(args["quote"].toString()));
@@ -124,11 +124,11 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	quote_character_layout->addSpacerItem(
 	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-	QHBoxLayout* default_value_layout = new QHBoxLayout();
+	auto* default_value_layout = new QHBoxLayout();
 
 	_use_default_value_checkbox = new QCheckBox();
 	_use_default_value_checkbox->setChecked(args["use_default_value"].toBool());
-	QLabel* default_value_label = new QLabel("Default value:");
+	auto* default_value_label = new QLabel("Default value:");
 	_default_value_line_edit = new QLineEdit();
 	_default_value_line_edit->setText(args["default_value"].toString());
 	_default_value_line_edit->setEnabled(false);
@@ -164,22 +164,22 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	_substrings_group_box->setCheckable(true);
 	_substrings_group_box->setChecked(modes & PVFieldConverterSubstitution::SUBSTRINGS);
 
-	QVBoxLayout* substrings_layout = new QVBoxLayout();
+	auto* substrings_layout = new QVBoxLayout();
 
 	_replace_line_edit = new QLineEdit;
 	_by_line_edit = new QLineEdit;
 
-	QHBoxLayout* from_to_layout = new QHBoxLayout();
+	auto* from_to_layout = new QHBoxLayout();
 	from_to_layout->addWidget(_replace_line_edit);
 	from_to_layout->addWidget(new QLabel(" -> "));
 	from_to_layout->addWidget(_by_line_edit);
-	QPushButton* add_button = new QPushButton("Add");
+	auto* add_button = new QPushButton("Add");
 	add_button->setEnabled(false);
 	from_to_layout->addWidget(add_button);
 
 	substrings_layout->addLayout(from_to_layout);
 
-	QHBoxLayout* substrings_table_widget_layout = new QHBoxLayout();
+	auto* substrings_table_widget_layout = new QHBoxLayout();
 
 	_substrings_table_widget = new QTableWidget;
 	_substrings_table_widget->setColumnCount(2);
@@ -192,14 +192,14 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	populate_substrings_table(
 	    PVCore::deserialize_base64<QStringList>(args["substrings_map"].toString()));
 
-	QVBoxLayout* buttons_layout = new QVBoxLayout();
+	auto* buttons_layout = new QVBoxLayout();
 
 	_del_button = new QPushButton(tr("Delete"));
 	_up_button = new QPushButton(tr("Move up"));
 	_down_button = new QPushButton(tr("Move down"));
-	QPushButton* import_button = new QPushButton(tr("Import"));
+	auto* import_button = new QPushButton(tr("Import"));
 	import_button->setEnabled(false);
-	QPushButton* export_button = new QPushButton(tr("Export"));
+	auto* export_button = new QPushButton(tr("Export"));
 	export_button->setEnabled(false);
 
 	_del_button->setIcon(QIcon(":/red-cross"));
@@ -221,7 +221,7 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 
 	_substrings_group_box->setLayout(substrings_layout);
 
-	QHBoxLayout* invert_layout = new QHBoxLayout();
+	auto* invert_layout = new QHBoxLayout();
 	_invert_button = new QPushButton("Invert order");
 	_invert_button->setCheckable(true);
 	invert_layout->addWidget(_invert_button);
@@ -255,7 +255,7 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 
 void PVFilter::PVFieldConverterSubstitutionParamWidget::invert_layouts()
 {
-	QVBoxLayout* layout = (QVBoxLayout*)_param_widget->layout();
+	auto* layout = (QVBoxLayout*)_param_widget->layout();
 
 	QWidget* widget = layout->itemAt(1)->widget();
 	layout->removeWidget(widget);

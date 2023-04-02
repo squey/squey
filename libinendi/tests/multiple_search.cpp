@@ -56,7 +56,7 @@ void set_args(PVCore::PVArgumentList& args, const options_t& values)
 		if (i == 0) {
 			args[params[i]].setValue(PVCore::PVOriginalAxisIndexType(PVCol(values.first[i])));
 		} else {
-			PVCore::PVEnumType e = args[params[i]].value<PVCore::PVEnumType>();
+			auto e = args[params[i]].value<PVCore::PVEnumType>();
 			e.set_sel(values.first[i]);
 			args[params[i]].setValue(e);
 		}

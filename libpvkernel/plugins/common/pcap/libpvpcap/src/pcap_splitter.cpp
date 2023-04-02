@@ -67,7 +67,7 @@ static std::pair<in6_addr, in6_addr> srcip_dstip(const sniff_ip* ip, bool ipv4)
 		ip_dst.s6_addr32[2] = 0x0000FFFF;
 		ip_dst.s6_addr32[3] = ipv4_dst;
 	} else {
-		const ip6_hdr* ipv6_h = reinterpret_cast<const ip6_hdr*>(ip);
+		const auto* ipv6_h = reinterpret_cast<const ip6_hdr*>(ip);
 
 		ip_src = ipv6_h->ip6_src;
 		ip_dst = ipv6_h->ip6_dst;
@@ -117,13 +117,13 @@ class LRUList
 	T* put(const T& element)
 	{
 		m_CacheItemsList.push_front(element);
-		MapIterator iter = m_CacheItemsMap.find(element);
+		auto iter = m_CacheItemsMap.find(element);
 		if (iter != m_CacheItemsMap.end())
 			m_CacheItemsList.erase(iter->second);
 		m_CacheItemsMap[element] = m_CacheItemsList.begin();
 
 		if (m_CacheItemsList.size() > m_MaxSize) {
-			ListIterator lruIter = m_CacheItemsList.end();
+			auto lruIter = m_CacheItemsList.end();
 			--lruIter;
 			T* deletedValue = new T(*lruIter);
 			m_CacheItemsMap.erase(*lruIter);
@@ -471,21 +471,21 @@ class FlowSplitter : public PacketSplitter
 
 		size_t size_ip = 0;
 
-		const ethhdr* eth_h = reinterpret_cast<const ethhdr*>(packet);
+		const auto* eth_h = reinterpret_cast<const ethhdr*>(packet);
 		uint16_t eth_proto = ntohs(eth_h->h_proto);
 
 		if (eth_proto == ETH_P_IPV6) {
-			const sniff_ip* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
+			const auto* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
 			size_ip = IP_HL(ip) * 4;
 			protocol = ip->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ip, false);
 		} else if (eth_proto == ETH_P_IP) {
-			const sniff_ip* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
+			const auto* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
 			size_ip = IP_HL(ip) * 4;
 			protocol = ip->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ip, true);
 		} else if (eth_proto == ETH_P_8021Q) { // 802.1Q VLAN Extended Header
-			const sniff_ip* ipq = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr) + 4);
+			const auto* ipq = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr) + 4);
 			size_ip = IP_HL(ipq) * 4;
 			protocol = ipq->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ipq, IP_V(ipq) == 4);
@@ -494,13 +494,13 @@ class FlowSplitter : public PacketSplitter
 		}
 
 		if (protocol == IPPROTO_TCP) {
-			const sniff_tcp* tcp =
+			const auto* tcp =
 			    reinterpret_cast<const sniff_tcp*>(packet + sizeof(ethhdr) + size_ip);
 
 			ip_src_port = ntohs(tcp->th_sport);
 			ip_dst_port = ntohs(tcp->th_dport);
 		} else if (protocol == IPPROTO_UDP) {
-			const sniff_udp* udp =
+			const auto* udp =
 			    reinterpret_cast<const sniff_udp*>(packet + sizeof(ethhdr) + size_ip);
 
 			ip_src_port = ntohs(udp->sport);

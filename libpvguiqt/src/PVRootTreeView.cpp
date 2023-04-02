@@ -74,8 +74,8 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 		return;
 	}
 
-	PVCore::PVDataTreeObject* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
-	Inendi::PVView* view = dynamic_cast<Inendi::PVView*>(obj);
+	auto* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
+	auto* view = dynamic_cast<Inendi::PVView*>(obj);
 	if (!view) {
 		return;
 	}
@@ -97,20 +97,20 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 		return;
 	}
 
-	PVCore::PVDataTreeObject* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
+	auto* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
 
-	Inendi::PVPlotted* plotted = dynamic_cast<Inendi::PVPlotted*>(obj);
+	auto* plotted = dynamic_cast<Inendi::PVPlotted*>(obj);
 	if (plotted) {
-		QMenu* ctxt_menu = new QMenu(this);
+		auto* ctxt_menu = new QMenu(this);
 		ctxt_menu->addAction(_act_new_view);
 		ctxt_menu->addAction(_act_edit_plotting);
 		ctxt_menu->popup(QCursor::pos());
 		return;
 	}
 
-	Inendi::PVMapped* mapped = dynamic_cast<Inendi::PVMapped*>(obj);
+	auto* mapped = dynamic_cast<Inendi::PVMapped*>(obj);
 	if (mapped) {
-		QMenu* ctxt_menu = new QMenu(this);
+		auto* ctxt_menu = new QMenu(this);
 		ctxt_menu->addAction(_act_edit_mapping);
 		ctxt_menu->popup(QCursor::pos());
 		return;
@@ -137,7 +137,7 @@ void PVGuiQt::PVRootTreeView::leaveEvent(QEvent*)
 
 void PVGuiQt::PVRootTreeView::create_new_view()
 {
-	Inendi::PVPlotted* plotted = get_selected_obj_as<Inendi::PVPlotted>();
+	auto* plotted = get_selected_obj_as<Inendi::PVPlotted>();
 	if (plotted) {
 		plotted->emplace_add_child();
 	}
@@ -145,7 +145,7 @@ void PVGuiQt::PVRootTreeView::create_new_view()
 
 void PVGuiQt::PVRootTreeView::edit_mapping()
 {
-	Inendi::PVMapped* mapped = get_selected_obj_as<Inendi::PVMapped>();
+	auto* mapped = get_selected_obj_as<Inendi::PVMapped>();
 	if (mapped) {
 		PVQMapped::edit_mapped(*mapped, this);
 	}
@@ -153,7 +153,7 @@ void PVGuiQt::PVRootTreeView::edit_mapping()
 
 void PVGuiQt::PVRootTreeView::edit_plotting()
 {
-	Inendi::PVPlotted* plotted = get_selected_obj_as<Inendi::PVPlotted>();
+	auto* plotted = get_selected_obj_as<Inendi::PVPlotted>();
 	if (plotted) {
 		PVQPlotted::edit_plotted(*plotted, this);
 	}

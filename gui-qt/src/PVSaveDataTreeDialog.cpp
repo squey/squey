@@ -40,7 +40,7 @@ PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(QString const& suffix,
 	setWindowTitle(tr("Save project..."));
 	setNameFilters(QStringList() << filter << ALL_FILES_FILTER);
 
-	QGridLayout* main_layout = (QGridLayout*)layout();
+	auto* main_layout = (QGridLayout*)layout();
 
 	_save_everything_checkbox = new QCheckBox(tr("Include original files"), this);
 	_save_everything_checkbox->setTristate(false);

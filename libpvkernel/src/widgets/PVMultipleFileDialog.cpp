@@ -35,7 +35,7 @@ PVWidgets::PVMultipleFileDialog::PVMultipleFileDialog(QWidget* parent /*= nullpt
 	_files_list->setDragDropMode(QAbstractItemView::InternalMove);
 	_files_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
 
-	QGridLayout* main_layout = static_cast<QGridLayout*>(layout());
+	auto* main_layout = static_cast<QGridLayout*>(layout());
 
 	_open_button = new QPushButton("&Open");
 	connect(_open_button, &QPushButton::clicked, this, [this]() {

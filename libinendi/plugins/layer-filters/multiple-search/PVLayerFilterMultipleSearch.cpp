@@ -269,7 +269,7 @@ PVCore::PVArgumentList Inendi::PVLayerFilterMultipleSearch::search_value_menu(PV
 
 	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(org_col));
 
-	PVCore::PVEnumType e = args[ARG_NAME_TYPE].value<PVCore::PVEnumType>();
+	auto e = args[ARG_NAME_TYPE].value<PVCore::PVEnumType>();
 	e.set_sel(2);
 	args[ARG_NAME_TYPE].setValue(e);
 

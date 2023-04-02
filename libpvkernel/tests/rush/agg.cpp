@@ -43,7 +43,7 @@ using namespace PVCore;
 
 void dump_agg(PVAggregator& agg, std::ostream& out)
 {
-	while (PVTextChunk* pc = dynamic_cast<PVTextChunk*>(agg())) {
+	while (auto* pc = dynamic_cast<PVTextChunk*>(agg())) {
 		dump_chunk_csv(*pc, out);
 		pc->free();
 	}

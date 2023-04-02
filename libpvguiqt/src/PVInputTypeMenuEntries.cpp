@@ -58,7 +58,7 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu,
                                                          const char* slot)
 {
 	map_input_by_sorted_internal_name([&](const QString& key, const PVRush::PVInputType_p& in) {
-		QAction* action = new QAction(in->menu_input_name(), parent);
+		auto* action = new QAction(in->menu_input_name(), parent);
 		action->setData(QVariant(key));
 		action->setShortcut(in->menu_shortcut());
 		QObject::connect(action, SIGNAL(triggered()), parent, slot);
@@ -71,12 +71,12 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout,
                                                            const char* slot)
 {
 	map_input_by_sorted_internal_name([&](const QString& key, const PVRush::PVInputType_p& in) {
-		QAction* action = new QAction(in->menu_input_name(), parent);
+		auto* action = new QAction(in->menu_input_name(), parent);
 		action->setData(QVariant(key));
 		action->setShortcut(in->menu_shortcut());
 		QObject::connect(action, SIGNAL(triggered()), parent, slot);
 
-		QPushButton* button = new QPushButton(in->menu_input_name());
+		auto* button = new QPushButton(in->menu_input_name());
 		button->setIcon(in->icon());
 		button->setCursor(in->cursor());
 

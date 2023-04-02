@@ -95,7 +95,7 @@ void PVRush::PVOpcUaParamsWidget::reset_columns_tree_widget()
 		auto column_node_id = deserialized_query[3 * i + 0];
 		auto column_name = deserialized_query[3 * i + 1];
 		auto column_type = deserialized_query[3 * i + 2];
-		QTreeWidgetItem* tree_item = new QTreeWidgetItem(_root_item);
+		auto* tree_item = new QTreeWidgetItem(_root_item);
 		tree_item->setText(0, "(" + column_node_id + ") " + column_name);
 		tree_item->setData(0, Qt::UserRole, column_node_id);
 		tree_item->setText(1, column_type);

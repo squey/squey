@@ -109,9 +109,9 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	CustomMainWindow* mw = new CustomMainWindow();
+	auto* mw = new CustomMainWindow();
 
-	PVGuiQt::PVProjectsTabWidget* projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&root, mw);
+	auto* projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&root, mw);
 
 	projects_tab_widget->add_source(&src);
 

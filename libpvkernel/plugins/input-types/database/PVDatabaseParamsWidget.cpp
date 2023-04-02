@@ -375,7 +375,7 @@ void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout,
 
 void PVRush::PVDatabaseParamsWidget::query_preview_Slot()
 {
-	PVDBPreviewWidget* dlg =
+	auto* dlg =
 	    new PVDBPreviewWidget(get_infos(), get_query(), _txt_nrows->text().toUInt(), this);
 
 	if (!dlg->init()) {

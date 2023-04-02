@@ -99,7 +99,7 @@ Inendi::PVScene& Inendi::PVScene::serialize_read(PVCore::PVSerializeObject& so,
                                                  Inendi::PVRoot& root)
 {
 	so.set_current_status("Loading scene...");
-	QString name = so.attribute_read<QString>("name");
+	auto name = so.attribute_read<QString>("name");
 	PVScene& scene = root.emplace_add_child(name.toStdString());
 
 	// Create a list of source

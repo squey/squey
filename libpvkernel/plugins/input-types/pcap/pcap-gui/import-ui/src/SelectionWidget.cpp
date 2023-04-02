@@ -164,7 +164,7 @@ void SelectionWidget::on_process_import_button_clicked()
 	pvpcap::load_profile_data(_json_data, profile_path.toStdString());
 	PVPcapsicum::check_wireshark_profile_exists(_json_data);
 
-	QDialog* progess_dialog = new QDialog(this);
+	auto* progess_dialog = new QDialog(this);
 	_progress_widget = new ProgressWidget(_pcap_paths, get_tshark_cmd(), progess_dialog);
 	connect(_progress_widget, &ProgressWidget::closed, progess_dialog, &QDialog::accept);
 

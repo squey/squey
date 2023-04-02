@@ -56,11 +56,11 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 
 	// Context menu for the NRAW table
 	_ctxt_menu = new QMenu(this);
-	QAction* act_set_axis_name = new QAction(tr("Set axes' name based on this row"), _ctxt_menu);
+	auto* act_set_axis_name = new QAction(tr("Set axes' name based on this row"), _ctxt_menu);
 	connect(act_set_axis_name, &QAction::triggered, this,
 	        &PVNrawListingWidget::set_axes_name_selected_row_Slot);
 	_ctxt_menu->addAction(act_set_axis_name);
-	QAction* act_detect_type =
+	auto* act_detect_type =
 	    new QAction(tr("Automatically detect axes' type based on this row"), _ctxt_menu);
 	connect(act_detect_type, &QAction::triggered, this,
 	        &PVNrawListingWidget::set_axes_type_selected_row_Slot);

@@ -104,12 +104,12 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inen
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
-	map_lib_views::iterator it = _lib_views.find(&view);
+	auto it = _lib_views.find(&view);
 	if (it != _lib_views.end()) {
 		return it->second;
 	}
 
-	PVLibView* new_view = new PVLibView(view);
+	auto* new_view = new PVLibView(view);
 	_lib_views.insert(std::make_pair(&view, new_view));
 	return new_view;
 }
@@ -118,7 +118,7 @@ void PVParallelView::PVParallelViewImpl::remove_lib_view(Inendi::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
-	map_lib_views::iterator it = _lib_views.find(&view);
+	auto it = _lib_views.find(&view);
 	if (it != _lib_views.end()) {
 		delete it->second;
 		_lib_views.erase(it);

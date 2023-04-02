@@ -68,7 +68,7 @@ static inline void unselect_label(QLabel* label)
 
 static QLabel* label_from_sender(QObject* obj_sender)
 {
-	QAction* const act = qobject_cast<QAction*>(obj_sender);
+	auto* const act = qobject_cast<QAction*>(obj_sender);
 	if (!act) {
 		return nullptr;
 	}
@@ -87,7 +87,7 @@ class PVLabelEventFilter : public QObject
 	bool eventFilter(QObject* obj, QEvent* ev) override
 	{
 		assert(qobject_cast<QLabel*>(obj));
-		QLabel* label = static_cast<QLabel*>(obj);
+		auto* label = static_cast<QLabel*>(obj);
 		switch (ev->type()) {
 		case QEvent::MouseButtonPress:
 			dlg_parent()->label_button_pressed(label, static_cast<QMouseEvent*>(ev));
@@ -146,10 +146,10 @@ PVWidgets::PVColorDialog::PVColorDialog(PVCore::PVHSVColor const& c, QWidget* pa
 		color_label->installEventFilter(_label_event_filter);
 
 		// ...and other actions
-		QAction* act_save_color = new QAction(tr("Save current color"), color_label);
+		auto* act_save_color = new QAction(tr("Save current color"), color_label);
 		connect(act_save_color, &QAction::triggered, this,
 		        &PVColorDialog::set_predefined_color_from_action);
-		QAction* act_reset = new QAction(tr("Reset to white"), color_label);
+		auto* act_reset = new QAction(tr("Reset to white"), color_label);
 		connect(act_reset, &QAction::triggered, this,
 		        &PVColorDialog::reset_predefined_color_from_action);
 
@@ -198,7 +198,7 @@ void PVWidgets::PVColorDialog::unselect_all_preselected_colors()
 {
 	const size_t ncolors = PVCore::PVPredefinedHSVColors::get_predefined_colors_count();
 	for (size_t i = 0; i < ncolors; i++) {
-		QLabel* label = static_cast<QLabel*>(
+		auto* label = static_cast<QLabel*>(
 		    _predefined_grid->itemAtPosition(i / GRID_COL_SIZE, i % GRID_COL_SIZE)->widget());
 		unselect_label(label);
 	}

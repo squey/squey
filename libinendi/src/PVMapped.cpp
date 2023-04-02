@@ -257,7 +257,7 @@ Inendi::PVMapped& Inendi::PVMapped::serialize_read(PVCore::PVSerializeObject& so
                                                    Inendi::PVSource& parent)
 {
 	so.set_current_status("Loading mapping...");
-	QString name = so.attribute_read<QString>("name");
+	auto name = so.attribute_read<QString>("name");
 
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 

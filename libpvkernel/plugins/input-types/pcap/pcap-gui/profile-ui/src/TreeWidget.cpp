@@ -91,12 +91,12 @@ void TreeWidget::on_select_button_clicked()
 		delete m;
 		_ui->field_view->setModel(nullptr);
 
-		QProgressDialog* loading_progress_dialog =
+		auto* loading_progress_dialog =
 		    new QProgressDialog("Extracting protocols", "Cancel", 0, 0, this);
 		loading_progress_dialog->setWindowModality(Qt::WindowModal);
 
-		QThread* loading_thread = new QThread;
-		ExtractProtocolsWorker* worker = new ExtractProtocolsWorker(_tree_model, filename);
+		auto* loading_thread = new QThread;
+		auto* worker = new ExtractProtocolsWorker(_tree_model, filename);
 		worker->moveToThread(loading_thread);
 
 		connect(loading_thread, &QThread::started, worker, &ExtractProtocolsWorker::load);
@@ -143,7 +143,7 @@ void TreeWidget::update_field_model(const QModelIndex& index)
 	// Update the model with new selected one if it is an eventId
 	if (index.isValid()) {
 
-		pvpcap::JsonTreeItem* index_item =
+		auto* index_item =
 		    static_cast<pvpcap::JsonTreeItem*>(index.internalPointer());
 		rapidjson::Value* fields = &index_item->value()["fields"];
 		_ui->field_view->setModel(new pvpcap::ProtocolFieldListModel(fields, this));

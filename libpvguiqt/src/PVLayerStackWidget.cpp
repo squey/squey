@@ -60,8 +60,8 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView& lib_view, QWidge
 	main_layout->setContentsMargins(0, 0, 0, 0);
 
 	// PVLAYERSTACKVIEW
-	PVLayerStackModel* model = new PVLayerStackModel(lib_view);
-	PVLayerStackDelegate* delegate = new PVLayerStackDelegate(lib_view, this);
+	auto* model = new PVLayerStackModel(lib_view);
+	auto* delegate = new PVLayerStackDelegate(lib_view, this);
 	_layer_stack_view = new PVLayerStackView();
 	_layer_stack_view->setItemDelegate(delegate);
 	_layer_stack_view->setModel(model);

@@ -49,7 +49,7 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
 	QStringList formats_str = formats.keys();
 
 	formats_str.prepend(INENDI_BROWSE_FORMAT_STR);
-	PVLogViewerDialog* RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
+	auto* RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
 	if (RemoteLogDialog->exec() == QDialog::Rejected) {
 		RemoteLogDialog->deleteLater();
 		return false;
@@ -87,7 +87,7 @@ QString PVRush::PVInputTypeRemoteFilename::internal_name() const
 }
 QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(PVInputDescription_p in) const
 {
-	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
+	auto* f = dynamic_cast<PVFileDescription*>(in.get());
 	assert(f);
 	QString fn = f->path();
 	if (_hash_real_filenames.contains(fn)) {
@@ -105,7 +105,7 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 	bool found_url = false;
 	QUrl url;
 	for (const auto & i : in) {
-		PVFileDescription* f = dynamic_cast<PVFileDescription*>(i.get());
+		auto* f = dynamic_cast<PVFileDescription*>(i.get());
 		assert(f);
 		QString tmp_name = f->path();
 		if (_hash_real_filenames.contains(tmp_name)) {

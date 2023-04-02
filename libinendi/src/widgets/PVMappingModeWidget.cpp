@@ -36,7 +36,7 @@
 PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QWidget* parent)
     : QWidget(parent), _combo(new PVComboBox(this))
 {
-	QHBoxLayout* layout = new QHBoxLayout(this);
+	auto* layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(10);
 	layout->addWidget(_combo);

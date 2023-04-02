@@ -107,7 +107,7 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlottingProperties::get_plotting_filt
 Inendi::PVPlottingProperties
 Inendi::PVPlottingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	QString mode = so.attribute_read<QString>("mode");
+	auto mode = so.attribute_read<QString>("mode");
 
 	PVCore::PVArgumentList args;
 	so.arguments_read("properties", args, args);

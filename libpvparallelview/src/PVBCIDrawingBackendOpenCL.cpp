@@ -283,7 +283,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
                                                        std::function<void()> const& render_done)
 {
 #ifdef NDEBUG
-	backend_image_t* dst_img = static_cast<backend_image_t*>(backend_img.get());
+	auto* dst_img = static_cast<backend_image_t*>(backend_img.get());
 #else
 	backend_image_t* dst_img = dynamic_cast<backend_image_t*>(backend_img.get());
 	assert(dst_img != nullptr);
@@ -355,7 +355,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event
                                                                cl_int /* status */,
                                                                void* data)
 {
-	opencl_job_data_t* job_data = reinterpret_cast<opencl_job_data_t*>(data);
+	auto* job_data = reinterpret_cast<opencl_job_data_t*>(data);
 
 	// Call termination function
 	if (job_data->done_function) {

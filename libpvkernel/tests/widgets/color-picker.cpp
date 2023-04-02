@@ -32,12 +32,12 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
-	PVWidgets::PVColorPicker* cp = new PVWidgets::PVColorPicker();
+	auto* cp = new PVWidgets::PVColorPicker();
 	cp->set_allow_empty_interval(false);
 	cp->set_x0(HSV_COLOR_GREEN.h());
 	cp->set_x1(HSV_COLOR_RED.h());
 	cp->set_color(PVCore::PVHSVColor(HSV_COLOR_GREEN.h() + 4));
-	QMainWindow* mw = new QMainWindow();
+	auto* mw = new QMainWindow();
 	mw->setCentralWidget(cp);
 
 	mw->show();

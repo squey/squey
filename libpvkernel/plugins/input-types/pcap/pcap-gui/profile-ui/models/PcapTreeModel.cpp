@@ -183,7 +183,7 @@ JsonTreeItem* JsonTreeItem::load(rapidjson::Value* value, JsonTreeItem* parent)
 {
 	assert(value->IsObject() && "In JsonTreeItem::load, value node is not a rapidjson object!");
 
-	JsonTreeItem* root_item = new JsonTreeItem(value, parent);
+	auto* root_item = new JsonTreeItem(value, parent);
 
 	// children
 	auto& children = (*value)["children"];
@@ -240,7 +240,7 @@ QModelIndex PcapTreeModel::parent(const QModelIndex& index) const
 		return {};
 	}
 
-	JsonTreeItem* child_item = static_cast<JsonTreeItem*>(index.internalPointer());
+	auto* child_item = static_cast<JsonTreeItem*>(index.internalPointer());
 	JsonTreeItem* parent_item = child_item->parent();
 
 	if (parent_item == _root_item)
@@ -298,7 +298,7 @@ bool PcapTreeModel::setData(const QModelIndex& index, const QVariant& value, int
 
 	if (role == Qt::CheckStateRole) {
 
-		JsonTreeItem* item = static_cast<JsonTreeItem*>(index.internalPointer());
+		auto* item = static_cast<JsonTreeItem*>(index.internalPointer());
 
 		switch ((Qt::CheckState)value.toInt()) {
 		case Qt::PartiallyChecked:
@@ -331,7 +331,7 @@ QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 	// Display protocol data.
 	switch (role) {
 	case Qt::DisplayRole: {
-		JsonTreeItem* item = static_cast<JsonTreeItem*>(index.internalPointer());
+		auto* item = static_cast<JsonTreeItem*>(index.internalPointer());
 		rapidjson::Value& value = item->value();
 		qreal ratio;
 
@@ -384,7 +384,7 @@ QVariant PcapTreeModel::data(const QModelIndex& index, int role) const
 	case Qt::CheckStateRole:
 		if (index.column() == 0) {
 			// Show checkbox only for the first column.
-			JsonTreeItem* item = static_cast<JsonTreeItem*>(index.internalPointer());
+			auto* item = static_cast<JsonTreeItem*>(index.internalPointer());
 
 			switch (item->selection_state()) {
 			case JsonTreeItem::CHILDREN_SELECTION_STATE::UNSELECTED:

@@ -70,7 +70,7 @@ nsProbingState nsUTF8Prober::HandleData(const char* aBuf, PRUint32 aLen)
 
 float nsUTF8Prober::GetConfidence(void)
 {
-	float unlike = (float)0.99;
+	auto unlike = (float)0.99;
 
 	if (mNumOfMBChar < 6) {
 		for (PRUint32 i = 0; i < mNumOfMBChar; i++)

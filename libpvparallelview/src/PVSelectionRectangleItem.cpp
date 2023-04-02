@@ -194,7 +194,7 @@ void PVParallelView::PVSelectionRectangleItem::end(const QPointF& p)
 
 void PVParallelView::PVSelectionRectangleItem::set_selection_mode(int sel_mode)
 {
-	SelectionMode smode = (SelectionMode)sel_mode;
+	auto smode = (SelectionMode)sel_mode;
 
 	if (smode == _sel_mode) {
 		return;

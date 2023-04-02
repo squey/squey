@@ -90,7 +90,7 @@ QLabel* PVWidgets::PVMappingPlottingEditDialog::create_label(QString const& text
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
-	QLabel* ret = new QLabel(text, nullptr);
+	auto* ret = new QLabel(text, nullptr);
 	ret->setAlignment(align);
 	QFont font(ret->font());
 	font.setBold(true);
@@ -107,7 +107,7 @@ void PVWidgets::PVMappingPlottingEditDialog::finish_layout()
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
-	QDialogButtonBox* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
+	auto* btns = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 	connect(btns, &QDialogButtonBox::accepted, this, &PVMappingPlottingEditDialog::save_settings);
 	connect(btns, &QDialogButtonBox::rejected, this, &QDialog::reject);
 	_main_layout->addWidget(btns);
@@ -125,13 +125,13 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 	_main_layout = new QVBoxLayout();
 	_main_layout->setSpacing(29);
 
-	QHBoxLayout* name_layout = new QHBoxLayout();
+	auto* name_layout = new QHBoxLayout();
 	name_layout->addWidget(new QLabel(tr("Name:"), nullptr));
 	_edit_name = new QLineEdit();
 	name_layout->addWidget(_edit_name);
 	_main_layout->addLayout(name_layout);
 
-	QWidget* grid_widget = new QWidget();
+	auto* grid_widget = new QWidget();
 	_main_grid = new QGridLayout(grid_widget);
 	_main_grid->setContentsMargins(0, 0, 0, 0);
 	_main_grid->setHorizontalSpacing(10);
@@ -160,7 +160,7 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 	_main_scroll_area->setWidget(grid_widget);
 	_main_scroll_area->setWidgetResizable(true);
 
-	QVBoxLayout* scroll_layout = new QVBoxLayout();
+	auto* scroll_layout = new QVBoxLayout();
 	scroll_layout->addWidget(_main_scroll_area);
 
 	_main_group_box = new QGroupBox(tr("Parameters"));
@@ -239,7 +239,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			Inendi::PVMappingProperties& prop = _mapping->get_properties_for_col(axis.index);
 
 			// Mapping mode
-			PVWidgets::PVMappingModeWidget* map_combo =
+			auto* map_combo =
 			    dynamic_cast<PVWidgets::PVMappingModeWidget*>(
 			        _main_grid->itemAtPosition(row, 2)->widget());
 			assert(map_combo);
@@ -248,7 +248,7 @@ void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 			prop.set_mode(mode.toStdString());
 		}
 		if (has_plotting()) {
-			PVWidgets::PVPlottingModeWidget* combo = dynamic_cast<PVWidgets::PVPlottingModeWidget*>(
+			auto* combo = dynamic_cast<PVWidgets::PVPlottingModeWidget*>(
 			    _main_grid->itemAtPosition(row, 1)->widget());
 			assert(combo);
 			QString mode = combo->get_mode();

@@ -127,7 +127,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 		}
 	};
 
-	EventFilter* eventFilter = new EventFilter();
+	auto* eventFilter = new EventFilter();
 	eventFilter->callback = [this]() { scrollbar_released_Slot(); };
 
 	connect(_full_parallel_view->horizontalScrollBar(), &QScrollBar::actionTriggered,
@@ -188,7 +188,7 @@ void PVParallelView::PVFullParallelScene::about_to_be_deleted()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int index)
 {
-	PVAxisGraphicsItem* axisw =
+	auto* axisw =
 	    new PVAxisGraphicsItem(_sm_p, lib_view(), PVCombCol(zone_id),
 	                           _lib_view.get_axes_combination().get_axis(PVCombCol(zone_id)));
 
@@ -203,7 +203,7 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 	connect(axisw, &PVAxisGraphicsItem::mouse_hover_entered, this,
 	        &PVFullParallelScene::axis_hover_entered);
 	connect(axisw, &PVAxisGraphicsItem::change_mapping, [this, axisw](QString mode) {
-		Inendi::PVMapped& mapped = _lib_view.get_parent<Inendi::PVMapped>();
+		auto& mapped = _lib_view.get_parent<Inendi::PVMapped>();
 		Inendi::PVMappingProperties& plp =
 		    mapped.get_properties_for_col(axisw->get_original_axis_column());
 		plp.set_mode(mode.toStdString());
@@ -213,7 +213,7 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 		axisw->refresh_density();
 	});
 	connect(axisw, &PVAxisGraphicsItem::change_plotting, [this, axisw](QString mode) {
-		Inendi::PVPlotted& plotted = _lib_view.get_parent<Inendi::PVPlotted>();
+		auto& plotted = _lib_view.get_parent<Inendi::PVPlotted>();
 		Inendi::PVPlottingProperties& plp =
 		    plotted.get_properties_for_col(axisw->get_original_axis_column());
 		plp.set_mode(mode.toStdString());
@@ -1100,7 +1100,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 
 		// Compute new view_x
 		const int32_t zmouse_new_x = _lines_view.get_left_border_position_of_zone_in_scene(zmouse);
-		int32_t const new_mouse_scene_x =
+		auto const new_mouse_scene_x =
 		    (int32_t)((double)zmouse_new_x + rel_pos * (double)_lines_view.get_zone_width(zmouse));
 		int32_t const new_view_x = old_view_x + (new_mouse_scene_x - mouse_scene_x);
 
@@ -1134,7 +1134,7 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 
 		// Compute new view_x
 		const int32_t zmouse_new_x = _lines_view.get_left_border_position_of_zone_in_scene(zmouse);
-		int32_t const new_mouse_scene_x =
+		auto const new_mouse_scene_x =
 		    (int32_t)((double)zmouse_new_x + rel_pos * (double)_lines_view.get_zone_width(zmouse));
 		int32_t const new_view_x = old_view_x + (new_mouse_scene_x - mouse_scene_x);
 

@@ -224,7 +224,7 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent* event)
 {
 	QGraphicsView::resizeEvent(event);
 
-	PVParallelView::PVFullParallelScene* fps = (PVParallelView::PVFullParallelScene*)scene();
+	auto* fps = (PVParallelView::PVFullParallelScene*)scene();
 	if (fps != nullptr) {
 		fps->update_viewport();
 		if (_first_resize) {

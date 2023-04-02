@@ -40,7 +40,7 @@
 
 FileNameSelectorWidget::FileNameSelectorWidget(QWidget* parent) : QWidget(parent)
 {
-	QHBoxLayout* layout = new QHBoxLayout;
+	auto* layout = new QHBoxLayout;
 	m_path = new QLineEdit;
 	layout->addWidget(m_path);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -117,7 +117,7 @@ class FileConnectionDialog::FileConnectionDialogPrivate
 
 void FileConnectionDialog::FileConnectionDialogPrivate::initWidget()
 {
-	QVBoxLayout* layout = new QVBoxLayout;
+	auto* layout = new QVBoxLayout;
 
 	formLayout = new QFormLayout;
 	layout->addLayout(formLayout);
@@ -173,7 +173,7 @@ void FileConnectionDialog::FileConnectionDialogPrivate::setFieldEnabled(QWidget*
 
 void FileConnectionDialog::FileConnectionDialogPrivate::protocolChanged(int index)
 {
-	const Protocol protocol = static_cast<Protocol>(index);
+	const auto protocol = static_cast<Protocol>(index);
 	switch (protocol) {
 	case Local:
 		port->setValue(22);
@@ -262,7 +262,7 @@ RegisteredFile FileConnectionDialog::registeredFileSettings() const
 {
 	RegisteredFile registered;
 	registered.remoteFile = d->remotefile->text();
-	const Protocol protocol = static_cast<Protocol>(d->protocols->currentIndex());
+	const auto protocol = static_cast<Protocol>(d->protocols->currentIndex());
 	registered.settings.protocol = protocol;
 
 	switch (protocol) {

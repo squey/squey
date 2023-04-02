@@ -159,7 +159,7 @@ size_t FileDownLoader::FileDownLoaderPrivate::writeData(void* buffer,
 	if (_cancel_dl) {
 		return -1;
 	}
-	QTemporaryFile* downloadFile = static_cast<QTemporaryFile*>(stream);
+	auto* downloadFile = static_cast<QTemporaryFile*>(stream);
 	if (!downloadFile) {
 		return -1; /*failure*/
 	}

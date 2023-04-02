@@ -223,7 +223,7 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 
 void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 {
-	PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
+	auto* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
 	assert(chunk);
 	assert(_matching_formatters.size() == _column_count);
 

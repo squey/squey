@@ -90,7 +90,7 @@ double save_investigation()
 	 *  Sort axes and remove last one
 	 */
 	// use of const_cast to get direct access to API (don't try this at home)
-	Inendi::PVAxesCombination& axes_comb =
+	auto& axes_comb =
 	    const_cast<Inendi::PVAxesCombination&>(view->get_axes_combination());
 	axes_comb.sort_by_name();
 	std::vector<PVCol> to_remove = {PVCol(14)};

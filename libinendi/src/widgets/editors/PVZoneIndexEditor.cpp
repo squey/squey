@@ -40,7 +40,7 @@
 PVWidgets::PVZoneIndexEditor::PVZoneIndexEditor(Inendi::PVView const& view, QWidget* parent)
     : QWidget(parent), _view(view)
 {
-	QHBoxLayout* hlayout = new QHBoxLayout();
+	auto* hlayout = new QHBoxLayout();
 	setLayout(hlayout);
 
 	_first_cb = new QComboBox;

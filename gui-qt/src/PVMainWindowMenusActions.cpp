@@ -141,13 +141,13 @@ void PVInspector::PVMainWindow::create_menus()
 	menubar = menuBar();
 
 	file_Menu = menubar->addMenu(tr("&File"));
-	QMenu* solution_Menu = new QMenu(tr("&Investigation"));
+	auto* solution_Menu = new QMenu(tr("&Investigation"));
 	solution_Menu->addAction(solution_new_Action);
 	solution_Menu->addAction(solution_load_Action);
 	solution_Menu->addAction(solution_save_Action);
 	solution_Menu->addAction(solution_saveas_Action);
 
-	QMenu* project_Menu = new QMenu(tr("&Data collection"));
+	auto* project_Menu = new QMenu(tr("&Data collection"));
 	project_Menu->addAction(project_new_Action);
 
 	file_Menu->addMenu(solution_Menu);
@@ -156,10 +156,10 @@ void PVInspector::PVMainWindow::create_menus()
 	file_Menu->addSeparator();
 	file_Menu->addSeparator();
 	file_Menu->addSeparator();
-	QMenu* import_Menu = new QMenu(tr("I&mport"));
+	auto* import_Menu = new QMenu(tr("I&mport"));
 	create_actions_import_types(import_Menu);
 	file_Menu->addMenu(import_Menu);
-	QMenu* export_Menu = new QMenu(tr("E&xport"));
+	auto* export_Menu = new QMenu(tr("E&xport"));
 	export_Menu->addAction(export_selection_Action);
 	file_Menu->addMenu(export_Menu);
 	file_Menu->addSeparator();

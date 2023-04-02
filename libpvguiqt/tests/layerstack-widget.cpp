@@ -63,8 +63,8 @@ int main(int argc, char** argv)
 	Inendi::PVView& view = *src.current_view();
 	view.add_new_layer();
 
-	PVGuiQt::PVLayerStackWidget* ls = new PVGuiQt::PVLayerStackWidget(view);
-	PVGuiQt::PVLayerStackWidget* ls2 = new PVGuiQt::PVLayerStackWidget(view);
+	auto* ls = new PVGuiQt::PVLayerStackWidget(view);
+	auto* ls2 = new PVGuiQt::PVLayerStackWidget(view);
 
 	QMainWindow mw;
 	mw.setCentralWidget(ls);

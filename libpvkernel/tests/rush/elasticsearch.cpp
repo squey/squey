@@ -138,7 +138,7 @@ int main(int argc, char** argv)
 	 */
 	PVRush::PVElasticsearchAPI elasticsearch(infos);
 
-	PVRush::PVElasticsearchQuery* query = new PVRush::PVElasticsearchQuery(
+	auto* query = new PVRush::PVElasticsearchQuery(
 	    infos, QString(elasticsearch.rules_to_json(query_str.c_str()).c_str()), "json");
 
 	std::string error;

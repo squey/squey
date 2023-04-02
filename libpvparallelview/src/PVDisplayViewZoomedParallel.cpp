@@ -58,7 +58,7 @@ void PVDisplays::PVDisplayViewZoomedParallel::add_to_axis_menu(
 	if (axis_comb == PVCombCol()) {
 		return;
 	}
-	QAction* act = new QAction(toolbar_icon(), axis_menu_name());
+	auto* act = new QAction(toolbar_icon(), axis_menu_name());
 	act->connect(act, &QAction::triggered, [this, view, axis_comb, container]() {
 		container->create_view_widget(*this, view, {axis_comb});
 	});

@@ -68,8 +68,8 @@ int main()
 	std::sort(order.begin(), order.end(), [&array](uint32_t a, uint32_t b) {
 		tm tm_a;
 		tm tm_b;
-		const time_t ta = static_cast<int64_t>(array[a]);
-		const time_t tb = static_cast<int64_t>(array[b]);
+		const auto ta = static_cast<int64_t>(array[a]);
+		const auto tb = static_cast<int64_t>(array[b]);
 		gmtime_r(&ta, &tm_a);
 		gmtime_r(&tb, &tm_b);
 		return tm_a.tm_wday < tm_b.tm_wday or

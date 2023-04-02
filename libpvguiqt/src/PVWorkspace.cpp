@@ -61,14 +61,14 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 {
 	QList<PVWorkspaceBase*> active_workspaces;
 	for (QWidget* top_widget : QApplication::topLevelWidgets()) {
-		QMainWindow* w = qobject_cast<QMainWindow*>(top_widget);
+		auto* w = qobject_cast<QMainWindow*>(top_widget);
 		if (w) {
 			for (PVProjectsTabWidget* project_tab_widget :
 			     w->findChildren<PVProjectsTabWidget*>("PVProjectsTabWidget")) {
 				PVSceneWorkspacesTabWidget* workspace_tab_widget =
 				    project_tab_widget->current_workspace_tab_widget();
 				if (workspace_tab_widget) {
-					PVWorkspaceBase* workspace =
+					auto* workspace =
 					    qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->currentWidget());
 					if (workspace) {
 						active_workspaces.append(workspace);
@@ -115,7 +115,7 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
                                            Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
 )
 {
-	PVViewDisplay* view_display =
+	auto* view_display =
 	    new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
 
 	// note : new connect syntax is causing a crash (Qt bug ?)
@@ -135,7 +135,7 @@ PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Inendi::PV
                                                                       QString name,
                                                                       bool delete_on_close)
 {
-	PVViewDisplay* view_display =
+	auto* view_display =
 	    new PVViewDisplay(view, view_widget, name, true, delete_on_close, this);
 	view_display->setStyleSheet("QDockWidget { font: bold }");
 	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
@@ -156,7 +156,7 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 	}
 	QWidget* display_widget = display_dock->widget();
 
-	PVViewDisplay* central_dock = (PVViewDisplay*)centralWidget();
+	auto* central_dock = (PVViewDisplay*)centralWidget();
 
 	if (central_dock) {
 		QWidget* central_widget = central_dock->widget();
@@ -205,7 +205,7 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 
 void PVGuiQt::PVWorkspaceBase::display_destroyed(QObject* object /*= 0*/)
 {
-	PVGuiQt::PVViewDisplay* display = (PVGuiQt::PVViewDisplay*)object;
+	auto* display = (PVGuiQt::PVViewDisplay*)object;
 	_displays.removeAll(display);
 }
 
@@ -268,7 +268,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 {
 	// Invalid events widget
 	if (source->get_invalid_evts().size() > 0) {
-		PVSimpleStringListModel* inv_elts_model =
+		auto* inv_elts_model =
 		    new PVSimpleStringListModel(source->get_invalid_evts());
 		_inv_evts_dlg = new PVGuiQt::PVListDisplayDlg(inv_elts_model, this);
 		_inv_evts_dlg->setWindowTitle(tr("Invalid events"));
@@ -285,7 +285,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [this](PVDisplays::PVDisplaySourceIf& obj) {
-		    QAction* act = new QAction();
+		    auto* act = new QAction();
 		    act->setCheckable(true);
 		    act->setIcon(obj.toolbar_icon());
 		    act->setToolTip(obj.tooltip_str());
@@ -380,7 +380,7 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 	PVDisplays::visit_displays_by_if<T>(
 	    [&](T& obj) {
 		    // if (!obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters)) {
-		    QToolButton* btn = new QToolButton(_toolbar);
+		    auto* btn = new QToolButton(_toolbar);
 		    btn->setPopupMode(QToolButton::InstantPopup);
 		    btn->setIcon(obj.toolbar_icon());
 		    btn->setToolTip(obj.tooltip_str());

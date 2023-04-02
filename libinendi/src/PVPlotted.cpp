@@ -195,7 +195,7 @@ Inendi::PVPlotted::get_columns_indexes_values_within_range(uint32_t min, uint32_
 		return cols_ret;
 	}
 
-	double nrows_d = (double)nrows;
+	auto nrows_d = (double)nrows;
 	for (PVCol j(0); j < ncols; j++) {
 		PVRow nmatch = 0;
 		const uint32_t* cplotted = get_column_pointer(j);
@@ -225,7 +225,7 @@ QList<PVCol> Inendi::PVPlotted::get_columns_indexes_values_not_within_range(uint
 		return cols_ret;
 	}
 
-	double nrows_d = (double)nrows;
+	auto nrows_d = (double)nrows;
 	for (PVCol j(0); j < ncols; j++) {
 		PVRow nmatch = 0;
 		const uint32_t* cplotted = get_column_pointer(j);
@@ -413,7 +413,7 @@ Inendi::PVPlotted& Inendi::PVPlotted::serialize_read(PVCore::PVSerializeObject& 
                                                      Inendi::PVMapped& parent)
 {
 	so.set_current_status("Loading plotting...");
-	QString name = so.attribute_read<QString>("name");
+	auto name = so.attribute_read<QString>("name");
 
 	PVCore::PVSerializeObject_p list_prop = so.create_object("properties");
 

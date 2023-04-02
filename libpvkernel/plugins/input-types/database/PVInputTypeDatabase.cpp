@@ -37,7 +37,7 @@ bool PVRush::PVInputTypeDatabase::createWidget(hash_formats& formats,
                                                QWidget* parent) const
 {
 	connect_parent(parent);
-	PVDatabaseParamsWidget* params = new PVDatabaseParamsWidget(this, formats, parent);
+	auto* params = new PVDatabaseParamsWidget(this, formats, parent);
 	if (params->exec() == QDialog::Rejected) {
 		return false;
 	}

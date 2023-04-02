@@ -53,7 +53,7 @@ PVRush::PVDBQuery::~PVDBQuery()
 
 bool PVRush::PVDBQuery::operator==(const PVInputDescription& other) const
 {
-	PVDBQuery const* other_query = dynamic_cast<PVDBQuery const*>(&other);
+	auto const* other_query = dynamic_cast<PVDBQuery const*>(&other);
 	if (not other_query) {
 		return false;
 	}
@@ -134,7 +134,7 @@ std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVDBQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading database information...");
-	QString query = so.attribute_read<QString>("query");
+	auto query = so.attribute_read<QString>("query");
 	PVDBInfos infos = PVDBInfos::serialize_read(*so.create_object("server"));
 	return std::unique_ptr<PVDBQuery>(
 	    new PVDBQuery(std::shared_ptr<PVDBServ>(new PVDBServ(infos)), query));

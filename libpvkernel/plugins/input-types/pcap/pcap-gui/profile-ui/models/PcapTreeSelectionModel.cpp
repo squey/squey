@@ -75,7 +75,7 @@ QVariant PcapTreeSelectionModel::data(const QModelIndex& index, int role) const
 	// Display protocol data.
 	switch (role) {
 	case Qt::DisplayRole: {
-		JsonTreeItem* item = static_cast<JsonTreeItem*>(index.internalPointer());
+		auto* item = static_cast<JsonTreeItem*>(index.internalPointer());
 		rapidjson::Value& value = item->value();
 		// qreal ratio;
 

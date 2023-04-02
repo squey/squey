@@ -54,7 +54,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	delete _exporter_widget;
 
 	// Use default CSV exporter if input type doesn't define a specific one
-	PVGuiQt::PVCSVExporterWidget* exporter_widget = new PVGuiQt::PVCSVExporterWidget(view);
+	auto* exporter_widget = new PVGuiQt::PVCSVExporterWidget(view);
 	_exporter = &exporter_widget->exporter();
 
 	// Add input specific exporter filter string if any
@@ -77,7 +77,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	}
 	int default_filter_index = specific_export_filter.isEmpty() ? gz_idx : 0;
 
-	QStackedLayout* stacked_layout = new QStackedLayout;
+	auto* stacked_layout = new QStackedLayout;
 	stacked_layout->addWidget(exporter_widget);
 	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
 	PVWidgets::PVExporterWidgetInterface* specific_export_widget =

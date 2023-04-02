@@ -84,9 +84,9 @@ void PVGuiQt::PVSceneTabBar::mousePressEvent(QMouseEvent* event)
 void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 {
 	_drag_ongoing = true;
-	QDrag* drag = new QDrag(this);
+	auto* drag = new QDrag(this);
 
-	QMimeData* mimeData = new QMimeData;
+	auto* mimeData = new QMimeData;
 
 	QByteArray byte_array;
 	byte_array.reserve(sizeof(void*));
@@ -180,7 +180,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::add_workspace(PVWorkspaceBase* workspa
 	setCurrentIndex(index);
 
 	// Add an animation on the tabBar.
-	QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
+	auto* animation = new QPropertyAnimation(this, "tab_width");
 	animation->setDuration(TAB_OPENING_EFFECT_MSEC);
 	animation->setStartValue(25);
 	animation->setEndValue(tabBar()->tabRect(index).width());
@@ -192,7 +192,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::add_workspace(PVWorkspaceBase* workspa
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::remove_workspace(int index)
 {
-	QPropertyAnimation* animation = new QPropertyAnimation(this, "tab_width");
+	auto* animation = new QPropertyAnimation(this, "tab_width");
 	blockSignals(true);
 	setCurrentIndex(index); // Force current index in order to get the animation
 	// on the selected tab!
@@ -253,7 +253,7 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 		return;
 	}
 
-	PVSourceWorkspace* workspace = qobject_cast<PVSourceWorkspace*>(widget(index));
+	auto* workspace = qobject_cast<PVSourceWorkspace*>(widget(index));
 	assert(workspace);
 	get_scene().get_parent<Inendi::PVRoot>().select_source(*workspace->get_source());
 }

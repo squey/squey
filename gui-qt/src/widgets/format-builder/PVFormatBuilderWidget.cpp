@@ -410,7 +410,7 @@ void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
 {
-	QAction* action_src = (QAction*)sender();
+	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
 	PVFilter::PVFieldsSplitterParamWidget_p in_t =
 	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
@@ -429,7 +429,7 @@ void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotAddConverter()
 {
-	QAction* action_src = (QAction*)sender();
+	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
 	PVFilter::PVFieldsConverterParamWidget_p in_t =
 	    LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_class_by_name(itype);

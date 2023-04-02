@@ -307,7 +307,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	Inendi::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
 	Inendi::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
 	for (it_ent = entries.begin(); it_ent != entries.end(); ++it_ent) {
-		QAction* act = new QAction(it_ent->key(), _values_view);
+		auto* act = new QAction(it_ent->key(), _values_view);
 		act->setData(QVariant(search_multiples)); // Save the name of the layer
 		                                          // filter associated to this
 		                                          // action
@@ -355,7 +355,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 		}
 	});
 
-	QPushButton* sync_button = new QPushButton;
+	auto* sync_button = new QPushButton;
 	connect(sync_button, &QPushButton::toggled,
 	        [&](bool checked) { _selection_change_connection.block(not checked); });
 	sync_button->setIcon(QIcon(":/refresh"));
@@ -396,7 +396,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 		multiple_search(_msearch_action_for_layer_creation, values, false);
 	});
 
-	QActionGroup* act_group_scale = new QActionGroup(this);
+	auto* act_group_scale = new QActionGroup(this);
 	act_group_scale->setExclusive(true);
 	connect(act_group_scale, &QActionGroup::triggered, this,
 	        &PVAbstractListStatsDlg::scale_changed);
@@ -408,7 +408,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
 	_hhead_ctxt_menu->addAction(_act_toggle_log);
 	_hhead_ctxt_menu->addSeparator();
 
-	QActionGroup* act_group_max = new QActionGroup(this);
+	auto* act_group_max = new QActionGroup(this);
 	act_group_max->setExclusive(true);
 	connect(act_group_max, &QActionGroup::triggered, this, &PVAbstractListStatsDlg::max_changed);
 	_act_toggle_absolute = new QAction("Absolute max", act_group_max);

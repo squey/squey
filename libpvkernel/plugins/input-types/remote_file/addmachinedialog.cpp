@@ -46,9 +46,9 @@ class AddMachineDialog::AddMachineDialogPrivate
 
 void AddMachineDialog::AddMachineDialogPrivate::initWidget()
 {
-	QVBoxLayout* layout = new QVBoxLayout;
+	auto* layout = new QVBoxLayout;
 
-	QFormLayout* formLayout = new QFormLayout;
+	auto* formLayout = new QFormLayout;
 	layout->addLayout(formLayout);
 
 	machineName = new QLineEdit;

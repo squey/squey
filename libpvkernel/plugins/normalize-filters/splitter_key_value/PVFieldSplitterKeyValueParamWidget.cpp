@@ -72,32 +72,32 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 
 	_param_widget = new QWidget();
 
-	QVBoxLayout* layout = new QVBoxLayout(_param_widget);
+	auto* layout = new QVBoxLayout(_param_widget);
 
-	QVBoxLayout* structure_layout = new QVBoxLayout();
+	auto* structure_layout = new QVBoxLayout();
 
-	QGroupBox* structure_groupbox = new QGroupBox("Structure");
+	auto* structure_groupbox = new QGroupBox("Structure");
 	structure_groupbox->setLayout(structure_layout);
 
 	// Fields separator
-	QHBoxLayout* fields_separator_layout = new QHBoxLayout();
-	QLabel* separator_label = new QLabel(tr("Fields separator:"));
+	auto* fields_separator_layout = new QHBoxLayout();
+	auto* separator_label = new QLabel(tr("Fields separator:"));
 	_separator_char_lineedit = new QLineEdit();
 	_separator_char_lineedit->setText(args["sep"].toString());
 	fields_separator_layout->addWidget(separator_label);
 	fields_separator_layout->addWidget(_separator_char_lineedit);
 
 	// Affectation operator
-	QHBoxLayout* affectation_operator_layout = new QHBoxLayout();
-	QLabel* affectation_operator_label = new QLabel("Affectation operator:");
+	auto* affectation_operator_layout = new QHBoxLayout();
+	auto* affectation_operator_label = new QLabel("Affectation operator:");
 	_affectation_operator_lineedit = new QLineEdit();
 	_affectation_operator_lineedit->setText(args["affectation"].toString());
 	affectation_operator_layout->addWidget(affectation_operator_label);
 	affectation_operator_layout->addWidget(_affectation_operator_lineedit);
 
 	// Quote character
-	QHBoxLayout* quote_character_layout = new QHBoxLayout();
-	QLabel* quote_label = new QLabel(tr("Quote character:"));
+	auto* quote_character_layout = new QHBoxLayout();
+	auto* quote_label = new QLabel(tr("Quote character:"));
 	_quote_char = new PVWidgets::QKeySequenceWidget();
 	_quote_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
 	_quote_char->setKeySequence(QKeySequence(args["quote"].toString()));
@@ -113,15 +113,15 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	structure_layout->addSpacerItem(
 	    new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-	QHBoxLayout* keys_layout = new QHBoxLayout();
-	QVBoxLayout* buttons_layout = new QVBoxLayout();
+	auto* keys_layout = new QHBoxLayout();
+	auto* buttons_layout = new QVBoxLayout();
 
-	QPushButton* add_button = new QPushButton(tr("Add"));
+	auto* add_button = new QPushButton(tr("Add"));
 	_del_button = new QPushButton(tr("Delete"));
 	_up_button = new QPushButton(tr("Move up"));
 	_down_button = new QPushButton(tr("Move down"));
 	_copy_button = new QPushButton(tr("Copy"));
-	QPushButton* paste_button = new QPushButton(tr("Paste"));
+	auto* paste_button = new QPushButton(tr("Paste"));
 
 	add_button->setIcon(QIcon(":/document-new"));
 	_del_button->setIcon(QIcon(":/red-cross"));
@@ -137,7 +137,7 @@ QWidget* PVFilter::PVFieldSplitterKeyValueParamWidget::get_param_widget()
 	buttons_layout->addWidget(_copy_button);
 	buttons_layout->addWidget(paste_button);
 
-	QGroupBox* keys_groupbox = new QGroupBox("Keys");
+	auto* keys_groupbox = new QGroupBox("Keys");
 	keys_groupbox->setLayout(keys_layout);
 
 	_keys_list = new QListWidget();
@@ -218,7 +218,7 @@ void PVFilter::PVFieldSplitterKeyValueParamWidget::add_new_keys(QStringList& key
 		QList<QListWidgetItem*> items = _keys_list->findItems(key, Qt::MatchExactly);
 		if (items.count() == 0) {
 			if (!key.isEmpty()) {
-				QListWidgetItem* new_item = new QListWidgetItem(key);
+				auto* new_item = new QListWidgetItem(key);
 				new_item->setFlags(new_item->flags() | Qt::ItemIsEditable);
 				_keys_list->addItem(new_item);
 			}

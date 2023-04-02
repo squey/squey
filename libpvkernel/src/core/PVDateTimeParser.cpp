@@ -97,12 +97,12 @@ PVCore::PVDateTimeParser::~PVDateTimeParser()
 	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
 	static tbb::scalable_allocator<TimeFormat> alloc_format;
 	for (TimeFormatInterface* tfi : _time_format) {
-		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
+		auto* tf = dynamic_cast<TimeFormat*>(tfi);
 		if (tf != nullptr) {
 			tf->~TimeFormat();
 			alloc_format.deallocate(tf, 1);
 		} else {
-			TimeFormatEpoch* tfe = dynamic_cast<TimeFormatEpoch*>(tfi);
+			auto* tfe = dynamic_cast<TimeFormatEpoch*>(tfi);
 			tfe->~TimeFormatEpoch();
 			alloc_epoch.deallocate(tfe, 1);
 		}
@@ -114,7 +114,7 @@ void PVCore::PVDateTimeParser::copy(const PVDateTimeParser& src)
 	static tbb::scalable_allocator<TimeFormatEpoch> alloc_epoch;
 	static tbb::scalable_allocator<TimeFormat> alloc_format;
 	for (TimeFormatInterface* tfi : src._time_format) {
-		TimeFormat* tf = dynamic_cast<TimeFormat*>(tfi);
+		auto* tf = dynamic_cast<TimeFormat*>(tfi);
 		if (tf == nullptr) {
 			TimeFormatEpoch_p ptfe = alloc_epoch.allocate(1);
 			new (ptfe) TimeFormatEpoch();

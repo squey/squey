@@ -189,7 +189,7 @@ void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 
 	// Invalid preset name
 	if (new_preset_name.isEmpty()) {
-		QMessageBox* box = new QMessageBox(QMessageBox::Critical, tr("Invalid preset"),
+		auto* box = new QMessageBox(QMessageBox::Critical, tr("Invalid preset"),
 		                                   tr("Invalid preset name"), QMessageBox::Ok, this);
 		box->exec();
 		new_preset_name = _old_preset_name;
@@ -197,7 +197,7 @@ void PVWidgets::PVPresetsWidget::item_changed_Slot(QListWidgetItem* item)
 	}
 	// Already existing preset
 	else if (_list->findItems(new_preset_name, Qt::MatchFixedString).count() > 1) {
-		QMessageBox* box =
+		auto* box =
 		    new QMessageBox(QMessageBox::Question, tr("Existing preset"),
 		                    tr("The preset \"%1\" already exists. Replace?").arg(item->text()),
 		                    QMessageBox::Yes | QMessageBox::No, this);
@@ -249,7 +249,7 @@ void PVWidgets::PVPresetsWidget::remove_Slot()
 		return;
 	}
 	QString preset = item->text();
-	QMessageBox* box =
+	auto* box =
 	    new QMessageBox(QMessageBox::Question, tr("Confirm delete"),
 	                    tr("Are you sure you want to delete preset \"%1\"?").arg(preset),
 	                    QMessageBox::Yes | QMessageBox::No, this);
@@ -272,13 +272,13 @@ PVWidgets::PVSavePresetAsDialog::PVSavePresetAsDialog(PVPresetsWidget* parent /*
 
 	// Buttons
 	_btn_save = new QPushButton(style()->standardIcon(QStyle::SP_DialogSaveButton), tr("Save"));
-	QPushButton* btn_cancel =
+	auto* btn_cancel =
 	    new QPushButton(style()->standardIcon(QStyle::SP_DialogCancelButton), tr("Cancel"));
 	connect(_btn_save, &QAbstractButton::clicked, this, &PVSavePresetAsDialog::save_Slot);
 	connect(btn_cancel, &QAbstractButton::clicked, this, &QDialog::reject);
 
 	// Label
-	QLabel* label = new QLabel(tr("Preset:"));
+	auto* label = new QLabel(tr("Preset:"));
 
 	// ComboBox
 	_comboBox = new QComboBox();

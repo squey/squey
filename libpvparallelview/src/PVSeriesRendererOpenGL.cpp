@@ -351,7 +351,7 @@ void PVSeriesRendererOpenGL::fill_dbo_GL()
 	size_t vertices_per_line = _rss.samples_count();
 	_dbo.bind();
 	allocate_buffer_GL(_dbo, _lines_per_vbo_count * sizeof(DrawArraysIndirectCommand));
-	DrawArraysIndirectCommand* dbo_bytes =
+	auto* dbo_bytes =
 	    static_cast<DrawArraysIndirectCommand*>(_dbo.map(QOpenGLBuffer::WriteOnly));
 	assert(dbo_bytes);
 	std::generate(dbo_bytes, dbo_bytes + _lines_per_vbo_count,
@@ -429,7 +429,7 @@ void PVSeriesRendererOpenGL::fill_cbo_GL(size_t const line_begin, size_t const l
 {
 	_cbo.bind();
 	allocate_buffer_GL(_cbo, _lines_per_vbo_count * sizeof(CboBlock));
-	CboBlock* cbo_bytes = static_cast<CboBlock*>(glMapBufferRange(
+	auto* cbo_bytes = static_cast<CboBlock*>(glMapBufferRange(
 	    GL_ARRAY_BUFFER, 0, _cbo.size(),
 	    GL_MAP_WRITE_BIT | GL_MAP_INVALIDATE_BUFFER_BIT | GL_MAP_UNSYNCHRONIZED_BIT));
 	assert(cbo_bytes);

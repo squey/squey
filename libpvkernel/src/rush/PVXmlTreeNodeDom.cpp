@@ -80,7 +80,7 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::new_format(QDomDocument& fil
 	xmlRootDom.setAttribute("version", PVFORMAT_CURRENT_VERSION);
 
 	// creating the root node.
-	PVRush::PVXmlTreeNodeDom* rootNode = new PVRush::PVXmlTreeNodeDom(
+	auto* rootNode = new PVRush::PVXmlTreeNodeDom(
 	    PVRush::PVXmlTreeNodeDom::Type::field, "root", xmlRootDom, file);
 	return rootNode;
 }

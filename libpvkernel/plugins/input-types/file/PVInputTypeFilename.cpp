@@ -138,7 +138,7 @@ QString PVRush::PVInputTypeFilename::menu_input_name() const
 QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) const
 {
 	QString tab_name;
-	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in[0].get());
+	auto* f = dynamic_cast<PVFileDescription*>(in[0].get());
 	assert(f);
 	QFileInfo fi(f->path());
 	if (in.count() == 1) {
@@ -155,7 +155,7 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
 	// Two types of custom format: inendi.format/picviz.format exists in the directory of the file,
 	// or file + ".format" exists
 	bool res = false;
-	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
+	auto* f = dynamic_cast<PVFileDescription*>(in.get());
 	assert(f);
 	QString path_custom_format = f->path() + QString(".format");
 	QFileInfo fi(path_custom_format);

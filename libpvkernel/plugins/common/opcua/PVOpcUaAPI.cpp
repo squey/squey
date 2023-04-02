@@ -204,7 +204,7 @@ static bool loadAllFilesInDirectory(const QString& location, UA_ByteString** tar
 	}
 
 	int tempSize = entries.size();
-	UA_ByteString* list =
+	auto* list =
 	    static_cast<UA_ByteString*>(UA_Array_new(tempSize, &UA_TYPES[UA_TYPES_BYTESTRING]));
 
 	if (!list) {

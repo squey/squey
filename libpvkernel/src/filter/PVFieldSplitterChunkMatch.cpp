@@ -193,7 +193,7 @@ class PVGuessReducingTree
 
 void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* c)
 {
-	PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
+	auto* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
 	assert(chunk);
 	PVFilter::PVFieldsSplitter_p sp = _filter;
 	PVCore::list_fields lf_res;
@@ -248,7 +248,7 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			return ret;
 		}
 	}
-	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
+	auto* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
 	assert(text_chunk);
 	LIB_CLASS(PVFilter::PVFieldsSplitter)
 	::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();

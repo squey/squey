@@ -241,7 +241,7 @@ PVParallelView::PVSlidersGroup::add_zoomed_selection_sliders(int64_t y_min, int6
 
 void PVParallelView::PVSlidersGroup::del_zoom_sliders(id_t id)
 {
-	zas_set_t::const_iterator it = _zoom_sliders.find(id);
+	auto it = _zoom_sliders.find(id);
 
 	if (it != _zoom_sliders.end()) {
 		removeFromGroup(it->second);
@@ -260,7 +260,7 @@ void PVParallelView::PVSlidersGroup::del_zoom_sliders(id_t id)
 void PVParallelView::PVSlidersGroup::del_selection_sliders(id_t id)
 {
 
-	sas_set_t::const_iterator it = _selection_sliders.find(id);
+	auto it = _selection_sliders.find(id);
 
 	if (it != _selection_sliders.end()) {
 		removeFromGroup(it->second);
@@ -278,7 +278,7 @@ void PVParallelView::PVSlidersGroup::del_selection_sliders(id_t id)
 
 void PVParallelView::PVSlidersGroup::del_zoomed_selection_sliders(id_t id)
 {
-	zsas_set_t::const_iterator it = _zoomed_selection_sliders.find(id);
+	auto it = _zoomed_selection_sliders.find(id);
 
 	if (it != _zoomed_selection_sliders.end()) {
 		removeFromGroup(it->second);

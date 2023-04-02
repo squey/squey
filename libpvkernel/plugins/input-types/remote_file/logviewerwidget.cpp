@@ -87,14 +87,14 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
 	fileDownLoader = new FileDownLoader(qq);
 	connect(fileDownLoader, &FileDownLoader::downloadError, qq, &LogViewerWidget::downloadError);
 
-	QHBoxLayout* layout = new QHBoxLayout;
+	auto* layout = new QHBoxLayout;
 	layout->setContentsMargins(0, 0, 0, 0);
 	machineListWidget = new QListWidget;
 	layout->addWidget(machineListWidget);
 	connect(machineListWidget, &QListWidget::currentItemChanged, qq,
 	        &LogViewerWidget::slotFillFilesList);
 
-	QVBoxLayout* fileLayout = new QVBoxLayout;
+	auto* fileLayout = new QVBoxLayout;
 	layout->addLayout(fileLayout);
 	filesTableWidget = new QTableWidget;
 	filesTableWidget->setColumnCount(3);
@@ -110,7 +110,7 @@ void LogViewerWidget::LogViewerWidgetPrivate::initWidget()
 	connect(filesTableWidget, &QTableWidget::itemClicked, qq, &LogViewerWidget::slotUpdateButtons);
 	fileLayout->addWidget(filesTableWidget);
 
-	QHBoxLayout* actionLayout = new QHBoxLayout;
+	auto* actionLayout = new QHBoxLayout;
 	fileLayout->addLayout(actionLayout);
 
 	addFileToDownload = new QPushButton(tr("Add file..."));
@@ -139,12 +139,12 @@ void LogViewerWidget::LogViewerWidgetPrivate::fillTableFile(const RegisteredFile
 {
 	const int row = filesTableWidget->rowCount();
 	filesTableWidget->setRowCount(row + 1);
-	QTableWidgetItem* item0 = new QTableWidgetItem(viewer.remoteFile);
+	auto* item0 = new QTableWidgetItem(viewer.remoteFile);
 	item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
-	QTableWidgetItem* item1 =
+	auto* item1 =
 	    new QTableWidgetItem(LogViewerPrivate::defaultStringI18nProtocol[viewer.settings.protocol]);
 	item1->setFlags(item1->flags() & ~Qt::ItemIsEditable);
-	QTableWidgetItem* item2 = new QTableWidgetItem(QString::number(viewer.settings.port));
+	auto* item2 = new QTableWidgetItem(QString::number(viewer.settings.port));
 	item2->setFlags(item2->flags() & ~Qt::ItemIsEditable);
 	filesTableWidget->setItem(row, 0, item0);
 	filesTableWidget->setItem(row, 1, item1);
@@ -156,7 +156,7 @@ void LogViewerWidget::LogViewerWidgetPrivate::fillList()
 	machineListWidget->clear();
 	const QList<MachineConfig> lst = listOfMachine.keys();
 	Q_FOREACH (const MachineConfig& machine, lst) {
-		QListWidgetItem* item = new QListWidgetItem(machine.name);
+		auto* item = new QListWidgetItem(machine.name);
 		item->setData(typeMachineConfigItem, machine.hostname);
 		machineListWidget->addItem(item);
 	}

@@ -62,7 +62,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 	setFocusPolicy(Qt::StrongFocus);
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
-	QAbstractScrollArea* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
+	auto* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
 	if (scroll_area) {
 		scroll_area->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
 		scroll_area->horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
@@ -126,13 +126,13 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		if (PVGuiQt::PVSourceWorkspace::_drag_started) {
 			Q_EMIT try_automatic_tab_switch();
 
-			QMouseEvent* mouse_event = (QMouseEvent*)event;
+			auto* mouse_event = (QMouseEvent*)event;
 			PVWorkspaceBase* workspace = PVGuiQt::PVSourceWorkspace::workspace_under_mouse();
 
 			// If we are over a new workspace...
 			if (workspace && workspace != parent()) {
 
-				QMouseEvent* fake_mouse_release =
+				auto* fake_mouse_release =
 				    new QMouseEvent(QEvent::MouseButtonRelease, mapFromGlobal(mouse_event->pos()), mouse_event->pos(), Qt::LeftButton,
 				                    Qt::LeftButton, Qt::NoModifier);
 				QApplication::postEvent(this, fake_mouse_release);
@@ -159,7 +159,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 				QCursor::setPos(mapToGlobal(_press_pt));
 				move(mapToGlobal(_press_pt));
 
-				QMouseEvent* fake_mouse_press =
+				auto* fake_mouse_press =
 				    new QMouseEvent(QEvent::MouseButtonPress, mapToGlobal(_press_pt), _press_pt, Qt::LeftButton,
 				                    Qt::LeftButton, Qt::NoModifier);
 				QApplication::postEvent(this, fake_mouse_press);
@@ -176,7 +176,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		break;
 	}
 	case QEvent::MouseButtonPress: {
-		QMouseEvent* mouse_event = (QMouseEvent*)event;
+		auto* mouse_event = (QMouseEvent*)event;
 		if (mouse_event->button() == Qt::LeftButton) {
 			_press_pt = mouse_event->pos();
 			drag_started(true);
@@ -184,7 +184,7 @@ bool PVGuiQt::PVViewDisplay::event(QEvent* event)
 		break;
 	}
 	case QEvent::MouseButtonRelease: {
-		QMouseEvent* mouse_event = (QMouseEvent*)event;
+		auto* mouse_event = (QMouseEvent*)event;
 		if (mouse_event->button() == Qt::LeftButton) {
 			drag_started(false);
 		}
@@ -225,11 +225,11 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 	add_menu &= !widget()->isAncestorOf(childAt(event->pos()));
 
 	if (add_menu) {
-		QMenu* ctxt_menu = new QMenu(this);
+		auto* ctxt_menu = new QMenu(this);
 
 		if (_can_be_central_widget) {
 			// Set as central display
-			QAction* switch_action = new QAction(tr("Set as central display"), this);
+			auto* switch_action = new QAction(tr("Set as central display"), this);
 			connect(switch_action, SIGNAL(triggered(bool)), (QWidget*)_workspace,
 			        SLOT(switch_with_central_widget()));
 			ctxt_menu->addAction(switch_action);
@@ -237,12 +237,12 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 
 		// Maximize & Restore
 		if (isFloating()) {
-			QAction* restore_action = new QAction(tr("Restore docking"), this);
+			auto* restore_action = new QAction(tr("Restore docking"), this);
 			connect(restore_action, &QAction::triggered, [this]{ setFloating(false); });
 			ctxt_menu->addAction(restore_action);
 		}
 		if (_state == EState::CAN_RESTORE) {
-			QAction* restore_action = new QAction(tr("Restore floating"), this);
+			auto* restore_action = new QAction(tr("Restore floating"), this);
 			connect(restore_action, &QAction::triggered, this, &PVViewDisplay::restore);
 			ctxt_menu->addAction(restore_action);
 		}
@@ -257,7 +257,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		for (int i = 0; i < QGuiApplication::screens().size(); ++i) {
 			auto* screen_i = QGuiApplication::screens()[i];
 			char const* action_text = (screen() == screen_i) ? "Maximize on screen %n (current)" : "Maximize on screen %n";
-			QAction* maximize_action = new QAction(tr(action_text, "", i), this);
+			auto* maximize_action = new QAction(tr(action_text, "", i), this);
 			if (_workspace->screen() == screen_i
 			|| (screen() == screen_i && _state != EState::CAN_MAXIMIZE)
 			|| (X11_bug && screen_i == QGuiApplication::primaryScreen())) {

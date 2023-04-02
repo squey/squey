@@ -92,7 +92,7 @@ void Inendi::PVMappingProperties::set_mode(std::string const& mode)
 Inendi::PVMappingProperties
 Inendi::PVMappingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	QString mode = so.attribute_read<QString>("mode");
+	auto mode = so.attribute_read<QString>("mode");
 
 	PVCore::PVArgumentList args;
 	so.arguments_read("properties", args, args);

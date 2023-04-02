@@ -34,7 +34,7 @@ PVRush::PVSplunkQuery::PVSplunkQuery(PVSplunkInfos const& infos,
 
 bool PVRush::PVSplunkQuery::operator==(const PVInputDescription& other) const
 {
-	PVSplunkQuery const* other_query = dynamic_cast<PVSplunkQuery const*>(&other);
+	auto const* other_query = dynamic_cast<PVSplunkQuery const*>(&other);
 	if (!other_query) {
 		return false;
 	}
@@ -60,8 +60,8 @@ PVRush::PVSplunkQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading Splunk information...");
 
-	QString query = so.attribute_read<QString>("query");
-	QString query_type = so.attribute_read<QString>("query_type");
+	auto query = so.attribute_read<QString>("query");
+	auto query_type = so.attribute_read<QString>("query_type");
 	PVSplunkInfos infos = PVSplunkInfos::serialize_read(*so.create_object("server"));
 
 	return std::unique_ptr<PVSplunkQuery>(new PVSplunkQuery(infos, query, query_type));

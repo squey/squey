@@ -70,7 +70,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 {
 	_params.clear();
 
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto* main_layout = new QVBoxLayout();
 
 	_stats_panel = new QTableWidget(this);
 	_stats_panel->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -90,7 +90,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	main_layout->setSpacing(0);
 	main_layout->setContentsMargins(0, 0, 0, 0);
 
-	QPushButton* hide_button = new QPushButton("...");
+	auto* hide_button = new QPushButton("...");
 	hide_button->setToolTip(tr("Toggle stats panel visibility"));
 	hide_button->setMaximumHeight(10);
 	hide_button->setFlat(true);
@@ -137,7 +137,7 @@ void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
 
 	for (int row = 0; row < _stats_panel->rowCount(); row++) {
 		const QString& section_text = _stats_panel->verticalHeaderItem(row)->text();
-		QAction* act = new QAction(section_text, this);
+		auto* act = new QAction(section_text, this);
 		act->setCheckable(true);
 		act->setEnabled(_stats_panel->isRowHidden(row));
 		act->setChecked(!_stats_panel->isRowHidden(row));
@@ -149,7 +149,7 @@ void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
 
 void PVGuiQt::PVStatsListingWidget::plugin_visibility_toggled(bool checked)
 {
-	QAction* act = (QAction*)sender();
+	auto* act = (QAction*)sender();
 	assert(act);
 	int row = act->data().toInt();
 	assert(row < _stats_panel->rowCount());
@@ -419,7 +419,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 
 	// Context menu
 	_ctxt_menu = new QMenu(this);
-	QAction* copy = new QAction(tr("Copy"), _ctxt_menu);
+	auto* copy = new QAction(tr("Copy"), _ctxt_menu);
 	connect(copy, &QAction::triggered, this, &PVCellWidgetBase::copy_to_clipboard);
 	_ctxt_menu->addAction(copy);
 	connect(this, &QWidget::customContextMenuRequested, this,
@@ -442,7 +442,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::copy_to_clipboard()
 	ba = _text->text().toLocal8Bit();
 
 	QClipboard* clipboard = QApplication::clipboard();
-	QMimeData* mdata = new QMimeData();
+	auto* mdata = new QMimeData();
 	mdata->setData("text/plain", ba);
 	clipboard->setMimeData(mdata);
 }
@@ -603,7 +603,7 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
                                                                     QTableWidgetItem* item)
     : PVCellWidgetBase(table, view, item)
 {
-	QPushButton* unique_values_dlg_icon = new QPushButton();
+	auto* unique_values_dlg_icon = new QPushButton();
 	unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
 	unique_values_dlg_icon->setFlat(true);
 	unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } "

@@ -72,7 +72,7 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 
 	_param_widget = new QWidget();
 
-	QGridLayout* layout = new QGridLayout(_param_widget);
+	auto* layout = new QGridLayout(_param_widget);
 
 	layout->setSizeConstraint(QLayout::SetFixedSize);
 

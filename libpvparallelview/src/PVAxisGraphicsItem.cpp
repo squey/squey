@@ -76,7 +76,7 @@ class PVToolTipEventFilter : public QObject
   protected:
 	bool eventFilter(QObject* obj, QEvent* ev) override
 	{
-		QGraphicsTextItem* gti = qobject_cast<QGraphicsTextItem*>(obj);
+		auto* gti = qobject_cast<QGraphicsTextItem*>(obj);
 		if (!gti) {
 			return false;
 		}
@@ -509,7 +509,7 @@ QImage PVParallelView::PVAxisGraphicsItem::get_axis_density()
 				_axis_density_worker_finished.clear();
 
 				// Update bounding rect from main thread
-				QTimer* timer = new QTimer();
+				auto* timer = new QTimer();
 				timer->moveToThread(qApp->thread());
 				timer->setSingleShot(true);
 				QObject::connect(timer, &QTimer::timeout, [this,timer]() {

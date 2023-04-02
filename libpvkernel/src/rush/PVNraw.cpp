@@ -326,7 +326,7 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading raw data...");
 	PVRush::PVNraw nraw;
-	QString nraw_folder = so.attribute_read<QString>("nraw_path");
+	auto nraw_folder = so.attribute_read<QString>("nraw_path");
 	nraw_folder =
 	    PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QDir(nraw_folder).dirName();
 	nraw.load_from_disk(nraw_folder.toStdString());

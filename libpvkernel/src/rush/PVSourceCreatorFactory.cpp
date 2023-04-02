@@ -85,7 +85,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 		for (int i = 0; i < INENDI_DISCOVERY_NCHUNKS; i++) {
 			// Create a chunk
-			PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>((*src)());
+			auto* chunk = dynamic_cast<PVCore::PVTextChunk*>((*src)());
 			if (chunk == nullptr) { // No more chunks !
 				break;
 			}

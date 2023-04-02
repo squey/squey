@@ -40,7 +40,7 @@ PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p i
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input->human_name()));
-	PVFileDescription* file = dynamic_cast<PVFileDescription*>(input.get());
+	auto* file = dynamic_cast<PVFileDescription*>(input.get());
 	assert(file);
 	PVRush::PVInput_p ifile(new PVRush::PVInputFile(file->path().toLocal8Bit().constData()));
 	// FIXME: chunk size must be computed somewhere once and for all !

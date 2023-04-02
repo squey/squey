@@ -44,7 +44,7 @@ bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats& formats,
 		return false;
 	}
 
-	PVElasticsearchQuery* query = new PVElasticsearchQuery(params->get_query());
+	auto* query = new PVElasticsearchQuery(params->get_query());
 
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);

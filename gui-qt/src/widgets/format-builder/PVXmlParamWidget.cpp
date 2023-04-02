@@ -272,7 +272,7 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
 	drawForNo(index);
 	if (index.isValid()) {
 		editingIndex = index;
-		PVRush::PVXmlTreeNodeDom* nodeOnClick = (PVRush::PVXmlTreeNodeDom*)index.internalPointer();
+		auto* nodeOnClick = (PVRush::PVXmlTreeNodeDom*)index.internalPointer();
 
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::filter) {
 			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");

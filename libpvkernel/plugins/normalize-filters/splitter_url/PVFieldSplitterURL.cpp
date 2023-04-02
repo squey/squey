@@ -117,7 +117,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(
 	PVCore::PVField* pf[URL_NUMBER_FIELDS_CREATED];
 	const PVCore::PVField null_field(*field.elt_parent(), &empty_str, &empty_str);
 	for (auto & i : pf) {
-		PVCore::list_fields::iterator it_new = l.insert(it_ins, null_field);
+		auto it_new = l.insert(it_ins, null_field);
 		i = &(*it_new);
 	}
 

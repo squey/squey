@@ -58,7 +58,7 @@ int main()
 	)###";
 
 	// setup import structures
-	PVRush::PVDBQuery* qr =
+	auto* qr =
 	    new PVRush::PVDBQuery(PVRush::PVDBServ_p(new PVRush::PVDBServ(infos)), query_str.c_str());
 	PV_ASSERT_VALID(qr->connect_serv());
 	PVRush::PVSourceCreator_p sc =

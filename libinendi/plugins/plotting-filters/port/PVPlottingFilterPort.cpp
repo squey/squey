@@ -37,10 +37,10 @@ static void compute_port_plotting(pvcop::db::array const& mapped,
 	const double invalid_range =
 	    invalid_selection ? Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE : 0;
 	const plotting_t max_plot_value = std::numeric_limits<plotting_t>::max();
-	const plotting_t threshold1 = (plotting_t)(0.3 * max_plot_value);
-	const plotting_t threshold2 = (plotting_t)(0.6 * max_plot_value);
+	const auto threshold1 = (plotting_t)(0.3 * max_plot_value);
+	const auto threshold2 = (plotting_t)(0.6 * max_plot_value);
 
-	const plotting_t valid_offset = (plotting_t)(max_plot_value * invalid_range);
+	const auto valid_offset = (plotting_t)(max_plot_value * invalid_range);
 
 #pragma omp parallel for
 	for (size_t i = 0; i < values.size(); i++) {

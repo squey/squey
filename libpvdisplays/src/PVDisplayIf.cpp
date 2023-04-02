@@ -41,7 +41,7 @@ void PVDisplayViewIf::add_to_axis_menu(QMenu& menu,
                                        Inendi::PVView* view,
                                        PVDisplaysContainer* container)
 {
-	QAction* act = new QAction(toolbar_icon(), axis_menu_name());
+	auto* act = new QAction(toolbar_icon(), axis_menu_name());
 	act->connect(act, &QAction::triggered, [this, view, axis, container]() {
 		container->create_view_widget(*this, view, {axis});
 	});

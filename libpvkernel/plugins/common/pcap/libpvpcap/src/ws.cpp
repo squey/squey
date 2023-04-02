@@ -467,7 +467,7 @@ std::vector<std::string> ws_get_tshark_fields()
 	std::vector<std::string> fields = execute_cmd("tshark -G fields");
 
 	// delete all line who doesn't begin with "F"
-	std::vector<std::string>::iterator i = fields.begin();
+	auto i = fields.begin();
 	while (i != fields.end()) {
 		if ((*i).at(0) != 'F')
 			i = fields.erase(i); // delete all not fields line

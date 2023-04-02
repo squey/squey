@@ -68,18 +68,18 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 {
 	PVLOG_DEBUG("PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()\n");
 
-	QWidget* param_widget = new QWidget();
+	auto* param_widget = new QWidget();
 
 	// get args
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
-	QVBoxLayout* layout = new QVBoxLayout(param_widget);
+	auto* layout = new QVBoxLayout(param_widget);
 
 	param_widget->setLayout(layout);
 	param_widget->setObjectName("splitter");
 
-	QGroupBox* groupBox = new QGroupBox("IP type");
-	QVBoxLayout* ips_layout = new QVBoxLayout();
+	auto* groupBox = new QGroupBox("IP type");
+	auto* ips_layout = new QVBoxLayout();
 	_ipv4 = new QRadioButton(tr("IPv4"));
 	_ipv6 = new QRadioButton(tr("IPv6"));
 	ips_layout->addWidget(_ipv4);
@@ -92,13 +92,13 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 
 	_label_list.clear();
 	_cb_list.clear();
-	QVBoxLayout* groups_layout = new QVBoxLayout();
+	auto* groups_layout = new QVBoxLayout();
 	for (size_t i = 0; i < group_ipv6_count; i++) {
-		QLabel* label = new QLabel(QString("Group%1").arg(i + 1));
+		auto* label = new QLabel(QString("Group%1").arg(i + 1));
 		_label_list.append(label);
 		groups_layout->addWidget(label, 0, Qt::AlignHCenter);
 		if (i < group_ipv6_count - 1) {
-			QCheckBox* checkbox = new QCheckBox();
+			auto* checkbox = new QCheckBox();
 			checkbox->setStyleSheet(
 			    "QCheckBox::indicator {width: 22px; height: 22px; }"
 			    "QCheckBox::indicator:checked{ image: url(:/scissors_on); }"
@@ -111,7 +111,7 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 		}
 	}
 	groups_layout->setAlignment(Qt::AlignHCenter);
-	QWidget* groups_widget = new QWidget();
+	auto* groups_widget = new QWidget();
 	groups_widget->setLayout(groups_layout);
 	layout->addWidget(groups_widget);
 

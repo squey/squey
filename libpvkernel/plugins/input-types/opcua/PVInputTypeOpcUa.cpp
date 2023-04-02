@@ -39,7 +39,7 @@ bool PVRush::PVInputTypeOpcUa::createWidget(hash_formats& formats,
 		return false;
 	}
 
-	PVOpcUaQuery* query = new PVOpcUaQuery(params->get_query());
+	auto* query = new PVOpcUaQuery(params->get_query());
 
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);

@@ -82,7 +82,7 @@ bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
                                           QWidget* parent,
                                           QDialog** dialog /*= nullptr*/)
 {
-	PVGuiQt::PVListUniqStringsDlg* dlg =
+	auto* dlg =
 	    new PVGuiQt::PVListUniqStringsDlg(view, c, &distinct_values_create_model, parent);
 	dlg->show();
 	if (dialog) {
@@ -162,7 +162,7 @@ static bool show_stats_dialog(const QString& op_name,
 		                                 std::move(minmax));
 	};
 
-	PVGuiQt::PVGroupByStringsDlg* dlg = new PVGuiQt::PVGroupByStringsDlg(
+	auto* dlg = new PVGuiQt::PVGroupByStringsDlg(
 	    view, col1, col2, create_groupby_model, sel, counts_are_integers, parent);
 	dlg->setWindowTitle(
 	    op_name + " by of axes '" +

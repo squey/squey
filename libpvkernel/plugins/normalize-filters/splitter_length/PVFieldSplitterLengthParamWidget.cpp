@@ -62,18 +62,18 @@ QWidget* PVFilter::PVFieldSplitterLengthParamWidget::get_param_widget()
 	 */
 	PVCore::PVArgumentList args = get_filter()->get_args();
 
-	QWidget* _param_widget = new QWidget;
+	auto* _param_widget = new QWidget;
 
-	QVBoxLayout* layout = new QVBoxLayout;
+	auto* layout = new QVBoxLayout;
 	_param_widget->setLayout(layout);
 
-	QGridLayout* grid = new QGridLayout;
+	auto* grid = new QGridLayout;
 	layout->addLayout(grid);
 
-	QLabel* label = new QLabel("Number of characters", _param_widget);
+	auto* label = new QLabel("Number of characters", _param_widget);
 	grid->addWidget(label, 0, 0);
 
-	QSpinBox* length = new QSpinBox(_param_widget);
+	auto* length = new QSpinBox(_param_widget);
 	length->setRange(0, std::numeric_limits<int>::max());
 	length->setValue(args.at(PVFieldSplitterLength::param_length).toInt());
 	connect(length, SIGNAL(valueChanged(int)), this, SLOT(update_length(int)));
@@ -93,7 +93,7 @@ QWidget* PVFilter::PVFieldSplitterLengthParamWidget::get_param_widget()
 
 	grid->addWidget(_side, 1, 1);
 
-	QLabel* help = new QLabel(_param_widget);
+	auto* help = new QLabel(_param_widget);
 	help->setWordWrap(true);
 	layout->addWidget(help);
 

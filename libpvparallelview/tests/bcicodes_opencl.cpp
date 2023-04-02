@@ -43,10 +43,10 @@
 
 void show_qimage(QString const& title, QImage const& img)
 {
-	QDialog* dlg = new QDialog();
+	auto* dlg = new QDialog();
 	dlg->setWindowTitle(title);
-	QVBoxLayout* layout = new QVBoxLayout();
-	QLabel* limg = new QLabel();
+	auto* layout = new QVBoxLayout();
+	auto* limg = new QLabel();
 	limg->setPixmap(QPixmap::fromImage(img));
 	layout->addWidget(limg);
 	dlg->setLayout(layout);

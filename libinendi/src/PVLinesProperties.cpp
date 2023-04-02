@@ -80,7 +80,7 @@ void Inendi::PVLinesProperties::serialize_write(PVCore::PVSerializeObject& so) c
 
 Inendi::PVLinesProperties Inendi::PVLinesProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	PVRow row_count = so.attribute_read<PVRow>("row_count");
+	auto row_count = so.attribute_read<PVRow>("row_count");
 
 	Inendi::PVLinesProperties lp(row_count);
 	so.buffer_read("lp_data", lp._colors, row_count);

@@ -64,12 +64,12 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 
 	Inendi::PVView& view = *src.current_view();
-	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(view);
+	auto* model = new PVGuiQt::PVListingModel(view);
 
-	PVGuiQt::PVListingView* qt_view = new PVGuiQt::PVListingView(view);
+	auto* qt_view = new PVGuiQt::PVListingView(view);
 	qt_view->setModel(model);
 
-	QMainWindow* mw = new QMainWindow();
+	auto* mw = new QMainWindow();
 	mw->setCentralWidget(qt_view);
 
 	mw->show();

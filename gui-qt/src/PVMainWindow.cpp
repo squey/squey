@@ -148,13 +148,13 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 		/* the warning icon
 		 */
 		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
-		QLabel* warning_label_icon = new QLabel;
+		auto* warning_label_icon = new QLabel;
 		warning_label_icon->setPixmap(warning_icon.pixmap(QSize(16, 16)));
 		statusBar()->addPermanentWidget(warning_label_icon, 0);
 
 		/* and the message
 		 */
-		QLabel* warning_msg = new QLabel("<font color=\"orange\"><b>You are running in degraded "
+		auto* warning_msg = new QLabel("<font color=\"orange\"><b>You are running in degraded "
 		                                 "mode without GPU acceleration. </b></font>");
 		statusBar()->addPermanentWidget(warning_msg, 0);
 	}
@@ -196,13 +196,13 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 	QString mime_type = "application/x-inendi_workspace";
 
 	if (event->type() == QEvent::DragEnter) {
-		QDragEnterEvent* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
+		auto* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
 		if (dragEnterEvent->mimeData()->hasFormat(mime_type)) {
 			dragEnterEvent->accept(); // dragEnterEvent->acceptProposedAction();
 			return true;
 		}
 	} else if (event->type() == QEvent::Drop) {
-		QDropEvent* dropEvent = static_cast<QDropEvent*>(event);
+		auto* dropEvent = static_cast<QDropEvent*>(event);
 		if (dropEvent->mimeData()->hasFormat(mime_type)) {
 			dropEvent->acceptProposedAction();
 			const QMimeData* mimeData = dropEvent->mimeData();
@@ -360,7 +360,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 				// Step 1: we add the different menus into the hash
 				QMenu* menu_exists = create_filters_menu_exists(actions_list, actions_name[i], i);
 				if (!menu_exists) {
-					QMenu* filter_element_menu = new QMenu(actions_name[i]);
+					auto* filter_element_menu = new QMenu(actions_name[i]);
 					actions_list[filter_element_menu] = i;
 				}
 
@@ -378,7 +378,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 						QMenu* previous_menu =
 						    create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
 
-						QAction* action = new QAction(actions_name[i] + "...", previous_menu);
+						auto* action = new QAction(actions_name[i] + "...", previous_menu);
 						action->setObjectName(filter_name);
 						action->setStatusTip(status_tip);
 						connect(action, &QAction::triggered, this, &PVMainWindow::filter_Slot);
@@ -394,7 +394,7 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 				}
 			}
 		} else { // Nothing to split, so there is only a direct action
-			QAction* action = new QAction(action_name + "...", menu);
+			auto* action = new QAction(action_name + "...", menu);
 			action->setObjectName(filter_name);
 			action->setStatusTip(status_tip);
 			connect(action, &QAction::triggered, this, &PVMainWindow::filter_Slot);
@@ -523,7 +523,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	if (!file_type_found and choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) != 0) {
 		for (auto& input : inputs) {
 			try {
-				PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(this);
+				auto* editorWidget = new PVFormatBuilderWidget(this);
 				editorWidget->show();
 				PVRush::PVFormat guess_format =
 				    editorWidget->load_log_and_guess_format(input, in_t);
@@ -563,7 +563,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		 * like last used current directory.
 		 */
 
-		PVWidgets::PVFileDialog* fdialog = new PVWidgets::PVFileDialog(this);
+		auto* fdialog = new PVWidgets::PVFileDialog(this);
 
 		fdialog->setNameFilter("Formats (*.format)");
 		fdialog->setWindowTitle("Load format from...");
@@ -667,7 +667,7 @@ void PVInspector::PVMainWindow::import_type_default_Slot()
  *****************************************************************************/
 void PVInspector::PVMainWindow::import_type_Slot()
 {
-	QAction* action_src = (QAction*)sender();
+	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
 	import_type_Slot(itype);
 }
@@ -761,7 +761,7 @@ void PVInspector::PVMainWindow::display_inv_elts()
 	if (current_view()) {
 		if (current_view()->get_parent<Inendi::PVSource>().get_invalid_evts().size() > 0) {
 			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
-			if (PVGuiQt::PVSourceWorkspace* source_workspace =
+			if (auto* source_workspace =
 			        dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
 				source_workspace->get_source_invalid_evts_dlg()->show();
 			}
@@ -1193,7 +1193,7 @@ void PVInspector::PVMainWindow::treat_invalid_formats(
 
 	msg.exec();
 
-	QPushButton* clicked_btn = (QPushButton*)msg.clickedButton();
+	auto* clicked_btn = (QPushButton*)msg.clickedButton();
 
 	if (clicked_btn == ignore) {
 		return;
@@ -1235,7 +1235,7 @@ PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(const QSt
 	QString canonicalFilePath = QFileInfo(path).canonicalFilePath();
 
 	for (QWidget* widget : qApp->topLevelWidgets()) {
-		PVMainWindow* mw = qobject_cast<PVMainWindow*>(widget);
+		auto* mw = qobject_cast<PVMainWindow*>(widget);
 		if (mw && QFileInfo(mw->get_solution_path()).canonicalFilePath() == canonicalFilePath)
 			return mw;
 	}

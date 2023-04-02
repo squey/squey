@@ -35,13 +35,13 @@
 
 PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent) : QDialog(parent)
 {
-	QMenuBar* rl_menuBar = new QMenuBar(nullptr);
+	auto* rl_menuBar = new QMenuBar(nullptr);
 	QMenu* rl_fileMenu = rl_menuBar->addMenu(tr("Machine"));
 
-	QDialogButtonBox* buttonBox =
+	auto* buttonBox =
 	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
-	QVBoxLayout* rl_layout = new QVBoxLayout;
+	auto* rl_layout = new QVBoxLayout;
 
 	pv_RemoteLog = new LogViewerWidget(this);
 	rl_fileMenu->addAction(pv_RemoteLog->addMachineAction());
@@ -52,7 +52,7 @@ PVLogViewerDialog::PVLogViewerDialog(QStringList const& formats, QWidget* parent
 
 	rl_layout->addWidget(pv_RemoteLog);
 
-	QHBoxLayout* formatLayout = new QHBoxLayout();
+	auto* formatLayout = new QHBoxLayout();
 	formatLayout->addWidget(new QLabel(tr("Format:")));
 	_combo_format = new QComboBox();
 	_combo_format->addItems(formats);

@@ -43,7 +43,7 @@ bool PVRush::PVInputTypeSplunk::createWidget(hash_formats& formats,
 		return false;
 	}
 
-	PVSplunkQuery* query = new PVSplunkQuery(params->get_query());
+	auto* query = new PVSplunkQuery(params->get_query());
 
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);

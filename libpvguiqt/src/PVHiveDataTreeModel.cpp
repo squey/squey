@@ -48,7 +48,7 @@ template <class R, class F, class In, size_t I, class... T>
 typename std::enable_if<I != sizeof...(T), R>::type apply_on(In* in, F const& f)
 {
 	using ith_t = typename std::tuple_element<I, std::tuple<T...>>::type;
-	if (ith_t* v = dynamic_cast<ith_t*>(in)) {
+	if (auto* v = dynamic_cast<ith_t*>(in)) {
 		return f.template call<ith_t>(v);
 	}
 	return apply_on<R, F, In, I + 1, T...>(in, f);
@@ -93,7 +93,7 @@ QModelIndex PVHiveDataTreeModel::index(int row, int column, const QModelIndex& p
 	PVCore::PVDataTreeObject* p =
 	    (parent.isValid()) ? (PVCore::PVDataTreeObject*)parent.internalPointer() : &_root;
 
-	PVCore::PVDataTreeObject* child =
+	auto* child =
 	    apply_on<PVCore::PVDataTreeObject*, Inendi::PVPlotted, Inendi::PVMapped, Inendi::PVSource>(
 	        p, ith_child{row});
 
@@ -114,7 +114,7 @@ struct get_size {
 int PVHiveDataTreeModel::rowCount(const QModelIndex& parent) const
 {
 
-	PVCore::PVDataTreeObject* p = (PVCore::PVDataTreeObject*)parent.internalPointer();
+	auto* p = (PVCore::PVDataTreeObject*)parent.internalPointer();
 
 	if (not parent.isValid()) {
 		return 1;
@@ -150,12 +150,12 @@ QModelIndex PVHiveDataTreeModel::parent(const QModelIndex& index) const
 		return {};
 	}
 
-	PVCore::PVDataTreeObject* id = (PVCore::PVDataTreeObject*)index.internalPointer();
+	auto* id = (PVCore::PVDataTreeObject*)index.internalPointer();
 
 	PVCore::PVDataTreeObject* parent = nullptr;
 	int row = 0;
 
-	if (Inendi::PVMapped* v = dynamic_cast<Inendi::PVMapped*>(id)) {
+	if (auto* v = dynamic_cast<Inendi::PVMapped*>(id)) {
 		parent = &v->get_parent();
 		row = 0;
 	} else {

@@ -34,7 +34,7 @@ PVRush::PVOpcUaQuery::PVOpcUaQuery(PVOpcUaInfos const& infos,
 
 bool PVRush::PVOpcUaQuery::operator==(const PVInputDescription& other) const
 {
-	PVOpcUaQuery const* other_query = dynamic_cast<PVOpcUaQuery const*>(&other);
+	auto const* other_query = dynamic_cast<PVOpcUaQuery const*>(&other);
 	if (!other_query) {
 		return false;
 	}
@@ -59,8 +59,8 @@ std::unique_ptr<PVRush::PVInputDescription>
 PVRush::PVOpcUaQuery::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading OpcUa information...");
-	QString query = so.attribute_read<QString>("query");
-	QString query_type = so.attribute_read<QString>("query_type");
+	auto query = so.attribute_read<QString>("query");
+	auto query_type = so.attribute_read<QString>("query_type");
 	PVOpcUaInfos infos = PVOpcUaInfos::serialize_read(*so.create_object("server"));
 	return std::unique_ptr<PVOpcUaQuery>(new PVOpcUaQuery(infos, query, query_type));
 }
