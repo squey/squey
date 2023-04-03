@@ -63,18 +63,18 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	param_widget = new QWidget();
 
 	// init layout
-	QVBoxLayout* layout = new QVBoxLayout(param_widget);
-	QGridLayout* gridLayout = new QGridLayout();
+	auto* layout = new QVBoxLayout(param_widget);
+	auto* gridLayout = new QGridLayout();
 	param_widget->setLayout(layout);
 	param_widget->setObjectName("splitter");
 
 	// title
-	QLabel* label = new QLabel(tr("CSV"), nullptr);
+	auto* label = new QLabel(tr("CSV"), nullptr);
 	label->setAlignment(Qt::AlignHCenter);
 	layout->addWidget(label);
 
 	// field separator
-	QLabel* separator_label = new QLabel(tr("Field separator:"));
+	auto* separator_label = new QLabel(tr("Field separator:"));
 	gridLayout->addWidget(separator_label, 0, 0, Qt::AlignLeft);
 
 	separator_text = new PVWidgets::QKeySequenceWidget();
@@ -84,7 +84,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	gridLayout->addWidget(separator_text, 0, 1);
 
 	// Quote text
-	QLabel* quote_label = new QLabel("Quote character:");
+	auto* quote_label = new QLabel("Quote character:");
 	gridLayout->addWidget(quote_label, 1, 0, Qt::AlignLeft);
 
 	quote_text = new PVWidgets::QKeySequenceWidget();
@@ -94,7 +94,7 @@ QWidget* PVFilter::PVFieldSplitterCSVParamWidget::get_param_widget()
 	gridLayout->addWidget(quote_text, 1, 1);
 
 	// field number of col
-	QLabel* col_label = new QLabel(tr("Number of columns:"));
+	auto* col_label = new QLabel(tr("Number of columns:"));
 	gridLayout->addWidget(col_label, 2, 0, Qt::AlignLeft);
 
 	// Set default value for number of csv field.

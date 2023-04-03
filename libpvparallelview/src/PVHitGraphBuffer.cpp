@@ -27,7 +27,7 @@
 
 #include <cassert>
 #include <cstdlib>
-#include <string.h>
+#include <cstring>
 #include <iostream>
 
 //

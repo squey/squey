@@ -116,9 +116,9 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterURL::one_to_many(
 	// Add the number of final fields and save their pointers
 	PVCore::PVField* pf[URL_NUMBER_FIELDS_CREATED];
 	const PVCore::PVField null_field(*field.elt_parent(), &empty_str, &empty_str);
-	for (size_t i = 0; i < URL_NUMBER_FIELDS_CREATED; i++) {
-		PVCore::list_fields::iterator it_new = l.insert(it_ins, null_field);
-		pf[i] = &(*it_new);
+	for (auto & i : pf) {
+		auto it_new = l.insert(it_ins, null_field);
+		i = &(*it_new);
 	}
 
 	set_field(_col_proto, pf, str_url, fh->furl.features.scheme);

@@ -24,6 +24,7 @@
 //
 
 #include <chrono>
+#include <memory>
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
@@ -127,8 +128,8 @@ int main()
 		check_valid_params(sp_lib_p, valid_params_list[i], valid_params_result[i]);
 	}
 
-	for (size_t i = 0; i < invalid_params_list.size(); ++i) {
-		check_invalid_params(sp_lib_p, invalid_params_list[i]);
+	for (const auto & i : invalid_params_list) {
+		check_invalid_params(sp_lib_p, i);
 	}
 #endif
 
@@ -138,7 +139,7 @@ int main()
 	sp_lib_p->set_args(args);
 
 	auto ff =
-	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	    std::make_unique<PVFilter::PVElementFilterByFields>();
 	ff->add_filter(sp_lib_p);
 	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 

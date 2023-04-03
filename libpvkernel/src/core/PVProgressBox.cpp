@@ -303,7 +303,7 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
 		pbox.update();
 
 		// Cancel python script execution
-		std::string threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
+		auto threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
 		unsigned long threadNumber = 0;
 		sscanf(threadId.c_str(), "%lx", &threadNumber);
 		PyGILState_STATE gstate = PyGILState_Ensure();

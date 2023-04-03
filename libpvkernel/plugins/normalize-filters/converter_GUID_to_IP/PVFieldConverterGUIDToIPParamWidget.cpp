@@ -68,13 +68,13 @@ QWidget* PVFilter::PVFieldConverterGUIDToIPParamWidget::get_param_widget()
 
 	_param_widget = new QWidget();
 
-	QVBoxLayout* layout = new QVBoxLayout(_param_widget);
+	auto* layout = new QVBoxLayout(_param_widget);
 
 	_param_widget->setLayout(layout);
 	_param_widget->setObjectName("splitter");
 
 	// Label
-	QLabel* label = new QLabel("This converter translates GUID into IPv4 or IPv6 address.\n"
+	auto* label = new QLabel("This converter translates GUID into IPv4 or IPv6 address.\n"
 	                           "\n"
 	                           "GUID={58BEFDF8-400C-0C00-0000-000000000071}\n"
 	                           "IPv4=88.190.253.248\n"
@@ -85,8 +85,8 @@ QWidget* PVFilter::PVFieldConverterGUIDToIPParamWidget::get_param_widget()
 	layout->addWidget(label);
 
 	// Checkboxes
-	QGroupBox* groupBox = new QGroupBox("IP type");
-	QVBoxLayout* ips_layout = new QVBoxLayout();
+	auto* groupBox = new QGroupBox("IP type");
+	auto* ips_layout = new QVBoxLayout();
 	_ipv4 = new QRadioButton(tr("IPv4"));
 	_ipv4->setChecked(!args["ipv6"].toBool());
 	_ipv6 = new QRadioButton(tr("IPv6"));

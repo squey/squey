@@ -37,10 +37,10 @@ PVRush::PVSourceCreatorOpcUa::create_source_from_input(PVInputDescription_p inpu
 
 QString PVRush::PVSourceCreatorOpcUa::supported_type() const
 {
-	return QString("opcua");
+	return {"opcua"};
 }
 
 QString PVRush::PVSourceCreatorOpcUa::name() const
 {
-	return QString("opcua");
+	return {"opcua"};
 }

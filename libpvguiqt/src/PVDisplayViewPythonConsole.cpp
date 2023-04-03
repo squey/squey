@@ -99,27 +99,27 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
                                                                QWidget* parent,
                                                                Params const&) const
 {
-	Inendi::PVRoot& root = view->get_parent<Inendi::PVRoot>();
+	auto& root = view->get_parent<Inendi::PVRoot>();
 	Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(root);
 
-	QWidget* console_widget = new QWidget(parent);
+	auto* console_widget = new QWidget(parent);
 
-	PVGuiQt::PVPythonCodeEditor* console_input = new PVGuiQt::PVPythonCodeEditor(PVGuiQt::PVPythonCodeEditor::EThemeType::DARK, parent);
+	auto* console_input = new PVGuiQt::PVPythonCodeEditor(PVGuiQt::PVPythonCodeEditor::EThemeType::DARK, parent);
 
-	QTextEdit* console_output = new QTextEdit(parent);
+	auto* console_output = new QTextEdit(parent);
 	console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
 
-	QPushButton* exec_script = new QPushButton("Exec sc&ript");
+	auto* exec_script = new QPushButton("Exec sc&ript");
 	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
 		run_python([=,&python_interpreter](){
 			python_interpreter.execute_script(console_input->toPlainText().toStdString(), false);
 		}, python_interpreter, console_output, parent);
 	});
 
-	QLabel* exec_file_label = new QLabel("Python file:");
-	QLineEdit* exec_file_line_edit = new QLineEdit();
+	auto* exec_file_label = new QLabel("Python file:");
+	auto* exec_file_line_edit = new QLineEdit();
 	exec_file_line_edit->setReadOnly(true);
-	QPushButton* exec_file_browse =  new QPushButton("&Browse...");
+	auto* exec_file_browse =  new QPushButton("&Browse...");
 	QObject::connect(exec_file_browse, &QPushButton::clicked, [=]() {
 		QString file_path = PVWidgets::PVFileDialog::getOpenFileName(
 			console_widget,
@@ -130,7 +130,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 			exec_file_line_edit->setText(file_path);
 		}
 	});
-	QPushButton* exec_file_button = new QPushButton("Exec &file");
+	auto* exec_file_button = new QPushButton("Exec &file");
 	QObject::connect(exec_file_button, &QPushButton::clicked, [=,&python_interpreter](){
 		const QString& file_path = exec_file_line_edit->text();
 		if (QFileInfo(file_path).exists()) {
@@ -141,12 +141,12 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 	});
 
     // Help
-    QPushButton* help_button = new QPushButton("&Help");
+    auto* help_button = new QPushButton("&Help");
     QObject::connect(help_button, &QPushButton::clicked, []() {
         QDesktopServices::openUrl(QUrl(QString(DOC_URL) + "/content/python_scripting/content.html"));
     });
 
-	QGridLayout* layout = new QGridLayout;
+	auto* layout = new QGridLayout;
 
 	layout->addWidget(exec_file_label, 0, 0);
 	layout->addWidget(exec_file_line_edit, 0, 1);

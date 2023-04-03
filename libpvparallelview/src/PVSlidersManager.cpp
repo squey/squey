@@ -186,7 +186,7 @@ void PVParallelView::PVSlidersManager::del_range_sliders(range_geometry_set_t& r
 {
 	auto ai = range.find(col);
 	if (ai != range.end()) {
-		range_geometry_list_t::const_iterator ii = ai->second.find(id);
+		auto ii = ai->second.find(id);
 		if (ii != ai->second.end()) {
 			ai->second.erase(ii);
 		}

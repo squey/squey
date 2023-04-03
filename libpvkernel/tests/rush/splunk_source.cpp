@@ -76,7 +76,7 @@ int main()
 
 		std::chrono::duration<double> dur(0.);
 		auto start = std::chrono::steady_clock::now();
-		while (PVCore::PVTextChunk* pc = dynamic_cast<PVCore::PVTextChunk*>(source())) {
+		while (auto* pc = dynamic_cast<PVCore::PVTextChunk*>(source())) {
 			auto end = std::chrono::steady_clock::now();
 			dur += end - start;
 			dump_chunk_csv(*pc, ofs);

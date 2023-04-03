@@ -149,9 +149,8 @@ PVCore::PVArgumentList PVCore::QSettings_to_PVArgumentList(QSettings& settings,
 	PVArgumentList args;
 	settings.beginGroup(group_name);
 	QStringList keys = settings.childKeys();
-	for (int i = 0; i < keys.size(); i++) {
-		QString const& key = keys.at(i);
-		if (def_args.contains(key)) {
+	for (const auto & key : keys) {
+			if (def_args.contains(key)) {
 			QString str;
 			if (settings.value(key).typeId() == static_cast<QMetaType::Type>(QMetaType::QStringList)) {
 				// QSettings returns strings containing commas as QStringList

@@ -56,7 +56,7 @@ void set_args(PVCore::PVArgumentList& args, const options_t& values)
 		if (i == 0) {
 			args[params[i]].setValue(PVCore::PVOriginalAxisIndexType(PVCol(values.first[i])));
 		} else {
-			PVCore::PVEnumType e = args[params[i]].value<PVCore::PVEnumType>();
+			auto e = args[params[i]].value<PVCore::PVEnumType>();
 			e.set_sel(values.first[i]);
 			args[params[i]].setValue(e);
 		}
@@ -79,7 +79,7 @@ void run_tests(Inendi::PVLayerFilter::p_type& plugin,
 	    {{{{1, 0, 1, 1, 1, 0}}, ".*01.*"}, 700}, // EXACT_MATCH + REGULAR_EXPRESSION
 	    {{{{1, 0, 0, 1, 1, 0}}, ".*w\\D{2}.*"},
 	     700}, // EXACT_MATCH + REGULAR_EXPRESSION + CASE_INSENSITIVE
-	    {{{{1, 0, 1, 0, 1, 0}}, "\\d{2}\\:\\d{2}\\:00"}, 200}, // REGULAR_EXPRESSION
+	    {{{{1, 0, 1, 0, 1, 0}}, R"(\d{2}\:\d{2}\:00)"}, 200}, // REGULAR_EXPRESSION
 	    {{{{1, 0, 0, 0, 1, 0}}, "j\\D{2}"}, 950},  // REGULAR_EXPRESSION + CASE_INSENSITIVE
 	    {{{{1, 1, 0, 0, 0, 0}}, "jan"}, 2355},     // CASE_INSENSITIVE + EXCLUDE
 	    {{{{1, 0, 1, 0, 0, 0}}, "Oct\nDec"}, 750}, // NONE

@@ -25,7 +25,7 @@
 
 #include <pvkernel/core/inendi_intrin.h>
 #include <pvkernel/core/inendi_assert.h>
-#include <stdio.h>
+#include <cstdio>
 
 __m128i get_epi8_ff_pos(int pos)
 {

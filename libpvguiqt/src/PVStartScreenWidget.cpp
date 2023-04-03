@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <assert.h>
+#include <cassert>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -100,7 +100,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	pv_startLayout->addWidget(start_widget);
 
 	auto versionLayout = new QGridLayout();
-	QLabel* label = new QLabel(tr("Current version") + QString(" :"));
+	auto* label = new QLabel(tr("Current version") + QString(" :"));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 0);
 	label = new QLabel(QString(INENDI_CURRENT_VERSION_STR));
@@ -159,11 +159,11 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	project_widget->setLayout(project_widget_layout);
 
 	// We create the headers labels
-	QLabel* format_label = new QLabel("FORMATS");
+	auto* format_label = new QLabel("FORMATS");
 	format_label->setObjectName("PVStartScreenWidget_header");
-	QLabel* import_label = new QLabel("SOURCES");
+	auto* import_label = new QLabel("SOURCES");
 	import_label->setObjectName("PVStartScreenWidget_header");
-	QLabel* project_label = new QLabel("INVESTIGATIONS");
+	auto* project_label = new QLabel("INVESTIGATIONS");
 	project_label->setObjectName("PVStartScreenWidget_header");
 
 	// We add the labels
@@ -172,19 +172,19 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	project_widget_layout->addWidget(project_label);
 
 	// Buttons
-	QPushButton* create_new_format_button = new QPushButton("Create a new format...");
+	auto* create_new_format_button = new QPushButton("Create a new format...");
 	create_new_format_button->setIcon(QIcon(":/new-icon-white"));
 	create_new_format_button->setCursor(Qt::PointingHandCursor);
 
-	QPushButton* edit_format_button = new QPushButton("Edit a format...");
+	auto* edit_format_button = new QPushButton("Edit a format...");
 	edit_format_button->setIcon(QIcon(":/edit-icon-white"));
 	edit_format_button->setCursor(Qt::PointingHandCursor);
 
-	QPushButton* create_new_project_button = new QPushButton("Create a new investigation");
+	auto* create_new_project_button = new QPushButton("Create a new investigation");
 	create_new_project_button->setIcon(QIcon(":/new-icon-white"));
 	create_new_project_button->setCursor(Qt::PointingHandCursor);
 
-	QPushButton* open_project_button = new QPushButton("Open an investigation...");
+	auto* open_project_button = new QPushButton("Open an investigation...");
 	open_project_button->setIcon(QIcon(":/open-icon-white"));
 	open_project_button->setCursor(Qt::PointingHandCursor);
 
@@ -204,12 +204,12 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// used
 	auto format_used_widget_line = new QFrame(format_widget);
 	format_used_widget_line->setFrameShape(QFrame::HLine);
-	QLabel* format_text_used_label = new QLabel("Recent used formats:", format_widget);
+	auto* format_text_used_label = new QLabel("Recent used formats:", format_widget);
 	format_text_used_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_used_widget_line);
 	format_widget_layout->addWidget(format_text_used_label);
 	auto used_format_header_layout = new QHBoxLayout();
-	QPushButton* clear_used_format_history = new QPushButton("Clear");
+	auto* clear_used_format_history = new QPushButton("Clear");
 	clear_used_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_used_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_used_format_history->setCursor(Qt::PointingHandCursor);
@@ -232,11 +232,11 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// edited
 	auto format_edited_widget_line = new QFrame(format_widget);
 	format_edited_widget_line->setFrameShape(QFrame::HLine);
-	QLabel* format_text_edited_label = new QLabel("Recent edited formats:", format_widget);
+	auto* format_text_edited_label = new QLabel("Recent edited formats:", format_widget);
 	format_text_edited_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_edited_widget_line);
 	auto edited_format_header_layout = new QHBoxLayout();
-	QPushButton* clear_edited_format_history = new QPushButton("Clear");
+	auto* clear_edited_format_history = new QPushButton("Clear");
 	clear_edited_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_edited_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_edited_format_history->setCursor(Qt::PointingHandCursor);
@@ -260,10 +260,10 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	auto project_widget_line = new QFrame(import_widget);
 	project_widget_line->setFrameShape(QFrame::HLine);
 	project_widget_layout->addWidget(project_widget_line);
-	QLabel* project_text_label = new QLabel("Recent investigations:", project_widget);
+	auto* project_text_label = new QLabel("Recent investigations:", project_widget);
 	project_text_label->setObjectName("PVStartScreenWidget_text");
 	auto projects_header_layout = new QHBoxLayout();
-	QPushButton* clear_project_history = new QPushButton("Delete");
+	auto* clear_project_history = new QPushButton("Delete");
 	clear_project_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_project_history->setFocusPolicy(Qt::NoFocus);
 	clear_project_history->setCursor(Qt::PointingHandCursor);
@@ -282,10 +282,10 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// Imports (text and line)
 	auto import_widget_line = new QFrame(project_widget);
 	import_widget_line->setFrameShape(QFrame::HLine);
-	QLabel* import_text_label = new QLabel("Recent sources:", import_widget);
+	auto* import_text_label = new QLabel("Recent sources:", import_widget);
 	auto sources_header_layout = new QHBoxLayout();
 	import_text_label->setCursor(Qt::PointingHandCursor);
-	QPushButton* clear_source_history = new QPushButton("Clear");
+	auto* clear_source_history = new QPushButton("Clear");
 	clear_source_history->setFocusPolicy(Qt::NoFocus);
 	clear_source_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_source_history->setCursor(Qt::PointingHandCursor);
@@ -331,7 +331,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 
 void PVGuiQt::PVStartScreenWidget::import_type()
 {
-	QAction* action_src = (QAction*)sender();
+	auto* action_src = (QAction*)sender();
 	assert(action_src);
 	QString const& itype = action_src->data().toString();
 	Q_EMIT import_type(itype);
@@ -360,7 +360,7 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 	// This is kind of a hack but it saves the use of a
 	// QAbstractListModel/QListView...
 	QStringList ids = id.split(";");
-	PVCore::Category category = (PVCore::Category)ids[0].toUInt();
+	auto category = (PVCore::Category)ids[0].toUInt();
 	uint64_t item_index = ids[1].toUInt();
 	QListWidgetItem* item = _recent_list_widgets[category]->item(item_index);
 
@@ -372,7 +372,7 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 		break;
 	}
 	case PVCore::Category::SOURCES: {
-		PVCore::PVSerializedSource ss = var.value<PVCore::PVSerializedSource>();
+		auto ss = var.value<PVCore::PVSerializedSource>();
 		if (ss.need_credential()) {
 			PVGuiQt::CredentialDialog dial;
 			if (dial.exec() != QDialog::Accepted) {
@@ -408,7 +408,7 @@ size_t PVGuiQt::PVStartScreenWidget::selected_count(PVCore::Category cat)
 
 	size_t selected_cout = 0;
 	for (int i = 0; i < list->count(); i++) {
-		__impl::PVListWidgetItem* item = (__impl::PVListWidgetItem*)list->item(i);
+		auto* item = (__impl::PVListWidgetItem*)list->item(i);
 		assert(item);
 		selected_cout += item->is_checked();
 	}
@@ -432,7 +432,7 @@ void PVGuiQt::PVStartScreenWidget::delete_investigation_dlg()
 
 	if (dlg->exec() == QDialog::Accepted) {
 		for (int i = 0; i < list->count(); i++) {
-			__impl::PVListWidgetItem* item = (__impl::PVListWidgetItem*)list->item(i);
+			auto* item = (__impl::PVListWidgetItem*)list->item(i);
 			assert(item);
 
 			QVariant var = item->data(Qt::UserRole);
@@ -662,7 +662,7 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 
 		QVariant var;
 		var.setValue(PVCore::PVSerializedSource(sd));
-		__impl::PVListWidgetItem* item_widget = new __impl::PVListWidgetItem(
+		auto* item_widget = new __impl::PVListWidgetItem(
 		    PVCore::Category::SOURCES, long_string, filenames, var, index, list, this);
 		list->setItemWidget(item_widget, item_widget->widget());
 

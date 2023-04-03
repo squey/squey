@@ -229,7 +229,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 {
 	so.set_current_status("Loading source...");
 	// Reload input desription
-	QString type_name = so.attribute_read<QString>("source-type");
+	auto type_name = so.attribute_read<QString>("source-type");
 	// FIXME : We should check for type_name validity if archive was manually changed.
 	PVRush::PVInputType_p int_lib =
 	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(type_name);
@@ -245,7 +245,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 		inputs_for_type.push_back(int_lib->serialize_read(*new_obj));
 	}
 
-	QString src_name = so.attribute_read<QString>("source-plugin");
+	auto src_name = so.attribute_read<QString>("source-plugin");
 	// FIXME : Handle error when source name if not correct
 	PVRush::PVSourceCreator_p sc_lib =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(src_name);
@@ -267,7 +267,7 @@ Inendi::PVSource& Inendi::PVSource::serialize_read(PVCore::PVSerializeObject& so
 		for (int idx = 0; idx < inv_elts_count; idx++) {
 			int inv_line = so.attribute_read<int>(
 			    QString::fromStdString("inv_elts_id/" + std::to_string(idx)));
-			QString inv_content = so.attribute_read<QString>(
+			auto inv_content = so.attribute_read<QString>(
 			    QString::fromStdString("inv_elts_value/" + std::to_string(idx)));
 			source._inv_elts.emplace(inv_line, inv_content.toStdString());
 		}

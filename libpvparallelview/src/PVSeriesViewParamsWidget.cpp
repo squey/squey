@@ -106,7 +106,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
 
 void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enable)
 {
-	QAction* sel = new QAction(this);
+	auto* sel = new QAction(this);
 	sel->setIcon(QIcon(":/zoom-autofit-horizontal"));
 	sel->setCheckable(true);
 	sel->setChecked(false);
@@ -119,7 +119,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enab
 		    checked ? PVSeriesViewZoomer::SelectorMode::Selecting
 		            : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	_bind_connections.push_back([sel, this] {
+	_bind_connections.emplace_back([sel, this] {
 		sel->setEnabled(true);
 		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 		        [sel](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
@@ -134,7 +134,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enab
 
 void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator(bool enable)
 {
-	QAction* hunt = new QAction(this);
+	auto* hunt = new QAction(this);
 	hunt->setIcon(QIcon(":/zoom-autofit-both"));
 	hunt->setCheckable(true);
 	hunt->setChecked(false);
@@ -147,7 +147,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator(bool enable
 		    checked ? PVSeriesViewZoomer::SelectorMode::Hunting
 		            : PVSeriesViewZoomer::SelectorMode::CrossHairs);
 	});
-	_bind_connections.push_back([hunt, this] {
+	_bind_connections.emplace_back([hunt, this] {
 		hunt->setEnabled(true);
 		connect(_series_view_widget->_zoomer, &PVSeriesViewZoomer::selector_mode_changed,
 		        [hunt](PVSeriesViewZoomer::SelectorMode, PVSeriesViewZoomer::SelectorMode mode) {
@@ -170,8 +170,8 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 	_rendering_mode_button->setToolTip(tr("Rendering mode"));
 
 	// Lines always rendering mode
-	QAction* forced_lines_mode = new QAction("Lines", this);
-	QShortcut* forced_lines_mode_shortcut =
+	auto* forced_lines_mode = new QAction("Lines", this);
+	auto* forced_lines_mode_shortcut =
 	    new QShortcut(QKeySequence(Qt::Key_L), _series_view_widget);
 	connect(forced_lines_mode_shortcut, &QShortcut::activated,
 	        [this, forced_lines_mode]() { set_rendering_mode(forced_lines_mode); });
@@ -184,8 +184,8 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 	        qOverload<>(&PVSeriesViewParamsWidget::set_rendering_mode));
 
 	// Lines rendering mode
-	QAction* lines_mode = new QAction("Mixed", this);
-	QShortcut* lines_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_M), _series_view_widget);
+	auto* lines_mode = new QAction("Mixed", this);
+	auto* lines_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_M), _series_view_widget);
 	connect(lines_mode_shortcut, &QShortcut::activated,
 	        [this, lines_mode]() { set_rendering_mode(lines_mode); });
 	lines_mode->setShortcut(Qt::Key_M);
@@ -198,8 +198,8 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 	        qOverload<>(&PVSeriesViewParamsWidget::set_rendering_mode));
 
 	// Points rendering mode
-	QAction* points_mode = new QAction("Points", this);
-	QShortcut* points_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_P), _series_view_widget);
+	auto* points_mode = new QAction("Points", this);
+	auto* points_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_P), _series_view_widget);
 	connect(points_mode_shortcut, &QShortcut::activated,
 	        [this, points_mode]() { set_rendering_mode(points_mode); });
 	points_mode->setShortcut(Qt::Key_P);
@@ -249,8 +249,8 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	_sampling_mode_button->setToolTip(tr("Sampling mode"));
 
 	// Mean sampling mode
-	QAction* mean_mode = new QAction("Average", this);
-	QShortcut* mean_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_1), _series_view_widget);
+	auto* mean_mode = new QAction("Average", this);
+	auto* mean_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_1), _series_view_widget);
 	connect(mean_mode_shortcut, &QShortcut::activated,
 	        [this, mean_mode]() { set_sampling_mode(mean_mode); });
 	mean_mode->setIcon(QIcon(":/avg_by"));
@@ -262,8 +262,8 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	        qOverload<>(&PVSeriesViewParamsWidget::set_sampling_mode));
 
 	// Min sampling mode
-	QAction* min_mode = new QAction("Min", this);
-	QShortcut* min_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_2), _series_view_widget);
+	auto* min_mode = new QAction("Min", this);
+	auto* min_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_2), _series_view_widget);
 	connect(min_mode_shortcut, &QShortcut::activated,
 	        [this, min_mode]() { set_sampling_mode(min_mode); });
 	min_mode->setIcon(QIcon(":/min_by"));
@@ -275,8 +275,8 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	        qOverload<>(&PVSeriesViewParamsWidget::set_sampling_mode));
 
 	// Max sampling mode
-	QAction* max_mode = new QAction("Max", this);
-	QShortcut* max_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_3), _series_view_widget);
+	auto* max_mode = new QAction("Max", this);
+	auto* max_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_3), _series_view_widget);
 	connect(max_mode_shortcut, &QShortcut::activated,
 	        [this, max_mode]() { set_sampling_mode(max_mode); });
 	max_mode->setIcon(QIcon(":/max_by"));

@@ -83,7 +83,7 @@ void PVWidgets::PVAxisComboBox::set_current_axis(PVCol axis)
 PVCol PVWidgets::PVAxisComboBox::current_axis() const
 {
 	if (currentIndex() == -1) {
-		return PVCol();
+		return {};
 	}
 	return currentData().value<PVCol>();
 }
@@ -126,8 +126,8 @@ void PVWidgets::PVAxisComboBox::mouseMoveEvent(QMouseEvent* event)
 	if ((event->pos() - _drag_start_position).manhattanLength() < QApplication::startDragDistance())
 		return;
 
-	QDrag* drag = new QDrag(this);
-	QMimeData* mimeData = new QMimeData;
+	auto* drag = new QDrag(this);
+	auto* mimeData = new QMimeData;
 
 	mimeData->setData(MIME_TYPE_PVCOL,
 	                  QByteArray::fromRawData(

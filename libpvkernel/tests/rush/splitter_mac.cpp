@@ -24,6 +24,7 @@
 //
 
 #include <chrono>
+#include <memory>
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
@@ -54,7 +55,7 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("mac_address");
 
 	auto ff =
-	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	    std::make_unique<PVFilter::PVElementFilterByFields>();
 	ff->add_filter(sp_lib_p);
 	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 

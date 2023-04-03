@@ -38,7 +38,7 @@ PVGuiQt::PVRootTreeModel::PVRootTreeModel(Inendi::PVSource& root, QObject* paren
 
 QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) const
 {
-	if (Inendi::PVView* v =
+	if (auto* v =
 	        dynamic_cast<Inendi::PVView*>((PVCore::PVDataTreeObject*)index.internalPointer())) {
 		if (role == Qt::FontRole) {
 			if (v->get_parent<Inendi::PVRoot>().current_view() == v) {

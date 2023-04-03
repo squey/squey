@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <stdlib.h>
+#include <cstdlib>
 #include <pvkernel/core/inendi_assert.h>
 #include <pvkernel/core/inendi_bench.h>
 
@@ -38,8 +38,8 @@ int main(void)
 	// #include "test-env.h"
 
 	Inendi::PVSelection* selection;
-	Inendi::PVSelection* selection2 = new Inendi::PVSelection(SELECTION_COUNT);
-	Inendi::PVSelection* selection3 = new Inendi::PVSelection(SELECTION_COUNT);
+	auto* selection2 = new Inendi::PVSelection(SELECTION_COUNT);
+	auto* selection3 = new Inendi::PVSelection(SELECTION_COUNT);
 	Inendi::PVSelection a(SELECTION_COUNT);
 	Inendi::PVSelection b(SELECTION_COUNT);
 

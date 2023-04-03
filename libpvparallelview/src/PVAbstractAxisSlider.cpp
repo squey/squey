@@ -67,7 +67,7 @@ PVParallelView::PVAbstractAxisSlider::~PVAbstractAxisSlider()
 {
 	QGraphicsScene* s = scene();
 
-	if (s != 0) {
+	if (s != nullptr) {
 		s->removeItem(this);
 	}
 }

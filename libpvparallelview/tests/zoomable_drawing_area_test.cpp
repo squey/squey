@@ -40,7 +40,7 @@
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 
 #include <iostream>
-#include <stdio.h>
+#include <cstdio>
 
 #define print_rect(R) __print_rect(#R, R)
 
@@ -377,7 +377,7 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 	constexpr static int zoom_min = -22 * zoom_steps;
 	constexpr static int zoom_max = 8 * zoom_steps;
 
-	typedef PVParallelView::PVZoomConverterScaledPowerOfTwo<zoom_steps> zoom_converter_t;
+	using zoom_converter_t = PVParallelView::PVZoomConverterScaledPowerOfTwo<zoom_steps>;
 
   public:
 	MyPlottingZDAWA(QWidget* parent = nullptr)
@@ -424,7 +424,7 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 		set_ticks_per_level(8);
 	}
 
-	~MyPlottingZDAWA()
+	~MyPlottingZDAWA() override
 	{
 		// PVZoomableDrawingArea does not care about the constraints deletion
 		delete get_constraints();
@@ -456,7 +456,7 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 
 class MyZoomingZDA : public PVParallelView::PVZoomableDrawingArea
 {
-	typedef PVParallelView::PVZoomConverterScaledPowerOfTwo<5> zoom_converter_t;
+	using zoom_converter_t = PVParallelView::PVZoomConverterScaledPowerOfTwo<5>;
 
   public:
 	MyZoomingZDA(QWidget* parent = nullptr) : PVParallelView::PVZoomableDrawingArea(parent)
@@ -501,7 +501,7 @@ class MyZoomingZDA : public PVParallelView::PVZoomableDrawingArea
 		               0);
 	}
 
-	~MyZoomingZDA()
+	~MyZoomingZDA() override
 	{
 		// PVZoomableDrawingArea does not care about the constraints deletion
 		delete get_constraints();

@@ -60,7 +60,7 @@ class PVMyCustomType : public PVCore::PVArgumentType<PVMyCustomType>
 		_str1 = strList[0];
 		_str2 = strList[1];
 	}
-	virtual QString to_string() const override
+	QString to_string() const override
 	{
 		QString str;
 		str.append(_str1);
@@ -69,7 +69,7 @@ class PVMyCustomType : public PVCore::PVArgumentType<PVMyCustomType>
 
 		return str;
 	}
-	virtual PVCore::PVArgument from_string(QString const& s, bool* ok /*= 0*/) const override
+	PVCore::PVArgument from_string(QString const& s, bool* ok /*= 0*/) const override
 	{
 		bool res_ok = false;
 		PVCore::PVArgument arg;

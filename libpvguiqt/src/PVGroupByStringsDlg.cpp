@@ -89,7 +89,7 @@ PVGuiQt::PVStatsModel* PVGuiQt::PVGroupByStringsDlg::details_create_model(
 bool PVGuiQt::PVGroupByStringsDlg::process_context_menu(QAction* act)
 {
 	if (act && act == _act_details) {
-		PVListUniqStringsDlg* dlg = new PVListUniqStringsDlg(
+		auto* dlg = new PVListUniqStringsDlg(
 		    *lib_view(), _col2, [this](auto&&... args) { return details_create_model(args...); },
 		    parentWidget());
 		dlg->move(x() + width() + 10, y());

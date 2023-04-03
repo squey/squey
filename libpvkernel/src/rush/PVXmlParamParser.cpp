@@ -196,9 +196,9 @@ void PVRush::PVXmlParamParser::setAxesCombinationFromString(QString const& str)
 	}
 
 	_axes_combination.reserve(axes_list.size());
-	for (int i = 0; i < axes_list.size(); i++) {
+	for (auto & i : axes_list) {
 		bool ok = false;
-		PVCol ax_id = PVCol(axes_list[i].toLongLong(&ok));
+		PVCol ax_id = PVCol(i.toLongLong(&ok));
 		if (!ok || ax_id >= naxes) {
 			continue;
 		}

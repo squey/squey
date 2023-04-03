@@ -40,8 +40,7 @@ PVRush::PVInputFile::PVInputFile(const char* path) : _path(path), _decompressor(
 }
 
 PVRush::PVInputFile::~PVInputFile()
-{
-}
+= default;
 
 PVRush::PVInputFile::chunk_sizes_t PVRush::PVInputFile::operator()(char* buffer, size_t n)
 {
@@ -64,7 +63,7 @@ void PVRush::PVInputFile::seek_begin()
 
 QString PVRush::PVInputFile::human_name()
 {
-	return QString(_path.c_str());
+	return {_path.c_str()};
 }
 
 uint64_t PVRush::PVInputFile::file_size()

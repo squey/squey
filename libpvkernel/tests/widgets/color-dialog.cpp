@@ -32,7 +32,7 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
-	PVWidgets::PVColorDialog* cp = new PVWidgets::PVColorDialog();
+	auto* cp = new PVWidgets::PVColorDialog();
 	cp->set_color(PVCore::PVHSVColor(20));
 	cp->show();
 

@@ -100,8 +100,8 @@ Inendi::PVView::PVView(PVPlotted& plotted)
 	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
 	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 
-	for (auto it = lf.begin(); it != lf.end(); it++) {
-		filters_args[it->key()] = it->value()->get_default_args_for_view(*this);
+	for (const auto & it : lf) {
+		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
 	}
 
 	_layer_stack_about_to_refresh.emit();
@@ -414,7 +414,7 @@ PVRush::PVNraw const& Inendi::PVView::get_rushnraw_parent() const
  *****************************************************************************/
 void Inendi::PVView::process_correlation()
 {
-	Inendi::PVRoot& root = get_parent<Inendi::PVRoot>();
+	auto& root = get_parent<Inendi::PVRoot>();
 	root.process_correlation(this);
 }
 
@@ -586,9 +586,9 @@ void Inendi::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 	PVLayer& layer = layer_stack.get_layer_n(n);
 
 	if (layer.get_visible()) {
-		layer.set_visible(0);
+		layer.set_visible(false);
 	} else {
-		layer.set_visible(1);
+		layer.set_visible(true);
 	}
 	_layer_stack_refreshed.emit();
 }
@@ -738,7 +738,7 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 	if (ret) {
 		// update format
 		PVCol col(nraw.column_count()-1);
-		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+		auto& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
 		PVRush::PVAxisFormat axis_format(col);
 		axis_format.set_name(axis_name);
 		axis_format.set_type(column_type.c_str());
@@ -750,9 +750,9 @@ bool Inendi::PVView::insert_axis(const pvcop::db::type_t& column_type, const pyb
 		_axes_combination.axis_append(col);
 
 		// compute mapping and plotting
-		Inendi::PVMapped& mapped = get_parent<PVMapped>();
+		auto& mapped = get_parent<PVMapped>();
 		mapped.append_mapped();
-		Inendi::PVPlotted& plotted = get_parent<PVPlotted>();
+		auto& plotted = get_parent<PVPlotted>();
 		plotted.append_plotted();
 		mapped.compute();
 	}
@@ -768,8 +768,8 @@ void Inendi::PVView::delete_axis(PVCombCol comb_col)
 	// Notify axes combination update on Qt GUI thread
     QMetaObject::invokeMethod(qApp, [&,col](){
 		// Remove axes
-		PVRush::PVFormat& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
-		PVRush::PVFormat& original_format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_original_format()); // FIXME
+		auto& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+		auto& original_format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_original_format()); // FIXME
 		_axis_combination_about_to_update.emit();
 		_axes_combination.delete_axes(col);
 		format.delete_axis(col);

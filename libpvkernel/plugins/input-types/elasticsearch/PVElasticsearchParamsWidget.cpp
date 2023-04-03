@@ -45,7 +45,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
                      PVElasticsearchInfos,
                      PVElasticsearchQuery>(in_t, formats, parent)
 {
-	QLabel* label_index = new QLabel("Index/alias :");
+	auto* label_index = new QLabel("Index/alias :");
 	_btn_refresh = new QPushButton("&Refresh");
 	_combo_index = new PVWidgets::PVFilterableComboBox();
 	_port_sb->setValue(PVElasticsearchAPI::DEFAULT_PORT);
@@ -53,7 +53,7 @@ PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
 	_btn_refresh->setSizePolicy(QSizePolicy::Maximum, QSizePolicy::Minimum);
 	_combo_index->setSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::Minimum);
 
-	QHBoxLayout* custom_layout = new QHBoxLayout();
+	auto* custom_layout = new QHBoxLayout();
 	custom_layout->addWidget(label_index);
 	custom_layout->addWidget(_combo_index);
 	custom_layout->addWidget(_btn_refresh);
@@ -135,7 +135,7 @@ void PVRush::PVElasticsearchParamsWidget::reset_columns_tree_widget()
 	PVRush::PVElasticsearchAPI es(get_infos());
 	es.visit_columns([&](const std::string& rel_name, const std::string& abs_name,
 	                     const std::string& type, bool is_leaf, bool is_last_child) {
-		QTreeWidgetItem* tree_item = new QTreeWidgetItem(parents.back().first);
+		auto* tree_item = new QTreeWidgetItem(parents.back().first);
 
 		tree_item->setText(0, rel_name.c_str());
 		tree_item->setData(0, Qt::UserRole, QString::fromStdString(abs_name));
@@ -485,7 +485,7 @@ QString PVRush::PVElasticsearchParamsWidget::get_serialize_query() const
 	int query_type = _query_type_cb->currentIndex();
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
-		return QString(_querybuilder->get_rules().c_str());
+		return {_querybuilder->get_rules().c_str()};
 	} else {
 		return _txt_query->toPlainText();
 	}

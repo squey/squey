@@ -48,18 +48,18 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
     setCheckable(true);
     setChecked(false);
 
-	QVBoxLayout* layout = new QVBoxLayout(this);
+	auto* layout = new QVBoxLayout(this);
 
     // Script path
-	QHBoxLayout* python_script_path_layout = new QHBoxLayout();
-	QWidget* python_script_path_container_widget = new QWidget;
+	auto* python_script_path_layout = new QHBoxLayout();
+	auto* python_script_path_container_widget = new QWidget;
 	python_script_path_container_widget->setLayout(python_script_path_layout);
 	_python_script_path_radio = new QRadioButton();
 	_python_script_path_radio->setAutoExclusive(true);
-	QLabel* exec_python_file_label = new QLabel("Python file:");
+	auto* exec_python_file_label = new QLabel("Python file:");
 	_exec_python_file_line_edit = new QLineEdit();
 	_exec_python_file_line_edit->setReadOnly(true);
-	QPushButton* exec_python_file_browse =  new QPushButton("&Browse...");
+	auto* exec_python_file_browse =  new QPushButton("&Browse...");
 	QObject::connect(exec_python_file_browse, &QPushButton::clicked, [=,this]() {
 		QString file_path = PVWidgets::PVFileDialog::getOpenFileName(
 			this,
@@ -74,31 +74,31 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
 	});
 	python_script_path_layout->addWidget(_exec_python_file_line_edit);
 	python_script_path_layout->addWidget(exec_python_file_browse);
-    QHBoxLayout* python_script_path_radio_layout = new QHBoxLayout();
+    auto* python_script_path_radio_layout = new QHBoxLayout();
     python_script_path_container_widget->setLayout(python_script_path_layout);
     python_script_path_radio_layout->addWidget(_python_script_path_radio);
     python_script_path_radio_layout->addWidget(exec_python_file_label);
     python_script_path_radio_layout->addWidget(python_script_path_container_widget);
 
     // Script content
-	QHBoxLayout* python_script_content_layout = new QHBoxLayout();
-	QWidget* python_script_content_container_widget = new QWidget;
+	auto* python_script_content_layout = new QHBoxLayout();
+	auto* python_script_content_container_widget = new QWidget;
 	_python_script_content_radio = new QRadioButton();
 	_python_script_content_radio->setAutoExclusive(true);
-	QLabel* exec_python_content_label = new QLabel("Python script:");
+	auto* exec_python_content_label = new QLabel("Python script:");
 	_python_script_content_text = new PVGuiQt::PVPythonCodeEditor(PVGuiQt::PVPythonCodeEditor::EThemeType::LIGHT, parent);;
 
     connect(_python_script_content_text, &QTextEdit::textChanged, this, [this](){
         notify_python_script_updated();
     });
 	python_script_content_layout->addWidget(_python_script_content_text);
-    QHBoxLayout* python_script_content_radio_layout = new QHBoxLayout();
+    auto* python_script_content_radio_layout = new QHBoxLayout();
     python_script_content_container_widget->setLayout(python_script_content_layout);
     python_script_content_radio_layout->addWidget(_python_script_content_radio);
     python_script_content_radio_layout->addWidget(exec_python_content_label);
     python_script_content_radio_layout->addWidget(python_script_content_container_widget);
 
-	QButtonGroup* python_script_radio_group = new QButtonGroup(this);
+	auto* python_script_radio_group = new QButtonGroup(this);
 	python_script_radio_group->addButton(_python_script_path_radio);
 	python_script_radio_group->addButton(_python_script_content_radio);
 
@@ -124,7 +124,7 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
     });
 
     // Help
-    QPushButton* help_button = new QPushButton("&Help");
+    auto* help_button = new QPushButton("&Help");
     connect(help_button, &QPushButton::clicked, []() {
         QDesktopServices::openUrl(QUrl(QString(DOC_URL) + "/content/python_scripting/content.html"));
     });

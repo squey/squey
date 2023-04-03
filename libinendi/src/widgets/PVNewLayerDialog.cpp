@@ -37,7 +37,7 @@ PVWidgets::PVNewLayerDialog::PVNewLayerDialog(const QString& layer_name,
     : QDialog(parent)
 {
 	auto layout = new QVBoxLayout();
-	QLabel* label = new QLabel("Layer name:");
+	auto* label = new QLabel("Layer name:");
 	_text = new QLineEdit(layer_name);
 	_text->setSelection(0, layer_name.length());
 	label->setBuddy(_text);

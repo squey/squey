@@ -63,12 +63,12 @@ QWidget* PVFilter::PVFieldConverterStructParamWidget::get_param_widget()
 
 	_param_widget = new QWidget;
 
-	QVBoxLayout* layout = new QVBoxLayout(_param_widget);
+	auto* layout = new QVBoxLayout(_param_widget);
 
 	_param_widget->setLayout(layout);
 
 	// Label
-	QLabel* label = new QLabel(
+	auto* label = new QLabel(
 	    "Identify structural patterns by removing all the alphanumeric characters of a field.\n\n"
 	    "The only remaining characters are the following :\n"
 	    "!\"#$%&'()*+,-./:;<=>?@[\\]^_`{|}~");

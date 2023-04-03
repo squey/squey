@@ -70,7 +70,7 @@ QVariant PVWidgets::PVArgumentListModel::data(const QModelIndex& index, int role
 	// We check if we have no args, and then restrict to the cases of Qt::DisplayRole and
 	// Qt::EditRole
 	if (_args == nullptr || (role != Qt::DisplayRole && role != Qt::EditRole))
-		return QVariant();
+		return {};
 
 	// We get an iterator for the Arguments
 	auto it = _args->begin();

@@ -534,7 +534,7 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata) c
 
 	// Check if this is a "one_to_many" filter, and, in such case, set the number of
 	// expected fields.
-	PVFilter::PVFieldsFilter<PVFilter::one_to_many>* sp_p =
+	auto* sp_p =
 	    dynamic_cast<PVFilter::PVFieldsFilter<PVFilter::one_to_many>*>(filter_clone.get());
 	if (sp_p) {
 		sp_p->set_number_expected_fields(fdata.nchildren);
@@ -634,9 +634,9 @@ QString PVRush::PVFormat::get_python_script(bool& as_path, bool& disabled) const
 PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading format...");
-	QString format_name = so.attribute_read<QString>("name");
+	auto format_name = so.attribute_read<QString>("name");
 
-	QString fname = so.attribute_read<QString>("filename");
+	auto fname = so.attribute_read<QString>("filename");
 	QString full_path = so.file_read(fname);
 	QString pattern = PVRush::PVNrawCacheManager::nraw_dir() + "/investigation_tmp_XXXXXX";
 	QString tmp_dir = mkdtemp(pattern.toLatin1().data());

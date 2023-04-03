@@ -34,7 +34,7 @@
 PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent)
     : QDialog(parent), _temp_axes_comb(view.get_axes_combination()), _lib_view(view)
 {
-	QVBoxLayout* main_layout = new QVBoxLayout(this);
+	auto* main_layout = new QVBoxLayout(this);
 	_box_buttons = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel |
 	                                    QDialogButtonBox::Apply);
 	_axes_widget = new PVAxesCombinationWidget(_temp_axes_comb, &view);

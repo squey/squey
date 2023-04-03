@@ -49,9 +49,7 @@
 
 using Inendi::PVSelection;
 
-namespace PVParallelView
-{
-namespace __impl
+namespace PVParallelView::__impl
 {
 
 class TBBCreateTreeTask
@@ -205,7 +203,6 @@ class TBBMergeTreesTask
 	PVParallelView::PVZoneTree::PVTreeParams const& _params;
 	uint32_t _task_num;
 };
-} // namespace __impl
 } // namespace PVParallelView
 
 // PVZoneTree implementation
@@ -249,10 +246,10 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 
 	// Update branch pointer
 	PVRow* cur_p = _tree_data;
-	for (PVRow b = 0; b < NBUCKETS; b++) {
-		if (_treeb[b].count > 0) {
-			_treeb[b].p = cur_p;
-			cur_p += ((_treeb[b].count + 15) / 16) * 16;
+	for (auto & b : _treeb) {
+		if (b.count > 0) {
+			b.p = cur_p;
+			cur_p += ((b.count + 15) / 16) * 16;
 		}
 	}
 

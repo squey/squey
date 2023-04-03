@@ -542,11 +542,11 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 	// the screen's upper limit in plotted coordinates system
 	uint64_t y_min = view_rect.top() * BUCKET_ELT_COUNT;
 	// the backend_image's lower limit in plotted coordinates system
-	uint64_t y_lim =
+	auto y_lim =
 	    PVCore::clamp<uint64_t>(y_min + (1 << bbits) * alpha * pixel_height, 0ULL, 1ULL << 32);
 	// the screen's lower limit in plotted coordinates system
 	// y_max can not be greater than y_lim
-	uint64_t y_max =
+	auto y_max =
 	    PVCore::clamp<uint64_t>(y_min + screen_rect.height() * pixel_height, 0ULL, y_lim);
 
 	_sliders_manager_p->update_zoom_sliders(_axis_index, _sliders_group.get(), y_min, y_max,
@@ -947,7 +947,7 @@ void PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update(
 
 		if (y_dist != 0) {
 			double screen_height = _zpview->get_viewport()->rect().height();
-			double wanted_alpha = PVCore::clamp<double>(y_dist / screen_height, 0., 1.);
+			auto wanted_alpha = PVCore::clamp<double>(y_dist / screen_height, 0., 1.);
 			_wheel_value = (int)std::round(retrieve_wheel_value_from_alpha(wanted_alpha));
 		} else {
 			_wheel_value = max_wheel_value;

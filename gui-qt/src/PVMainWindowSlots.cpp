@@ -61,6 +61,7 @@
 #include <QScreen>
 
 #include <boost/thread/scoped_thread.hpp>
+#include <memory>
 
 /******************************************************************************
  *
@@ -72,7 +73,7 @@ int PVInspector::PVMainWindow::sequence_n = 1;
 
 void PVInspector::PVMainWindow::about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab)
 {
-	PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(tab, this);
+	auto* about_dialog = new PVGuiQt::PVAboutBoxDialog(tab, this);
 	about_dialog->exec();
 	about_dialog->deleteLater();
 }
@@ -193,7 +194,7 @@ void PVInspector::PVMainWindow::filter_Slot(void)
 		    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
 		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget =
+		auto* filter_widget =
 		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
 		filter_widget->show();
 	}
@@ -216,7 +217,7 @@ void PVInspector::PVMainWindow::filter_reprocess_last_Slot()
 		    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
 		Inendi::PVLayerFilter::p_type fclone = filter_org->clone<Inendi::PVLayerFilter>();
 		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
-		PVGuiQt::PVLayerFilterProcessWidget* filter_widget =
+		auto* filter_widget =
 		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
 		filter_widget->show();
 		filter_widget->preview_Slot();
@@ -270,7 +271,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 	} else {
 		// More than one project loaded: ask the user the project he wants to use to
 		// load the source
-		PVGuiQt::PVImportSourceToProjectDlg* dlg =
+		auto* dlg =
 		    new PVGuiQt::PVImportSourceToProjectDlg(get_root(), get_root().current_scene(), this);
 		if (dlg->exec() != QDialog::Accepted) {
 			return false;
@@ -320,7 +321,7 @@ bool PVInspector::PVMainWindow::load_source_from_description_Slot(
 void PVInspector::PVMainWindow::solution_new_Slot()
 {
 	// FIXME : This Windows is a memory leak
-	PVMainWindow* new_mw = new PVMainWindow();
+	auto* new_mw = new PVMainWindow();
 	new_mw->move(x() + 40, y() + 40);
 	new_mw->show();
 	new_mw->set_window_title_with_filename();
@@ -350,7 +351,7 @@ void PVInspector::PVMainWindow::load_solution_and_create_mw(QString const& file)
 		load_solution(file);
 	} else {
 		// FIXME : This Windows is a memory leak
-		PVMainWindow* other = new PVMainWindow();
+		auto* other = new PVMainWindow();
 		other->move(x() + 40, y() + 40);
 		other->show();
 		if (!other->load_solution(file)) {
@@ -423,8 +424,8 @@ bool PVInspector::PVMainWindow::load_solution(QString const& file)
 		        pbox.set_extended_status("Opening investigation for loading...");
 		        std::unique_ptr<PVCore::PVSerializeArchive> ar;
 		        try {
-			        ar.reset(new PVCore::PVSerializeArchiveZip(
-			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION));
+			        ar = std::make_unique<PVCore::PVSerializeArchiveZip>(
+			            file, PVCore::PVSerializeArchive::read, INENDI_ARCHIVES_VERSION);
 		        } catch (const PVCore::PVSerializeArchiveError& e) {
 			        read_exception = e;
 			        return;
@@ -809,7 +810,7 @@ void PVInspector::PVMainWindow::get_screenshot_desktop()
  *****************************************************************************/
 void PVInspector::PVMainWindow::new_format_Slot()
 {
-	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(this);
+	auto* editorWidget = new PVFormatBuilderWidget(this);
 	editorWidget->show();
 }
 
@@ -825,13 +826,13 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 		return;
 	}
 
-	Inendi::PVSource& cur_src = current_view()->get_parent<Inendi::PVSource>();
+	auto& cur_src = current_view()->get_parent<Inendi::PVSource>();
 	PVRush::PVFormat const& format = cur_src.get_original_format();
 	if (format.get_full_path().isEmpty()) {
 		return;
 	}
 
-	PVFormatBuilderWidget* editorWidget =
+	auto* editorWidget =
 	    new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	editorWidget->openFormat(format.get_full_path());
 	editorWidget->show();
@@ -839,7 +840,7 @@ void PVInspector::PVMainWindow::cur_format_Slot()
 
 void PVInspector::PVMainWindow::edit_format_Slot(const QString& format)
 {
-	PVFormatBuilderWidget* editorWidget =
+	auto* editorWidget =
 	    new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	editorWidget->openFormat(format);
 	editorWidget->show();
@@ -847,7 +848,7 @@ void PVInspector::PVMainWindow::edit_format_Slot(const QString& format)
 
 void PVInspector::PVMainWindow::open_format_Slot()
 {
-	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(this);
+	auto* editorWidget = new PVFormatBuilderWidget(this);
 	QString url = editorWidget->slotOpen();
 
 	if (!url.isEmpty()) {
@@ -869,14 +870,14 @@ void PVInspector::PVMainWindow::enable_menu_filter_Slot(bool f)
 
 void PVInspector::PVMainWindow::edit_format_Slot(QString const& path, QWidget* parent)
 {
-	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(parent);
+	auto* editorWidget = new PVFormatBuilderWidget(parent);
 	editorWidget->show();
 	editorWidget->openFormat(path);
 }
 
 void PVInspector::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* parent)
 {
-	PVFormatBuilderWidget* editorWidget = new PVFormatBuilderWidget(parent);
+	auto* editorWidget = new PVFormatBuilderWidget(parent);
 	editorWidget->show();
 	editorWidget->openFormat(doc);
 }
@@ -898,7 +899,7 @@ void PVInspector::PVMainWindow::selection_set_from_layer_Slot()
 		    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*current_view()),
 		    args, this);
 		if (ret) {
-			Inendi::PVLayer* layer = args["sel-layer"].value<Inendi::PVLayer*>();
+			auto* layer = args["sel-layer"].value<Inendi::PVLayer*>();
 			current_view()->set_selection_from_layer(*layer);
 		}
 	}

@@ -50,7 +50,7 @@
 class CustomMainWindow : public QMainWindow
 {
   public:
-	CustomMainWindow(QWidget* parent = 0) : QMainWindow(parent)
+	CustomMainWindow(QWidget* parent = nullptr) : QMainWindow(parent)
 	{
 		setGeometry(QStyle::alignedRect(Qt::LeftToRight, Qt::AlignCenter, size(),
 		                                QGuiApplication::screens()[0]->geometry()));
@@ -61,7 +61,7 @@ class CustomMainWindow : public QMainWindow
 class PVSplitterHandle : public QSplitterHandle
 {
   public:
-	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = 0)
+	PVSplitterHandle(Qt::Orientation orientation, QSplitter* parent = nullptr)
 	    : QSplitterHandle(orientation, parent)
 	{
 	}
@@ -109,9 +109,9 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	CustomMainWindow* mw = new CustomMainWindow();
+	auto* mw = new CustomMainWindow();
 
-	PVGuiQt::PVProjectsTabWidget* projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&root, mw);
+	auto* projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&root, mw);
 
 	projects_tab_widget->add_source(&src);
 

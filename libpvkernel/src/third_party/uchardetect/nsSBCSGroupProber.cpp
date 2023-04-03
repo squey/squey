@@ -59,7 +59,7 @@ nsSBCSGroupProber::nsSBCSGroupProber()
 	mProbers[8] = new nsSingleByteCharSetProber(&Latin5BulgarianModel);
 	mProbers[9] = new nsSingleByteCharSetProber(&Win1251BulgarianModel);
 
-	nsHebrewProber* hebprober = new nsHebrewProber();
+	auto* hebprober = new nsHebrewProber();
 	// Notice: Any change in these indexes - 10,11,12 must be reflected
 	// in the code below as well.
 	mProbers[10] = hebprober;

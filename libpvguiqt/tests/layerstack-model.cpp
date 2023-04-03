@@ -63,21 +63,21 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 
 	Inendi::PVView& view = *src.current_view();
-	PVGuiQt::PVLayerStackDelegate* delegate = new PVGuiQt::PVLayerStackDelegate(view);
-	PVGuiQt::PVLayerStackModel* model = new PVGuiQt::PVLayerStackModel(view);
-	PVGuiQt::PVLayerStackModel* model2 = new PVGuiQt::PVLayerStackModel(view);
+	auto* delegate = new PVGuiQt::PVLayerStackDelegate(view);
+	auto* model = new PVGuiQt::PVLayerStackModel(view);
+	auto* model2 = new PVGuiQt::PVLayerStackModel(view);
 
-	PVGuiQt::PVLayerStackView* qt_view = new PVGuiQt::PVLayerStackView();
-	PVGuiQt::PVLayerStackView* qt_view2 = new PVGuiQt::PVLayerStackView();
+	auto* qt_view = new PVGuiQt::PVLayerStackView();
+	auto* qt_view2 = new PVGuiQt::PVLayerStackView();
 	qt_view->setModel(model);
 	qt_view->setItemDelegate(delegate);
 	qt_view2->setModel(model2);
 	qt_view2->setItemDelegate(delegate);
 
-	QMainWindow* mw = new QMainWindow();
+	auto* mw = new QMainWindow();
 	mw->setCentralWidget(qt_view);
 
-	QMainWindow* mw2 = new QMainWindow();
+	auto* mw2 = new QMainWindow();
 	mw2->setCentralWidget(qt_view2);
 
 	mw->show();

@@ -46,15 +46,15 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view,
                                                          QWidget* parent,
                                                          Params const&) const
 {
-	PVGuiQt::PVListingModel* model = new PVGuiQt::PVListingModel(*view);
-	PVGuiQt::PVListingView* listing_view = new PVGuiQt::PVListingView(*view, parent);
+	auto* model = new PVGuiQt::PVListingModel(*view);
+	auto* listing_view = new PVGuiQt::PVListingView(*view, parent);
 	listing_view->setModel(model);
 
-	PVGuiQt::PVHorizontalHeaderView* hheaderview =
+	auto* hheaderview =
 	    new PVGuiQt::PVHorizontalHeaderView(Qt::Horizontal, listing_view);
 	listing_view->setHorizontalHeader(hheaderview);
 
-	PVGuiQt::PVStatsListingWidget* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);
+	auto* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);
 
 	return stats_listing;
 }

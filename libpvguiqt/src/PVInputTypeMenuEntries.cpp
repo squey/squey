@@ -39,11 +39,11 @@ static void map_input_by_sorted_internal_name(const F& f)
 	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
 
-	typedef std::pair<QString, QString> ele_t;
+	using ele_t = std::pair<QString, QString>;
 	std::list<ele_t> pairs;
 
 	for (const auto& it : lf) {
-		pairs.push_back(std::make_pair(it.value()->internal_name(), it.value()->registered_name()));
+		pairs.emplace_back(it.value()->internal_name(), it.value()->registered_name());
 	}
 
 	pairs.sort([](const ele_t& a, const ele_t& b) { return a.first.compare(b.first) < 0; });
@@ -58,7 +58,7 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu,
                                                          const char* slot)
 {
 	map_input_by_sorted_internal_name([&](const QString& key, const PVRush::PVInputType_p& in) {
-		QAction* action = new QAction(in->menu_input_name(), parent);
+		auto* action = new QAction(in->menu_input_name(), parent);
 		action->setData(QVariant(key));
 		action->setShortcut(in->menu_shortcut());
 		QObject::connect(action, SIGNAL(triggered()), parent, slot);
@@ -71,12 +71,12 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout,
                                                            const char* slot)
 {
 	map_input_by_sorted_internal_name([&](const QString& key, const PVRush::PVInputType_p& in) {
-		QAction* action = new QAction(in->menu_input_name(), parent);
+		auto* action = new QAction(in->menu_input_name(), parent);
 		action->setData(QVariant(key));
 		action->setShortcut(in->menu_shortcut());
 		QObject::connect(action, SIGNAL(triggered()), parent, slot);
 
-		QPushButton* button = new QPushButton(in->menu_input_name());
+		auto* button = new QPushButton(in->menu_input_name());
 		button->setIcon(in->icon());
 		button->setCursor(in->cursor());
 

@@ -80,7 +80,7 @@ bool isGenuineIntel()
 	// the CPUID instruction, 0 if not
 	CPUIDinfo Info{};
 	char procString[] = "GenuineIntel";
-	unsigned int* psint = (unsigned int*)procString;
+	auto* psint = (unsigned int*)procString;
 	get_cpuid_infos(&Info, 0x0);
 
 	// execute CPUID with eax = 0, subleaf doesn't matter so set it to zero

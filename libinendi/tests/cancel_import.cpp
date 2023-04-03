@@ -34,7 +34,7 @@
 #include <pvkernel/core/inendi_assert.h>
 
 #include <boost/thread.hpp>
-#include <time.h>
+#include <ctime>
 
 int main(int argc, char** argv)
 {

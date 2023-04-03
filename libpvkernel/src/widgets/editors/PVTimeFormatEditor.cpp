@@ -62,7 +62,7 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 
 	_validator_hl = new PVTimeValidatorHighLight(_ts_validate);
 	_validate_btn = new QPushButton(tr("Validate..."));
-	QCheckBox* auto_validate_chkbox =
+	auto* auto_validate_chkbox =
 	    new QCheckBox(tr("Auto-validate when time format is changed"));
 	connect(_validate_btn, &QAbstractButton::clicked, this,
 	        &PVTimeFormatHelpDlg::validate_time_strings);
@@ -73,7 +73,7 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	connect(_ts_validate, &QTextEdit::textChanged, this,
 	        &PVTimeFormatHelpDlg::time_strings_changed);
 
-	QGroupBox* grp_help = new QGroupBox(tr("Time format description"));
+	auto* grp_help = new QGroupBox(tr("Time format description"));
 	auto help_layout = new QVBoxLayout();
 	help_layout->addWidget(help_tf);
 	grp_help->setLayout(help_layout);
@@ -191,9 +191,9 @@ void PVWidgets::PVTimeFormatHelpDlg::time_strings_changed()
 	UErrorCode err = U_ZERO_ERROR;
 	Calendar* cal = Calendar::createInstance(err);
 	DateFormat* sdf = DateFormat::createDateTimeInstance(DateFormat::LONG, DateFormat::FULL);
-	for (int i = 0; i < tfs.size(); i++) {
-		QString v = tfs.at(i).trimmed();
-		if (v.size() > 0 && parser->mapping_time_to_cal(tfs[i], cal)) {
+	for (auto & tf : tfs) {
+		QString v = tf.trimmed();
+		if (v.size() > 0 && parser->mapping_time_to_cal(tf, cal)) {
 			UnicodeString str;
 			FieldPosition pos = 0;
 			sdf->format(*cal, str, pos);

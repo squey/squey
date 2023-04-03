@@ -48,9 +48,9 @@ bool comp_hash(PVCore::PVArgumentList const& h1, PVCore::PVArgumentList const& h
 		}
 		if (it1.value().userType() >= QMetaType::User &&
 		    it1.value().userType() == it2->value().userType()) { // custom type
-			const PVArgumentTypeBase* v1 =
+			const auto* v1 =
 			    static_cast<const PVArgumentTypeBase*>(it1.value().constData());
-			const PVArgumentTypeBase* v2 =
+			const auto* v2 =
 			    static_cast<const PVArgumentTypeBase*>(it2->value().constData());
 			if (!v1->is_equal(*v2)) {
 				return false;
@@ -77,8 +77,8 @@ bool comp_hash(PVCore::PVArgumentList const& h1,
 
 		if (arg1.userType() >= QMetaType::User &&
 		    arg1.userType() == arg2.userType()) { // custom type
-			const PVArgumentTypeBase* v1 = static_cast<const PVArgumentTypeBase*>(arg1.constData());
-			const PVArgumentTypeBase* v2 = static_cast<const PVArgumentTypeBase*>(arg2.constData());
+			const auto* v1 = static_cast<const PVArgumentTypeBase*>(arg1.constData());
+			const auto* v2 = static_cast<const PVArgumentTypeBase*>(arg2.constData());
 			if (!v1->is_equal(*v2)) {
 				return false;
 			}

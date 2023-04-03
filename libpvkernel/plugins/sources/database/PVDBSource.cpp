@@ -44,7 +44,7 @@ PVRush::PVDBSource::PVDBSource(PVDBQuery const& query, chunk_index nelts_chunk)
 	_last_elt_index = 0;
 }
 
-PVRush::PVDBSource::~PVDBSource() {}
+PVRush::PVDBSource::~PVDBSource() = default;
 
 QString PVRush::PVDBSource::human_name()
 {

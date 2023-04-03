@@ -88,9 +88,8 @@ bool PVPcapsicum::PVInputTypePcap::load_files(pvpcap::splitted_files_t&& splitte
 		streams_id_offset += offset;
 	}
 
-	for (size_t i = 0; i < splitted_files.size(); i++) {
-		pvpcap::splitted_file_t& filename = splitted_files[i];
-		inputs.push_back(PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
+	for (auto & filename : splitted_files) {
+			inputs.push_back(PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
 		    QString::fromStdString(filename.path()),
 		    QString::fromStdString(filename.original_pcap_path()),
 		    pcap_offsets[filename.original_pcap_path()].first, filename.packets_indexes(),
@@ -181,7 +180,7 @@ PVPcapsicum::PVInputTypePcap::create_exporter_widget(const list_inputs& inputs,
 static bool is_pcapng_compatible(const PVRush::PVInputType::list_inputs& inputs)
 {
 	return std::all_of(inputs.begin(), inputs.end(), [](const auto& input_type_desc) {
-		PVRush::PVPcapDescription* fd =
+		auto* fd =
 		    dynamic_cast<PVRush::PVPcapDescription*>(input_type_desc.get());
 		return (QFileInfo(fd->original_pcap_path()).suffix() == "pcapng");
 	});
@@ -209,27 +208,27 @@ QString PVPcapsicum::PVInputTypePcap::get_exporter_filter_string(const list_inpu
 
 QString PVPcapsicum::PVInputTypePcap::name() const
 {
-	return QString("pcap");
+	return {"pcap"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::human_name() const
 {
-	return QString("Pcap import plugin");
+	return {"Pcap import plugin"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::human_name_serialize() const
 {
-	return QString("Pcap");
+	return {"Pcap"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::internal_name() const
 {
-	return QString("06-pcap");
+	return {"06-pcap"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::menu_input_name() const
 {
-	return QString("Pcap...");
+	return {"Pcap..."};
 }
 
 QString
@@ -237,7 +236,7 @@ PVPcapsicum::PVInputTypePcap::tab_name_of_inputs(PVRush::PVInputType::list_input
 {
 	std::unordered_set<std::string> pcaps;
 	for (const PVRush::PVInputDescription_p& input : in) {
-		PVRush::PVPcapDescription* f = dynamic_cast<PVRush::PVPcapDescription*>(input.get());
+		auto* f = dynamic_cast<PVRush::PVPcapDescription*>(input.get());
 		pcaps.insert(QFileInfo(f->original_pcap_path()).fileName().toStdString());
 	}
 	std::vector<std::string> ordered_pcaps;
@@ -257,5 +256,5 @@ bool PVPcapsicum::PVInputTypePcap::get_custom_formats(PVRush::PVInputDescription
 
 QKeySequence PVPcapsicum::PVInputTypePcap::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

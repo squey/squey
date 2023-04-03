@@ -49,7 +49,7 @@ PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog(const QString&
 	setLayout(vlayout);
 
 	// the explaination text
-	QLabel* label = new QLabel(text + "; substitution form:\n%l: current layer's name\n%a: axis' "
+	auto* label = new QLabel(text + "; substitution form:\n%l: current layer's name\n%a: axis' "
 	                                  "name\n%v: comma separated values");
 	vlayout->addWidget(label);
 

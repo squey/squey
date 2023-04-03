@@ -39,7 +39,7 @@
 
 constexpr const char* PRESETS_FILENAME = "presets.ini";
 
-typedef std::shared_ptr<QSettings> QSettings_p;
+using QSettings_p = std::shared_ptr<QSettings>;
 
 /* using a static shared pointer instead of a static pointer on the QSettings
  * insures its destructor is called on program termination (because it is in
@@ -66,7 +66,7 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
 			}
 		}
 
-		g_presets_settings = QSettings_p(new QSettings(fi.filePath(), QSettings::IniFormat));
+		g_presets_settings = std::make_shared<QSettings>(fi.filePath(), QSettings::IniFormat);
 	}
 }
 

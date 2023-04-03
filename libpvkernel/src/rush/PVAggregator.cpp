@@ -61,7 +61,7 @@ PVRush::PVAggregator::PVAggregator()
 
 void PVRush::PVAggregator::release_inputs(bool cancel_first /* = false */)
 {
-	for (list_sources::iterator it = _cur_input; it != _inputs.end(); it++) {
+	for (auto it = _cur_input; it != _inputs.end(); it++) {
 		(*it)->release_input(cancel_first);
 	}
 }

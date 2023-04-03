@@ -104,20 +104,20 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
 
 PVRush::PVInputTypeFilename::~PVInputTypeFilename()
 {
-	for (int i = 0; i < _tmp_dir_to_delete.size(); i++) {
-		PVLOG_INFO("Delete temporary directory %s...\n", qPrintable(_tmp_dir_to_delete[i]));
-		PVCore::PVDirectory::remove_rec(_tmp_dir_to_delete[i]);
+	for (auto & i : _tmp_dir_to_delete) {
+		PVLOG_INFO("Delete temporary directory %s...\n", qPrintable(i));
+		PVCore::PVDirectory::remove_rec(i);
 	}
 }
 
 QString PVRush::PVInputTypeFilename::name() const
 {
-	return QString("file");
+	return {"file"};
 }
 
 QString PVRush::PVInputTypeFilename::human_name() const
 {
-	return QString("File import plugin");
+	return {"File import plugin"};
 }
 
 QString PVRush::PVInputTypeFilename::human_name_serialize() const
@@ -127,18 +127,18 @@ QString PVRush::PVInputTypeFilename::human_name_serialize() const
 
 QString PVRush::PVInputTypeFilename::internal_name() const
 {
-	return QString("00-file");
+	return {"00-file"};
 }
 
 QString PVRush::PVInputTypeFilename::menu_input_name() const
 {
-	return QString("Local files...");
+	return {"Local files..."};
 }
 
 QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) const
 {
 	QString tab_name;
-	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in[0].get());
+	auto* f = dynamic_cast<PVFileDescription*>(in[0].get());
 	assert(f);
 	QFileInfo fi(f->path());
 	if (in.count() == 1) {
@@ -155,7 +155,7 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
 	// Two types of custom format: inendi.format/picviz.format exists in the directory of the file,
 	// or file + ".format" exists
 	bool res = false;
-	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
+	auto* f = dynamic_cast<PVFileDescription*>(in.get());
 	assert(f);
 	QString path_custom_format = f->path() + QString(".format");
 	QFileInfo fi(path_custom_format);

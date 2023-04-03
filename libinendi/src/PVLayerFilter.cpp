@@ -28,7 +28,7 @@
 
 #include <boost/thread.hpp>
 
-#include <assert.h>
+#include <cassert>
 
 /******************************************************************************
  *
@@ -49,7 +49,7 @@ Inendi::PVLayerFilter::PVLayerFilter(PVCore::PVArgumentList const& args)
  *****************************************************************************/
 DEFAULT_ARGS_FILTER(Inendi::PVLayerFilter)
 {
-	return PVCore::PVArgumentList();
+	return {};
 }
 
 /******************************************************************************
@@ -94,7 +94,7 @@ PVCore::PVArgumentList Inendi::PVLayerFilter::get_default_args_for_view(PVView c
  *****************************************************************************/
 QString Inendi::PVLayerFilter::status_bar_description()
 {
-	return QString();
+	return {};
 }
 
 /******************************************************************************
@@ -104,7 +104,7 @@ QString Inendi::PVLayerFilter::status_bar_description()
  *****************************************************************************/
 QString Inendi::PVLayerFilter::detailed_description()
 {
-	return QString();
+	return {};
 }
 
 Inendi::PVLayerFilter::hash_menu_function_t const& Inendi::PVLayerFilter::get_menu_entries() const

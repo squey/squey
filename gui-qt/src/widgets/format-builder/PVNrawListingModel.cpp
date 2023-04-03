@@ -89,7 +89,7 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 	}
 	};
 
-	return QVariant();
+	return {};
 }
 
 Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*/) const

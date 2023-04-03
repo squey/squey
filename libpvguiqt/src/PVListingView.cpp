@@ -102,7 +102,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	// It is created based on what layer filter plugins tell us.
 	LIB_CLASS(Inendi::PVLayerFilter)
 	::list_classes const& lf = LIB_CLASS(Inendi::PVLayerFilter)::get().get_list();
-	using const_layer_iterator = LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator;
 	// Iterator over all layer filter plugins
 	// We can't use autoFor here because iterate over a QMap return only value
 	// FIXME : Here we search for all layer filter plugins names and save only
@@ -110,18 +109,16 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	// We should add a connect for every plugins action and save a context which
 	// will be updated before sending the signal so that we can process plugins
 	// widgets
-	for (const_layer_iterator it = lf.begin(); it != lf.end(); ++it) {
+	for (auto it = lf.begin(); it != lf.end(); ++it) {
 		Inendi::PVLayerFilter::hash_menu_function_t const& entries =
 		    it->value()->get_menu_entries();
-		using const_layer_menu_iterator =
-		    Inendi::PVLayerFilter::hash_menu_function_t::const_iterator;
 		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n",
 		            qPrintable(it->key()), entries.size());
-		for (const_layer_menu_iterator it_ent = entries.begin(); it_ent != entries.end();
+		for (auto it_ent = entries.begin(); it_ent != entries.end();
 		     ++it_ent) {
 			PVLOG_DEBUG("(listing context-menu) add action '%s' for filter '%s'\n",
 			            qPrintable(it_ent->key()), qPrintable(it->key()));
-			QAction* act = new QAction(it_ent->key(), &_ctxt_menu);
+			auto* act = new QAction(it_ent->key(), &_ctxt_menu);
 			act->setData(QVariant(it->key())); // Save the name of the layer filter
 			                                   // associated to this action
 			_ctxt_menu.addAction(act);
@@ -482,7 +479,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		if (i != comb_col) {
 			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
 
-			QAction* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
+			auto* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
 			count_by_actions << action_col_count_by;
 			connect(action_col_count_by, &QAction::triggered, action_col_count_by, [=,this]() {
 				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
@@ -491,7 +488,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			});
 
 			if (summable_types.contains(axis_type)) {
-				QAction* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
+				auto* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
 				min_by_actions << action_col_min_by;
 				connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
@@ -501,7 +498,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			}
 
 			if (summable_types.contains(axis_type)) {
-				QAction* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
+				auto* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
 				max_by_actions << action_col_max_by;
 				connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
@@ -511,7 +508,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 			}
 
 			if (summable_types.contains(axis_type)) {
-				QAction* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
+				auto* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
 				sum_by_actions << action_col_sum_by;
 				connect(action_col_sum_by, &QAction::triggered, action_col_sum_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
@@ -519,7 +516,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 					                     lib_view().get_selection_visible_listing(), this);
 				});
 
-				QAction* action_col_avg_by = new QAction(axes[i], _menu_col_avg_by);
+				auto* action_col_avg_by = new QAction(axes[i], _menu_col_avg_by);
 				avg_by_actions << action_col_avg_by;
 				connect(action_col_avg_by, &QAction::triggered, action_col_avg_by, [=,this]() {
 					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
@@ -551,7 +548,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	if (sel == _action_col_unique) {
 		PVQNraw::show_unique_values(lib_view(), col, this);
 	} else if (sel == _action_col_sort) {
-		Qt::SortOrder order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
+		auto order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
 		sort(comb_col, order);
 	} else if (sel == _action_col_copy) {
 		QApplication::clipboard()->setText(_view.get_axis_name(comb_col));
@@ -584,7 +581,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 
 	_menu_add_correlation->clear();
 
-	Inendi::PVRoot& root = lib_view().get_parent<Inendi::PVRoot>();
+	auto& root = lib_view().get_parent<Inendi::PVRoot>();
 
 	size_t total_compatible_views_count = 0;
 
@@ -597,7 +594,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 			continue;
 		}
 
-		QMenu* source_menu = new QMenu(QString::fromStdString(source->get_name()), this);
+		auto* source_menu = new QMenu(QString::fromStdString(source->get_name()), this);
 
 		size_t compatible_axes_count = 0;
 
@@ -626,13 +623,13 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 					continue;
 				}
 
-				QMenu* type_menu = new QMenu(axis_name, this);
+				auto* type_menu = new QMenu(axis_name, this);
 				view_menu->addMenu(type_menu);
 
 				// TODO : use QActionGroup for radio buttons
 
 				auto add_correlation_f = [&](const QString& correlation_type_name, Inendi::PVCorrelationType type){
-					QAction* action = new QAction(correlation_type_name, this);
+					auto* action = new QAction(correlation_type_name, this);
 					action->setCheckable(true);
 
 					PVCol original_col1 = _view.get_axes_combination().get_nraw_axis(col);
@@ -728,7 +725,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_copy()
 void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
 {
 	/* We let the user select a color */
-	PVWidgets::PVColorDialog* pv_ColorDialog = new PVWidgets::PVColorDialog(this);
+	auto* pv_ColorDialog = new PVWidgets::PVColorDialog(this);
 	if (pv_ColorDialog->exec() != QDialog::Accepted) {
 		return;
 	}
@@ -1079,7 +1076,7 @@ bool PVGuiQt::PVHorizontalHeaderView::event(QEvent* ev)
 	} else if (ev->type() == QEvent::HoverMove) { // in eventFilter, this event
 		                                          // would have been
 		                                          // "QEvent::MouseMove"...
-		QHoverEvent* mouse_event = dynamic_cast<QHoverEvent*>(ev);
+		auto* mouse_event = dynamic_cast<QHoverEvent*>(ev);
 		PVCombCol index = (PVCombCol)logicalIndexAt(mouse_event->position().toPoint());
 		if (index != _index) {
 			if (_index != -1) {
@@ -1100,8 +1097,8 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	QHeaderView::paintSection(painter, rect, logicalIndex);
 	painter->restore();
 
-	PVListingView* listing = (PVListingView*)parent();
-	Inendi::PVRoot& root = listing->lib_view().get_parent<Inendi::PVRoot>();
+	auto* listing = (PVListingView*)parent();
+	auto& root = listing->lib_view().get_parent<Inendi::PVRoot>();
 
 	PVCol original_col1 =
 	    listing->lib_view().get_axes_combination().get_nraw_axis((PVCombCol)logicalIndex);

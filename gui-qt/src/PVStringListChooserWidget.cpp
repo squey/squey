@@ -36,8 +36,8 @@ PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* paren
 {
 	auto main_layout = new QVBoxLayout;
 	auto buttons_layout = new QHBoxLayout;
-	QPushButton* cancel = new QPushButton("Cancel");
-	QPushButton* ok = new QPushButton("OK");
+	auto* cancel = new QPushButton("Cancel");
+	auto* ok = new QPushButton("OK");
 	_list_w = new QListWidget();
 
 	bool add_comments = comments.size() == list.size();

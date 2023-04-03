@@ -53,7 +53,7 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 	if (event->button() == Qt::RightButton) {
 		int index = tabAt(event->pos());
 		if (index >= PVProjectsTabWidget::FIRST_PROJECT_INDEX) {
-			QMenu* menu = new QMenu(this);
+			auto* menu = new QMenu(this);
 			QAction* rename_action = menu->addAction("&Rename...");
 			rename_action->setData(QVariant::fromValue(index));
 			connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));
@@ -76,7 +76,7 @@ void PVGuiQt::__impl::PVTabBar::keyPressEvent(QKeyEvent* event)
 
 void PVGuiQt::__impl::PVTabBar::rename_tab()
 {
-	QAction* rename_action = (QAction*)sender();
+	auto* rename_action = (QAction*)sender();
 	assert(rename_action);
 	int index = rename_action->data().toInt();
 	rename_tab(index);
@@ -111,7 +111,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Inendi::PVRoot* root, QWidget*
 	assert(root);
 	setObjectName("PVProjectsTabWidget");
 
-	QHBoxLayout* main_layout = new QHBoxLayout();
+	auto* main_layout = new QHBoxLayout();
 
 	_tab_widget = new __impl::PVTabWidget(*root);
 	_tab_widget->setTabsClosable(true);
@@ -188,7 +188,7 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 PVGuiQt::PVSceneWorkspacesTabWidget*
 PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene& scene_p)
 {
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
+	auto* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
 	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::workspace_dragged_outside, this,
 	        &PVProjectsTabWidget::emit_workspace_dragged_outside);
 	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::is_empty, this,
@@ -207,7 +207,7 @@ PVGuiQt::PVProjectsTabWidget::add_project(Inendi::PVScene& scene_p)
 
 void PVGuiQt::PVProjectsTabWidget::project_modified()
 {
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = (PVSceneWorkspacesTabWidget*)sender();
+	auto* workspace_tab_widget = (PVSceneWorkspacesTabWidget*)sender();
 	assert(workspace_tab_widget);
 	int index = _stacked_widget->indexOf(workspace_tab_widget);
 	QString text = _tab_widget->tabText(index);
@@ -219,7 +219,7 @@ void PVGuiQt::PVProjectsTabWidget::project_modified()
 bool PVGuiQt::PVProjectsTabWidget::save_modified_projects()
 {
 	for (int i = FIRST_PROJECT_INDEX; i < _tab_widget->count(); i++) {
-		PVSceneWorkspacesTabWidget* tab_widget =
+		auto* tab_widget =
 		    (PVSceneWorkspacesTabWidget*)_stacked_widget->widget(i);
 		if (tab_widget->is_project_modified()) {
 			if (!tab_close_requested(i)) {
@@ -233,7 +233,7 @@ bool PVGuiQt::PVProjectsTabWidget::save_modified_projects()
 
 void PVGuiQt::PVProjectsTabWidget::close_project()
 {
-	PVSceneWorkspacesTabWidget* workspace_tab_widget = (PVSceneWorkspacesTabWidget*)sender();
+	auto* workspace_tab_widget = (PVSceneWorkspacesTabWidget*)sender();
 	assert(workspace_tab_widget);
 	int index = _stacked_widget->indexOf(workspace_tab_widget);
 	remove_project(index);
@@ -253,7 +253,7 @@ bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
 
 PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Inendi::PVSource* source)
 {
-	PVGuiQt::PVSourceWorkspace* workspace = new PVGuiQt::PVSourceWorkspace(source);
+	auto* workspace = new PVGuiQt::PVSourceWorkspace(source);
 
 	add_workspace(workspace);
 
@@ -262,7 +262,7 @@ PVGuiQt::PVSourceWorkspace* PVGuiQt::PVProjectsTabWidget::add_source(Inendi::PVS
 
 void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 {
-	Inendi::PVScene& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
+	auto& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
 
 	if (!workspace_tab_widget) {
@@ -287,7 +287,7 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 
 void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace)
 {
-	Inendi::PVScene& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
+	auto& scene = workspace->get_source()->get_parent<Inendi::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
 	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace));
 }
@@ -300,7 +300,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_project(PVSceneWorkspacesTabWidget* wo
 void PVGuiQt::PVProjectsTabWidget::remove_project(int index)
 {
 	if (index != -1) {
-		PVSceneWorkspacesTabWidget* tab_widget =
+		auto* tab_widget =
 		    (PVSceneWorkspacesTabWidget*)_stacked_widget->widget(index);
 		tab_widget->get_scene().remove_from_tree();
 		_tab_widget->removeTab(index);
@@ -356,7 +356,7 @@ PVGuiQt::PVSceneWorkspacesTabWidget*
 PVGuiQt::PVProjectsTabWidget::get_workspace_tab_widget_from_scene(const Inendi::PVScene* scene)
 {
 	for (int i = FIRST_PROJECT_INDEX; i < _stacked_widget->count(); i++) {
-		PVSceneWorkspacesTabWidget* workspace_tab_widget =
+		auto* workspace_tab_widget =
 		    (PVSceneWorkspacesTabWidget*)_stacked_widget->widget(i);
 		if (&workspace_tab_widget->get_scene() == scene) {
 			return workspace_tab_widget;

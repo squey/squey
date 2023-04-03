@@ -29,6 +29,8 @@
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/inendi_assert.h>
 
+#include <memory>
+
 #include "helpers.h"
 #include "common.h"
 
@@ -53,7 +55,7 @@ int main()
 	    LIB_CLASS(PVFilter::PVFieldsConverter)::get().get_class_by_name("struct");
 
 	auto ff =
-	    std::unique_ptr<PVFilter::PVElementFilterByFields>(new PVFilter::PVElementFilterByFields());
+	    std::make_unique<PVFilter::PVElementFilterByFields>();
 	ff->add_filter(sp_lib_p);
 	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 

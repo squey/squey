@@ -130,7 +130,7 @@ int PVWidgets::PVColorPicker::h_to_screen_x(uint8_t h) const
 
 QSize PVWidgets::PVColorPicker::sizeHint() const
 {
-	return QSize(PVCore::PVHSVColor::color_max, 10);
+	return {PVCore::PVHSVColor::color_max, 10};
 }
 
 /*****************************************************************************

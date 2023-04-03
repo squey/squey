@@ -40,7 +40,7 @@ QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView*
                                                                  QWidget* parent,
                                                                  Params const&) const
 {
-	PVGuiQt::PVAxesCombinationDialog* dlg = new PVGuiQt::PVAxesCombinationDialog(*view, parent);
+	auto* dlg = new PVGuiQt::PVAxesCombinationDialog(*view, parent);
 
 	dlg->connect(dlg, &QDialog::finished, [dlg](int) { delete dlg; });
 

@@ -43,8 +43,7 @@ PVWidgets::PVLayerEnumEditor::PVLayerEnumEditor(Inendi::PVView const& view, QWid
  *
  *****************************************************************************/
 PVWidgets::PVLayerEnumEditor::~PVLayerEnumEditor()
-{
-}
+= default;
 
 /******************************************************************************
  *
@@ -57,7 +56,7 @@ void PVWidgets::PVLayerEnumEditor::set_layer(Inendi::PVLayer* l)
 	Inendi::PVLayerStack const& ls = _view.get_layer_stack();
 	int index_sel = 0;
 	for (int i = 0; i < ls.get_layer_count(); i++) {
-		Inendi::PVLayer* layer = (Inendi::PVLayer*)&ls.get_layer_n(i);
+		auto* layer = (Inendi::PVLayer*)&ls.get_layer_n(i);
 		addItem(layer->get_name(), QVariant::fromValue(layer));
 		if (layer == l) {
 			index_sel = i;
@@ -69,10 +68,10 @@ void PVWidgets::PVLayerEnumEditor::set_layer(Inendi::PVLayer* l)
 Inendi::PVLayer* PVWidgets::PVLayerEnumEditor::get_layer() const
 {
 	int index_sel = currentIndex();
-	Inendi::PVLayer* cur_layer = (Inendi::PVLayer*)&_view.get_current_layer();
+	auto* cur_layer = (Inendi::PVLayer*)&_view.get_current_layer();
 	if (index_sel == -1) {
 		return cur_layer;
 	}
-	Inendi::PVLayer* sel_layer = itemData(index_sel).value<Inendi::PVLayer*>();
+	auto* sel_layer = itemData(index_sel).value<Inendi::PVLayer*>();
 	return (_view.get_layer_stack().contains_layer(sel_layer)) ? sel_layer : cur_layer;
 }

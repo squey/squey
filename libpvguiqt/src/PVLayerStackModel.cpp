@@ -114,13 +114,13 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 	case (Qt::TextAlignmentRole):
 		switch (index.column()) {
 		case 0:
-			return QVariant(Qt::AlignCenter | Qt::AlignVCenter);
+			return {Qt::AlignCenter | Qt::AlignVCenter};
 
 		case 2:
-			return QVariant(Qt::AlignRight | Qt::AlignVCenter);
+			return {Qt::AlignRight | Qt::AlignVCenter};
 
 		default:
-			return QVariant(Qt::AlignLeft | Qt::AlignVCenter);
+			return {Qt::AlignLeft | Qt::AlignVCenter};
 		}
 		break;
 
@@ -138,7 +138,7 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 		return ret;
 	}
 	}
-	return QVariant();
+	return {};
 }
 
 /******************************************************************************
@@ -174,7 +174,7 @@ QVariant PVGuiQt::PVLayerStackModel::headerData(int /*section*/,
 		break;
 	}
 
-	return QVariant();
+	return {};
 }
 
 /******************************************************************************

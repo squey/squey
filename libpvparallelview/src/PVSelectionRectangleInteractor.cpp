@@ -52,7 +52,7 @@ bool PVParallelView::PVSelectionRectangleInteractor::keyPressEvent(PVWidgets::PV
 	bool x_axis_inverted = false;
 	bool y_axis_inverted = false;
 
-	if (PVZoomableDrawingArea* zda = dynamic_cast<PVZoomableDrawingArea*>(view)) {
+	if (auto* zda = dynamic_cast<PVZoomableDrawingArea*>(view)) {
 		x_axis_inverted = zda->x_axis_inverted();
 		y_axis_inverted = zda->y_axis_inverted();
 	}

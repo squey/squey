@@ -32,7 +32,7 @@
 #include <QWidget>
 #include <QScreen>
 
-#include <math.h>
+#include <cmath>
 
 QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, uint64_t nb_px)
 {

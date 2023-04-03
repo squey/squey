@@ -65,7 +65,7 @@ Inendi::PVPlottingProperties::PVPlottingProperties(std::string mode, PVCore::PVA
     , _plotting_filter(LIB_CLASS(Inendi::PVPlottingFilter)::get()
                            .get_class_by_name(QString::fromStdString(_mode))
                            ->clone<PVPlottingFilter>())
-    , _is_uptodate(false)
+     
 {
 	set_args(args);
 }
@@ -107,7 +107,7 @@ Inendi::PVPlottingFilter::p_type Inendi::PVPlottingProperties::get_plotting_filt
 Inendi::PVPlottingProperties
 Inendi::PVPlottingProperties::serialize_read(PVCore::PVSerializeObject& so)
 {
-	QString mode = so.attribute_read<QString>("mode");
+	auto mode = so.attribute_read<QString>("mode");
 
 	PVCore::PVArgumentList args;
 	so.arguments_read("properties", args, args);

@@ -83,9 +83,9 @@ PVParallelView::PVLibView::~PVLibView()
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
 {
-	PVParallelView::PVFullParallelView* view = new PVParallelView::PVFullParallelView(parent);
+	auto* view = new PVParallelView::PVFullParallelView(parent);
 
-	PVParallelView::PVFullParallelScene* scene = new PVParallelView::PVFullParallelScene(
+	auto* scene = new PVParallelView::PVFullParallelScene(
 	    view, *lib_view(), &_sliders_manager, common::backend(), _zones_manager, _processor_sel,
 	    _processor_bg);
 	_parallel_scenes.push_back(scene);
@@ -98,9 +98,9 @@ PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidg
 PVParallelView::PVZoomedParallelView*
 PVParallelView::PVLibView::create_zoomed_view(PVCombCol const axis, QWidget* parent)
 {
-	PVParallelView::PVZoomedParallelView* view =
+	auto* view =
 	    new PVParallelView::PVZoomedParallelView(lib_view()->get_axes_combination(), parent);
-	PVParallelView::PVZoomedParallelScene* scene = new PVParallelView::PVZoomedParallelScene(
+	auto* scene = new PVParallelView::PVZoomedParallelScene(
 	    view, *lib_view(), &_sliders_manager, _processor_sel, _processor_bg, _zones_manager, axis);
 	_zoomed_parallel_scenes.push_back(scene);
 	view->set_scene(scene);
@@ -123,7 +123,7 @@ PVParallelView::PVHitCountView* PVParallelView::PVLibView::create_hit_count_view
 		return backend;
 	};
 
-	PVHitCountView* view = new PVHitCountView(*lib_view(), create_backend, axis, parent);
+	auto* view = new PVHitCountView(*lib_view(), create_backend, axis, parent);
 
 	_hit_count_views.push_back(view);
 
@@ -155,7 +155,7 @@ PVParallelView::PVScatterView* PVParallelView::PVLibView::create_scatter_view(PV
 		return backend;
 	};
 
-	PVScatterView* view = new PVScatterView(*lib_view(), create_backend, zone_id, parent);
+	auto* view = new PVScatterView(*lib_view(), create_backend, zone_id, parent);
 	_scatter_views.push_back(view);
 
 	return view;
@@ -378,9 +378,9 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	zoomed_scene_list_t new_zps;
 
-	for (size_t i = 0; i < _zoomed_parallel_scenes.size(); ++i) {
-		PVZoomedParallelScene* scene = _zoomed_parallel_scenes[i];
-		_zoomed_parallel_scenes[i] = nullptr;
+	for (auto & _zoomed_parallel_scene : _zoomed_parallel_scenes) {
+		PVZoomedParallelScene* scene = _zoomed_parallel_scene;
+		_zoomed_parallel_scene = nullptr;
 
 		if (scene->update_zones()) {
 			// the ZPS can still exist
@@ -427,7 +427,7 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 void PVParallelView::PVLibView::remove_view(PVFullParallelScene* scene)
 {
-	scene_list_t::iterator it = std::find(_parallel_scenes.begin(), _parallel_scenes.end(), scene);
+	auto it = std::find(_parallel_scenes.begin(), _parallel_scenes.end(), scene);
 
 	if (it != _parallel_scenes.end()) {
 		_parallel_scenes.erase(it);
@@ -436,7 +436,7 @@ void PVParallelView::PVLibView::remove_view(PVFullParallelScene* scene)
 
 void PVParallelView::PVLibView::remove_zoomed_view(PVZoomedParallelScene* scene)
 {
-	zoomed_scene_list_t::iterator it =
+	auto it =
 	    std::find(_zoomed_parallel_scenes.begin(), _zoomed_parallel_scenes.end(), scene);
 
 	if (it != _zoomed_parallel_scenes.end()) {
@@ -446,7 +446,7 @@ void PVParallelView::PVLibView::remove_zoomed_view(PVZoomedParallelScene* scene)
 
 void PVParallelView::PVLibView::remove_hit_count_view(PVHitCountView* view)
 {
-	hit_count_view_list_t::iterator it =
+	auto it =
 	    std::find(_hit_count_views.begin(), _hit_count_views.end(), view);
 
 	if (it != _hit_count_views.end()) {
@@ -456,7 +456,7 @@ void PVParallelView::PVLibView::remove_hit_count_view(PVHitCountView* view)
 
 void PVParallelView::PVLibView::remove_scatter_view(PVScatterView* view)
 {
-	scatter_view_list_t::iterator it =
+	auto it =
 	    std::find(_scatter_views.begin(), _scatter_views.end(), view);
 
 	if (it != _scatter_views.end()) {

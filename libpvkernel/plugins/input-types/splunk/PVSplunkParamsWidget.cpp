@@ -42,11 +42,11 @@ PVRush::PVSplunkParamsWidget::PVSplunkParamsWidget(PVInputTypeSplunk const* in_t
     : PVParamsWidget<PVInputTypeSplunk, PVSplunkPresets, PVSplunkInfos, PVSplunkQuery>(
           in_t, formats, parent)
 {
-	QHBoxLayout* custom_layout = new QHBoxLayout();
+	auto* custom_layout = new QHBoxLayout();
 	_custom_layout->addLayout(custom_layout);
 
 	auto setup_combo = [&](QComboBox** cb, const QString& l) {
-		QLabel* label = new QLabel(l);
+		auto* label = new QLabel(l);
 		(*cb) = new QComboBox();
 		QObject::connect(*cb, (void (QComboBox::*)(int)) & QComboBox::activated, this,
 		                 &PVSplunkParamsWidget::splunk_filter_changed_by_user_slot);
@@ -212,7 +212,7 @@ QString PVRush::PVSplunkParamsWidget::get_serialize_query() const
 	int query_type = _query_type_cb->currentIndex();
 
 	if (query_type == EQueryType::QUERY_BUILDER) {
-		return QString(_querybuilder->get_rules().c_str());
+		return {_querybuilder->get_rules().c_str()};
 	} else {
 		return _txt_query->toPlainText();
 	}

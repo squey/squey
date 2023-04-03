@@ -67,8 +67,8 @@ int PVInspector::PVFilesTypesSelModel::columnCount(const QModelIndex& parent) co
 QVariant PVInspector::PVFilesTypesSelModel::data(const QModelIndex& index, int role) const
 {
 	if (role != Qt::DisplayRole && role != Qt::EditRole)
-		return QVariant();
-	map_files_types::const_iterator it = _files_types.begin();
+		return {};
+	auto it = _files_types.cbegin();
 	std::advance(it, index.row());
 	if (index.column() == 0)
 		return (*it).first;
@@ -95,7 +95,7 @@ bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index,
 	if (index.column() != 1 || role != Qt::EditRole)
 		return false; // File name are not editable !
 
-	map_files_types::iterator it = _files_types.begin();
+	auto it = _files_types.begin();
 	std::advance(it, index.row());
 	if (it == _files_types.end())
 		return false; // Should never happen !
@@ -142,7 +142,7 @@ QWidget* PVInspector::PVFilesTypesSelDelegate::createEditor(QWidget* parent,
                                                             const QStyleOptionViewItem& /*option*/,
                                                             const QModelIndex& /*index*/) const
 {
-	QListWidget* editor = new QListWidget(parent);
+	auto* editor = new QListWidget(parent);
 	editor->setSelectionMode(QAbstractItemView::ExtendedSelection);
 	return editor;
 }
@@ -154,13 +154,12 @@ void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
 	QStringList sel_list = model_data[0].toStringList();
 	QStringList org_list = model_data[1].toStringList();
 
-	QListWidget* listBox = static_cast<QListWidget*>(editor);
+	auto* listBox = static_cast<QListWidget*>(editor);
 	listBox->clear();
 
 	// Insert items
-	for (int i = 0; i < org_list.size(); i++) {
-		QString const& f = org_list[i];
-		bool issel = sel_list.contains(f);
+	for (auto & f : org_list) {
+			bool issel = sel_list.contains(f);
 		auto item = new QListWidgetItem(f, listBox);
 		listBox->insertItem(-1, item);
 		item->setSelected(issel);
@@ -173,7 +172,7 @@ void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget* editor,
 {
 	QStringList type_list;
 
-	QListWidget* listBox = static_cast<QListWidget*>(editor);
+	auto* listBox = static_cast<QListWidget*>(editor);
 	// Get the types selected
 	for (int i = 0; i < listBox->count(); i++) {
 		QListWidgetItem* item = listBox->item(i);
@@ -209,9 +208,9 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	main_window = parent;
 
 	// Initalise layouts
-	QVBoxLayout* main_layout = new QVBoxLayout();
-	QVBoxLayout* all_types_layout = new QVBoxLayout();
-	QHBoxLayout* btn_layout = new QHBoxLayout();
+	auto* main_layout = new QVBoxLayout();
+	auto* all_types_layout = new QVBoxLayout();
+	auto* btn_layout = new QHBoxLayout();
 
 	// Files -> types
 	_files_types_view = new QTableView();
@@ -262,9 +261,9 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	// all_types_layout->addWidget(apply_all_btn);
 
 	// Buttons and layout
-	QPushButton* ok_btn = new QPushButton("Load");
+	auto* ok_btn = new QPushButton("Load");
 	ok_btn->setDefault(true);
-	QPushButton* cancel_btn = new QPushButton("Cancel");
+	auto* cancel_btn = new QPushButton("Cancel");
 	btn_layout->addWidget(ok_btn);
 	btn_layout->addWidget(cancel_btn);
 

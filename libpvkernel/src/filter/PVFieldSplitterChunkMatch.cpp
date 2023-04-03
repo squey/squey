@@ -74,9 +74,9 @@ namespace PVFilter
  */
 class PVGuessReducingTree
 {
-	typedef QHash<size_t, int> size_map_t;
-	typedef std::pair<PVCore::PVArgumentList, size_map_t> data_t;
-	typedef QHash<QString, data_t> data_map_t;
+	using size_map_t = QHash<size_t, int>;
+	using data_t = std::pair<PVCore::PVArgumentList, size_map_t>;
+	using data_map_t = QHash<QString, data_t>;
 
   public:
 	/**
@@ -193,7 +193,7 @@ class PVGuessReducingTree
 
 void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* c)
 {
-	PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
+	auto* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
 	assert(chunk);
 	PVFilter::PVFieldsSplitter_p sp = _filter;
 	PVCore::list_fields lf_res;
@@ -248,7 +248,7 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			return ret;
 		}
 	}
-	PVCore::PVTextChunk* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
+	auto* text_chunk = dynamic_cast<PVCore::PVTextChunk*>(chunk);
 	assert(text_chunk);
 	LIB_CLASS(PVFilter::PVFieldsSplitter)
 	::list_classes const& lf = LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_list();

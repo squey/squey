@@ -33,7 +33,7 @@
 #include <QMessageBox>
 #include <QFileInfo>
 
-#include <stdlib.h>
+#include <cstdlib>
 
 #include <sys/time.h>
 #include <sys/resource.h>
@@ -49,7 +49,7 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
 	QStringList formats_str = formats.keys();
 
 	formats_str.prepend(INENDI_BROWSE_FORMAT_STR);
-	PVLogViewerDialog* RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
+	auto* RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
 	if (RemoteLogDialog->exec() == QDialog::Rejected) {
 		RemoteLogDialog->deleteLater();
 		return false;
@@ -59,8 +59,8 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
 
 	_hash_real_filenames = RemoteLogDialog->getDlFiles();
 	QStringList const& files = _hash_real_filenames.keys();
-	for (int i = 0; i < files.size(); i++) {
-		PVLOG_INFO("%s\n", qPrintable(files[i]));
+	for (const auto & file : files) {
+		PVLOG_INFO("%s\n", qPrintable(file));
 	}
 	format = RemoteLogDialog->getSelFormat();
 	return load_files(files, inputs, parent);
@@ -68,12 +68,12 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
 
 QString PVRush::PVInputTypeRemoteFilename::name() const
 {
-	return QString("remote_file");
+	return {"remote_file"};
 }
 
 QString PVRush::PVInputTypeRemoteFilename::human_name() const
 {
-	return QString("Remote file import plugin");
+	return {"Remote file import plugin"};
 }
 
 QString PVRush::PVInputTypeRemoteFilename::human_name_serialize() const
@@ -83,11 +83,11 @@ QString PVRush::PVInputTypeRemoteFilename::human_name_serialize() const
 
 QString PVRush::PVInputTypeRemoteFilename::internal_name() const
 {
-	return QString("01-remote_file");
+	return {"01-remote_file"};
 }
 QString PVRush::PVInputTypeRemoteFilename::human_name_of_input(PVInputDescription_p in) const
 {
-	PVFileDescription* f = dynamic_cast<PVFileDescription*>(in.get());
+	auto* f = dynamic_cast<PVFileDescription*>(in.get());
 	assert(f);
 	QString fn = f->path();
 	if (_hash_real_filenames.contains(fn)) {
@@ -104,8 +104,8 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 
 	bool found_url = false;
 	QUrl url;
-	for (int i = 0; i < in.size(); i++) {
-		PVFileDescription* f = dynamic_cast<PVFileDescription*>(in[i].get());
+	for (const auto & i : in) {
+		auto* f = dynamic_cast<PVFileDescription*>(i.get());
 		assert(f);
 		QString tmp_name = f->path();
 		if (_hash_real_filenames.contains(tmp_name)) {
@@ -124,7 +124,7 @@ QString PVRush::PVInputTypeRemoteFilename::tab_name_of_inputs(list_inputs const&
 
 QString PVRush::PVInputTypeRemoteFilename::menu_input_name() const
 {
-	return QString("Remote files...");
+	return {"Remote files..."};
 }
 
 bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p /*in*/,
@@ -135,5 +135,5 @@ bool PVRush::PVInputTypeRemoteFilename::get_custom_formats(PVInputDescription_p 
 
 QKeySequence PVRush::PVInputTypeRemoteFilename::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

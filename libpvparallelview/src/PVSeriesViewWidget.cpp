@@ -138,10 +138,10 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 		delete QWidget::layout();
 	}
 
-	QVBoxLayout* layout = new QVBoxLayout;
+	auto* layout = new QVBoxLayout;
 	layout->setContentsMargins(0, 0, 0, 0);
 
-	QWidget* series_widget = new QWidget;
+	auto* series_widget = new QWidget;
 	auto* vlayout = new QVBoxLayout;
 	vlayout->setContentsMargins(0, 0, 0, 0);
 
@@ -149,7 +149,7 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 	vlayout->addWidget(replaceable(&_selected_series_tree, nullptr));
 	series_widget->setLayout(vlayout);
 
-	QSplitter* splitter = new QSplitter(Qt::Horizontal);
+	auto* splitter = new QSplitter(Qt::Horizontal);
 	splitter->setSizePolicy(
 	    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 	splitter->addWidget(replaceable(&_zoomer, [splitter, this] { splitter->replaceWidget(0, _zoomer); }));
@@ -158,7 +158,7 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 	splitter->setStretchFactor(0, 1);
 	splitter->setStretchFactor(1, 0);
 
-	QHBoxLayout* bottom_layout = new QHBoxLayout;
+	auto* bottom_layout = new QHBoxLayout;
 	bottom_layout->addWidget(replaceable(&_range_edit, nullptr));
 	bottom_layout->addStretch();
 	bottom_layout->addWidget(_params_widget);
@@ -208,9 +208,9 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
 		}
 
-		_sampler.reset(new Inendi::PVRangeSubSampler(
+		_sampler = std::make_unique<Inendi::PVRangeSubSampler>(
 		    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
-		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis)));
+		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis));
 	}
 	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
 	_plot->set_background_color(QColor(10, 10, 10, 255));
@@ -222,7 +222,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 
 	_range_edit = PVWidgets::PVRangeEditFactory::create(
 	    _sampler->minmax_time(),
-	    std::bind(&PVSeriesViewWidget::minmax_changed, this, std::placeholders::_1));
+	    [this](auto && PH1) { minmax_changed(std::forward<decltype(PH1)>(PH1)); });
 
 	QObject::connect(_zoomer, &PVSeriesViewZoomer::zoom_updated, [this](PVViewZoomer::Zoom zoom) {
 		_range_edit->set_minmax(_sampler->ratio_to_minmax(zoom.minX, zoom.maxX));
@@ -290,7 +290,7 @@ void PVParallelView::PVSeriesViewWidget::set_split(PVCol split)
 	// Update range widget
 	_range_edit = PVWidgets::PVRangeEditFactory::create(
 	    _sampler->minmax_time(),
-	    std::bind(&PVSeriesViewWidget::minmax_changed, this, std::placeholders::_1));
+	    [this](auto && PH1) { minmax_changed(std::forward<decltype(PH1)>(PH1)); });
 
 	setup_series_tree(_abscissa_axis);
 	setup_selected_series_tree(_abscissa_axis);
@@ -327,7 +327,7 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 		const QModelIndexList& selected_indexes = _selection_model->selectedIndexes();
 		QItemSelection in_region_list;
 		for (const QModelIndex& index : selected_indexes) {
-			const PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
+			const auto index_id = index.data(Qt::UserRole).value<PVCol>();
 			auto parent_index = index.parent();
 			if ((parent_index.isValid() or not is_splitted()) and
 			    is_in_region(region, index_id)) {
@@ -353,7 +353,7 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 		    if (index.parent().isValid()) {
 			    return; // not a top level item (aka axis)
 		    }
-		    PVCol col = index.data(Qt::UserRole).value<PVCol>();
+		    auto col = index.data(Qt::UserRole).value<PVCol>();
 		    QMenu item_menu;
 		    auto scatter_action = new QAction(
 		        PVDisplays::display_view_if<PVDisplays::PVDisplayViewScatter>().toolbar_icon(),
@@ -387,8 +387,8 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*abscissa*/)
 {
 	_selected_series_tree = new PVSeriesTreeView(true /*filtered*/);
-	PVSeriesTreeFilterProxyModel* filter_proxy_model = new PVSeriesTreeFilterProxyModel();
-	KLinkItemSelectionModel* selection_link_model =
+	auto* filter_proxy_model = new PVSeriesTreeFilterProxyModel();
+	auto* selection_link_model =
 	    new KLinkItemSelectionModel(filter_proxy_model, _selection_model);
 	filter_proxy_model->setSourceModel(_tree_model);
 	filter_proxy_model->setParent(_selected_series_tree);
@@ -399,7 +399,7 @@ void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*absc
 	_selected_series_tree->setMaximumHeight(0);
 	_selected_series_tree->setSelectionMode(QAbstractItemView::MultiSelection);
 
-	disconnect(_zoomer, &PVSeriesViewZoomer::cursor_moved, 0, 0);
+	disconnect(_zoomer, &PVSeriesViewZoomer::cursor_moved, nullptr, nullptr);
 
 	connect(_zoomer, &PVSeriesViewZoomer::cursor_moved, [this, filter_proxy_model](QRect region) {
 		if (_zoomer->current_selector_mode() != PVSeriesViewZoomer::SelectorMode::Hunting) {
@@ -407,12 +407,12 @@ void PVParallelView::PVSeriesViewWidget::setup_selected_series_tree(PVCol /*absc
 		}
 		QSet<int> selected_ids;
 		for (const QModelIndex& index : _selection_model->selectedIndexes()) {
-			const PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
+			const auto index_id = index.data(Qt::UserRole).value<PVCol>();
 			if ((index.parent().isValid() or not is_splitted()) and
 			    is_in_region(region, index_id)) {
 				selected_ids.insert(index_id);
 				if (is_splitted()) {
-					const PVCol parent_id = index.parent().data(Qt::UserRole).value<PVCol>();
+					const auto parent_id = index.parent().data(Qt::UserRole).value<PVCol>();
 					selected_ids.insert(parent_id);
 				}
 			}
@@ -447,7 +447,7 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 	std::unordered_set<size_t> selected_timeseries;
 	selected_timeseries.reserve(_sampler->timeseries_count() * _sampler->group_count());
 	for (const QModelIndex& index : _series_tree_widget->selectedIndexes()) {
-		PVCol index_id = index.data(Qt::UserRole).value<PVCol>();
+		auto index_id = index.data(Qt::UserRole).value<PVCol>();
 		if ((index.parent().isValid() or not is_splitted())) {
 			QColor index_color = index.data(Qt::BackgroundRole).value<QBrush>().color();
 			series_draw_order.push_back({(size_t)index_id, index_color});

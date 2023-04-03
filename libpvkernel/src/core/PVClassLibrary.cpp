@@ -38,7 +38,7 @@
 // Helper class to load external plugins
 
 // Register function type
-typedef void (*register_class_func)();
+using register_class_func = void (*)();
 #define register_class_func_string "register_class"
 
 bool PVCore::PVClassLibraryLibLoader::load_class(QString const& path)
@@ -94,8 +94,8 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dirs(QString const& plugins
 	QStringList pluginsdirs_list = split_plugin_dirs(pluginsdirs);
 
 	int count = 0;
-	for (int i = 0; i < pluginsdirs_list.size(); i++) {
-		count += load_class_from_dir(pluginsdirs_list[i], prefix);
+	for (auto & i : pluginsdirs_list) {
+		count += load_class_from_dir(i, prefix);
 	}
 	return count;
 }

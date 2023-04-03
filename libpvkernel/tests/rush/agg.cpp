@@ -43,7 +43,7 @@ using namespace PVCore;
 
 void dump_agg(PVAggregator& agg, std::ostream& out)
 {
-	while (PVTextChunk* pc = dynamic_cast<PVTextChunk*>(agg())) {
+	while (auto* pc = dynamic_cast<PVTextChunk*>(agg())) {
 		dump_chunk_csv(*pc, out);
 		pc->free();
 	}
@@ -65,8 +65,8 @@ int main(int argc, char** argv)
 	QStringList files = dir_files.entryList(QStringList() << QString("*"));
 	const int chunk_size = atoi(argv[1]);
 	PVAggregator agg;
-	for (int i = 0; i < files.size(); i++) {
-		PVInput_p in(new PVInputFile(qPrintable(dir_files.absoluteFilePath(files[i]))));
+	for (auto & file : files) {
+		PVInput_p in(new PVInputFile(qPrintable(dir_files.absoluteFilePath(file))));
 		PVRush::PVRawSourceBase_p source(new PVUnicodeSource<>(in, chunk_size));
 		agg.add_input(source);
 	}

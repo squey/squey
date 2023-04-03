@@ -87,12 +87,12 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 
 	std::string axis_type = axis()->get_axis_type().toStdString();
 
-	Inendi::PVMapped const& mapped = _view.get_parent<Inendi::PVMapped>();
+	auto const& mapped = _view.get_parent<Inendi::PVMapped>();
 	Inendi::PVMappingProperties const& mpp =
 	    mapped.get_properties_for_col(axis()->get_original_axis_column());
 
 	QMenu* chm = menu.addMenu("Change mapping to...");
-	QActionGroup* chm_group = new QActionGroup(chm);
+	auto* chm_group = new QActionGroup(chm);
 
 	for (auto& kvnode : LIB_CLASS(Inendi::PVMappingFilter)::get().get_list()) {
 		auto usable_list = kvnode.value()->list_usable_type();
@@ -106,12 +106,12 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 		}
 	}
 
-	Inendi::PVPlotted const& plotted = _view.get_parent<Inendi::PVPlotted>();
+	auto const& plotted = _view.get_parent<Inendi::PVPlotted>();
 	Inendi::PVPlottingProperties const& plp =
 	    plotted.get_properties_for_col(axis()->get_original_axis_column());
 
 	QMenu* chp = menu.addMenu("Change plotting to...");
-	QActionGroup* chp_group = new QActionGroup(chp);
+	auto* chp_group = new QActionGroup(chp);
 
 	for (auto& kvnode : LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list()) {
 		auto usable_list = kvnode.value()->list_usable_type();
@@ -243,7 +243,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	_opacity_animation->setEndValue(opacity_animation_max_amount);
 	_opacity_animation->setDuration(opacity_animation_duration_ms);
 	_opacity_animation->setEasingCurve(QEasingCurve::InOutQuad);
-	QGraphicsOpacityEffect* opacity_effect = new QGraphicsOpacityEffect();
+	auto* opacity_effect = new QGraphicsOpacityEffect();
 	//_selected_axis_hole->setGraphicsEffect(opacity_effect);
 	header()->setGraphicsEffect(opacity_effect);
 
@@ -308,7 +308,7 @@ PVParallelView::__impl::PVAxisSelectedAnimation::PVAxisSelectedAnimation(PVAxisH
 	_title_highlight->setBrush(header()->axis()->get_title_color());
 	_title_highlight->setPen(Qt::NoPen);
 	_title_highlight->setVisible(false);
-	QGraphicsOpacityEffect* opacity_effect2 = new QGraphicsOpacityEffect();
+	auto* opacity_effect2 = new QGraphicsOpacityEffect();
 	opacity_effect2->setOpacity(0.5);
 	_title_highlight->setGraphicsEffect(opacity_effect2);
 	_title_highlight->setParentItem(header()->axis()->label());
@@ -334,10 +334,10 @@ void PVParallelView::__impl::PVAxisSelectedAnimation::start(bool start)
 
 void PVParallelView::__impl::PVAxisSelectedAnimation::set_opacity(qreal opacity)
 {
-	QGraphicsOpacityEffect* opacity_effect1 =
+	auto* opacity_effect1 =
 	    (QGraphicsOpacityEffect*)_title_highlight->graphicsEffect();
 	opacity_effect1->setOpacity(opacity);
-	QGraphicsOpacityEffect* opacity_effect2 = (QGraphicsOpacityEffect*)header()->graphicsEffect();
+	auto* opacity_effect2 = (QGraphicsOpacityEffect*)header()->graphicsEffect();
 	opacity_effect2->setOpacity(opacity);
 }
 

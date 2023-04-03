@@ -169,10 +169,10 @@ Inendi::PVView* Inendi::PVCorrelationEngine::process(const Inendi::PVView* view1
 		return nullptr;
 	}
 
-	const Inendi::PVSource& src1 = view1->get_parent<Inendi::PVSource>();
+	const auto& src1 = view1->get_parent<Inendi::PVSource>();
 	PVCol col1 = correlation->second.col1;
 	Inendi::PVView* view2 = correlation->second.view2;
-	Inendi::PVSource& src2 = view2->get_parent<Inendi::PVSource>();
+	auto& src2 = view2->get_parent<Inendi::PVSource>();
 	PVCol col2 = correlation->second.col2;
 
 	const pvcop::db::array& col1_in = src1.get_rushnraw().column(col1);

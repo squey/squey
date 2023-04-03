@@ -73,8 +73,8 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* 
 	}
 
 	// Args widget
-	QVBoxLayout* args_widget_box_layout = new QVBoxLayout();
-	QGroupBox* args_widget_box = new QGroupBox(tr("Filter"));
+	auto* args_widget_box_layout = new QVBoxLayout();
+	auto* args_widget_box = new QGroupBox(tr("Filter"));
 	args_widget_box_layout->addWidget(_args_widget);
 	args_widget_box->setLayout(args_widget_box_layout);
 	_args_widget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -86,7 +86,7 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* 
 	connect_btns();
 
 	// Splitter
-	QVBoxLayout* main_layout = new QVBoxLayout();
+	auto* main_layout = new QVBoxLayout();
 	if (_filter_p->get_presets().can_have_presets()) {
 		_splitter = new QSplitter(Qt::Vertical);
 		_splitter->setChildrenCollapsible(false);
@@ -182,7 +182,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::connect_btns()
 	        &PVLayerFilterProcessWidget::preview_Slot);
 	connect(_apply_btn, &QAbstractButton::pressed, this, &PVLayerFilterProcessWidget::save_Slot);
 	if (_help_btn) {
-		QMessageBox* msgBox =
+		auto* msgBox =
 		    new QMessageBox(QMessageBox::Information, "Filter help",
 		                    _filter_p->detailed_description(), QMessageBox::Ok, this);
 		connect(_help_btn, &QAbstractButton::pressed, msgBox, &QDialog::exec);

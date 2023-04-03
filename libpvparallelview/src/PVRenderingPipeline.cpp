@@ -62,7 +62,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 		_node_draw_bci = new tbb::flow::function_node<ZoneRenderingWithBCI, ZoneRenderingWithBCI>(
 		    tbb_graph(), (backend_sequential) ? tbb::flow::serial : tbb::flow::unlimited,
 		    [&](ZoneRenderingWithBCI const& zrb) {
-			    tbb::flow::receiver<ZoneRenderingWithBCI>* const recv_port =
+			    auto* const recv_port =
 			        static_cast<tbb::flow::receiver<ZoneRenderingWithBCI>*>(
 			            this->_node_cleanup_bci);
 			    PVZoneRenderingBCIBase* const zr = zrb.zr.get();
@@ -114,7 +114,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 	_node_compute_scatter =
 	    new tbb::flow::function_node<ZoneRenderingWithColors, PVZoneRendering_p>(
 	        tbb_graph(), tbb::flow::serial, [](ZoneRenderingWithColors const& zrc) {
-		        PVZoneRenderingScatter* zrs = static_cast<PVZoneRenderingScatter*>(zrc.zr.get());
+		        auto* zrs = static_cast<PVZoneRenderingScatter*>(zrc.zr.get());
 		        zrs->render();
 		        // zrs->render(zrc.colors);
 		        return zrc.zr;

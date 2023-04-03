@@ -40,7 +40,7 @@
 
 FileNameSelectorWidget::FileNameSelectorWidget(QWidget* parent) : QWidget(parent)
 {
-	QHBoxLayout* layout = new QHBoxLayout;
+	auto* layout = new QHBoxLayout;
 	m_path = new QLineEdit;
 	layout->addWidget(m_path);
 	layout->setContentsMargins(0, 0, 0, 0);
@@ -57,8 +57,7 @@ FileNameSelectorWidget::FileNameSelectorWidget(QWidget* parent) : QWidget(parent
 }
 
 FileNameSelectorWidget::~FileNameSelectorWidget()
-{
-}
+= default;
 
 QString FileNameSelectorWidget::text() const
 {
@@ -81,18 +80,8 @@ class FileConnectionDialog::FileConnectionDialogPrivate
 {
   public:
 	FileConnectionDialogPrivate(FileConnectionDialog* q)
-	    : protocols(0)
-	    , port(0)
-	    , hostname(0)
-	    , remotefile(0)
-	    , sshkey(0)
-	    , certificate(0)
-	    , ignoreSslError(0)
-	    , password(0)
-	    , login(0)
-	    , buttons(0)
-	    , formLayout(0)
-	    , qq(q)
+	    : 
+	     qq(q)
 	{
 	}
 
@@ -101,23 +90,23 @@ class FileConnectionDialog::FileConnectionDialogPrivate
 	void protocolChanged(int index);
 	void setFieldEnabled(QWidget* field, bool enabled);
 
-	QComboBox* protocols;
-	QSpinBox* port;
-	QLabel* hostname;
-	QLineEdit* remotefile;
-	FileNameSelectorWidget* sshkey;
-	FileNameSelectorWidget* certificate;
-	QCheckBox* ignoreSslError;
-	QLineEdit* password;
-	QLineEdit* login;
-	QDialogButtonBox* buttons;
-	QFormLayout* formLayout;
+	QComboBox* protocols{nullptr};
+	QSpinBox* port{nullptr};
+	QLabel* hostname{nullptr};
+	QLineEdit* remotefile{nullptr};
+	FileNameSelectorWidget* sshkey{nullptr};
+	FileNameSelectorWidget* certificate{nullptr};
+	QCheckBox* ignoreSslError{nullptr};
+	QLineEdit* password{nullptr};
+	QLineEdit* login{nullptr};
+	QDialogButtonBox* buttons{nullptr};
+	QFormLayout* formLayout{nullptr};
 	FileConnectionDialog* qq;
 };
 
 void FileConnectionDialog::FileConnectionDialogPrivate::initWidget()
 {
-	QVBoxLayout* layout = new QVBoxLayout;
+	auto* layout = new QVBoxLayout;
 
 	formLayout = new QFormLayout;
 	layout->addLayout(formLayout);
@@ -173,7 +162,7 @@ void FileConnectionDialog::FileConnectionDialogPrivate::setFieldEnabled(QWidget*
 
 void FileConnectionDialog::FileConnectionDialogPrivate::protocolChanged(int index)
 {
-	const Protocol protocol = static_cast<Protocol>(index);
+	const auto protocol = static_cast<Protocol>(index);
 	switch (protocol) {
 	case Local:
 		port->setValue(22);
@@ -262,7 +251,7 @@ RegisteredFile FileConnectionDialog::registeredFileSettings() const
 {
 	RegisteredFile registered;
 	registered.remoteFile = d->remotefile->text();
-	const Protocol protocol = static_cast<Protocol>(d->protocols->currentIndex());
+	const auto protocol = static_cast<Protocol>(d->protocols->currentIndex());
 	registered.settings.protocol = protocol;
 
 	switch (protocol) {

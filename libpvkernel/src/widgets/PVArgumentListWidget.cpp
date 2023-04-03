@@ -218,9 +218,9 @@ void PVWidgets::PVArgumentListWidget::set_args(PVCore::PVArgumentList& args)
 	// Delete all items from this main QGridLayout
 	clearLayout(_args_layout);
 	for (it = args.begin(); it != args.end(); it++) {
-		QMetaType::Type vtype = (QMetaType::Type)it->value().userType();
+		auto vtype = (QMetaType::Type)it->value().userType();
 		QWidget* widget = _args_widget_factory->createEditor(vtype, this);
-		QLabel* label = new QLabel(it->key().desc() + QLatin1String(":"));
+		auto* label = new QLabel(it->key().desc() + QLatin1String(":"));
 		label->setBuddy(widget);
 		_args_layout->addWidget(label, row, 0, Qt::AlignRight);
 		_args_layout->addWidget(widget, row, 1);

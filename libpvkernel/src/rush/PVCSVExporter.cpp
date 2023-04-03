@@ -55,8 +55,7 @@ const std::string PVRush::PVCSVExporter::default_sep_char = ",";
 const std::string PVRush::PVCSVExporter::default_quote_char = "\"";
 
 PVRush::PVCSVExporter::PVCSVExporter()
-{
-}
+= default;
 
 PVRush::PVCSVExporter::PVCSVExporter(PVCore::PVColumnIndexes column_indexes,
                                      PVRow total_row_count,

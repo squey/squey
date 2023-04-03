@@ -394,7 +394,7 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 #ifdef __SSE4_1__
 	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
 	__m128i vec;
-	const ssize_t ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk >> 1) << 1);
+	const auto ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk >> 1) << 1);
 	if (ending_chunk_aligned <= starting_chunk) {
 		for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
 			if (_selection.data()[i] != 0) {

@@ -46,6 +46,7 @@
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 #include <boost/thread.hpp>
+#include <memory>
 
 QList<QUrl> PVInspector::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl>();
 
@@ -410,7 +411,7 @@ void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
 {
-	QAction* action_src = (QAction*)sender();
+	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
 	PVFilter::PVFieldsSplitterParamWidget_p in_t =
 	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(itype);
@@ -429,7 +430,7 @@ void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
  *****************************************************************************/
 void PVInspector::PVFormatBuilderWidget::slotAddConverter()
 {
-	QAction* action_src = (QAction*)sender();
+	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
 	PVFilter::PVFieldsConverterParamWidget_p in_t =
 	    LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_class_by_name(itype);
@@ -537,13 +538,13 @@ QString PVInspector::PVFormatBuilderWidget::slotOpen()
 	_file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
 
 	if (!_file_dialog.exec()) {
-		return QString();
+		return {};
 	}
 
 	const QString urlFile = _file_dialog.selectedFiles().at(0);
 
 	if (urlFile.isEmpty() || (openFormat(urlFile) == false)) {
-		return QString();
+		return {};
 	}
 
 	return urlFile;
@@ -1112,8 +1113,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 			update_types_autodetection_count(format);
 		}
 
-		_nraw.reset(new PVRush::PVNraw());
-		_nraw_output.reset(new PVRush::PVNrawOutput(*_nraw));
+		_nraw = std::make_unique<PVRush::PVNraw>();
+		_nraw_output = std::make_unique<PVRush::PVNrawOutput>(*_nraw);
 		QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
 		list_inputs << _log_input;
 
@@ -1146,8 +1147,8 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		_log_input = PVRush::PVInputDescription_p();
 		_log_source.reset();
 		_log_sc.reset();
-		_nraw.reset(new PVRush::PVNraw());
-		_nraw_output.reset(new PVRush::PVNrawOutput(*_nraw));
+		_nraw = std::make_unique<PVRush::PVNraw>();
+		_nraw_output = std::make_unique<PVRush::PVNrawOutput>(*_nraw);
 		return;
 	}
 
@@ -1266,7 +1267,7 @@ QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol
 	QModelIndex index = QModelIndex();
 
 	if (!parent.isValid())
-		return QModelIndex();
+		return {};
 
 	int sibling = 0;
 	do {

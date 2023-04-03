@@ -139,7 +139,7 @@ void Inendi::PVLayer::serialize_write(PVCore::PVSerializeObject& so) const
 
 Inendi::PVLayer Inendi::PVLayer::serialize_read(PVCore::PVSerializeObject& so)
 {
-	QString name = so.attribute_read<QString>("name");
+	auto name = so.attribute_read<QString>("name");
 
 	auto sel_obj = so.create_object("selection");
 	Inendi::PVSelection sel(Inendi::PVSelection::serialize_read(*sel_obj));

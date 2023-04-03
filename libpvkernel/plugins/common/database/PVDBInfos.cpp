@@ -29,8 +29,7 @@
 #include <QSqlError>
 
 PVRush::PVDBInfos::PVDBInfos()
-{
-}
+= default;
 
 PVRush::PVDBInfos::PVDBInfos(QString const& type,
                              QString const& host,

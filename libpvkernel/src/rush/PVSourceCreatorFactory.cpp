@@ -51,7 +51,7 @@ PVRush::PVSourceCreator_p PVRush::PVSourceCreatorFactory::get_by_input_type(PVIn
 		return sc_clone;
 	}
 
-	return PVRush::PVSourceCreator_p();
+	return {};
 }
 
 float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_,
@@ -85,7 +85,7 @@ float PVRush::PVSourceCreatorFactory::discover_input(pair_format_creator format_
 
 		for (int i = 0; i < INENDI_DISCOVERY_NCHUNKS; i++) {
 			// Create a chunk
-			PVCore::PVTextChunk* chunk = dynamic_cast<PVCore::PVTextChunk*>((*src)());
+			auto* chunk = dynamic_cast<PVCore::PVTextChunk*>((*src)());
 			if (chunk == nullptr) { // No more chunks !
 				break;
 			}

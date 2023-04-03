@@ -48,7 +48,7 @@
 #include <iostream>
 #include <cassert>
 #include <algorithm>
-#include <math.h>
+#include <cmath>
 
 static inline qint64 sb_round(const qreal& d)
 {
@@ -90,9 +90,7 @@ void __print_transform(const char* text, const T& t)
 	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
 }
 
-namespace PVWidgets
-{
-namespace __impl
+namespace PVWidgets::__impl
 {
 
 class PVViewportEventFilter : public QObject
@@ -122,7 +120,6 @@ class PVViewportEventFilter : public QObject
   private:
 	PVWidgets::PVGraphicsView* _view;
 };
-} // namespace __impl
 } // namespace PVWidgets
 
 /*****************************************************************************
@@ -807,7 +804,7 @@ QSize PVWidgets::PVGraphicsView::sizeHint() const
 		QSizeF s = _transform.mapRect(get_scene_rect()).size();
 		return s.boundedTo((3 * QGuiApplication::primaryScreen()->availableSize()) / 4).toSize();
 	}
-	return QSize(256, 192);
+	return {256, 192};
 }
 
 /*****************************************************************************

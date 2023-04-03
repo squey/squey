@@ -55,8 +55,8 @@ PVRush::PVDBPresets::add(QString const& name, PVDBInfos const& infos, QString co
 {
 	QStringList grps = _settings.childGroups();
 	id_t max = 0;
-	for (int i = 0; i < grps.size(); i++) {
-		id_t id = grps[i].toUInt();
+	for (auto & grp : grps) {
+		id_t id = grp.toUInt();
 		if (id > max) {
 			max = id;
 		}
@@ -111,9 +111,9 @@ PVRush::PVDBPresets::list_id_names_t PVRush::PVDBPresets::list_id_names()
 {
 	list_id_names_t ret;
 	QStringList grps = _settings.childGroups();
-	for (int i = 0; i < grps.size(); i++) {
-		id_t id = grps[i].toUInt();
-		QString name = _settings.value(grps[i] + "/name", "").toString();
+	for (auto & grp : grps) {
+		id_t id = grp.toUInt();
+		QString name = _settings.value(grp + "/name", "").toString();
 		if (name.isEmpty()) {
 			continue;
 		}

@@ -41,11 +41,11 @@ PVRush::PVSplunkSource::PVSplunkSource(PVInputDescription_p input)
 {
 }
 
-PVRush::PVSplunkSource::~PVSplunkSource() {}
+PVRush::PVSplunkSource::~PVSplunkSource() = default;
 
 QString PVRush::PVSplunkSource::human_name()
 {
-	return QString("splunk");
+	return {"splunk"};
 }
 
 void PVRush::PVSplunkSource::seek_begin() {}

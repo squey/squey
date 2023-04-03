@@ -142,8 +142,8 @@ static void compute_mac_distribution(const pvcop::db::array& data_array,
 
 	/* we compute per-vendor unique MAC count
 	 */
-	for (size_t i = 0; i < uniq.size(); ++i) {
-		++counts[mac_to_vendor(uniq[i])];
+	for (unsigned long i : uniq) {
+		++counts[mac_to_vendor(i)];
 	}
 
 	/* now, we'll continue using the sorted distinct MAC list

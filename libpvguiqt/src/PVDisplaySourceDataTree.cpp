@@ -41,8 +41,8 @@ QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Inendi::PVSource* sr
                                                             QWidget* parent,
                                                             Params const&) const
 {
-	PVGuiQt::PVRootTreeModel* model = new PVGuiQt::PVRootTreeModel(*src);
-	PVGuiQt::PVRootTreeView* widget = new PVGuiQt::PVRootTreeView(model, parent);
+	auto* model = new PVGuiQt::PVRootTreeModel(*src);
+	auto* widget = new PVGuiQt::PVRootTreeView(model, parent);
 
 	return widget;
 }

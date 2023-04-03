@@ -36,7 +36,7 @@
 PVWidgets::PVMappingModeWidget::PVMappingModeWidget(QWidget* parent)
     : QWidget(parent), _combo(new PVComboBox(this))
 {
-	QHBoxLayout* layout = new QHBoxLayout(this);
+	auto* layout = new QHBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(10);
 	layout->addWidget(_combo);
@@ -57,11 +57,11 @@ void PVWidgets::PVMappingModeWidget::populate_from_type(QString const& type)
 {
 	LIB_CLASS(Inendi::PVMappingFilter)
 	::list_classes const& map_filters = LIB_CLASS(Inendi::PVMappingFilter)::get().get_list();
-	for (auto it = map_filters.begin(); it != map_filters.end(); it++) {
-		Inendi::PVMappingFilter::p_type filter = it->value();
+	for (const auto & map_filter : map_filters) {
+		Inendi::PVMappingFilter::p_type filter = map_filter.value();
 		auto available_type = filter->list_usable_type();
 		if (available_type.find(type.toStdString()) != available_type.end()) {
-			_combo->addItem(filter->get_human_name(), it->key());
+			_combo->addItem(filter->get_human_name(), map_filter.key());
 		}
 	}
 }
@@ -82,7 +82,7 @@ QSize PVWidgets::PVMappingModeWidget::sizeHint() const
 	if (l) {
 		return l->sizeHint();
 	}
-	return QSize();
+	return {};
 }
 
 bool PVWidgets::PVMappingModeWidget::set_mode(QString const& mode)

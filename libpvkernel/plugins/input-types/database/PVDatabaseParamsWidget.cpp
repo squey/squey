@@ -98,9 +98,8 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 
 	// List the supported QtSql drivers
 	QStringList drivers = QSqlDatabase::drivers();
-	for (int i = 0; i < drivers.size(); i++) {
-		QString d = drivers[i];
-		QString name = g_drivers_name.name(d);
+	for (auto d : drivers) {
+			QString name = g_drivers_name.name(d);
 		if (!name.isEmpty()) {
 			_combo_type->addItem(name, d);
 		}
@@ -360,8 +359,8 @@ void PVRush::PVDatabaseParamsWidget::show_odbc()
 
 void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout, bool show)
 {
-	QLayoutItem* item = 0;
-	QWidget* widget = 0;
+	QLayoutItem* item = nullptr;
+	QWidget* widget = nullptr;
 
 	for (int i = 0; i < layout->count(); ++i) {
 		item = layout->itemAt(i);
@@ -376,7 +375,7 @@ void PVRush::PVDatabaseParamsWidget::show_layout_children(const QLayout* layout,
 
 void PVRush::PVDatabaseParamsWidget::query_preview_Slot()
 {
-	PVDBPreviewWidget* dlg =
+	auto* dlg =
 	    new PVDBPreviewWidget(get_infos(), get_query(), _txt_nrows->text().toUInt(), this);
 
 	if (!dlg->init()) {

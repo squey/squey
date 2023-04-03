@@ -79,8 +79,8 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields()
 	checkSaveValidLog = new QCheckBox("Save log sample in format file", this);
 
 	QString textVal;
-	for (int i = 0; i < _data.size(); i++) {
-		textVal += _data[i];
+	for (auto & i : _data) {
+		textVal += i;
 		textVal += QChar('\n');
 	}
 
@@ -424,7 +424,7 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName()
 {
 	PVLOG_DEBUG("PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName\n");
 	// char we want to detecte in the name
-	QRegExp reg(".*(\\*|\\[|\\{|\\]|\\}).*");
+	QRegExp reg(R"(.*(\*|\[|\{|\]|\}).*)");
 	if (reg.exactMatch(name->text())) { // if there is
 		// create the confirm popup
 		QDialog confirm(this);

@@ -88,7 +88,7 @@ QWidget* PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget()
 	initWidget();
 
 	param_widget = new QWidget();
-	QVBoxLayout* layout = new QVBoxLayout(param_widget);
+	auto* layout = new QVBoxLayout(param_widget);
 	param_widget->setLayout(layout);
 	param_widget->setObjectName("splitter");
 

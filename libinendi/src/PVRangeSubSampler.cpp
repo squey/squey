@@ -34,7 +34,7 @@
 #include <boost/date_time/posix_time/posix_time.hpp>
 
 #include <numeric>
-#include <math.h>
+#include <cmath>
 
 Inendi::PVRangeSubSampler::PVRangeSubSampler(
     const pvcop::db::array& time,

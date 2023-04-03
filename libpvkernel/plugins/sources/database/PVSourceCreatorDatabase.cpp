@@ -33,7 +33,7 @@
 PVRush::PVSourceCreatorDatabase::source_p
 PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p input) const
 {
-	PVDBQuery* query = dynamic_cast<PVDBQuery*>(input.get());
+	auto* query = dynamic_cast<PVDBQuery*>(input.get());
 	assert(query);
 	source_p src = source_p(new PVRush::PVDBSource(*query, 100));
 
@@ -42,10 +42,10 @@ PVRush::PVSourceCreatorDatabase::create_source_from_input(PVInputDescription_p i
 
 QString PVRush::PVSourceCreatorDatabase::supported_type() const
 {
-	return QString("database");
+	return {"database"};
 }
 
 QString PVRush::PVSourceCreatorDatabase::name() const
 {
-	return QString("database");
+	return {"database"};
 }

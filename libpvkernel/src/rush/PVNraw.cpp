@@ -42,6 +42,7 @@
 
 #include <fstream>
 #include <iterator>
+#include <memory>
 #include <numeric>
 #include <unordered_set>
 #include <omp.h>
@@ -76,7 +77,7 @@ void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 	}
 
 	// Create collector and format
-	_collector.reset(new pvcop::collector(collector_path.data(), format));
+	_collector = std::make_unique<pvcop::collector>(collector_path.data(), format);
 	_collection.reset();
 }
 
@@ -88,7 +89,7 @@ void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 
 void PVRush::PVNraw::init_collection(const std::string& path)
 {
-	_collection.reset(new pvcop::collection(path));
+	_collection = std::make_unique<pvcop::collection>(path);
 
 	/*
 	 * map columns once and for all
@@ -326,7 +327,7 @@ PVRush::PVNraw PVRush::PVNraw::serialize_read(PVCore::PVSerializeObject& so)
 {
 	so.set_current_status("Loading raw data...");
 	PVRush::PVNraw nraw;
-	QString nraw_folder = so.attribute_read<QString>("nraw_path");
+	auto nraw_folder = so.attribute_read<QString>("nraw_path");
 	nraw_folder =
 	    PVRush::PVNrawCacheManager::nraw_dir() + QDir::separator() + QDir(nraw_folder).dirName();
 	nraw.load_from_disk(nraw_folder.toStdString());

@@ -49,7 +49,7 @@ QVariant PVWidgets::PVComboBox::get_sel_userdata() const
 {
 	int idx = currentIndex();
 	if (idx == -1) {
-		return QVariant();
+		return {};
 	}
 	return itemData(idx);
 }

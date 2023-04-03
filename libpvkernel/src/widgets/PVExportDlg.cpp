@@ -69,7 +69,7 @@ PVWidgets::PVExportDlg::PVExportDlg(
 	// ||                  export_layout                         ||
 	// |----------------------------------------------------------|
 	// ------------------------------------------------------------
-	QGridLayout* main_layout = static_cast<QGridLayout*>(layout());
+	auto* main_layout = static_cast<QGridLayout*>(layout());
 
 	_groupbox = new QGroupBox();
 	main_layout->addWidget(_groupbox, 4, 0, 1, 3);
@@ -94,7 +94,7 @@ PVWidgets::PVExportDlg::PVExportDlg(
 	}
 	int default_filter_index = gz_idx;
 
-	QStackedLayout* stacked_layout = new QStackedLayout;
+	auto* stacked_layout = new QStackedLayout;
 	stacked_layout->addWidget(_exporter_widget);
 	_groupbox->setLayout(stacked_layout);
 
@@ -112,7 +112,7 @@ PVWidgets::PVExportDlg::PVExportDlg(
 QString PVWidgets::PVExportDlg::file_extension() const
 {
 	const std::string& str = selectedNameFilter().toStdString();
-	const std::regex base_regex(".*\\(\\*(.*)\\)");
+	const std::regex base_regex(R"(.*\(\*(.*)\))");
 	std::smatch base_match;
 	std::regex_match(str, base_match, base_regex);
 	assert(base_match.length() == 1);

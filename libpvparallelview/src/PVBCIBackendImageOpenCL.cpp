@@ -80,6 +80,7 @@ QImage PVParallelView::PVBCIBackendImageOpenCL::qimage(size_t crop_height) const
 {
 	assert(crop_height <= PVBCIBackendImage::height());
 
-	return QImage((const uchar*)_host_addr, PVBCIBackendImage::width(), crop_height,
-	              _width * sizeof(uint32_t), QImage::Format_ARGB32_Premultiplied);
+	return {(const uchar*)_host_addr, static_cast<int32_t>(PVBCIBackendImage::width()), static_cast<int>(crop_height),
+	              static_cast<int>(_width * sizeof(uint32_t)), QImage::Format_ARGB32_Premultiplied};
+
 }

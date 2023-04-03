@@ -39,7 +39,7 @@ bool PVRush::PVInputTypeOpcUa::createWidget(hash_formats& formats,
 		return false;
 	}
 
-	PVOpcUaQuery* query = new PVOpcUaQuery(params->get_query());
+	auto* query = new PVOpcUaQuery(params->get_query());
 
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);
@@ -57,27 +57,27 @@ bool PVRush::PVInputTypeOpcUa::createWidget(hash_formats& formats,
 
 QString PVRush::PVInputTypeOpcUa::name() const
 {
-	return QString("opcua");
+	return {"opcua"};
 }
 
 QString PVRush::PVInputTypeOpcUa::human_name() const
 {
-	return QString("OpcUa import plugin");
+	return {"OpcUa import plugin"};
 }
 
 QString PVRush::PVInputTypeOpcUa::human_name_serialize() const
 {
-	return QString("OpcUa");
+	return {"OpcUa"};
 }
 
 QString PVRush::PVInputTypeOpcUa::internal_name() const
 {
-	return QString("08-opcua");
+	return {"08-opcua"};
 }
 
 QString PVRush::PVInputTypeOpcUa::menu_input_name() const
 {
-	return QString("OPC UA...");
+	return {"OPC UA..."};
 }
 
 QString PVRush::PVInputTypeOpcUa::tab_name_of_inputs(list_inputs const& in) const
@@ -94,5 +94,5 @@ bool PVRush::PVInputTypeOpcUa::get_custom_formats(PVInputDescription_p /*in*/,
 
 QKeySequence PVRush::PVInputTypeOpcUa::menu_shortcut() const
 {
-	return QKeySequence();
+	return {};
 }

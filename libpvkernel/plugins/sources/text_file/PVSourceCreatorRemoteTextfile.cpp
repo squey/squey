@@ -27,5 +27,5 @@
 
 QString PVRush::PVSourceCreatorRemoteTextfile::supported_type() const
 {
-	return QString("remote_file");
+	return {"remote_file"};
 }

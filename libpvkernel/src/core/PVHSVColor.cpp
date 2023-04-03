@@ -117,7 +117,7 @@ QRgb PVCore::PVHSVColor::to_rgb() const
 
 QColor PVCore::PVHSVColor::toQColor() const
 {
-	return QColor(to_rgb());
+	return {to_rgb()};
 }
 
 bool PVCore::PVHSVColor::is_valid() const

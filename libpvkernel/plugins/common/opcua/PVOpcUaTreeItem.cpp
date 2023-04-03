@@ -142,7 +142,7 @@ QVariant PVOpcUaTreeItem::data(int column)
 		    .value<QOpcUaLocalizedText>()
 		    .text();
 	}
-	return QVariant();
+	return {};
 }
 
 bool PVOpcUaTreeItem::has_history_access() const
@@ -198,7 +198,7 @@ void PVOpcUaTreeItem::appendChild(PVOpcUaTreeItem* child)
 QPixmap PVOpcUaTreeItem::icon(int column) const
 {
 	if (column != 0 || !m_opc_node)
-		return QPixmap();
+		return {};
 
 	QColor c;
 
@@ -321,7 +321,7 @@ QString PVOpcUaTreeItem::variantToString(const QVariant& value, const QString& t
 		if (!name)
 			return QLatin1String("Unknown StatusCode");
 		else
-			return QString(name);
+			return {name};
 	}
 	if (typeNodeId == QLatin1String("ns=0;i=2")) // Char
 		return QString::number(value.toInt());
@@ -403,7 +403,7 @@ QString PVOpcUaTreeItem::variantToString(const QVariant& value, const QString& t
 	if (value.canConvert<QString>())
 		return value.toString();
 
-	return QString();
+	return {};
 }
 
 QString PVOpcUaTreeItem::localizedTextToString(const QOpcUaLocalizedText& text) const

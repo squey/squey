@@ -85,11 +85,11 @@ void Inendi::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
 	// Extract axis where we apply heatline computation
-	PVCore::PVAxisIndexType axis = _args[ARG_NAME_AXES].value<PVCore::PVAxisIndexType>();
+	auto axis = _args[ARG_NAME_AXES].value<PVCore::PVAxisIndexType>();
 	const PVCol axis_id = axis.get_original_index();
 
 	// Extract ratio information
-	PVCore::PVPercentRangeType ratios = _args[ARG_NAME_COLORS].value<PVCore::PVPercentRangeType>();
+	auto ratios = _args[ARG_NAME_COLORS].value<PVCore::PVPercentRangeType>();
 
 	const double* freq_values = ratios.get_values();
 
@@ -186,6 +186,6 @@ void Inendi::PVLayerFilterHeatline::post(
 
 	// UnSelect line out of min/max choosen frequency.
 	if ((ratio < fmin) || (ratio > fmax)) {
-		out.get_selection().set_line(line_id, 0);
+		out.get_selection().set_line(line_id, false);
 	}
 }

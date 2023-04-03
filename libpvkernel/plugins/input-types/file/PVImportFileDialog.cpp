@@ -40,12 +40,12 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget*
 	setWindowTitle("Import file");
 	setFileMode(QFileDialog::ExistingFiles);
 
-	QGridLayout* this_layout = (QGridLayout*)layout();
+	auto* this_layout = (QGridLayout*)layout();
 
-	QGroupBox* option_group = new QGroupBox();
+	auto* option_group = new QGroupBox();
 	this_layout->addWidget(option_group, 6, 0, 1, 3);
 
-	QFormLayout* form_layout = new QFormLayout();
+	auto* form_layout = new QFormLayout();
 	option_group->setLayout(form_layout);
 
 	treat_as_combobox = new QComboBox();

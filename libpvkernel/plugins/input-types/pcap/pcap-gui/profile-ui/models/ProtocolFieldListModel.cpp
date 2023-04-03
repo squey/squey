@@ -60,7 +60,7 @@ QModelIndex ProtocolFieldListModel::index(int row, int column, const QModelIndex
  *************************************************************************/
 QModelIndex ProtocolFieldListModel::parent(const QModelIndex&) const
 {
-	return QModelIndex();
+	return {};
 }
 
 /**************************************************************************
@@ -91,7 +91,7 @@ int ProtocolFieldListModel::rowCount(const QModelIndex&) const
 QVariant ProtocolFieldListModel::data(const QModelIndex& index, int role) const
 {
 	if (not index.isValid())
-		return QVariant();
+		return {};
 
 	rapidjson::Value& value(_fields[index.row()]);
 
@@ -110,7 +110,7 @@ QVariant ProtocolFieldListModel::data(const QModelIndex& index, int role) const
 		if (index.column() == 0) // add a checkbox to cell(x,0)
 			return value["select"].GetBool() ? Qt::Checked : Qt::Unchecked;
 	}
-	return QVariant();
+	return {};
 }
 
 /**************************************************************************
@@ -134,7 +134,7 @@ ProtocolFieldListModel::headerData(int section, Qt::Orientation orientation, int
 		}
 	}
 
-	return QVariant();
+	return {};
 }
 
 /**************************************************************************

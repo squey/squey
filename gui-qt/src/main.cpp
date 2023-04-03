@@ -75,7 +75,7 @@ class DisplaysFocusInEventFilter : public QObject
 	{
 		if (event->type() == QEvent::FocusIn) {
 			// Is the widget a PVViewDisplay?
-			PVGuiQt::PVViewDisplay* display = qobject_cast<PVGuiQt::PVViewDisplay*>(obj);
+			auto* display = qobject_cast<PVGuiQt::PVViewDisplay*>(obj);
 			if (!display) {
 				// Or a child of a PVViewDisplay ?
 				display = PVCore::get_qobject_parent_of_type<PVGuiQt::PVViewDisplay*>(obj);
@@ -175,12 +175,12 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 
 	QSplashScreen splash(QPixmap(":/splash-screen"));
 
-	QVBoxLayout* vl = new QVBoxLayout(&splash);
+	auto* vl = new QVBoxLayout(&splash);
 
-	QLabel* task_label = new QLabel();
+	auto* task_label = new QLabel();
 	task_label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	QLabel* version_label = new QLabel(QString("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR);
+	auto* version_label = new QLabel(QString("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR);
 	version_label->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
 	vl->addWidget(task_label);

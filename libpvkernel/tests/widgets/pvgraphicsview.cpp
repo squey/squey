@@ -48,7 +48,7 @@
 
 void init_big(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* timer)
 {
-	static constexpr qreal POS_SCALE = (qreal)((1L << 40) * LINE_STEP);
+	static constexpr auto POS_SCALE = (qreal)((1L << 40) * LINE_STEP);
 	static constexpr qreal SCENE_WIDTH = ((qreal)LINE_NUM * POS_SCALE);
 
 	for (long i = 0; i < LINE_NUM; ++i) {
@@ -60,7 +60,7 @@ void init_big(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* time
 			    0));
 		}
 
-		QGraphicsItemAnimation* animation = new QGraphicsItemAnimation;
+		auto* animation = new QGraphicsItemAnimation;
 		animation->setItem(item);
 		animation->setTimeLine(timer);
 
@@ -75,7 +75,7 @@ void init_big(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* time
 
 void init_small(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* timer)
 {
-	static constexpr qreal POS_SCALE = (qreal)(1L << 63);
+	static constexpr auto POS_SCALE = (qreal)(1L << 63);
 	static constexpr qreal SCENE_WIDTH = ((qreal)LINE_NUM * POS_SCALE);
 
 	for (long i = 0; i < LINE_NUM; ++i) {
@@ -87,7 +87,7 @@ void init_small(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* ti
 			    QColor(255 * (i / (double)LINE_NUM), 255 * ((LINE_NUM - i) / (double)LINE_NUM), 0),
 			    0));
 		}
-		QGraphicsItemAnimation* animation = new QGraphicsItemAnimation;
+		auto* animation = new QGraphicsItemAnimation;
 		animation->setItem(item);
 		animation->setTimeLine(timer);
 
@@ -112,7 +112,7 @@ void init_hori_box(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QGraphicsV
 	scene->setSceneRect(-3., -2., 6., 4.);
 }
 
-typedef enum { MODE_BIG = 0, MODE_SMALL = 1, MODE_HBOX = 2 } MODE;
+using MODE = enum { MODE_BIG = 0, MODE_SMALL = 1, MODE_HBOX = 2 };
 
 int main(int argc, char** argv)
 {
@@ -126,32 +126,32 @@ int main(int argc, char** argv)
 
 	QApplication a(argc, argv);
 
-	QGraphicsScene* scene = new QGraphicsScene;
+	auto* scene = new QGraphicsScene;
 
-	QTimeLine* timer = new QTimeLine(10000);
+	auto* timer = new QTimeLine(10000);
 	timer->setFrameRange(0, 1000);
 
-	MyPVGraphicsView* pgv = new MyPVGraphicsView(scene);
+	auto* pgv = new MyPVGraphicsView(scene);
 	QGraphicsView* qgv = new MyQGraphicsView(scene);
 
-	QVBoxLayout* layout = new QVBoxLayout();
+	auto* layout = new QVBoxLayout();
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(0);
 
-	QGroupBox* pgb = new QGroupBox("PV's graphics view");
-	QGroupBox* qgb = new QGroupBox("Qt's graphics view");
+	auto* pgb = new QGroupBox("PV's graphics view");
+	auto* qgb = new QGroupBox("Qt's graphics view");
 
-	QWidget* widget = new QWidget();
+	auto* widget = new QWidget();
 	widget->setLayout(layout);
 
-	QVBoxLayout* pgl = new QVBoxLayout();
+	auto* pgl = new QVBoxLayout();
 	pgl->setContentsMargins(0, 0, 0, 0);
 	pgl->setSpacing(0);
 	pgb->setLayout(pgl);
 	pgl->addWidget(pgv, 1);
 	layout->addWidget(pgb, 1);
 
-	QVBoxLayout* qgl = new QVBoxLayout();
+	auto* qgl = new QVBoxLayout();
 	qgl->setContentsMargins(0, 0, 0, 0);
 	qgl->setSpacing(0);
 	qgb->setLayout(qgl);

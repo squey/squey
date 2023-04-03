@@ -35,9 +35,7 @@
 
 #include <QSet>
 
-namespace PVParallelView
-{
-namespace __impl
+namespace PVParallelView::__impl
 {
 
 class ZoneCreation
@@ -61,7 +59,6 @@ class ZoneCreation
   public:
 	PVParallelView::PVZonesManager* _zm;
 };
-} // namespace __impl
 } // namespace PVParallelView
 
 /******************************************************************************

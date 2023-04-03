@@ -68,13 +68,13 @@ QWidget* PVFilter::PVFieldSplitterDuplicateParamWidget::get_param_widget()
 
 	_param_widget = new QWidget();
 
-	QHBoxLayout* layout = new QHBoxLayout(_param_widget);
+	auto* layout = new QHBoxLayout(_param_widget);
 
 	_param_widget->setLayout(layout);
 	_param_widget->setObjectName("splitter");
 
 	// title
-	QLabel* duplications_label = new QLabel(tr("Number of duplications:"));
+	auto* duplications_label = new QLabel(tr("Number of duplications:"));
 	layout->addWidget(duplications_label);
 
 	// Spin box

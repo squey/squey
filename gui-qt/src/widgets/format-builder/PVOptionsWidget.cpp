@@ -39,16 +39,16 @@
 PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) : QWidget(parent)
 {
 	auto main_layout = new QVBoxLayout();
-	QGroupBox* lines_range_group_box = new QGroupBox(tr("Import lines range"));
+	auto* lines_range_group_box = new QGroupBox(tr("Import lines range"));
 
 	auto lines_range_group_box_layout = new QVBoxLayout(lines_range_group_box);
 
 	auto ignore_first_lines_layout = new QHBoxLayout();
 
-	QLabel* ignore_label = new QLabel("Ignore");
+	auto* ignore_label = new QLabel("Ignore");
 	_ignore_first_lines_spinbox = new PVGuiQt::PVLocalizedSpinBox();
 	_ignore_first_lines_spinbox->setMaximum(std::numeric_limits<int>::max());
-	QLabel* first_lines_label = new QLabel("first line(s) for each input file");
+	auto* first_lines_label = new QLabel("first line(s) for each input file");
 
 	ignore_first_lines_layout->addWidget(ignore_label);
 	ignore_first_lines_layout->addWidget(_ignore_first_lines_spinbox);

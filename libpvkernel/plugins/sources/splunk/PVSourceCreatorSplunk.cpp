@@ -36,10 +36,10 @@ PVRush::PVSourceCreatorSplunk::create_source_from_input(PVInputDescription_p inp
 
 QString PVRush::PVSourceCreatorSplunk::supported_type() const
 {
-	return QString("splunk");
+	return {"splunk"};
 }
 
 QString PVRush::PVSourceCreatorSplunk::name() const
 {
-	return QString("splunk");
+	return {"splunk"};
 }

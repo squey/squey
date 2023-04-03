@@ -39,17 +39,17 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 {
 	setWindowTitle(tr("Select project"));
 
-	QVBoxLayout* layout = new QVBoxLayout();
+	auto* layout = new QVBoxLayout();
 
-	QHBoxLayout* hbox_layout = new QHBoxLayout();
-	QLabel* label = new QLabel(tr("Import source to data collection:"));
+	auto* hbox_layout = new QHBoxLayout();
+	auto* label = new QLabel(tr("Import source to data collection:"));
 
 	_combo_box = new QComboBox();
 
 	hbox_layout->addWidget(label);
 	hbox_layout->addWidget(_combo_box);
 
-	QDialogButtonBox* buttons =
+	auto* buttons =
 	    new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);
 
 	connect(buttons, &QDialogButtonBox::accepted, this, &QDialog::accept);
