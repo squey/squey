@@ -27,6 +27,7 @@
 #include <pvguiqt/PVInputTypeMenuEntries.h>
 
 #include <QAction>
+#include <QDesktopServices>
 #include <QMenuBar>
 
 /******************************************************************************
@@ -292,5 +293,5 @@ void PVInspector::PVMainWindow::connect_actions()
 	connect(about_Action, &QAction::triggered,
 	        [this]() { about_Slot(PVGuiQt::PVAboutBoxDialog::Tab::SOFTWARE); });
 	connect(refman_Action, &QAction::triggered,
-	        [this]() { about_Slot(PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL); });
+	        []() { QDesktopServices::openUrl(QUrl(DOC_URL)); });
 }

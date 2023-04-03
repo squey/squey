@@ -65,13 +65,13 @@ depends:
 - python3-pip.bst
 # - conda.bst
 - numpy.bst
-- inendi-inspector-doc.bst
 - libomp.bst
 - lcov.bst
 - lcov-cobertura.bst
 
 build-depends:
 - freedesktop-sdk.bst:components/git.bst
+- freedesktop-sdk.bst:components/flatpak-xdg-utils.bst 
 
 sources:
 - kind: local
