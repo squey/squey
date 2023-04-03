@@ -30,6 +30,7 @@
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
 #include <pvguiqt/PVPythonCodeEditor.h>
 
+#include <QDesktopServices>
 #include <QGroupBox>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -124,11 +125,8 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
 
     // Help
     QPushButton* help_button = new QPushButton("&Help");
-    connect(help_button, &QPushButton::clicked, [=,this]() {
-        QVariant data_anchor("_python_scripting");
-        PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL, this, data_anchor);
-        about_dialog->exec();
-        about_dialog->deleteLater();
+    connect(help_button, &QPushButton::clicked, []() {
+        QDesktopServices::openUrl(QUrl(QString(DOC_URL) + "/content/python_scripting/content.html"));
     });
 
 	layout->addLayout(python_script_path_radio_layout);

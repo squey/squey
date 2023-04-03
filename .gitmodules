@@ -10,9 +10,6 @@
 [submodule "furl"]
 	path = furl
 	url = ../furl.git
-[submodule "doc"]
-	path = doc
-	url = ../inspector-reference-manual.git
 [submodule "tests"]
 	path = tests
 	url = ../inspector-testsuite.git

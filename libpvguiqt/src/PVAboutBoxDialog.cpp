@@ -115,26 +115,6 @@ class PVChangeLogWidget : public QWidget
 	}
 };
 
-class PVReferenceManual : public QWebEngineView
-{
-  public:
-	PVReferenceManual(const QString& anchor)
-	{
-		setContextMenuPolicy(Qt::NoContextMenu);
-#ifdef INENDI_DEVELOPER_MODE
-		connect(this, &QWebEngineView::loadFinished, [this](bool ok) {
-			if (not ok) {
-				load(QUrl(
-				    std::string("file://" INENDI_SOURCE_DIRECTORY
-				                "/doc/outputs/inendi_inspector_reference_manual/single/index.html")
-				        .c_str()));
-			}
-		});
-#endif
-		load(QUrl((QString("file://" DOC_PATH "/inendi_inspector_reference_manual/index.html#") + anchor)));
-	}
-};
-
 PVGuiQt::__impl::OrbitTransformController::OrbitTransformController(QObject* parent)
     : QObject(parent), m_target(nullptr), m_matrix(), m_radius(1.0f), m_angle(0.0f)
 {
@@ -228,7 +208,7 @@ Qt3DCore::QEntity* createScene()
 	return rootEntity;
 }
 
-PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* parent /*= 0*/, QVariant data /* = {} */)
+PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* parent /*= 0*/, QVariant /* data  = {} */)
     : QDialog(parent)
 {
 	setWindowTitle("About INENDI Inspector");
@@ -240,6 +220,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	content += "<br/>website - <a "
 	           "href=\"https://gitlab.com/inendi/inspector\">gitlab.com/inendi/inspector</a><br/>";
+	content += QString("documentation") + " - <a href=\"" + DOC_URL +"\">" + QString(DOC_URL).replace("https://","") + "</a><br/>";
 	content += "contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
 	content += "?subject=%5BINENDI%5D\">";
@@ -353,8 +334,6 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
   		*a = 1;
 	});
 
-	assert(DOC_PATH && "The documentation path is not defined.");
-
 	QGridLayout* software_layout = new QGridLayout;
 	software_layout->setHorizontalSpacing(0);
 	software_layout->addLayout(_view3D_layout, 0, 0);
@@ -367,8 +346,6 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	_tab_widget->addTab(tab_software, "Software");
 	_changelog_tab = new PVChangeLogWidget;
 	_tab_widget->addTab(_changelog_tab, "Changelog");
-	_reference_manual_tab = new PVReferenceManual(data.toString());
-	_tab_widget->addTab(_reference_manual_tab, "Reference Manual");
 	_tab_widget->addTab(new PVOpenSourceSoftwareWidget, "Open source software");
 
 	main_layout->addWidget(_tab_widget, 0, 0);
@@ -378,12 +355,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	connect(ok, &QAbstractButton::clicked, this, &QDialog::accept);
 
-	if (tab == PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL) {
-		resize(1550, 950);
-	}
-	else {
-		resize(520, 550);
-	}
+	resize(520, 550);
 
 	select_tab(tab);
 }

@@ -66,7 +66,6 @@ class PVAboutBoxDialog : public QDialog
 
 	QTabWidget* _tab_widget;
 	QWidget* _changelog_tab;
-	QWidget* _reference_manual_tab;
 };
 
 namespace __impl

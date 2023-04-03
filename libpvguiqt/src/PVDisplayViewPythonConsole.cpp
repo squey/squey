@@ -35,6 +35,7 @@
 #include"pybind11/embed.h"
 #include"pybind11/numpy.h"
 
+#include <QDesktopServices>
 #include <QTextEdit>
 #include <QGridLayout>
 #include <QPushButton>
@@ -141,11 +142,8 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* v
 
     // Help
     QPushButton* help_button = new QPushButton("&Help");
-    QObject::connect(help_button, &QPushButton::clicked, [=]() {
-        QVariant data_anchor("_python_scripting");
-        PVGuiQt::PVAboutBoxDialog* about_dialog = new PVGuiQt::PVAboutBoxDialog(PVGuiQt::PVAboutBoxDialog::Tab::REFERENCE_MANUAL, parent, data_anchor);
-        about_dialog->exec();
-        about_dialog->deleteLater();
+    QObject::connect(help_button, &QPushButton::clicked, []() {
+        QDesktopServices::openUrl(QUrl(QString(DOC_URL) + "/content/python_scripting/content.html"));
     });
 
 	QGridLayout* layout = new QGridLayout;
