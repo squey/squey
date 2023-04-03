@@ -102,7 +102,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	// It is created based on what layer filter plugins tell us.
 	LIB_CLASS(Inendi::PVLayerFilter)
 	::list_classes const& lf = LIB_CLASS(Inendi::PVLayerFilter)::get().get_list();
-	using const_layer_iterator = LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator;
 	// Iterator over all layer filter plugins
 	// We can't use autoFor here because iterate over a QMap return only value
 	// FIXME : Here we search for all layer filter plugins names and save only
@@ -113,8 +112,6 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	for (auto it = lf.begin(); it != lf.end(); ++it) {
 		Inendi::PVLayerFilter::hash_menu_function_t const& entries =
 		    it->value()->get_menu_entries();
-		using const_layer_menu_iterator =
-		    Inendi::PVLayerFilter::hash_menu_function_t::const_iterator;
 		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n",
 		            qPrintable(it->key()), entries.size());
 		for (auto it_ent = entries.begin(); it_ent != entries.end();
