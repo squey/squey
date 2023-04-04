@@ -14,7 +14,7 @@ RUN cat /etc/apt/apt.conf.d/01proxy
 RUN sed -i 's/# deb /deb /g' /etc/apt/sources.list
 RUN cat /etc/apt/sources.list
 RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv A4B469963BF863CC
-RUN apt-get update && \
+RUN apt-get update && apt-get -y dist-upgrade && \
 apt-get install -y --no-install-recommends apt-utils pkg-config libglvnd-dev libglu1-mesa \ 
 libglu1 pciutils xorg xserver-xorg-input-all xinit xserver-xorg xserver-xorg-video-all \
 xserver-xorg-video-dummy xutils-dev kwin software-properties-common flatpak python3 python3-pip \
