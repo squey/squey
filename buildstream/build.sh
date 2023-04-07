@@ -126,7 +126,7 @@ if  [ "$TESTSUITE_DISABLED" = "false" ]; then
     cp --preserve -r /compilation/* .
     TESTS=\"-R INSPECTOR_TEST\"
     if [ $CODE_COVERAGE_ENABLED = true ]; then CODE_COVERAGE_COMMAND=\"-T coverage\"; TESTS=\"-R 'INSPECTOR_TEST|PVCOP_TEST'\"; fi
-    cd build && run_cmd.sh ctest --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS} || if [ $CODE_COVERAGE_ENABLED = false ]; then exit 1; fi
+    cd build && run_cmd.sh ctest --output-junit /srv/tmp-inspector/junit.xml --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS} || if [ $CODE_COVERAGE_ENABLED = false ]; then exit 1; fi
     # Generate code coverage report
     if [ $CODE_COVERAGE_ENABLED = true ]; then
         ./scripts/gen_code_coverage_report.sh

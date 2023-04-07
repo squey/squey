@@ -48,9 +48,17 @@ build testsuite:
         --flatpak-repo="/srv/flatpak_repo" 
         --crash-reporter-token=$INSPECTOR_CRASH_REPORTER_TOKEN
         --code-coverage=$CODE_COVERAGE
+  after_script:
+    - cp /srv/tmp-inspector/junit.xml $CI_PROJECT_DIR
   coverage: '/lines\.+: (\d+\.\d+)% \(\d+ of \d+ lines\)/'
   rules:
     - if: '$CI_COMMIT_TAG =~ "/^$/" && $UPDATE_INSTALLERS_ONLY == "false"'
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+    reports:
+      junit: junit.xml
 
 build release:
   extends: .build
@@ -234,4 +242,6 @@ code_quality_html:
 container_scanning:
   variables:
     CS_IMAGE: $CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH
+    CS_DOCKERFILE_PATH: docker/resources/Dockerfile
+    GIT_STRATEGY: fetch
 
