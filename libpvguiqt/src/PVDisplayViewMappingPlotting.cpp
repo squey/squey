@@ -57,8 +57,8 @@ QWidget* PVDisplays::PVDisplayViewMappingPlotting::create_widget(Squey::PVView* 
 
 
 void PVDisplays::PVDisplayViewMappingPlotting::add_to_axis_menu(
-    QMenu& menu, PVCol axis, PVCombCol axis_comb,
-    Squey::PVView* view, PVDisplays::PVDisplaysContainer* container)
+    QMenu& menu, PVCol axis, PVCombCol,
+    Squey::PVView* view, PVDisplays::PVDisplaysContainer*)
 {
     std::string axis_type = view->get_axes_combination().get_axis(axis).get_type().toStdString();
 
