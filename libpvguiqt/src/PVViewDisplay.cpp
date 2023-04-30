@@ -69,11 +69,15 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
 
 	if (view) {
 		// Set view color
+		// Workaround for setting color only to the title bar
 		QColor view_color = view->get_color();
-		QPalette Pal(palette());
-		Pal.setColor(QPalette::Window, view_color);
+		QPalette child_widget_palette = palette();
+		QPalette title_bar_palette = palette();
+		title_bar_palette.setColor(QPalette::Window, view_color);
 		setAutoFillBackground(true);
-		setPalette(Pal);
+		setPalette(title_bar_palette);
+		view_widget->setAutoFillBackground(true);
+		view_widget->setPalette(child_widget_palette);
 	}
 
 	if (delete_on_close) {
