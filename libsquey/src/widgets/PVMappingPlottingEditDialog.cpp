@@ -77,7 +77,7 @@ PVWidgets::PVMappingPlottingEditDialog::PVMappingPlottingEditDialog(Squey::PVMap
 	finish_layout();
 
 	// Adapt scroll area width so that everything fits in (closes #0x100)
-	_main_group_box->setMinimumWidth(_main_scroll_area->viewport()->width());
+	setMinimumWidth(_main_scroll_area->viewport()->width());
 }
 
 /******************************************************************************
@@ -139,17 +139,11 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
 
 	_main_layout = new QVBoxLayout();
-	_main_layout->setSpacing(29);
-
-	auto* name_layout = new QHBoxLayout();
-	name_layout->addWidget(new QLabel(tr("Name:"), nullptr));
-	_edit_name = new QLineEdit();
-	name_layout->addWidget(_edit_name);
-	_main_layout->addLayout(name_layout);
+	_main_layout->setSpacing(0);
+	_main_layout->setContentsMargins(0, 0, 0, 0);
 
 	auto* grid_widget = new QWidget();
 	_main_grid = new QGridLayout(grid_widget);
-	_main_grid->setContentsMargins(0, 0, 0, 0);
 	_main_grid->setHorizontalSpacing(10);
 	_main_grid->setVerticalSpacing(10);
 	int row = 0;
@@ -176,14 +170,7 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 	_main_scroll_area->setWidget(grid_widget);
 	_main_scroll_area->setWidgetResizable(true);
 
-	auto* scroll_layout = new QVBoxLayout();
-	scroll_layout->addWidget(_main_scroll_area);
-
-	_main_group_box = new QGroupBox(tr("Parameters"));
-	_main_group_box->setSizePolicy(
-	    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
-	_main_group_box->setLayout(scroll_layout);
-	_main_layout->addWidget(_main_group_box);
+	_main_layout->addWidget(_main_scroll_area);
 
 	setLayout(_main_layout);
 }
@@ -196,15 +183,6 @@ void PVWidgets::PVMappingPlottingEditDialog::init_layout()
 void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
-
-	// We must get the official name of the
-	QString name;
-	if (has_mapping()) {
-		name = QString::fromStdString(_mapping->get_name());
-	} else {
-		name = QString::fromStdString(_plotting->get_name());
-	}
-	_edit_name->setText(name);
 
 	// Add widgets
 
@@ -233,20 +211,6 @@ void PVWidgets::PVMappingPlottingEditDialog::load_settings()
 void PVWidgets::PVMappingPlottingEditDialog::save_settings()
 {
 	PVLOG_DEBUG("PVWidgets::PVMappingPlottingEditDialog::%s\n", __FUNCTION__);
-
-	QString name = _edit_name->text();
-	if (name.isEmpty()) {
-		_edit_name->setFocus(Qt::MouseFocusReason);
-		return;
-	}
-
-	// If we're editing both at the same time, give the same name !
-	if (has_mapping()) {
-		_mapping->set_name(name.toStdString());
-	}
-	if (has_plotting()) {
-		_plotting->set_name(name.toStdString());
-	}
 
 	int row = 1;
 	for (PVRush::PVAxisFormat const& axis : _axes) {

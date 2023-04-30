@@ -70,9 +70,7 @@ class PVMappingPlottingEditDialog : public QDialog
   private:
 	QGridLayout* _main_grid;
 	QVBoxLayout* _main_layout;
-	QLineEdit* _edit_name;
 	QScrollArea* _main_scroll_area;
-	QGroupBox* _main_group_box;
 	Squey::PVMapped* _mapping;
 	Squey::PVPlotted* _plotting;
 	QList<PVRush::PVAxisFormat> const& _axes;
