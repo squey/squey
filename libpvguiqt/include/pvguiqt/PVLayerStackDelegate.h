@@ -27,10 +27,10 @@
 
 #include <QStyledItemDelegate>
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -49,7 +49,7 @@ class PVLayerStackDelegate : public QStyledItemDelegate
 	 *  @param mw
 	 *  @param parent
 	 */
-	explicit PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent = nullptr);
+	explicit PVLayerStackDelegate(Squey::PVView const& view, QObject* parent = nullptr);
 
 	/**
 	 *  @param event
@@ -65,10 +65,10 @@ class PVLayerStackDelegate : public QStyledItemDelegate
 	                 const QModelIndex& index) override;
 
   private:
-	Inendi::PVView const& lib_view() const { return _view; }
+	Squey::PVView const& lib_view() const { return _view; }
 
   private:
-	Inendi::PVView const& _view;
+	Squey::PVView const& _view;
 };
 } // namespace PVGuiQt
 

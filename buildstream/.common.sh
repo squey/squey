@@ -28,7 +28,7 @@ else
         echo "Please, install flatpaked NVIDIA Drivers in order to have GPU acceleration (flatpak install flathub org.freedesktop.Platform.GL.$NVIDIA_VERSION_NAME)"
     fi
 fi
-MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-inspector /srv/tmp-inspector"
+MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
 
 # Install Buildstream and bst-external plugins if needed
 command -v "bst" &> /dev/null || { pip install --user BuildStream==1.6.7; }
@@ -56,12 +56,12 @@ function open_workspace()
             bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/workspace_build"
         fi
     
-        bst workspace close inendi-inspector.bst || true
+        bst workspace close squey.bst || true
         bst fetch freedesktop-sdk.bst
         if [ ! -d "$WORKSPACE_PATH" ]; then
-            bst workspace open inendi-inspector.bst $WORKSPACE_PATH
+            bst workspace open squey.bst $WORKSPACE_PATH
         else
-            bst workspace open --no-checkout inendi-inspector.bst $WORKSPACE_PATH
+            bst workspace open --no-checkout squey.bst $WORKSPACE_PATH
         fi
         
         if [ "$WORKSPACE_NAME" == "workspace_build" ]; then

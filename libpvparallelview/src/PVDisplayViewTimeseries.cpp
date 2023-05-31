@@ -37,14 +37,14 @@ PVDisplays::PVDisplayViewTimeseries::PVDisplayViewTimeseries()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Squey::PVView* view,
                                                             QWidget* parent,
                                                             Params const& params) const
 {
 	return new PVParallelView::PVSeriesViewWidget(view, col_param(view, params, 0), parent);
 }
 
-bool PVDisplays::PVDisplayViewTimeseries::abscissa_filter(Inendi::PVView* view, PVCol axis) const
+bool PVDisplays::PVDisplayViewTimeseries::abscissa_filter(Squey::PVView* view, PVCol axis) const
 {
 	return view->get_axes_combination().get_axis(axis).get_type().left(4) == "time" or
 	       view->get_axes_combination().get_axis(axis).get_type().left(8) == "duration" or
@@ -55,7 +55,7 @@ void PVDisplays::PVDisplayViewTimeseries::add_to_axis_menu(
     QMenu& menu,
     PVCol axis,
     PVCombCol axis_comb,
-    Inendi::PVView* view,
+    Squey::PVView* view,
     PVDisplays::PVDisplaysContainer* container)
 {
 	if (abscissa_filter(view, axis)) {

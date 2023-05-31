@@ -66,7 +66,7 @@ function monitor_package_installation {
     cmdline="$3"
     package_name=$(get_package_name_from_index "$package_index")
     package_count=$(get_package_count)
-    dbus_process=$(kdialog --title "Updating INENDI Inspector" --progressbar "Updating flatpak package [$package_index/$package_count] : $package_name")
+    dbus_process=$(kdialog --title "Updating Squey" --progressbar "Updating flatpak package [$package_index/$package_count] : $package_name")
     while process_running "$pid" "$cmdline" && [ "$package_index" = "$(get_current_package_index)" ] ; do
         percentage=$(tail -n 1 "$tmp_output_file" | strings | tail -n 2 | grep --line-buffered -o '[^ ]*%')
         qdbus $dbus_process Set org.kde.kdialog.ProgressDialog value "${percentage%?}" &> /dev/null
@@ -87,11 +87,11 @@ if ! ongoing_installation ; then
         fi
     fi
 
-    # Check if INENDI Inspector flatpak package needs to be updated
-    inspector_flatpak_package="com.gitlab.inendi.Inspector"
-    flatpak remote-ls --updates | grep -q "$inspector_flatpak_package"
+    # Check if Squey flatpak package needs to be updated
+    squey_flatpak_package="org.squey.Squey"
+    flatpak remote-ls --updates | grep -q "$squey_flatpak_package"
     if [ "$?" = "0" ]; then
-        flatpak_commands+=( "sudo flatpak update -y $inspector_flatpak_package" )
+        flatpak_commands+=( "sudo flatpak update -y $squey_flatpak_package" )
     fi
     
     # Run flatpak commands

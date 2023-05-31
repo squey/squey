@@ -5,8 +5,8 @@ if [ $# -ne 1 ]; then
     exit 1
 fi
 
-inspector_config_dir="$1/Inspector"
-mkdir -p "$inspector_config_dir" &> /dev/null
-cd /home/inendi
-unlink /home/inendi/.inendi &> /dev/null
-ln -s "$inspector_config_dir" /home/inendi/.inendi &> /dev/null
+squey_config_dir="$1/Squey"
+mkdir -p "$squey_config_dir" &> /dev/null
+cd /home/squey
+unlink /home/squey/.squey &> /dev/null
+ln -s "$squey_config_dir" /home/squey/.squey &> /dev/null

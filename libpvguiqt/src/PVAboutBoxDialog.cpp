@@ -54,7 +54,7 @@ static QString copying_dir()
 	if (path) {
 		return path;
 	}
-	return INENDI_COPYING_DIR;
+	return SQUEY_COPYING_DIR;
 }
 
 class PVOpenSourceSoftwareWidget : public QWidget
@@ -106,7 +106,7 @@ class PVChangeLogWidget : public QWidget
 
 		layout->addWidget(changelog_text);
 
-		QFile f("/app/share/inendi/inspector/CHANGELOG");
+		QFile f("/app/share/squey/squey/CHANGELOG");
 		f.open(QFile::ReadOnly | QFile::Text);
 		QTextStream in(&f);
 		changelog_text->setText(in.readAll());
@@ -211,19 +211,19 @@ Qt3DCore::QEntity* createScene()
 PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* parent /*= 0*/, QVariant /* data  = {} */)
     : QDialog(parent)
 {
-	setWindowTitle("About INENDI Inspector");
+	setWindowTitle("About Squey");
 
 	auto main_layout = new QGridLayout;
 	main_layout->setHorizontalSpacing(0);
 
-	QString content = "INENDI Inspector version \"" + QString(INENDI_CURRENT_VERSION_STR) + "\"";
+	QString content = "Squey version \"" + QString(SQUEY_CURRENT_VERSION_STR) + "\"";
 
 	content += "<br/>website - <a "
-	           "href=\"https://gitlab.com/inendi/inspector\">gitlab.com/inendi/inspector</a><br/>";
+	           "href=\"https://gitlab.com/squey/squey\">gitlab.com/squey/squey</a><br/>";
 	content += QString("documentation") + " - <a href=\"" + DOC_URL +"\">" + QString(DOC_URL).replace("https://","") + "</a><br/>";
 	content += "contact - <a href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
-	content += "?subject=%5BINENDI%5D\">";
+	content += "?subject=%5BSQUEY%5D\">";
 	content += EMAIL_ADDRESS_CONTACT;
 	content += "</a><br/><br/>";
 

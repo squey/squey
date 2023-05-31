@@ -42,7 +42,7 @@ QStringList PVRush::normalize_get_helpers_plugins_dirs(QString helper)
 {
 	QString pluginsdirs(std::getenv("PVFORMAT_HELPER"));
 	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(INENDI_CONFIG);
+		pluginsdirs = QString(SQUEY_CONFIG);
 	}
 	pluginsdirs += "/normalize-helpers";
 

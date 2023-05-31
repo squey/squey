@@ -41,11 +41,11 @@ class QToolBar;
 class QSignalMapper;
 class QToolButton;
 
-namespace Inendi
+namespace Squey
 {
 
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {

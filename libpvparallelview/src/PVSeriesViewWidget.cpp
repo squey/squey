@@ -33,7 +33,7 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVProgressBox.h>
-#include <inendi/PVSource.h>
+#include <squey/PVSource.h>
 #include <pvdisplays/PVDisplayIf.h>
 
 #include <QKeyEvent>
@@ -47,7 +47,7 @@
 
 #include <memory>
 
-PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
+PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
                                                        PVCol axis,
                                                        QWidget* parent /*= nullptr*/)
     : QWidget(parent), _view(view), _help_widget(this)
@@ -76,7 +76,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Inendi::PVView* view,
 	set_abscissa(axis);
 
 	// Subscribe to plotting changes
-	_plotting_change_connection = _view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	_plotting_change_connection = _view->get_parent<Squey::PVPlotted>()._plotted_updated.connect(
 	    [this](const QList<PVCol>& plotteds_updated) {
 		    if (_sampler) {
 			    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
@@ -200,7 +200,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 	const pvcop::db::array& time = nraw.column(abscissa);
 
 	{
-		auto plotteds = _view->get_parent<Inendi::PVSource>().get_children<Inendi::PVPlotted>();
+		auto plotteds = _view->get_parent<Squey::PVSource>().get_children<Squey::PVPlotted>();
 		const auto& plotteds_vector = plotteds.front()->get_plotteds();
 
 		std::vector<pvcop::core::array<uint32_t>> timeseries;
@@ -208,7 +208,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 			timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
 		}
 
-		_sampler = std::make_unique<Inendi::PVRangeSubSampler>(
+		_sampler = std::make_unique<Squey::PVRangeSubSampler>(
 		    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
 		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis));
 	}
@@ -237,7 +237,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 		    pvcop::db::range_t selected_range = time.equal_range(minmax, sorted_indexes);
 		    const auto& sort = sorted_indexes ? sorted_indexes.to_core_array()
 		                                      : pvcop::core::array<pvcop::db::index_t>();
-		    Inendi::PVSelection sel(nraw.row_count());
+		    Squey::PVSelection sel(nraw.row_count());
 		    sel.select_none(); // Not sur if needed
 		    for (size_t i = selected_range.begin; i < selected_range.end; i++) {
 			    sel.set_bit_fast(sort ? sort[i] : i);
@@ -469,9 +469,9 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 
 bool PVParallelView::PVSeriesViewWidget::is_in_region(const QRect region, PVCol col) const
 {
-	const auto min_value = Inendi::PVRangeSubSampler::display_type_max_val *
+	const auto min_value = Squey::PVRangeSubSampler::display_type_max_val *
 	                       uint32_t(_zoomer->height() - (region.top() + region.height()));
-	const auto max_value = Inendi::PVRangeSubSampler::display_type_max_val *
+	const auto max_value = Squey::PVRangeSubSampler::display_type_max_val *
 	                       uint32_t(_zoomer->height() - region.top());
 
 	const auto& av_ts = _sampler->sampled_timeserie(col);

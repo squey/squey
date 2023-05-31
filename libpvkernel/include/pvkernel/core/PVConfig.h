@@ -83,7 +83,7 @@ class PVConfig
 	static std::string user_dir();
 
 	/**
-	 * return the name of the product (ex: pcap-inspector, inendi-inspector, etc)
+	 * return the name of the product (ex: squey, etc)
 	 */
 	static std::string product_name();
 

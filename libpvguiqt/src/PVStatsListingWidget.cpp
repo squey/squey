@@ -26,7 +26,7 @@
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVQNraw.h>
 
-#include <inendi/PVSource.h>
+#include <squey/PVSource.h>
 
 #include <pvkernel/core/qobject_helpers.h>
 
@@ -112,7 +112,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	        &PVStatsListingWidget::update_scrollbar_position);
 
 	// Observe selection to handle automatic refresh mode
-	Inendi::PVView& view_sp = _listing_view->lib_view();
+	Squey::PVView& view_sp = _listing_view->lib_view();
 	view_sp._update_output_selection.connect(
 	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
@@ -358,7 +358,7 @@ tbb::task_group_context* PVGuiQt::__impl::PVCellWidgetBase::_ctxt = new tbb::tas
 bool PVGuiQt::__impl::PVCellWidgetBase::_thread_running = false;
 
 PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
-                                                    Inendi::PVView& view,
+                                                    Squey::PVView& view,
                                                     QTableWidgetItem* item)
     : _table(table)
     , _view(view)
@@ -464,7 +464,7 @@ typename PVGuiQt::PVStatsListingWidget::PVParams& PVGuiQt::__impl::PVCellWidgetB
 QMovie* PVGuiQt::__impl::PVCellWidgetBase::get_movie()
 {
 	if (_loading_movie == nullptr) {
-		_loading_movie = new QMovie(":/inendi-loading-animation");
+		_loading_movie = new QMovie(":/squey-loading-animation");
 		_loading_movie->setScaledSize(QSize(16, 16));
 	}
 	return _loading_movie;
@@ -599,7 +599,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::toggle_auto_refresh()
  *
  *****************************************************************************/
 PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget* table,
-                                                                    Inendi::PVView& view,
+                                                                    Squey::PVView& view,
                                                                     QTableWidgetItem* item)
     : PVCellWidgetBase(table, view, item)
 {
@@ -677,7 +677,7 @@ static bool is_summable(QString column_type)
 
 void PVGuiQt::__impl::PVSumCellWidget::update_type_capabilities()
 {
-	QString column_type = _view.get_parent<Inendi::PVSource>()
+	QString column_type = _view.get_parent<Squey::PVSource>()
 	                          .get_format()
 	                          .get_axes()
 	                          .at(get_real_axis_col())
@@ -745,7 +745,7 @@ void PVGuiQt::__impl::PVAverageCellWidget::refresh_impl()
 
 void PVGuiQt::__impl::PVAverageCellWidget::update_type_capabilities()
 {
-	QString column_type = _view.get_parent<Inendi::PVSource>()
+	QString column_type = _view.get_parent<Squey::PVSource>()
 	                          .get_format()
 	                          .get_axes()
 	                          .at(get_real_axis_col())

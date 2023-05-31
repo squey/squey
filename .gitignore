@@ -1,6 +1,6 @@
 Makefile
 build
-inspector.sh
+squey.sh
 */tests/bin
 */tests/*/bin
 .gdb_history

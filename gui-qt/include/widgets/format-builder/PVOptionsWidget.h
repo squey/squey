@@ -37,7 +37,7 @@ namespace PVGuiQt
 class PVPythonScriptWidget;
 }
 
-namespace PVInspector
+namespace App
 {
 
 class PVOptionsWidget : public QWidget

@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef INENDI_PVINPUTTYPE_H
-#define INENDI_PVINPUTTYPE_H
+#ifndef SQUEY_PVINPUTTYPE_H
+#define SQUEY_PVINPUTTYPE_H
 
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVRegistrableClass.h>

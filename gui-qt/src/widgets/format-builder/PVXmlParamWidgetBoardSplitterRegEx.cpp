@@ -33,10 +33,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx
+ * App::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx(
+App::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx(
     PVRush::PVXmlTreeNodeDom* pNode, PVXmlParamWidget* parent)
     : QWidget(), _parent(parent)
 {
@@ -54,17 +54,17 @@ PVInspector::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRe
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardSplitterRegEx::~PVXmlParamWidgetBoardSplitterRegEx
+ * App::PVXmlParamWidgetBoardSplitterRegEx::~PVXmlParamWidgetBoardSplitterRegEx
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardSplitterRegEx::~PVXmlParamWidgetBoardSplitterRegEx() = default;
+App::PVXmlParamWidgetBoardSplitterRegEx::~PVXmlParamWidgetBoardSplitterRegEx() = default;
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields()
+void App::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields()
 {
 	tabParam = new QTabWidget(this);
 
@@ -91,10 +91,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::allocBoardFields()
 
 /******************************************************************************
  *
- * bool PVInspector::PVXmlParamWidgetBoardSplitterRegEx::confirmAndSave
+ * bool App::PVXmlParamWidgetBoardSplitterRegEx::confirmAndSave
  *
  *****************************************************************************/
-bool PVInspector::PVXmlParamWidgetBoardSplitterRegEx::confirmAndSave()
+bool App::PVXmlParamWidgetBoardSplitterRegEx::confirmAndSave()
 {
 	// open the confirm box.
 	QDialog confirm(this);
@@ -118,10 +118,10 @@ bool PVInspector::PVXmlParamWidgetBoardSplitterRegEx::confirmAndSave()
 
 /******************************************************************************
  *
- * VInspector::PVXmlParamWidgetBoardSplitterRegEx::createTab
+ * App::PVXmlParamWidgetBoardSplitterRegEx::createTab
  *
  *****************************************************************************/
-QVBoxLayout* PVInspector::PVXmlParamWidgetBoardSplitterRegEx::createTab(const QString& title,
+QVBoxLayout* App::PVXmlParamWidgetBoardSplitterRegEx::createTab(const QString& title,
                                                                         QTabWidget* tab)
 {
 	auto tabWidget = new QWidget(tab);
@@ -141,10 +141,10 @@ QVBoxLayout* PVInspector::PVXmlParamWidgetBoardSplitterRegEx::createTab(const QS
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::disableConnexion
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::disableConnexion
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::disableConnexion()
+void App::PVXmlParamWidgetBoardSplitterRegEx::disableConnexion()
 {
 	disconnect(name, &QLineEdit::textChanged, this,
 	           &PVXmlParamWidgetBoardSplitterRegEx::slotSetValues);
@@ -163,19 +163,19 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::disableConnexion()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::disAllocBoardFields
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::disAllocBoardFields
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::disAllocBoardFields()
+void App::PVXmlParamWidgetBoardSplitterRegEx::disAllocBoardFields()
 {
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::draw
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::draw
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::draw()
+void App::PVXmlParamWidgetBoardSplitterRegEx::draw()
 {
 	// init layout
 	auto qv = new QVBoxLayout();
@@ -212,12 +212,12 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::draw()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::exit
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::exit
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::exit()
+void App::PVXmlParamWidgetBoardSplitterRegEx::exit()
 {
-	PVLOG_DEBUG("slot PVInspector::PVXmlParamWidgetBoardSplitterRegEx::exit()\n");
+	PVLOG_DEBUG("slot App::PVXmlParamWidgetBoardSplitterRegEx::exit()\n");
 	// open the confirmbox if we quit a regexp
 	if (flagNeedConfirmAndSave && flagAskConfirmActivated) {
 		if (confirmAndSave()) {
@@ -234,10 +234,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::exit()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initConnexion
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::initConnexion
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initConnexion()
+void App::PVXmlParamWidgetBoardSplitterRegEx::initConnexion()
 {
 	// tab general
 	connect(name, &QLineEdit::textChanged, this,
@@ -268,10 +268,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initConnexion()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initValue
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::initValue
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initValue()
+void App::PVXmlParamWidgetBoardSplitterRegEx::initValue()
 {
 	// init the number of field detected with the regexp
 	regExCount(exp->toPlainText());
@@ -289,20 +289,20 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::initValue()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::getWidgetToFocus
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::getWidgetToFocus
  *
  *****************************************************************************/
-QWidget* PVInspector::PVXmlParamWidgetBoardSplitterRegEx::getWidgetToFocus()
+QWidget* App::PVXmlParamWidgetBoardSplitterRegEx::getWidgetToFocus()
 {
 	return (QWidget*)name;
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::regExCount
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::regExCount
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::regExCount(const QString& reg)
+void App::PVXmlParamWidgetBoardSplitterRegEx::regExCount(const QString& reg)
 {
 	// set regexp
 	QRegExp regExp = QRegExp(reg);
@@ -329,22 +329,22 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::regExCount(const QString& 
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded()
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded()
 {
 	PVLOG_DEBUG(
-	    "slot PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded()\n");
+	    "slot App::PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded()\n");
 	flagNeedConfirmAndSave = true; // note that we need confirmation
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotOpenLogValid
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotOpenLogValid
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotOpenLogValid()
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotOpenLogValid()
 {
 	QString urlFile = PVWidgets::PVFileDialog::getOpenFileName(nullptr, QString("Select the file."),
 	                                                           "."); // open file chooser
@@ -362,20 +362,20 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotOpenLogValid()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSaveValidator
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotSaveValidator
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSaveValidator(bool stat)
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotSaveValidator(bool stat)
 {
 	flagSaveRegExpValidator = stat;
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues()
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues()
 {
 	slotSetValues();                                           // save various value
 	node->setAttribute(QString("regexp"), exp->toPlainText()); // save expression
@@ -390,10 +390,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetConfirmedValues()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetValues
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotSetValues
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetValues()
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotSetValues()
 {
 	node->setAttribute(QString("name"), name->text()); // save name
 	if (flagSaveRegExpValidator) {
@@ -407,22 +407,22 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotSetValues()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotShowTable
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotShowTable
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotShowTable(bool isVisible)
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotShowTable(bool isVisible)
 {
 	table->setVisible(isVisible); // hide or show table validator selection
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName()
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName()
 {
-	PVLOG_DEBUG("PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName\n");
+	PVLOG_DEBUG("App::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName\n");
 	// char we want to detecte in the name
 	QRegExp reg(R"(.*(\*|\[|\{|\]|\}).*)");
 	if (reg.exactMatch(name->text())) { // if there is
@@ -452,10 +452,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable()
+void App::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable()
 {
 	QRegExp reg = QRegExp(exp->toPlainText());
 
@@ -486,10 +486,10 @@ void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::updateHeaderTable
+ * void App::PVXmlParamWidgetBoardSplitterRegEx::updateHeaderTable
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardSplitterRegEx::updateHeaderTable()
+void App::PVXmlParamWidgetBoardSplitterRegEx::updateHeaderTable()
 {
 	QStringList l;
 	for (int i = 0; i < node->countChildren(); i++) {

@@ -28,7 +28,7 @@
 #include <pvkernel/rush/PVAggregator.h>
 #include <pvkernel/rush/PVUtils.h>
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <cstdlib>
 #include <iostream>
@@ -90,7 +90,7 @@ int main(int argc, char** argv)
 	agg.process_indexes(1, 701);
 	dump_agg(agg, out);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	const std::string ref_file = std::string(argv[2]) + ".strict.out";
 	// Check output is the same as the reference
 	std::cout << output_file << " - " << ref_file << std::endl;

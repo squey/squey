@@ -24,7 +24,7 @@
 //
 
 #include <pvhwloc.h>
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoneProcessing.h>
 
@@ -66,7 +66,7 @@ class ZoneCreation
  * PVParallelView::PVZonesManager::PVZonesManager
  *
  *****************************************************************************/
-PVParallelView::PVZonesManager::PVZonesManager(Inendi::PVView const& view) : _view(view)
+PVParallelView::PVZonesManager::PVZonesManager(Squey::PVView const& view) : _view(view)
 {
 	update_from_axes_comb(_view);
 }
@@ -221,7 +221,7 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(std::vector<PVCol> co
  * PVParallelView::PVZonesManager::update_from_axes_comb
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::update_from_axes_comb(Inendi::PVView const& view)
+void PVParallelView::PVZonesManager::update_from_axes_comb(Squey::PVView const& view)
 {
 	update_from_axes_comb(view.get_axes_combination().get_combination());
 }
@@ -255,13 +255,13 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
  *
  *****************************************************************************/
 void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id,
-                                                        const Inendi::PVSelection& sel)
+                                                        const Squey::PVSelection& sel)
 {
 	get_zone(zone_id).filter_by_sel(sel);
 }
 
 void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id,
-                                                                   const Inendi::PVSelection& sel)
+                                                                   const Squey::PVSelection& sel)
 {
 	get_zone(zone_id).filter_by_sel_background(sel);
 }

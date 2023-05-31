@@ -28,7 +28,7 @@
 #include "../../plugins/common/elasticsearch/PVElasticsearchQuery.h"
 
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/core/PVUtils.h>
 
@@ -219,7 +219,7 @@ int main(int argc, char** argv)
 
 	exp.export_rows(output_file, sel);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));

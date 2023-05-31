@@ -37,16 +37,16 @@ namespace PVGuiQt
 class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 {
   public:
-	PVGroupByStringsDlg(Inendi::PVView& view,
+	PVGroupByStringsDlg(Squey::PVView& view,
 	                    PVCol c1,
 	                    PVCol c2,
 	                    const create_model_f& f,
-	                    const Inendi::PVSelection& sel,
+	                    const Squey::PVSelection& sel,
 	                    bool counts_are_integers,
 	                    QWidget* parent = nullptr)
 	    : PVAbstractListStatsDlg(view, c1, f, counts_are_integers, parent)
 	    , _col2(c2)
-	    , _col2_name(view.get_parent<Inendi::PVSource>().get_format().get_axes().at(c2).get_name())
+	    , _col2_name(view.get_parent<Squey::PVSource>().get_format().get_axes().at(c2).get_name())
 	    , _sel(sel)
 	{
 		_ctxt_menu->addSeparator();
@@ -57,12 +57,12 @@ class PVGroupByStringsDlg : public PVAbstractListStatsDlg
 	bool process_context_menu(QAction* act) override;
 
 	PVStatsModel*
-	details_create_model(const Inendi::PVView& view, PVCol c, Inendi::PVSelection const& sel);
+	details_create_model(const Squey::PVView& view, PVCol c, Squey::PVSelection const& sel);
 
   private:
 	PVCol _col2;
 	QString _col2_name;
-	Inendi::PVSelection _sel; //!< Store selection to be able to compute 'details'
+	Squey::PVSelection _sel; //!< Store selection to be able to compute 'details'
 	QAction* _act_details;    //!< Action to show details
 };
 } // namespace PVGuiQt

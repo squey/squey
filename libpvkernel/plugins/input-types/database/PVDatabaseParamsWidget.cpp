@@ -180,7 +180,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
 	_table_fields->setColumnCount(3);
 	_table_fields->setHorizontalHeaderLabels(QStringList() << "Field name"
 	                                                       << "SQL type"
-	                                                       << "INENDI type");
+	                                                       << "SQUEY type");
 
 	enable_used_format(false);
 }

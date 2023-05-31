@@ -27,7 +27,7 @@
 #include <pvguiqt/PVAxesCombinationWidget.h>
 #include <pvguiqt/PVDisplayViewAxesCombination.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters,
@@ -36,7 +36,7 @@ PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewAxesCombination::create_widget(Squey::PVView* view,
                                                                  QWidget* parent,
                                                                  Params const&) const
 {

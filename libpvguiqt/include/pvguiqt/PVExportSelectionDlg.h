@@ -37,12 +37,12 @@ namespace PVWidgets
 class QKeySequenceWidget;
 } // namespace PVWidgets
 
-namespace Inendi
+namespace Squey
 {
 class PVAxesCombination;
 class PVView;
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -63,9 +63,9 @@ class PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	 * ExportSelectionDlg can't be created directly, creation and export are
 	 * done in one step.
 	 */
-	static void export_selection(Inendi::PVView& view, const Inendi::PVSelection& sel);
+	static void export_selection(Squey::PVView& view, const Squey::PVSelection& sel);
 	
-	static void export_layers(Inendi::PVView& view);
+	static void export_layers(Squey::PVView& view);
 
 	/** Create a FileDialog to export selection
 	 *
@@ -74,7 +74,7 @@ class PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	 * @param parent : parent widget (as usual in Qt)
 	 */
 	PVExportSelectionDlg(
-		Inendi::PVView& view,
+		Squey::PVView& view,
 		QWidget* parent = 0,
 		QFileDialog::AcceptMode accept_mode = QFileDialog::AcceptSave,
 	    QFileDialog::FileMode file_mode = QFileDialog::AnyFile

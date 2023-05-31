@@ -38,15 +38,15 @@ class QWidget;
 
 #include <pvdisplays/PVDisplaysContainer.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
 class PVSource;
-} // namespace Inendi
+} // namespace Squey
 
-Q_DECLARE_METATYPE(Inendi::PVView*)
+Q_DECLARE_METATYPE(Squey::PVView*)
 
 namespace PVDisplays
 {
@@ -78,7 +78,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	{
 	  public:
 		PVGuiQt::PVAxesCombinationDialog* _axes_combination_editor;
-		PVViewWidgets(Inendi::PVView* view, PVWorkspaceBase* tab)
+		PVViewWidgets(Squey::PVView* view, PVWorkspaceBase* tab)
 		    : _axes_combination_editor(new PVAxesCombinationDialog(*view, tab))
 		{
 		}
@@ -90,8 +90,8 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	};
 
   public:
-	PVViewWidgets const& get_view_widgets(Inendi::PVView* view);
-	PVAxesCombinationDialog* get_axes_combination_editor(Inendi::PVView* view)
+	PVViewWidgets const& get_view_widgets(Squey::PVView* view);
+	PVAxesCombinationDialog* get_axes_combination_editor(Squey::PVView* view)
 	{
 		PVViewWidgets const& widgets = get_view_widgets(view);
 		return widgets._axes_combination_editor;
@@ -113,7 +113,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \return A pointer to the view display.
 	 */
-	PVViewDisplay* add_view_display(Inendi::PVView* view,
+	PVViewDisplay* add_view_display(Squey::PVView* view,
 	                                QWidget* view_display,
 	                                QString name,
 	                                bool can_be_central_display = true,
@@ -129,7 +129,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \return A pointer to the view display.
 	 */
-	PVViewDisplay* set_central_display(Inendi::PVView* view,
+	PVViewDisplay* set_central_display(Squey::PVView* view,
 	                                   QWidget* view_widget,
 	                                   QString name,
 	                                   bool delete_on_close);
@@ -140,7 +140,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	void toggle_unique_source_widget(QAction* act,
 	                                 PVDisplays::PVDisplaySourceIf& display_if,
-	                                 Inendi::PVSource* src);
+	                                 Squey::PVSource* src);
 
 	/*! \brief Return the workspace located under the mouse.
 	 */
@@ -163,7 +163,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *  \param[in] act The QAction triggering the creation of the widget.
 	 */
 	void create_view_widget(PVDisplays::PVDisplayViewIf& interface,
-	                        Inendi::PVView* view,
+	                        Squey::PVView* view,
 	                        std::vector<std::any> params = {}) override;
 
   private Q_SLOTS:
@@ -195,7 +195,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	int _z_order_index = 0;
 	static uint64_t _z_order_counter;
 	static bool _drag_started;
-	QHash<Inendi::PVView const*, PVViewWidgets> _view_widgets;
+	QHash<Squey::PVView const*, PVViewWidgets> _view_widgets;
 };
 
 /**
@@ -212,10 +212,10 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	using list_display = QList<std::pair<QToolButton*, T*>>;
 
   public:
-	explicit PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent = nullptr);
+	explicit PVSourceWorkspace(Squey::PVSource* source, QWidget* parent = nullptr);
 
   public:
-	inline Inendi::PVSource* get_source() const { return _source; }
+	inline Squey::PVSource* get_source() const { return _source; }
 
 	/**
 	 * Get the Dialog widget that show invalid elements.
@@ -226,7 +226,7 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	void populate_display();
 
   private:
-	Inendi::PVSource* _source = nullptr;
+	Squey::PVSource* _source = nullptr;
 	QToolBar* _toolbar = nullptr;
 	QComboBox* _toolbar_combo_views = nullptr;
 

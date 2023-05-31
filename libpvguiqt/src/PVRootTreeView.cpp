@@ -23,12 +23,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVRoot.h>
-#include <inendi/PVScene.h>
-#include <inendi/PVMapped.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVView.h>
-#include <inendi/widgets/PVMappingPlottingEditDialog.h>
+#include <squey/PVRoot.h>
+#include <squey/PVScene.h>
+#include <squey/PVMapped.h>
+#include <squey/PVPlotted.h>
+#include <squey/PVView.h>
+#include <squey/widgets/PVMappingPlottingEditDialog.h>
 
 #include <pvguiqt/PVQMapped.h>
 #include <pvguiqt/PVQPlotted.h>
@@ -75,7 +75,7 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 	}
 
 	auto* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
-	auto* view = dynamic_cast<Inendi::PVView*>(obj);
+	auto* view = dynamic_cast<Squey::PVView*>(obj);
 	if (!view) {
 		return;
 	}
@@ -83,7 +83,7 @@ void PVGuiQt::PVRootTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 	// Double click on a view set this view as the current view of the parent
 	// source
 
-	view->get_parent<Inendi::PVRoot>().select_view(*view);
+	view->get_parent<Squey::PVRoot>().select_view(*view);
 
 	// TODO : Q_EMIT datachanged
 
@@ -99,7 +99,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 
 	auto* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
 
-	auto* plotted = dynamic_cast<Inendi::PVPlotted*>(obj);
+	auto* plotted = dynamic_cast<Squey::PVPlotted*>(obj);
 	if (plotted) {
 		auto* ctxt_menu = new QMenu(this);
 		ctxt_menu->addAction(_act_new_view);
@@ -108,7 +108,7 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 		return;
 	}
 
-	auto* mapped = dynamic_cast<Inendi::PVMapped*>(obj);
+	auto* mapped = dynamic_cast<Squey::PVMapped*>(obj);
 	if (mapped) {
 		auto* ctxt_menu = new QMenu(this);
 		ctxt_menu->addAction(_act_edit_mapping);
@@ -137,7 +137,7 @@ void PVGuiQt::PVRootTreeView::leaveEvent(QEvent*)
 
 void PVGuiQt::PVRootTreeView::create_new_view()
 {
-	auto* plotted = get_selected_obj_as<Inendi::PVPlotted>();
+	auto* plotted = get_selected_obj_as<Squey::PVPlotted>();
 	if (plotted) {
 		plotted->emplace_add_child();
 	}
@@ -145,7 +145,7 @@ void PVGuiQt::PVRootTreeView::create_new_view()
 
 void PVGuiQt::PVRootTreeView::edit_mapping()
 {
-	auto* mapped = get_selected_obj_as<Inendi::PVMapped>();
+	auto* mapped = get_selected_obj_as<Squey::PVMapped>();
 	if (mapped) {
 		PVQMapped::edit_mapped(*mapped, this);
 	}
@@ -153,7 +153,7 @@ void PVGuiQt::PVRootTreeView::edit_mapping()
 
 void PVGuiQt::PVRootTreeView::edit_plotting()
 {
-	auto* plotted = get_selected_obj_as<Inendi::PVPlotted>();
+	auto* plotted = get_selected_obj_as<Squey::PVPlotted>();
 	if (plotted) {
 		PVQPlotted::edit_plotted(*plotted, this);
 	}

@@ -73,7 +73,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * @note It use a view as a parameter to register observer. Thanks to this
 	 * record, every view will be updated on listing model modification.
 	 */
-	explicit PVListingView(Inendi::PVView& view, QWidget* parent = nullptr);
+	explicit PVListingView(Squey::PVView& view, QWidget* parent = nullptr);
 
 	/**
 	 * Clean up plugin in progress
@@ -184,8 +184,8 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 
   private:
 	/// Getters
-	Inendi::PVView const& lib_view() const { return _view; }
-	Inendi::PVView& lib_view() { return _view; }
+	Squey::PVView const& lib_view() const { return _view; }
+	Squey::PVView& lib_view() { return _view; }
 	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
   private Q_SLOTS:
@@ -246,7 +246,7 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	void section_hovered_enter(PVCombCol col, bool enter);
 
   private:
-	Inendi::PVView& _view;
+	Squey::PVView& _view;
 
 	// Context menu
 	QMenu _ctxt_menu;        //!< Context menu for right click on table cells

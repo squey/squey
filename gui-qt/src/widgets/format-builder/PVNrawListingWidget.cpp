@@ -37,7 +37,7 @@
 
 #include <pvlogger.h>
 
-PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_model,
+App::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_model,
                                                       QWidget* parent)
     : QWidget(parent), _nraw_model(nraw_model)
 {
@@ -118,24 +118,24 @@ PVInspector::PVNrawListingWidget::PVNrawListingWidget(PVNrawListingModel* nraw_m
 	setLayout(main_layout);
 }
 
-void PVInspector::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
+void App::PVNrawListingWidget::get_ext_args(PVRow& start, PVRow& end)
 {
 	start = _ext_start->value() - 1;
 	end = start + _ext_count->value() - 1;
 }
 
-void PVInspector::PVNrawListingWidget::get_autodetect_args(PVRow& start, PVRow& end)
+void App::PVNrawListingWidget::get_autodetect_args(PVRow& start, PVRow& end)
 {
 	start = _autodetect_start->value() - 1;
 	end = start + _autodetect_count->value() - 1;
 }
 
-void PVInspector::PVNrawListingWidget::set_autodetect_count(PVRow count)
+void App::PVNrawListingWidget::set_autodetect_count(PVRow count)
 {
 	_autodetect_count->setValue(count);
 }
 
-void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,
+void App::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,
                                                       PVRush::PVInputDescription_p input)
 {
 	if (!in_t) {
@@ -152,20 +152,20 @@ void PVInspector::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t
 	_btn_autodetect->setEnabled(true);
 }
 
-void PVInspector::PVNrawListingWidget::resize_columns_content()
+void App::PVNrawListingWidget::resize_columns_content()
 {
 	for (int col = 1; col < _nraw_table->model()->columnCount(); col++) {
 		_nraw_table->resizeColumnToContents(col);
 	}
 }
 
-void PVInspector::PVNrawListingWidget::select_header(PVCol column)
+void App::PVNrawListingWidget::select_header(PVCol column)
 {
 	_nraw_model->set_selected_column(column);
 	_nraw_model->sel_visible(true);
 }
 
-void PVInspector::PVNrawListingWidget::select_column(PVCol col)
+void App::PVNrawListingWidget::select_column(PVCol col)
 {
 	PVLOG_DEBUG("(PVNrawListingWidget) select column %d\n", col);
 	_nraw_model->set_selected_column(col);
@@ -177,30 +177,30 @@ void PVInspector::PVNrawListingWidget::select_column(PVCol col)
 	_nraw_table->scrollTo(col_idx, QAbstractItemView::PositionAtTop);
 }
 
-void PVInspector::PVNrawListingWidget::unselect_column()
+void App::PVNrawListingWidget::unselect_column()
 {
 	PVLOG_DEBUG("(PVNrawListingWidget) select no column\n");
 	_nraw_model->sel_visible(false);
 }
 
-void PVInspector::PVNrawListingWidget::set_axes_name_selected_row_Slot()
+void App::PVNrawListingWidget::set_axes_name_selected_row_Slot()
 {
 	int row = get_selected_row();
 	Q_EMIT set_axes_name_from_nraw(row);
 }
 
-void PVInspector::PVNrawListingWidget::set_axes_type_selected_row_Slot()
+void App::PVNrawListingWidget::set_axes_type_selected_row_Slot()
 {
 	int row = get_selected_row();
 	Q_EMIT set_axes_type_from_nraw(row);
 }
 
-int PVInspector::PVNrawListingWidget::get_selected_row()
+int App::PVNrawListingWidget::get_selected_row()
 {
 	return _nraw_table->currentIndex().row();
 }
 
-void PVInspector::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint&)
+void App::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint&)
 {
 	if (_nraw_table->model()->rowCount() == 0) {
 		return;
@@ -209,7 +209,7 @@ void PVInspector::PVNrawListingWidget::nraw_custom_menu_Slot(const QPoint&)
 	_ctxt_menu->exec(QCursor::pos());
 }
 
-void PVInspector::PVNrawListingWidget::mark_row_as_invalid(size_t row_index)
+void App::PVNrawListingWidget::mark_row_as_invalid(size_t row_index)
 {
 	_nraw_table->setSpan(row_index, 0, 1, _nraw_table->model()->columnCount());
 }

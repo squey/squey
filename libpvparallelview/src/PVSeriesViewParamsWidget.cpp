@@ -32,8 +32,8 @@
 #include <pvparallelview/common.h>
 #include <pvkernel/core/PVProgressBox.h>
 
-#include <inendi/PVRangeSubSampler.h>
-#include <inendi/widgets/PVAxisComboBox.h>
+#include <squey/PVRangeSubSampler.h>
+#include <squey/widgets/PVAxisComboBox.h>
 
 #include <QSignalMapper>
 #include <QShortcut>
@@ -256,7 +256,7 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	mean_mode->setIcon(QIcon(":/avg_by"));
 	mean_mode->setToolTip("Each pixel is the average of its horizontal subrange");
 	mean_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-	mean_mode->setData(Inendi::PVRangeSubSampler::SAMPLING_MODE::MEAN);
+	mean_mode->setData(Squey::PVRangeSubSampler::SAMPLING_MODE::MEAN);
 	_sampling_mode_button->addAction(mean_mode);
 	connect(mean_mode, &QAction::triggered, this,
 	        qOverload<>(&PVSeriesViewParamsWidget::set_sampling_mode));
@@ -269,7 +269,7 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	min_mode->setIcon(QIcon(":/min_by"));
 	min_mode->setToolTip("Each pixel is the minimum of its horizontal subrange");
 	min_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-	min_mode->setData(Inendi::PVRangeSubSampler::SAMPLING_MODE::MIN);
+	min_mode->setData(Squey::PVRangeSubSampler::SAMPLING_MODE::MIN);
 	_sampling_mode_button->addAction(min_mode);
 	connect(min_mode, &QAction::triggered, this,
 	        qOverload<>(&PVSeriesViewParamsWidget::set_sampling_mode));
@@ -282,7 +282,7 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	max_mode->setIcon(QIcon(":/max_by"));
 	max_mode->setToolTip("Each pixel is the maximum of its horizontal subrange");
 	max_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
-	max_mode->setData(Inendi::PVRangeSubSampler::SAMPLING_MODE::MAX);
+	max_mode->setData(Squey::PVRangeSubSampler::SAMPLING_MODE::MAX);
 	_sampling_mode_button->addAction(max_mode);
 	connect(max_mode, &QAction::triggered, this,
 	        qOverload<>(&PVSeriesViewParamsWidget::set_sampling_mode));
@@ -308,18 +308,18 @@ void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode(QAction* action
 }
 
 void PVParallelView::PVSeriesViewParamsWidget::set_sampling_mode(
-    Inendi::PVRangeSubSampler::SAMPLING_MODE mode) const
+    Squey::PVRangeSubSampler::SAMPLING_MODE mode) const
 {
-	Inendi::PVRangeSubSampler& sampler = *_series_view_widget->_sampler;
+	Squey::PVRangeSubSampler& sampler = *_series_view_widget->_sampler;
 	switch (mode) {
-	case Inendi::PVRangeSubSampler::SAMPLING_MODE::MEAN:
-		sampler.set_sampling_mode<Inendi::PVRangeSubSampler::SAMPLING_MODE::MEAN>();
+	case Squey::PVRangeSubSampler::SAMPLING_MODE::MEAN:
+		sampler.set_sampling_mode<Squey::PVRangeSubSampler::SAMPLING_MODE::MEAN>();
 		break;
-	case Inendi::PVRangeSubSampler::SAMPLING_MODE::MIN:
-		sampler.set_sampling_mode<Inendi::PVRangeSubSampler::SAMPLING_MODE::MIN>();
+	case Squey::PVRangeSubSampler::SAMPLING_MODE::MIN:
+		sampler.set_sampling_mode<Squey::PVRangeSubSampler::SAMPLING_MODE::MIN>();
 		break;
-	case Inendi::PVRangeSubSampler::SAMPLING_MODE::MAX:
-		sampler.set_sampling_mode<Inendi::PVRangeSubSampler::SAMPLING_MODE::MAX>();
+	case Squey::PVRangeSubSampler::SAMPLING_MODE::MAX:
+		sampler.set_sampling_mode<Squey::PVRangeSubSampler::SAMPLING_MODE::MAX>();
 		break;
 	}
 }

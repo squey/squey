@@ -38,7 +38,7 @@
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVAlgorithms.h>
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
 #include <tbb/blocked_range.h>

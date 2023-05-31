@@ -31,11 +31,11 @@
 #include <QBrush>
 #include <QPainterPath>
 
-namespace Inendi
+namespace Squey
 {
 
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -51,7 +51,7 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 	           depend of the client's windows settings. */
 
   public:
-	explicit PVAxisLabel(const Inendi::PVView& view, QGraphicsItem* parent = nullptr);
+	explicit PVAxisLabel(const Squey::PVView& view, QGraphicsItem* parent = nullptr);
 
 	~PVAxisLabel() override;
 
@@ -71,7 +71,7 @@ class PVAxisLabel : public QObject, public QGraphicsSimpleTextItem
 	PVAxisGraphicsItem const* get_parent_axis() const;
 
   private:
-	const Inendi::PVView& _lib_view;
+	const Squey::PVView& _lib_view;
 	int _bounding_box_width = 0;
 };
 } // namespace PVParallelView

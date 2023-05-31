@@ -41,7 +41,7 @@
 
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <PVXmlParamTextEdit.h>
-#include <inendi/plugins.h>
+#include <squey/plugins.h>
 #include <PVXmlParamColorDialog.h>
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <PVXmlParamWidgetBoardFilter.h>
@@ -50,7 +50,7 @@
 
 //#include "include/NodeDom.h"
 
-namespace PVInspector
+namespace App
 {
 class PVFormatBuilderWidget;
 
@@ -153,6 +153,6 @@ class PVXmlParamWidget : public QWidget
 	void signalSelectNext();
 	void signalQuittingAParamBoard();
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif /* PVXMLPARAMWIDGET_H */

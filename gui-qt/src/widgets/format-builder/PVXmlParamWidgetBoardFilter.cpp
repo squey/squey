@@ -27,10 +27,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter
+ * App::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter(
+App::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter(
     PVRush::PVXmlTreeNodeDom* pNode, PVXmlParamWidget* parent)
     : QWidget(), _parent(parent)
 {
@@ -45,20 +45,20 @@ PVInspector::PVXmlParamWidgetBoardFilter::PVXmlParamWidgetBoardFilter(
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardFilter::~PVXmlParamWidgetBoardFilter
+ * App::PVXmlParamWidgetBoardFilter::~PVXmlParamWidgetBoardFilter
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetBoardFilter::~PVXmlParamWidgetBoardFilter()
+App::PVXmlParamWidgetBoardFilter::~PVXmlParamWidgetBoardFilter()
 {
 	disableConnexion();
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields
+ * void App::PVXmlParamWidgetBoardFilter::allocBoardFields
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields()
+void App::PVXmlParamWidgetBoardFilter::allocBoardFields()
 {
 	// allocate each field and init them with the saved value
 	name = new PVXmlParamWidgetEditorBox(QString("name"), new QVariant(node->attribute("name")));
@@ -76,10 +76,10 @@ void PVInspector::PVXmlParamWidgetBoardFilter::allocBoardFields()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardFilter::disableConnexion
+ * void App::PVXmlParamWidgetBoardFilter::disableConnexion
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::disableConnexion()
+void App::PVXmlParamWidgetBoardFilter::disableConnexion()
 {
 	disconnect(name, &QLineEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
 	disconnect(exp, SIGNAL(textChanged()), validWidget, SLOT(setRegEx(const QString&)));
@@ -90,19 +90,19 @@ void PVInspector::PVXmlParamWidgetBoardFilter::disableConnexion()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardFilter::disAllocBoardFields
+ * void App::PVXmlParamWidgetBoardFilter::disAllocBoardFields
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::disAllocBoardFields()
+void App::PVXmlParamWidgetBoardFilter::disAllocBoardFields()
 {
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardFilter::draw
+ * void App::PVXmlParamWidgetBoardFilter::draw
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::draw()
+void App::PVXmlParamWidgetBoardFilter::draw()
 {
 	auto qv = new QVBoxLayout();
 
@@ -125,20 +125,20 @@ void PVInspector::PVXmlParamWidgetBoardFilter::draw()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardFilter::getWidgetToFocus
+ * void App::PVXmlParamWidgetBoardFilter::getWidgetToFocus
  *
  *****************************************************************************/
-QWidget* PVInspector::PVXmlParamWidgetBoardFilter::getWidgetToFocus()
+QWidget* App::PVXmlParamWidgetBoardFilter::getWidgetToFocus()
 {
 	return (QWidget*)name;
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardFilter::initConnexion
+ * App::PVXmlParamWidgetBoardFilter::initConnexion
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::initConnexion()
+void App::PVXmlParamWidgetBoardFilter::initConnexion()
 {
 	connect(name, &QLineEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
 	connect(name, &QLineEdit::textChanged, this,
@@ -154,29 +154,29 @@ void PVInspector::PVXmlParamWidgetBoardFilter::initConnexion()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardFilter::initValue
+ * App::PVXmlParamWidgetBoardFilter::initValue
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::initValue()
+void App::PVXmlParamWidgetBoardFilter::initValue()
 {
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetBoardFilter::slotEmitNext
+ * App::PVXmlParamWidgetBoardFilter::slotEmitNext
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::slotEmitNext()
+void App::PVXmlParamWidgetBoardFilter::slotEmitNext()
 {
 	Q_EMIT signalEmitNext();
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues
+ * void App::PVXmlParamWidgetBoardFilter::slotSetValues
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues()
+void App::PVXmlParamWidgetBoardFilter::slotSetValues()
 { // called when we modifi something.
 	node->setAttribute(QString("name"), name->text());
 	node->setAttribute(QString("regexp"), exp->toPlainText());
@@ -189,10 +189,10 @@ void PVInspector::PVXmlParamWidgetBoardFilter::slotSetValues()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetBoardFilter::slotVerifRegExpInName
+ * void App::PVXmlParamWidgetBoardFilter::slotVerifRegExpInName
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetBoardFilter::slotVerifRegExpInName()
+void App::PVXmlParamWidgetBoardFilter::slotVerifRegExpInName()
 {
 	// char we want to detecte in the name
 	QRegExp reg(R"(.*(\*|\[|\{|\]|\}).*)");

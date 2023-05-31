@@ -27,7 +27,7 @@
 #include <pvparallelview/PVScatterView.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <cassert>
 
@@ -85,11 +85,11 @@ void PVParallelView::PVScatterViewSelectionRectangle::commit(bool use_selection_
 	r.setX(x_min);
 	r.setWidth(x_delta);
 
-	Inendi::PVView& view = _sv->lib_view();
+	Squey::PVView& view = _sv->lib_view();
 
-	Inendi::PVSelection sel(view.get_row_count());
+	Squey::PVSelection sel(view.get_row_count());
 	sel.select_none();
-	Inendi::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
+	Squey::PVSelection const& layers_sel = view.get_layer_stack_output_layer().get_selection();
 
 	if (selection_mode() == SelectionMode::VERTICAL) {
 		PVSelectionGenerator::compute_selection_from_plotted_range(

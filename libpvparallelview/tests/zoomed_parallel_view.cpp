@@ -25,10 +25,10 @@
 
 #include <iostream>
 
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 
-#include <inendi/PVAxis.h>
-#include <inendi/PVPlotted.h>
+#include <squey/PVAxis.h>
+#include <squey/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>

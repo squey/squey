@@ -962,7 +962,7 @@ QCH_FILE               = gui-qt.qch
 # Qt Help Project output. For more information please see
 # http://doc.trolltech.com/qthelpproject.html#namespace
 
-QHP_NAMESPACE          = org.inendi.inspector.gui-qt
+QHP_NAMESPACE          = org.squey.squey.gui-qt
 
 # The QHP_VIRTUAL_FOLDER tag specifies the namespace to use when generating
 # Qt Help Project output. For more information please see

@@ -85,7 +85,7 @@ FT_STRINGZPAD   Character string
 Other explanation on https://www.wireshark.org/docs/wsar_html/epan/ftypes_8h_source.html
 */
 
-// type mapping between wireshark and inspector
+// type mapping between wireshark and squey
 static const std::unordered_map<std::string, std::string> ws_types_mapping = {
     {"FT_NONE Label", "string"},
     {"FT_PROTOCOL", "string"},
@@ -152,12 +152,12 @@ inline std::string ws_map_type(const std::string& type)
 	}
 };
 
-// transform to inspector format quote
+// transform to squey format quote
 static const std::unordered_map<std::string, std::string> ws_map_quote = {
     {"d", "\""}, {"s", "'"}, {"n", ""},
 };
 
-// transform to inspector format quote
+// transform to squey format quote
 static const std::unordered_map<std::string, std::string> ws_map_special_fields = {
     {"source", "_ws.col.Source"},
     {"destination", "_ws.col.Destination"},

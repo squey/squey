@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVSource.h>
+#include <squey/PVSource.h>
 
 #include <pvguiqt/PVRootTreeModel.h>
 #include <pvguiqt/PVRootTreeView.h>
@@ -37,7 +37,7 @@ PVDisplays::PVDisplaySourceDataTree::PVDisplaySourceDataTree()
 {
 }
 
-QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Inendi::PVSource* src,
+QWidget* PVDisplays::PVDisplaySourceDataTree::create_widget(Squey::PVSource* src,
                                                             QWidget* parent,
                                                             Params const&) const
 {

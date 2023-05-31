@@ -29,11 +29,11 @@
 
 class QTimer;
 
-namespace Inendi
+namespace Squey
 {
 
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {

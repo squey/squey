@@ -80,7 +80,7 @@ auto PVSeriesView::capability(Backend backend) -> Backend
 	case backend:                                                                                  \
 		return Renderer::capability(test);
 
-PVSeriesView::PVSeriesView(Inendi::PVRangeSubSampler& rss, Backend backend, QWidget* parent)
+PVSeriesView::PVSeriesView(Squey::PVRangeSubSampler& rss, Backend backend, QWidget* parent)
     : QWidget(parent), _rss(rss), _backend(make_renderer(backend)), _pixmap(size())
 {
 	_pixmap.fill(Qt::black);

@@ -29,7 +29,7 @@
 #include <limits>
 #include <algorithm>
 #include <iterator>
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 
 #include <QtCore/qglobal.h>
 

@@ -27,7 +27,7 @@
 
 #include <pvbase/types.h>
 #include <pvparallelview/common.h>
-#include <inendi/PVPlotted.h>
+#include <squey/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVQuadTree.h>
@@ -250,7 +250,7 @@ class PVZoomedZoneTree
 	inline size_t compute_selection_y1(PVRow t1,
 	                                   const uint64_t y_min,
 	                                   const uint64_t y_max,
-	                                   Inendi::PVSelection& selection) const
+	                                   Squey::PVSelection& selection) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -280,7 +280,7 @@ class PVZoomedZoneTree
 	inline size_t compute_selection_y2(PVRow t2,
 	                                   const uint64_t y_min,
 	                                   const uint64_t y_max,
-	                                   Inendi::PVSelection& selection) const
+	                                   Squey::PVSelection& selection) const
 	{
 		if (_initialized == false) {
 			return 0;
@@ -371,7 +371,7 @@ class PVZoomedZoneTree
 	                                    double alpha,
 	                                    PVCore::PVHSVColor const* const colors,
 	                                    PVCore::PVHSVColor* const image,
-	                                    Inendi::PVSelection const& sel,
+	                                    Squey::PVSelection const& sel,
 	                                    uint32_t image_width,
 	                                    tbb::task_group_context* tbb_ctxt = nullptr) const
 	{
@@ -450,7 +450,7 @@ class PVZoomedZoneTree
 	                                   uint64_t y_min,
 	                                   uint64_t y_max,
 	                                   uint64_t y_lim,
-	                                   const Inendi::PVSelection& selection,
+	                                   const Squey::PVSelection& selection,
 	                                   int zoom,
 	                                   uint32_t width,
 	                                   const PVCore::PVHSVColor* colors,
@@ -496,7 +496,7 @@ class PVZoomedZoneTree
 	                                   uint64_t y_min,
 	                                   uint64_t y_max,
 	                                   uint64_t y_lim,
-	                                   const Inendi::PVSelection& selection,
+	                                   const Squey::PVSelection& selection,
 	                                   int zoom,
 	                                   uint32_t width,
 	                                   const PVCore::PVHSVColor* colors,
@@ -526,7 +526,7 @@ class PVZoomedZoneTree
 	                                  uint64_t y_min,
 	                                  uint64_t y_max,
 	                                  uint64_t y_lim,
-	                                  const Inendi::PVSelection& unselected,
+	                                  const Squey::PVSelection& unselected,
 	                                  int zoom,
 	                                  uint32_t width,
 	                                  const PVCore::PVHSVColor* colors,
@@ -559,7 +559,7 @@ class PVZoomedZoneTree
 	                                  uint64_t y_min,
 	                                  uint64_t y_max,
 	                                  uint64_t y_lim,
-	                                  const Inendi::PVSelection& unselected,
+	                                  const Squey::PVSelection& unselected,
 	                                  int zoom,
 	                                  uint32_t width,
 	                                  const PVCore::PVHSVColor* colors,
@@ -701,7 +701,7 @@ class PVZoomedZoneTree
 		    colors, codes, beta);
 	}
 
-	void compute_min_indexes_sel(Inendi::PVSelection const& sel);
+	void compute_min_indexes_sel(Squey::PVSelection const& sel);
 
   private:
 	/**

@@ -27,21 +27,21 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <memory>
 
 #include "helpers.h"
 #include "common.h"
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr static size_t nb_dup = 1000000;
 #else
 constexpr static size_t nb_dup = 1;
 #endif
 
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/converter/struct/struct.csv";
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 static constexpr const char* ref_file =
     TEST_FOLDER "/pvkernel/rush/converter/struct/struct.csv.out";
 #endif
@@ -63,7 +63,7 @@ int main()
 
 	std::string output_file = std::get<2>(res);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	size_t nelts_org = std::get<0>(res);
 	size_t nelts_valid = std::get<1>(res);
 	PV_VALID(nelts_valid, nelts_org);

@@ -31,10 +31,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::PVXmlParamWidget
+ * App::PVXmlParamWidget::PVXmlParamWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent)
+App::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent)
     : QWidget(), _parent(parent)
 {
 	layout = new QVBoxLayout();
@@ -50,22 +50,22 @@ PVInspector::PVXmlParamWidget::PVXmlParamWidget(PVFormatBuilderWidget* parent)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::~PVXmlParamWidget
+ * App::PVXmlParamWidget::~PVXmlParamWidget
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidget::~PVXmlParamWidget()
+App::PVXmlParamWidget::~PVXmlParamWidget()
 {
 	layout->deleteLater();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::drawForNo
+ * App::PVXmlParamWidget::drawForNo
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex)
+void App::PVXmlParamWidget::drawForNo(QModelIndex)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForNo\n");
+	PVLOG_DEBUG("App::PVXmlParamWidget::drawForNo\n");
 	// confirmApply = false;
 	if (type != no) {
 		Q_EMIT signalQuittingAParamBoard();
@@ -76,10 +76,10 @@ void PVInspector::PVXmlParamWidget::drawForNo(QModelIndex)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::drawForAxis
+ * App::PVXmlParamWidget::drawForAxis
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom* nodeOnClick)
+void App::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom* nodeOnClick)
 {
 	auto axisboard = new PVXmlParamWidgetBoardAxis(nodeOnClick, this);
 	lesWidgetDuLayout.push_back(axisboard);
@@ -95,10 +95,10 @@ void PVInspector::PVXmlParamWidget::drawForAxis(PVRush::PVXmlTreeNodeDom* nodeOn
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::drawForFilter
+ * App::PVXmlParamWidget::drawForFilter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom* nodeFilter)
+void App::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom* nodeFilter)
 {
 
 	auto filterboard = new PVXmlParamWidgetBoardFilter(nodeFilter, this);
@@ -116,10 +116,10 @@ void PVInspector::PVXmlParamWidget::drawForFilter(PVRush::PVXmlTreeNodeDom* node
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::drawForRegEx
+ * App::PVXmlParamWidget::drawForRegEx
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom* nodeSplitter)
+void App::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom* nodeSplitter)
 {
 	auto regExpBoard = new PVXmlParamWidgetBoardSplitterRegEx(nodeSplitter, this);
 	// AG: yes, that's a saturday morning hack
@@ -138,17 +138,17 @@ void PVInspector::PVXmlParamWidget::drawForRegEx(PVRush::PVXmlTreeNodeDom* nodeS
 }
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::drawForSplitter
+ * App::PVXmlParamWidget::drawForSplitter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom* nodeSplitter)
+void App::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom* nodeSplitter)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForSplitter\n");
+	PVLOG_DEBUG("App::PVXmlParamWidget::drawForSplitter\n");
 	assert(nodeSplitter);
 	assert(nodeSplitter->getSplitterPlugin());
 	QWidget* w = nodeSplitter->getSplitterParamWidget();
 	if (w != nullptr) {
-		PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
+		PVLOG_DEBUG("App::PVXmlParamWidget->objectName() =%s\n",
 		            qPrintable(w->objectName()));
 		lesWidgetDuLayout.push_back(w);
 		layout->addWidget(w);
@@ -161,23 +161,23 @@ void PVInspector::PVXmlParamWidget::drawForSplitter(PVRush::PVXmlTreeNodeDom* no
 		// focus on regexp
 		// w->getWidgetToFocus()->setFocus();
 	} else {
-		PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
+		PVLOG_DEBUG("App::PVXmlParamWidget: no widget\n");
 	}
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::drawForConverter
+ * App::PVXmlParamWidget::drawForConverter
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::drawForConverter(PVRush::PVXmlTreeNodeDom* nodeConverter)
+void App::PVXmlParamWidget::drawForConverter(PVRush::PVXmlTreeNodeDom* nodeConverter)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::drawForConverter\n");
+	PVLOG_DEBUG("App::PVXmlParamWidget::drawForConverter\n");
 	assert(nodeConverter);
 	assert(nodeConverter->getConverterPlugin());
 	QWidget* w = nodeConverter->getConverterParamWidget();
 	if (w != nullptr) {
-		PVLOG_DEBUG("PVInspector::PVXmlParamWidget->objectName() =%s\n",
+		PVLOG_DEBUG("App::PVXmlParamWidget->objectName() =%s\n",
 		            qPrintable(w->objectName()));
 		lesWidgetDuLayout.push_back(w);
 		layout->addWidget(w);
@@ -190,16 +190,16 @@ void PVInspector::PVXmlParamWidget::drawForConverter(PVRush::PVXmlTreeNodeDom* n
 		// focus on regexp
 		// w->getWidgetToFocus()->setFocus();
 	} else {
-		PVLOG_DEBUG("PVInspector::PVXmlParamWidget: no widget\n");
+		PVLOG_DEBUG("App::PVXmlParamWidget: no widget\n");
 	}
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::addListWidget
+ * App::PVXmlParamWidget::addListWidget
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::addListWidget()
+void App::PVXmlParamWidget::addListWidget()
 {
 	for (int i = 0; i < lesWidgetDuLayout.count(); i++) {
 		if (i == 2) {
@@ -213,10 +213,10 @@ void PVInspector::PVXmlParamWidget::addListWidget()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::removeListWidget
+ * App::PVXmlParamWidget::removeListWidget
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::removeListWidget()
+void App::PVXmlParamWidget::removeListWidget()
 {
 	/*
 	 * Suppression de tous les widgets (textes, btn, editBox...).
@@ -241,10 +241,10 @@ void PVInspector::PVXmlParamWidget::removeListWidget()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::getParam
+ * App::PVXmlParamWidget::getParam
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlParamWidget::getParam(int i)
+QVariant App::PVXmlParamWidget::getParam(int i)
 {
 	int id;
 	if (i == 0) {
@@ -263,36 +263,36 @@ QVariant PVInspector::PVXmlParamWidget::getParam(int i)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::edit
+ * App::PVXmlParamWidget::edit
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
+void App::PVXmlParamWidget::edit(QModelIndex const& index)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit\n");
+	PVLOG_DEBUG("App::PVXmlParamWidget::edit\n");
 	drawForNo(index);
 	if (index.isValid()) {
 		editingIndex = index;
 		auto* nodeOnClick = (PVRush::PVXmlTreeNodeDom*)index.internalPointer();
 
 		if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::filter) {
-			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> filter\n");
+			PVLOG_DEBUG("App::PVXmlParamWidget::edit -> filter\n");
 			drawForFilter(nodeOnClick);
 		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::RegEx) { //|| (splitter &&
 			//(nodeOnClick->attribute("type","") ==
 			//"regexp"))
-			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> regex\n");
+			PVLOG_DEBUG("App::PVXmlParamWidget::edit -> regex\n");
 			drawForRegEx(nodeOnClick);
 			// confirmApply = false;
 		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::axis) {
-			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> axis\n");
+			PVLOG_DEBUG("App::PVXmlParamWidget::edit -> axis\n");
 			drawForAxis(nodeOnClick);
 		} else if (nodeOnClick->attribute("type", "") == "url") {
 			return;
 		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::splitter) {
-			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> splitter\n");
+			PVLOG_DEBUG("App::PVXmlParamWidget::edit -> splitter\n");
 			drawForSplitter(nodeOnClick);
 		} else if (nodeOnClick->type == PVRush::PVXmlTreeNodeDom::Type::converter) {
-			PVLOG_DEBUG("PVInspector::PVXmlParamWidget::edit -> converter\n");
+			PVLOG_DEBUG("App::PVXmlParamWidget::edit -> converter\n");
 			drawForConverter(nodeOnClick);
 		}
 	}
@@ -300,30 +300,30 @@ void PVInspector::PVXmlParamWidget::edit(QModelIndex const& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::slotForceApply
+ * App::PVXmlParamWidget::slotForceApply
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotForceApply()
+void App::PVXmlParamWidget::slotForceApply()
 {
 	Q_EMIT signalForceApply(editingIndex);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::slotEmitNeedApply
+ * App::PVXmlParamWidget::slotEmitNeedApply
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotEmitNeedApply()
+void App::PVXmlParamWidget::slotEmitNeedApply()
 {
 	Q_EMIT signalNeedApply();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidget::slotSelectNext
+ * App::PVXmlParamWidget::slotSelectNext
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidget::slotSelectNext()
+void App::PVXmlParamWidget::slotSelectNext()
 {
 	Q_EMIT signalSelectNext();
 }

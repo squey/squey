@@ -1,5 +1,5 @@
 [1]
-Description=Settings for inendi-inspector
+Description=Settings for squey
 maximizehoriz=true
 maximizehorizrule=3
 maximizevert=true
@@ -7,16 +7,16 @@ maximizevertrule=3
 noborder=true
 noborderrule=4
 types=1
-wmclass=inendi-inspector
+wmclass=squey
 wmclasscomplete=false
 wmclassmatch=1
 
 [2]
-Description=Settings for inendi-crashreport
+Description=Settings for squey-crashreport
 above=true
 aboverule=2
 types=33
-wmclass=inendi-crashreport
+wmclass=squey-crashreport
 wmclasscomplete=false
 wmclassmatch=1
 

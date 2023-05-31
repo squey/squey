@@ -36,7 +36,7 @@
 
 #include <iostream>
 
-PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) : QWidget(parent)
+App::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) : QWidget(parent)
 {
 	auto main_layout = new QVBoxLayout();
 	auto* lines_range_group_box = new QGroupBox(tr("Import lines range"));
@@ -74,7 +74,7 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	    new QSpacerItem(1, 1, QSizePolicy::MinimumExpanding, QSizePolicy::Minimum));
 
 	_python_scripting_widget = new PVGuiQt::PVPythonScriptWidget(this);
-	connect(_python_scripting_widget, &PVGuiQt::PVPythonScriptWidget::python_script_updated, this, &PVInspector::PVOptionsWidget::python_script_updated);
+	connect(_python_scripting_widget, &PVGuiQt::PVPythonScriptWidget::python_script_updated, this, &App::PVOptionsWidget::python_script_updated);
 	
 	main_layout->addWidget(lines_range_group_box);
 	main_layout->addWidget(_python_scripting_widget);
@@ -91,7 +91,7 @@ PVInspector::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) :
 	        &PVOptionsWidget::disable_specify_line_count);
 }
 
-void PVInspector::PVOptionsWidget::set_lines_range(int first_line, int line_count)
+void App::PVOptionsWidget::set_lines_range(int first_line, int line_count)
 {
 	_line_count_spinbox->setValue(line_count);
 	_ignore_first_lines_spinbox->setValue(first_line);
@@ -99,7 +99,7 @@ void PVInspector::PVOptionsWidget::set_lines_range(int first_line, int line_coun
 	disable_specify_line_count(line_count == 0 ? Qt::Unchecked : Qt::Checked);
 }
 
-void PVInspector::PVOptionsWidget::disable_specify_line_count(int checkstate)
+void App::PVOptionsWidget::disable_specify_line_count(int checkstate)
 {
 	_line_count_label->setEnabled(checkstate == Qt::Checked);
 	_line_count_spinbox->setEnabled(checkstate == Qt::Checked);
@@ -108,7 +108,7 @@ void PVInspector::PVOptionsWidget::disable_specify_line_count(int checkstate)
 	Q_EMIT line_count_changed(line_count());
 }
 
-void PVInspector::PVOptionsWidget::set_python_script(const QString& python_script, bool is_path, bool disabled)
+void App::PVOptionsWidget::set_python_script(const QString& python_script, bool is_path, bool disabled)
 {
 	_python_scripting_widget->set_python_script(python_script, is_path, disabled);
 }

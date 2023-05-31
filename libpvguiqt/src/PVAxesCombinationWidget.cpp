@@ -23,9 +23,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVAxesCombination.h>
-#include <inendi/PVView.h>
-#include <inendi/PVPlotted.h>
+#include <squey/PVAxesCombination.h>
+#include <squey/PVView.h>
+#include <squey/PVPlotted.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
 
 #include <QDialogButtonBox>
@@ -34,7 +34,7 @@
 #include <unordered_set>
 
 PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(
-    Inendi::PVAxesCombination& axes_combination, Inendi::PVView* view, QWidget* parent)
+    Squey::PVAxesCombination& axes_combination, Squey::PVView* view, QWidget* parent)
     : QWidget(parent), _axes_combination(axes_combination), _view(view)
 {
 	setupUi(this);
@@ -381,7 +381,7 @@ void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> cons
 void PVGuiQt::PVAxesCombinationWidget::sel_singleton_Slot()
 {
 	assert(_view);
-	QList<PVCol> cols_rem = _view->get_parent<Inendi::PVPlotted>().get_singleton_columns_indexes();
+	QList<PVCol> cols_rem = _view->get_parent<Squey::PVPlotted>().get_singleton_columns_indexes();
 	set_selection_from_cols(cols_rem);
 }
 

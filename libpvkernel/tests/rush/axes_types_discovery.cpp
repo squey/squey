@@ -29,11 +29,11 @@
 
 #include "common.h"
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <cinttypes> // PRIxxx macro
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr static size_t nb_dup = 200;
 #else
 constexpr static size_t nb_dup = 1;
@@ -79,7 +79,7 @@ int main()
 	PVRush::PVTypesDiscoveryOutput types_discovery_output;
 	double time = discover_types(types_filename, types_fmt, types_discovery_output);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	PVCol col(0);
 	(void) col;
 	for (PVCol col(0); col < (PVCol)types_fmt.get_storage_format().size(); col++) {
@@ -89,13 +89,13 @@ int main()
 		std::tie(type, type_format, axe_name) = types_discovery_output.type_desc(col);
 		PV_VALID(type + type_format, axe_name);
 	}
-#endif // INSPECTOR_BENCH
+#endif // SQUEY_BENCH
 
 	PVRush::PVTypesDiscoveryOutput time_discovery_output;
 	PVRush::PVFormat time_fmt("", time_format);
 	time += discover_types(time_filename, time_fmt, time_discovery_output);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	std::vector<std::string> axes_types(time_fmt.get_axes().size());
 	std::transform(time_fmt.get_axes().begin(), time_fmt.get_axes().end(), axes_types.begin(),
 	               [](const PVRush::PVAxisFormat& axis) {
@@ -106,7 +106,7 @@ int main()
 		std::tie(type, std::ignore, std::ignore) = time_discovery_output.type_desc(col);
 		PV_VALID(type, axes_types[col]);
 	}
-#endif // INSPECTOR_BENCH
+#endif // SQUEY_BENCH
 
 	std::cout << time;
 

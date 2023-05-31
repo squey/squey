@@ -44,11 +44,11 @@
 #include <vector>
 #include <any>
 
-namespace Inendi
+namespace Squey
 {
 class PVSource;
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVDisplays
 {
@@ -136,7 +136,7 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 	hash_widgets_t _widgets;
 };
 
-class PVDisplayViewIf : public PVDisplayDataTreeIf<Inendi::PVView>,
+class PVDisplayViewIf : public PVDisplayDataTreeIf<Squey::PVView>,
                         public PVCore::PVRegistrableClass<PVDisplayViewIf>
 {
   public:
@@ -154,19 +154,19 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Inendi::PVView>,
 	{
 	}
 
-	QString widget_title(Inendi::PVView* view) const override;
+	QString widget_title(Squey::PVView* view) const override;
 
 	virtual QString axis_menu_name() const { return _axis_menu_name; }
 	virtual void add_to_axis_menu(QMenu& menu,
 	                              PVCol axis,
 	                              PVCombCol axis_comb,
-	                              Inendi::PVView* view,
+	                              Squey::PVView* view,
 	                              PVDisplaysContainer* container);
 
 	QString _axis_menu_name;
 };
 
-class PVDisplaySourceIf : public PVDisplayDataTreeIf<Inendi::PVSource>,
+class PVDisplaySourceIf : public PVDisplayDataTreeIf<Squey::PVSource>,
                           public PVCore::PVRegistrableClass<PVDisplaySourceIf>
 {
   public:
@@ -224,7 +224,7 @@ QWidget* get_widget(If& interface, P&&... args)
  **/
 void add_displays_view_axis_menu(QMenu& menu,
                                  PVDisplaysContainer* container,
-                                 Inendi::PVView* view,
+                                 Squey::PVView* view,
                                  PVCol axis,
                                  PVCombCol axis_comb = PVCombCol());
 
@@ -233,10 +233,10 @@ void add_displays_view_axis_menu(QMenu& menu,
  **/
 void add_displays_view_axis_menu(QMenu& menu,
                                  PVDisplaysContainer* container,
-                                 Inendi::PVView* view,
+                                 Squey::PVView* view,
                                  PVCombCol axis_comb);
 
-PVCol col_param(Inendi::PVView* view, std::vector<std::any> const& params, size_t index);
+PVCol col_param(Squey::PVView* view, std::vector<std::any> const& params, size_t index);
 
 } // namespace PVDisplays
 

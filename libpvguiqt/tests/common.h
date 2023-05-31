@@ -27,16 +27,16 @@
 
 #include <QString>
 
-namespace Inendi
+namespace Squey
 {
 class PVRoot;
 class PVScene;
 class PVSource;
 }
 
-Inendi::PVSource&
-get_src_from_file(Inendi::PVScene& scene, QString const& file, QString const& format);
-Inendi::PVSource&
-get_src_from_file(Inendi::PVRoot& root, QString const& file, QString const& format);
+Squey::PVSource&
+get_src_from_file(Squey::PVScene& scene, QString const& file, QString const& format);
+Squey::PVSource&
+get_src_from_file(Squey::PVRoot& root, QString const& file, QString const& format);
 
 #endif

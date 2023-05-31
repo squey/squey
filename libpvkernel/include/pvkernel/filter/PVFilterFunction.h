@@ -72,7 +72,7 @@ namespace PVFilter
 // system locale (should not be used in real life !) :
 //! \code
 //! // In the header file:
-//! namespace Inendi
+//! namespace Squey
 //! {
 //!
 //! class PVFilterQString: public PVFilterFunctionRegistrable<const char*, QString const&> {
@@ -86,12 +86,12 @@ namespace PVFilter
 //! }
 //!
 //! // In the implementation file
-//! Inendi::PVFilterQString::PVFilterQString(PVCore::PVArgumentList const& args)
+//! Squey::PVFilterQString::PVFilterQString(PVCore::PVArgumentList const& args)
 //! {
 //! 	INIT_FILTER(PVFilterQString, args);
 //! }
 //!
-//! DEFAULT_ARGS_FILTER(Inendi::PVFilterQString)
+//! DEFAULT_ARGS_FILTER(Squey::PVFilterQString)
 //! {
 //! 	PVCore::PVArgumentList args;
 //! 	args["arg1"] = true; // This is a QVariant !
@@ -183,7 +183,7 @@ class PVFilterFunctionBase<Tout_, void> : public PVCore::PVFunctionArgs<boost::f
  *
  * Define a filter function that takes the same type as reference in input and output (Tout = T&,
  *Tin = T&) and that is registrable.\n
- * Used by many filters in libinendi and others.
+ * Used by many filters in libsquey and others.
  */
 template <typename T, typename FilterT_ = PVFilterFunctionBase<T&, T&>>
 class PVFilterFunction : public PVFilterFunctionBase<T&, T&>,

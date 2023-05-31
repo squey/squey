@@ -29,9 +29,9 @@
 #include <QMetaType>
 #include <QVariant>
 
-#include <inendi/PVSelection.h>
-#include <inendi/PVStateMachine.h>
-#include <inendi/PVView.h>
+#include <squey/PVSelection.h>
+#include <squey/PVStateMachine.h>
+#include <squey/PVView.h>
 
 #include <pvguiqt/PVLayerStackDelegate.h>
 
@@ -42,7 +42,7 @@
  * PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Inendi::PVView const& view, QObject* parent)
+PVGuiQt::PVLayerStackDelegate::PVLayerStackDelegate(Squey::PVView const& view, QObject* parent)
     : QStyledItemDelegate(parent), _view(view)
 {
 }

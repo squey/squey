@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __INENDI_PVCSVEXPORTER_H__
-#define __INENDI_PVCSVEXPORTER_H__
+#ifndef __SQUEY_PVCSVEXPORTER_H__
+#define __SQUEY_PVCSVEXPORTER_H__
 
 #include <pvkernel/rush/PVExporter.h>
 #include <pvkernel/rush/PVUtils.h>
@@ -103,4 +103,4 @@ class PVCSVExporter : public PVRush::PVExporterBase
 
 } // namespace PVRush
 
-#endif // __INENDI_PVCSVEXPORTER_H__
+#endif // __SQUEY_PVCSVEXPORTER_H__

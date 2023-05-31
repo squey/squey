@@ -40,7 +40,7 @@ class PVHitGraphDataOMP : public PVHitGraphDataInterface
 	void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const override;
 	void process_sel(ProcessParams const& params,
 	                 PVHitGraphBuffer& buf,
-	                 Inendi::PVSelection const& sel) const override;
+	                 Squey::PVSelection const& sel) const override;
 
   public:
 	struct omp_ctx_t {

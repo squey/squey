@@ -28,7 +28,7 @@
 
 #include <PVStringListChooserWidget.h>
 
-PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* parent_,
+App::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* parent_,
                                                                   QString const& text,
                                                                   QStringList const& list,
                                                                   QStringList comments)
@@ -68,7 +68,7 @@ PVInspector::PVStringListChooserWidget::PVStringListChooserWidget(QWidget* paren
 	setLayout(main_layout);
 }
 
-void PVInspector::PVStringListChooserWidget::ok_Slot()
+void App::PVStringListChooserWidget::ok_Slot()
 {
 	QList<QListWidgetItem*> items = _list_w->selectedItems();
 	if (items.size() == 0) {
@@ -82,7 +82,7 @@ void PVInspector::PVStringListChooserWidget::ok_Slot()
 	accept();
 }
 
-QStringList PVInspector::PVStringListChooserWidget::get_sel_list()
+QStringList App::PVStringListChooserWidget::get_sel_list()
 {
 	return _final_list;
 }

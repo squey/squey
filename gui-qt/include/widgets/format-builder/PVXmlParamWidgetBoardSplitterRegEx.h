@@ -46,7 +46,7 @@
 #include <PVXmlParamTextEdit.h>
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
-namespace PVInspector
+namespace App
 {
 
 class PVXmlParamWidget;
@@ -134,5 +134,5 @@ class PVXmlParamWidgetBoardSplitterRegEx : public QWidget
   protected:
 	QStringList _data;
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* PVXMLPARAMWIDGETBOARDSPLITTERREGEX_H */

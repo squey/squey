@@ -23,10 +23,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 #include <pvhwloc.h>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <pvparallelview/PVHitGraphDataOMP.h>
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
@@ -308,7 +308,7 @@ static void count_y1_omp_sse_v4(const PVRow row_count,
 // Version for N blocks (N>=1), with selection
 void count_y1_sel_omp_sse_v4(const PVRow row_count,
                              const uint32_t* col_y1,
-                             const Inendi::PVSelection& selection,
+                             const Squey::PVSelection& selection,
                              const uint64_t y_min,
                              const int zoom,
                              const double& alpha,
@@ -447,7 +447,7 @@ void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p,
 
 void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p,
                                                     PVHitGraphBuffer& buf,
-                                                    Inendi::PVSelection const& sel) const
+                                                    Squey::PVSelection const& sel) const
 {
 	int nblocks_ = std::min((uint32_t)p.nblocks, nblocks() - p.block_start);
 	if (nblocks_ <= 0) {

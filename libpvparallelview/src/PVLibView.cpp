@@ -27,8 +27,8 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 
-#include <inendi/PVPlotted.h>
-#include <inendi/PVView.h>
+#include <squey/PVPlotted.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVParallelView.h>
@@ -43,7 +43,7 @@
 
 #include <iostream>
 
-PVParallelView::PVLibView::PVLibView(Inendi::PVView& view_sp)
+PVParallelView::PVLibView::PVLibView(Squey::PVView& view_sp)
     : _view(&view_sp)
     , _zones_manager(view_sp)
     , _colors(view_sp.get_output_layer_color_buffer())
@@ -55,7 +55,7 @@ PVParallelView::PVLibView::PVLibView(Inendi::PVView& view_sp)
           _colors,
           view_sp.get_layer_stack_output_layer().get_selection()))
 {
-	view_sp.get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+	view_sp.get_parent<Squey::PVPlotted>()._plotted_updated.connect(
 	    sigc::mem_fun(this, &PVParallelView::PVLibView::plotting_updated));
 
 	view_sp._update_output_selection.connect(

@@ -1,7 +1,7 @@
 #!/bin/bash
 
-/opt/inendi/inspector/cuda-devices
+/opt/squey/squey/cuda-devices
 xsetroot -solid "#0b2f40"
 bash -c "XDG_CONFIG_HOME=/etc/kde5 /usr/bin/kwin" &
 
-/opt/inendi/inspector/inspector_loop.sh
+/opt/squey/squey/squey_loop.sh

@@ -34,8 +34,8 @@
 #include <QFont>
 
 #include <pvguiqt/PVAbstractTableModel.h>
-#include <inendi/PVAxesCombination.h>
-#include <inendi/PVView.h>
+#include <squey/PVAxesCombination.h>
+#include <squey/PVView.h>
 
 namespace tbb
 {
@@ -82,7 +82,7 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	 * record, every view will be updated on listing model modification.
 	 *
 	 */
-	explicit PVListingModel(Inendi::PVView& view, QObject* parent = nullptr);
+	explicit PVListingModel(Squey::PVView& view, QObject* parent = nullptr);
 
 	/**
 	 * Return data requested by the View
@@ -163,7 +163,7 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	void update_filter();
 
   private:
-	Inendi::PVView const& _view; //!< Observed view
+	Squey::PVView const& _view; //!< Observed view
 };
 } // namespace PVGuiQt
 

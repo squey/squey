@@ -31,7 +31,7 @@ class QPainter;
 class QStyleOptionGraphicsItem;
 class QWidget;
 
-namespace Inendi
+namespace Squey
 {
 class PVAxesCombination;
 }
@@ -65,7 +65,7 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	 *
 	 * @param parent parent widget
 	 */
-	explicit PVZoomedParallelView(Inendi::PVAxesCombination const& axes_comb,
+	explicit PVZoomedParallelView(Squey::PVAxesCombination const& axes_comb,
 	                              QWidget* parent = nullptr);
 
 	/**

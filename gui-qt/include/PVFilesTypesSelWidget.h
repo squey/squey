@@ -36,7 +36,7 @@
 #include <QCheckBox>
 #include <QVariant>
 
-namespace PVInspector
+namespace App
 {
 class PVMainWindow;
 
@@ -101,6 +101,6 @@ class PVFilesTypesSelWidget : public QDialog
 	QCheckBox* _all_types_check;
 	map_files_types& _files_types;
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif // PVFILTERSEARCHWIDGET_H

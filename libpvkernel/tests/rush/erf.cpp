@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -102,7 +102,7 @@ int main(int argc, char** argv)
 
 		exp.export_rows(output_file, sel);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 		// Check output is the same as the reference
 		std::cout << std::endl << output_file << " - " << output_refs[ref_index] << std::endl;
 		PV_ASSERT_VALID(

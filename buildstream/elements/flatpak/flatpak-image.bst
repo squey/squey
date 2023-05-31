@@ -1,7 +1,7 @@
 kind: compose
 
 depends:
-- filename: inendi-inspector-cleanup.bst
+- filename: squey-cleanup.bst
   type: build
 
 config:

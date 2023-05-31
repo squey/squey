@@ -32,11 +32,11 @@
 #include <QFile>
 #include <QTextStream>
 
-#include INENDI_VERSION_FILE_PATH
+#include SQUEY_VERSION_FILE_PATH
 
 PVGuiQt::PVChangelogMessage::PVChangelogMessage(QWidget* parent /* = nullptr*/)
 {
-	QString current_version = QString(INENDI_CURRENT_VERSION_STR);
+	QString current_version = QString(SQUEY_CURRENT_VERSION_STR);
 	QString previous_version;
 
 	QFile version_file(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +

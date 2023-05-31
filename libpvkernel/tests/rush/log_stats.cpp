@@ -24,7 +24,7 @@
 //
 
 #include "../../tools/rush/log_stats.h"
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVUtils.h>
 
 static constexpr const char* intput1 = TEST_FOLDER "/sources/proxy_sample1.log";

@@ -20,7 +20,7 @@ server {
                 proxy_set_header Connection $connection_upgrade;
         }
 
-        # INENDI Inspector login page
+        # Squey login page
         location / {
                 proxy_pass      https://localhost:8445;
                 proxy_http_version 1.1;

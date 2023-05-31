@@ -33,12 +33,12 @@
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVZoneRenderingBCI_types.h>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {

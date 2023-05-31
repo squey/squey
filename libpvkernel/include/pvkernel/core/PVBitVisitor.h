@@ -25,7 +25,7 @@
 #ifndef PVCORE_PVBITVISITOR_H
 #define PVCORE_PVBITVISITOR_H
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 
 #include <boost/integer.hpp>
 #include <boost/integer_traits.hpp>

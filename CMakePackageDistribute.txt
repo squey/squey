@@ -9,26 +9,26 @@
 # but it will make cpack use this same path so we should not generate .deb file with
 # this variable set.
 
-SET(SHARE_RESSOURCES "${CMAKE_INSTALL_PREFIX}/share/inendi/inspector")
-SET(INENDI_CONFIG ${SHARE_RESSOURCES})
-SET(CUSTOM_QT_PATH "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/qt")
-SET(CUSTOM_TBB_PATH "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/tbb")
-SET(PVKERNEL_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/plugins")
-SET(INENDI_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/inendi-inspector/plugins")
-add_definitions(-DPLUGINS_DISTRIB_DIR="${INENDI_PLUGIN}")
+SET(SHARE_RESSOURCES "${CMAKE_INSTALL_PREFIX}/share/squey/squey")
+SET(SQUEY_CONFIG ${SHARE_RESSOURCES})
+SET(CUSTOM_QT_PATH "${CMAKE_INSTALL_PREFIX}/lib/squey/qt")
+SET(CUSTOM_TBB_PATH "${CMAKE_INSTALL_PREFIX}/lib/squey/tbb")
+SET(PVKERNEL_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/squey/plugins")
+SET(SQUEY_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/squey/plugins")
+add_definitions(-DPLUGINS_DISTRIB_DIR="${SQUEY_PLUGIN}")
 
 # Set rpath for custom Qt and TBB
 set(CMAKE_INSTALL_RPATH "${CUSTOM_QT_PATH}:${CUSTOM_TBB_PATH}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-add_definitions(-DINENDI_CONFIG="${INENDI_CONFIG}")
+add_definitions(-DSQUEY_CONFIG="${SQUEY_CONFIG}")
 
 ###############################################################################
 # Define files to install
 ###############################################################################
 
-install(FILES "pvconfig.ini" DESTINATION ${INENDI_CONFIG})
-install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME inendi-inspector.png)
+install(FILES "pvconfig.ini" DESTINATION ${SQUEY_CONFIG})
+install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME squey.png)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 set(LINUX_QT6_PATH "/usr/lib/x86_64-linux-gnu")
@@ -55,4 +55,4 @@ ${TBB_BUILD_DIR}/libtbbmalloc.so.${TBB_MAJOR}
 DESTINATION ${CUSTOM_TBB_PATH})
 
 # doc 
-add_definitions(-DDOC_URL="https://inendi.gitlab.io/inspector-reference-manual")
+add_definitions(-DDOC_URL="https://squey.gitlab.io/squey-reference-manual")

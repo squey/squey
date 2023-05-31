@@ -28,7 +28,7 @@
 #include <QToolBar>
 
 #include <pvbase/types.h>
-#include <inendi/widgets/PVAxisComboBox.h>
+#include <squey/widgets/PVAxisComboBox.h>
 
 #include <QStringList>
 class QMenu;
@@ -43,7 +43,7 @@ class PVZoomedParallelViewParamsWidget : public QToolBar
 	Q_OBJECT
 
   public:
-	explicit PVZoomedParallelViewParamsWidget(Inendi::PVAxesCombination const& axes_comb,
+	explicit PVZoomedParallelViewParamsWidget(Squey::PVAxesCombination const& axes_comb,
 	                                          QWidget* parent);
 
   public:

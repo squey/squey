@@ -30,9 +30,9 @@
 #include <pvdisplays/PVDisplayIf.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 
-#include <inendi/PVView.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVMapped.h>
+#include <squey/PVView.h>
+#include <squey/PVPlotted.h>
+#include <squey/PVMapped.h>
 
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVAlgorithms.h>
@@ -56,7 +56,7 @@
  *
  *****************************************************************************/
 
-PVParallelView::PVAxisHeader::PVAxisHeader(const Inendi::PVView& view,
+PVParallelView::PVAxisHeader::PVAxisHeader(const Squey::PVView& view,
                                            PVCombCol comb_col,
                                            PVAxisGraphicsItem* parent)
     : QGraphicsRectItem(parent)
@@ -78,7 +78,7 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 
 	if (auto* container =
 	        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(event->widget())) {
-		PVDisplays::add_displays_view_axis_menu(menu, container, (Inendi::PVView*)&_view,
+		PVDisplays::add_displays_view_axis_menu(menu, container, (Squey::PVView*)&_view,
 		                                        _comb_col);
 		menu.addSeparator();
 	}
@@ -87,14 +87,14 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 
 	std::string axis_type = axis()->get_axis_type().toStdString();
 
-	auto const& mapped = _view.get_parent<Inendi::PVMapped>();
-	Inendi::PVMappingProperties const& mpp =
+	auto const& mapped = _view.get_parent<Squey::PVMapped>();
+	Squey::PVMappingProperties const& mpp =
 	    mapped.get_properties_for_col(axis()->get_original_axis_column());
 
 	QMenu* chm = menu.addMenu("Change mapping to...");
 	auto* chm_group = new QActionGroup(chm);
 
-	for (auto& kvnode : LIB_CLASS(Inendi::PVMappingFilter)::get().get_list()) {
+	for (auto& kvnode : LIB_CLASS(Squey::PVMappingFilter)::get().get_list()) {
 		auto usable_list = kvnode.value()->list_usable_type();
 		if (usable_list.empty() or usable_list.count(axis_type)) {
 			QAction* chm_filter = chm->addAction(kvnode.value()->get_human_name());
@@ -106,14 +106,14 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 		}
 	}
 
-	auto const& plotted = _view.get_parent<Inendi::PVPlotted>();
-	Inendi::PVPlottingProperties const& plp =
+	auto const& plotted = _view.get_parent<Squey::PVPlotted>();
+	Squey::PVPlottingProperties const& plp =
 	    plotted.get_properties_for_col(axis()->get_original_axis_column());
 
 	QMenu* chp = menu.addMenu("Change plotting to...");
 	auto* chp_group = new QActionGroup(chp);
 
-	for (auto& kvnode : LIB_CLASS(Inendi::PVPlottingFilter)::get().get_list()) {
+	for (auto& kvnode : LIB_CLASS(Squey::PVPlottingFilter)::get().get_list()) {
 		auto usable_list = kvnode.value()->list_usable_type();
 		if (usable_list.empty() or usable_list.count(std::make_pair(axis_type, mpp.get_mode()))) {
 			QAction* chp_filter = chp->addAction(kvnode.value()->get_human_name());

@@ -40,11 +40,11 @@
 #include <PVXmlParamWidget.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
-#include <inendi/PVAxesCombination.h>
+#include <squey/PVAxesCombination.h>
 
 #include <memory>
 
-namespace PVInspector
+namespace App
 {
 class PVXmlDomModel : public QAbstractItemModel
 {
@@ -178,7 +178,7 @@ class PVXmlDomModel : public QAbstractItemModel
 
 	size_t get_axes_count() const;
 
-	Inendi::PVAxesCombination& get_axes_combination() { return _axes_combination; }
+	Squey::PVAxesCombination& get_axes_combination() { return _axes_combination; }
 
   private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
@@ -196,7 +196,7 @@ class PVXmlDomModel : public QAbstractItemModel
 	QDomElement xmlRootDom;
 
 	QList<PVRush::PVAxisFormat> _axes;
-	Inendi::PVAxesCombination _axes_combination;
+	Squey::PVAxesCombination _axes_combination;
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* MONMODELE_H */

@@ -234,7 +234,7 @@ void PVRush::PVXmlTreeNodeDom::setParent(PVRush::PVXmlTreeNodeDom* p_parent)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeNodeDom::getName
+ * App::PVXmlTreeNodeDom::getName
  *
  *****************************************************************************/
 QString PVRush::PVXmlTreeNodeDom::getName()

@@ -29,7 +29,7 @@
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <iostream>
 #include <memory>
@@ -38,11 +38,11 @@
 #include "helpers.h"
 
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/filter_composition";
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/filter_composition.out";
 #endif
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr static size_t nb_dup = 1000;
 #else
 constexpr static size_t nb_dup = 1;
@@ -108,7 +108,7 @@ int main()
 	PV_VALID(nelts_valid, 760UL * nb_dup);
 	PV_VALID(nelts_org, 1000UL * nb_dup);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));

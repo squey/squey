@@ -24,7 +24,7 @@
 //
 
 #include <pvkernel/core/PVFileHelper.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <iostream>
 #include <cstdio>

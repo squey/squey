@@ -35,11 +35,11 @@
 #include <PVStringListChooserWidget.h>
 
 #include <pvguiqt/PVWorkspace.h>
-#include <inendi/widgets/PVNewLayerDialog.h>
+#include <squey/widgets/PVNewLayerDialog.h>
 
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
@@ -55,10 +55,10 @@
 #include <pvkernel/widgets/PVColorDialog.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
-#include <inendi/PVSelection.h>
-#include <inendi/PVStateMachine.h>
-#include <inendi/PVSource.h>
-#include <inendi/PVAxis.h>
+#include <squey/PVSelection.h>
+#include <squey/PVStateMachine.h>
+#include <squey/PVSource.h>
+#include <squey/PVAxis.h>
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
@@ -73,15 +73,15 @@
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::PVMainWindow
+ * App::PVMainWindow::PVMainWindow
  *
  *****************************************************************************/
-PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
+App::PVMainWindow::PVMainWindow(QWidget* parent)
     : QMainWindow(parent)
     , _load_solution_dlg(this,
                          tr("Load an investigation..."),
                          QString(),
-                         INENDI_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
+                         SQUEY_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
     , _root()
 {
 	setAcceptDrops(true);
@@ -91,7 +91,7 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
 
-	// FIXME: check fonts licenses to be sure we can distribute them with Inspector
+	// FIXME: check fonts licenses to be sure we can distribute them with Squey
 	QFontDatabase::addApplicationFont(QString(":/Convergence-Regular.ttf"));
 	QFontDatabase::addApplicationFont(QString(":/Jura-DemiBold.ttf"));
 	QFontDatabase::addApplicationFont(QString(":/OSP-DIN.ttf"));
@@ -191,9 +191,9 @@ PVInspector::PVMainWindow::PVMainWindow(QWidget* parent)
 	showMaximized();
 }
 
-bool PVInspector::PVMainWindow::event(QEvent* event)
+bool App::PVMainWindow::event(QEvent* event)
 {
-	QString mime_type = "application/x-inendi_workspace";
+	QString mime_type = "application/x-squey_workspace";
 
 	if (event->type() == QEvent::DragEnter) {
 		auto* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
@@ -224,12 +224,12 @@ bool PVInspector::PVMainWindow::event(QEvent* event)
 
 // These methods are intentionally put in PVMainWindow's implementation
 // as this might change in the near future and save lots of compilation time.
-Inendi::PVRoot& PVInspector::PVMainWindow::get_root()
+Squey::PVRoot& App::PVMainWindow::get_root()
 {
 	return _root;
 }
 
-Inendi::PVRoot const& PVInspector::PVMainWindow::get_root() const
+Squey::PVRoot const& App::PVMainWindow::get_root() const
 {
 	return _root;
 }
@@ -238,10 +238,10 @@ Inendi::PVRoot const& PVInspector::PVMainWindow::get_root() const
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::closeEvent
+ * App::PVMainWindow::closeEvent
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
+void App::PVMainWindow::closeEvent(QCloseEvent* event)
 {
 	if (maybe_save_solution()) {
 		event->accept();
@@ -252,10 +252,10 @@ void PVInspector::PVMainWindow::closeEvent(QCloseEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::commit_selection_to_new_layer
+ * App::PVMainWindow::commit_selection_to_new_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* view)
+void App::PVMainWindow::commit_selection_to_new_layer(Squey::PVView* view)
 {
 	bool& should_hide_layers = view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
@@ -270,28 +270,28 @@ void PVInspector::PVMainWindow::commit_selection_to_new_layer(Inendi::PVView* vi
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::move_selection_to_new_layer
+ * App::PVMainWindow::move_selection_to_new_layer
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inendi_view)
+void App::PVMainWindow::move_selection_to_new_layer(Squey::PVView* squey_view)
 {
-	Inendi::PVLayer& current_layer = inendi_view->get_current_layer();
+	Squey::PVLayer& current_layer = squey_view->get_current_layer();
 
-	bool& should_hide_layers = inendi_view->get_layer_stack().should_hide_layers();
+	bool& should_hide_layers = squey_view->get_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
-	    inendi_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
+	    squey_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
 	if (!name.isEmpty()) {
 
 		if (should_hide_layers) {
-			inendi_view->hide_layers();
+			squey_view->hide_layers();
 		}
 
-		inendi_view->add_new_layer(name);
-		Inendi::PVLayer& new_layer = inendi_view->get_current_layer();
+		squey_view->add_new_layer(name);
+		Squey::PVLayer& new_layer = squey_view->get_current_layer();
 
 		/* We set it's selection to the final selection */
-		inendi_view->commit_selection_to_layer(new_layer);
+		squey_view->commit_selection_to_layer(new_layer);
 
 		// We remove that selection from the current layer if it is not locked.
 		if (not current_layer.is_locked()) {
@@ -299,13 +299,13 @@ void PVInspector::PVMainWindow::move_selection_to_new_layer(Inendi::PVView* inen
 		}
 
 		/* We need to reprocess the layer stack */
-		inendi_view->update_current_layer_min_max();
-		inendi_view->compute_selectable_count(new_layer);
+		squey_view->update_current_layer_min_max();
+		squey_view->compute_selectable_count(new_layer);
 
 		// do not forget to update the current layer
-		inendi_view->compute_selectable_count(current_layer);
+		squey_view->compute_selectable_count(current_layer);
 
-		inendi_view->process_layer_stack();
+		squey_view->process_layer_stack();
 	}
 }
 
@@ -328,21 +328,21 @@ static QMenu* create_filters_menu_exists(QHash<QMenu*, int> actions_list, QStrin
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::create_filters_menu_and_actions
+ * App::PVMainWindow::create_filters_menu_and_actions
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::create_filters_menu_and_actions()
+void App::PVMainWindow::create_filters_menu_and_actions()
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
 
 	QMenu* menu = filter_Menu;
 	QHash<QMenu*, int> actions_list; // key = action name; value = menu level;
 	                                 // Foo/Bar/Camp makes Foo at level 0, Bar at
 	                                 // level 1, etc.
 
-	LIB_CLASS(Inendi::PVLayerFilter)& filters_layer = LIB_CLASS(Inendi::PVLayerFilter)::get();
-	LIB_CLASS(Inendi::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	LIB_CLASS(Inendi::PVLayerFilter)::list_classes::const_iterator it;
+	LIB_CLASS(Squey::PVLayerFilter)& filters_layer = LIB_CLASS(Squey::PVLayerFilter)::get();
+	LIB_CLASS(Squey::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
+	LIB_CLASS(Squey::PVLayerFilter)::list_classes::const_iterator it;
 
 	for (it = lf.begin(); it != lf.end(); it++) {
 		//(*it).get_args()["Menu_name"]
@@ -406,10 +406,10 @@ void PVInspector::PVMainWindow::create_filters_menu_and_actions()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::close_solution_Slot
+ * App::PVMainWindow::close_solution_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::close_solution_Slot()
+void App::PVMainWindow::close_solution_Slot()
 {
 	reset_root();
 	set_window_title_with_filename();
@@ -417,10 +417,10 @@ void PVInspector::PVMainWindow::close_solution_Slot()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::import_type
+ * App::PVMainWindow::import_type
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
+void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
 	PVRush::PVSourceCreator_p src_creator = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator;
@@ -451,10 +451,10 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::import_type
+ * App::PVMainWindow::import_type
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
+void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
                                             PVRush::PVInputType::list_inputs const& inputs,
                                             PVRush::hash_formats& formats,
                                             PVRush::hash_format_creator& format_creator,
@@ -470,7 +470,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	bool file_type_found = false;
 
 	try {
-		if (choosenFormat.compare(INENDI_LOCAL_FORMAT_STR) == 0) {
+		if (choosenFormat.compare(SQUEY_LOCAL_FORMAT_STR) == 0) {
 			PVRush::hash_formats custom_formats;
 			PVRush::list_creators pre_discovered_creators;
 
@@ -493,7 +493,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				file_type_found = true;
 				discovered[custom_formats.keys()[0]] = inputs;
 			}
-		} else if (choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) == 0) {
+		} else if (choosenFormat.compare(SQUEY_BROWSE_FORMAT_STR) == 0) {
 			file_type_found = false;
 		} else if (choosenFormat == "custom") {
 			file_type_found = true;
@@ -520,7 +520,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	treat_invalid_formats(formats_error);
 
 	// First, try complete autodetection
-	if (!file_type_found and choosenFormat.compare(INENDI_BROWSE_FORMAT_STR) != 0) {
+	if (!file_type_found and choosenFormat.compare(SQUEY_BROWSE_FORMAT_STR) != 0) {
 		for (auto& input : inputs) {
 			try {
 				auto* editorWidget = new PVFormatBuilderWidget(this);
@@ -622,7 +622,7 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				if (load_source_from_description_Slot(src_desc)) {
 					one_extraction_successful = true;
 				}
-			} catch (Inendi::InvalidPlottingMapping const& e) {
+			} catch (Squey::InvalidPlottingMapping const& e) {
 				invalid_formats.append(it.key() + ": " + e.what());
 			} catch (PVRush::PVInvalidFile const& e) {
 				invalid_formats.append(it.key() + ": " + e.what());
@@ -652,27 +652,27 @@ void PVInspector::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::import_type_default_Slot
+ * App::PVMainWindow::import_type_default_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type_default_Slot()
+void App::PVMainWindow::import_type_default_Slot()
 {
 	import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file"));
 }
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::import_type_Slot
+ * App::PVMainWindow::import_type_Slot
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::import_type_Slot()
+void App::PVMainWindow::import_type_Slot()
 {
 	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
 	import_type_Slot(itype);
 }
 
-void PVInspector::PVMainWindow::import_type_Slot(const QString& itype)
+void App::PVMainWindow::import_type_Slot(const QString& itype)
 {
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
 	import_type(in_t);
@@ -680,13 +680,13 @@ void PVInspector::PVMainWindow::import_type_Slot(const QString& itype)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::keyPressEvent()
+ * App::PVMainWindow::keyPressEvent()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent* event)
+void App::PVMainWindow::keyPressEvent(QKeyEvent* event)
 {
 	QMainWindow::keyPressEvent(event);
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	switch (event->key()) {
 
 	case Qt::Key_Dollar: {
@@ -695,7 +695,7 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent* event)
 		}*/
 		PVLOG_INFO("Reloading CSS\n");
 
-		QFile css_file(INENDI_SOURCE_DIRECTORY "/gui-qt/src/resources/gui.css");
+		QFile css_file(SQUEY_SOURCE_DIRECTORY "/gui-qt/src/resources/gui.css");
 		if (css_file.open(QFile::ReadOnly)) {
 			QTextStream css_stream(&css_file);
 			QString css_string(css_stream.readAll());
@@ -712,10 +712,10 @@ void PVInspector::PVMainWindow::keyPressEvent(QKeyEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::load_files
+ * App::PVMainWindow::load_files
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QString format)
+void App::PVMainWindow::load_files(std::vector<QString> const& files, QString format)
 {
 	if (files.size() == 0) {
 		return;
@@ -756,10 +756,10 @@ void PVInspector::PVMainWindow::load_files(std::vector<QString> const& files, QS
 	import_type(in_file, files_in, formats, format_creator, format);
 }
 
-void PVInspector::PVMainWindow::display_inv_elts()
+void App::PVMainWindow::display_inv_elts()
 {
 	if (current_view()) {
-		if (current_view()->get_parent<Inendi::PVSource>().get_invalid_evts().size() > 0) {
+		if (current_view()->get_parent<Squey::PVSource>().get_invalid_evts().size() > 0) {
 			PVGuiQt::PVWorkspaceBase* workspace = _projects_tab_widget->current_workspace();
 			if (auto* source_workspace =
 			        dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)) {
@@ -774,10 +774,10 @@ void PVInspector::PVMainWindow::display_inv_elts()
 }
 
 /******************************************************************************
- * PVInspector::PVMainWindow::save_screenshot
+ * App::PVMainWindow::save_screenshot
  *****************************************************************************/
 
-void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
+void App::PVMainWindow::save_screenshot(const QPixmap& pixmap,
                                                 const QString& title,
                                                 const QString& name)
 {
@@ -831,7 +831,7 @@ void PVInspector::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 	}
 }
 
-static size_t invalid_columns_count(const Inendi::PVSource* src)
+static size_t invalid_columns_count(const Squey::PVSource* src)
 {
 	const PVRush::PVNraw& nraw = src->get_rushnraw();
 
@@ -844,7 +844,7 @@ static size_t invalid_columns_count(const Inendi::PVSource* src)
 	return invalid_columns_count;
 }
 
-static QString bad_conversions_as_string(const Inendi::PVSource* src)
+static QString bad_conversions_as_string(const Squey::PVSource* src)
 {
 	QStringList l;
 
@@ -898,10 +898,10 @@ static QString bad_conversions_as_string(const Inendi::PVSource* src)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::load_source
+ * App::PVMainWindow::load_source
  *
  *****************************************************************************/
-bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
+bool App::PVMainWindow::load_source(Squey::PVSource* src,
                                             bool update_recent_items /*= true*/)
 {
 	// Load a created source
@@ -959,7 +959,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 			    return;
 		    } catch (PVRush::UnicodeSourceError const&) {
 			    pbox.critical("Cannot create sources",
-			                  "File encoding does permit Inspector to perform extraction.");
+			                  "File encoding does permit Squey to perform extraction.");
 			    pbox.set_canceled();
 			    return;
 		    } catch (PVRush::PVConverterCreationError const& e) {
@@ -1022,7 +1022,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 	}
 
 	BENCH_STOP(lff);
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	PVLOG_INFO("nraw created from data in %g sec\n", BENCH_END_TIME(lff));
 #endif
 
@@ -1053,7 +1053,7 @@ bool PVInspector::PVMainWindow::load_source(Inendi::PVSource* src,
 	return true;
 }
 
-void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update_recent_items)
+void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_items)
 {
 	// Create workspace for this source.
 	_projects_tab_widget->add_source(&src);
@@ -1087,7 +1087,7 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 				python_script + tr(" is missing"), QMessageBox::Ok);
 		}
 		else {
-			Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(_root);
+			Squey::PVPythonInterpreter& python_interpreter = Squey::PVPythonInterpreter::get(_root);
 			PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
 				pbox.set_enable_cancel(true);
 				try {
@@ -1104,12 +1104,12 @@ void PVInspector::PVMainWindow::source_loaded(Inendi::PVSource& src, bool update
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::remove_source
+ * App::PVMainWindow::remove_source
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::remove_source(Inendi::PVSource* src_p)
+void App::PVMainWindow::remove_source(Squey::PVSource* src_p)
 {
-	Inendi::PVScene& scene_p = src_p->get_parent();
+	Squey::PVScene& scene_p = src_p->get_parent();
 
 	scene_p.remove_child(*src_p);
 	if (scene_p.size() == 0) {
@@ -1122,12 +1122,12 @@ void PVInspector::PVMainWindow::remove_source(Inendi::PVSource* src_p)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::set_color()
+ * App::PVMainWindow::set_color()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
+void App::PVMainWindow::set_color(Squey::PVView* squey_view)
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
 
 	/* We let the user select a color */
 	PVWidgets::PVColorDialog dial;
@@ -1137,15 +1137,15 @@ void PVInspector::PVMainWindow::set_color(Inendi::PVView* inendi_view)
 
 	PVCore::PVHSVColor color = dial.color();
 
-	inendi_view->set_color_on_active_layer(color);
+	squey_view->set_color_on_active_layer(color);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::treat_invalid_formats
+ * App::PVMainWindow::treat_invalid_formats
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::treat_invalid_formats(
+void App::PVMainWindow::treat_invalid_formats(
     QHash<QString, std::pair<QString, QString>> const& errors)
 {
 	if (errors.size() == 0) {
@@ -1211,12 +1211,12 @@ void PVInspector::PVMainWindow::treat_invalid_formats(
 	}
 }
 
-void PVInspector::PVMainWindow::reset_root()
+void App::PVMainWindow::reset_root()
 {
 	get_root().clear();
 }
 
-void PVInspector::PVMainWindow::close_solution()
+void App::PVMainWindow::close_solution()
 {
 	if (!maybe_save_solution()) {
 		return;
@@ -1224,13 +1224,13 @@ void PVInspector::PVMainWindow::close_solution()
 	close_solution_Slot();
 }
 
-std::string PVInspector::PVMainWindow::get_next_scene_name()
+std::string App::PVMainWindow::get_next_scene_name()
 {
 	return tr("Data collection %1").arg(sequence_n++).toStdString();
 }
 
 // Mainly from Qt's SDI example
-PVInspector::PVMainWindow* PVInspector::PVMainWindow::find_main_window(const QString& path)
+App::PVMainWindow* App::PVMainWindow::find_main_window(const QString& path)
 {
 	QString canonicalFilePath = QFileInfo(path).canonicalFilePath();
 

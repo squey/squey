@@ -29,7 +29,7 @@
 #include <QLabel>
 #include <QBasicTimer>
 
-namespace Inendi
+namespace Squey
 {
 class PVRangeSubSampler;
 }
@@ -92,7 +92,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	Q_OBJECT
   public:
 	PVSeriesViewZoomer(PVSeriesView* child,
-	                   Inendi::PVRangeSubSampler& sampler,
+	                   Squey::PVRangeSubSampler& sampler,
 	                   QWidget* parent = nullptr);
 	virtual ~PVSeriesViewZoomer() = default;
 
@@ -154,7 +154,7 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
   private:
 	PVSeriesView* _series_view;
-	Inendi::PVRangeSubSampler& _rss;
+	Squey::PVRangeSubSampler& _rss;
 
 	QBasicTimer _resizing_timer;
 

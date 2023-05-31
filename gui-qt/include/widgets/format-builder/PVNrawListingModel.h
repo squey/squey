@@ -37,7 +37,7 @@ namespace PVRush
 class PVNraw;
 } // namespace PVRush
 
-namespace PVInspector
+namespace App
 {
 
 /**
@@ -123,6 +123,6 @@ class PVNrawListingModel : public QAbstractTableModel
 	PVRow _starting_row;
 	PVRush::PVControllerJob::invalid_elements_t _inv_elts; //!< invalid elements (used for display)
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif

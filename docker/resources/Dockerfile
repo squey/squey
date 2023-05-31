@@ -1,5 +1,5 @@
 FROM docker.io/nvidia/cudagl:11.4.2-runtime-ubuntu20.04
-LABEL maintainer="jean-baptiste+inspector@leonesio.fr"
+LABEL maintainer="jean-baptiste+squey@leonesio.fr"
 
 ARG INSTALL_PATH
 ARG INSTALL_MODE
@@ -52,7 +52,7 @@ RUN chmod go+w "${INSTALL_PATH}"/kwinr*
 RUN cp "${INSTALL_PATH}/umount_proc_driver_nvidia.service" /lib/systemd/system
 RUN systemctl enable umount_proc_driver_nvidia.service
 
-# Install Inspector
+# Install Squey
 RUN chmod +x "${INSTALL_PATH}/install_files.sh"
 RUN "${INSTALL_PATH}/install_files.sh" "${INSTALL_MODE}"
 
@@ -60,14 +60,14 @@ RUN "${INSTALL_PATH}/install_files.sh" "${INSTALL_MODE}"
 RUN chmod +x "${INSTALL_PATH}/configure_auth.sh"
 RUN "${INSTALL_PATH}/configure_auth.sh"
 
-# Configure INENDI Inspector
+# Configure Squey
 RUN echo "ALL ALL=(ALL:ALL) NOPASSWD: /usr/bin/flatpak" | tee /etc/sudoers.d/flatpak
-RUN chmod +x "${INSTALL_PATH}/inspector_loop.sh"
+RUN chmod +x "${INSTALL_PATH}/squey_loop.sh"
 RUN chmod +x "${INSTALL_PATH}/cuda-devices"
-RUN mkdir -p /srv/tmp-inspector
-RUN usermod -a -G inendi inspector
-RUN chown inendi: /srv/tmp-inspector
-RUN chmod g+w /srv/tmp-inspector
+RUN mkdir -p /srv/tmp-squey
+RUN usermod -a -G squey squey
+RUN chown squey: /srv/tmp-squey
+RUN chmod g+w /srv/tmp-squey
 
 # Install DCV server
 RUN chmod +x "${INSTALL_PATH}/install_dcv_server.sh"
@@ -95,7 +95,7 @@ RUN ln -s "${INSTALL_PATH}/dcvlogin/nginx_proxy" /etc/nginx/sites-available/defa
 RUN mkdir /etc/kde5
 RUN ln -s "${INSTALL_PATH}/kwinrc" /etc/kde5 || true
 RUN ln -s "${INSTALL_PATH}/kwinrulesrc" /etc/kde5 || true
-RUN chown inendi: /etc/kde5
+RUN chown squey: /etc/kde5
 RUN chmod g+w /etc/kde5 -R
 
 # Configure services to run uppon container launch

@@ -26,7 +26,7 @@
 #include <pvguiqt/PVLayerStackWidget.h>
 #include <pvguiqt/PVDisplayViewLayerStack.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
@@ -37,7 +37,7 @@ PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewLayerStack::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewLayerStack::create_widget(Squey::PVView* view,
                                                             QWidget* parent,
                                                             Params const&) const
 {

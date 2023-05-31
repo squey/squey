@@ -46,12 +46,12 @@ endif(${QT_WEBKIT})
 ##################################################################
 # set installation path for query builder and plugins
 ##################################################################
-install(DIRECTORY ${inendi-inspector_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION ${SHARE_RESSOURCES})
-add_definitions(-DINENDI_QUERY_BUILDER="${SHARE_RESSOURCES}/querybuilder")
+install(DIRECTORY ${squey_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION ${SHARE_RESSOURCES})
+add_definitions(-DSQUEY_QUERY_BUILDER="${SHARE_RESSOURCES}/querybuilder")
 add_definitions(-DPVKERNEL_PLUGIN_PATH="${PVKERNEL_PLUGIN}")
 
 ###################################################################
-# Add include directories for inendi's libs and external projects
+# Add include directories for squey's libs and external projects
 ###################################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})

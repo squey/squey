@@ -43,14 +43,14 @@
 #include <sys/resource.h>
 
 #include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 #include <pvkernel/core/segfault_handler.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/PVUtils.h>
 
-#include <inendi/common.h>
+#include <squey/common.h>
 
 #include <pvparallelview/PVParallelView.h>
 
@@ -108,7 +108,7 @@ class DragNDropTransparencyHack : public QObject
 
 namespace bpo = boost::program_options;
 
-int run_inspector(QApplication& app, int argc, char* argv[])
+int run_squey(QApplication& app, int argc, char* argv[])
 {
 	// Program options
 	bpo::options_description desc_opts("Options");
@@ -119,7 +119,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	hidden_opts.add_options()("input-file", bpo::value<std::vector<std::string>>(),
 	                          "path to the file to load");
 	hidden_opts.add_options()(
-	    "product", bpo::value<std::string>()->default_value("inendi-inspector"), "product name");
+	    "product", bpo::value<std::string>()->default_value("squey"), "product name");
 	bpo::options_description all_opts;
 	all_opts.add(desc_opts).add(hidden_opts);
 
@@ -131,7 +131,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	bpo::notify(vm);
 
 	if (vm.count("help")) {
-		std::cerr << "INENDI Inspector " << INENDI_CURRENT_VERSION_STR << std::endl << std::endl;
+		std::cerr << "Squey " << SQUEY_CURRENT_VERSION_STR << std::endl << std::endl;
 		std::cerr << "Usage: " << argv[0] << " [--format format] [file [file...]]" << std::endl;
 		std::cerr << desc_opts << std::endl;
 		return 1;
@@ -180,7 +180,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	auto* task_label = new QLabel();
 	task_label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
-	auto* version_label = new QLabel(QString("INENDI Inspector ") + INENDI_CURRENT_VERSION_STR);
+	auto* version_label = new QLabel(QString("Squey ") + SQUEY_CURRENT_VERSION_STR);
 	version_label->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
 	vl->addWidget(task_label);
@@ -198,7 +198,7 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	task_label->setText(QObject::tr("Loading plugins..."));
 	splash.repaint();
 	app.processEvents();
-	Inendi::common::load_filters();
+	Squey::common::load_filters();
 	PVGuiQt::common::register_displays();
 
 	task_label->setText(QObject::tr("Cleaning temporary files..."));
@@ -220,13 +220,13 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	}
 #endif
 
-	app.setOrganizationName("INENDI");
-	app.setApplicationName("INENDI Inspector " INENDI_CURRENT_VERSION_STR);
-	app.setWindowIcon(QIcon(":/inendi"));
+	app.setOrganizationName("SQUEY");
+	app.setApplicationName("Squey " SQUEY_CURRENT_VERSION_STR);
+	app.setWindowIcon(QIcon(":/squey"));
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
 
-	PVInspector::PVMainWindow pv_mw;
+	App::PVMainWindow pv_mw;
 	pv_mw.show();
 	splash.finish(&pv_mw);
 
@@ -255,17 +255,17 @@ int run_inspector(QApplication& app, int argc, char* argv[])
 	sc = new QShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
-	                 &PVInspector::PVMainWindow::get_screenshot_widget);
+	                 &App::PVMainWindow::get_screenshot_widget);
 
 	sc = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
-	                 &PVInspector::PVMainWindow::get_screenshot_window);
+	                 &App::PVMainWindow::get_screenshot_window);
 
 	sc = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_P), &pv_mw);
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
-	                 &PVInspector::PVMainWindow::get_screenshot_desktop);
+	                 &App::PVMainWindow::get_screenshot_desktop);
 
 	return app.exec();
 }
@@ -286,6 +286,6 @@ int main(int argc, char* argv[])
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
 
 	QApplication app(argc, argv);
-	return run_inspector(app, argc, argv);
+	return run_squey(app, argc, argv);
 }
 //! [0]

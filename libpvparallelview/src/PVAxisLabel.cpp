@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/PVAxisLabel.h>
 #include <pvparallelview/PVAxisGraphicsItem.h>
@@ -41,7 +41,7 @@
  * PVParallelView::PVAxisLabel::PVAxisLabel
  *****************************************************************************/
 
-PVParallelView::PVAxisLabel::PVAxisLabel(const Inendi::PVView& view, QGraphicsItem* parent)
+PVParallelView::PVAxisLabel::PVAxisLabel(const Squey::PVView& view, QGraphicsItem* parent)
     : QGraphicsSimpleTextItem(parent), _lib_view(view)
 {
 	setFlag(QGraphicsItem::ItemClipsToShape, true);

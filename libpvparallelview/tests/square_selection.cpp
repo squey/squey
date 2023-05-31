@@ -24,16 +24,16 @@
 //
 
 #include <pvparallelview/PVSelectionGenerator.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvparallelview/PVZoneTree.h>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <QRect>
 #include <iostream>
 #include <chrono>
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr size_t SIZE = 1 << 14;
 #else
 constexpr size_t SIZE = 1 << 11;
@@ -66,7 +66,7 @@ int main()
 	// +1 as we want the whole width but QRect with width == 100 go from 0 to 99 all included
 	QRect rect(0, 10, width + 1, 1000); // Skip the 24 last lines and 10 first lines
 
-	Inendi::PVSelection sel(SIZE * SIZE);
+	Squey::PVSelection sel(SIZE * SIZE);
 	sel.select_none();
 
 	auto start = std::chrono::steady_clock::now();
@@ -78,7 +78,7 @@ int main()
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 	for (size_t i = 0; i < SIZE; i++) {
 		for (size_t j = 0; j < SIZE; j++) {
 			uint32_t y1 = (plota[i * SIZE + j] >> 22);

@@ -26,7 +26,7 @@
 #include <iostream>
 #include <vector>
 
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 
 #include <pvparallelview/PVQuadTree.h>
 

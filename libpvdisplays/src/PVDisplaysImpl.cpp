@@ -37,7 +37,7 @@ static const char* plugins_get_displays_dir()
 	const char* pluginsdir;
 
 	// FIXME : This is dead code
-	pluginsdir = getenv("INENDI_DISPLAYS_DIR");
+	pluginsdir = getenv("SQUEY_DISPLAYS_DIR");
 
 	return pluginsdir;
 }

@@ -36,9 +36,9 @@
 #include <QStackedWidget>
 #include <QScreen>
 
-#include <inendi/PVMapped.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVSource.h>
+#include <squey/PVMapped.h>
+#include <squey/PVPlotted.h>
+#include <squey/PVSource.h>
 
 #include "common.h"
 #include "test-env.h"
@@ -93,10 +93,10 @@ int main(int argc, char** argv)
 	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
-	// Get a INENDI tree from the given file/format
-	Inendi::PVRoot root;
-	Inendi::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
-	Inendi::PVSource& src2 = get_src_from_file(*root.get_children().front(), argv[1], argv[2]);
+	// Get a SQUEY tree from the given file/format
+	Squey::PVRoot root;
+	Squey::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
+	Squey::PVSource& src2 = get_src_from_file(*root.get_children().front(), argv[1], argv[2]);
 	src2.emplace_add_child()  // Mapped
 	    .emplace_add_child()  // Plotted
 	    .emplace_add_child(); // View

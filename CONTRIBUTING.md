@@ -4,7 +4,7 @@
 ## Coding standards
 
 The project should follow the [C++ Core Guidelines](https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines) by Bjarne Stroustrup & Herb Sutter. \
-Code formatting style should follow the [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) file [.clang-format](https://gitlab.com/inendi/inspector/-/blob/main/.clang-format). \
+Code formatting style should follow the [ClangFormat](https://clang.llvm.org/docs/ClangFormat.html) file [.clang-format](https://gitlab.com/squey/squey/-/blob/main/.clang-format). \
 I case of doubt always follow what appears to be the project established conventions.
 
 ## Branching model
@@ -20,7 +20,7 @@ Merge Requests aim is to ensure that :
 
 1. The CI/CD pipeline is passing and no regression was introduced.
 2. The code has been reviewed by someone else with Developer, Maintainer or Owner role.
-3. The commits are clean (squash some of them if using [git rebase -i](https://gitlab.com/inendi/inspector/-/wikis/rebase) if necessary).
+3. The commits are clean (squash some of them if using [git rebase -i](https://gitlab.com/squey/squey/-/wikis/rebase) if necessary).
 
 If after opening a Merge Request you spot something wrong, temporarily change its status to "Draft" to prevent it to be merged. \
 Do not use the draft status otherwise because it prevents to use Gitlab "Merge when pipeline succeeds" feature.

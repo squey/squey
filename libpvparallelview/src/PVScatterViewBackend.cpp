@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/PVScatterViewBackend.h>
 
@@ -32,7 +32,7 @@
  *****************************************************************************/
 
 PVParallelView::PVScatterViewBackend::PVScatterViewBackend(
-    const Inendi::PVView& view,
+    const Squey::PVView& view,
     const PVZonesManager& zm,
     PVZonesManager::ZoneRetainer zone_retainer,
     const PVZoneID zone_id,

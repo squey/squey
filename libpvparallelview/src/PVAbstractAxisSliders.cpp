@@ -58,7 +58,7 @@ void PVParallelView::PVAbstractAxisSliders::paint(QPainter* painter,
 {
 	QGraphicsItemGroup::paint(painter, option, widget);
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	if (common::show_bboxes()) {
 		painter->save();
 		painter->setPen(QPen(QColor(0xFF, 0xFF, 0), 0));

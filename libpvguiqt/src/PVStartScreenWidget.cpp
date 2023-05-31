@@ -48,7 +48,7 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/widgets/PVUtils.h>
 
-#include INENDI_VERSION_FILE_PATH
+#include SQUEY_VERSION_FILE_PATH
 
 /******************************************************************************
  *
@@ -103,7 +103,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	auto* label = new QLabel(tr("Current version") + QString(" :"));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 0);
-	label = new QLabel(QString(INENDI_CURRENT_VERSION_STR));
+	label = new QLabel(QString(SQUEY_CURRENT_VERSION_STR));
 	label->setAlignment(Qt::AlignRight);
 	versionLayout->addWidget(label, 0, 2);
 

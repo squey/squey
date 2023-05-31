@@ -25,16 +25,16 @@
 #ifndef PVGUIQT_PVQPLOTTED_H
 #define PVGUIQT_PVQPLOTTED_H
 
-namespace Inendi
+namespace Squey
 {
 class PVPlotted;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
 
 struct PVQPlotted {
-	static bool edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent = nullptr);
+	static bool edit_plotted(Squey::PVPlotted& plotted, QWidget* parent = nullptr);
 };
 } // namespace PVGuiQt
 

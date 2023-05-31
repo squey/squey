@@ -23,13 +23,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 
-#include <inendi/PVMapped.h>
-#include <inendi/PVPlotted.h>
-#include <inendi/PVSource.h>
-#include <inendi/PVView.h>
-#include <inendi/PVRoot.h>
+#include <squey/PVMapped.h>
+#include <squey/PVPlotted.h>
+#include <squey/PVSource.h>
+#include <squey/PVView.h>
+#include <squey/PVRoot.h>
 
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVListingView.h>
@@ -53,9 +53,9 @@ int main(int argc, char** argv)
 	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
-	// Get a INENDI tree from the given file/format
-	Inendi::PVRoot root;
-	Inendi::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
+	// Get a SQUEY tree from the given file/format
+	Squey::PVRoot root;
+	Squey::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
 	src.emplace_add_child()   // Mapped
 	    .emplace_add_child()  // Plotted
 	    .emplace_add_child(); // View
@@ -63,7 +63,7 @@ int main(int argc, char** argv)
 	// Qt app
 	QApplication app(argc, argv);
 
-	Inendi::PVView& view = *src.current_view();
+	Squey::PVView& view = *src.current_view();
 	auto* model = new PVGuiQt::PVListingModel(view);
 
 	auto* qt_view = new PVGuiQt::PVListingView(view);

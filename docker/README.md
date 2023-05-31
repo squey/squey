@@ -28,14 +28,14 @@ Step 4 - build.sh
 
 Customize the "env.conf" file containing various configuration variables and
 start the build of the container image.
-Once properly built, the container image name is "inendi/inspector".
+Once properly built, the container image name is "squey/squey".
 
 Step 5 - run.sh
 ===============
 
 Run the container.
 You can access the application in a web browser at the following location: https://<container_hostname>:8443
-Once running, the container name is "inendi-inspector".
+Once running, the container name is "squey".
 
 Step 6 - update.sh
 ==================

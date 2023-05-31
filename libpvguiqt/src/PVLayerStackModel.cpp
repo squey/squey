@@ -23,8 +23,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVLayerStack.h>
-#include <inendi/PVView.h>
+#include <squey/PVLayerStack.h>
+#include <squey/PVView.h>
 
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
@@ -34,7 +34,7 @@
  * PVGuiQt::PVLayerStackModel::PVLayerStackModel
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackModel::PVLayerStackModel(Inendi::PVView& lib_view, QObject* parent)
+PVGuiQt::PVLayerStackModel::PVLayerStackModel(Squey::PVView& lib_view, QObject* parent)
     : QAbstractTableModel(parent)
     , _lib_view(lib_view)
     , select_brush(QColor(255, 240, 200))
@@ -228,21 +228,21 @@ void PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed()
 
 void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 {
-	Inendi::PVLayerStack& layerstack = lib_layer_stack();
-	Inendi::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
+	Squey::PVLayerStack& layerstack = lib_layer_stack();
+	Squey::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
 	layer.reset_to_default_color();
 	lib_view().process_layer_stack();
 }
 
 void PVGuiQt::PVLayerStackModel::show_this_layer_only(const int idx)
 {
-	Inendi::PVLayerStack& layerstack = lib_layer_stack();
+	Squey::PVLayerStack& layerstack = lib_layer_stack();
 	int layer_idx = lib_index_from_model_index(idx);
-	Inendi::PVLayer& layer = layerstack.get_layer_n(layer_idx);
+	Squey::PVLayer& layer = layerstack.get_layer_n(layer_idx);
 	layer.set_visible(true); // in case, it isn't visible
 	for (int i = 0; i < layerstack.get_layer_count(); i++) {
 		if (i != layer_idx) {
-			Inendi::PVLayer& layer = layerstack.get_layer_n(i);
+			Squey::PVLayer& layer = layerstack.get_layer_n(i);
 			layer.set_visible(false);
 		}
 	}
@@ -257,7 +257,7 @@ void PVGuiQt::PVLayerStackModel::layer_stack_refreshed()
 void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 {
 	_lib_view.add_new_layer(name);
-	Inendi::PVLayer& layer = lib_layer_stack().get_layer_n(rowCount() - 1);
+	Squey::PVLayer& layer = lib_layer_stack().get_layer_n(rowCount() - 1);
 	layer.reset_to_full_and_default_color();
 	lib_view().process_layer_stack();
 }

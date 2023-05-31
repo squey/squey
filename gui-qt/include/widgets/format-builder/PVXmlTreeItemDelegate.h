@@ -29,7 +29,7 @@
 #include <QSize>
 #include <QTextEdit>
 
-namespace PVInspector
+namespace App
 {
 class PVXmlTreeItemDelegate : public QAbstractItemDelegate
 {

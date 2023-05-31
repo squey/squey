@@ -25,7 +25,7 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
@@ -42,7 +42,7 @@ PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Squey::PVView* view,
                                                               QWidget* parent,
                                                               Params const&) const
 {

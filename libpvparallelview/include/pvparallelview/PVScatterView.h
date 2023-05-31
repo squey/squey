@@ -25,7 +25,7 @@
 #ifndef __PVSCATTERVIEW_H__
 #define __PVSCATTERVIEW_H__
 
-#include <inendi/PVAxesCombination.h>
+#include <squey/PVAxesCombination.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -48,11 +48,11 @@ namespace PVWidgets
 class PVHelpWidget;
 } // namespace PVWidgets
 
-namespace Inendi
+namespace Squey
 {
 
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -106,7 +106,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	using backend_unique_ptr_t = std::unique_ptr<PVScatterViewBackend>;
 	using create_backend_t = std::function<backend_unique_ptr_t(PVZoneID, QWidget*)>;
 
-	PVScatterView(Inendi::PVView& pvview_sp,
+	PVScatterView(Squey::PVView& pvview_sp,
 	              create_backend_t create_backend,
 	              PVZoneID const zone_id,
 	              QWidget* parent = nullptr);
@@ -117,8 +117,8 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	void update_new_selection_async();
 	void update_all_async();
 
-	inline Inendi::PVView& lib_view() { return _view; }
-	inline Inendi::PVView const& lib_view() const { return _view; }
+	inline Squey::PVView& lib_view() { return _view; }
+	inline Squey::PVView const& lib_view() const { return _view; }
 
 	PVZoneID get_zone_id() const { return _zone_id; }
 
@@ -170,7 +170,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	void do_pan_change();
 
   private:
-	Inendi::PVView& _view;
+	Squey::PVView& _view;
 	backend_unique_ptr_t _backend;
 	create_backend_t _create_backend;
 	bool _view_deleted;

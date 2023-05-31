@@ -122,7 +122,7 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 	const size_t zone_index_end =
 	    lines_view.get_zone_index_from_scene_pos(srect.x() + srect.width());
 
-	Inendi::PVSelection sel(scene_parent()->lib_view().get_row_count());
+	Squey::PVSelection sel(scene_parent()->lib_view().get_row_count());
 	sel.select_none();
 
 	const int axis_width = lines_view.get_axis_width();

@@ -49,7 +49,7 @@
 #include <pvkernel/rush/PVCSVExporter.h>
 
 const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
-const std::string PVRush::PVNraw::default_tmp_path = "/tmp/inendi";
+const std::string PVRush::PVNraw::default_tmp_path = "/tmp/squey";
 const std::string PVRush::PVNraw::nraw_tmp_pattern = "nraw-XXXXXX";
 const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
 
@@ -245,7 +245,7 @@ void PVRush::PVNraw::load_from_disk(const std::string& nraw_folder)
 	/**
 	 * to avoid leaking pvcop exception outside of PVNraw or PVRush, the
 	 * collection opening failure is catch there and is reported according
-	 * to the actual logic of error reporting in the Inspector stack.
+	 * to the actual logic of error reporting in Squey stack.
 	 *
 	 * TODO: we will have to rething the error propagation from a library
 	 * to an other in the factorization process. Rethrowing an exception

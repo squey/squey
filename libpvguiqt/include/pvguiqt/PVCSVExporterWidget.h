@@ -28,9 +28,9 @@
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/widgets/PVCSVExporterWidget.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
-#include <inendi/PVAxesCombination.h>
-#include <inendi/PVView.h>
-#include <inendi/PVSource.h>
+#include <squey/PVAxesCombination.h>
+#include <squey/PVView.h>
+#include <squey/PVSource.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
 
 #include <QButtonGroup>
@@ -41,7 +41,7 @@ namespace PVGuiQt
 class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 {
   public:
-	PVCSVExporterWidget(Inendi::PVView const& view)
+	PVCSVExporterWidget(Squey::PVView const& view)
 	    : PVWidgets::PVCSVExporterWidget(), _custom_axes_combination(view.get_axes_combination())
 	{
 		// Layout for export_layout is:
@@ -74,7 +74,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		QObject::connect(all_axis, &QRadioButton::toggled, [&](bool checked) {
 			if (checked) {
 				PVCore::PVColumnIndexes column_indexes;
-				for (PVCol a(0); a < view.get_parent<Inendi::PVSource>().get_nraw_column_count();
+				for (PVCol a(0); a < view.get_parent<Squey::PVSource>().get_nraw_column_count();
 				     a++) {
 					column_indexes.push_back(a);
 				}
@@ -149,7 +149,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		// Rows to export
 		PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
 		_exporter.set_total_row_count(nraw.row_count());
-		const Inendi::PVPlotted& plotted = view.get_parent<Inendi::PVPlotted>();
+		const Squey::PVPlotted& plotted = view.get_parent<Squey::PVPlotted>();
 		PVRush::PVCSVExporter::export_func_f export_func =
 		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 		        const std::string& quote) {
@@ -171,7 +171,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 	PVRush::PVCSVExporter& exporter() override { return _exporter; }
 
   private:
-	Inendi::PVAxesCombination _custom_axes_combination;
+	Squey::PVAxesCombination _custom_axes_combination;
 	QRadioButton* _selected_radio_button = nullptr;
 };
 

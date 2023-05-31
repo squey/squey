@@ -32,7 +32,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <inendi/PVAxis.h>
+#include <squey/PVAxis.h>
 
 #include <pvparallelview/PVBCIBackendImage_types.h>
 #include <pvparallelview/PVFullParallelViewSelectionRectangle.h>
@@ -56,7 +56,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
   public:
 	PVFullParallelScene(PVFullParallelView* full_parallel_view,
-	                    Inendi::PVView& view_sp,
+	                    Squey::PVView& view_sp,
 	                    PVParallelView::PVSlidersManager* sm_p,
 	                    PVBCIDrawingBackend& backend,
 	                    PVZonesManager const& zm,
@@ -78,8 +78,8 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	PVParallelView::PVLinesView& get_lines_view() { return _lines_view; }
 	PVParallelView::PVLinesView const& get_lines_view() const { return _lines_view; }
 
-	Inendi::PVView& lib_view() { return _lib_view; }
-	Inendi::PVView const& lib_view() const { return _lib_view; }
+	Squey::PVView& lib_view() { return _lib_view; }
+	Squey::PVView const& lib_view() const { return _lib_view; }
 
 	void set_enabled(bool value)
 	{
@@ -249,7 +249,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	std::vector<SingleZoneImagesItems> _zones;
 	axes_list_t _axes;
 
-	Inendi::PVView& _lib_view;
+	Squey::PVView& _lib_view;
 
 	PVFullParallelView* _full_parallel_view;
 

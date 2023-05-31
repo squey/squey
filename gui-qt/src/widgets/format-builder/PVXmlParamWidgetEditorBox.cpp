@@ -27,10 +27,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox
+ * App::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox(QString pName, QVariant* var)
+App::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox(QString pName, QVariant* var)
     : QLineEdit()
 {
 	setObjectName("PVXmlParamWidgetEditorBox");
@@ -42,27 +42,27 @@ PVInspector::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox(QString pName,
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox
+ * App::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox
  *
  *****************************************************************************/
-PVInspector::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox() = default;
+App::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox() = default;
 
 /******************************************************************************
  *
- * QVariant PVInspector::PVXmlParamWidgetEditorBox::val
+ * QVariant App::PVXmlParamWidgetEditorBox::val
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlParamWidgetEditorBox::val()
+QVariant App::PVXmlParamWidgetEditorBox::val()
 {
 	return this->displayText();
 }
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamWidgetEditorBox::setVal
+ * void App::PVXmlParamWidgetEditorBox::setVal
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamWidgetEditorBox::setVal(const QVariant& val)
+void App::PVXmlParamWidgetEditorBox::setVal(const QVariant& val)
 {
 	variable = new QVariant(val);
 	setText(variable->toString());

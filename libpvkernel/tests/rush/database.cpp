@@ -27,7 +27,7 @@
 #include "../../plugins/common/database/PVDBQuery.h"
 
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVCSVExporter.h>
 #include "common.h"
 #include "helpers.h"
@@ -35,7 +35,7 @@
 #include <fstream>
 #include <memory>
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/sources/database.out";
 constexpr static size_t nb_dup = 1;
 #else
@@ -52,7 +52,7 @@ int main()
 	infos.set_host("connectors.srv.picviz");
 	infos.set_port(3306);
 	infos.set_dbname("logs");
-	infos.set_username("inendi");
+	infos.set_username("squey");
 	infos.set_password("changeme");
 	std::string query_str = R"###(
         SELECT * from proxy_sample WHERE http_method = 'POST';
@@ -93,7 +93,7 @@ int main()
 	PVRush::PVCSVExporter exp(format.get_axes_comb(), nraw.row_count(), export_func);
 	exp.export_rows(output_file, sel);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));

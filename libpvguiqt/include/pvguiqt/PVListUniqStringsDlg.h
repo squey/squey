@@ -25,8 +25,8 @@
 #ifndef __PVGUIQT_PVLISTUNIQSTRINGSDLG_H__
 #define __PVGUIQT_PVLISTUNIQSTRINGSDLG_H__
 
-#include <inendi/PVSource.h>
-#include <inendi/PVView.h>
+#include <squey/PVSource.h>
+#include <squey/PVView.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
 #include <pvkernel/core/PVProgressBox.h>
@@ -42,7 +42,7 @@ namespace PVGuiQt
 class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 {
   public:
-	PVListUniqStringsDlg(Inendi::PVView& view,
+	PVListUniqStringsDlg(Squey::PVView& view,
 	                     PVCol c,
 	                     const create_model_f& f,
 	                     QWidget* parent = nullptr)
@@ -53,7 +53,7 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 	                             parent)
 	{
 		QString col1_name =
-		    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(c).get_name();
+		    view.get_parent<Squey::PVSource>().get_format().get_axes().at(c).get_name();
 		setWindowTitle("Distinct values of axe '" + col1_name + "'");
 	}
 };

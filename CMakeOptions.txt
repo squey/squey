@@ -44,11 +44,11 @@ endif()
 
 # Parse options
 if (USER_TARGET STREQUAL "developer")
-	set(INENDI_DEVELOPER_MODE true)
+	set(SQUEY_DEVELOPER_MODE true)
 	message(STATUS "Picviz mode is developer")
-	add_definitions(-DINENDI_DEVELOPER_MODE)
+	add_definitions(-DSQUEY_DEVELOPER_MODE)
 else()
-	set(INENDI_DEVELOPER_MODE false)
+	set(SQUEY_DEVELOPER_MODE false)
 	add_definitions(-DCUSTOMER_RELEASE)
 	message(STATUS "Picviz mode is customer")
 endif()
@@ -59,12 +59,12 @@ endif()
 
 set(BUILD_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/build.h")
 configure_file(include/pvbase/build.h.cmake ${BUILD_FILE_PATH})
-add_definitions(-DINENDI_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
+add_definitions(-DSQUEY_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 
 ###############################################################################
 # Define email addresses
 ###############################################################################
 
-set(EMAIL_ADDRESS_CONTACT "jean-baptiste+inspector@leonesio.fr")
+set(EMAIL_ADDRESS_CONTACT "jean-baptiste+squey@leonesio.fr")
 
 add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")

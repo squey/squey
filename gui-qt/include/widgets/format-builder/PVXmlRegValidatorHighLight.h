@@ -36,7 +36,7 @@
 #include "PVXmlParamTextEdit.h"
 
 // class QTextEdit;
-namespace PVInspector
+namespace App
 {
 class PVXmlRegValidatorHighLight : public QSyntaxHighlighter
 {

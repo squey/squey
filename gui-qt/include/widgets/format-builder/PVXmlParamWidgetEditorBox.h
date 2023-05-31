@@ -32,7 +32,7 @@
 #include <QMessageBox>
 #include <iostream>
 
-namespace PVInspector
+namespace App
 {
 class PVXmlParamWidgetEditorBox : public QLineEdit
 {
@@ -46,5 +46,5 @@ class PVXmlParamWidgetEditorBox : public QLineEdit
   private:
 	QVariant* variable;
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* PVXMLPARAMWIDGETEDITORBOX_H */

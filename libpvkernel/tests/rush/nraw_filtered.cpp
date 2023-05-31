@@ -25,11 +25,11 @@
 
 #include <fstream>
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include "common.h"
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr static size_t nb_dup = 20;
 #else
 constexpr static size_t nb_dup = 1;

@@ -27,7 +27,7 @@
 
 #include <QSplitter>
 
-#include <inendi/PVLayerFilter.h>
+#include <squey/PVLayerFilter.h>
 #include <pvkernel/widgets/PVPresetsWidget.h>
 
 #include <condition_variable>
@@ -46,9 +46,9 @@ class PVLayerFilterProcessWidget : public QDialog
 	Q_OBJECT
 
   public:
-	PVLayerFilterProcessWidget(Inendi::PVView* view,
+	PVLayerFilterProcessWidget(Squey::PVView* view,
 	                           PVCore::PVArgumentList& args,
-	                           Inendi::PVLayerFilter_p filter_p,
+	                           Squey::PVLayerFilter_p filter_p,
 	                           QWidget* parent = nullptr);
 	~PVLayerFilterProcessWidget() override;
 
@@ -77,19 +77,19 @@ class PVLayerFilterProcessWidget : public QDialog
 	bool process();
 
   private:
-	static void process_layer_filter(Inendi::PVLayerFilter* filter,
-	                                 Inendi::PVLayer const* layer,
-	                                 Inendi::PVLayer* out_layer);
+	static void process_layer_filter(Squey::PVLayerFilter* filter,
+	                                 Squey::PVLayer const* layer,
+	                                 Squey::PVLayer* out_layer);
 
   Q_SIGNALS:
-	void layer_filter_error(const Inendi::PVLayerFilter_p& filter);
+	void layer_filter_error(const Squey::PVLayerFilter_p& filter);
 
   private Q_SLOTS:
-	void show_layer_filter_error(const Inendi::PVLayerFilter_p& filter);
+	void show_layer_filter_error(const Squey::PVLayerFilter_p& filter);
 
   protected:
-	Inendi::PVView* _view;
-	Inendi::PVLayerFilter_p _filter_p;
+	Squey::PVView* _view;
+	Squey::PVLayerFilter_p _filter_p;
 	PVWidgets::PVPresetsWidget* _presets_widget;
 	QSplitter* _splitter;
 	QHBoxLayout* _presets_layout;

@@ -30,7 +30,7 @@
 #include <QVariant>
 #include <QStandardItemModel>
 
-namespace PVInspector
+namespace App
 {
 
 class PVXmlParamComboBox : public QComboBox
@@ -66,6 +66,6 @@ class PVXmlParamComboBox : public QComboBox
 		QStringList& _dis_elt;
 	};
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif /* PVXMLPARAMCOMBOBOX_H */

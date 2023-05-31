@@ -31,7 +31,7 @@ class QString;
 class QCheckBox;
 class QWidget;
 
-namespace PVInspector
+namespace App
 {
 
 class PVSaveDataTreeDialog : public PVWidgets::PVFileDialog
@@ -44,6 +44,6 @@ class PVSaveDataTreeDialog : public PVWidgets::PVFileDialog
   protected:
 	QCheckBox* _save_everything_checkbox;
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif

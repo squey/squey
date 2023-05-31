@@ -29,7 +29,7 @@
 #include <QString>
 #include <QStringList>
 
-namespace PVInspector
+namespace App
 {
 
 class PVXmlParamList : public QListWidget
@@ -47,6 +47,6 @@ class PVXmlParamList : public QListWidget
   protected:
 	QString _name;
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif

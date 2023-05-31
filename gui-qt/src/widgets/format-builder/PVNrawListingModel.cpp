@@ -30,12 +30,12 @@
 #include <QFont>
 #include <QFontMetrics>
 
-PVInspector::PVNrawListingModel::PVNrawListingModel(QObject* parent)
+App::PVNrawListingModel::PVNrawListingModel(QObject* parent)
     : QAbstractTableModel(parent), _nraw(nullptr), _col_tosel(0), _show_sel(false)
 {
 }
 
-int PVInspector::PVNrawListingModel::rowCount(const QModelIndex&) const
+int App::PVNrawListingModel::rowCount(const QModelIndex&) const
 {
 	if (not _nraw) {
 		return 0;
@@ -44,7 +44,7 @@ int PVInspector::PVNrawListingModel::rowCount(const QModelIndex&) const
 	return _nraw->row_count();
 }
 
-int PVInspector::PVNrawListingModel::columnCount(const QModelIndex&) const
+int App::PVNrawListingModel::columnCount(const QModelIndex&) const
 {
 	if (not _nraw) {
 		return 0;
@@ -52,7 +52,7 @@ int PVInspector::PVNrawListingModel::columnCount(const QModelIndex&) const
 	return _nraw->column_count();
 }
 
-QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int role) const
+QVariant App::PVNrawListingModel::data(const QModelIndex& index, int role) const
 {
 	if (not _nraw) {
 		return {};
@@ -92,12 +92,12 @@ QVariant PVInspector::PVNrawListingModel::data(const QModelIndex& index, int rol
 	return {};
 }
 
-Qt::ItemFlags PVInspector::PVNrawListingModel::flags(const QModelIndex& /*index*/) const
+Qt::ItemFlags App::PVNrawListingModel::flags(const QModelIndex& /*index*/) const
 {
 	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 }
 
-QVariant PVInspector::PVNrawListingModel::headerData(int section,
+QVariant App::PVNrawListingModel::headerData(int section,
                                                      Qt::Orientation orientation,
                                                      int role) const
 {
@@ -111,7 +111,7 @@ QVariant PVInspector::PVNrawListingModel::headerData(int section,
 	return QAbstractTableModel::headerData(section, orientation, role);
 }
 
-void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
+void App::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 {
 	if (nraw.row_count() == 0) {
 		_nraw = nullptr;
@@ -121,12 +121,12 @@ void PVInspector::PVNrawListingModel::set_nraw(PVRush::PVNraw const& nraw)
 	Q_EMIT layoutChanged();
 }
 
-void PVInspector::PVNrawListingModel::set_selected_column(PVCol col)
+void App::PVNrawListingModel::set_selected_column(PVCol col)
 {
 	_col_tosel = col;
 }
 
-void PVInspector::PVNrawListingModel::sel_visible(bool visible)
+void App::PVNrawListingModel::sel_visible(bool visible)
 {
 	_show_sel = visible;
 	Q_EMIT layoutChanged();

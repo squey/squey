@@ -30,7 +30,7 @@
 
 #include <pvbase/types.h>
 #include <pvguiqt/PVSortFilter.h>
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 namespace PVGuiQt
 {
@@ -172,7 +172,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 *
 	 * @note: Modification is possible to enable Selection swapping
 	 */
-	Inendi::PVSelection& current_selection() { return _current_selection; }
+	Squey::PVSelection& current_selection() { return _current_selection; }
 
 	/// Accessors
 	size_t current_page() const { return _current_page; }
@@ -245,7 +245,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 *
 	 * @note perform convertion from selection to filter removing sort filtering.
 	 */
-	void set_filter(Inendi::PVSelection const& sel);
+	void set_filter(Squey::PVSelection const& sel);
 
 	size_t current_nraw_line() const
 	{
@@ -295,7 +295,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	size_t _page_step;      //!< Number of elements not counted in scroll ticks
 
 	// Selection information
-	Inendi::PVSelection _current_selection; //!< The current "visual" selection
+	Squey::PVSelection _current_selection; //!< The current "visual" selection
 	ssize_t _start_sel;                     //!< Begin of the "in progress" selection
 	ssize_t _end_sel;                       //!< End of the "in progress" selection
 	bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress"

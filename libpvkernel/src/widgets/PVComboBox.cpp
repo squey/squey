@@ -27,7 +27,7 @@
 
 /******************************************************************************
  *
- * PVInspector::PVComboBox::PVComboBox
+ * App::PVComboBox::PVComboBox
  *
  *****************************************************************************/
 PVWidgets::PVComboBox::PVComboBox(QWidget* parent) : QComboBox(parent)

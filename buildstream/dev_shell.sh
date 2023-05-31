@@ -14,4 +14,4 @@ fi
 
 open_workspace "workspace_dev"
 
-bst shell $MOUNT_OPTS --build inendi-inspector.bst
+bst shell $MOUNT_OPTS --build squey.bst

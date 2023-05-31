@@ -40,7 +40,7 @@ PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Squey::PVView* view,
                                                          QWidget* parent,
                                                          Params const& params) const
 {
@@ -54,7 +54,7 @@ QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Inendi::PVView* view,
 void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
                                                         PVCol axis,
                                                         PVCombCol axis_comb,
-                                                        Inendi::PVView* view,
+                                                        Squey::PVView* view,
                                                         PVDisplays::PVDisplaysContainer* container)
 {
 	if (axis_comb == PVCombCol()) {

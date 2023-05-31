@@ -5,9 +5,9 @@ depends:
   junction: freedesktop-sdk.bst
   type: build
 
-- filename: flatpak/com.gitlab.inendi.Inspector.bst
+- filename: flatpak/org.squey.Squey.bst
   type: build
-- filename: flatpak/com.gitlab.inendi.Inspector.Debug.bst
+- filename: flatpak/org.squey.Squey.Debug.bst
   type: build
 
 config:

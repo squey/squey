@@ -25,12 +25,12 @@
 
 #include <pvdisplays/PVDisplayIf.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 namespace PVDisplays
 {
 
-QString PVDisplayViewIf::widget_title(Inendi::PVView* view) const
+QString PVDisplayViewIf::widget_title(Squey::PVView* view) const
 {
 	return tooltip_str() + " [" + QString::fromStdString(view->get_name()) + "]";
 }
@@ -38,7 +38,7 @@ QString PVDisplayViewIf::widget_title(Inendi::PVView* view) const
 void PVDisplayViewIf::add_to_axis_menu(QMenu& menu,
                                        PVCol axis,
                                        PVCombCol /*axis_comb*/,
-                                       Inendi::PVView* view,
+                                       Squey::PVView* view,
                                        PVDisplaysContainer* container)
 {
 	auto* act = new QAction(toolbar_icon(), axis_menu_name());
@@ -50,7 +50,7 @@ void PVDisplayViewIf::add_to_axis_menu(QMenu& menu,
 
 void add_displays_view_axis_menu(QMenu& menu,
                                  PVDisplaysContainer* container,
-                                 Inendi::PVView* view,
+                                 Squey::PVView* view,
                                  PVCol axis,
                                  PVCombCol axis_comb)
 {
@@ -63,7 +63,7 @@ void add_displays_view_axis_menu(QMenu& menu,
 
 void add_displays_view_axis_menu(QMenu& menu,
                                  PVDisplaysContainer* container,
-                                 Inendi::PVView* view,
+                                 Squey::PVView* view,
                                  PVCombCol axis_comb)
 {
 	assert(axis_comb != PVCombCol());
@@ -71,7 +71,7 @@ void add_displays_view_axis_menu(QMenu& menu,
 	                            view->get_axes_combination().get_nraw_axis(axis_comb), axis_comb);
 }
 
-PVCol col_param(Inendi::PVView* view, std::vector<std::any> const& params, size_t index)
+PVCol col_param(Squey::PVView* view, std::vector<std::any> const& params, size_t index)
 {
 	if (index >= params.size()) {
 		return {};

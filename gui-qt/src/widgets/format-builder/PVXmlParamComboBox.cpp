@@ -28,10 +28,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamComboBox::PVXmlParamComboBox
+ * App::PVXmlParamComboBox::PVXmlParamComboBox
  *
  *****************************************************************************/
-PVInspector::PVXmlParamComboBox::PVXmlParamComboBox(QString name) : QComboBox()
+App::PVXmlParamComboBox::PVXmlParamComboBox(QString name) : QComboBox()
 {
 	setObjectName(name);
 	setModel(new PVComboBoxModel(_dis_elt));
@@ -39,17 +39,17 @@ PVInspector::PVXmlParamComboBox::PVXmlParamComboBox(QString name) : QComboBox()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamComboBox::~PVXmlParamComboBox
+ * App::PVXmlParamComboBox::~PVXmlParamComboBox
  *
  *****************************************************************************/
-PVInspector::PVXmlParamComboBox::~PVXmlParamComboBox() = default;
+App::PVXmlParamComboBox::~PVXmlParamComboBox() = default;
 
 /******************************************************************************
  *
- * QVariant PVInspector::PVXmlParamComboBox::val
+ * QVariant App::PVXmlParamComboBox::val
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlParamComboBox::val()
+QVariant App::PVXmlParamComboBox::val()
 {
 	// return the current selected item title.
 	return this->currentText();
@@ -57,10 +57,10 @@ QVariant PVInspector::PVXmlParamComboBox::val()
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlParamComboBox::select
+ * void App::PVXmlParamComboBox::select
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamComboBox::select(QString const& title)
+void App::PVXmlParamComboBox::select(QString const& title)
 {
 	for (int i = 0; i < count(); i++) { // for each item...
 		if (itemText(i) == title) {     //...if the title match...
@@ -70,12 +70,12 @@ void PVInspector::PVXmlParamComboBox::select(QString const& title)
 	}
 }
 
-void PVInspector::PVXmlParamComboBox::add_disabled_string(QString const& str)
+void App::PVXmlParamComboBox::add_disabled_string(QString const& str)
 {
 	_dis_elt.push_back(str);
 }
 
-void PVInspector::PVXmlParamComboBox::remove_disabled_string(QString const& str)
+void App::PVXmlParamComboBox::remove_disabled_string(QString const& str)
 {
 	int index = _dis_elt.indexOf(str);
 	if (index != -1) {
@@ -83,21 +83,21 @@ void PVInspector::PVXmlParamComboBox::remove_disabled_string(QString const& str)
 	}
 }
 
-void PVInspector::PVXmlParamComboBox::clear_disabled_strings()
+void App::PVXmlParamComboBox::clear_disabled_strings()
 {
 	_dis_elt.clear();
 }
 
 // PVComboBoxModel implementation
 
-PVInspector::PVXmlParamComboBox::PVComboBoxModel::PVComboBoxModel(QStringList& dis_elt,
+App::PVXmlParamComboBox::PVComboBoxModel::PVComboBoxModel(QStringList& dis_elt,
                                                                   QObject* parent)
     : QStandardItemModel(parent), _dis_elt(dis_elt)
 {
 }
 
 Qt::ItemFlags
-PVInspector::PVXmlParamComboBox::PVComboBoxModel::flags(const QModelIndex& index) const
+App::PVXmlParamComboBox::PVComboBoxModel::flags(const QModelIndex& index) const
 {
 	Qt::ItemFlags ret = QStandardItemModel::flags(index);
 	if (is_disabled(index)) {
@@ -108,7 +108,7 @@ PVInspector::PVXmlParamComboBox::PVComboBoxModel::flags(const QModelIndex& index
 	return ret;
 }
 
-QVariant PVInspector::PVXmlParamComboBox::PVComboBoxModel::data(const QModelIndex& index,
+QVariant App::PVXmlParamComboBox::PVComboBoxModel::data(const QModelIndex& index,
                                                                 int role) const
 {
 	if (role == Qt::ForegroundRole && is_disabled(index)) {
@@ -119,7 +119,7 @@ QVariant PVInspector::PVXmlParamComboBox::PVComboBoxModel::data(const QModelInde
 	return QStandardItemModel::data(index, role);
 }
 
-bool PVInspector::PVXmlParamComboBox::PVComboBoxModel::is_disabled(const QModelIndex& index) const
+bool App::PVXmlParamComboBox::PVComboBoxModel::is_disabled(const QModelIndex& index) const
 {
 	return _dis_elt.indexOf(index.data().toString()) != -1;
 }

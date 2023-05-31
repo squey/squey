@@ -86,7 +86,7 @@ class PVCrashReporterDialog : public QDialog
 	void send_crash()
 	{
 		std::string locking_code = "";
-		int ret = PVCore::PVCrashReportSender::send(_minidump_path, INENDI_CURRENT_VERSION_STR);
+		int ret = PVCore::PVCrashReportSender::send(_minidump_path, SQUEY_CURRENT_VERSION_STR);
 		if (ret == 413) { // Payload Too Large
 			QMessageBox::critical(this, "Error sending crash report",
 			                      "The crash report size exceeded the server accepted "

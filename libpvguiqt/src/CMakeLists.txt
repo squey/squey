@@ -89,7 +89,7 @@ PVListDisplayDlg.ui
 )
 
 SET(QRC_FILES
-../../gui-qt/src/inendi-inspector_resource.qrc
+../../gui-qt/src/squey_resource.qrc
 )
 
 ################################################
@@ -113,7 +113,7 @@ set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
 set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6OpenGL Qt63DCore Qt63DRender Qt63DInput Qt63DExtras)
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays inendi pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
+set(PVGUIQT_LINK_LIBRARIES pvdisplays pvsquey pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT6_LIBS} /app/lib/libKF5SyntaxHighlighting.so)
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
@@ -144,6 +144,6 @@ function(compile_and_install_tool tool_exe)
 	INSTALL(TARGETS ${tool_exe} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endfunction()
 
-compile_and_install_tool(inendi-crashreport LINKS ${LINK_LIBRARIES} ${QT6_LIBS} pvkernel curl FILES crash_report.cpp)
+compile_and_install_tool(squey-crashreport LINKS ${LINK_LIBRARIES} ${QT6_LIBS} pvkernel curl FILES crash_report.cpp)
 
 

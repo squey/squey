@@ -37,7 +37,7 @@
 #include <QHeaderView>
 #include <QTableView>
 
-namespace PVInspector
+namespace App
 {
 
 // Forward declaration
@@ -116,6 +116,6 @@ class PVNrawListingWidget : public QWidget
 	QTableView* _nraw_table;
 	QMenu* _ctxt_menu;
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif

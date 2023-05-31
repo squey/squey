@@ -23,12 +23,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVMapped.h>
-#include <inendi/widgets/PVMappingPlottingEditDialog.h>
+#include <squey/PVMapped.h>
+#include <squey/widgets/PVMappingPlottingEditDialog.h>
 #include <pvguiqt/PVQMapped.h>
 #include <pvkernel/core/PVProgressBox.h>
 
-bool PVGuiQt::PVQMapped::edit_mapped(Inendi::PVMapped& mapped, QWidget* parent)
+bool PVGuiQt::PVQMapped::edit_mapped(Squey::PVMapped& mapped, QWidget* parent)
 {
 	PVWidgets::PVMappingPlottingEditDialog dlg(&mapped, nullptr, parent);
 	if (dlg.exec() != QDialog::Accepted) {

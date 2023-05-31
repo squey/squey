@@ -202,7 +202,7 @@ class TestEnv
 
   public:
 	/**
-	 * Initialize Inspector internal until pipeline is ready to process inputs.
+	 * Initialize Squey internal until pipeline is ready to process inputs.
 	 *
 	 * NRaw is not loaded, it has to be done with the load_data methods.
 	 */

@@ -25,7 +25,7 @@
 #ifndef DATATREEMODEL_H
 #define DATATREEMODEL_H
 
-#include <inendi/PVSource.h>
+#include <squey/PVSource.h>
 
 #include <QAbstractItemModel>
 
@@ -37,7 +37,7 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 	Q_OBJECT
 
   public:
-	explicit PVHiveDataTreeModel(Inendi::PVSource& root, QObject* parent = nullptr);
+	explicit PVHiveDataTreeModel(Squey::PVSource& root, QObject* parent = nullptr);
 	QModelIndex index(int row, int column, const QModelIndex& parent) const override;
 
 	int pos_from_obj(PVCore::PVDataTreeObject const* o) const;
@@ -59,7 +59,7 @@ class PVHiveDataTreeModel : public QAbstractItemModel
 	void update_obj(const PVCore::PVDataTreeObject* obj_base);
 
   private:
-	Inendi::PVSource& _root;
+	Squey::PVSource& _root;
 };
 } // namespace PVGuiQt
 

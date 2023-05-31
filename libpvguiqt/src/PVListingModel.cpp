@@ -26,19 +26,19 @@
 #include <QtCore>
 #include <QtWidgets>
 
-#include <inendi/PVCorrelationEngine.h>
-#include <inendi/PVRoot.h>
-#include <inendi/PVSource.h>
-#include <inendi/PVView.h>
+#include <squey/PVCorrelationEngine.h>
+#include <squey/PVRoot.h>
+#include <squey/PVSource.h>
+#include <squey/PVView.h>
 
 #include <pvguiqt/PVListingModel.h>
 
 /******************************************************************************
  *
- * PVInspector::PVListingModel::PVListingModel
+ * App::PVListingModel::PVListingModel
  *
  *****************************************************************************/
-PVGuiQt::PVListingModel::PVListingModel(Inendi::PVView& view, QObject* parent)
+PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
     : PVAbstractTableModel(view.get_row_count(), parent)
     , _zombie_brush(QColor(0, 0, 0))
     , _vheader_font(":/Convergence-Regular")
@@ -92,11 +92,11 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 
 	// Set content and tooltip
 	case Qt::DisplayRole: {
-		const auto& src = _view.get_parent<Inendi::PVSource>();
+		const auto& src = _view.get_parent<Squey::PVSource>();
 		return QString::fromStdString(src.get_value(r, org_col));
 	}
 	case Qt::ToolTipRole: {
-		const auto& src = _view.get_parent<Inendi::PVSource>();
+		const auto& src = _view.get_parent<Squey::PVSource>();
 		return get_wrapped_string(QString::fromStdString(src.get_value(r, org_col)));
 	}
 
@@ -140,7 +140,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	case (Qt::FontRole): {
 		QFont f;
 
-		const auto& src = _view.get_parent<Inendi::PVSource>();
+		const auto& src = _view.get_parent<Squey::PVSource>();
 
 		if (not src.is_valid(r, org_col)) {
 			f.setItalic(true);
@@ -186,7 +186,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 			return _vheader_font;
 		} else if (orientation == Qt::Horizontal) {
 			QFont f;
-			const auto& src = _view.get_parent<Inendi::PVSource>();
+			const auto& src = _view.get_parent<Squey::PVSource>();
 			f.setItalic(src.has_invalid(col) & pvcop::db::INVALID_TYPE::INVALID);
 			return f;
 		}
@@ -202,16 +202,16 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 	// Define tooltip text
 	case (Qt::ToolTipRole):
 		if (orientation == Qt::Horizontal) {
-			const auto& root = _view.get_parent<Inendi::PVRoot>();
-			const Inendi::PVCorrelation* correlation = root.correlations().correlation(&_view);
+			const auto& root = _view.get_parent<Squey::PVRoot>();
+			const Squey::PVCorrelation* correlation = root.correlations().correlation(&_view);
 
 			if (correlation and correlation->col1 == col) {
 
 				const QString& orig_source =
-				    QString::fromStdString(_view.get_parent<Inendi::PVSource>().get_name());
+				    QString::fromStdString(_view.get_parent<Squey::PVSource>().get_name());
 				const QString& orig_axis = _view.get_axis_name(comb_col);
 				const QString& dest_source = QString::fromStdString(
-				    correlation->view2->get_parent<Inendi::PVSource>().get_name());
+				    correlation->view2->get_parent<Squey::PVSource>().get_name());
 				const QString& dest_axis =
 				    correlation->view2->get_nraw_axis_name(correlation->col2);
 
@@ -297,7 +297,7 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Reset the current selection as context change
 	reset_selection();
 
-	Inendi::PVSelection const& sel = _view.get_selection_visible_listing();
+	Squey::PVSelection const& sel = _view.get_selection_visible_listing();
 
 	// Inform view about future update
 	Q_EMIT layoutAboutToBeChanged();

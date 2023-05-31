@@ -46,10 +46,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::PVXmlTreeView
+ * App::PVXmlTreeView::PVXmlTreeView
  *
  *****************************************************************************/
-PVInspector::PVXmlTreeView::PVXmlTreeView(QWidget* parent) : QTreeView(parent) //
+App::PVXmlTreeView::PVXmlTreeView(QWidget* parent) : QTreeView(parent) //
 {
 	setDragEnabled(true);
 	setAcceptDrops(true);
@@ -61,19 +61,19 @@ PVInspector::PVXmlTreeView::PVXmlTreeView(QWidget* parent) : QTreeView(parent) /
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::~PVXmlTreeView
+ * App::PVXmlTreeView::~PVXmlTreeView
  *
  *****************************************************************************/
-PVInspector::PVXmlTreeView::~PVXmlTreeView() = default;
+App::PVXmlTreeView::~PVXmlTreeView() = default;
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::addAxisIn
+ * App::PVXmlTreeView::addAxisIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::addAxisIn()
+void App::PVXmlTreeView::addAxisIn()
 {
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addAxisIn\n");
+	PVLOG_DEBUG("App::PVXmlTreeView::addAxisIn\n");
 
 	QModelIndex index = getInsertionIndex();
 	auto* node = getModel()->addAxisIn(index);
@@ -83,12 +83,12 @@ void PVInspector::PVXmlTreeView::addAxisIn()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::addFilterAfter
+ * App::PVXmlTreeView::addFilterAfter
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::addFilterAfter()
+void App::PVXmlTreeView::addFilterAfter()
 {
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addFilterAfter\n");
+	PVLOG_DEBUG("App::PVXmlTreeView::addFilterAfter\n");
 
 	QModelIndex index = getInsertionIndex();
 	auto* node = getModel()->addFilterAfter(index);
@@ -98,13 +98,13 @@ void PVInspector::PVXmlTreeView::addFilterAfter()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::addSplitter
+ * App::PVXmlTreeView::addSplitter
  *
  *****************************************************************************/
 PVRush::PVXmlTreeNodeDom*
-PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin)
+App::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addSplitter\n");
+	PVLOG_DEBUG("App::PVXmlTreeView::addSplitter\n");
 
 	QModelIndex index = getInsertionIndex();
 	auto* node = getModel()->addSplitter(index, splitterPlugin);
@@ -116,13 +116,13 @@ PVInspector::PVXmlTreeView::addSplitter(PVFilter::PVFieldsSplitterParamWidget_p 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::addConverter
+ * App::PVXmlTreeView::addConverter
  *
  *****************************************************************************/
 PVRush::PVXmlTreeNodeDom*
-PVInspector::PVXmlTreeView::addConverter(PVFilter::PVFieldsConverterParamWidget_p converterPlugin)
+App::PVXmlTreeView::addConverter(PVFilter::PVFieldsConverterParamWidget_p converterPlugin)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::addConverter \n");
+	PVLOG_DEBUG("App::PVXmlTreeView::addConverter \n");
 
 	QModelIndex index = getInsertionIndex();
 	auto* node = getModel()->addConverter(index, converterPlugin);
@@ -134,34 +134,34 @@ PVInspector::PVXmlTreeView::addConverter(PVFilter::PVFieldsConverterParamWidget_
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::addRegExIn
+ * App::PVXmlTreeView::addRegExIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::addRegExIn()
+void App::PVXmlTreeView::addRegExIn()
 {
 	addNode(addRegEx);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::addUrlIn
+ * App::PVXmlTreeView::addUrlIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::addUrlIn()
+void App::PVXmlTreeView::addUrlIn()
 {
 	addNode(addUrl);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::addNode
+ * App::PVXmlTreeView::addNode
  *
  *****************************************************************************/
 /**
 * add a new node (axis, filter, regexp or url)
 * @param type
 */
-void PVInspector::PVXmlTreeView::addNode(AddType type)
+void App::PVXmlTreeView::addNode(AddType type)
 {
 
 	QModelIndex idx = getInsertionIndex();
@@ -198,21 +198,21 @@ void PVInspector::PVXmlTreeView::addNode(AddType type)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::applyModification
+ * App::PVXmlTreeView::applyModification
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget* paramBord, QModelIndex&)
+void App::PVXmlTreeView::applyModification(PVXmlParamWidget* paramBord, QModelIndex&)
 {
 	// if(selectedIndexes())PVLOG_ERROR("selectedIndexes() is null in
-	// PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
+	// App::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
 	if (paramBord == nullptr) {
 		PVLOG_ERROR("paramBord is null in "
-		            "PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
+		            "App::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
 	}
 
 	if (getModel() == nullptr) {
 		PVLOG_ERROR("getModel() is null in "
-		            "PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
+		            "App::PVXmlTreeView::applyModification(PVXmlParamWidget *paramBord)\n");
 	}
 
 	if (selectedIndexes().count() > 0) {
@@ -220,7 +220,7 @@ void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget* paramBord, 
 		QModelIndex index = selectedIndexes().at(0);
 		if (!index.isValid()) {
 			PVLOG_ERROR("index invalid in "
-			            "PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget "
+			            "App::PVXmlTreeView::applyModification(PVXmlParamWidget "
 			            "*paramBord)\n");
 		}
 		getModel()->applyModification(index, paramBord);
@@ -232,10 +232,10 @@ void PVInspector::PVXmlTreeView::applyModification(PVXmlParamWidget* paramBord, 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::deleteSelection
+ * App::PVXmlTreeView::deleteSelection
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::deleteSelection()
+void App::PVXmlTreeView::deleteSelection()
 {
 	QModelIndexList sels_idx = selectedIndexes();
 	QModelIndex parent;
@@ -266,10 +266,10 @@ void PVInspector::PVXmlTreeView::deleteSelection()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::expandRecursive
+ * App::PVXmlTreeView::expandRecursive
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::expandRecursive(const QModelIndex& index)
+void App::PVXmlTreeView::expandRecursive(const QModelIndex& index)
 {
 	expand(index);
 
@@ -293,13 +293,13 @@ void PVInspector::PVXmlTreeView::expandRecursive(const QModelIndex& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::getModel
+ * App::PVXmlTreeView::getModel
  *
  *****************************************************************************/
-PVInspector::PVXmlDomModel* PVInspector::PVXmlTreeView::getModel()
+App::PVXmlDomModel* App::PVXmlTreeView::getModel()
 {
 	if (model() == nullptr) {
-		PVLOG_ERROR("no model in PVInspector::PVXmlTreeView::getModel()\n");
+		PVLOG_ERROR("no model in App::PVXmlTreeView::getModel()\n");
 		return nullptr;
 	}
 	return ((PVXmlDomModel*)model());
@@ -307,10 +307,10 @@ PVInspector::PVXmlDomModel* PVInspector::PVXmlTreeView::getModel()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::mouseDoubleClickEvent
+ * App::PVXmlTreeView::mouseDoubleClickEvent
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::mouseDoubleClickEvent(QMouseEvent* event)
+void App::PVXmlTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	QTreeView::mouseDoubleClickEvent(event);
 	isEditing = true;
@@ -318,10 +318,10 @@ void PVInspector::PVXmlTreeView::mouseDoubleClickEvent(QMouseEvent* event)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::moveDown
+ * App::PVXmlTreeView::moveDown
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::moveDown()
+void App::PVXmlTreeView::moveDown()
 {
 	QModelIndex index = currentIndex();
 
@@ -343,10 +343,10 @@ void PVInspector::PVXmlTreeView::moveDown()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::moveUp
+ * App::PVXmlTreeView::moveUp
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::moveUp()
+void App::PVXmlTreeView::moveUp()
 {
 	QModelIndex index = currentIndex();
 
@@ -368,23 +368,23 @@ void PVInspector::PVXmlTreeView::moveUp()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::slotDataHasChanged
+ * App::PVXmlTreeView::slotDataHasChanged
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::slotDataHasChanged(const QModelIndex& index,
+void App::PVXmlTreeView::slotDataHasChanged(const QModelIndex& index,
                                                     const QModelIndex&,
                                                     const QVector<int>&)
 {
-	PVLOG_DEBUG("PVInspector::PVXmlTreeView::slotDataHasChanged\n");
+	PVLOG_DEBUG("App::PVXmlTreeView::slotDataHasChanged\n");
 	Q_EMIT clicked(index);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeView::slotSelectNext
+ * App::PVXmlTreeView::slotSelectNext
  *
  *****************************************************************************/
-void PVInspector::PVXmlTreeView::slotSelectNext()
+void App::PVXmlTreeView::slotSelectNext()
 {
 	if (selectedIndexes().count() > 0) { // if an item is selected...
 		QModelIndex index = selectedIndexes().at(0);

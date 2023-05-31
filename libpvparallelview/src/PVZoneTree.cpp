@@ -23,10 +23,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 
-#include <inendi/PVSelection.h>
-#include <inendi/PVPlotted.h>
+#include <squey/PVSelection.h>
+#include <squey/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCode.h>
@@ -47,7 +47,7 @@
 
 #define GRAINSIZE 128
 
-using Inendi::PVSelection;
+using Squey::PVSelection;
 
 namespace PVParallelView::__impl
 {
@@ -264,7 +264,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 	BENCH_END(merge, "MERGE", nrows * 2, sizeof(float), nrows * 2, sizeof(float));
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel,
+void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Squey::PVSelection const& sel,
                                                          PVRow* buf_elts)
 {
 	std::fill_n(buf_elts, NBUCKETS, PVROW_INVALID_VALUE);
@@ -284,11 +284,11 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Inendi::PVSelection con
 	                  tbb::simple_partitioner());
 }
 
-void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel,
+void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Squey::PVSelection const& sel,
                                                                     PVRow* buf_elts)
 {
 	// returns a zone tree with only the selected events
-	Inendi::PVSelection::const_pointer sel_buf = sel.get_buffer();
+	Squey::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	if (sel_buf == nullptr) {
 		// Empty selection
 		memcpy(buf_elts, _first_elts, sizeof(PVRow) * NBUCKETS);

@@ -26,15 +26,15 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/qobject_helpers.h>
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVColorDialog.h>
 #include <pvkernel/widgets/PVFilterableMenu.h>
 
-#include <inendi/PVLayerFilter.h>
-#include <inendi/PVView.h>
-#include <inendi/PVRoot.h>
-#include <inendi/PVSource.h>
+#include <squey/PVLayerFilter.h>
+#include <squey/PVView.h>
+#include <squey/PVRoot.h>
+#include <squey/PVSource.h>
 
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVListingModel.h>
@@ -68,7 +68,7 @@
  *
  *****************************************************************************/
 
-PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
+PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
     : PVAbstractTableView(parent)
     , _view(view)
     , _ctxt_menu(this)
@@ -100,8 +100,8 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 
 	// Custom context menu.
 	// It is created based on what layer filter plugins tell us.
-	LIB_CLASS(Inendi::PVLayerFilter)
-	::list_classes const& lf = LIB_CLASS(Inendi::PVLayerFilter)::get().get_list();
+	LIB_CLASS(Squey::PVLayerFilter)
+	::list_classes const& lf = LIB_CLASS(Squey::PVLayerFilter)::get().get_list();
 	// Iterator over all layer filter plugins
 	// We can't use autoFor here because iterate over a QMap return only value
 	// FIXME : Here we search for all layer filter plugins names and save only
@@ -110,7 +110,7 @@ PVGuiQt::PVListingView::PVListingView(Inendi::PVView& view, QWidget* parent)
 	// will be updated before sending the signal so that we can process plugins
 	// widgets
 	for (auto it = lf.begin(); it != lf.end(); ++it) {
-		Inendi::PVLayerFilter::hash_menu_function_t const& entries =
+		Squey::PVLayerFilter::hash_menu_function_t const& entries =
 		    it->value()->get_menu_entries();
 		PVLOG_DEBUG("(listing context-menu) for filter '%s', there are %d entries\n",
 		            qPrintable(it->key()), entries.size());
@@ -395,7 +395,7 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 	_ctxt_col = (PVCombCol)idx_click.column();
 	PVCol col = _view.get_axes_combination().get_nraw_axis(_ctxt_col);
 
-	const Inendi::PVSource& src = _view.get_parent<Inendi::PVSource>();
+	const Squey::PVSource& src = _view.get_parent<Squey::PVSource>();
 
 	QStringList l;
 	for (PVRow line : listing_model()->shown_lines()) {
@@ -442,7 +442,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		// Add entries to the horizontal header context menu for new widgets
 		// creation.
 		PVDisplays::add_displays_view_axis_menu(_hhead_ctxt_menu, container,
-		                                        (Inendi::PVView*)&lib_view(), col, comb_col);
+		                                        (Squey::PVView*)&lib_view(), col, comb_col);
 		_hhead_ctxt_menu.addSeparator();
 	}
 	_action_col_unique->setEnabled(not empty_sel);
@@ -581,11 +581,11 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 
 	_menu_add_correlation->clear();
 
-	auto& root = lib_view().get_parent<Inendi::PVRoot>();
+	auto& root = lib_view().get_parent<Squey::PVRoot>();
 
 	size_t total_compatible_views_count = 0;
 
-	for (auto* source : root.get_children<Inendi::PVSource>()) {
+	for (auto* source : root.get_children<Squey::PVSource>()) {
 
 		size_t compatible_views_count = 0;
 
@@ -598,9 +598,9 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 
 		size_t compatible_axes_count = 0;
 
-		auto const views = source->get_children<Inendi::PVView>();
+		auto const views = source->get_children<Squey::PVView>();
 		bool need_view_menu = views.size() > 1;
-		for (Inendi::PVView* view : views) {
+		for (Squey::PVView* view : views) {
 
 			QMenu* view_menu = source_menu;
 
@@ -610,10 +610,10 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 				source_menu->addMenu(view_menu);
 			}
 
-			const Inendi::PVAxesCombination& ac = view->get_axes_combination();
+			const Squey::PVAxesCombination& ac = view->get_axes_combination();
 			std::set<PVCol> unique_comb_cols(ac.get_combination().begin(),
 			                                 ac.get_combination().end());
-			auto const& axes = view->get_parent<Inendi::PVSource>().get_format().get_axes();
+			auto const& axes = view->get_parent<Squey::PVSource>().get_format().get_axes();
 			for (PVCol original_col2 : unique_comb_cols) {
 				const QString& axis_name = axes[original_col2].get_name();
 				const QString& axis_type = axes[original_col2].get_type();
@@ -628,13 +628,13 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 
 				// TODO : use QActionGroup for radio buttons
 
-				auto add_correlation_f = [&](const QString& correlation_type_name, Inendi::PVCorrelationType type){
+				auto add_correlation_f = [&](const QString& correlation_type_name, Squey::PVCorrelationType type){
 					auto* action = new QAction(correlation_type_name, this);
 					action->setCheckable(true);
 
 					PVCol original_col1 = _view.get_axes_combination().get_nraw_axis(col);
 
-					Inendi::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2, type};
+					Squey::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2, type};
 					bool existing_correlation = root.correlations().exists(correlation);
 
 					action->setChecked(existing_correlation);
@@ -653,10 +653,10 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
 				};
 
 				if (correlation_types_for_values.contains(axis_type)) {
-					add_correlation_f("distinct values", Inendi::PVCorrelationType::VALUES);
+					add_correlation_f("distinct values", Squey::PVCorrelationType::VALUES);
 				}
 				if (correlation_types_for_range.contains(axis_type)) {
-					add_correlation_f("minmax range", Inendi::PVCorrelationType::RANGE);
+					add_correlation_f("minmax range", Squey::PVCorrelationType::RANGE);
 				}
 
 				compatible_axes_count++;
@@ -741,8 +741,8 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
  *****************************************************************************/
 void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 {
-	Inendi::PVLayer& layer = lib_view().get_current_layer();
-	Inendi::PVLinesProperties& lines_properties = layer.get_lines_properties();
+	Squey::PVLayer& layer = lib_view().get_current_layer();
+	Squey::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
 	// Color every lines in the current selection
 	for (PVRow line : listing_model()->shown_lines()) {
@@ -764,22 +764,22 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 	// FIXME : This should be done another way (see menu creation)
 	// Get the filter associated with that menu entry
 	QString filter_name = act.data().toString();
-	Inendi::PVLayerFilter_p lib_filter =
-	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
+	Squey::PVLayerFilter_p lib_filter =
+	    LIB_CLASS(Squey::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
 		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n",
 		            qPrintable(filter_name));
 		return;
 	}
 
-	Inendi::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
+	Squey::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
 	QString act_name = act.text();
 	if (entries.find(act_name) == entries.end()) {
 		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n",
 		            qPrintable(act_name), qPrintable(filter_name));
 		return;
 	}
-	Inendi::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
+	Squey::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Get the arguments
 	_ctxt_args = lib_view().get_last_args_filter(filter_name);
@@ -788,7 +788,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_action(QAction const& act)
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
-	Inendi::PVLayerFilter_p fclone = lib_filter->clone<Inendi::PVLayerFilter>();
+	Squey::PVLayerFilter_p fclone = lib_filter->clone<Squey::PVLayerFilter>();
 	assert(fclone);
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
@@ -952,7 +952,7 @@ void PVGuiQt::PVListingView::paintEvent(QPaintEvent* event)
 void PVGuiQt::PVListingView::goto_line()
 {
 	PVRow nrows = lib_view().get_rushnraw_parent().row_count();
-	const Inendi::PVSelection& sel = lib_view().get_real_output_selection();
+	const Squey::PVSelection& sel = lib_view().get_real_output_selection();
 
 	bool ok;
 	PVRow row = QInputDialog::getInt(this, "Go to line", "Select line index", 1, 1, nrows, 1, &ok);
@@ -1098,7 +1098,7 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	painter->restore();
 
 	auto* listing = (PVListingView*)parent();
-	auto& root = listing->lib_view().get_parent<Inendi::PVRoot>();
+	auto& root = listing->lib_view().get_parent<Squey::PVRoot>();
 
 	PVCol original_col1 =
 	    listing->lib_view().get_axes_combination().get_nraw_axis((PVCombCol)logicalIndex);

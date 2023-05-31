@@ -53,7 +53,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVCSVExporter.h>
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include "common.h"
 
 static char* PKI_DIR = nullptr;
@@ -545,7 +545,7 @@ int test_source()
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	PV_ASSERT_VALID(nraw.row_count() >= (PVRow)expected_row_count);
 #endif
 
@@ -561,8 +561,8 @@ int test_source()
 
 	exp.export_rows(output_file, sel);
 
-#define INSPECTOR_BENCH
-#ifndef INSPECTOR_BENCH
+#define SQUEY_BENCH
+#ifndef SQUEY_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(

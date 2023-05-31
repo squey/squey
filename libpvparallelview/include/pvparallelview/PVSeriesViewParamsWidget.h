@@ -62,7 +62,7 @@ class PVSeriesViewParamsWidget : public QToolBar
 	void set_rendering_mode(PVSeriesView::DrawMode mode) const;
 	void set_rendering_mode();
 	void set_sampling_mode(QAction* action);
-	void set_sampling_mode(Inendi::PVRangeSubSampler::SAMPLING_MODE mode) const;
+	void set_sampling_mode(Squey::PVRangeSubSampler::SAMPLING_MODE mode) const;
 	void set_sampling_mode();
 
 	void update_mode_selector(QToolButton* button, int mode_index);
@@ -75,7 +75,7 @@ class PVSeriesViewParamsWidget : public QToolBar
 	PVWidgets::PVAxisComboBox* _abscissa_selector = nullptr;
 	std::vector<std::function<void()>> _bind_connections;
 	PVSeriesView::DrawMode _rendering_mode;
-	Inendi::PVRangeSubSampler::SAMPLING_MODE _sampling_mode;
+	Squey::PVRangeSubSampler::SAMPLING_MODE _sampling_mode;
 };
 
 } // namespace PVParallelView

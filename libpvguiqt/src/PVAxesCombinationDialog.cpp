@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
@@ -31,7 +31,7 @@
 #include <QVBoxLayout>
 #include <QPushButton>
 
-PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent)
+PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Squey::PVView& view, QWidget* parent)
     : QDialog(parent), _temp_axes_comb(view.get_axes_combination()), _lib_view(view)
 {
 	auto* main_layout = new QVBoxLayout(this);

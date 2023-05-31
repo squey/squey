@@ -24,7 +24,7 @@
 //
 
 #include <pvkernel/core/PVMemory2D.h>
-#include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
+#include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
 
 #include <tbb/tick_count.h> // for tick_count
 

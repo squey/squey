@@ -32,13 +32,13 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
-#include <inendi/PVStateMachine.h>
-#include <inendi/widgets/PVArgumentListWidgetFactory.h>
-#include <inendi/PVView.h>
+#include <squey/PVStateMachine.h>
+#include <squey/widgets/PVArgumentListWidgetFactory.h>
+#include <squey/PVView.h>
 
-PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* view,
+PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Squey::PVView* view,
                                                                 PVCore::PVArgumentList& args,
-                                                                Inendi::PVLayerFilter_p filter_p,
+                                                                Squey::PVLayerFilter_p filter_p,
                                                                 QWidget* parent)
     : QDialog(parent)
     , _view(view)
@@ -99,7 +99,7 @@ PVGuiQt::PVLayerFilterProcessWidget::PVLayerFilterProcessWidget(Inendi::PVView* 
 		main_layout->addWidget(args_widget_box);
 	}
 
-	qRegisterMetaType<Inendi::PVLayerFilter_p>("Inendi::PVLayerFilter_p");
+	qRegisterMetaType<Squey::PVLayerFilter_p>("Squey::PVLayerFilter_p");
 	connect(this, &PVLayerFilterProcessWidget::layer_filter_error, this,
 	        &PVLayerFilterProcessWidget::show_layer_filter_error);
 
@@ -220,7 +220,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	}
 
 	// FIXME : This is a Hack to commit colors in layer but not the selection.
-	Inendi::PVLayer& current_selected_layer = _view->get_current_layer();
+	Squey::PVLayer& current_selected_layer = _view->get_current_layer();
 	_view->get_post_filter_layer().get_lines_properties().A2B_copy_restricted_by_selection(
 	    current_selected_layer.get_lines_properties(),
 	    _view->get_post_filter_layer().get_selection());
@@ -237,7 +237,7 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 {
 	_args_widget->force_submit();
 
-	Inendi::PVLayerFilter_p filter_p = _filter_p->clone<Inendi::PVLayerFilter>();
+	Squey::PVLayerFilter_p filter_p = _filter_p->clone<Squey::PVLayerFilter>();
 	filter_p->set_args(*_args_widget->get_args());
 	filter_p->set_view(_view);
 
@@ -248,7 +248,7 @@ bool PVGuiQt::PVLayerFilterProcessWidget::process()
 		    try {
 			    process_layer_filter(filter_p.get(), &_view->get_output_layer(),
 			                         &_view->get_post_filter_layer());
-		    } catch (const Inendi::PVLayerFilter::error& e) {
+		    } catch (const Squey::PVLayerFilter::error& e) {
 
 			    std::unique_lock<std::mutex> lk(_blocking_msg);
 			    Q_EMIT layer_filter_error(
@@ -293,16 +293,16 @@ void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
 	change_args(_filter_p->get_default_args_for_view(*_view));
 }
 
-void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Inendi::PVLayerFilter* filter,
-                                                               Inendi::PVLayer const* in_layer,
-                                                               Inendi::PVLayer* out_layer)
+void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Squey::PVLayerFilter* filter,
+                                                               Squey::PVLayer const* in_layer,
+                                                               Squey::PVLayer* out_layer)
 {
 	filter->set_output(out_layer);
 	filter->operator()(*in_layer);
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::show_layer_filter_error(
-    const Inendi::PVLayerFilter_p& filter)
+    const Squey::PVLayerFilter_p& filter)
 {
 	filter->show_error(this);
 	_cv.notify_one();

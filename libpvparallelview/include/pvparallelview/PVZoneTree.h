@@ -25,12 +25,12 @@
 #ifndef PVPARALLELVIEW_PVZONETREE_H
 #define PVPARALLELVIEW_PVZONETREE_H
 
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvhwloc.h>
 
-#include <inendi/PVSelection.h>
-#include <inendi/PVPlotted.h>
+#include <squey/PVSelection.h>
+#include <squey/PVPlotted.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneProcessing.h>
@@ -183,11 +183,11 @@ class PVZoneTree : public PVZoneTreeBase
 		process_tbb_sse_treeb(zp, pdata);
 	}
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void filter_by_sel(Inendi::PVSelection const& sel)
+	inline void filter_by_sel(Squey::PVSelection const& sel)
 	{
 		filter_by_sel_tbb_treeb(sel, _sel_elts);
 	}
-	inline void filter_by_sel_background(Inendi::PVSelection const& sel)
+	inline void filter_by_sel_background(Squey::PVSelection const& sel)
 	{
 		filter_by_sel_background_tbb_treeb(sel, _bg_elts);
 	}
@@ -224,8 +224,8 @@ class PVZoneTree : public PVZoneTreeBase
 	}
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 
-	void filter_by_sel_tbb_treeb(Inendi::PVSelection const& sel, PVRow* buf_elts);
-	void filter_by_sel_background_tbb_treeb(Inendi::PVSelection const& sel, PVRow* buf_elts);
+	void filter_by_sel_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts);
+	void filter_by_sel_background_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts);
 
   protected:
 	PVBranch _treeb[NBUCKETS];

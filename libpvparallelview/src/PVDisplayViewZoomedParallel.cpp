@@ -37,7 +37,7 @@ PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Squey::PVView* view,
                                                                 QWidget* parent,
                                                                 Params const& data) const
 {
@@ -52,7 +52,7 @@ void PVDisplays::PVDisplayViewZoomedParallel::add_to_axis_menu(
     QMenu& menu,
     PVCol,
     PVCombCol axis_comb,
-    Inendi::PVView* view,
+    Squey::PVView* view,
     PVDisplays::PVDisplaysContainer* container)
 {
 	if (axis_comb == PVCombCol()) {
