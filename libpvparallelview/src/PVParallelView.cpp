@@ -25,7 +25,7 @@
 
 #include <pvkernel/core/PVConfig.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
 #include <pvparallelview/PVBCIDrawingBackendQPainter.h>
@@ -100,7 +100,7 @@ PVParallelView::PVParallelViewImpl& PVParallelView::PVParallelViewImpl::get()
 	return *_s;
 }
 
-PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inendi::PVView& view)
+PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Squey::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
@@ -114,7 +114,7 @@ PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Inen
 	return new_view;
 }
 
-void PVParallelView::PVParallelViewImpl::remove_lib_view(Inendi::PVView& view)
+void PVParallelView::PVParallelViewImpl::remove_lib_view(Squey::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 

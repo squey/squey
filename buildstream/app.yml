@@ -36,7 +36,7 @@ shell:
   - '/tmp'
   - path: '/srv/'
     optional: True
-  - path: '/opt/inendi'
+  - path: '/opt/squey'
     optional: True
   - '/etc/passwd'
   - '/etc/group'

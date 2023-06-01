@@ -80,9 +80,9 @@ int main(int argc, char** argv)
 	int pattern = 0;
 	int bbits = BBITS;
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 	// we just want the measured time, not the backend information
-	setenv("INENDI_DEBUG_LEVEL", "FATAL", 1);
+	setenv("SQUEY_DEBUG_LEVEL", "FATAL", 1);
 	(void)argc;
 	(void)argv;
 
@@ -127,7 +127,7 @@ int main(int argc, char** argv)
 		break;
 	}
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	QImage img(dst_img->qimage());
 	write(4, img.constBits(), img.height() * img.width() * sizeof(uint32_t));
 

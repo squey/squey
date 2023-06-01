@@ -8,8 +8,8 @@ include(CTest)
 set(CTEST_PROJECT_NAME "PVGuiQT")
 
 set(COPYING_DIR_NAME "COPYING")
-add_definitions(-DINENDI_COPYING_DIR="${SHARE_RESSOURCES}/${COPYING_DIR_NAME}")
-install(DIRECTORY ${inendi-inspector_SOURCE_DIR}/${COPYING_DIR_NAME} DESTINATION ${SHARE_RESSOURCES})
+add_definitions(-DSQUEY_COPYING_DIR="${SHARE_RESSOURCES}/${COPYING_DIR_NAME}")
+install(DIRECTORY ${squey_SOURCE_DIR}/${COPYING_DIR_NAME} DESTINATION ${SHARE_RESSOURCES})
 
 ################################################
 # QT6 related include and check
@@ -28,11 +28,11 @@ find_package(Qt6OpenGL REQUIRED)
 include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
 
 #################################################
-# Add include directories for inendi's libs
+# Add include directories for squey's libs
 #################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
-include_directories(AFTER ${INENDI_INCLUDE_DIRS})
+include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})

@@ -23,12 +23,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVRangeSubSampler.h>
+#include <squey/PVRangeSubSampler.h>
 
-#include <inendi/PVLayerFilter.h>
+#include <squey/PVLayerFilter.h>
 
-#include <pvkernel/core/inendi_assert.h>
-#include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
+#include <pvkernel/core/squey_assert.h>
+#include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
 
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
@@ -71,11 +71,11 @@ int main(int argc, char** argv)
 	env.compute_plottings();
 	env.compute_views();
 
-	auto plotteds = env.root.get_children<Inendi::PVPlotted>();
+	auto plotteds = env.root.get_children<Squey::PVPlotted>();
 
 	const auto& plotteds_vector = plotteds.front()->get_plotteds();
 
-	Inendi::PVView* view = env.root.get_children<Inendi::PVView>().front();
+	Squey::PVView* view = env.root.get_children<Squey::PVView>().front();
 	view->select_all();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 
@@ -85,7 +85,7 @@ int main(int argc, char** argv)
 	for (size_t i = 1; i < plotteds_vector.size(); i++) {
 		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
 	}
-	Inendi::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries, nraw,
+	Squey::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries, nraw,
 	                                  view->get_real_output_selection());
 
 	std::unordered_set<size_t> selected_timeseries;

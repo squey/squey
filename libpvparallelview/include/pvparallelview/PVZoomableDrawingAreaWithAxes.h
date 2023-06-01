@@ -26,7 +26,7 @@
 #define PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAWITHAXES_H
 
 #include <pvparallelview/PVZoomableDrawingArea.h>
-#include <inendi/widgets/PVAxisComboBox.h>
+#include <squey/widgets/PVAxisComboBox.h>
 
 #include <QString>
 

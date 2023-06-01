@@ -33,7 +33,7 @@
 #include <QPainter>
 
 PVParallelView::PVZoomedParallelView::PVZoomedParallelView(
-    Inendi::PVAxesCombination const& axes_comb, QWidget* parent)
+    Squey::PVAxesCombination const& axes_comb, QWidget* parent)
     : PVWidgets::PVGraphicsView(parent)
 {
 	setMinimumHeight(300);

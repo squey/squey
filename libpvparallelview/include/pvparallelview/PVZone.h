@@ -51,7 +51,7 @@ class PVZone
 	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
 	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
 
-	inline void filter_by_sel(const Inendi::PVSelection& sel)
+	inline void filter_by_sel(const Squey::PVSelection& sel)
 	{
 		_ztree->filter_by_sel(sel);
 		if (_zoomed_ztree->is_initialized()) {
@@ -59,7 +59,7 @@ class PVZone
 		}
 	}
 
-	inline void filter_by_sel_background(const Inendi::PVSelection& sel)
+	inline void filter_by_sel_background(const Squey::PVSelection& sel)
 	{
 		_ztree->filter_by_sel_background(sel);
 	}

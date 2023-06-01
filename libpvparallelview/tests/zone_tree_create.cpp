@@ -25,13 +25,13 @@
 
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZoneProcessing.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvparallelview/PVBCode.h>
 
 #include <chrono>
 #include <iostream>
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr size_t SIZE = 10000; // Means X ** 2 total lines
 #else
 // Number of line on each plotting axe (use all combination between these values)
@@ -71,7 +71,7 @@ int main()
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	for (size_t i = 0; i < SIZE * SIZE; i++) {
 		uint32_t pos =
 		    (plotb[i] >> (32 - significant_bits) << 10 | (plota[i] >> (32 - significant_bits)));

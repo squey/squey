@@ -45,7 +45,7 @@ class PVSQLTypeMap
 
   public:
 	virtual QString map(int type) const = 0;
-	virtual QString map_inendi(int type) const = 0;
+	virtual QString map_squey(int type) const = 0;
 };
 
 typedef PVSQLTypeMap::p_type PVSQLTypeMap_p;
@@ -54,7 +54,7 @@ class PVSQLTypeMapMysql : public PVSQLTypeMap
 {
   public:
 	QString map(int type) const;
-	QString map_inendi(int type) const;
+	QString map_squey(int type) const;
 	virtual ~PVSQLTypeMapMysql(){};
 };
 
@@ -62,7 +62,7 @@ class PVSQLTypeMapPostgres : public PVSQLTypeMap
 {
   public:
 	QString map(int type) const;
-	QString map_inendi(int type) const;
+	QString map_squey(int type) const;
 	virtual ~PVSQLTypeMapPostgres(){};
 };
 
@@ -70,7 +70,7 @@ class PVSQLTypeMapODBC : public PVSQLTypeMap
 {
   public:
 	QString map(int /*type*/) const { return "unknown"; }
-	QString map_inendi(int /*type*/) const { return "string"; }
+	QString map_squey(int /*type*/) const { return "string"; }
 	virtual ~PVSQLTypeMapODBC(){};
 };
 
@@ -78,7 +78,7 @@ class PVSQLTypeMapSQLite : public PVSQLTypeMap
 {
   public:
 	QString map(int /*type*/) const { return "unknown"; }
-	QString map_inendi(int /*type*/) const { return "string"; }
+	QString map_squey(int /*type*/) const { return "string"; }
 	virtual ~PVSQLTypeMapSQLite(){};
 };
 }

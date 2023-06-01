@@ -29,16 +29,16 @@
 
 #include <QAbstractTableModel>
 
-#include <inendi/PVLayerStack.h>
-#include <inendi/PVView.h>
+#include <squey/PVLayerStack.h>
+#include <squey/PVView.h>
 
 #include <QBrush>
 #include <QFont>
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -51,7 +51,7 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	Q_OBJECT
 
   public:
-	explicit PVLayerStackModel(Inendi::PVView& lib_view, QObject* parent = nullptr);
+	explicit PVLayerStackModel(Squey::PVView& lib_view, QObject* parent = nullptr);
 
   public:
 	int columnCount(const QModelIndex& index) const override;
@@ -72,10 +72,10 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	void show_this_layer_only(const int idx);
 
   public:
-	Inendi::PVLayerStack const& lib_layer_stack() const { return _lib_view.get_layer_stack(); }
-	Inendi::PVLayerStack& lib_layer_stack() { return _lib_view.get_layer_stack(); }
-	Inendi::PVView const& lib_view() const { return _lib_view; }
-	Inendi::PVView& lib_view() { return _lib_view; }
+	Squey::PVLayerStack const& lib_layer_stack() const { return _lib_view.get_layer_stack(); }
+	Squey::PVLayerStack& lib_layer_stack() { return _lib_view.get_layer_stack(); }
+	Squey::PVView const& lib_view() const { return _lib_view; }
+	Squey::PVView& lib_view() { return _lib_view; }
 
   private:
 	inline int lib_index_from_model_index(int model_index) const
@@ -89,7 +89,7 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	void layer_stack_refreshed();
 
   private:
-	Inendi::PVView& _lib_view;
+	Squey::PVView& _lib_view;
 	QBrush select_brush;   //!<
 	QFont select_font;     //!<
 	QBrush unselect_brush; //!<

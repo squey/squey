@@ -39,7 +39,7 @@
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
 #include <pvparallelview/PVZoomableDrawingAreaInteractorHomothetic.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/qmetaobject_helper.h>
@@ -67,7 +67,7 @@ using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
-PVParallelView::PVScatterView::PVScatterView(Inendi::PVView& pvview_sp,
+PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
                                              create_backend_t create_backend,
                                              PVZoneID const zone_id,
                                              QWidget* parent /*= nullptr*/
@@ -274,7 +274,7 @@ void PVParallelView::PVScatterView::update_all_async()
 void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
 {
 	PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	if ((event->key() == Qt::Key_B) && (event->modifiers() & Qt::ControlModifier)) {
 		PVScatterView::toggle_show_quadtrees();
 	}
@@ -477,11 +477,11 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 	painter->setOpacity(1);
 	_image_sel.draw(this, painter);
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	if (_show_quadtrees and _backend) {
 		painter->setPen(QPen(Qt::white, 0));
 		painter->setOpacity(1.0);
-		const Inendi::PVSelection& sel = _view.get_real_output_selection();
+		const Squey::PVSelection& sel = _view.get_real_output_selection();
 		PVParallelView::PVBCode code_b;
 		PVParallelView::PVZoneTree const& zt = get_zone_tree();
 		for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
@@ -525,7 +525,7 @@ QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
 	if (_show_labels and _backend) {
 		return get_elided_text(_backend->get_x_labels_cache().get(
-		    std::numeric_limits<Inendi::PVPlotted::value_type>::max() - value));
+		    std::numeric_limits<Squey::PVPlotted::value_type>::max() - value));
 	} else {
 		return {};
 	}

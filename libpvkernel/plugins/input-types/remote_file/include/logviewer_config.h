@@ -30,6 +30,6 @@
 
 // Define temporary template filename
 #define TEMPORARYFILENAME_TEMPLATE                                                                 \
-	QDir::tempPath() + QLatin1Char('/') + QLatin1String("inendi_temp")
+	QDir::tempPath() + QLatin1Char('/') + QLatin1String("squey_temp")
 
 #endif /* LOGVIEWER_CONFIG_H */

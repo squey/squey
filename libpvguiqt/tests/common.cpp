@@ -31,14 +31,14 @@
 #include <pvkernel/rush/PVTests.h>
 #include <pvkernel/rush/PVFileDescription.h>
 
-#include <inendi/PVRoot.h>
-#include <inendi/PVScene.h>
-#include <inendi/PVSource.h>
+#include <squey/PVRoot.h>
+#include <squey/PVScene.h>
+#include <squey/PVSource.h>
 
 #include "common.h"
 
-Inendi::PVSource&
-get_src_from_file(Inendi::PVScene& scene, QString const& path_file, QString const& path_format)
+Squey::PVSource&
+get_src_from_file(Squey::PVScene& scene, QString const& path_file, QString const& path_format)
 {
 	// Input file
 	PVRush::PVInputDescription_p file(new PVRush::PVFileDescription(path_file));
@@ -51,7 +51,7 @@ get_src_from_file(Inendi::PVScene& scene, QString const& path_file, QString cons
 		throw std::runtime_error("Can't read file source");
 	}
 
-	Inendi::PVSource& src =
+	Squey::PVSource& src =
 	    scene.emplace_add_child(PVRush::PVInputType::list_inputs() << file, sc_file, format);
 	PVRush::PVControllerJob_p job = src.extract(0);
 	src.wait_extract_end(job);
@@ -59,9 +59,9 @@ get_src_from_file(Inendi::PVScene& scene, QString const& path_file, QString cons
 	return src;
 }
 
-Inendi::PVSource&
-get_src_from_file(Inendi::PVRoot& root, QString const& file, QString const& format)
+Squey::PVSource&
+get_src_from_file(Squey::PVRoot& root, QString const& file, QString const& format)
 {
-	Inendi::PVScene& scene = root.emplace_add_child("scene");
+	Squey::PVScene& scene = root.emplace_add_child("scene");
 	return get_src_from_file(scene, file, format);
 }

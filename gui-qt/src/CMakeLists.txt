@@ -8,7 +8,7 @@ include_directories(SYSTEM AFTER ${ICU_INCLUDE})
 # Ressource declaration
 ################################################
 
-set(INSPECTOR_ICON "resources////inspector.ico")
+set(SQUEY_ICON "resources////squey.ico")
 
 SET(MOC_HEADERS
 ../include/PVFilesTypesSelWidget.h
@@ -61,7 +61,7 @@ widgets/format-builder/PVOptionsWidget.cpp
 )
 
 SET(QRC_FILES
-inendi-inspector_resource.qrc
+squey_resource.qrc
 )
 
 ################################################
@@ -72,18 +72,18 @@ QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 QT6_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
 
 ################################################
-# Handle licences for inendi-inspector
+# Handle licences for squey
 ################################################
 
-add_executable(inendi-inspector ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
+add_executable(squey ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS})
 
-set_property(TARGET inendi-inspector APPEND PROPERTY LINK_FLAGS)
+set_property(TARGET squey APPEND PROPERTY LINK_FLAGS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")
 
 set(PV_QT_LIBS Qt6Core Qt6Widgets Qt6Network Qt6Xml Qt6Widgets)
 
-target_link_libraries(inendi-inspector ssl ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
-    pvguiqt pvparallelview inendi pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY}
+target_link_libraries(squey ssl ${QT_LIBRARIES} ${PVPARALLELVIEW_LIBRARIES}
+    pvguiqt pvparallelview pvsquey pvkernel ${TBB_LIBRARIES} ${ICU_LIBRARY}
     ${OpenMP_LIBRARIES} ${PV_QT_LIBS} ${PVLICENSE_LIBRARIES})
 
-INSTALL(TARGETS inendi-inspector DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
+INSTALL(TARGETS squey DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

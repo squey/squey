@@ -23,12 +23,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVPlotted.h>
-#include <inendi/widgets/PVMappingPlottingEditDialog.h>
+#include <squey/PVPlotted.h>
+#include <squey/widgets/PVMappingPlottingEditDialog.h>
 #include <pvguiqt/PVQPlotted.h>
 #include <pvkernel/core/PVProgressBox.h>
 
-bool PVGuiQt::PVQPlotted::edit_plotted(Inendi::PVPlotted& plotted, QWidget* parent)
+bool PVGuiQt::PVQPlotted::edit_plotted(Squey::PVPlotted& plotted, QWidget* parent)
 {
 	auto* dlg =
 	    new PVWidgets::PVMappingPlottingEditDialog(nullptr, &plotted, parent);

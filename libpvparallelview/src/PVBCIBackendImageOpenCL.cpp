@@ -46,10 +46,10 @@ PVParallelView::PVBCIBackendImageOpenCL::PVBCIBackendImageOpenCL(const uint32_t 
 
 	_host_addr = PVOpenCL::host_allocate<pixel_t>(context, _queue, CL_MEM_WRITE_ONLY, CL_MAP_READ,
 	                                              size, _host_buffer, err);
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 
 	_device_buffer = cl::Buffer(context, CL_MEM_READ_ONLY, size, nullptr, &err);
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 }
 
 /******************************************************************************
@@ -59,7 +59,7 @@ PVParallelView::PVBCIBackendImageOpenCL::PVBCIBackendImageOpenCL(const uint32_t 
 PVParallelView::PVBCIBackendImageOpenCL::~PVBCIBackendImageOpenCL()
 {
 	// no "cl::MappedBuffer" class, 'have to unmap it manually...
-	inendi_verify_opencl(_queue.enqueueUnmapMemObject(_host_buffer, _host_addr));
+	squey_verify_opencl(_queue.enqueueUnmapMemObject(_host_buffer, _host_addr));
 }
 
 /******************************************************************************
@@ -68,7 +68,7 @@ PVParallelView::PVBCIBackendImageOpenCL::~PVBCIBackendImageOpenCL()
 
 void PVParallelView::PVBCIBackendImageOpenCL::copy_device_to_host_async(cl::Event* event) const
 {
-	inendi_verify_opencl(_queue.enqueueReadBuffer(
+	squey_verify_opencl(_queue.enqueueReadBuffer(
 	    _device_buffer, CL_FALSE, 0, size_pixel() * sizeof(pixel_t), _host_addr, nullptr, event));
 }
 

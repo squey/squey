@@ -47,4 +47,4 @@ struct PVColor {
 };
 } // namespace PVCore
 
-#endif /* INENDI_PVCOLOR_H */
+#endif /* SQUEY_PVCOLOR_H */

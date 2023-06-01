@@ -25,7 +25,7 @@
 #ifndef PVPARALLELVIEW_PVPARALLELVIEW_H
 #define PVPARALLELVIEW_PVPARALLELVIEW_H
 
-#include <inendi/PVPlotted.h>
+#include <squey/PVPlotted.h>
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
@@ -39,7 +39,7 @@ class PVRenderingPipeline;
 
 class PVParallelViewImpl
 {
-	typedef std::map<Inendi::PVView*, PVLibView*> map_lib_views;
+	typedef std::map<Squey::PVView*, PVLibView*> map_lib_views;
 
   private:
 	PVParallelViewImpl();
@@ -60,13 +60,13 @@ class PVParallelViewImpl
 		register_displays();
 	}
 
-	PVLibView* get_lib_view(Inendi::PVView& view);
-	PVLibView* get_lib_view(Inendi::PVView& view,
-	                        Inendi::PVPlotted::plotteds_t const& plotteds,
+	PVLibView* get_lib_view(Squey::PVView& view);
+	PVLibView* get_lib_view(Squey::PVView& view,
+	                        Squey::PVPlotted::plotteds_t const& plotteds,
 	                        PVRow nrows,
 	                        PVCol ncols);
 
-	void remove_lib_view(Inendi::PVView& view);
+	void remove_lib_view(Squey::PVView& view);
 
 	PVBCIDrawingBackend& backend() const
 	{
@@ -81,7 +81,7 @@ class PVParallelViewImpl
 
 	QColor const& color_view_bg() const { return _color_view_bg; }
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	bool show_bboxes() const { return _show_bboxes; }
 	void toggle_show_bboxes() { _show_bboxes = !_show_bboxes; }
 #endif
@@ -131,16 +131,16 @@ class RAII_backend_init
 };
 
 // Proxy functions
-inline void remove_lib_view(Inendi::PVView& view)
+inline void remove_lib_view(Squey::PVView& view)
 {
 	PVParallelView::PVParallelViewImpl::get().remove_lib_view(view);
 }
-inline PVLibView* get_lib_view(Inendi::PVView& view)
+inline PVLibView* get_lib_view(Squey::PVView& view)
 {
 	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view);
 }
-inline PVLibView* get_lib_view(Inendi::PVView& view,
-                               Inendi::PVPlotted::plotteds_t const& plotteds,
+inline PVLibView* get_lib_view(Squey::PVView& view,
+                               Squey::PVPlotted::plotteds_t const& plotteds,
                                PVRow nrows,
                                PVCol ncols)
 {
@@ -164,7 +164,7 @@ inline bool is_gpu_accelerated()
 	return PVParallelView::PVParallelViewImpl::get().backend().is_gpu_accelerated();
 }
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 inline bool show_bboxes()
 {
 	return PVParallelView::PVParallelViewImpl::get().show_bboxes();

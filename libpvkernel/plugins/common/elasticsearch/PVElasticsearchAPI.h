@@ -43,7 +43,7 @@ namespace PVRush
 
 class PVElasticsearchQuery;
 
-/** This class contains all the logic needed by INENDI Inspector
+/** This class contains all the logic needed by Squey
  *  to communicate with an Elasticsearch server.
  */
 class PVElasticsearchAPI
@@ -51,7 +51,7 @@ class PVElasticsearchAPI
   public:
 	static constexpr size_t DEFAULT_PORT = 9200;
 
-	// type mapping between elasticsearch and inspector format
+	// type mapping between elasticsearch and squey format
 	static const std::unordered_map<std::string, std::string>& types_mapping()
 	{
 		static const std::unordered_map<std::string, std::string> types_mapping = {
@@ -164,7 +164,7 @@ class PVElasticsearchAPI
 	 *
 	 * This method is used by the input plugin when exporting the result
 	 * of a query, and by the source plugin when importing the result in
-	 * INENDI Inspector.
+	 * Squey.
 	 *
 	 * Note that the order of the lines is not the same as when imported
 	 * due to a limitation of Elasticsearch.

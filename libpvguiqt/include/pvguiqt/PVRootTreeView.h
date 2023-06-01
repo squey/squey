@@ -32,12 +32,12 @@ namespace PVCore
 class PVDataTreeObject;
 } // namespace PVCore
 
-namespace Inendi
+namespace Squey
 {
 class PVPlotted;
 class PVMapped;
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {

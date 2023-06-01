@@ -30,7 +30,7 @@
 #include <QGridLayout>
 #include <QCheckBox>
 
-PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(QString const& suffix,
+App::PVSaveDataTreeDialog::PVSaveDataTreeDialog(QString const& suffix,
                                                         QString const& filter,
                                                         QWidget* parent)
     : PVWidgets::PVFileDialog(parent)
@@ -47,7 +47,7 @@ PVInspector::PVSaveDataTreeDialog::PVSaveDataTreeDialog(QString const& suffix,
 	main_layout->addWidget(_save_everything_checkbox, 5, 1);
 }
 
-bool PVInspector::PVSaveDataTreeDialog::save_log_file() const
+bool App::PVSaveDataTreeDialog::save_log_file() const
 {
 	return _save_everything_checkbox->isChecked();
 }

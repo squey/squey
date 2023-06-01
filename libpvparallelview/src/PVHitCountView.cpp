@@ -28,7 +28,7 @@
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVLibView.h>
@@ -109,7 +109,7 @@ void __print_scalar(const char* text, const V& v)
  * PVParallelView::PVHitCountView::PVHitCountView
  *****************************************************************************/
 
-PVParallelView::PVHitCountView::PVHitCountView(Inendi::PVView& pvview_sp,
+PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
                                                create_backend_t create_backend,
                                                const PVCol axis,
                                                QWidget* parent)

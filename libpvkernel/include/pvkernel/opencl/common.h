@@ -33,7 +33,7 @@
 #include <functional> // for function
 #include <stdexcept>  // for runtime_error
 
-#define __inendi_verify_opencl(E, F, L)                                                            \
+#define __squey_verify_opencl(E, F, L)                                                            \
 	{                                                                                              \
 		cl_int e = E;                                                                              \
 		if ((e) != CL_SUCCESS) {                                                                   \
@@ -42,14 +42,14 @@
 		}                                                                                          \
 	}
 
-#define __inendi_verify_opencl_var(E, F, L)                                                        \
+#define __squey_verify_opencl_var(E, F, L)                                                        \
 	if ((E) != CL_SUCCESS) {                                                                       \
 		fprintf(stderr, "OpenCL assert failed at %s:%d with error code %d\n", F, L, E);            \
 		abort();                                                                                   \
 	}
 
-#define inendi_verify_opencl(E) __inendi_verify_opencl(E, __FILE__, __LINE__)
-#define inendi_verify_opencl_var(E) __inendi_verify_opencl_var(E, __FILE__, __LINE__)
+#define squey_verify_opencl(E) __squey_verify_opencl(E, __FILE__, __LINE__)
+#define squey_verify_opencl_var(E) __squey_verify_opencl_var(E, __FILE__, __LINE__)
 
 namespace PVOpenCL
 {

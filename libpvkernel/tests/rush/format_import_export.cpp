@@ -25,12 +25,12 @@
 
 #include "common.h"
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvkernel/core/PVUtils.h>
 
 #include <sys/stat.h>
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr size_t DUPL = 10000;
 #else
 constexpr size_t DUPL = 1;
@@ -68,7 +68,7 @@ int main(int argc, char** argv)
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	const char* output_file = argv[2];
 
 	if (env._nraw.get_valid_row_count() == 0) {

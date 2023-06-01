@@ -27,7 +27,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <inendi/PVScene.h>
+#include <squey/PVScene.h>
 
 #include <QPoint>
 #include <QTabBar>
@@ -88,7 +88,7 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 	Q_PROPERTY(int tab_width READ get_tab_width WRITE set_tab_width);
 
   public:
-	explicit PVSceneWorkspacesTabWidget(Inendi::PVScene& scene, QWidget* parent = 0);
+	explicit PVSceneWorkspacesTabWidget(Squey::PVScene& scene, QWidget* parent = 0);
 
   public:
 	/*! \brief Add a workspace with or without animation.
@@ -102,10 +102,10 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
   public:
 	bool is_project_modified() { return _project_modified; }
 
-	Inendi::PVScene& get_scene() { return _scene; }
+	Squey::PVScene& get_scene() { return _scene; }
 
   public Q_SLOTS:
-	/*! \brief Call Inendi::PVRoot::select_source to keep track of current source.
+	/*! \brief Call Squey::PVRoot::select_source to keep track of current source.
 	 */
 	void tab_changed(int index);
 
@@ -148,7 +148,7 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 	void workspace_dragged_outside(QWidget*);
 
   private:
-	Inendi::PVScene& _scene;
+	Squey::PVScene& _scene;
 	bool _project_modified = false;
 };
 } // namespace PVGuiQt

@@ -4,9 +4,9 @@ set -e
 set -x
 
 function cleanup {
-  rm -rf $HOME/.cache/buildstream/artifacts/extract/inendi-inspector/inendi-inspector
+  rm -rf $HOME/.cache/buildstream/artifacts/extract/squey/squey
   rm -rf $HOME/.cache/buildstream/build
-  rm -rf /srv/tmp-inspector/tomjon/*
+  rm -rf /srv/tmp-squey/tomjon/*
 }
 
 trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
@@ -50,7 +50,7 @@ while true; do
     -w | --workspace-prefix ) WORKSPACE_PREFIX="$2"; shift 2 ;;
     -e | --flatpak-export ) EXPORT_BUILD="$2"; shift 2 ;;
     -r | --flatpak-repo ) REPO_DIR="$2"; shift 2 ;;
-    -c | --crash-reporter-token) INSPECTOR_CRASH_REPORTER_TOKEN="$2"; shift 2 ;;
+    -c | --crash-reporter-token) SQUEY_CRASH_REPORTER_TOKEN="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -l | --code-coverage ) CODE_COVERAGE_ENABLED="$2"; shift 2 ;;
@@ -99,15 +99,15 @@ if [ $USER_TARGET == "customer" ]; then
 fi
 
 # Fill-in crash reporter token
-if [ ! -z "$INSPECTOR_CRASH_REPORTER_TOKEN" ]; then
-  INSPECTOR_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/include/pvkernel/core/PVCrashReporterToken.h"
-  sed -e "s|\(INSPECTOR_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$INSPECTOR_CRASH_REPORTER_TOKEN\"|" -i "$INSPECTOR_CRASH_REPORTER_TOKEN_FILE"
+if [ ! -z "$SQUEY_CRASH_REPORTER_TOKEN" ]; then
+  SQUEY_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/include/pvkernel/core/PVCrashReporterToken.h"
+  sed -e "s|\(SQUEY_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$SQUEY_CRASH_REPORTER_TOKEN\"|" -i "$SQUEY_CRASH_REPORTER_TOKEN_FILE"
 fi
 
 # Fill-in release and date
-jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" files/com.gitlab.inendi.Inspector.metainfo.xml.j2 > files/com.gitlab.inendi.Inspector.metainfo.xml
+jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" files/org.squey.Squey.metainfo.xml.j2 > files/org.squey.Squey.metainfo.xml
 
-# Build INENDI Inspector
+# Build Squey
 BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER"
 if [ $USER_TARGET_SPECIFIED = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option user_target $USER_TARGET"
@@ -118,32 +118,32 @@ fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
 fi
-bst $BUILD_OPTIONS build inendi-inspector.bst
+bst $BUILD_OPTIONS build squey.bst
 
 # Run testsuite with "bst shell" to have network access (bst hasn't a "test-commands" (yet?) like in flatpak-builder)
 if  [ "$TESTSUITE_DISABLED" = "false" ]; then
-    bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c " \
+    bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
     cp --preserve -r /compilation/* .
-    TESTS=\"-R INSPECTOR_TEST\"
-    if [ $CODE_COVERAGE_ENABLED = true ]; then CODE_COVERAGE_COMMAND=\"-T coverage\"; TESTS=\"-R 'INSPECTOR_TEST|PVCOP_TEST'\"; fi
-    cd build && run_cmd.sh ctest --output-junit /srv/tmp-inspector/junit.xml --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS} || if [ $CODE_COVERAGE_ENABLED = false ]; then exit 1; fi
+    TESTS=\"-R SQUEY_TEST\"
+    if [ $CODE_COVERAGE_ENABLED = true ]; then CODE_COVERAGE_COMMAND=\"-T coverage\"; TESTS=\"-R 'SQUEY_TEST|PVCOP_TEST'\"; fi
+    cd build && run_cmd.sh ctest --output-junit /srv/tmp-squey/junit.xml --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS} || if [ $CODE_COVERAGE_ENABLED = false ]; then exit 1; fi
     # Generate code coverage report
     if [ $CODE_COVERAGE_ENABLED = true ]; then
         ./scripts/gen_code_coverage_report.sh
-        cp -r code_coverage_report /srv/tmp-inspector
+        cp -r code_coverage_report /srv/tmp-squey
     fi" || exit 1 # fail the testsuite on errors
 fi
 
 # Upload debug symbols
 if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
   VERSION="$(cat $WORKSPACE_PREFIX/$WORKSPACE_NAME/VERSION.txt)"
-  bst $BUILD_OPTIONS shell $MOUNT_OPTS inendi-inspector.bst -- bash -c " \
-      SYM_DIR=\"/tmp/inendi-inspector.sym.d\"
+  bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
+      SYM_DIR=\"/tmp/squey.sym.d\"
       rm -rf \"\$SYM_DIR\" && mkdir -p \"\$SYM_DIR\"
       cd /compilation/build
-      find . -type f \( -name *.so* -o -name \"inendi-inspector\" \) -exec sh -c 'dump_syms \"\$0\" > \"\$1\"/\"\$(basename \"\$0\").sym\"' \"{}\" \"\$SYM_DIR\" \;
-      find \"\$SYM_DIR\" -type f -exec sed 's|/buildstream/inendi-inspector/inendi-inspector.bst/||' -i \"{}\" \;
-      find \"\$SYM_DIR\" -type f -exec sym_upload \"{}\" \"https://inendi_inspector.bugsplat.com/post/bp/symbol/breakpadsymbols.php?appName=INENDI%20Inspector&appVer=$VERSION\" \;
+      find . -type f \( -name *.so* -o -name \"squey\" \) -exec sh -c 'dump_syms \"\$0\" > \"\$1\"/\"\$(basename \"\$0\").sym\"' \"{}\" \"\$SYM_DIR\" \;
+      find \"\$SYM_DIR\" -type f -exec sed 's|/buildstream/squey/squey.bst/||' -i \"{}\" \;
+      find \"\$SYM_DIR\" -type f -exec sym_upload \"{}\" \"https://squey.bugsplat.com/post/bp/symbol/breakpadsymbols.php?appName=Squey&appVer=$VERSION\" \;
       "
 fi
 
@@ -156,8 +156,8 @@ if [ "$EXPORT_BUILD" = true ]; then
 
   # Export flatpak Release image
   rm -rf $DIR/build
-  bst $BUILD_OPTIONS build flatpak/com.gitlab.inendi.Inspector.bst
-  bst $BUILD_OPTIONS checkout flatpak/com.gitlab.inendi.Inspector.bst "$DIR/build"
+  bst $BUILD_OPTIONS build flatpak/org.squey.Squey.bst
+  bst $BUILD_OPTIONS checkout flatpak/org.squey.Squey.bst "$DIR/build"
   if [[ ! -z "$GPG_SIGN_KEY" ]]; then
     flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
   else
@@ -166,8 +166,8 @@ if [ "$EXPORT_BUILD" = true ]; then
 
   ## Export flatpak Debug image
   #rm -rf $DIR/build
-  #bst $BUILD_OPTIONS build flatpak/com.gitlab.inendi.Inspector.Debug.bst
-  #bst $BUILD_OPTIONS checkout flatpak/com.gitlab.inendi.Inspector.Debug.bst "$DIR/build"
+  #bst $BUILD_OPTIONS build flatpak/org.squey.Squey.Debug.bst
+  #bst $BUILD_OPTIONS checkout flatpak/org.squey.Squey.Debug.bst "$DIR/build"
   #if [[ ! -z "$GPG_SIGN_KEY" ]]; then
   #  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
   #else
@@ -176,4 +176,4 @@ if [ "$EXPORT_BUILD" = true ]; then
 fi
 
 # Push artifacts
-bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "inendi-inspector*.bst" |grep -v / | tr '\n' ' '` || true
+bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true

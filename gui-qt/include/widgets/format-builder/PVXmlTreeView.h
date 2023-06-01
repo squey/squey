@@ -44,7 +44,7 @@ namespace PVRush
 class PVXmlTreeNodeDom;
 } // namespace PVRush
 
-namespace PVInspector
+namespace App
 {
 
 class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
@@ -138,5 +138,5 @@ class PVXmlTreeView : public QTreeView /* public QAbstractItemView*/
 	void slotDataHasChanged(const QModelIndex&, const QModelIndex&, const QVector<int>&);
 	void slotSelectNext();
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* MYTREEVIEW_H */

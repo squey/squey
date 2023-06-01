@@ -33,8 +33,8 @@
 // HSV_COLOR_GREEN, HSV_COLOR_BLUE};
 
 #define GRID_COL_SIZE 11
-#define HSV_COLOR_PROPERTY "inendi_hsv_color_property"
-#define HSV_COLOR_INDEX "inendi_hsv_color_index"
+#define HSV_COLOR_PROPERTY "squey_hsv_color_property"
+#define HSV_COLOR_INDEX "squey_hsv_color_index"
 
 static void fill_label_with_color(QLabel* l, PVCore::PVHSVColor c)
 {

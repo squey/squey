@@ -22,20 +22,20 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef PVINSPECTOR_PVAXESCOMBINATIONWIDGET_H
-#define PVINSPECTOR_PVAXESCOMBINATIONWIDGET_H
+#ifndef PVSQUEY_PVAXESCOMBINATIONWIDGET_H
+#define PVSQUEY_PVAXESCOMBINATIONWIDGET_H
 
 #include <QDialog>
 #include <QComboBox>
 #include <QList>
 
-#include <inendi/PVAxesCombination.h>
+#include <squey/PVAxesCombination.h>
 
 #include "pvguiqt/ui_PVAxesCombinationWidget.h"
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -45,8 +45,8 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	Q_OBJECT
 
   public:
-	explicit PVAxesCombinationWidget(Inendi::PVAxesCombination& axes_combination,
-	                                 Inendi::PVView* view = nullptr,
+	explicit PVAxesCombinationWidget(Squey::PVAxesCombination& axes_combination,
+	                                 Squey::PVView* view = nullptr,
 	                                 QWidget* parent = nullptr);
 
   public:
@@ -84,8 +84,8 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	void sel_singleton_Slot();
 
   protected:
-	Inendi::PVAxesCombination& _axes_combination;
-	Inendi::PVView* _view;
+	Squey::PVAxesCombination& _axes_combination;
+	Squey::PVView* _view;
 	bool _dnd_enabled = false;
 	QMetaObject::Connection _connection_dnd_inserted;
 	QMetaObject::Connection _connection_dnd_moved;

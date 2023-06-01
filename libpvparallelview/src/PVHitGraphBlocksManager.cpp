@@ -23,9 +23,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
@@ -54,8 +54,8 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(
     const uint32_t* col_plotted,
     const PVRow nrows,
     uint32_t nblocks,
-    Inendi::PVSelection const& layer_sel,
-    Inendi::PVSelection const& sel)
+    Squey::PVSelection const& layer_sel,
+    Squey::PVSelection const& sel)
     : _data_z0(PARALLELVIEW_ZT_BBITS, 1)
     , _data(PARALLELVIEW_ZZT_BBITS, nblocks)
     , _layer_sel(layer_sel)

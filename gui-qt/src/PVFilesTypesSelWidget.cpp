@@ -37,7 +37,7 @@
 #include <PVFilesTypesSelWidget.h>
 
 // Model
-PVInspector::PVFilesTypesSelModel::PVFilesTypesSelModel(map_files_types& files_types,
+App::PVFilesTypesSelModel::PVFilesTypesSelModel(map_files_types& files_types,
                                                         QObject* parent)
     : QAbstractTableModel(parent), _files_types(files_types)
 {
@@ -46,7 +46,7 @@ PVInspector::PVFilesTypesSelModel::PVFilesTypesSelModel(map_files_types& files_t
 	_org_files_types = files_types;
 }
 
-int PVInspector::PVFilesTypesSelModel::rowCount(const QModelIndex& parent) const
+int App::PVFilesTypesSelModel::rowCount(const QModelIndex& parent) const
 {
 	// Cf. QAbstractTableModel's documentation. This is for a table view.
 	if (parent.isValid())
@@ -55,7 +55,7 @@ int PVInspector::PVFilesTypesSelModel::rowCount(const QModelIndex& parent) const
 	return _files_types.size();
 }
 
-int PVInspector::PVFilesTypesSelModel::columnCount(const QModelIndex& parent) const
+int App::PVFilesTypesSelModel::columnCount(const QModelIndex& parent) const
 {
 	// Same as above
 	if (parent.isValid())
@@ -64,7 +64,7 @@ int PVInspector::PVFilesTypesSelModel::columnCount(const QModelIndex& parent) co
 	return 2;
 }
 
-QVariant PVInspector::PVFilesTypesSelModel::data(const QModelIndex& index, int role) const
+QVariant App::PVFilesTypesSelModel::data(const QModelIndex& index, int role) const
 {
 	if (role != Qt::DisplayRole && role != Qt::EditRole)
 		return {};
@@ -88,7 +88,7 @@ QVariant PVInspector::PVFilesTypesSelModel::data(const QModelIndex& index, int r
 	return ret;
 }
 
-bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index,
+bool App::PVFilesTypesSelModel::setData(const QModelIndex& index,
                                                 const QVariant& value,
                                                 int role)
 {
@@ -107,7 +107,7 @@ bool PVInspector::PVFilesTypesSelModel::setData(const QModelIndex& index,
 	return true;
 }
 
-Qt::ItemFlags PVInspector::PVFilesTypesSelModel::flags(const QModelIndex& index) const
+Qt::ItemFlags App::PVFilesTypesSelModel::flags(const QModelIndex& index) const
 {
 	Qt::ItemFlags ret = Qt::ItemIsEnabled;
 	if (index.column() == 1)
@@ -115,7 +115,7 @@ Qt::ItemFlags PVInspector::PVFilesTypesSelModel::flags(const QModelIndex& index)
 	return ret;
 }
 
-QVariant PVInspector::PVFilesTypesSelModel::headerData(int section,
+QVariant App::PVFilesTypesSelModel::headerData(int section,
                                                        Qt::Orientation orientation,
                                                        int role) const
 {
@@ -124,7 +124,7 @@ QVariant PVInspector::PVFilesTypesSelModel::headerData(int section,
 	return _header_name[section];
 }
 
-void PVInspector::PVFilesTypesSelModel::emitAllTypesChanged()
+void App::PVFilesTypesSelModel::emitAllTypesChanged()
 {
 	Q_EMIT dataChanged(QAbstractTableModel::index(1, 0),
 	                   QAbstractTableModel::index(1, _files_types.size() - 1));
@@ -133,12 +133,12 @@ void PVInspector::PVFilesTypesSelModel::emitAllTypesChanged()
 // Delegate
 // Show a combo box on the second column
 
-PVInspector::PVFilesTypesSelDelegate::PVFilesTypesSelDelegate(QObject* parent)
+App::PVFilesTypesSelDelegate::PVFilesTypesSelDelegate(QObject* parent)
     : QStyledItemDelegate(parent)
 {
 }
 
-QWidget* PVInspector::PVFilesTypesSelDelegate::createEditor(QWidget* parent,
+QWidget* App::PVFilesTypesSelDelegate::createEditor(QWidget* parent,
                                                             const QStyleOptionViewItem& /*option*/,
                                                             const QModelIndex& /*index*/) const
 {
@@ -147,7 +147,7 @@ QWidget* PVInspector::PVFilesTypesSelDelegate::createEditor(QWidget* parent,
 	return editor;
 }
 
-void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
+void App::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
                                                          const QModelIndex& index) const
 {
 	QList<QVariant> model_data = index.model()->data(index, Qt::EditRole).toList();
@@ -166,7 +166,7 @@ void PVInspector::PVFilesTypesSelDelegate::setEditorData(QWidget* editor,
 	}
 }
 
-void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget* editor,
+void App::PVFilesTypesSelDelegate::setModelData(QWidget* editor,
                                                         QAbstractItemModel* model,
                                                         const QModelIndex& index) const
 {
@@ -183,14 +183,14 @@ void PVInspector::PVFilesTypesSelDelegate::setModelData(QWidget* editor,
 	model->setData(index, type_list, Qt::EditRole);
 }
 
-void PVInspector::PVFilesTypesSelDelegate::updateEditorGeometry(QWidget* editor,
+void App::PVFilesTypesSelDelegate::updateEditorGeometry(QWidget* editor,
                                                                 const QStyleOptionViewItem& option,
                                                                 const QModelIndex& /*index*/) const
 {
 	editor->setGeometry(option.rect);
 }
 
-QSize PVInspector::PVFilesTypesSelDelegate::sizeHint(const QStyleOptionViewItem& option,
+QSize App::PVFilesTypesSelDelegate::sizeHint(const QStyleOptionViewItem& option,
                                                      const QModelIndex& index) const
 {
 	QSize ret = QStyledItemDelegate::sizeHint(option, index);
@@ -201,7 +201,7 @@ QSize PVInspector::PVFilesTypesSelDelegate::sizeHint(const QStyleOptionViewItem&
 
 // Actual widget
 
-PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWindow* parent,
+App::PVFilesTypesSelWidget::PVFilesTypesSelWidget(App::PVMainWindow* parent,
                                                           map_files_types& files_types)
     : QDialog(parent), _files_types(files_types)
 {
@@ -286,7 +286,7 @@ PVInspector::PVFilesTypesSelWidget::PVFilesTypesSelWidget(PVInspector::PVMainWin
 	setLayout(main_layout);
 }
 
-void PVInspector::PVFilesTypesSelWidget::apply_all()
+void App::PVFilesTypesSelWidget::apply_all()
 {
 	QStringList types;
 	for (QListWidgetItem* elt : _all_types_list->selectedItems()) {
@@ -300,7 +300,7 @@ void PVInspector::PVFilesTypesSelWidget::apply_all()
 	_files_types_model->emitAllTypesChanged();
 }
 
-void PVInspector::PVFilesTypesSelWidget::all_types_check_Slot(int state)
+void App::PVFilesTypesSelWidget::all_types_check_Slot(int state)
 {
 	bool checked = (state == Qt::Checked);
 	_all_types_list->setEnabled(checked);

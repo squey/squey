@@ -34,10 +34,10 @@ using namespace icu_71;
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTimeValidatorHighLight::PVXmlTimeValidatorHighLight
+ * App::PVXmlTimeValidatorHighLight::PVXmlTimeValidatorHighLight
  *
  *****************************************************************************/
-PVInspector::PVXmlTimeValidatorHighLight::PVXmlTimeValidatorHighLight(
+App::PVXmlTimeValidatorHighLight::PVXmlTimeValidatorHighLight(
     PVXmlParamTextEdit* pParent, const QStringList& /*myDateFormats*/)
     : QSyntaxHighlighter(pParent->document())
 {
@@ -50,10 +50,10 @@ PVInspector::PVXmlTimeValidatorHighLight::PVXmlTimeValidatorHighLight(
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTimeValidatorHighLight::setDateFormat
+ * App::PVXmlTimeValidatorHighLight::setDateFormat
  *
  *****************************************************************************/
-void PVInspector::PVXmlTimeValidatorHighLight::setDateFormat(const QStringList& pFormatStr)
+void App::PVXmlTimeValidatorHighLight::setDateFormat(const QStringList& pFormatStr)
 {
 	formatStr = pFormatStr;
 	rehighlight();
@@ -61,17 +61,17 @@ void PVInspector::PVXmlTimeValidatorHighLight::setDateFormat(const QStringList& 
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTimeValidatorHighLight::~PVXmlTimeValidatorHighLight
+ * App::PVXmlTimeValidatorHighLight::~PVXmlTimeValidatorHighLight
  *
  *****************************************************************************/
-PVInspector::PVXmlTimeValidatorHighLight::~PVXmlTimeValidatorHighLight() = default;
+App::PVXmlTimeValidatorHighLight::~PVXmlTimeValidatorHighLight() = default;
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTimeValidatorHighLight::highlightBlock
+ * App::PVXmlTimeValidatorHighLight::highlightBlock
  *
  *****************************************************************************/
-void PVInspector::PVXmlTimeValidatorHighLight::highlightBlock(const QString& text)
+void App::PVXmlTimeValidatorHighLight::highlightBlock(const QString& text)
 {
 
 	// define format

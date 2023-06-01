@@ -34,17 +34,17 @@
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVCSVExporterWidget.h>
 
-#include <inendi/PVSelection.h>
-#include <inendi/PVView.h>
-#include <inendi/PVLayerStack.h>
-#include <inendi/PVSource.h>
+#include <squey/PVSelection.h>
+#include <squey/PVView.h>
+#include <squey/PVLayerStack.h>
+#include <squey/PVSource.h>
 
 #include <pvkernel/core/PVProgressBox.h>
 
 #include <filesystem>
 
 PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
-	Inendi::PVView& view,
+	Squey::PVView& view,
 	QWidget* parent /* = 0 */,
 	QFileDialog::AcceptMode accept_mode /* = QFileDialog::AcceptSave */,
 	QFileDialog::FileMode file_mode /* = QFileDialog::AnyFile */)
@@ -58,7 +58,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	_exporter = &exporter_widget->exporter();
 
 	// Add input specific exporter filter string if any
-	const Inendi::PVSource& source = view.get_parent<Inendi::PVSource>();
+	const Squey::PVSource& source = view.get_parent<Squey::PVSource>();
 	const QString& specific_export_filter =
 	    source.get_source_creator()->supported_type_lib()->get_exporter_filter_string(
 	        source.get_inputs());
@@ -105,8 +105,8 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
  *
  * It creates the ExportSelectionDlg and handle the result.
  */
-void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
-                                                     const Inendi::PVSelection& sel)
+void PVGuiQt::PVExportSelectionDlg::export_selection(Squey::PVView& view,
+                                                     const Squey::PVSelection& sel)
 {
 	// FileDialog for option selection and file to write
 	PVGuiQt::PVExportSelectionDlg export_selection_dlg(view);
@@ -157,9 +157,9 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Inendi::PVView& view,
 	    "Selection export", nullptr);
 }
 
-void PVGuiQt::PVExportSelectionDlg::export_layers(Inendi::PVView& view)
+void PVGuiQt::PVExportSelectionDlg::export_layers(Squey::PVView& view)
 {
-	const Inendi::PVLayerStack& layerstack = view.get_layer_stack();
+	const Squey::PVLayerStack& layerstack = view.get_layer_stack();
 
 	PVGuiQt::PVExportSelectionDlg export_dialog(view, nullptr, QFileDialog::AcceptOpen, QFileDialog::Directory);
 	int res = export_dialog.exec();
@@ -208,7 +208,7 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Inendi::PVView& view)
 		    });
 
 			for (int i = 0; i < layerstack.get_layer_count(); i++) {
-				const Inendi::PVLayer& layer = layerstack.get_layer_n(i);
+				const Squey::PVLayer& layer = layerstack.get_layer_n(i);
 				const std::string& file_path = files_path[i];
 				try {
 					exporter.export_rows(file_path, layer.get_selection());

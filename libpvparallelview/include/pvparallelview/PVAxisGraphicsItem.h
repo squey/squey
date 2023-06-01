@@ -35,8 +35,8 @@ class QPropertyAnimation;
 
 #include <pvkernel/core/PVAlgorithms.h>
 
-#include <inendi/PVAxis.h>
-#include <inendi/PVView.h>
+#include <squey/PVAxis.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVSlidersManager.h>
@@ -77,7 +77,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
   public:
 	PVAxisGraphicsItem(PVSlidersManager* sm_p,
-	                   Inendi::PVView const& view,
+	                   Squey::PVView const& view,
 	                   PVCombCol comb_col,
 	                   PVRush::PVAxisFormat const& axis_fmt);
 	~PVAxisGraphicsItem() override;
@@ -168,7 +168,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	PVCombCol _comb_col;
 	PVRush::PVAxisFormat const& _axis_fmt;
 	QRectF _bbox;
-	Inendi::PVView const& _lib_view;
+	Squey::PVView const& _lib_view;
 	PVSlidersGroup* _sliders_group;
 	PVAxisLabel* _label;
 	PVAxisHeader* _header_zone;

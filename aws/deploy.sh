@@ -1,6 +1,6 @@
 #!/bin/bash 
 
-INSTALL_DIR="/opt/inendi/inspector"
+INSTALL_DIR="/opt/squey/squey"
 source "${INSTALL_DIR}/env.conf"
 
 # Install NVIDIA drivers
@@ -20,16 +20,16 @@ systemctl restart docker
 # Build Docker image
 mkdir -p "${INSTALL_DIR}"
 cd "${INSTALL_DIR}"
-wget https://inendi.gitlab.io/inspector/inendi-inspector_docker.zip
-unzip inendi-inspector_docker.zip
+wget https://squey.gitlab.io/squey/squey_docker.zip
+unzip squey_docker.zip
 mv env_aws.conf env.conf
 ./build.sh
 
 # Start container at startup
 apt-get -y install systemd-docker
-ln -s "${INSTALL_DIR}/inendi-inspector_docker.service" /lib/systemd/system
-systemctl enable inendi-inspector_docker
-systemctl start inendi-inspector_docker
+ln -s "${INSTALL_DIR}/squey_docker.service" /lib/systemd/system
+systemctl enable squey_docker
+systemctl start squey_docker
 
 # Cleanup
 apt-get -y autoremove

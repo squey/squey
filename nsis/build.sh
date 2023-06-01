@@ -1,3 +1,3 @@
 #!/bin/bash
 
-makensis inspector.nsi
+makensis squey.nsi

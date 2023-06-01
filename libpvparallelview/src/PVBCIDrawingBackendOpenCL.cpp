@@ -67,17 +67,17 @@ struct opencl_kernel {
 		// bool is not a valid type as kernel parameter
 		const cl_uint reverse_flag = reverse;
 
-		inendi_verify_opencl(kernel.setArg(0, dev.buffer()));
-		inendi_verify_opencl(kernel.setArg(1, n));
-		inendi_verify_opencl(kernel.setArg(2, width));
-		inendi_verify_opencl(kernel.setArg(3, image_buffer()));
-		inendi_verify_opencl(kernel.setArg(4, image_width));
-		inendi_verify_opencl(kernel.setArg(5, image_height));
-		inendi_verify_opencl(kernel.setArg(6, image_x_start));
-		inendi_verify_opencl(kernel.setArg(7, zoom_y));
-		inendi_verify_opencl(kernel.setArg(8, bit_shift));
-		inendi_verify_opencl(kernel.setArg(9, bit_mask));
-		inendi_verify_opencl(kernel.setArg(10, reverse_flag));
+		squey_verify_opencl(kernel.setArg(0, dev.buffer()));
+		squey_verify_opencl(kernel.setArg(1, n));
+		squey_verify_opencl(kernel.setArg(2, width));
+		squey_verify_opencl(kernel.setArg(3, image_buffer()));
+		squey_verify_opencl(kernel.setArg(4, image_width));
+		squey_verify_opencl(kernel.setArg(5, image_height));
+		squey_verify_opencl(kernel.setArg(6, image_x_start));
+		squey_verify_opencl(kernel.setArg(7, zoom_y));
+		squey_verify_opencl(kernel.setArg(8, bit_shift));
+		squey_verify_opencl(kernel.setArg(9, bit_mask));
+		squey_verify_opencl(kernel.setArg(10, reverse_flag));
 
 		/* we make fit the highest number of image column in the work group local memory
 		 */
@@ -119,10 +119,10 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		device.dev = dev;
 
 		device.queue = cl::CommandQueue(ctx, dev, 0, &err);
-		inendi_verify_opencl_var(err);
+		squey_verify_opencl_var(err);
 
 		device.buffer = cl::Buffer(ctx, CL_MEM_READ_ONLY, size, nullptr, &err);
-		inendi_verify_opencl_var(err);
+		squey_verify_opencl_var(err);
 
 		this->_devices.insert(std::make_pair(dev_idx, device));
 		++dev_idx;
@@ -145,7 +145,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	_next_device = _devices.begin();
 
 	cl::Program program(_context, bci_z24_str, false, &err);
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 
 	/**
 	 * NOTE: options can be passed to build process, like -DVAR=VAL. So that, Bbits
@@ -154,12 +154,12 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	 */
 
 	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>(&err);
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 
 	ulong local_mem_size;
 	for (auto& it : _devices) {
 		err = it.second.dev.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &local_mem_size);
-		inendi_verify_opencl_var(err);
+		squey_verify_opencl_var(err);
 	}
 
 	std::stringstream build_options;
@@ -177,7 +177,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		for (const auto& dev : devices) {
 			cl_build_status status;
 
-			inendi_verify_opencl(program.getBuildInfo(dev, CL_PROGRAM_BUILD_STATUS, &status));
+			squey_verify_opencl(program.getBuildInfo(dev, CL_PROGRAM_BUILD_STATUS, &status));
 
 			if (status != CL_BUILD_ERROR) {
 				continue;
@@ -187,18 +187,18 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 			PVLOG_INFO("build log: %s\n", log.c_str());
 		}
 	}
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 
 	_kernel = cl::Kernel(program, "DRAW", &err);
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 
 	for (auto& it : _devices) {
 		err = _kernel.getWorkGroupInfo(it.second.dev, CL_KERNEL_WORK_GROUP_SIZE,
 		                               &it.second.work_group_size);
-		inendi_verify_opencl_var(err);
+		squey_verify_opencl_var(err);
 
 		err = it.second.dev.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &it.second.local_mem_size);
-		inendi_verify_opencl_var(err);
+		squey_verify_opencl_var(err);
 	}
 }
 
@@ -301,7 +301,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 	if (n != 0) {
 		// Specs that a size of zero will lead to CL_INVALID_VALUE
 		err = dev.queue.enqueueWriteBuffer(dev.buffer, CL_FALSE, 0, n * sizeof(codes), codes);
-		inendi_verify_opencl_var(err);
+		squey_verify_opencl_var(err);
 	}
 
 	switch (dst_img->height_bits()) {
@@ -319,7 +319,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 		assert(false);
 		break;
 	}
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 
 	auto data = new opencl_job_data_t;
 	data->done_function = render_done;
@@ -327,7 +327,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 	dst_img->copy_device_to_host_async(&data->event);
 
 	err = data->event.setCallback(CL_COMPLETE, &PVBCIDrawingBackendOpenCL::termination_cb, data);
-	inendi_verify_opencl_var(err);
+	squey_verify_opencl_var(err);
 
 	// CPU drivers need to do an explicit clFlush to make event happen... strange...
 	if (not _is_gpu_accelerated) {

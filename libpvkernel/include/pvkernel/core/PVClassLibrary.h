@@ -80,7 +80,7 @@ class InvalidPlugin : public std::runtime_error
  * For instance, if you have a plugin implementation like this:
  *
  * \code
- * class MyMappingPlugin: public Inendi::PVMappingFilter
+ * class MyMappingPlugin: public Squey::PVMappingFilter
  * {
  * public:
  *     MyMappingPlugin(PVCore::PVArgumentList args = MyMappingPlugin::default_args());

@@ -62,7 +62,7 @@ def main(program_name, num_run):
     # Create JSon information
     formated_measure = {
         "commitid": get_git_hash(),
-        "project": "inspector",
+        "project": "squey",
         "branch": "master",
         "executable": "release",  # We may check for this cmake mode
         "benchmark": os.path.basename(program_name),

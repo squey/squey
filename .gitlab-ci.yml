@@ -1,4 +1,4 @@
-image: registry.gitlab.com/inendi/docker-images/inspector_build:main
+image: registry.gitlab.com/squey/container-images/squey_build:main
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -46,10 +46,10 @@ build testsuite:
         --workspace-prefix="/bst_workspace" 
         --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
         --flatpak-repo="/srv/flatpak_repo" 
-        --crash-reporter-token=$INSPECTOR_CRASH_REPORTER_TOKEN
+        --crash-reporter-token=$SQUEY_CRASH_REPORTER_TOKEN
         --code-coverage=$CODE_COVERAGE
   after_script:
-    - cp /srv/tmp-inspector/junit.xml $CI_PROJECT_DIR
+    - cp /srv/tmp-squey/junit.xml $CI_PROJECT_DIR
   coverage: '/lines\.+: (\d+\.\d+)% \(\d+ of \d+ lines\)/'
   rules:
     - if: '$CI_COMMIT_TAG =~ "/^$/" && $UPDATE_INSTALLERS_ONLY == "false"'
@@ -74,7 +74,7 @@ build release:
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
       --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
       --upload-debug-symbols=true 
-      --crash-reporter-token=$INSPECTOR_CRASH_REPORTER_TOKEN 
+      --crash-reporter-token=$SQUEY_CRASH_REPORTER_TOKEN 
       ; fi
   artifacts:
     paths:
@@ -95,11 +95,11 @@ build container image:
   script:
     - PRODUCTION=1 ./build.sh
     - if [ $PUBLISH_CONTAINER_IMAGE = "true" ] && [ $CI_COMMIT_REF_PROTECTED = "true" ]; then
-        echo $DOCKERHUB_TOKEN | buildah login -u inendi --password-stdin registry-1.docker.io &&
-        buildah push localhost/inendi/inspector registry-1.docker.io/inendi/inspector:latest
+        echo $DOCKERHUB_TOKEN | buildah login -u squey --password-stdin registry-1.docker.io &&
+        buildah push localhost/squey/squey registry-1.docker.io/squey/squey:latest
       ; else
         echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
-        buildah push localhost/inendi/inspector $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+        buildah push localhost/squey/squey $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
       ; fi
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
@@ -149,18 +149,18 @@ pages:
   script:
     - VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
     - PAGES=`curl -s -X GET -I ${CI_PAGES_URL}/install.flatpakref | head -n 1 | cut -d$' ' -f2 | grep -c 200` || true
-    - PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines?scope=tags | jq -r .[0].id`
-    - JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/inendi%2Finspector/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
+    - PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey/pipelines?scope=tags | jq -r .[0].id`
+    - JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
     - 'if [ $PAGES -eq 1 ] && [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi'
-    - 'if [ $CODE_COVERAGE = "true" ]; then cp -r /srv/tmp-inspector/code_coverage_report $CI_PROJECT_DIR/public; cp $CI_PROJECT_DIR/gl-code-quality-report.html $CI_PROJECT_DIR/public/code_quality_report/index.html; exit 0; fi'
+    - 'if [ $CODE_COVERAGE = "true" ]; then cp -r /srv/tmp-squey/code_coverage_report $CI_PROJECT_DIR/public; cp $CI_PROJECT_DIR/gl-code-quality-report.html $CI_PROJECT_DIR/public/code_quality_report/index.html; exit 0; fi'
     - cd nsis && ./build.sh ; cd -
-    - rm -rf $CI_PROJECT_DIR/public/inendi-inspector_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "INENDI Inspector" -i "https://gitlab.com/inendi/inspector" -t "http://timestamp.comodoca.com/authenticode" -in nsis/inendi-inspector_installer.exe -out "$CI_PROJECT_DIR/public/inendi-inspector_installer.exe"
-    - cp "public/inendi-inspector_installer.exe" "public/inendi-inspector_installer_$(md5sum public/inendi-inspector_installer.exe | awk '{ print $1 }').exe"
+    - rm -rf $CI_PROJECT_DIR/public/squey_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "Squey" -i "https://gitlab.com/squey/squey" -t "http://timestamp.comodoca.com/authenticode" -in nsis/squey_installer.exe -out "$CI_PROJECT_DIR/public/squey_installer.exe"
+    - cp "public/squey_installer.exe" "public/squey_installer_$(md5sum public/squey_installer.exe | awk '{ print $1 }').exe"
     - cp buildstream/install.flatpakref public
-    - cp -r docker inendi-inspector_docker && 
-      zip -r public/inendi-inspector_docker.zip inendi-inspector_docker && 
-      rm -rf inendi-inspector_docker
-    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/com.gitlab.inendi.Inspector/x86_64/main public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
+    - cp -r docker squey_docker && 
+      zip -r public/squey_docker.zip squey_docker && 
+      rm -rf squey_docker
+    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/main public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
     - rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     reports:
@@ -185,22 +185,22 @@ flathub:
     - export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
     - eval $(ssh-agent -s)
     - echo "$SSH_FLATHUB_PRIVATE_KEY_B64" | base64 -d | ssh-add - > /dev/null
-    - rm -rf com.gitlab.inendi.Inspector
-    - git clone git@github.com:flathub/com.gitlab.inendi.Inspector.git
+    - rm -rf org.squey.Squey
+    - git clone git@github.com:flathub/org.squey.Squey.git
     - git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
     - git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
     - export VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
     - export BRANCH_NAME="publish-$VERSION"
-    - cd "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector"
+    - cd "$CI_PROJECT_DIR/org.squey.Squey"
     - git checkout -b "$BRANCH_NAME"
   script:
-    - cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector"
-    - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/inendi-inspector_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/com.gitlab.inendi.Inspector.yaml.j2 > "$CI_PROJECT_DIR/com.gitlab.inendi.Inspector/com.gitlab.inendi.Inspector.yaml"
+    - cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
+    - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
     - git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
     - git push -f --set-upstream origin "$BRANCH_NAME"
     - echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
-    - gh pr --repo "flathub/com.gitlab.inendi.Inspector" create --head master --base "$BRANCH_NAME" --fill || true
-    - gh pr --repo "flathub/com.gitlab.inendi.Inspector" merge "$BRANCH_NAME" --auto --merge --delete-branch
+    - gh pr --repo "flathub/org.squey.Squey" create --head master --base "$BRANCH_NAME" --fill || true
+    - gh pr --repo "flathub/org.squey.Squey" merge "$BRANCH_NAME" --auto --merge --delete-branch
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
   

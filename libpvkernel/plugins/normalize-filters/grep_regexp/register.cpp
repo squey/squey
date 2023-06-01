@@ -27,7 +27,7 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include "PVFieldFilterRegexpGrep.h"
 
-// This method will be called by libinendi
+// This method will be called by libsquey
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("regexp", PVFilter::PVFieldFilterRegexpGrep);

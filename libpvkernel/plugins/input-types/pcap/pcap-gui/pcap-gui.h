@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef INENDI_PCAPGUI_H
-#define INENDI_PCAPGUI_H
+#ifndef SQUEY_PCAPGUI_H
+#define SQUEY_PCAPGUI_H
 
 #include <rapidjson/document.h>
 
@@ -33,4 +33,4 @@ namespace PVPcapsicum
 void check_wireshark_profile_exists(rapidjson::Document& json_data);
 }
 
-#endif /* INENDI_PCAPGUI_H */
+#endif /* SQUEY_PCAPGUI_H */

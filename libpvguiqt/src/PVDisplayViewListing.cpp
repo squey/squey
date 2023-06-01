@@ -29,7 +29,7 @@
 
 #include <pvguiqt/PVDisplayViewListing.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <QObject>
 
@@ -42,7 +42,7 @@ PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewListing::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewListing::create_widget(Squey::PVView* view,
                                                          QWidget* parent,
                                                          Params const&) const
 {

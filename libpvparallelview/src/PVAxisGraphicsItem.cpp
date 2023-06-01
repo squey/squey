@@ -25,12 +25,12 @@
 
 #include <iostream>
 
-#include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
+#include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
 #include <pvkernel/widgets/PVUtils.h>
 
-#include <inendi/PVAxis.h>
-#include <inendi/PVView.h>
-#include <inendi/PVSource.h>
+#include <squey/PVAxis.h>
+#include <squey/PVView.h>
+#include <squey/PVSource.h>
 
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVAxisLabel.h>
@@ -45,7 +45,7 @@
 #include <QToolTip>
 #include <QDebug>
 
-#define PROPERTY_TOOLTIP_VALUE "inendi_property_tooltip"
+#define PROPERTY_TOOLTIP_VALUE "squey_property_tooltip"
 
 static inline QString make_elided_text(const QFont& font, const QString& text, int elided_width)
 {
@@ -107,7 +107,7 @@ class PVToolTipEventFilter : public QObject
  *****************************************************************************/
 
 PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSlidersManager* sm_p,
-                                                       Inendi::PVView const& view,
+                                                       Squey::PVView const& view,
                                                        PVCombCol comb_col,
                                                        PVRush::PVAxisFormat const& axis_fmt)
     : _sliders_manager_p(sm_p)
@@ -220,7 +220,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
                                                QWidget* widget)
 {
 	pvcop::db::INVALID_TYPE invalid =
-	    _lib_view.get_parent<Inendi::PVSource>().has_invalid(get_original_axis_column());
+	    _lib_view.get_parent<Squey::PVSource>().has_invalid(get_original_axis_column());
 
 	if (not invalid) {
 		painter->fillRect(0, -axis_extend, _axis_width, _axis_length + (2 * axis_extend),
@@ -230,7 +230,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 			                   get_axis_density());
 		}
 	} else {
-		const double valid_range = (1 - Inendi::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE);
+		const double valid_range = (1 - Squey::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE);
 
 		painter->fillRect(0, -axis_extend, _axis_width,
 		                  ((_axis_length * valid_range) + (axis_extend) + 2),
@@ -251,7 +251,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 		painter->drawEllipse(QPoint(1, _axis_length - 1), 3, 3);
 	}
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	if (common::show_bboxes()) {
 		painter->setPen(QPen(QColor(0, 0xFF, 0), 0));
 		painter->drawRect(boundingRect());
@@ -326,8 +326,8 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_position()
 
 void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 {
-	const Inendi::PVLayer::list_row_indexes_t& vmins = _lib_view.get_current_layer().get_mins();
-	const Inendi::PVLayer::list_row_indexes_t& vmaxs = _lib_view.get_current_layer().get_maxs();
+	const Squey::PVLayer::list_row_indexes_t& vmins = _lib_view.get_current_layer().get_mins();
+	const Squey::PVLayer::list_row_indexes_t& vmaxs = _lib_view.get_current_layer().get_maxs();
 
 	const PVCol original_col = get_original_axis_column();
 	PVRow min_row;
@@ -464,7 +464,7 @@ void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 
 	std::vector<size_t> histogram(axis_length);
 
-	auto const& plotted = _lib_view.get_parent<Inendi::PVPlotted>();
+	auto const& plotted = _lib_view.get_parent<Squey::PVPlotted>();
 	auto col_data = plotted.get_column_pointer(get_original_axis_column());
 
 	auto const& selection = _lib_view.get_real_output_selection();

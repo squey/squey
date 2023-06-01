@@ -1,5 +1,5 @@
 [Unit]
-Description=INENDI Inspector login handler for NICE DCV
+Description=Squey login handler for NICE DCV
 Requires=dcvserver.service
 After=dcvserver.service
 After=dcvsimpleextauth.service
@@ -7,7 +7,7 @@ After=dcvsimpleextauth.service
 [Service]
 Type=simple
 ExecStartPre=/bin/sleep 1
-ExecStart=/opt/inendi/inspector/dcvlogin/dcvlogin.py
+ExecStart=/opt/squey/squey/dcvlogin/dcvlogin.py
 
 [Install]
 WantedBy=multi-user.target

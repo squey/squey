@@ -43,7 +43,7 @@ class PVSeriesRendererOffscreen : public PVSeriesAbstractRenderer, public QOffsc
 	                     OpenGLES_version_minor = PVSeriesRendererOpenGL::OpenGLES_version_minor;
 
   public:
-	PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss);
+	PVSeriesRendererOffscreen(Squey::PVRangeSubSampler const& rss);
 
 	static bool capability();
 

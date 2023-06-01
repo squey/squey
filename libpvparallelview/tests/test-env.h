@@ -28,24 +28,24 @@
 #include <cstdlib>
 #include <pvbase/general.h>
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
-#include <inendi/common.h>
+#include <squey/common.h>
 
 #include <QDir>
 
 static void init_env()
 {
 	PVCore::PVIntrinsics::init_cpuid();
-	setenv("PVKERNEL_PLUGIN_PATH", INENDI_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
-	setenv("INENDI_PLUGIN_PATH", INENDI_BUILD_DIRECTORY "/libinendi/plugins", 0);
+	setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
+	setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
 
 	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
 	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
-	Inendi::common::load_mapping_filters();
-	Inendi::common::load_plotting_filters();
+	Squey::common::load_mapping_filters();
+	Squey::common::load_plotting_filters();
 }
 
 #endif

@@ -27,7 +27,7 @@
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include "helpers.h"
 #include "common.h"

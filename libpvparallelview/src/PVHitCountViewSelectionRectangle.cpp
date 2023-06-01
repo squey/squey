@@ -27,7 +27,7 @@
 #include <pvparallelview/PVHitCountView.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <QApplication>
 
@@ -48,7 +48,7 @@ PVParallelView::PVHitCountViewSelectionRectangle::PVHitCountViewSelectionRectang
 void PVParallelView::PVHitCountViewSelectionRectangle::commit(bool use_selection_modifiers)
 {
 	QRectF r = get_rect();
-	Inendi::PVView& view = _hcv->lib_view();
+	Squey::PVView& view = _hcv->lib_view();
 
 	unsigned int modifiers = (unsigned int)QApplication::keyboardModifiers();
 	modifiers &= ~Qt::KeypadModifier;
@@ -59,7 +59,7 @@ void PVParallelView::PVHitCountViewSelectionRectangle::commit(bool use_selection
 		use_selectable = false;
 	}
 
-	Inendi::PVSelection sel(view.get_row_count());
+	Squey::PVSelection sel(view.get_row_count());
 	sel.select_none();
 
 	if (_hcv->is_backend_valid()) {

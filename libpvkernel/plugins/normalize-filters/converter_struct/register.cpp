@@ -29,7 +29,7 @@
 
 #include <pvbase/export.h>
 
-// This method will be called by libinendi
+// This method will be called by libsquey
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("struct", PVFilter::PVFieldConverterStruct);

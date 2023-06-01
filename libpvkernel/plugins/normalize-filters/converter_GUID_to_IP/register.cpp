@@ -28,7 +28,7 @@
 #include "PVFieldGUIDToIP.h"
 #include "PVFieldConverterGUIDToIPParamWidget.h"
 
-// This method will be called by libinendi
+// This method will be called by libsquey
 LibCPPExport void register_class()
 {
 	REGISTER_CLASS("GUID_to_IP", PVFilter::PVFieldGUIDToIP);

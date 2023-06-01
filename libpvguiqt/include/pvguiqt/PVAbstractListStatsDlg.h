@@ -42,10 +42,10 @@ class QPainter;
 class QPoint;
 class QWidget;
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 namespace PVGuiQt
 {
 class PVLayerFilterProcessWidget;
@@ -81,16 +81,16 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
   protected:
 	using create_model_f =
-	    std::function<PVStatsModel*(const Inendi::PVView&, PVCol, const Inendi::PVSelection&)>;
+	    std::function<PVStatsModel*(const Squey::PVView&, PVCol, const Squey::PVSelection&)>;
 
   public:
-	PVAbstractListStatsDlg(Inendi::PVView& view,
+	PVAbstractListStatsDlg(Squey::PVView& view,
 	                       PVCol c,
 	                       const create_model_f& f,
 	                       bool counts_are_integers = true,
 	                       QWidget* parent = nullptr);
 
-	void init(Inendi::PVView& view);
+	void init(Squey::PVView& view);
 
   public:
 	/**
@@ -134,7 +134,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	void show_hhead_ctxt_menu(const QPoint& pos);
 
   protected:
-	Inendi::PVView* lib_view() { return _view; }
+	Squey::PVView* lib_view() { return _view; }
 	void multiple_search(QAction* act, const QStringList& sl, bool hide_dialog = true);
 
 	/**
@@ -169,7 +169,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	}
 
   protected:
-	Inendi::PVView* _view;
+	Squey::PVView* _view;
 	PVCol _col;
 	create_model_f _create_model_f;
 
@@ -197,7 +197,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	PVGuiQt::PVLayerFilterProcessWidget* _ctxt_process = nullptr;
 	PVCore::PVArgumentList _ctxt_args;
 
-	Inendi::PVSelection _old_sel;
+	Squey::PVSelection _old_sel;
 
   private:
 	/**

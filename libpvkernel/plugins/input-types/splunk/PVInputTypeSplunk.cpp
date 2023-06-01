@@ -48,10 +48,10 @@ bool PVRush::PVInputTypeSplunk::createWidget(hash_formats& formats,
 	PVInputDescription_p ind(query);
 	inputs.push_back(ind);
 
-	format = INENDI_BROWSE_FORMAT_STR;
+	format = SQUEY_BROWSE_FORMAT_STR;
 	const QString& format_path = params->get_format_path();
 	if (format_path.isEmpty()) {
-		format = INENDI_BROWSE_FORMAT_STR;
+		format = SQUEY_BROWSE_FORMAT_STR;
 	} else {
 		format = format_path;
 	}

@@ -35,7 +35,7 @@ set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
 
 set(QT6_LIBS Qt6Core Qt6Xml Qt6Widgets)
 
-set(PVDISPLAYS_LINK_LIBRARIES inendi pvkernel ${QT6_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+set(PVDISPLAYS_LINK_LIBRARIES pvsquey pvkernel ${QT6_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
 target_link_libraries(pvdisplays ${PVDISPLAYS_LINK_LIBRARIES})
 

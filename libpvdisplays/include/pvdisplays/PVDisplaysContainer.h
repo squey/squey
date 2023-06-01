@@ -30,7 +30,7 @@
 #include <vector>
 #include <any>
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
 }
@@ -49,7 +49,7 @@ class PVDisplaysContainer : public QMainWindow
 
   public Q_SLOTS:
 	virtual void create_view_widget(PVDisplays::PVDisplayViewIf& interface,
-	                                Inendi::PVView* view,
+	                                Squey::PVView* view,
 	                                std::vector<std::any> params = {}) = 0;
 };
 } // namespace PVDisplays

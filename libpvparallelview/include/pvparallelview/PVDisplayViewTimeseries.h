@@ -38,12 +38,12 @@ class PVDisplayViewTimeseries : public PVDisplayViewIf
 
   public:
 	QWidget*
-	create_widget(Inendi::PVView* view, QWidget* parent, Params const& data = {}) const override;
-	bool abscissa_filter(Inendi::PVView* view, PVCol axis) const;
+	create_widget(Squey::PVView* view, QWidget* parent, Params const& data = {}) const override;
+	bool abscissa_filter(Squey::PVView* view, PVCol axis) const;
 	void add_to_axis_menu(QMenu& menu,
 	                      PVCol axis,
 	                      PVCombCol axis_comb,
-	                      Inendi::PVView*,
+	                      Squey::PVView*,
 	                      PVDisplaysContainer* container) override;
 
 	CLASS_REGISTRABLE(PVDisplayViewTimeseries)

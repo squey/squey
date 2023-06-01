@@ -40,7 +40,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
                                public QOpenGLWidget,
                                protected QOpenGLExtraFunctions
 {
-	using PVRSS = Inendi::PVRangeSubSampler;
+	using PVRSS = Squey::PVRangeSubSampler;
 
   public:
 	constexpr static int OpenGLES_version_major = 3, OpenGLES_version_minor = 2;
@@ -51,7 +51,7 @@ class PVSeriesRendererOpenGL : public PVSeriesAbstractRenderer,
 	};
 
   public:
-	explicit PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& rss, QWidget* parent = 0);
+	explicit PVSeriesRendererOpenGL(Squey::PVRangeSubSampler const& rss, QWidget* parent = 0);
 	virtual ~PVSeriesRendererOpenGL() noexcept;
 
 	static bool capability();

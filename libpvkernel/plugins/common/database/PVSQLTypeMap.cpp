@@ -97,7 +97,7 @@ QString PVRush::PVSQLTypeMapMysql::map(int type) const
 	return "unknown";
 }
 
-QString PVRush::PVSQLTypeMapMysql::map_inendi(int type) const
+QString PVRush::PVSQLTypeMapMysql::map_squey(int type) const
 {
 	switch (type) {
 	case FIELD_TYPE_TINY:
@@ -169,7 +169,7 @@ QString PVRush::PVSQLTypeMapPostgres::map(int type) const
 	return "unknown";
 }
 
-QString PVRush::PVSQLTypeMapPostgres::map_inendi(int type) const
+QString PVRush::PVSQLTypeMapPostgres::map_squey(int type) const
 {
 	switch (type) {
 	case QBOOLOID:

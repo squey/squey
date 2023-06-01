@@ -29,7 +29,7 @@
 #include <vector>
 #include <numeric>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <pvcop/db/array.h>
 #include <pvhwloc.h>
@@ -58,7 +58,7 @@ class PVSortFilter
 
 	size_t size() const { return _filter.size(); }
 
-	void set_filter(Inendi::PVSelection const& sel)
+	void set_filter(Squey::PVSelection const& sel)
 	{
 		size_t num_threads = pvhwloc::thread_count();
 

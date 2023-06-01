@@ -37,7 +37,7 @@ PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
 {
 }
 
-QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Squey::PVView* view,
                                                           QWidget* parent,
                                                           Params const& params) const
 {

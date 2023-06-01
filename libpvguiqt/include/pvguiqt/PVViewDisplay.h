@@ -44,10 +44,10 @@ class QString;
 class QPoint;
 class QWidget;
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -70,15 +70,15 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	enum EState { HIDDEN, CAN_MAXIMIZE, CAN_RESTORE };
 
   public:
-	/*! \brief Call Inendi::PVRoot::select_view through the Hive.
+	/*! \brief Call Squey::PVRoot::select_view through the Hive.
 	 * This is called by the application level events filter DisplaysFocusInEventFilter on
 	 * PVViewDisplay QEvent::FocusIn events.
 	 */
 	void set_current_view();
 
   public:
-	Inendi::PVView* get_view() { return _view; }
-	void set_view(Inendi::PVView* view) { _view = view; }
+	Squey::PVView* get_view() { return _view; }
+	void set_view(Squey::PVView* view) { _view = view; }
 
   protected:
 	/*! \brief Filter events to allow a PVViewDisplay to be docked inside any other PVWorkspace.
@@ -116,7 +116,7 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
   private:
 	/*! \brief Register the view to handle several events.
 	 */
-	void register_view(Inendi::PVView* view);
+	void register_view(Squey::PVView* view);
 
   private:
 	/*! \brief Creates a view display.
@@ -130,7 +130,7 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	 *  \note this constructor is intended to be called only by PVWorkspace, hence the private
 	 *visibility.
 	 */
-	PVViewDisplay(Inendi::PVView* view,
+	PVViewDisplay(Squey::PVView* view,
 	              QWidget* view_widget,
 	              QString name,
 	              bool can_be_central_widget,
@@ -138,7 +138,7 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	              PVWorkspaceBase* parent);
 
   private:
-	Inendi::PVView* _view;
+	Squey::PVView* _view;
 	QString _name;
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;

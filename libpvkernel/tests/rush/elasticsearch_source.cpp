@@ -24,7 +24,7 @@
 //
 
 #include <pvkernel/core/PVTextChunk.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -38,7 +38,7 @@
 #include "helpers.h"
 #include "common.h"
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/sources/elasticsearch.out";
 #endif
 
@@ -143,7 +143,7 @@ int main()
 		std::cout << dur.count();
 	}
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	PVRush::PVUtils::sort_file(output_file.c_str());

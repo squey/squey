@@ -29,10 +29,10 @@
 #include <QToolBar>
 #include <QWidget>
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -48,7 +48,7 @@ class PVLayerStackWidget : public QWidget
 	Q_OBJECT
 
   public:
-	explicit PVLayerStackWidget(Inendi::PVView& lib_view, QWidget* parent = nullptr);
+	explicit PVLayerStackWidget(Squey::PVView& lib_view, QWidget* parent = nullptr);
 
   public:
 	PVLayerStackView* get_layer_stack_view() const { return _layer_stack_view; }

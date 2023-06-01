@@ -25,13 +25,13 @@
 
 #include <fstream>
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <pvkernel/rush/PVUtils.h>
 
 #include "common.h"
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr static size_t nb_dup = 20;
 #else
 constexpr static size_t nb_dup = 1;
@@ -55,7 +55,7 @@ int main()
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	std::string out_path = pvtest::get_tmp_filename();
 	// Dump the NRAW to file and check value is the same
 	PVRush::PVNraw nraw = std::move(env._nraw);

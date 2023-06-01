@@ -28,7 +28,7 @@
 #include <QFont>
 #include <QString>
 
-#define INENDI_TOOLTIP_MAX_WIDTH 800
+#define SQUEY_TOOLTIP_MAX_WIDTH 800
 
 namespace PVWidgets
 {

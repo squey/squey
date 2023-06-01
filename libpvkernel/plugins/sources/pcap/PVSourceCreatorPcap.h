@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef INENDI_PVSOURCECREATORPCAP_H
-#define INENDI_PVSOURCECREATORPCAP_H
+#ifndef SQUEY_PVSOURCECREATORPCAP_H
+#define SQUEY_PVSOURCECREATORPCAP_H
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -44,4 +44,4 @@ class PVSourceCreatorPcap : public PVRush::PVSourceCreator
 };
 } // namespace PVPcapsicum
 
-#endif // INENDI_PVSOURCECREATORPCAP_H
+#endif // SQUEY_PVSOURCECREATORPCAP_H

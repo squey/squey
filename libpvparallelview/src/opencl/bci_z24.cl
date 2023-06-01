@@ -26,16 +26,16 @@
  *
  * QImage are ARGB, not RGBA ;-)
  *
- * Inspector has its hue starting at blue while standard HSV model starts with red:
- * inspector: B C G Y R M B
+ * Squey has its hue starting at blue while standard HSV model starts with red:
+ * squey: B C G Y R M B
  * standard : R Y G C B M R
  *
  * H_c = (N_color + R_i - H_i) mod N_color
  * where:
  * - H_c is the correct hue value
- * - H_i is the Inspector hue value
+ * - H_i is the Squey hue value
  * - N_color is the number of color (see HSV_COLOR_COUNT)
- * - R_i is the index of the red color in Inspector
+ * - R_i is the index of the red color in Squey
  *
  * in hue2rgb(...), real computation of 'r' is:
  * -- code --

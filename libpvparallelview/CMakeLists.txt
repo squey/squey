@@ -33,11 +33,11 @@ find_package(KF5ItemModels REQUIRED)
 find_package(KF5SyntaxHighlighting REQUIRED)
 
 #################################################
-# Add include directories for inendi's libs
+# Add include directories for squey's libs
 #################################################
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
-include_directories(AFTER ${INENDI_INCLUDE_DIRS})
+include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})

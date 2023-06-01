@@ -29,7 +29,7 @@
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <pvparallelview/PVAbstractAxisSlider.h>
 #include <pvparallelview/PVParallelView.h>
@@ -72,7 +72,7 @@
 
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
     PVParallelView::PVZoomedParallelView* zpview,
-    Inendi::PVView& pvview_sp,
+    Squey::PVView& pvview_sp,
     PVParallelView::PVSlidersManager* sliders_manager_p,
     PVZonesProcessor& zp_sel,
     PVZonesProcessor& zp_bg,
@@ -333,7 +333,7 @@ void PVParallelView::PVZoomedParallelScene::keyPressEvent(QKeyEvent* event)
 		}
 		event->accept();
 	}
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	else if (event->key() == Qt::Key_Space) {
 		PVLOG_INFO("PVZoomedParallelScene: forcing full redraw\n");
 		update_all();

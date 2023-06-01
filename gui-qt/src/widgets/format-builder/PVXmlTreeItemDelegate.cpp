@@ -27,20 +27,20 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeItemDelegate::PVXmlTreeItemDelegate
+ * App::PVXmlTreeItemDelegate::PVXmlTreeItemDelegate
  *
  *****************************************************************************/
-PVInspector::PVXmlTreeItemDelegate::PVXmlTreeItemDelegate() : QAbstractItemDelegate()
+App::PVXmlTreeItemDelegate::PVXmlTreeItemDelegate() : QAbstractItemDelegate()
 {
 	setObjectName("PVXmlTreeItemDelegate");
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate
+ * App::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate
  *
  *****************************************************************************/
-PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate() = default;
+App::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate() = default;
 
 // void MyItemDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const
 // QModelIndex &index) const {
@@ -58,10 +58,10 @@ PVInspector::PVXmlTreeItemDelegate::~PVXmlTreeItemDelegate() = default;
 
 /******************************************************************************
  *
- *  PVInspector::PVXmlTreeItemDelegate::sizeHint
+ *  App::PVXmlTreeItemDelegate::sizeHint
  *
  *****************************************************************************/
-QSize PVInspector::PVXmlTreeItemDelegate::sizeHint(const QStyleOptionViewItem& /*option*/,
+QSize App::PVXmlTreeItemDelegate::sizeHint(const QStyleOptionViewItem& /*option*/,
                                                    const QModelIndex& /*index*/) const
 {
 	return {300, 30};

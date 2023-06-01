@@ -43,10 +43,10 @@ namespace PVCore
 class PVHSVColor;
 } // namespace PVCore
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {

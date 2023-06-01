@@ -28,10 +28,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlRegValidatorHighLight::PVXmlRegValidatorHighLight
+ * App::PVXmlRegValidatorHighLight::PVXmlRegValidatorHighLight
  *
  *****************************************************************************/
-PVInspector::PVXmlRegValidatorHighLight::PVXmlRegValidatorHighLight(QTextEdit* pParent)
+App::PVXmlRegValidatorHighLight::PVXmlRegValidatorHighLight(QTextEdit* pParent)
     : QSyntaxHighlighter(pParent->document())
 {
 	setDocument(pParent->document());
@@ -41,10 +41,10 @@ PVInspector::PVXmlRegValidatorHighLight::PVXmlRegValidatorHighLight(QTextEdit* p
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlRegValidatorHighLight::setRegExp
+ * void App::PVXmlRegValidatorHighLight::setRegExp
  *
  *****************************************************************************/
-void PVInspector::PVXmlRegValidatorHighLight::setRegExp(const QString& pRegStr)
+void App::PVXmlRegValidatorHighLight::setRegExp(const QString& pRegStr)
 {
 	aRegExp = pRegStr;
 	rehighlight();
@@ -52,17 +52,17 @@ void PVInspector::PVXmlRegValidatorHighLight::setRegExp(const QString& pRegStr)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlRegValidatorHighLight::~PVXmlRegValidatorHighLight
+ * App::PVXmlRegValidatorHighLight::~PVXmlRegValidatorHighLight
  *
  *****************************************************************************/
-PVInspector::PVXmlRegValidatorHighLight::~PVXmlRegValidatorHighLight() = default;
+App::PVXmlRegValidatorHighLight::~PVXmlRegValidatorHighLight() = default;
 
 /******************************************************************************
  *
- * void PVInspector::PVXmlRegValidatorHighLight::highlightBlock
+ * void App::PVXmlRegValidatorHighLight::highlightBlock
  *
  *****************************************************************************/
-void PVInspector::PVXmlRegValidatorHighLight::highlightBlock(const QString& text)
+void App::PVXmlRegValidatorHighLight::highlightBlock(const QString& text)
 {
 
 	// define format

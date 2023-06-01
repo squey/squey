@@ -31,11 +31,11 @@
 
 #include <pvkernel/widgets/PVFileDialog.h>
 
-namespace Inendi
+namespace Squey
 {
 class PVLayer;
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -57,7 +57,7 @@ class PVLayerStackView : public QTableView
 
   private:
 	using operation_f =
-	    Inendi::PVSelection (Inendi::PVSelection::*)(const Inendi::PVSelection&) const;
+	    Squey::PVSelection (Squey::PVSelection::*)(const Squey::PVSelection&) const;
 
   private:
 	void copy_to_clipboard();
@@ -69,7 +69,7 @@ class PVLayerStackView : public QTableView
 	boolean_op_on_selection_with_this_layer(int layer_idx, const operation_f& f, bool activate);
 
   public:
-	Inendi::PVLayer& get_layer_from_idx(int model_idx);
+	Squey::PVLayer& get_layer_from_idx(int model_idx);
 
   private Q_SLOTS:
 	void show_ctxt_menu(QPoint const& pt);

@@ -57,8 +57,8 @@ bool PVRush::PVInputTypeFilename::createWidget(hash_formats& formats,
 	QStringList formats_name = formats.keys();
 	formats_name.sort();
 
-	formats_name.prepend(QString(INENDI_BROWSE_FORMAT_STR));
-	formats_name.prepend(QString(INENDI_LOCAL_FORMAT_STR));
+	formats_name.prepend(QString(SQUEY_BROWSE_FORMAT_STR));
+	formats_name.prepend(QString(SQUEY_LOCAL_FORMAT_STR));
 
 	// Get information from file dialog
 	PVImportFileDialog file_dlg(formats_name, parent);
@@ -152,7 +152,7 @@ QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) c
 bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
                                                      hash_formats& formats) const
 {
-	// Two types of custom format: inendi.format/picviz.format exists in the directory of the file,
+	// Three types of custom format: squey.format/inendi.format/picviz.format exists in the directory of the file,
 	// or file + ".format" exists
 	bool res = false;
 	auto* f = dynamic_cast<PVFileDescription*>(in.get());
@@ -166,7 +166,7 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
 		return true;
 	}
 
-	static std::vector<QString> custom_filenames = {"inendi.format", "picviz.format"};
+	static std::vector<QString> custom_filenames = {"squey.format", "inendi.format", "picviz.format"};
 
 	QDir d = fi.dir();
 

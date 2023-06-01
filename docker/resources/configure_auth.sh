@@ -3,7 +3,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/env.conf"
 
-useradd --system inendi
+useradd --system squey
 
 if [ ! -z "${LDAP_URI}" ] # Configure PAM LDAP authentication if specified
 then
@@ -17,7 +17,7 @@ then
         sed -i "s/^#binddn \(.*\)/binddn ${LDAP_BIND_DN}/g" /etc/ldap.conf
         sed -i "s/^#bindpw \(.*\)/bindpw ${LDAP_BIND_PASSWORD}/g" /etc/ldap.conf
     fi
-    echo "nss_override_attribute_value gidNumber `id -u inendi`" >> /etc/ldap.conf
+    echo "nss_override_attribute_value gidNumber `id -u squey`" >> /etc/ldap.conf
     auth-client-config -t nss -p lac_ldap
     pam-auth-update --package --enable ldap --enable unix --enable systemd
     systemctl enable nscd
@@ -32,7 +32,7 @@ then
     if [ $? -eq 0 ]
     then
         chsh -s /bin/bash "${USER_NAME}"
-        usermod -a -G inendi,adm,video,plugdev "${USER_NAME}"
+        usermod -a -G squey,adm,video,plugdev "${USER_NAME}"
 
         if [ -z "${USER_PASSWORD}" ]
         then

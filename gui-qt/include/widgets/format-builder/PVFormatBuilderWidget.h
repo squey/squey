@@ -57,17 +57,17 @@
 #include <pvkernel/rush/PVInputType.h>
 #include "pvkernel/rush/PVTypesDiscoveryOutput.h"
 
-namespace Inendi
+namespace Squey
 {
 class PVSource;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
 class PVAxesCombinationWidget;
 } // namespace PVGuiQt
 
-namespace PVInspector
+namespace App
 {
 
 class PVOptionsWidget;
@@ -229,7 +229,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	//
 	QVBoxLayout* vbParam;
 	QMenuBar* menuBar;
-	Inendi::PVSource* _org_source; // If this widget is bound to a PVSource's format
+	Squey::PVSource* _org_source; // If this widget is bound to a PVSource's format
 
 	//
 	QFile logFile; ///!< file we open to edit the format
@@ -254,5 +254,5 @@ class PVFormatBuilderWidget : public QMainWindow
 	QAction* actionSave;
 	QAction* actionSaveAs;
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* PVFORMATBUILDER_H */

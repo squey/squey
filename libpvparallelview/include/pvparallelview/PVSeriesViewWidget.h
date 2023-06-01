@@ -30,15 +30,15 @@
 #include <QStyledItemDelegate>
 
 #include <pvparallelview/PVSeriesTreeWidget.h>
-#include <inendi/PVView.h>
-#include <inendi/PVRangeSubSampler.h>
+#include <squey/PVView.h>
+#include <squey/PVRangeSubSampler.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/core/PVDisconnector.h>
 
 #include <pvcop/db/array.h>
 
-namespace Inendi
+namespace Squey
 {
 class PVRangeSubSampler;
 }
@@ -62,7 +62,7 @@ class PVSeriesViewWidget : public QWidget
 	friend class PVSeriesViewParamsWidget;
 
   public:
-	PVSeriesViewWidget(Inendi::PVView* view, PVCol axis, QWidget* parent = nullptr);
+	PVSeriesViewWidget(Squey::PVView* view, PVCol axis, QWidget* parent = nullptr);
 	~PVSeriesViewWidget() { delete _tree_model; }
 
   protected:
@@ -86,8 +86,8 @@ class PVSeriesViewWidget : public QWidget
 	void select_all_series(bool use_axes_combination = true);
 
   private:
-	Inendi::PVView* _view;
-	std::unique_ptr<Inendi::PVRangeSubSampler> _sampler;
+	Squey::PVView* _view;
+	std::unique_ptr<Squey::PVRangeSubSampler> _sampler;
 	PVSeriesView* _plot = nullptr;
 	PVWidgets::PVRangeEdit* _range_edit = nullptr;
 	PVSeriesViewZoomer* _zoomer = nullptr;

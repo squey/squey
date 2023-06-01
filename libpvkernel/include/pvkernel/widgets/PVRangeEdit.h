@@ -221,8 +221,8 @@ class PVDoubleRangeEdit : public PVRangeEdit
 class PVDateTimeRangeEdit : public PVRangeEdit
 {
   private:
-	static constexpr const char parse_format_us_inendi[] = "yyyy-MM-dd HH:mm:ss.S";
-	static constexpr const char parse_format_sec_inendi[] = "yyyy-MM-dd HH:mm:ss";
+	static constexpr const char parse_format_us_squey[] = "yyyy-MM-dd HH:mm:ss.S";
+	static constexpr const char parse_format_sec_squey[] = "yyyy-MM-dd HH:mm:ss";
 	static constexpr const char parse_format_us_qt[] = "yyyy-MM-dd HH:mm:ss.zzz";
 	static constexpr const char parse_format_sec_qt[] = "yyyy-MM-dd HH:mm:ss";
 	static constexpr const char display_format_us_qt[] = "yyyy-MMM-dd HH:mm:ss.z";
@@ -266,24 +266,24 @@ class PVDateTimeRangeEdit : public PVRangeEdit
 		assert(_from_widget);
 		assert(_to_widget);
 
-		const char* parse_format_inendi;
+		const char* parse_format_squey;
 		const char* parse_format_qt;
 		const char* display_format_qt;
 		size_t trim_size;
 		if (_minmax.formatter()->name() == "datetime") {
-			parse_format_inendi = parse_format_sec_inendi;
+			parse_format_squey = parse_format_sec_squey;
 			parse_format_qt = parse_format_sec_qt;
 			display_format_qt = display_format_sec_qt;
 			trim_size = 0;
 		} else {
-			parse_format_inendi = parse_format_us_inendi;
+			parse_format_squey = parse_format_us_squey;
 			parse_format_qt = parse_format_us_qt;
 			display_format_qt = display_format_us_qt;
 			trim_size = 3;
 		}
 
 		const pvcop::formatter_desc& formatter_desc =
-		    PVRush::PVFormat::get_datetime_formatter_desc(std::string(parse_format_inendi));
+		    PVRush::PVFormat::get_datetime_formatter_desc(std::string(parse_format_squey));
 		_minmax.formatter()->set_parameters(formatter_desc.parameters().c_str());
 
 		const std::string& min_date_str = _minmax.at(0);

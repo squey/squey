@@ -4,15 +4,15 @@
 [submodule "libpvcop"]
 	path = libpvcop
 	url = ../libpvcop.git
-[submodule "inendi-utils"]
-	path = inendi-utils
+[submodule "squey-utils"]
+	path = squey-utils
 	url = ../utils.git
 [submodule "furl"]
 	path = furl
 	url = ../furl.git
 [submodule "tests"]
 	path = tests
-	url = ../inspector-testsuite.git
+	url = ../squey-testsuite.git
 [submodule "buildstream/plugins/bst-external"]
 	path = buildstream/plugins/bst-external
 	url = https://gitlab.com/BuildStream/bst-external.git

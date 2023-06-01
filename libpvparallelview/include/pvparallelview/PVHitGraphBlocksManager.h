@@ -25,15 +25,15 @@
 #ifndef PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 #define PVPARALLELVIEW_PVHITGRAPHBLOCKSMANAGER_H
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVHitGraphData.h>
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -47,8 +47,8 @@ class PVHitGraphBlocksManager : boost::noncopyable
 	PVHitGraphBlocksManager(const uint32_t* col_plotted,
 	                        const PVRow nrows,
 	                        uint32_t nblocks,
-	                        Inendi::PVSelection const& layer_sel,
-	                        Inendi::PVSelection const& sel);
+	                        Squey::PVSelection const& layer_sel,
+	                        Squey::PVSelection const& sel);
 
   public:
 	bool change_and_process_view(const uint32_t y_min, const int zoom, double alpha);
@@ -98,8 +98,8 @@ class PVHitGraphBlocksManager : boost::noncopyable
 	PVHitGraphData _data_z0; // Data for initial zoom (with 10-bit precision)
 	PVHitGraphData _data;
 
-	Inendi::PVSelection const& _layer_sel;
-	Inendi::PVSelection const& _sel;
+	Squey::PVSelection const& _layer_sel;
+	Squey::PVSelection const& _sel;
 
 	DataProcessParams _data_params;
 };

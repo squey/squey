@@ -31,7 +31,7 @@
 const char PVRush::PVOpcUaPresets::PV_SETTINGS_INPUT[] = "plugins/input_type/elasticsearch/";
 
 PVRush::PVOpcUaPresets::PVOpcUaPresets()
-    : _settings(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME)
+    : _settings(QSettings::UserScope, SQUEY_ORGANISATION, SQUEY_APPLICATIONNAME)
 {
 	_settings.beginGroup(QString(PV_SETTINGS_INPUT) + "presets");
 }

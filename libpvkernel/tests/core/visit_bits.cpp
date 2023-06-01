@@ -23,9 +23,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_assert.h>
-#include <pvkernel/core/inendi_bench.h>
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_assert.h>
+#include <pvkernel/core/squey_bench.h>
+#include <pvkernel/core/squey_intrin.h>
 #include <pvkernel/core/PVBitVisitor.h>
 
 #include <iostream>

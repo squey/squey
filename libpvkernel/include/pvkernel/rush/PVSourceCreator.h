@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef INENDI_PVSOURCECREATOR_H
-#define INENDI_PVSOURCECREATOR_H
+#ifndef SQUEY_PVSOURCECREATOR_H
+#define SQUEY_PVSOURCECREATOR_H
 
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvkernel/rush/PVFormat.h>

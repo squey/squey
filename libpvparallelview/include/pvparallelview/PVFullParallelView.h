@@ -35,7 +35,7 @@
 
 #include <pvparallelview/common.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 class QEvent;
 
@@ -87,7 +87,7 @@ class PVFullParallelView : public QGraphicsView
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 
   Q_SIGNALS:
-	void new_zoomed_parallel_view(Inendi::PVView* view, int axis_index);
+	void new_zoomed_parallel_view(Squey::PVView* view, int axis_index);
 
   private:
 	PVWidgets::PVHelpWidget* _help_widget;

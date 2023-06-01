@@ -35,7 +35,7 @@ void PVParallelView::PVScatterViewDataImpl::process_bg(ProcessParams const& para
 
 void PVParallelView::PVScatterViewDataImpl::process_sel(ProcessParams const& params,
                                                         PVScatterViewImage& image,
-                                                        Inendi::PVSelection const& sel,
+                                                        Squey::PVSelection const& sel,
                                                         tbb::task_group_context* ctxt) const
 {
 	process_image(params, image, &sel, ctxt);
@@ -43,7 +43,7 @@ void PVParallelView::PVScatterViewDataImpl::process_sel(ProcessParams const& par
 
 void PVParallelView::PVScatterViewDataImpl::process_image(ProcessParams const& params,
                                                           PVScatterViewImage& image,
-                                                          Inendi::PVSelection const* sel,
+                                                          Squey::PVSelection const* sel,
                                                           tbb::task_group_context* ctxt)
 {
 	if (params.can_optimize_translation()) { // In case of optimizable

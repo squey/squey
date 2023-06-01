@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef INENDI_PVSOURCECREATOROPCUA_H
-#define INENDI_PVSOURCECREATOROPCUA_H
+#ifndef SQUEY_PVSOURCECREATOROPCUA_H
+#define SQUEY_PVSOURCECREATOROPCUA_H
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -42,4 +42,4 @@ class PVSourceCreatorOpcUa : public PVSourceCreator
 };
 } // namespace PVRush
 
-#endif // INENDI_PVSOURCECREATOROPCUA_H
+#endif // SQUEY_PVSOURCECREATOROPCUA_H

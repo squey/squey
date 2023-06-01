@@ -30,7 +30,7 @@
 #include <QMenu>
 #include <QInputDialog>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
@@ -39,7 +39,7 @@
 
 /******************************************************************************
  *
- * PVInspector::PVLayerStackView::PVLayerStackView
+ * App::PVLayerStackView::PVLayerStackView
  *
  *****************************************************************************/
 PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent)
@@ -199,7 +199,7 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 	case Qt::Key_F2:
 		int model_index = ls_model()->lib_layer_stack().get_selected_layer_index();
-		Inendi::PVLayer& layer = ls_model()->lib_layer_stack().get_layer_n(model_index);
+		Squey::PVLayer& layer = ls_model()->lib_layer_stack().get_layer_n(model_index);
 		QString current_name = layer.get_name();
 		QString name = QInputDialog::getText(this, "Rename current layer", "New layer name:",
 		                                     QLineEdit::Normal, current_name);
@@ -215,11 +215,11 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	}
 }
 
-Inendi::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
+Squey::PVLayer& PVGuiQt::PVLayerStackView::get_layer_from_idx(int model_idx)
 {
 	QVariant var =
 	    ls_model()->data(ls_model()->index(model_idx, 0), PVCustomQtRoles::UnderlyingObject);
-	return *reinterpret_cast<Inendi::PVLayer*>(var.value<void*>());
+	return *reinterpret_cast<Squey::PVLayer*>(var.value<void*>());
 }
 
 /******************************************************************************
@@ -260,35 +260,35 @@ void PVGuiQt::PVLayerStackView::show_ctxt_menu(const QPoint& pt)
 		show_this_layer_only(idx_click.row());
 	}
 	if (act == _ctxt_menu_union) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator|,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator|,
 		                                        false);
 	}
 	if (act == _ctxt_menu_difference) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator-,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator-,
 		                                        false);
 	}
 	if (act == _ctxt_menu_intersection) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator&,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator&,
 		                                        false);
 	}
 	if (act == _ctxt_menu_symmetric_differrence) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator^,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator^,
 		                                        false);
 	}
 	if (act == _ctxt_menu_activate_union) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator|,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator|,
 		                                        true);
 	}
 	if (act == _ctxt_menu_activate_difference) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator-,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator-,
 		                                        true);
 	}
 	if (act == _ctxt_menu_activate_intersection) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator&,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator&,
 		                                        true);
 	}
 	if (act == _ctxt_menu_activate_symmetric_differrence) {
-		boolean_op_on_selection_with_this_layer(idx_click.row(), &Inendi::PVSelection::operator^,
+		boolean_op_on_selection_with_this_layer(idx_click.row(), &Squey::PVSelection::operator^,
 		                                        true);
 	}
 	if (act == _ctxt_menu_copy_to_clipboard_act) {
@@ -300,29 +300,29 @@ void PVGuiQt::PVLayerStackView::boolean_op_on_selection_with_this_layer(int laye
                                                                         const operation_f& f,
                                                                         bool activate)
 {
-	Inendi::PVLayer& layer = get_layer_from_idx(layer_idx);
-	Inendi::PVView& view = ls_model()->lib_view();
+	Squey::PVLayer& layer = get_layer_from_idx(layer_idx);
+	Squey::PVView& view = ls_model()->lib_view();
 
 	if (activate)
 		layer.set_visible(true);
 
-	Inendi::PVSelection selection = (view.get_real_output_selection().*f)(layer.get_selection());
+	Squey::PVSelection selection = (view.get_real_output_selection().*f)(layer.get_selection());
 
 	view.set_selection_view(selection, true);
 }
 
 void PVGuiQt::PVLayerStackView::set_current_selection_from_layer(int model_idx)
 {
-	Inendi::PVLayer const& layer = get_layer_from_idx(model_idx);
+	Squey::PVLayer const& layer = get_layer_from_idx(model_idx);
 	ls_model()->lib_view().set_selection_from_layer(layer);
 }
 
 void PVGuiQt::PVLayerStackView::export_layer_selection(int model_idx)
 {
-	Inendi::PVLayer const& layer = get_layer_from_idx(model_idx);
+	Squey::PVLayer const& layer = get_layer_from_idx(model_idx);
 
-	const Inendi::PVSelection& sel = layer.get_selection();
-	Inendi::PVView& view = ls_model()->lib_view();
+	const Squey::PVSelection& sel = layer.get_selection();
+	Squey::PVView& view = ls_model()->lib_view();
 
 	PVGuiQt::PVExportSelectionDlg::export_selection(view, sel);
 }

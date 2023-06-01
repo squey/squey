@@ -27,7 +27,7 @@
 #include <pvkernel/core/PVDirectory.h> // for PVDirectory
 #include <pvkernel/core/PVLogger.h>    // for PVLOG_ERROR, PVLOG_INFO, etc
 
-#include <pvbase/general.h> // for INENDI_PATH_SEPARATOR_CHAR
+#include <pvbase/general.h> // for SQUEY_PATH_SEPARATOR_CHAR
 
 #include <archive.h>       // for archive_error_string, etc
 #include <archive_entry.h> // for archive_entry_set_pathname, etc
@@ -51,7 +51,7 @@ namespace boost
 class thread_interrupted;
 } // namespace boost
 
-static void inendi_archive_read_support(struct archive* a)
+static void squey_archive_read_support(struct archive* a)
 {
 	// Support all formats
 	archive_read_support_format_all(a);
@@ -69,7 +69,7 @@ static void inendi_archive_read_support(struct archive* a)
 	archive_clear_error(a);
 }
 
-static void inendi_archive_read_support_noformat(struct archive* a)
+static void squey_archive_read_support_noformat(struct archive* a)
 {
 	// Support all formats
 	archive_read_support_format_raw(a);
@@ -139,7 +139,7 @@ void PVCore::PVArchive::extract(QString const& path,
 	flags |= ARCHIVE_EXTRACT_SECURE_NODOTDOT;
 
 	a = archive_read_new();
-	inendi_archive_read_support(a);
+	squey_archive_read_support(a);
 	ext = archive_write_disk_new();
 	archive_write_disk_set_options(ext, flags);
 	archive_write_disk_set_standard_lookup(ext);
@@ -152,7 +152,7 @@ void PVCore::PVArchive::extract(QString const& path,
 	if (r != ARCHIVE_OK) {
 		archive_read_close(a);
 		a = archive_read_new();
-		inendi_archive_read_support_noformat(a);
+		squey_archive_read_support_noformat(a);
 		archive_read_open_filename(a, filename, 10240);
 		r = archive_read_next_header(a, &entry);
 		read_raw = true;
@@ -259,7 +259,7 @@ void PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 			QString path = it.fileInfo().canonicalFilePath();
 			stat(qPrintable(path), &st);
 			QString ar_en_path = path.mid(dir_path_abs.size());
-			while (ar_en_path.at(0) == INENDI_PATH_SEPARATOR_CHAR) {
+			while (ar_en_path.at(0) == SQUEY_PATH_SEPARATOR_CHAR) {
 				ar_en_path = ar_en_path.mid(1);
 			}
 			QByteArray ar_en_path_ba = ar_en_path.toLocal8Bit();

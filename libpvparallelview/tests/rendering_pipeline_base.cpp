@@ -81,8 +81,8 @@ const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 
 int main(int argc, char** argv)
 {
-#ifdef INSPECTOR_BENCH
-	setenv("INENDI_DEBUG_LEVEL", "FATAL", 1);
+#ifdef SQUEY_BENCH
+	setenv("SQUEY_DEBUG_LEVEL", "FATAL", 1);
 
 	/* 1K take 2 seconds on proto-03 with the CPU backend while 1M take 2.2 seconds on the same
 	 * computer but using the GPU backend.
@@ -119,7 +119,7 @@ int main(int argc, char** argv)
 
 	PVParallelView::PVZonesProcessor p = pipeline.declare_processor(
 	    [](PVZoneID z) {
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 		    std::cout << "Preprocess for zone " << z << std::endl;
 #else
 		    (void)z;
@@ -133,7 +133,7 @@ int main(int argc, char** argv)
 	zrs.reserve(NJOBS);
 	dimgs.reserve(NJOBS);
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 	auto start = std::chrono::steady_clock::now();
 #endif
 
@@ -149,7 +149,7 @@ int main(int argc, char** argv)
 		zrs[i]->wait_end();
 	}
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();

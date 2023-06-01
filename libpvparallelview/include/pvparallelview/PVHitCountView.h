@@ -27,7 +27,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaWithAxes.h>
 #include <pvparallelview/PVHitGraphBlocksManager.h>
@@ -47,10 +47,10 @@ namespace PVWidgets
 class PVHelpWidget;
 } // namespace PVWidgets
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -89,7 +89,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	using create_backend_t = std::function<backend_unique_ptr_t(PVCol, QWidget*)>;
 
   public:
-	PVHitCountView(Inendi::PVView& pvview_sp,
+	PVHitCountView(Squey::PVView& pvview_sp,
 	               create_backend_t create_backend,
 	               const PVCol axis,
 	               QWidget* parent = nullptr);
@@ -108,8 +108,8 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
 	inline uint32_t get_max_count() const { return _max_count; }
 
-	inline Inendi::PVView& lib_view() { return _pvview; }
-	inline Inendi::PVView const& lib_view() const { return _pvview; }
+	inline Squey::PVView& lib_view() { return _pvview; }
+	inline Squey::PVView const& lib_view() const { return _pvview; }
 
 	inline const PVHitGraphBlocksManager& get_hit_graph_manager() const
 	{
@@ -121,7 +121,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 		return _backend->get_hit_graph_manager();
 	}
 
-	inline Inendi::PVPlottedNrawCache& get_y_labels_cache()
+	inline Squey::PVPlottedNrawCache& get_y_labels_cache()
 	{
 		return _backend->get_y_labels_cache();
 	}
@@ -152,11 +152,11 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 		                                        (double)_max_count);
 	}
 
-	inline Inendi::PVSelection const& real_selection() const
+	inline Squey::PVSelection const& real_selection() const
 	{
 		return _pvview.get_real_output_selection();
 	}
-	inline Inendi::PVSelection& layer_stack_output_selection()
+	inline Squey::PVSelection& layer_stack_output_selection()
 	{
 		return _pvview.get_layer_stack_output_layer().get_selection();
 	}
@@ -213,7 +213,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	void update_sel();
 
   private:
-	Inendi::PVView& _pvview;
+	Squey::PVView& _pvview;
 	QTimer _update_all_timer;
 
 	backend_unique_ptr_t _backend;

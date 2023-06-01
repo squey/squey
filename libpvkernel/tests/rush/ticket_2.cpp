@@ -25,7 +25,7 @@
 
 #include "common.h"
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 int main()
 {

@@ -39,10 +39,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::PVXmlDomModel
+ * App::PVXmlDomModel::PVXmlDomModel
  *
  *****************************************************************************/
-PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget* parent)
+App::PVXmlDomModel::PVXmlDomModel(QWidget* parent)
     : QAbstractItemModel(parent), _axes_combination(_axes)
 {
 
@@ -56,20 +56,20 @@ PVInspector::PVXmlDomModel::PVXmlDomModel(QWidget* parent)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::~PVXmlDomModel
+ * App::PVXmlDomModel::~PVXmlDomModel
  *
  *****************************************************************************/
-PVInspector::PVXmlDomModel::~PVXmlDomModel() = default;
+App::PVXmlDomModel::~PVXmlDomModel() = default;
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::index
+ * App::PVXmlDomModel::index
  *
  *****************************************************************************/
 /**
  * create a new index for the treeview.
  */
-QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& parent) const
+QModelIndex App::PVXmlDomModel::index(int r, int c, const QModelIndex& parent) const
 {
 
 	if (!rootNode || r < 0 || c < 0)
@@ -86,11 +86,11 @@ QModelIndex PVInspector::PVXmlDomModel::index(int r, int c, const QModelIndex& p
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::indexOfChild
+ * App::PVXmlDomModel::indexOfChild
  *
  *****************************************************************************/
 
-QModelIndex PVInspector::PVXmlDomModel::indexOfChild(const QModelIndex& parent,
+QModelIndex App::PVXmlDomModel::indexOfChild(const QModelIndex& parent,
                                                      const PVRush::PVXmlTreeNodeDom* node) const
 {
 	QModelIndex model_index = index(0, 0, parent);
@@ -109,14 +109,14 @@ QModelIndex PVInspector::PVXmlDomModel::indexOfChild(const QModelIndex& parent,
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::parent
+ * App::PVXmlDomModel::parent
  *
  *****************************************************************************/
 /**
  * Get the parent index
  * @param child node
  */
-QModelIndex PVInspector::PVXmlDomModel::parent(const QModelIndex& child) const
+QModelIndex App::PVXmlDomModel::parent(const QModelIndex& child) const
 {
 
 	PVRush::PVXmlTreeNodeDom* node = nodeFromIndex(child);
@@ -137,11 +137,11 @@ QModelIndex PVInspector::PVXmlDomModel::parent(const QModelIndex& child) const
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::rowCount
+ * App::PVXmlDomModel::rowCount
  *
  *****************************************************************************/
 
-int PVInspector::PVXmlDomModel::rowCount(const QModelIndex& parent) const
+int App::PVXmlDomModel::rowCount(const QModelIndex& parent) const
 {
 
 	if (parent.column() > 0)
@@ -156,26 +156,26 @@ int PVInspector::PVXmlDomModel::rowCount(const QModelIndex& parent) const
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::columnCount
+ * App::PVXmlDomModel::columnCount
  *
  *****************************************************************************/
 /**
  * Return the number of raw.
  */
-int PVInspector::PVXmlDomModel::columnCount(const QModelIndex&) const
+int App::PVXmlDomModel::columnCount(const QModelIndex&) const
 {
 	return 2;
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::countParent
+ * App::PVXmlDomModel::countParent
  *
  *****************************************************************************/
 /**
  * return the number of node from the root to the child.
  */
-int PVInspector::PVXmlDomModel::countParent(const QModelIndex& index)
+int App::PVXmlDomModel::countParent(const QModelIndex& index)
 {
 	if (index.parent().isValid() && nodeFromIndex(index)->getName() != "root") {
 		return (countParent(index.parent()) + 1);
@@ -185,10 +185,10 @@ int PVInspector::PVXmlDomModel::countParent(const QModelIndex& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::data
+ * App::PVXmlDomModel::data
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlDomModel::data(const QModelIndex& index, int role) const
+QVariant App::PVXmlDomModel::data(const QModelIndex& index, int role) const
 {
 
 	if (index.isValid()) {
@@ -227,13 +227,13 @@ QVariant PVInspector::PVXmlDomModel::data(const QModelIndex& index, int role) co
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::setRoot
+ * App::PVXmlDomModel::setRoot
  *
  *****************************************************************************/
 /**
  * Setup the root.
  */
-void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom* node)
+void App::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom* node)
 {
 	beginResetModel();
 	rootNode.reset(node);
@@ -242,14 +242,14 @@ void PVInspector::PVXmlDomModel::setRoot(PVRush::PVXmlTreeNodeDom* node)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::nodeFromIndex
+ * App::PVXmlDomModel::nodeFromIndex
  *
  *****************************************************************************/
 /**
  * Return the node from the index.
  * @param index
  */
-PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModelIndex& index) const
+PVRush::PVXmlTreeNodeDom* App::PVXmlDomModel::nodeFromIndex(const QModelIndex& index) const
 {
 	if (index.isValid()) {
 		assert(index.internalPointer());
@@ -265,10 +265,10 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::nodeFromIndex(const QModel
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::flags
+ * App::PVXmlDomModel::flags
  *
  *****************************************************************************/
-Qt::ItemFlags PVInspector::PVXmlDomModel::flags(const QModelIndex& index) const
+Qt::ItemFlags App::PVXmlDomModel::flags(const QModelIndex& index) const
 {
 	Qt::ItemFlags flags = Qt::ItemIsSelectable | Qt::ItemIsEnabled;
 	if (index.column() == 1) {
@@ -281,11 +281,11 @@ Qt::ItemFlags PVInspector::PVXmlDomModel::flags(const QModelIndex& index) const
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::headerData
+ * App::PVXmlDomModel::headerData
  *
  *****************************************************************************/
 QVariant
-PVInspector::PVXmlDomModel::headerData(int section, Qt::Orientation orientation, int role) const
+App::PVXmlDomModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
 	// If it's view is displaying
 	if (role == Qt::DisplayRole) {
@@ -306,20 +306,20 @@ PVInspector::PVXmlDomModel::headerData(int section, Qt::Orientation orientation,
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::supportedDropActions
+ * App::PVXmlDomModel::supportedDropActions
  *
  *****************************************************************************/
-Qt::DropActions PVInspector::PVXmlDomModel::supportedDropActions() const
+Qt::DropActions App::PVXmlDomModel::supportedDropActions() const
 {
 	return Qt::CopyAction | Qt::MoveAction;
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::setData
+ * App::PVXmlDomModel::setData
  *
  *****************************************************************************/
-bool PVInspector::PVXmlDomModel::setData(const QModelIndex& index, const QVariant& value, int role)
+bool App::PVXmlDomModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
 	if (role == Qt::EditRole) {
 		if (index.column() == 1) { // just choose the second column
@@ -333,10 +333,10 @@ bool PVInspector::PVXmlDomModel::setData(const QModelIndex& index, const QVarian
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::saveXml
+ * App::PVXmlDomModel::saveXml
  *
  *****************************************************************************/
-bool PVInspector::PVXmlDomModel::saveXml(QString xml_file)
+bool App::PVXmlDomModel::saveXml(QString xml_file)
 {
 
 	if (!xml_file.endsWith(".format")) {
@@ -389,20 +389,20 @@ bool PVInspector::PVXmlDomModel::saveXml(QString xml_file)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::applyModification
+ * App::PVXmlDomModel::applyModification
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::applyModification(QModelIndex&, PVXmlParamWidget*)
+void App::PVXmlDomModel::applyModification(QModelIndex&, PVXmlParamWidget*)
 {
 	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::deleteSelectio
+ * App::PVXmlDomModel::deleteSelectio
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index)
+void App::PVXmlDomModel::deleteSelection(QModelIndex const& index)
 {
 	if (index.isValid()) {
 		PVRush::PVXmlTreeNodeDom* nodeASupprimer = nodeFromIndex(index);
@@ -416,10 +416,10 @@ void PVInspector::PVXmlDomModel::deleteSelection(QModelIndex const& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::addAxisIn
+ * App::PVXmlDomModel::addAxisIn
  *
  *****************************************************************************/
-PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addAxisIn(const QModelIndex& index)
+PVRush::PVXmlTreeNodeDom* App::PVXmlDomModel::addAxisIn(const QModelIndex& index)
 {
 	PVRush::PVXmlTreeNodeDom* field = nullptr;
 
@@ -448,11 +448,11 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addAxisIn(const QModelInde
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::addAxisIn
+ * App::PVXmlDomModel::addAxisIn
  *
  *****************************************************************************/
 PVRush::PVXmlTreeNodeDom*
-PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
+App::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
 {
 	PVRush::PVXmlTreeNodeDom* child;
 	QDomElement newAxis = xmlFile.createElement("axis");
@@ -473,10 +473,10 @@ PVInspector::PVXmlDomModel::addAxisIn(PVRush::PVXmlTreeNodeDom* parentNode)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::addFilterAfter
+ * App::PVXmlDomModel::addFilterAfter
  *
  *****************************************************************************/
-PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex& index)
+PVRush::PVXmlTreeNodeDom* App::PVXmlDomModel::addFilterAfter(QModelIndex& index)
 {
 	PVRush::PVXmlTreeNodeDom* childPrecedent = nodeFromIndex(index); // selected node
 	PVRush::PVXmlTreeNodeDom* child = nullptr;
@@ -502,17 +502,17 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addFilterAfter(QModelIndex
 
 /******************************************************************************
  *
- *  PVInspector::PVXmlDomModel::addSplitter
+ *  App::PVXmlDomModel::addSplitter
  *
  *****************************************************************************/
 PVRush::PVXmlTreeNodeDom*
-PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
+App::PVXmlDomModel::addSplitter(const QModelIndex& index,
                                         PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin)
 {
 	assert(splitterPlugin);
 
 	PVRush::PVXmlTreeNodeDom* child;
-	PVLOG_DEBUG("PVInspector::PVXmlDomModel::addSplitter\n");
+	PVLOG_DEBUG("App::PVXmlDomModel::addSplitter\n");
 	PVRush::PVXmlTreeNodeDom* field;
 	if (index.isValid()) { // add as child
 		field = nodeFromIndex(index);
@@ -555,17 +555,17 @@ PVInspector::PVXmlDomModel::addSplitter(const QModelIndex& index,
 
 /******************************************************************************
  *
- *  PVInspector::PVXmlDomModel::addConverter
+ *  App::PVXmlDomModel::addConverter
  *
  *****************************************************************************/
 PVRush::PVXmlTreeNodeDom*
-PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
+App::PVXmlDomModel::addConverter(const QModelIndex& index,
                                          PVFilter::PVFieldsConverterParamWidget_p converterPlugin)
 {
 	assert(converterPlugin);
 
 	PVRush::PVXmlTreeNodeDom* child;
-	PVLOG_DEBUG("PVInspector::PVXmlDomModel::addConverter\n");
+	PVLOG_DEBUG("App::PVXmlDomModel::addConverter\n");
 	PVRush::PVXmlTreeNodeDom* field;
 	if (index.isValid()) { // add as child
 		field = nodeFromIndex(index);
@@ -603,7 +603,7 @@ PVInspector::PVXmlDomModel::addConverter(const QModelIndex& index,
 	return child;
 }
 
-PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitterWithAxes(
+PVRush::PVXmlTreeNodeDom* App::PVXmlDomModel::addSplitterWithAxes(
     const QModelIndex& index,
     PVFilter::PVFieldsSplitterParamWidget_p splitterPlugin,
     QStringList axesName)
@@ -623,7 +623,7 @@ PVRush::PVXmlTreeNodeDom* PVInspector::PVXmlDomModel::addSplitterWithAxes(
 	return splitter_node;
 }
 
-void PVInspector::PVXmlDomModel::setDefaultAttributesForAxis(QDomElement& elt)
+void App::PVXmlDomModel::setDefaultAttributesForAxis(QDomElement& elt)
 {
 	assert(elt.tagName() == PVFORMAT_XML_TAG_AXIS_STR);
 	elt.setAttribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
@@ -635,10 +635,10 @@ void PVInspector::PVXmlDomModel::setDefaultAttributesForAxis(QDomElement& elt)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::addRegExIn
+ * App::PVXmlDomModel::addRegExIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
+void App::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 {
 	// if it's a "field"
 	if (index.isValid()) {
@@ -678,10 +678,10 @@ void PVInspector::PVXmlDomModel::addRegExIn(const QModelIndex& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::moveDown
+ * App::PVXmlDomModel::moveDown
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::moveDown(const QModelIndex& index)
+void App::PVXmlDomModel::moveDown(const QModelIndex& index)
 {
 	PVRush::PVXmlTreeNodeDom* child = nodeFromIndex(index);
 	PVRush::PVXmlTreeNodeDom* parent = child->getParent();
@@ -699,10 +699,10 @@ void PVInspector::PVXmlDomModel::moveDown(const QModelIndex& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::moveUp
+ * App::PVXmlDomModel::moveUp
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::moveUp(const QModelIndex& index)
+void App::PVXmlDomModel::moveUp(const QModelIndex& index)
 {
 	// qDebug() << "model MoveUp";
 
@@ -722,10 +722,10 @@ void PVInspector::PVXmlDomModel::moveUp(const QModelIndex& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::selectNext
+ * App::PVXmlDomModel::selectNext
  *
  *****************************************************************************/
-QModelIndex PVInspector::PVXmlDomModel::selectNext(const QModelIndex& idx)
+QModelIndex App::PVXmlDomModel::selectNext(const QModelIndex& idx)
 {
 	QModelIndex newSel;
 	if (idx.isValid()) {
@@ -752,10 +752,10 @@ QModelIndex PVInspector::PVXmlDomModel::selectNext(const QModelIndex& idx)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::openXml
+ * App::PVXmlDomModel::openXml
  *
  *****************************************************************************/
-bool PVInspector::PVXmlDomModel::openXml(QString url)
+bool App::PVXmlDomModel::openXml(QString url)
 {
 	// qDebug() << "PVXmlDomModel::openXml()";
 	this->urlXml = url;
@@ -800,7 +800,7 @@ bool PVInspector::PVXmlDomModel::openXml(QString url)
 	return true;
 }
 
-void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
+void App::PVXmlDomModel::openXml(QDomDocument& doc)
 {
 	PVRush::PVFormatVersion::to_current(doc);
 	xmlFile = doc;
@@ -826,12 +826,12 @@ void PVInspector::PVXmlDomModel::openXml(QDomDocument& doc)
 	Q_EMIT layoutChanged(); // to resfresh screen
 }
 
-bool PVInspector::PVXmlDomModel::hasFormatChanged() const
+bool App::PVXmlDomModel::hasFormatChanged() const
 {
 	return xmlFile.toString() != _original_xml_content;
 }
 
-void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,
+void App::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,
                                                        QString const& type,
                                                        QString const& mode_mapping,
                                                        QString const& mode_plotting)
@@ -849,10 +849,10 @@ void PVInspector::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::addUrlIn
+ * App::PVXmlDomModel::addUrlIn
  *
  *****************************************************************************/
-void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
+void App::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 {
 
 	PVRush::PVXmlTreeNodeDom* child;
@@ -984,10 +984,10 @@ void PVInspector::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlDomModel::trustConfictSplitAxes
+ * App::PVXmlDomModel::trustConfictSplitAxes
  *
  *****************************************************************************/
-bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex& index)
+bool App::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex& index)
 {
 	PVRush::PVXmlTreeNodeDom* node;
 	if (index.isValid()) {
@@ -1010,35 +1010,35 @@ bool PVInspector::PVXmlDomModel::trustConfictSplitAxes(const QModelIndex& index)
 	return true;
 }
 
-void PVInspector::PVXmlDomModel::processChildrenWithField(PVCore::PVField const& field)
+void App::PVXmlDomModel::processChildrenWithField(PVCore::PVField const& field)
 {
 	getRoot()->getChildrenFromField(field);
 	Q_EMIT layoutChanged();
 }
 
-void PVInspector::PVXmlDomModel::clearFiltersData()
+void App::PVXmlDomModel::clearFiltersData()
 {
 	getRoot()->clearFiltersData();
 }
 
-void PVInspector::PVXmlDomModel::updateFiltersDataDisplay()
+void App::PVXmlDomModel::updateFiltersDataDisplay()
 {
 	getRoot()->updateFiltersDataDisplay();
 }
 
-void PVInspector::PVXmlDomModel::updateFieldsLinearId()
+void App::PVXmlDomModel::updateFieldsLinearId()
 {
 	getRoot()->updateFieldLinearId((PVCol)0);
 }
 
-void PVInspector::PVXmlDomModel::setAxesNames(QStringList const& names)
+void App::PVXmlDomModel::setAxesNames(QStringList const& names)
 {
 	getRoot()->setAxesNames(names, (PVCol)0);
 
 	Q_EMIT layoutChanged();
 }
 
-void PVInspector::PVXmlDomModel::updateAxesCombination()
+void App::PVXmlDomModel::updateAxesCombination()
 {
 	bool was_default = _axes_combination.is_default();
 
@@ -1065,12 +1065,12 @@ void PVInspector::PVXmlDomModel::updateAxesCombination()
 	}
 }
 
-size_t PVInspector::PVXmlDomModel::get_axes_count() const
+size_t App::PVXmlDomModel::get_axes_count() const
 {
 	return getRootDom().elementsByTagName("axis").length();
 }
 
-void PVInspector::PVXmlDomModel::set_python_script(const QString& python_script, bool is_path, bool disabled)
+void App::PVXmlDomModel::set_python_script(const QString& python_script, bool is_path, bool disabled)
 {
 	QDomDocument doc = getRootDom().toDocument();
 
@@ -1096,7 +1096,7 @@ void PVInspector::PVXmlDomModel::set_python_script(const QString& python_script,
 	newNodeTag.appendChild(newNodeText);
 }
 
-QString PVInspector::PVXmlDomModel::get_python_script(bool& is_path, bool& disabled) const
+QString App::PVXmlDomModel::get_python_script(bool& is_path, bool& disabled) const
 {
 	QDomElement python_script_element = getRootDom().firstChildElement("python-script");
 

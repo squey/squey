@@ -48,15 +48,15 @@
 #include <boost/thread.hpp>
 #include <memory>
 
-QList<QUrl> PVInspector::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl>();
+QList<QUrl> App::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl>();
 
 #define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget
+ * App::PVFormatBuilderWidget::PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
+App::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
     : QMainWindow(parent), _file_dialog(this)
 {
 	init(parent);
@@ -64,7 +64,7 @@ PVInspector::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
 	setAttribute(Qt::WA_DeleteOnClose, true);
 }
 
-void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
+void App::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
 {
 	if (myTreeView->getModel()->hasFormatChanged()) {
 		QMessageBox msgBox(this);
@@ -97,7 +97,7 @@ void PVInspector::PVFormatBuilderWidget::closeEvent(QCloseEvent* event)
 	}
 }
 
-void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
+void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 {
 	setWindowTitle(FORMAT_BUILDER_TITLE);
 
@@ -186,7 +186,7 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 
 	setCentralWidget(central_widget);
 
-	/* add of user/inendi inspector's path for formats
+	/* add of user/squey's path for formats
 	 */
 	setCentralWidget(central_widget);
 
@@ -239,10 +239,10 @@ void PVInspector::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 }
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget
+ * App::PVFormatBuilderWidget::~PVFormatBuilderWidget
  *
  *****************************************************************************/
-PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget()
+App::PVFormatBuilderWidget::~PVFormatBuilderWidget()
 {
 	/* RH: restore the original shortcut list to prevent Qt from polluting
 	 * its .ini file (under Unix: ~/.config/Trolltech.conf) by adding
@@ -257,10 +257,10 @@ PVInspector::PVFormatBuilderWidget::~PVFormatBuilderWidget()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::actionAllocation
+ * App::PVFormatBuilderWidget::actionAllocation
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::actionAllocation()
+void App::PVFormatBuilderWidget::actionAllocation()
 {
 	actionAddAxisIn = new QAction("add an axis", (QObject*)this);
 	actionAddAxisIn->setIcon(QIcon(":/add-axis"));
@@ -295,10 +295,10 @@ void PVInspector::PVFormatBuilderWidget::actionAllocation()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::initConnexions
+ * App::PVFormatBuilderWidget::initConnexions
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initConnexions()
+void App::PVFormatBuilderWidget::initConnexions()
 {
 	// connexion to update the parameter board
 	connect(myTreeView, &PVXmlTreeView::clicked, myParamBord_old_model, &PVXmlParamWidget::edit);
@@ -352,10 +352,10 @@ void PVInspector::PVFormatBuilderWidget::initConnexions()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::initToolBar
+ * App::PVFormatBuilderWidget::initToolBar
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
+void App::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 {
 
 	auto tools = new QToolBar();
@@ -377,39 +377,39 @@ void PVInspector::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotAddAxisIn
+ * App::PVFormatBuilderWidget::slotAddAxisIn
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddAxisIn()
+void App::PVFormatBuilderWidget::slotAddAxisIn()
 {
 	myTreeView->addAxisIn();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotAddFilterAfter
+ * App::PVFormatBuilderWidget::slotAddFilterAfter
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddFilterAfter()
+void App::PVFormatBuilderWidget::slotAddFilterAfter()
 {
 	myTreeView->addFilterAfter();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotAddRegExAfter
+ * App::PVFormatBuilderWidget::slotAddRegExAfter
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddRegExAfter()
+void App::PVFormatBuilderWidget::slotAddRegExAfter()
 {
 	myTreeView->addRegExIn();
 }
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotAddSplitter
+ * App::PVFormatBuilderWidget::slotAddSplitter
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
+void App::PVFormatBuilderWidget::slotAddSplitter()
 {
 	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
@@ -418,17 +418,17 @@ void PVInspector::PVFormatBuilderWidget::slotAddSplitter()
 	PVFilter::PVFieldsSplitterParamWidget_p in_t_cpy =
 	    in_t->clone<PVFilter::PVFieldsSplitterParamWidget>();
 	QString registered_name = in_t_cpy->registered_name();
-	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddSplitter) type_name %s, %s\n",
+	PVLOG_DEBUG("(App::PVFormatBuilderWidget::slotAddSplitter) type_name %s, %s\n",
 	            qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
 	myTreeView->addSplitter(in_t_cpy);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotAddConverter
+ * App::PVFormatBuilderWidget::slotAddConverter
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddConverter()
+void App::PVFormatBuilderWidget::slotAddConverter()
 {
 	auto* action_src = (QAction*)sender();
 	QString const& itype = action_src->data().toString();
@@ -437,27 +437,27 @@ void PVInspector::PVFormatBuilderWidget::slotAddConverter()
 	PVFilter::PVFieldsConverterParamWidget_p in_t_cpy =
 	    in_t->clone<PVFilter::PVFieldsConverterParamWidget>();
 	QString registered_name = in_t_cpy->registered_name();
-	PVLOG_DEBUG("(PVInspector::PVFormatBuilderWidget::slotAddConverter) type_name %s, %s\n",
+	PVLOG_DEBUG("(App::PVFormatBuilderWidget::slotAddConverter) type_name %s, %s\n",
 	            qPrintable(in_t_cpy->type_name()), qPrintable(registered_name));
 	myTreeView->addConverter(in_t_cpy);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotAddUrl
+ * App::PVFormatBuilderWidget::slotAddUrl
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotAddUrl()
+void App::PVFormatBuilderWidget::slotAddUrl()
 {
 	myTreeView->addUrlIn();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotApplyModification
+ * App::PVFormatBuilderWidget::slotApplyModification
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotApplyModification()
+void App::PVFormatBuilderWidget::slotApplyModification()
 {
 	QModelIndex index;
 	myTreeView->applyModification(myParamBord_old_model, index);
@@ -465,10 +465,10 @@ void PVInspector::PVFormatBuilderWidget::slotApplyModification()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotDelete
+ * App::PVFormatBuilderWidget::slotDelete
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotDelete()
+void App::PVFormatBuilderWidget::slotDelete()
 {
 	if (!myTreeView->currentIndex().isValid()) {
 		return;
@@ -486,30 +486,30 @@ void PVInspector::PVFormatBuilderWidget::slotDelete()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotMoveUp
+ * App::PVFormatBuilderWidget::slotMoveUp
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotMoveUp()
+void App::PVFormatBuilderWidget::slotMoveUp()
 {
 	myTreeView->moveUp();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotMoveDown
+ * App::PVFormatBuilderWidget::slotMoveDown
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotMoveDown()
+void App::PVFormatBuilderWidget::slotMoveDown()
 {
 	myTreeView->moveDown();
 }
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotNeedApply
+ * App::PVFormatBuilderWidget::slotNeedApply
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotNeedApply()
+void App::PVFormatBuilderWidget::slotNeedApply()
 {
 	QModelIndex index;
 	myTreeView->applyModification(myParamBord_old_model, index);
@@ -517,10 +517,10 @@ void PVInspector::PVFormatBuilderWidget::slotNeedApply()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotNewWindow
+ * App::PVFormatBuilderWidget::slotNewWindow
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotNewWindow()
+void App::PVFormatBuilderWidget::slotNewWindow()
 {
 	auto other = new PVFormatBuilderWidget;
 	other->move(x() + 40, y() + 40);
@@ -529,10 +529,10 @@ void PVInspector::PVFormatBuilderWidget::slotNewWindow()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotOpen
+ * App::PVFormatBuilderWidget::slotOpen
  *
  *****************************************************************************/
-QString PVInspector::PVFormatBuilderWidget::slotOpen()
+QString App::PVFormatBuilderWidget::slotOpen()
 {
 	_file_dialog.setWindowTitle("Load format from...");
 	_file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
@@ -550,7 +550,7 @@ QString PVInspector::PVFormatBuilderWidget::slotOpen()
 	return urlFile;
 }
 
-bool PVInspector::PVFormatBuilderWidget::save()
+bool App::PVFormatBuilderWidget::save()
 {
 	// Take focus, so any currently edited argument will be set
 	setFocus(Qt::MouseFocusReason);
@@ -584,7 +584,7 @@ bool PVInspector::PVFormatBuilderWidget::save()
 	return saveAs();
 }
 
-void PVInspector::PVFormatBuilderWidget::check_for_new_time_formats()
+void App::PVFormatBuilderWidget::check_for_new_time_formats()
 {
 	try {
 		const std::unordered_set<std::string> time_formats =
@@ -626,7 +626,7 @@ void PVInspector::PVFormatBuilderWidget::check_for_new_time_formats()
 	}
 }
 
-bool PVInspector::PVFormatBuilderWidget::check_format_validity()
+bool App::PVFormatBuilderWidget::check_format_validity()
 {
 	if (myTreeModel->get_axes_count() >= 2) {
 		return true;
@@ -643,15 +643,15 @@ bool PVInspector::PVFormatBuilderWidget::check_format_validity()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotSave
+ * App::PVFormatBuilderWidget::slotSave
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotSave()
+void App::PVFormatBuilderWidget::slotSave()
 {
 	save();
 }
 
-bool PVInspector::PVFormatBuilderWidget::saveAs()
+bool App::PVFormatBuilderWidget::saveAs()
 {
 	setFocus(Qt::MouseFocusReason);
 
@@ -686,15 +686,15 @@ bool PVInspector::PVFormatBuilderWidget::saveAs()
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotSaveAs
+ * App::PVFormatBuilderWidget::slotSaveAs
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotSaveAs()
+void App::PVFormatBuilderWidget::slotSaveAs()
 {
 	saveAs();
 }
 
-void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
+void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 {
 	static constexpr const size_t mega = 1024 * 1024;
 
@@ -788,7 +788,7 @@ void PVInspector::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 	slotExtractorPreview();
 }
 
-void PVInspector::PVFormatBuilderWidget::update_types_autodetection_count(
+void App::PVFormatBuilderWidget::update_types_autodetection_count(
     const PVRush::PVFormat& format)
 {
 	static constexpr const size_t total_fields = 100000;
@@ -804,7 +804,7 @@ void PVInspector::PVFormatBuilderWidget::update_types_autodetection_count(
 	_nraw_widget->set_autodetect_count(row_count);
 }
 
-void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
+void App::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
 {
 	// Change the window title with the filename of the format
 	QFileInfo fi(path);
@@ -813,10 +813,10 @@ void PVInspector::PVFormatBuilderWidget::setWindowTitleForFile(QString const& pa
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotUpdateToolsState
+ * App::PVFormatBuilderWidget::slotUpdateToolsState
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotUpdateToolsState(const QModelIndex& index)
+void App::PVFormatBuilderWidget::slotUpdateToolsState(const QModelIndex& index)
 {
 	PVRush::PVXmlTreeNodeDom* node = myTreeModel->nodeFromIndex(index);
 
@@ -872,10 +872,10 @@ void PVInspector::PVFormatBuilderWidget::slotUpdateToolsState(const QModelIndex&
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::initMenuBar
+ * App::PVFormatBuilderWidget::initMenuBar
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::initMenuBar()
+void App::PVFormatBuilderWidget::initMenuBar()
 {
 	QMenu* file = menuBar->addMenu(tr("&File"));
 
@@ -922,7 +922,7 @@ void PVInspector::PVFormatBuilderWidget::initMenuBar()
 	}
 }
 
-void PVInspector::PVFormatBuilderWidget::get_source_creator_from_inputs(
+void App::PVFormatBuilderWidget::get_source_creator_from_inputs(
     const PVRush::PVInputDescription_p input,
     const PVRush::PVInputType_p& input_type,
     PVRush::PVSourceCreator_p& source_creator,
@@ -950,7 +950,7 @@ void PVInspector::PVFormatBuilderWidget::get_source_creator_from_inputs(
 	}
 }
 
-PVRush::PVFormat PVInspector::PVFormatBuilderWidget::load_log_and_guess_format(
+PVRush::PVFormat App::PVFormatBuilderWidget::load_log_and_guess_format(
     const PVRush::PVInputDescription_p input, const PVRush::PVInputType_p& input_type)
 {
 	_log_input_type = input_type;
@@ -967,11 +967,11 @@ PVRush::PVFormat PVInspector::PVFormatBuilderWidget::load_log_and_guess_format(
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::guess_format
+ * App::PVFormatBuilderWidget::guess_format
  *
  *****************************************************************************/
 PVRush::PVFormat
-PVInspector::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
+App::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
                                                  PVXmlDomModel& tree_model) const
 {
 	// Guess first splitter and add it to the dom before parsing it !
@@ -1013,7 +1013,7 @@ PVInspector::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p
 }
 
 PVRush::PVFormat
-PVInspector::PVFormatBuilderWidget::guess_format(const PVRush::PVInputDescription_p input,
+App::PVFormatBuilderWidget::guess_format(const PVRush::PVInputDescription_p input,
                                                  const PVRush::PVInputType_p& input_type) const
 {
 	PVRush::PVSourceCreator_p source_creator;
@@ -1028,11 +1028,11 @@ PVInspector::PVFormatBuilderWidget::guess_format(const PVRush::PVInputDescriptio
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::load_log
+ * App::PVFormatBuilderWidget::load_log
  *
  *****************************************************************************/
 
-void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
+void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 {
 	// If no files where selected, ask for one.
 	if (_inputs.isEmpty()) {
@@ -1158,10 +1158,10 @@ void PVInspector::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 /******************************************************************************
  *
- * PVInspector::PVFormatBuilderWidget::slotOpenLog
+ * App::PVFormatBuilderWidget::slotOpenLog
  *
  *****************************************************************************/
-void PVInspector::PVFormatBuilderWidget::slotOpenLog()
+void App::PVFormatBuilderWidget::slotOpenLog()
 {
 	_log_input_type = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*)sender());
 
@@ -1170,13 +1170,13 @@ void PVInspector::PVFormatBuilderWidget::slotOpenLog()
 	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
 }
 
-PVRush::PVFormat PVInspector::PVFormatBuilderWidget::get_format_from_dom() const
+PVRush::PVFormat App::PVFormatBuilderWidget::get_format_from_dom() const
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	return PVRush::PVFormat{rootDom};
 }
 
-void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
+void App::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 {
 	assert(_log_extract);
 	assert(end > start);
@@ -1204,20 +1204,20 @@ void PVInspector::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	}
 }
 
-void PVInspector::PVFormatBuilderWidget::slotExtractorPreview()
+void App::PVFormatBuilderWidget::slotExtractorPreview()
 {
 	PVRow start, end;
 	_nraw_widget->get_ext_args(start, end);
 	load_log(start, end);
 }
 
-bool PVInspector::PVFormatBuilderWidget::is_dom_empty()
+bool App::PVFormatBuilderWidget::is_dom_empty()
 {
 	QDomElement const& rootDom = myTreeModel->getRootDom();
 	return !rootDom.hasChildNodes();
 }
 
-void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex& index)
+void App::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex& index)
 {
 	// Automatically set the good columns in the mini-extractor
 
@@ -1245,7 +1245,7 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInView(const QModelIndex
 	}
 }
 
-void PVInspector::PVFormatBuilderWidget::slotItemClickedInMiniExtractor(PVCol column)
+void App::PVFormatBuilderWidget::slotItemClickedInMiniExtractor(PVCol column)
 {
 	/* Automatically selection the good axis in the tree view */
 
@@ -1261,7 +1261,7 @@ void PVInspector::PVFormatBuilderWidget::slotItemClickedInMiniExtractor(PVCol co
 	}
 }
 
-QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol field_id,
+QModelIndex App::PVFormatBuilderWidget::get_field_node_index(const PVCol field_id,
                                                                      const QModelIndex& parent)
 {
 	QModelIndex index = QModelIndex();
@@ -1284,7 +1284,7 @@ QModelIndex PVInspector::PVFormatBuilderWidget::get_field_node_index(const PVCol
 	return index;
 }
 
-void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
+void App::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row)
 {
 	assert(_nraw);
 	if ((PVRow)row >= _nraw->row_count()) {
@@ -1298,7 +1298,7 @@ void PVInspector::PVFormatBuilderWidget::set_axes_name_selected_row_Slot(int row
 	myTreeModel->setAxesNames(names);
 }
 
-bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
+bool App::PVFormatBuilderWidget::openFormat(QString const& path)
 {
 	QFile f(path);
 	if (f.exists()) { // if the file exists...
@@ -1318,12 +1318,12 @@ bool PVInspector::PVFormatBuilderWidget::openFormat(QString const& path)
 	return false;
 }
 
-void PVInspector::PVFormatBuilderWidget::openFormat(QDomDocument& doc)
+void App::PVFormatBuilderWidget::openFormat(QDomDocument& doc)
 {
 	myTreeModel->openXml(doc);
 }
 
-void PVInspector::PVFormatBuilderWidget::slotMainTabChanged(int idx)
+void App::PVFormatBuilderWidget::slotMainTabChanged(int idx)
 {
 	if (idx == 2) {
 		// This is the axes combination editor.

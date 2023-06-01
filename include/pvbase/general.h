@@ -29,22 +29,16 @@
 
 #include <QtGlobal>
 
-// "INENDI_VERSION_FILE_PATH" and "INENDI_BUILD_FILE_PATH" are set by cmake
+// "SQUEY_VERSION_FILE_PATH" and "SQUEY_BUILD_FILE_PATH" are set by cmake
 // (CMakeOptions.txt/CMakeVersionHandler.txt respectively)
-#include INENDI_VERSION_FILE_PATH
-#include INENDI_BUILD_FILE_PATH
+#include SQUEY_VERSION_FILE_PATH
+#include SQUEY_BUILD_FILE_PATH
 
 #include "types.h"
 #include "export.h"
 
-static constexpr const char* INENDI_ORGANISATION = "INENDI";
-static constexpr const char* INENDI_APPLICATIONNAME = "Inspector";
-
-static constexpr const char* INENDI_GLOBAL_LICENSE_PATH = "/opt/inendi/inspector.lic";
-static constexpr const char* INENDI_LICENSE_PATH = "~/.inendi/licenses/inspector.lic";
-static constexpr const char* INENDI_LICENSE_PREFIX = "II";
-static constexpr const char* INENDI_LICENSE_FEATURE = "INSPECTOR";
-static constexpr const char* INENDI_LICENSE_MAXMEM = "MAXMEM";
+static constexpr const char* SQUEY_ORGANISATION = "SQUEY";
+static constexpr const char* SQUEY_APPLICATIONNAME = "Squey";
 
 static constexpr const int PVEXTRACT_NUMBER_LINES_FIRST_DEFAULT = 1000000;
 static constexpr const int PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT = 1000000;
@@ -52,8 +46,8 @@ static constexpr const int PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT = 1000000;
 static constexpr const int FORMATBUILDER_EXTRACT_START_DEFAULT = 0;
 static constexpr const int FORMATBUILDER_EXTRACT_END_DEFAULT = 100;
 
-static constexpr const char* INENDI_LOCAL_FORMAT_STR = "Default local format";
-static constexpr const char* INENDI_BROWSE_FORMAT_STR = "Custom format";
+static constexpr const char* SQUEY_LOCAL_FORMAT_STR = "Default local format";
+static constexpr const char* SQUEY_BROWSE_FORMAT_STR = "Custom format";
 
 static constexpr const char PVCORE_DIRECTORY_SEP = ';';
 
@@ -63,18 +57,18 @@ static constexpr const char* PVCONFIG_FORMATS_SHOW_INVALID = "formats/invalid/wa
 
 #define ALL_FILES_FILTER "All files (*.*)"
 
-static constexpr const uint32_t INENDI_ARCHIVES_VERSION = 3;
+static constexpr const uint32_t SQUEY_ARCHIVES_VERSION = 3;
 
-#define INENDI_PATH_SEPARATOR "/"
-static constexpr const char INENDI_PATH_SEPARATOR_CHAR = '/';
+#define SQUEY_PATH_SEPARATOR "/"
+static constexpr const char SQUEY_PATH_SEPARATOR_CHAR = '/';
 
-static constexpr const char* INENDI_DLL_EXTENSION = ".so";
+static constexpr const char* SQUEY_DLL_EXTENSION = ".so";
 
-static constexpr const char* INENDI_DLL_PREFIX = "lib";
+static constexpr const char* SQUEY_DLL_PREFIX = "lib";
 
 static constexpr const char* ESCAPE_PERCENT = "\%";
 
-#define INENDI_CONFDIR ".inendi"
-#define INENDI_INSPECTOR_CONFDIR INENDI_CONFDIR INENDI_PATH_SEPARATOR "inspector"
+#define SQUEY_CONFDIR ".squey"
+#define SQUEY_SQUEY_CONFDIR SQUEY_CONFDIR SQUEY_PATH_SEPARATOR "squey"
 
 #endif /* PVBASE_GENERAL_H */

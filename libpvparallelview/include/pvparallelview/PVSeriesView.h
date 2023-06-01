@@ -25,7 +25,7 @@
 #ifndef _PVSERIESVIEW_H_
 #define _PVSERIESVIEW_H_
 
-#include <inendi/PVRangeSubSampler.h>
+#include <squey/PVRangeSubSampler.h>
 
 #include <QWidget>
 
@@ -48,7 +48,7 @@ class PVSeriesView : public QWidget
 
 	enum class Backend { QPainter, OpenGL, OffscreenOpenGL, Default = OffscreenOpenGL };
 
-	explicit PVSeriesView(Inendi::PVRangeSubSampler& rss,
+	explicit PVSeriesView(Squey::PVRangeSubSampler& rss,
 	                      Backend backend = Backend::Default,
 	                      QWidget* parent = 0);
 	virtual ~PVSeriesView();
@@ -72,7 +72,7 @@ class PVSeriesView : public QWidget
 	void resizeEvent(QResizeEvent* event) override;
 
   private:
-	Inendi::PVRangeSubSampler& _rss;
+	Squey::PVRangeSubSampler& _rss;
 	std::unique_ptr<PVSeriesAbstractRenderer> _renderer;
 	const Backend _backend;
 	QPixmap _pixmap;

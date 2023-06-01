@@ -244,7 +244,7 @@ QString opengl_version()
 	return str;
 }
 
-PVSeriesRendererOffscreen::PVSeriesRendererOffscreen(Inendi::PVRangeSubSampler const& rss)
+PVSeriesRendererOffscreen::PVSeriesRendererOffscreen(Squey::PVRangeSubSampler const& rss)
     : PVSeriesAbstractRenderer(rss), QOffscreenSurface(), _gl_renderer(rss)
 {
 	std::vector<EGLDeviceEXT> devices = get_devices();

@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvguiqt/PVSortFilter.h>
 
 #include <pvcop/core/selected_array.h>
@@ -32,7 +32,7 @@
 #include <chrono>
 #include <iostream>
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr size_t SIZE = 200000000;
 #else
 constexpr size_t SIZE = 10000;
@@ -50,7 +50,7 @@ static bool is_sorted(const PVGuiQt::PVSortFilter& sf,
 int main()
 {
 	PVGuiQt::PVSortFilter sf(SIZE);
-	Inendi::PVSelection sel(SIZE);
+	Squey::PVSelection sel(SIZE);
 	sel.select_even();
 
 	PV_VALID(sf.size(), SIZE);
@@ -68,7 +68,7 @@ int main()
 
 	PV_VALID(sf.size(), SIZE / 2);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	PV_ASSERT_VALID(not is_sorted(sf, sorted_sel_array));
 #endif
 
@@ -77,7 +77,7 @@ int main()
 	end = std::chrono::steady_clock::now();
 	diff += (end - start);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	PV_ASSERT_VALID(is_sorted(sf, sorted_sel_array));
 #endif
 

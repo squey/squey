@@ -34,10 +34,10 @@ namespace PVParallelView
 
 class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 {
-	using PVRSS = Inendi::PVRangeSubSampler;
+	using PVRSS = Squey::PVRangeSubSampler;
 
   public:
-	PVSeriesRendererQPainter(Inendi::PVRangeSubSampler const& rss, QWidget* parent = nullptr)
+	PVSeriesRendererQPainter(Squey::PVRangeSubSampler const& rss, QWidget* parent = nullptr)
 	    : PVSeriesAbstractRenderer(rss), QWidget(parent)
 	{
 		setAutoFillBackground(true);

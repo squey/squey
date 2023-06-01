@@ -89,7 +89,7 @@ QDomDocument PVRush::PVDBQuery::get_format_from_db_schema() const
 	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(_infos->get_type());
 	for (int i = 0; i < record.count(); i++) {
 		QSqlField field = record.field(i);
-		QString type = type_map->map_inendi(field.typeID());
+		QString type = type_map->map_squey(field.typeID());
 		format_root->addOneField(field.name(), type);
 	}
 

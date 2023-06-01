@@ -30,10 +30,10 @@ namespace PVRush
 class PVNraw;
 } // namespace PVRush
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -41,34 +41,34 @@ namespace PVGuiQt
 class PVListUniqStringsDlg;
 
 struct PVQNraw {
-	static bool show_unique_values(Inendi::PVView& view,
+	static bool show_unique_values(Squey::PVView& view,
 	                               PVCol c,
 	                               QWidget* parent = nullptr,
 	                               QDialog** dialog = nullptr);
-	static bool show_count_by(Inendi::PVView& view,
+	static bool show_count_by(Squey::PVView& view,
 	                          PVCol col1,
 	                          PVCol col2,
-	                          Inendi::PVSelection const& sel,
+	                          Squey::PVSelection const& sel,
 	                          QWidget* parent = nullptr);
-	static bool show_sum_by(Inendi::PVView& view,
+	static bool show_sum_by(Squey::PVView& view,
 	                        PVCol col1,
 	                        PVCol col2,
-	                        Inendi::PVSelection const& sel,
+	                        Squey::PVSelection const& sel,
 	                        QWidget* parent = nullptr);
-	static bool show_max_by(Inendi::PVView& view,
+	static bool show_max_by(Squey::PVView& view,
 	                        PVCol col1,
 	                        PVCol col2,
-	                        Inendi::PVSelection const& sel,
+	                        Squey::PVSelection const& sel,
 	                        QWidget* parent = nullptr);
-	static bool show_min_by(Inendi::PVView& view,
+	static bool show_min_by(Squey::PVView& view,
 	                        PVCol col1,
 	                        PVCol col2,
-	                        Inendi::PVSelection const& sel,
+	                        Squey::PVSelection const& sel,
 	                        QWidget* parent = nullptr);
-	static bool show_avg_by(Inendi::PVView& view,
+	static bool show_avg_by(Squey::PVView& view,
 	                        PVCol col1,
 	                        PVCol col2,
-	                        Inendi::PVSelection const& sel,
+	                        Squey::PVSelection const& sel,
 	                        QWidget* parent = nullptr);
 };
 } // namespace PVGuiQt

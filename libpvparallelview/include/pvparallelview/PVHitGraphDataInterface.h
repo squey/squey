@@ -35,10 +35,10 @@
 #include <cstddef>
 #include <cstdint>
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -85,18 +85,18 @@ class PVHitGraphDataInterface : boost::noncopyable
 
   public:
 	inline void process_buffer_all(ProcessParams const& params) { process_all(params, _buf_all); }
-	inline void process_buffer_selected(ProcessParams const& params, Inendi::PVSelection const& sel)
+	inline void process_buffer_selected(ProcessParams const& params, Squey::PVSelection const& sel)
 	{
 		process_sel(params, _buf_selected, sel);
 	}
 	inline void process_buffer_selectable(ProcessParams const& params,
-	                                      Inendi::PVSelection const& sel)
+	                                      Squey::PVSelection const& sel)
 	{
 		process_sel(params, _buf_selectable, sel);
 	}
 	virtual void process_all_buffers(ProcessParams const& params,
-	                                 Inendi::PVSelection const& layer_sel,
-	                                 Inendi::PVSelection const& sel);
+	                                 Squey::PVSelection const& layer_sel,
+	                                 Squey::PVSelection const& sel);
 
   public:
 	void shift_left(const uint32_t nblocks, const double alpha);
@@ -128,7 +128,7 @@ class PVHitGraphDataInterface : boost::noncopyable
 	virtual void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const = 0;
 	virtual void process_sel(ProcessParams const& params,
 	                         PVHitGraphBuffer& buf,
-	                         Inendi::PVSelection const& sel) const = 0;
+	                         Squey::PVSelection const& sel) const = 0;
 
   private:
 	PVHitGraphBuffer _buf_all;

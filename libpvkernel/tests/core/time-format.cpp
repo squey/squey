@@ -32,7 +32,7 @@
 
 #include <iostream>
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 // Reference values are computed thanks to http://www.epochconverter.com/
 int main(int argc, char** argv)

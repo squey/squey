@@ -27,7 +27,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <inendi/PVAxesCombination.h>
+#include <squey/PVAxesCombination.h>
 
 #include <pvparallelview/PVZonesProcessor.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -54,7 +54,7 @@ class PVLibView : public sigc::trackable
 	typedef std::vector<PVScatterView*> scatter_view_list_t;
 
   public:
-	explicit PVLibView(Inendi::PVView& view_sp);
+	explicit PVLibView(Squey::PVView& view_sp);
 	~PVLibView();
 
   public:
@@ -66,7 +66,7 @@ class PVLibView : public sigc::trackable
 
 	void request_zoomed_zone_trees(const PVCombCol axis);
 	PVZonesManager& get_zones_manager() { return _zones_manager; }
-	Inendi::PVView* lib_view() { return _view; }
+	Squey::PVView* lib_view() { return _view; }
 
 	void remove_view(PVFullParallelScene* scene);
 	void remove_zoomed_view(PVZoomedParallelScene* scene);
@@ -83,7 +83,7 @@ class PVLibView : public sigc::trackable
 	void plotting_updated(QList<PVCol> const& cols_updated);
 
   private:
-	Inendi::PVView* _view;
+	Squey::PVView* _view;
 	PVZonesManager _zones_manager;
 	PVSlidersManager _sliders_manager;
 	scene_list_t _parallel_scenes;

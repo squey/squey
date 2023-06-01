@@ -27,7 +27,7 @@
 
 #include <sigc++/sigc++.h>
 
-#include <inendi/PVAxesCombination.h>
+#include <squey/PVAxesCombination.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
@@ -101,7 +101,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 * Constructor
 	 *
 	 * @param zpview the container/layout
-	 * @param pvview_sp a shared pointer on the corresponding Inendi::PVView
+	 * @param pvview_sp a shared pointer on the corresponding Squey::PVView
 	 * @param sliders_manager_p a shared pointer on the sliders manager
 	 * @param zp_sel the PVZonesProcessor used for selection image
 	 * @param zp_bg the PVZonesProcessor used for background image
@@ -110,7 +110,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 
 	 */
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView* zpview,
-	                      Inendi::PVView& pvview_sp,
+	                      Squey::PVView& pvview_sp,
 	                      PVSlidersManager* sliders_manager_p,
 	                      PVZonesProcessor& zp_sel,
 	                      PVZonesProcessor& zp_bg,
@@ -358,11 +358,11 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	/**
 	 * Getter of the shared selection.
 	 */
-	inline Inendi::PVSelection const& real_selection() const
+	inline Squey::PVSelection const& real_selection() const
 	{
 		return _pvview.get_real_output_selection();
 	}
-	inline Inendi::PVSelection& layer_stack_output_selection()
+	inline Squey::PVSelection& layer_stack_output_selection()
 	{
 		return _pvview.get_layer_stack_output_layer().get_selection();
 	}
@@ -523,7 +523,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 
   private:
 	PVZoomedParallelView* _zpview;
-	Inendi::PVView& _pvview;
+	Squey::PVView& _pvview;
 	PVSlidersManager* _sliders_manager_p;
 	std::unique_ptr<PVSlidersGroup> _sliders_group;
 	PVCombCol _axis_index;

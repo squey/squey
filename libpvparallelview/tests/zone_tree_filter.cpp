@@ -25,13 +25,13 @@
 
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVZoneProcessing.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvparallelview/PVBCode.h>
 
 #include <chrono>
 #include <iostream>
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr size_t SIZE = 10000; // Means X ** 2 total lines
 #else
 // Number of line on each plotting axe (use all combination between these values)
@@ -61,7 +61,7 @@ int main()
 	PVParallelView::PVZoneProcessing zp{SIZE * SIZE, plota.data(), plotb.data()};
 	zt->process(zp, pdata);
 
-	Inendi::PVSelection sel(SIZE * SIZE);
+	Squey::PVSelection sel(SIZE * SIZE);
 	sel.select_odd(); // Start with 1 as first value thus we check for x % 2 == 0
 
 	auto start = std::chrono::steady_clock::now();
@@ -72,7 +72,7 @@ int main()
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 	for (size_t i = 0; i < NBUCKETS; i++) {
 		PVRow elt = zt->get_sel_elts()[i];
 		PV_ASSERT_VALID(elt % 2 == 0);

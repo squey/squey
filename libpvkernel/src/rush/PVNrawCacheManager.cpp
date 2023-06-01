@@ -30,7 +30,7 @@
 #include <pvkernel/core/PVDirectory.h>  // for remove_rec
 #include <pvkernel/core/PVFileHelper.h> // for PVFileHelper
 
-#include <pvbase/general.h> // for INENDI_PATH_SEPARATOR_CHAR
+#include <pvbase/general.h> // for SQUEY_PATH_SEPARATOR_CHAR
 
 #include <QByteArray> // for QByteArray
 #include <QDir>       // for QDir, etc
@@ -51,7 +51,7 @@ PVRush::PVNrawCacheManager::PVNrawCacheManager()
                                     .value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp),
                                            QString::fromStdString(PVRush::PVNraw::default_tmp_path))
                                     .toString()) +
-                            INENDI_PATH_SEPARATOR_CHAR + ".cache",
+                            SQUEY_PATH_SEPARATOR_CHAR + ".cache",
                         QSettings::IniFormat))
 {
 	_cache_file->beginGroup("cache");
@@ -212,7 +212,7 @@ QString PVRush::PVNrawCacheManager::path_to_key(const QString& path)
 
 QString PVRush::PVNrawCacheManager::key_to_path(const QString& key)
 {
-	return QString(INENDI_PATH_SEPARATOR_CHAR) + key;
+	return QString(SQUEY_PATH_SEPARATOR_CHAR) + key;
 }
 
 void PVRush::PVNrawCacheManager::compatibility_move_nraws_to_user_nraws_dir()

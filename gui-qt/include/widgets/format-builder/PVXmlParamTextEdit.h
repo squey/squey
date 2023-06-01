@@ -32,7 +32,7 @@
 #include <QSyntaxHighlighter>
 #include <QRegExp>
 
-namespace PVInspector
+namespace App
 {
 
 class PVXmlRegValidatorHighLight;
@@ -80,5 +80,5 @@ class PVXmlParamTextEdit : public QTextEdit
 	void setRegEx(const QString& regEx);
 	void slotHighLight();
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* PVXMLPARAMTEXTEDIT_H */

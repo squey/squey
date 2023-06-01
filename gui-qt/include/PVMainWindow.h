@@ -38,8 +38,8 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
-#include <inendi/PVLayerFilter.h>
-#include <inendi/PVSelection.h>
+#include <squey/PVLayerFilter.h>
+#include <squey/PVSelection.h>
 
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
@@ -66,7 +66,7 @@ class PVAboutBoxDialog;
 class PVExportSelectionDlg;
 } // namespace PVGuiQt
 
-namespace PVInspector
+namespace App
 {
 
 class PVMainWindow;
@@ -94,15 +94,15 @@ class PVMainWindow : public QMainWindow
 	int report_image_index;
 	QString* report_filename;
 
-	Inendi::PVView* current_view() { return get_root().current_view(); }
-	Inendi::PVView const* current_view() const { return get_root().current_view(); }
+	Squey::PVView* current_view() { return get_root().current_view(); }
+	Squey::PVView const* current_view() const { return get_root().current_view(); }
 
-	Inendi::PVScene* current_scene() { return get_root().current_scene(); }
-	Inendi::PVScene const* current_scene() const { return get_root().current_scene(); }
+	Squey::PVScene* current_scene() { return get_root().current_scene(); }
+	Squey::PVScene const* current_scene() const { return get_root().current_scene(); }
 
-	void move_selection_to_new_layer(Inendi::PVView* view);
-	void commit_selection_to_new_layer(Inendi::PVView* view);
-	void set_color(Inendi::PVView* view);
+	void move_selection_to_new_layer(Squey::PVView* view);
+	void commit_selection_to_new_layer(Squey::PVView* view);
+	void set_color(Squey::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
 	void import_type(PVRush::PVInputType_p in_t,
@@ -120,7 +120,7 @@ class PVMainWindow : public QMainWindow
 	bool maybe_save_solution();
 
   protected:
-	void remove_source(Inendi::PVSource* src_p);
+	void remove_source(Squey::PVSource* src_p);
 
   protected:
 	bool event(QEvent* event) override;
@@ -146,7 +146,7 @@ class PVMainWindow : public QMainWindow
 	void events_display_zombies_listing_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
-	Inendi::PVScene& project_new_Slot();
+	Squey::PVScene& project_new_Slot();
 	void quit_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
@@ -195,8 +195,8 @@ class PVMainWindow : public QMainWindow
 
   private:
 	bool is_project_untitled() { return _projects_tab_widget->is_current_project_untitled(); }
-	bool load_source(Inendi::PVSource* src, bool update_recent_items = true);
-	void source_loaded(Inendi::PVSource& src, bool update_recent_items);
+	bool load_source(Squey::PVSource* src, bool update_recent_items = true);
+	void source_loaded(Squey::PVSource& src, bool update_recent_items);
 	void flag_investigation_as_cached(const QString& file);
 
   private:
@@ -254,8 +254,8 @@ class PVMainWindow : public QMainWindow
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 
   public:
-	Inendi::PVRoot& get_root();
-	Inendi::PVRoot const& get_root() const;
+	Squey::PVRoot& get_root();
+	Squey::PVRoot const& get_root() const;
 
   private:
 	static PVMainWindow* find_main_window(const QString& path);
@@ -274,12 +274,12 @@ class PVMainWindow : public QMainWindow
   private:
 	QString _cur_project_file;
 	static int sequence_n;
-	Inendi::PVRoot _root;
+	Squey::PVRoot _root;
 	bool _auto_detect_cancellation;
 
   private:
 	QString _screenshot_root_dir;
 };
-} // namespace PVInspector
+} // namespace App
 
 #endif // PVMAINWINDOW_H

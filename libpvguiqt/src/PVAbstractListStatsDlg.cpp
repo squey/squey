@@ -29,14 +29,14 @@
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
 #include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
 
-#include <inendi/PVView.h>
+#include <squey/PVView.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVStatsModel.h>
 
 #include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
@@ -288,7 +288,7 @@ class PVAbstractListStatsRangePicker : public PVWidgets::PVAbstractRangePicker
  * PVGuiQt::PVAbstractListStatsDlg
  *
  *****************************************************************************/
-PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
+PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
                                                         PVCol c,
                                                         const create_model_f& f,
                                                         bool counts_are_integers /* = true */,
@@ -301,11 +301,11 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Inendi::PVView& view,
     , _counts_are_integers(counts_are_integers)
 {
 	QString search_multiples = "search-multiple";
-	Inendi::PVLayerFilter::p_type search_multiple =
-	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(search_multiples);
-	Inendi::PVLayerFilter::p_type fclone = search_multiple->clone<Inendi::PVLayerFilter>();
-	Inendi::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
-	Inendi::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
+	Squey::PVLayerFilter::p_type search_multiple =
+	    LIB_CLASS(Squey::PVLayerFilter)::get().get_class_by_name(search_multiples);
+	Squey::PVLayerFilter::p_type fclone = search_multiple->clone<Squey::PVLayerFilter>();
+	Squey::PVLayerFilter::hash_menu_function_t const& entries = fclone->get_menu_entries();
+	Squey::PVLayerFilter::hash_menu_function_t::const_iterator it_ent;
 	for (it_ent = entries.begin(); it_ent != entries.end(); ++it_ent) {
 		auto* act = new QAction(it_ent->key(), _values_view);
 		act->setData(QVariant(search_multiples)); // Save the name of the layer
@@ -626,7 +626,7 @@ void PVGuiQt::PVAbstractListStatsDlg::select_refresh(bool)
 		    // FIXME : We should handle this with more specific widgets for each
 		    // type.
 		    model().reset_selection();
-		    Inendi::PVSelection& sel = model().current_selection();
+		    Squey::PVSelection& sel = model().current_selection();
 
 		    pvcop::db::algo::range_select(col2_array, std::to_string(vmin), std::to_string(vmax),
 		                                  pvcop::db::selection(), sel);
@@ -648,22 +648,22 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 
 	// Get the filter associated with that menu entry
 	QString filter_name = act->data().toString();
-	Inendi::PVLayerFilter_p lib_filter =
-	    LIB_CLASS(Inendi::PVLayerFilter)::get().get_class_by_name(filter_name);
+	Squey::PVLayerFilter_p lib_filter =
+	    LIB_CLASS(Squey::PVLayerFilter)::get().get_class_by_name(filter_name);
 	if (!lib_filter) {
 		PVLOG_ERROR("(listing context-menu) filter '%s' does not exist !\n",
 		            qPrintable(filter_name));
 		return;
 	}
 
-	Inendi::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
+	Squey::PVLayerFilter::hash_menu_function_t entries = lib_filter->get_menu_entries();
 	QString act_name = act->text();
 	if (entries.find(act_name) == entries.end()) {
 		PVLOG_ERROR("(listing context-menu) unable to find action '%s' in filter '%s'.\n",
 		            qPrintable(act_name), qPrintable(filter_name));
 		return;
 	}
-	Inendi::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
+	Squey::PVLayerFilter::ctxt_menu_f args_f = entries[act_name];
 
 	// Set the arguments
 	_ctxt_args = lib_view()->get_last_args_filter(filter_name);
@@ -673,7 +673,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	PVCore::PVArgumentList_set_common_args_from(_ctxt_args, custom_args);
 
 	// Show the layout filter widget
-	Inendi::PVLayerFilter_p fclone = lib_filter->clone<Inendi::PVLayerFilter>();
+	Squey::PVLayerFilter_p fclone = lib_filter->clone<Squey::PVLayerFilter>();
 	assert(fclone);
 	if (_ctxt_process) {
 		_ctxt_process->deleteLater();
@@ -727,7 +727,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QString text = dlg.get_name_pattern();
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
 
-	Inendi::PVLayerStack& ls = lib_view()->get_layer_stack();
+	Squey::PVLayerStack& ls = lib_view()->get_layer_stack();
 
 	text.replace("%l", ls.get_selected_layer().get_name());
 	text.replace("%a", lib_view()->get_axes_combination().get_axis(_col).get_name());
@@ -763,12 +763,12 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	 *   reprocessing...
 	 */
 	int old_selected_layer_index = ls.get_selected_layer_index();
-	Inendi::PVSelection old_sel(lib_view()->get_output_layer().get_selection());
+	Squey::PVSelection old_sel(lib_view()->get_output_layer().get_selection());
 
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 	lib_view()->add_new_layer(text);
-	Inendi::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
+	Squey::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
 	int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
 	lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 
@@ -803,10 +803,10 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 {
-	Inendi::PVLayerStack& ls = lib_view()->get_layer_stack();
+	Squey::PVLayerStack& ls = lib_view()->get_layer_stack();
 
 	int layer_num = model().current_selection().bit_count();
-	int layer_max = INENDI_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
+	int layer_max = SQUEY_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
 	if (layer_num >= layer_max) {
 		QMessageBox::critical(this, "multiple layer creation",
 		                      QString("You try to create %1 layer(s) but no more "
@@ -852,7 +852,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	 *   reprocessing...
 	 */
 
-	Inendi::PVSelection old_sel(lib_view()->get_output_layer().get_selection());
+	Squey::PVSelection old_sel(lib_view()->get_output_layer().get_selection());
 	int old_selected_layer_index = ls.get_selected_layer_index();
 
 	/* layers creation
@@ -876,7 +876,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 		lib_view()->add_new_layer(layer_name);
-		Inendi::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
+		Squey::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
 		int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
 		lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 

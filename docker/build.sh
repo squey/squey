@@ -26,4 +26,4 @@ ${DOCKER} build-using-dockerfile $OPTS \
     --build-arg INSTALL_MODE="${INSTALL_MODE}" \
     --build-arg DCV_LICENSE_SERVER="${DCV_LICENSE_SERVER}" \
     --build-arg APT_PROXY="${APT_PROXY}" \
-    -f resources/Dockerfile --tag inendi/inspector
+    -f resources/Dockerfile --tag squey/squey

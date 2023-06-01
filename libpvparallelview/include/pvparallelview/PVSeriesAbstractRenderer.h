@@ -48,11 +48,11 @@ class PVSeriesAbstractRenderer
 	}
 
   protected:
-	PVSeriesAbstractRenderer(Inendi::PVRangeSubSampler const& rss) : _rss(rss) {}
+	PVSeriesAbstractRenderer(Squey::PVRangeSubSampler const& rss) : _rss(rss) {}
 
 	virtual void on_show_series() {}
 
-	Inendi::PVRangeSubSampler const& _rss;
+	Squey::PVRangeSubSampler const& _rss;
 	std::vector<PVSeriesView::SerieDrawInfo> _series_draw_order;
 };
 

@@ -29,10 +29,10 @@
 
 #include "test-env.h"
 
-#include <inendi/common.h>
-#include <inendi/PVRoot.h>
-#include <inendi/PVScene.h>
-#include <inendi/PVSource.h>
+#include <squey/common.h>
+#include <squey/PVRoot.h>
+#include <squey/PVScene.h>
+#include <squey/PVSource.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVFileDescription.h>
@@ -44,7 +44,7 @@
 
 #include <QCoreApplication>
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
 }
@@ -58,7 +58,7 @@ inline namespace pvtest
 {
 
 bool create_plotted_table_from_args(
-    Inendi::PVPlotted::plotteds_t& norm_plotted, PVRow& nrows, PVCol& ncols, int argc, char** argv);
+    Squey::PVPlotted::plotteds_t& norm_plotted, PVRow& nrows, PVCol& ncols, int argc, char** argv);
 int extra_param_start_at();
 bool input_is_a_file();
 void set_extra_param(int num, const char* usage_text);
@@ -92,7 +92,7 @@ class TestEnv
 {
   public:
 	/**
-	 * Initialize Inspector internal until a view is correctly build and return
+	 * Initialize Squey internal until a view is correctly build and return
 	 *this view.
 	 *
 	 * dup is the number of time we want to duplicate data.
@@ -104,7 +104,7 @@ class TestEnv
 	        const std::string& nraw_loading_from_disk_dir = "")
 	{
 		// Need this core application to find plugins path.
-		std::string prog_name = "test_inendi";
+		std::string prog_name = "test_squey";
 		char* arg = const_cast<char*>(prog_name.c_str());
 		int argc = 1;
 		QCoreApplication app(argc, &arg);
@@ -144,7 +144,7 @@ class TestEnv
 	{
 	}
 
-	Inendi::PVSource& add_source(std::vector<std::string> const& log_files,
+	Squey::PVSource& add_source(std::vector<std::string> const& log_files,
 	                             std::string const& format_file,
 	                             size_t dup = 1,
 	                             bool new_scene = true)
@@ -152,7 +152,7 @@ class TestEnv
 		return import(log_files, format_file, dup, new_scene);
 	}
 
-	Inendi::PVSource& add_source(std::string const& log_file,
+	Squey::PVSource& add_source(std::string const& log_file,
 	                             std::string const& format_file,
 	                             size_t dup = 1,
 	                             bool new_scene = true)
@@ -173,7 +173,7 @@ class TestEnv
 	/**
 	 * Compute mapping assuming PVSource is valid.
 	 */
-	Inendi::PVMapped& compute_mapping(size_t scene_id = 0, size_t src_id = 0)
+	Squey::PVMapped& compute_mapping(size_t scene_id = 0, size_t src_id = 0)
 	{
 		const auto& scenes = root.get_children();
 		assert(scene_id < scenes.size());
@@ -190,7 +190,7 @@ class TestEnv
 
 	void compute_mappings()
 	{
-		for (const auto& source : root.get_children<Inendi::PVSource>()) {
+		for (const auto& source : root.get_children<Squey::PVSource>()) {
 			source->emplace_add_child();
 		}
 	}
@@ -198,7 +198,7 @@ class TestEnv
 	/**
 	 * Compute plotting assuming PVMapped is valid.
 	 */
-	Inendi::PVPlotted&
+	Squey::PVPlotted&
 	compute_plotting(size_t scene_id = 0, size_t src_id = 0, size_t mapped_id = 0)
 	{
 		// And plot the mapped values
@@ -223,20 +223,20 @@ class TestEnv
 	void compute_plottings()
 	{
 		// And plot the mapped values
-		for (auto* mapped : root.get_children<Inendi::PVMapped>()) {
+		for (auto* mapped : root.get_children<Squey::PVMapped>()) {
 			mapped->emplace_add_child();
 		}
 	}
 
 	void compute_views()
 	{
-		for (auto* plotted : root.get_children<Inendi::PVPlotted>()) {
+		for (auto* plotted : root.get_children<Squey::PVPlotted>()) {
 			plotted->emplace_add_child();
 		}
 	}
 
   private:
-	Inendi::PVSource& import(std::vector<std::string> const& log_files,
+	Squey::PVSource& import(std::vector<std::string> const& log_files,
 	                         std::string const& format_file,
 	                         size_t dup,
 	                         bool new_scene = true,
@@ -285,9 +285,9 @@ class TestEnv
 		}
 
 		// Create the PVSource object
-		Inendi::PVScene* scene =
+		Squey::PVScene* scene =
 		    (new_scene) ? &root.emplace_add_child("scene") : root.get_children().front();
-		Inendi::PVSource& src = scene->emplace_add_child(inputs, sc_file, format);
+		Squey::PVSource& src = scene->emplace_add_child(inputs, sc_file, format);
 
 		if (not nraw_loading_from_disk_dir.empty()) {
 			src.get_rushnraw().load_from_disk(nraw_loading_from_disk_dir);
@@ -299,7 +299,7 @@ class TestEnv
 	}
 
   public:
-	Inendi::PVRoot root;
+	Squey::PVRoot root;
 
 	PVParallelView::PVLibView* get_lib_view()
 	{

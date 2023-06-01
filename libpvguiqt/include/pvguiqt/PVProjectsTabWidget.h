@@ -29,8 +29,8 @@
 
 #include <cassert>
 
-#include <inendi/PVScene.h>
-#include <inendi/PVRoot.h>
+#include <squey/PVScene.h>
+#include <squey/PVRoot.h>
 
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>
@@ -45,10 +45,10 @@
 #include <QSplitter>
 #include <QTabBar>
 
-namespace Inendi
+namespace Squey
 {
 class PVRoot;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -64,7 +64,7 @@ class PVTabBar : public QTabBar
 	Q_OBJECT
 
   public:
-	explicit PVTabBar(Inendi::PVRoot& root, QWidget* parent = 0) : QTabBar(parent), _root(root) {}
+	explicit PVTabBar(Squey::PVRoot& root, QWidget* parent = 0) : QTabBar(parent), _root(root) {}
 
   protected:
 	void mouseDoubleClickEvent(QMouseEvent* event) override;
@@ -76,13 +76,13 @@ class PVTabBar : public QTabBar
 	void rename_tab(int index);
 
   private:
-	Inendi::PVRoot& _root;
+	Squey::PVRoot& _root;
 };
 
 class PVTabWidget : public QTabWidget
 {
   public:
-	explicit PVTabWidget(Inendi::PVRoot& root, QWidget* parent = 0) : QTabWidget(parent)
+	explicit PVTabWidget(Squey::PVRoot& root, QWidget* parent = 0) : QTabWidget(parent)
 	{
 		setTabBar(new PVTabBar(root, this));
 	}
@@ -143,12 +143,12 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	static constexpr int FIRST_PROJECT_INDEX = 1;
 
   public:
-	explicit PVProjectsTabWidget(Inendi::PVRoot* root, QWidget* parent = 0);
+	explicit PVProjectsTabWidget(Squey::PVRoot* root, QWidget* parent = 0);
 
-	PVSceneWorkspacesTabWidget* add_project(Inendi::PVScene& scene_p);
+	PVSceneWorkspacesTabWidget* add_project(Squey::PVScene& scene_p);
 	void remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget);
 
-	PVSourceWorkspace* add_source(Inendi::PVSource* source);
+	PVSourceWorkspace* add_source(Squey::PVSource* source);
 
 	void add_workspace(PVSourceWorkspace* workspace);
 	void remove_workspace(PVSourceWorkspace* workspace);
@@ -157,7 +157,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	bool is_current_project_untitled() { return current_project() != nullptr; }
 	void collapse_tabs(bool collapse = true);
 
-	inline Inendi::PVScene* current_scene() const { return _root->current_scene(); }
+	inline Squey::PVScene* current_scene() const { return _root->current_scene(); }
 	PVSceneWorkspacesTabWidget* current_workspace_tab_widget() const;
 	inline PVSceneWorkspacesTabWidget* current_project() const
 	{
@@ -167,12 +167,12 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 		           : nullptr;
 	}
 
-	inline void select_tab_from_scene(Inendi::PVScene* scene);
+	inline void select_tab_from_scene(Squey::PVScene* scene);
 	inline PVWorkspaceBase* current_workspace() const
 	{
 		return current_project() ? (PVWorkspaceBase*)current_project()->currentWidget() : nullptr;
 	}
-	inline Inendi::PVView* current_view() const { return _root->current_view(); }
+	inline Squey::PVView* current_view() const { return _root->current_view(); }
 	inline int projects_count() { return _tab_widget->count() - FIRST_PROJECT_INDEX; }
 	inline const QStringList get_projects_list()
 	{
@@ -186,8 +186,8 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	{
 		return _current_workspace_tab_widget_index - FIRST_PROJECT_INDEX;
 	}
-	Inendi::PVScene* get_scene_from_path(const QString& path);
-	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Inendi::PVScene* scene);
+	Squey::PVScene* get_scene_from_path(const QString& path);
+	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Squey::PVScene* scene);
 
   private Q_SLOTS:
 	void current_tab_changed(int index);
@@ -228,7 +228,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	QStackedWidget* _stacked_widget = nullptr;
 	PVStartScreenWidget* _start_screen_widget;
 	int _current_workspace_tab_widget_index;
-	Inendi::PVRoot* _root;
+	Squey::PVRoot* _root;
 };
 } // namespace PVGuiQt
 

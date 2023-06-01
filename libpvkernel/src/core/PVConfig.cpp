@@ -26,7 +26,7 @@
 #include <pvkernel/core/PVConfig.h> // for PVConfig, etc
 #include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR
 
-#include <pvbase/general.h> // for INENDI_CONFDIR, etc
+#include <pvbase/general.h> // for SQUEY_CONFDIR, etc
 
 #include <memory>    // for operator==, __shared_ptr, etc
 #include <stdexcept> // for runtime_error
@@ -37,12 +37,12 @@
 #include <QSettings>
 #include <QFileInfo>
 
-static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/inendi/inspector.conf";
-static constexpr const char LOCAL_CONFIG_FILENAME[] = INENDI_CONFIG "/pvconfig.ini";
+static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/squey/squey.conf";
+static constexpr const char LOCAL_CONFIG_FILENAME[] = SQUEY_CONFIG "/pvconfig.ini";
 
 PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 
-static const QString _config_dir = QDir::homePath() + QDir::separator() + INENDI_CONFDIR;
+static const QString _config_dir = QDir::homePath() + QDir::separator() + SQUEY_CONFDIR;
 static const QString _lists_folder = "lists";
 
 /*****************************************************************************
@@ -77,7 +77,7 @@ PVCore::PVConfig::PVConfig()
 	}
 
 	// Compatibility with old presets file
-	QSettings old_presets(QSettings::UserScope, INENDI_ORGANISATION, INENDI_APPLICATIONNAME);
+	QSettings old_presets(QSettings::UserScope, SQUEY_ORGANISATION, SQUEY_APPLICATIONNAME);
 	if (QFileInfo(old_presets.fileName()).exists()) {
 		QDir().rename(old_presets.fileName(),
 		              QString::fromStdString(user_dir()) + QDir::separator() + PRESETS_FILENAME);
@@ -189,7 +189,7 @@ QString PVCore::PVConfig::user_path()
 
 std::string PVCore::PVConfig::user_dir()
 {
-	return (QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR + QDir::separator())
+	return (QDir::homePath() + QDir::separator() + SQUEY_SQUEY_CONFDIR + QDir::separator())
 	    .toStdString();
 }
 

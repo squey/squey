@@ -41,20 +41,20 @@ then
         flatpak uninstall $USER_OPT -y "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
     fi
 
-    # Export INENDI Inspector bundle
-    echo "[2/2] Exporting INENDI Inspector bundle ..."
-    flatpak info "${INSPECTOR_NAME}"  &> /dev/null
-    inspector_not_installed=$?
-    if [ $inspector_not_installed  -eq 1 ]
+    # Export Squey bundle
+    echo "[2/2] Exporting Squey bundle ..."
+    flatpak info "${SQUEY_NAME}"  &> /dev/null
+    squey_not_installed=$?
+    if [ $squey_not_installed  -eq 1 ]
     then
-        flatpak install $USER_OPT -y flathub "${INSPECTOR_NAME}" &> /dev/null
+        flatpak install $USER_OPT -y flathub "${SQUEY_NAME}" &> /dev/null
     else
-        flatpak update $USER_OPT -y "${INSPECTOR_NAME}" &> /dev/null
+        flatpak update $USER_OPT -y "${SQUEY_NAME}" &> /dev/null
     fi
-    flatpak build-bundle --repo-url="${FLATHUB_REPO}" --runtime-repo="${FLATHUB_REPO_FLATPAKREF}" $FLATPAK_REPO_DIR "${DATA_PATH}/inendi-inspector.flatpak" "${INSPECTOR_NAME}" "stable"
-    if [ $inspector_not_installed -eq 1 ]
+    flatpak build-bundle --repo-url="${FLATHUB_REPO}" --runtime-repo="${FLATHUB_REPO_FLATPAKREF}" $FLATPAK_REPO_DIR "${DATA_PATH}/squey.flatpak" "${SQUEY_NAME}" "stable"
+    if [ $squey_not_installed -eq 1 ]
     then
-        flatpak uninstall $USER_OPT -y "${INSPECTOR_NAME}" &> /dev/null
+        flatpak uninstall $USER_OPT -y "${SQUEY_NAME}" &> /dev/null
     fi
 
     # Download NICE DCV

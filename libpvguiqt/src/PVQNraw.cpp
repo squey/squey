@@ -27,7 +27,7 @@
 
 #include <algorithm> // std::max_element
 
-#include <inendi/PVSource.h>
+#include <squey/PVSource.h>
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -38,10 +38,10 @@
 
 #include <pvcop/db/algo.h>
 
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 
 PVGuiQt::PVStatsModel*
-distinct_values_create_model(const Inendi::PVView& view, PVCol c, Inendi::PVSelection const& sel)
+distinct_values_create_model(const Squey::PVView& view, PVCol c, Squey::PVSelection const& sel)
 {
 	const PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 	const pvcop::db::array& col_in = nraw.column(c);
@@ -71,13 +71,13 @@ distinct_values_create_model(const Inendi::PVView& view, PVCol c, Inendi::PVSele
 	BENCH_END(distinct_values, "distinct values", col_in.size(), 4, col1_out.size(), 4);
 
 	QString col1_name =
-	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(c).get_name();
+	    view.get_parent<Squey::PVSource>().get_format().get_axes().at(c).get_name();
 
 	return new PVGuiQt::PVStatsModel("Count", col1_name, QString(), std::move(col1_out),
 	                                 std::move(col2_out), std::move(abs_max), std::move(minmax));
 }
 
-bool PVGuiQt::PVQNraw::show_unique_values(Inendi::PVView& view,
+bool PVGuiQt::PVQNraw::show_unique_values(Squey::PVView& view,
                                           PVCol c,
                                           QWidget* parent,
                                           QDialog** dialog /*= nullptr*/)
@@ -100,14 +100,14 @@ static bool show_stats_dialog(const QString& op_name,
                               const F& op,
                               ABS_MAX_OP abs_max_op,
                               bool counts_are_integers,
-                              Inendi::PVView& view,
+                              Squey::PVView& view,
                               PVCol col1,
                               PVCol col2,
-                              Inendi::PVSelection const& sel,
+                              Squey::PVSelection const& sel,
                               QWidget* parent)
 {
-	auto create_groupby_model = [=](const Inendi::PVView& view, PVCol,
-	                                Inendi::PVSelection const& sel) -> PVGuiQt::PVStatsModel* {
+	auto create_groupby_model = [=](const Squey::PVView& view, PVCol,
+	                                Squey::PVSelection const& sel) -> PVGuiQt::PVStatsModel* {
 		const PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 		const pvcop::db::array& col1_in = nraw.column(col1);
 		const pvcop::db::array& col2_in = nraw.column(col2);
@@ -153,9 +153,9 @@ static bool show_stats_dialog(const QString& op_name,
 		BENCH_END(operation, op_name.toStdString().c_str(), col1_in.size(), 4, col2_in.size(), 4);
 
 		QString col1_name =
-		    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col1).get_name();
+		    view.get_parent<Squey::PVSource>().get_format().get_axes().at(col1).get_name();
 		QString col2_name =
-		    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col2).get_name();
+		    view.get_parent<Squey::PVSource>().get_format().get_axes().at(col2).get_name();
 
 		return new PVGuiQt::PVStatsModel(op_name, col1_name, col2_name, std::move(col1_out),
 		                                 std::move(col2_out), std::move(abs_max),
@@ -166,23 +166,23 @@ static bool show_stats_dialog(const QString& op_name,
 	    view, col1, col2, create_groupby_model, sel, counts_are_integers, parent);
 	dlg->setWindowTitle(
 	    op_name + " by of axes '" +
-	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col1).get_name() +
+	    view.get_parent<Squey::PVSource>().get_format().get_axes().at(col1).get_name() +
 	    "' and '" +
-	    view.get_parent<Inendi::PVSource>().get_format().get_axes().at(col2).get_name() + "'");
+	    view.get_parent<Squey::PVSource>().get_format().get_axes().at(col2).get_name() + "'");
 	dlg->show();
 
 	return true;
 }
 
 bool PVGuiQt::PVQNraw::show_count_by(
-    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
+    Squey::PVView& view, PVCol col1, PVCol col2, Squey::PVSelection const& sel, QWidget* parent)
 {
 	return show_stats_dialog("Count", &pvcop::db::algo::count_by, ABS_MAX_OP::COUNT, true, view,
 	                         col1, col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_sum_by(
-    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
+    Squey::PVView& view, PVCol col1, PVCol col2, Squey::PVSelection const& sel, QWidget* parent)
 {
 	const PVRush::PVNraw& nraw = view.get_rushnraw_parent();
 	bool counts_are_integers = nraw.column(col2).formatter()->name() != "number_float" and
@@ -203,21 +203,21 @@ bool PVGuiQt::PVQNraw::show_sum_by(
 }
 
 bool PVGuiQt::PVQNraw::show_max_by(
-    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
+    Squey::PVView& view, PVCol col1, PVCol col2, Squey::PVSelection const& sel, QWidget* parent)
 {
 	return show_stats_dialog("Max", &pvcop::db::algo::max_by, ABS_MAX_OP::MAX, true, view, col1,
 	                         col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_min_by(
-    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
+    Squey::PVView& view, PVCol col1, PVCol col2, Squey::PVSelection const& sel, QWidget* parent)
 {
 	return show_stats_dialog("Min", &pvcop::db::algo::min_by, ABS_MAX_OP::MAX, true, view, col1,
 	                         col2, sel, parent);
 }
 
 bool PVGuiQt::PVQNraw::show_avg_by(
-    Inendi::PVView& view, PVCol col1, PVCol col2, Inendi::PVSelection const& sel, QWidget* parent)
+    Squey::PVView& view, PVCol col1, PVCol col2, Squey::PVSelection const& sel, QWidget* parent)
 {
 	return show_stats_dialog("Average", &pvcop::db::algo::average_by, ABS_MAX_OP::MAX, false, view,
 	                         col1, col2, sel, parent);

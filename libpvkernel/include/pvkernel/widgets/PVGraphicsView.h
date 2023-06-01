@@ -60,7 +60,7 @@ class PVViewportEventFilter;
  *
  * @brief a widget which mimics QGraphicsView but which uses QScrollBar.
  *
- * This widget reproduces QGraphicsView's behaviours used in INENDI Inspector.
+ * This widget reproduces QGraphicsView's behaviours used in Squey.
  * So that, the differences are:
  * - the members functions coding style name have been adapted
  * - no caching when rendering (the repainted area is always renderer from

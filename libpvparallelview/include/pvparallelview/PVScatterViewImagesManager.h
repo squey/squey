@@ -51,7 +51,7 @@ class PVScatterViewImagesManager : boost::noncopyable
 	                           PVZonesProcessor& zp_sel,
 	                           PVZonesManager const& zm,
 	                           const PVCore::PVHSVColor* colors,
-	                           Inendi::PVSelection const& sel);
+	                           Squey::PVSelection const& sel);
 
 	~PVScatterViewImagesManager();
 
@@ -98,7 +98,7 @@ class PVScatterViewImagesManager : boost::noncopyable
 
 	PVScatterViewData _data;
 
-	Inendi::PVSelection const& _sel;
+	Squey::PVSelection const& _sel;
 	PVCore::PVHSVColor const* _colors;
 
 	PVZoneRenderingScatter_p _zr_bg;

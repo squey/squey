@@ -25,7 +25,7 @@
 
 #include <fstream>
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include "common.h"
 

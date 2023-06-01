@@ -48,7 +48,7 @@ bool PVRush::PVInputTypeRemoteFilename::createWidget(hash_formats& formats,
 {
 	QStringList formats_str = formats.keys();
 
-	formats_str.prepend(INENDI_BROWSE_FORMAT_STR);
+	formats_str.prepend(SQUEY_BROWSE_FORMAT_STR);
 	auto* RemoteLogDialog = new PVLogViewerDialog(formats_str, parent);
 	if (RemoteLogDialog->exec() == QDialog::Rejected) {
 		RemoteLogDialog->deleteLater();

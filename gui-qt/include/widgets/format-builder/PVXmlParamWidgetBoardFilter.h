@@ -39,7 +39,7 @@
 #include <PVXmlParamComboBox.h>
 #include <PVXmlParamColorDialog.h>
 
-namespace PVInspector
+namespace App
 {
 
 class PVXmlParamWidget;
@@ -81,5 +81,5 @@ class PVXmlParamWidgetBoardFilter : public QWidget
 	void signalRefreshView();
 	void signalEmitNext();
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* PVXMLPARAMWIDGETBOARDFILTER_H */

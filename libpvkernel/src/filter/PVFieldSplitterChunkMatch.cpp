@@ -34,7 +34,7 @@
 #include <pvkernel/core/PVElement.h>      // for list_fields, PVElement
 #include <pvkernel/core/PVLogger.h>       // for PVLOG_INFO
 #include <pvkernel/core/PVOrderedMap.h>
-#include <pvkernel/core/inendi_bench.h> // for BENCH_END, BENCH_START
+#include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
 
 #include "pvbase/types.h" // for PVCol
 
@@ -228,7 +228,7 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 	red.reduce();
 	BENCH_END(reduction, "configuration detection", _guess_res.size(), 1, red.size(), 1);
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	PVLOG_INFO("encountered splitting schemes\n");
 	red.dump();
 #endif

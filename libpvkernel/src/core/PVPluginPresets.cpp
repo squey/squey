@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvbase/general.h>                // for INENDI_INSPECTOR_CONFDIR
+#include <pvbase/general.h>                // for SQUEY_SQUEY_CONFDIR
 #include <pvkernel/core/PVPluginPresets.h> // for PVPluginPresets
 #include <memory>                          // for __shared_ptr, operator==, etc
 
@@ -53,7 +53,7 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
     : _fargs(fargs), _abs_reg_name(path + "/" + registered_name)
 {
 	if (g_presets_settings == nullptr) {
-		QFileInfo fi(QDir::homePath() + QDir::separator() + INENDI_INSPECTOR_CONFDIR +
+		QFileInfo fi(QDir::homePath() + QDir::separator() + SQUEY_SQUEY_CONFDIR +
 		             QDir::separator() + PRESETS_FILENAME);
 
 		if (!fi.exists()) {

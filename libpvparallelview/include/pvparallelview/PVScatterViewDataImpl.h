@@ -40,13 +40,13 @@ class PVScatterViewDataImpl : public PVScatterViewDataInterface
 	                tbb::task_group_context* ctxt = nullptr) const override;
 	void process_sel(ProcessParams const& params,
 	                 PVScatterViewImage& image,
-	                 Inendi::PVSelection const& sel,
+	                 Squey::PVSelection const& sel,
 	                 tbb::task_group_context* ctxt = nullptr) const override;
 
   private:
 	static void process_image(ProcessParams const& params,
 	                          PVScatterViewImage& image,
-	                          Inendi::PVSelection const* sel = nullptr,
+	                          Squey::PVSelection const* sel = nullptr,
 	                          tbb::task_group_context* ctxt = nullptr);
 };
 } // namespace PVParallelView

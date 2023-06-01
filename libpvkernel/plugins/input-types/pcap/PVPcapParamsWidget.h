@@ -51,7 +51,7 @@ class PVPcapParamsWidget : public QDialog
 	bool is_canceled() { return _selection_widget->is_canceled(); }
 
   private:
-	void open_inspector();
+	void open_squey();
 
   private:
 	SelectionWidget* _selection_widget; //!< Widget with selection information

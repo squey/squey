@@ -31,10 +31,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit
+ * App::PVXmlParamTextEdit::PVXmlParamTextEdit
  *
  *****************************************************************************/
-PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName, QVariant var) : QTextEdit()
+App::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName, QVariant var) : QTextEdit()
 {
 	setObjectName(pName);
 	variable = var.toString();
@@ -52,22 +52,22 @@ PVInspector::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName, QVariant var)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamTextEdit::~PVXmlParamTextEdit
+ * App::PVXmlParamTextEdit::~PVXmlParamTextEdit
  *
  *****************************************************************************/
-PVInspector::PVXmlParamTextEdit::~PVXmlParamTextEdit() = default;
+App::PVXmlParamTextEdit::~PVXmlParamTextEdit() = default;
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamTextEdit::setRegEx
+ * App::PVXmlParamTextEdit::setRegEx
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamTextEdit::setRegEx()
+void App::PVXmlParamTextEdit::setRegEx()
 {
 	setRegEx(((PVXmlParamTextEdit*)sender())->toPlainText());
 }
 
-void PVInspector::PVXmlParamTextEdit::setRegEx(const QString& regExp)
+void App::PVXmlParamTextEdit::setRegEx(const QString& regExp)
 {
 	if (editing) {
 		highlight = new PVXmlRegValidatorHighLight(
@@ -81,10 +81,10 @@ void PVInspector::PVXmlParamTextEdit::setRegEx(const QString& regExp)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamTextEdit::slotHighLight
+ * App::PVXmlParamTextEdit::slotHighLight
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamTextEdit::slotHighLight()
+void App::PVXmlParamTextEdit::slotHighLight()
 {
 	if (typeOfTextEdit == dateValid) {
 		// qDebug()<<"PVXmlParamTextEdit::slotHighLight for axis";
@@ -94,10 +94,10 @@ void PVInspector::PVXmlParamTextEdit::slotHighLight()
 
 /******************************************************************************
  *
- * QVariant PVInspector::PVXmlParamTextEdit::getVal
+ * QVariant App::PVXmlParamTextEdit::getVal
  *
  *****************************************************************************/
-QVariant PVInspector::PVXmlParamTextEdit::getVal() const
+QVariant App::PVXmlParamTextEdit::getVal() const
 {
 	// variable=QString(toPlainText());
 	return QVariant(toPlainText());
@@ -105,10 +105,10 @@ QVariant PVInspector::PVXmlParamTextEdit::getVal() const
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamTextEdit::setVal
+ * App::PVXmlParamTextEdit::setVal
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamTextEdit::setVal(const QString& val)
+void App::PVXmlParamTextEdit::setVal(const QString& val)
 {
 	variable = val;
 	setText(variable);
@@ -116,10 +116,10 @@ void PVInspector::PVXmlParamTextEdit::setVal(const QString& val)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamTextEdit::validDateFormat
+ * App::PVXmlParamTextEdit::validDateFormat
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamTextEdit::validDateFormat(const QStringList& pFormat)
+void App::PVXmlParamTextEdit::validDateFormat(const QStringList& pFormat)
 {
 	if (editing) {
 		timeValid = new PVXmlTimeValidatorHighLight(this, format); // we are in time validator case

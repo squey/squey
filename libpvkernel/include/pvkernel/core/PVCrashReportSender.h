@@ -73,12 +73,12 @@ class PVCrashReportSender
 #endif
 
 #if SEND_CRASH_REPORTS_AS_GITLAB_ISSUES
-		constexpr static std::string_view INSPECTOR_GITLAB_API_ENDPOINT = "https://gitlab.com/api/v4/projects/inendi%2Finspector";
-		constexpr static std::string_view INSPECTOR_GITLAB_API_ISSUES_TITLE = "Crash report";
+		constexpr static std::string_view SQUEY_GITLAB_API_ENDPOINT = "https://gitlab.com/api/v4/projects/squey";
+		constexpr static std::string_view SQUEY_GITLAB_API_ISSUES_TITLE = "Crash report";
 
 		std::unique_ptr<curl_slist, std::function<void(curl_slist*)>> headers(
 		    nullptr, [](curl_slist* headers) { curl_slist_free_all(headers); });
-		std::string auth_token_header{std::string("PRIVATE-TOKEN: ").append(INSPECTOR_CRASH_REPORTER_TOKEN)};
+		std::string auth_token_header{std::string("PRIVATE-TOKEN: ").append(SQUEY_CRASH_REPORTER_TOKEN)};
 		curl_slist* headers_list = nullptr;
 		headers_list = curl_slist_append(headers_list, auth_token_header.c_str());
 		headers.reset(headers_list);
@@ -92,9 +92,9 @@ class PVCrashReportSender
 			nullptr, [](curl_httppost* formpost) { curl_formfree(formpost); });
 
 		// Upload crash report
-		const std::string INSPECTOR_GITLAB_API_UPLOAD_ENDPOINT =
-		    std::string(INSPECTOR_GITLAB_API_ENDPOINT) + "/uploads";
-		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_GITLAB_API_UPLOAD_ENDPOINT.c_str());
+		const std::string SQUEY_GITLAB_API_UPLOAD_ENDPOINT =
+		    std::string(SQUEY_GITLAB_API_ENDPOINT) + "/uploads";
+		curl_easy_setopt(curl.get(), CURLOPT_URL, SQUEY_GITLAB_API_UPLOAD_ENDPOINT.c_str());
 
 		struct curl_httppost* formpost = nullptr;
 		struct curl_httppost* lastptr = nullptr;
@@ -119,9 +119,9 @@ class PVCrashReportSender
 		std::string minidump_link(json["markdown"].GetString());
 
 		// Create Issue
-		const std::string INSPECTOR_GITLAB_API_ISSUES_ENDPOINT =
-		    std::string(INSPECTOR_GITLAB_API_ENDPOINT) + "/issues/";
-		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_GITLAB_API_ISSUES_ENDPOINT.c_str());
+		const std::string SQUEY_GITLAB_API_ISSUES_ENDPOINT =
+		    std::string(SQUEY_GITLAB_API_ENDPOINT) + "/issues/";
+		curl_easy_setopt(curl.get(), CURLOPT_URL, SQUEY_GITLAB_API_ISSUES_ENDPOINT.c_str());
 
 		std::string description = minidump_link + " (version " + version + ")";
 
@@ -129,7 +129,7 @@ class PVCrashReportSender
 		lastptr = nullptr;
 
 		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "title", CURLFORM_COPYCONTENTS,
-		             INSPECTOR_GITLAB_API_ISSUES_TITLE.data(), CURLFORM_END);
+		             SQUEY_GITLAB_API_ISSUES_TITLE.data(), CURLFORM_END);
 		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "issue_type", CURLFORM_COPYCONTENTS,
 		             "incident", CURLFORM_END);
 		curl_formadd(&formpost, &lastptr, CURLFORM_COPYNAME, "confidential", CURLFORM_COPYCONTENTS,
@@ -153,8 +153,8 @@ class PVCrashReportSender
 			return http_code;
 		}
 #else // Send crash reports to bugsplat.com
-		#define INSPECTOR_BUGSPLAT_DATABASE "inendi_inspector"
-		#define INSPECTOR_BUGSPLAT_API_ENDPOINT "https://" INSPECTOR_BUGSPLAT_DATABASE ".bugsplat.com/post/bp/crash/crashpad.php"
+		#define SQUEY_BUGSPLAT_DATABASE "squey"
+		#define SQUEY_BUGSPLAT_API_ENDPOINT "https://" SQUEY_BUGSPLAT_DATABASE ".bugsplat.com/post/bp/crash/crashpad.php"
 
 		// Compress minidump file to speed upload
 		std::string compressed_minidump_path(minidump_path + ".zip");
@@ -172,7 +172,7 @@ class PVCrashReportSender
 		struct curl_httppost* formpost = nullptr;
 		struct curl_httppost* lastptr = nullptr;
 
-		curl_easy_setopt(curl.get(), CURLOPT_URL, INSPECTOR_BUGSPLAT_API_ENDPOINT);
+		curl_easy_setopt(curl.get(), CURLOPT_URL, SQUEY_BUGSPLAT_API_ENDPOINT);
 		curl_formadd(
 			&formpost,
 			&lastptr,
@@ -188,7 +188,7 @@ class PVCrashReportSender
 			CURLFORM_COPYNAME,
 			"product",
 			CURLFORM_COPYCONTENTS,
-			"INENDI Inspector",
+			"Squey",
 			CURLFORM_END
 		);
 		curl_formadd(
@@ -233,7 +233,7 @@ class PVCrashReportSender
 
 		std::unique_ptr<curl_slist, std::function<void(curl_slist*)>> headers(
 		    nullptr, [](curl_slist* headers) { curl_slist_free_all(headers); });
-		std::string auth_token_header{std::string("PRIVATE-TOKEN: ").append(INSPECTOR_CRASH_REPORTER_TOKEN)};
+		std::string auth_token_header{std::string("PRIVATE-TOKEN: ").append(SQUEY_CRASH_REPORTER_TOKEN)};
 		curl_slist* headers_list = nullptr;
 		headers_list = curl_slist_append(headers_list, auth_token_header.c_str());
 		headers.reset(headers_list);

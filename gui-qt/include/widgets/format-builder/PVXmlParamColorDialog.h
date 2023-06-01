@@ -31,7 +31,7 @@
 #include <QObject>
 #include <QDebug>
 #include <QColor>
-namespace PVInspector
+namespace App
 {
 class PVXmlParamColorDialog : public QPushButton
 {
@@ -51,5 +51,5 @@ class PVXmlParamColorDialog : public QPushButton
   Q_SIGNALS:
 	void changed();
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* PVXMLPARAMCOLORDIALOG_H */

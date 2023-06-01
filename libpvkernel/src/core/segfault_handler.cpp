@@ -34,7 +34,7 @@
 
 #include <client/linux/handler/exception_handler.h>
 
-#define BREAKPAD_MINIDUMP_FOLDER "/tmp/inendi-inspector_" INENDI_CURRENT_VERSION_STR "_coredumps"
+#define BREAKPAD_MINIDUMP_FOLDER "/tmp/squey_" SQUEY_CURRENT_VERSION_STR "_coredumps"
 
 static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
                           void* /*context*/,
@@ -44,7 +44,7 @@ static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
 		/* we are in the child process
 		 */
 
-		execlp("inendi-crashreport", "inendi-crashreport", descriptor.path(), nullptr);
+		execlp("squey-crashreport", "squey-crashreport", descriptor.path(), nullptr);
 
 		// if execlp returns (i.e. it has failed), we print the message in the log
 		PVLOG_ERROR("Crash report file: %s\n", descriptor.path());

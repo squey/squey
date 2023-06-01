@@ -40,11 +40,11 @@
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 
-#include <inendi/PVView.h>
-#include <inendi/PVRoot.h>
-#include <inendi/PVPlotted.h>
+#include <squey/PVView.h>
+#include <squey/PVRoot.h>
+#include <squey/PVPlotted.h>
 
-PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
+PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
                                       QWidget* view_widget,
                                       QString name,
                                       bool can_be_central_widget,
@@ -88,11 +88,11 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Inendi::PVView* view,
 	register_view(view);
 }
 
-void PVGuiQt::PVViewDisplay::register_view(Inendi::PVView* view)
+void PVGuiQt::PVViewDisplay::register_view(Squey::PVView* view)
 {
 	if (view) {
 
-		view->get_parent<Inendi::PVPlotted>()._plotted_updated.connect(
+		view->get_parent<Squey::PVPlotted>()._plotted_updated.connect(
 		    sigc::mem_fun(this, &PVGuiQt::PVViewDisplay::plotting_updated));
 	}
 }
@@ -315,7 +315,7 @@ void PVGuiQt::PVViewDisplay::restore()
 void PVGuiQt::PVViewDisplay::set_current_view()
 {
 	if (_view) {
-		_view->get_parent<Inendi::PVRoot>().select_view(*_view);
+		_view->get_parent<Squey::PVRoot>().select_view(*_view);
 	}
 }
 

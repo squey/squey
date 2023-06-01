@@ -191,7 +191,7 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 		painter->drawText(text_pos, axes_number_text);
 	}
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	if (common::show_bboxes()) {
 		const QPolygonF scene_rect = mapFromScene(scene()->sceneRect());
 		painter->setPen(QPen(QColor(0xFF, 0, 0), 0));

@@ -29,11 +29,11 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
-#include <inendi/PVStateMachine.h>
-#include <inendi/PVView.h>
-#include <inendi/PVSource.h>
+#include <squey/PVStateMachine.h>
+#include <squey/PVView.h>
+#include <squey/PVSource.h>
 
-#include <inendi/widgets/editors/PVAxisIndexEditor.h>
+#include <squey/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
@@ -63,7 +63,7 @@
  *
  *****************************************************************************/
 PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* full_parallel_view,
-                                                         Inendi::PVView& view_sp,
+                                                         Squey::PVView& view_sp,
                                                          PVParallelView::PVSlidersManager* sm_p,
                                                          PVBCIDrawingBackend& backend,
                                                          PVZonesManager const& zm,
@@ -147,7 +147,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	}
 
 	_full_parallel_view->set_total_events_number(
-	    _lib_view.get_parent<Inendi::PVSource>().get_valid_row_count());
+	    _lib_view.get_parent<Squey::PVSource>().get_valid_row_count());
 
 	_timer_render = new QTimer(this);
 	_timer_render->setSingleShot(true);
@@ -203,8 +203,8 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 	connect(axisw, &PVAxisGraphicsItem::mouse_hover_entered, this,
 	        &PVFullParallelScene::axis_hover_entered);
 	connect(axisw, &PVAxisGraphicsItem::change_mapping, [this, axisw](QString mode) {
-		auto& mapped = _lib_view.get_parent<Inendi::PVMapped>();
-		Inendi::PVMappingProperties& plp =
+		auto& mapped = _lib_view.get_parent<Squey::PVMapped>();
+		Squey::PVMappingProperties& plp =
 		    mapped.get_properties_for_col(axisw->get_original_axis_column());
 		plp.set_mode(mode.toStdString());
 		PVCore::PVProgressBox::progress(
@@ -213,8 +213,8 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 		axisw->refresh_density();
 	});
 	connect(axisw, &PVAxisGraphicsItem::change_plotting, [this, axisw](QString mode) {
-		auto& plotted = _lib_view.get_parent<Inendi::PVPlotted>();
-		Inendi::PVPlottingProperties& plp =
+		auto& plotted = _lib_view.get_parent<Squey::PVPlotted>();
+		Squey::PVPlottingProperties& plp =
 		    plotted.get_properties_for_col(axisw->get_original_axis_column());
 		plp.set_mode(mode.toStdString());
 		PVCore::PVProgressBox::progress(
@@ -330,7 +330,7 @@ void PVParallelView::PVFullParallelScene::keyPressEvent(QKeyEvent* event)
 		update_all();
 		event->accept();
 		break;
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	case Qt::Key_B:
 		if (event->modifiers() == Qt::ControlModifier) {
 			common::toggle_show_bboxes();
@@ -802,13 +802,13 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVC
 {
 	_sel_rect.clear();
 
-	Inendi::PVSelection sel(_lib_view.get_row_count());
+	Squey::PVSelection sel(_lib_view.get_row_count());
 	sel.select_all();
 
 	for (size_t zone_index = 0; zone_index < _axes.size(); ++zone_index) {
 		if (auto axis_selection_ranges = _axes[zone_index]->get_selection_ranges();
 		    not axis_selection_ranges.empty()) {
-			Inendi::PVSelection axis_sel(_lib_view.get_row_count());
+			Squey::PVSelection axis_sel(_lib_view.get_row_count());
 			axis_sel.select_none();
 			PVSelectionGenerator::compute_selection_from_parallel_view_sliders(
 			    _lines_view, zone_index, axis_selection_ranges, axis_sel);

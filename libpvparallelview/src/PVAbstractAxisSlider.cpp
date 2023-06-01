@@ -185,7 +185,7 @@ void PVParallelView::PVAbstractAxisSlider::paint(QPainter* painter,
                                                  const QStyleOptionGraphicsItem* /*option*/,
                                                  QWidget* /*widget*/)
 {
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 	if (common::show_bboxes()) {
 		painter->save();
 		painter->setPen(QPen(QColor(0xFF, 0, 0), 0));

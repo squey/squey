@@ -1,0 +1,13 @@
+#
+# @file
+#
+
+SET(CTEST_PROJECT_NAME "libsquey")
+SET(CTEST_NIGHTLY_START_TIME "00:00:00 EST")
+SET(CTEST_DROP_METHOD "http")
+
+IF(CTEST_DROP_METHOD STREQUAL "http")
+  SET(CTEST_DROP_SITE "cactus.wallinfire.net")
+  SET(CTEST_DROP_LOCATION "/CDash/submit.php?project=libsquey")
+  SET(CTEST_TRIGGER_SITE "")
+ENDIF(CTEST_DROP_METHOD STREQUAL "http")

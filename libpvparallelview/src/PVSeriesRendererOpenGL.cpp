@@ -42,7 +42,7 @@ namespace PVParallelView
 	x = reinterpret_cast<decltype(x)>(context()->getProcAddress(#x));                              \
 	assert(x != nullptr);
 
-PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Inendi::PVRangeSubSampler const& rss,
+PVSeriesRendererOpenGL::PVSeriesRendererOpenGL(Squey::PVRangeSubSampler const& rss,
                                                QWidget* parent)
     : PVSeriesAbstractRenderer(rss)
     , QOpenGLWidget(parent)

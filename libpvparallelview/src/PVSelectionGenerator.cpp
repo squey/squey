@@ -23,12 +23,12 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_bench.h>
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_bench.h>
+#include <pvkernel/core/squey_intrin.h>
 
 #include <QApplication>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <pvparallelview/PVSelectionGenerator.h>
 #include <pvparallelview/PVBCode.h>
@@ -51,7 +51,7 @@ struct PVLineEqInt {
 };
 
 void PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_rect(
-    int32_t width, PVZoneTree const& ztree, QRect rect, Inendi::PVSelection& sel)
+    int32_t width, PVZoneTree const& ztree, QRect rect, Squey::PVSelection& sel)
 {
 	if (rect.isNull()) {
 		return;
@@ -64,7 +64,7 @@ void PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_
 
 #pragma omp parallel
 	{
-		Inendi::PVSelection local_sel(sel.count());
+		Squey::PVSelection local_sel(sel.count());
 		local_sel.select_none();
 
 #pragma omp for firstprivate(line) nowait
@@ -110,7 +110,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
     PVLinesView& lines_view,
     size_t zone_index,
     const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
-    Inendi::PVSelection& sel)
+    Squey::PVSelection& sel)
 {
 	uint32_t nb_selected = 0;
 
@@ -217,8 +217,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_ra
     PVRow nrows,
     uint64_t y_min,
     uint64_t y_max,
-    Inendi::PVSelection& sel,
-    Inendi::PVSelection const& layers_sel)
+    Squey::PVSelection& sel,
+    Squey::PVSelection const& layers_sel)
 {
 	return __impl::compute_selection_from_plotted_range_sse(plotted, nrows, y_min, y_max, sel,
 	                                                        layers_sel);
@@ -232,8 +232,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
     PVRow nrows,
     uint64_t y_min,
     uint64_t y_max,
-    Inendi::PVSelection& sel,
-    const Inendi::PVSelection& layers_sel)
+    Squey::PVSelection& sel,
+    const Squey::PVSelection& layers_sel)
 {
 	if (y_min == y_max) {
 		return 0;
@@ -255,14 +255,14 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 		for (int j = 0; j < 64; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
 
-			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
+			const __m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
 
 			if (!(_mm_test_all_zeros(mask_y, sse_ff))) {
 				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y));
 				chunk |= sel_bits << j;
 			}
 		}
-		const PVRow chunk_idx = Inendi::PVSelection::line_index_to_chunk(i);
+		const PVRow chunk_idx = Squey::PVSelection::line_index_to_chunk(i);
 		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
 	}
 	for (PVRow i = nrows_sse; i < nrows; i++) {
@@ -279,7 +279,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 	}
 
 	BENCH_END(compute_selection_from_plotted_range_sse, "compute_selection_from_plotted_range_sse",
-	          nrows, sizeof(uint32_t), Inendi::PVSelection::line_index_to_chunk(nrows),
+	          nrows, sizeof(uint32_t), Squey::PVSelection::line_index_to_chunk(nrows),
 	          sizeof(uint64_t));
 
 	return 0;
@@ -292,7 +292,7 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_hit_count_
     const PVHitGraphBlocksManager& manager,
     const QRectF& rect,
     const uint32_t max_count,
-    Inendi::PVSelection& sel,
+    Squey::PVSelection& sel,
     bool use_selectable)
 {
 	return __impl::compute_selection_from_hit_count_view_rect_sse_invariant_omp(
@@ -306,7 +306,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
     const PVHitGraphBlocksManager& manager,
     const QRectF& rect,
     const uint32_t max_count,
-    Inendi::PVSelection& sel,
+    Squey::PVSelection& sel,
     bool use_selectable)
 {
 	// The interval described here is of the type [a,b] (that is the maximum is
@@ -359,7 +359,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 		int32_t chunk = 0;
 		for (int j = 0; j < 32; j += 4) {
 			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
-			const __m128i mask_y = inendi_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
+			const __m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
 
@@ -368,7 +368,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 				const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
 
 				const __m128i res_sse =
-				    inendi_mm_cmprange_epi32(p_sse, _mm_setzero_si128(), nblocks_sse);
+				    squey_mm_cmprange_epi32(p_sse, _mm_setzero_si128(), nblocks_sse);
 
 				if (!_mm_test_all_zeros(res_sse, _mm_set1_epi32(0xFFFFFFFFU))) {
 					const __m128i idx_sse =
@@ -395,7 +395,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 					}
 
 					const __m128i mask_count =
-					    inendi_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
+					    squey_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
 
 					const __m128i mask = _mm_and_si128(mask_y, mask_count);
 
@@ -405,7 +405,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 				}
 			}
 		}
-		sel.set_chunk32_fast_stream(Inendi::PVSelection::line_index_to_chunk32(i), chunk);
+		sel.set_chunk32_fast_stream(Squey::PVSelection::line_index_to_chunk32(i), chunk);
 	}
 	for (i = nrows_sse; i < nrows; i++) {
 		const uint32_t v = plotted[i];
@@ -433,8 +433,8 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_r
     const uint32_t* y2_plotted,
     const PVRow nrows,
     const QRectF& rect,
-    Inendi::PVSelection& sel,
-    Inendi::PVSelection const& layers_sel)
+    Squey::PVSelection& sel,
+    Squey::PVSelection const& layers_sel)
 {
 	return __impl::compute_selection_from_plotteds_ranges_sse(y1_plotted, y2_plotted, nrows, rect,
 	                                                          sel, layers_sel);
@@ -448,8 +448,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
     const uint32_t* y2_plotted,
     const PVRow nrows,
     const QRectF& rect,
-    Inendi::PVSelection& sel,
-    Inendi::PVSelection const& layers_sel)
+    Squey::PVSelection& sel,
+    Squey::PVSelection const& layers_sel)
 {
 	if (rect.isNull()) {
 		return 0;
@@ -480,19 +480,19 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 		for (int j = 0; j < 64; j += 4) {
 			const __m128i y1_sse = _mm_load_si128((__m128i const*)&y1_plotted[i + j]);
 
-			const __m128i mask_y1 = inendi_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
+			const __m128i mask_y1 = squey_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
 			if (!(_mm_test_all_zeros(mask_y1, sse_ff))) {
 				const __m128i y2_sse = _mm_load_si128((__m128i const*)&y2_plotted[i + j]);
 
-				const __m128i mask_y2 = inendi_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
+				const __m128i mask_y2 = squey_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
 				const __m128i mask_y1_y2 = _mm_and_si128(mask_y1, mask_y2);
 
 				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
 				chunk |= sel_bits << j;
 			}
 		}
-		const PVRow chunk_idx = Inendi::PVSelection::line_index_to_chunk(i);
+		const PVRow chunk_idx = Squey::PVSelection::line_index_to_chunk(i);
 		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
 	}
 	for (PVRow i = nrows_sse; i < nrows; i++) {
@@ -511,7 +511,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 
 	BENCH_END(compute_selection_from_plotteds_ranges_sse,
 	          "compute_selection_from_plotteds_ranges_sse", 2 * nrows, sizeof(uint32_t),
-	          Inendi::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
+	          Squey::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
 
 	return 0;
 }
@@ -519,8 +519,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 /*****************************************************************************
  * PVParallelView::PVSelectionGenerator::process_selection
  *****************************************************************************/
-void PVParallelView::PVSelectionGenerator::process_selection(Inendi::PVView& view_sp,
-                                                             Inendi::PVSelection const& sel,
+void PVParallelView::PVSelectionGenerator::process_selection(Squey::PVView& view_sp,
+                                                             Squey::PVSelection const& sel,
                                                              bool use_modifiers /*= true*/)
 {
 	unsigned int modifiers = (unsigned int)QApplication::keyboardModifiers();

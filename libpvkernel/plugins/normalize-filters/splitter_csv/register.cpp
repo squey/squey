@@ -28,7 +28,7 @@
 #include "PVFieldSplitterCSV.h"
 #include "PVFieldSplitterCSVParamWidget.h"
 
-// This method will be called by libinendi
+// This method will be called by libsquey
 LibCPPExport void register_class()
 {
 	// Register as a field splitter and as a general fields filter

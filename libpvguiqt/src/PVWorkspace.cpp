@@ -39,8 +39,8 @@
 
 #include <pvdisplays/PVDisplayIf.h>
 
-#include <inendi/widgets/PVArgumentListWidgetFactory.h>
-#include <inendi/widgets/PVViewArgumentEditorCreator.h>
+#include <squey/widgets/PVArgumentListWidgetFactory.h>
+#include <squey/widgets/PVViewArgumentEditorCreator.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVZoneIndexType.h>
@@ -107,7 +107,7 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent* event)
 }
 
 PVGuiQt::PVViewDisplay*
-PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
+PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
                                            QWidget* view_widget,
                                            QString name,
                                            bool can_be_central_display /*= true*/,
@@ -130,7 +130,7 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Inendi::PVView* view,
 	return view_display;
 }
 
-PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Inendi::PVView* view,
+PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Squey::PVView* view,
                                                                       QWidget* view_widget,
                                                                       QString name,
                                                                       bool delete_on_close)
@@ -178,8 +178,8 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 		central_dock->_name.swap(display_dock->_name);
 
 		// Exchange views and view events registering
-		Inendi::PVView* central_view = central_dock->get_view();
-		Inendi::PVView* display_view = display_dock->get_view();
+		Squey::PVView* central_view = central_dock->get_view();
+		Squey::PVView* display_view = display_dock->get_view();
 		central_dock->set_view(display_view);
 		central_dock->register_view(display_view);
 		display_dock->set_view(central_view);
@@ -210,7 +210,7 @@ void PVGuiQt::PVWorkspaceBase::display_destroyed(QObject* object /*= 0*/)
 }
 
 void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
-    QAction* act, PVDisplays::PVDisplaySourceIf& display_if, Inendi::PVSource* src)
+    QAction* act, PVDisplays::PVDisplaySourceIf& display_if, Squey::PVSource* src)
 {
 	// All this should be the same than create_view_widget w/ a
 	// PVCore::PVArgumentList passed to create_widget
@@ -245,7 +245,7 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
 }
 
 void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& display_if,
-                                                  Inendi::PVView* view,
+                                                  Squey::PVView* view,
                                                   std::vector<std::any> params)
 {
 	if (!view) {
@@ -263,7 +263,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& d
  * PVGuiQt::PVSourceWorkspace
  *
  *****************************************************************************/
-PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget* parent)
+PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* parent)
     : PVWorkspaceBase(parent), _source(source)
 {
 	// Invalid events widget
@@ -298,7 +298,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	class PVToolbarComboViews : public QComboBox
 	{
-		Inendi::PVSource* _source;
+		Squey::PVSource* _source;
 
 	  public:
 		PVToolbarComboViews(decltype(_source) source) : QComboBox(), _source(source)
@@ -309,7 +309,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 		{
 			clear();
 			QPixmap pm(24, 24);
-			for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
+			for (Squey::PVView* view : _source->get_children<Squey::PVView>()) {
 				pm.fill(view->get_color());
 				addItem(QIcon(pm), QString::fromStdString(view->get_name()),
 				        QVariant::fromValue(view));
@@ -335,7 +335,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 
 	bool already_center = false;
 	// Only one central widget is possible for QDockWidget.
-	for (Inendi::PVView* view : _source->get_children<Inendi::PVView>()) {
+	for (Squey::PVView* view : _source->get_children<Squey::PVView>()) {
 		// Create default widgets
 		PVDisplays::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 		    [&](PVDisplays::PVDisplayViewIf& obj) {
@@ -365,7 +365,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Inendi::PVSource* source, QWidget*
 }
 
 const PVGuiQt::PVWorkspaceBase::PVViewWidgets&
-PVGuiQt::PVWorkspaceBase::get_view_widgets(Inendi::PVView* view)
+PVGuiQt::PVWorkspaceBase::get_view_widgets(Squey::PVView* view)
 {
 	if (!_view_widgets.contains(view)) {
 		PVViewWidgets widgets(view, this);
@@ -388,7 +388,7 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 
 		    connect(btn, &QToolButton::released, [this, &obj]() {
 			    create_view_widget(obj,
-			                       _toolbar_combo_views->currentData().value<Inendi::PVView*>());
+			                       _toolbar_combo_views->currentData().value<Squey::PVView*>());
 		    });
 		    //}
 	    },

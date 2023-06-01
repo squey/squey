@@ -35,7 +35,7 @@
  *****************************************************************************/
 
 PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidget(
-    Inendi::PVAxesCombination const& axes_comb, QWidget* parent)
+    Squey::PVAxesCombination const& axes_comb, QWidget* parent)
     : QToolBar(parent)
 {
 	setIconSize(QSize(17, 17));

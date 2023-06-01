@@ -49,21 +49,21 @@
 #include <PVXmlParamList.h>
 
 // Widget helpers
-#include <inendi/widgets/PVAxisTypeWidget.h>
-#include <inendi/widgets/PVMappingModeWidget.h>
-#include <inendi/widgets/PVPlottingModeWidget.h>
+#include <squey/widgets/PVAxisTypeWidget.h>
+#include <squey/widgets/PVMappingModeWidget.h>
+#include <squey/widgets/PVPlottingModeWidget.h>
 
-#include <inendi/plugins.h>
-#include <inendi/PVLayerFilter.h>
-#include <inendi/PVMappingFilter.h>
-#include <inendi/PVPlottingFilter.h>
+#include <squey/plugins.h>
+#include <squey/PVLayerFilter.h>
+#include <squey/PVMappingFilter.h>
+#include <squey/PVPlottingFilter.h>
 
 namespace PVWidgets
 {
 class PVArgumentListWidget;
 } // namespace PVWidgets
 
-namespace PVInspector
+namespace App
 {
 
 class PVXmlParamWidget;
@@ -81,8 +81,8 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void draw();
 	void initConnexion();
 	void initValue();
-	Inendi::PVMappingFilter::p_type get_mapping_lib_filter();
-	Inendi::PVPlottingFilter::p_type get_plotting_lib_filter();
+	Squey::PVMappingFilter::p_type get_mapping_lib_filter();
+	Squey::PVPlottingFilter::p_type get_plotting_lib_filter();
 
 	/***************************  board items **********************/
 	//***** tab general *****
@@ -107,8 +107,8 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
 	// Mapping/plotting parameters widgets
 	QHBoxLayout* _layout_params_mp;
-	std::map<Inendi::PVMappingFilter::base_registrable, PVCore::PVArgumentList> _args_map_mode;
-	std::map<Inendi::PVPlottingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
+	std::map<Squey::PVMappingFilter::base_registrable, PVCore::PVArgumentList> _args_map_mode;
+	std::map<Squey::PVPlottingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
 	PVCore::PVArgumentList _args_mapping;
 	PVCore::PVArgumentList _args_plotting;
 	PVWidgets::PVArgumentListWidget* _params_mapping;
@@ -138,5 +138,5 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void signalRefreshView();
 	void signalSelectNext();
 };
-} // namespace PVInspector
+} // namespace App
 #endif /* PVXMLPARAMWIDGETBOARDAXIS_H */

@@ -64,7 +64,7 @@ static std::string get_query_builder_path()
 	if (path) {
 		return path;
 	}
-	return INENDI_QUERY_BUILDER;
+	return SQUEY_QUERY_BUILDER;
 }
 
 /**

@@ -33,10 +33,10 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVVector.h>
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 #include <pvkernel/core/PVLogger.h>
 
-#include <inendi/PVSelection.h>
+#include <squey/PVSelection.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
@@ -53,7 +53,7 @@
 namespace PVParallelView
 {
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 struct extract_stat {
 	static double all_dt;
 	static size_t all_cnt;
@@ -499,7 +499,7 @@ class PVQuadTree
 	                                       const double alpha,
 	                                       PVCore::PVHSVColor* image,
 	                                       const insert_entry_y1_y2_f& insert_f,
-	                                       Inendi::PVSelection const& sel) const
+	                                       Squey::PVSelection const& sel) const
 	{
 		return visit_y1_y2::get_n_m_sel(
 		    *this, y1_min, y1_max, y2_min, y2_max, zoom, alpha,
@@ -529,7 +529,7 @@ class PVQuadTree
 	 */
 	inline size_t get_first_sel_from_y1(uint64_t y1_min,
 	                                    uint64_t y1_max,
-	                                    const Inendi::PVSelection& selection,
+	                                    const Squey::PVSelection& selection,
 	                                    uint32_t zoom,
 	                                    uint32_t y2_count,
 	                                    pv_quadtree_buffer_entry_t* buffer,
@@ -563,7 +563,7 @@ class PVQuadTree
 	 */
 	inline size_t get_first_sel_from_y2(uint64_t y2_min,
 	                                    uint64_t y2_max,
-	                                    const Inendi::PVSelection& selection,
+	                                    const Squey::PVSelection& selection,
 	                                    uint32_t zoom,
 	                                    uint32_t y1_count,
 	                                    pv_quadtree_buffer_entry_t* buffer,
@@ -593,7 +593,7 @@ class PVQuadTree
 	 */
 	size_t compute_selection_y1(const uint64_t y1_min,
 	                            const uint64_t y1_max,
-	                            Inendi::PVSelection& selection) const
+	                            Squey::PVSelection& selection) const
 	{
 		return compute_selection_y1(*this, y1_min, y1_max, selection);
 	}
@@ -612,7 +612,7 @@ class PVQuadTree
 	 */
 	size_t compute_selection_y2(const uint64_t y2_min,
 	                            const uint64_t y2_max,
-	                            Inendi::PVSelection& selection) const
+	                            Squey::PVSelection& selection) const
 	{
 		return compute_selection_y2(*this, y2_min, y2_max, selection);
 	}
@@ -627,7 +627,7 @@ class PVQuadTree
 		}
 	}
 
-	PVRow compute_min_indexes_sel_notempty(Inendi::PVSelection const& sel)
+	PVRow compute_min_indexes_sel_notempty(Squey::PVSelection const& sel)
 	{
 		PVRow idx_min;
 
@@ -645,7 +645,7 @@ class PVQuadTree
 			                             _nodes[1].compute_min_indexes_sel_notempty(sel),
 			                             _nodes[2].compute_min_indexes_sel_notempty(sel),
 			                             _nodes[3].compute_min_indexes_sel_notempty(sel));
-			idx_min = inendi_mm_hmin_epu32(mins);
+			idx_min = squey_mm_hmin_epu32(mins);
 		}
 
 		_index_min_sel = idx_min;
@@ -653,7 +653,7 @@ class PVQuadTree
 	}
 
 	/*
-	PVRow compute_min_indexes_bg(Inendi::PVSelection const& layers_sel)
+	PVRow compute_min_indexes_bg(Squey::PVSelection const& layers_sel)
 	{
 	    PVRow idx_min;
 	    if (!_nodes) {
@@ -674,7 +674,7 @@ class PVQuadTree
 	        mins = _mm_insert_epi32(mins, _nodes[1].compute_min_indexes_bg(layers_sel), 1);
 	        mins = _mm_insert_epi32(mins, _nodes[2].compute_min_indexes_bg(layers_sel), 2);
 	        mins = _mm_insert_epi32(mins, _nodes[3].compute_min_indexes_bg(layers_sel), 3);
-	        idx_min = inendi_mm_hmin_epu32(mins);
+	        idx_min = squey_mm_hmin_epu32(mins);
 	    }
 
 	    _index_min_sel = idx_min;
@@ -713,7 +713,7 @@ class PVQuadTree
 		}
 	}
 
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 
 	/**
 	 * Clear the chronometer used to measure the whole extraction process time.
@@ -1097,7 +1097,7 @@ class PVQuadTree
 
 			size_t ninsert = 0;
 			for (size_t i = 0; i < obj._datas.size(); ++i) {
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 				++extract_stat::all_cnt;
 #endif
 				const PVQuadTreeEntry& e = obj._datas.at(i);
@@ -1106,14 +1106,14 @@ class PVQuadTree
 				}
 				const uint32_t pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min) +
 				                     clipped_max_count * ((e.y2 - y2_orig) / y2_scale);
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 				++extract_stat::test_cnt;
 #endif
 				if (B_IS_SET(buffer[pos >> 5], pos & 31)) {
 					continue;
 				}
 				insert_f(e, tlr);
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 				++extract_stat::insert_cnt;
 #endif
 				ninsert++;
@@ -1124,7 +1124,7 @@ class PVQuadTree
 				}
 			}
 			BENCH_STOP(extract);
-#ifdef INENDI_DEVELOPER_MODE
+#ifdef SQUEY_DEVELOPER_MODE
 			extract_stat::all_dt += BENCH_END_TIME(extract);
 #endif
 			return ninsert;
@@ -1917,7 +1917,7 @@ class PVQuadTree
 	size_t compute_selection_y1(PVQuadTree const& obj,
 	                            const uint64_t y1_min,
 	                            const uint64_t y1_max,
-	                            Inendi::PVSelection& selection) const
+	                            Squey::PVSelection& selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {
@@ -1955,7 +1955,7 @@ class PVQuadTree
 	size_t compute_selection_y2(PVQuadTree const& obj,
 	                            const uint64_t y2_min,
 	                            const uint64_t y2_max,
-	                            Inendi::PVSelection& selection) const
+	                            Squey::PVSelection& selection) const
 	{
 		size_t num = 0;
 		if (obj._nodes != 0) {

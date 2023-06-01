@@ -27,10 +27,10 @@
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog
+ * App::PVXmlParamColorDialog::PVXmlParamColorDialog
  *
  *****************************************************************************/
-PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog(QString name,
+App::PVXmlParamColorDialog::PVXmlParamColorDialog(QString name,
                                                           QString p_color,
                                                           QWidget* p_parent)
     : QPushButton(p_color, p_parent)
@@ -44,20 +44,20 @@ PVInspector::PVXmlParamColorDialog::PVXmlParamColorDialog(QString name,
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamColorDialog::~PVXmlParamColorDialog
+ * App::PVXmlParamColorDialog::~PVXmlParamColorDialog
  *
  *****************************************************************************/
-PVInspector::PVXmlParamColorDialog::~PVXmlParamColorDialog()
+App::PVXmlParamColorDialog::~PVXmlParamColorDialog()
 {
 	disconnect(this, &QAbstractButton::clicked, this, &PVXmlParamColorDialog::chooseColor);
 }
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamColorDialog::chooseColor
+ * App::PVXmlParamColorDialog::chooseColor
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamColorDialog::chooseColor()
+void App::PVXmlParamColorDialog::chooseColor()
 {
 	// qDebug()<<"PVXmlParamColorDialog::chooseColor()";
 
@@ -72,10 +72,10 @@ void PVInspector::PVXmlParamColorDialog::chooseColor()
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamColorDialog::setColor
+ * App::PVXmlParamColorDialog::setColor
  *
  *****************************************************************************/
-void PVInspector::PVXmlParamColorDialog::setColor(QString newColor)
+void App::PVXmlParamColorDialog::setColor(QString newColor)
 {
 	color = newColor;
 	setText(newColor);
@@ -85,10 +85,10 @@ void PVInspector::PVXmlParamColorDialog::setColor(QString newColor)
 
 /******************************************************************************
  *
- * PVInspector::PVXmlParamColorDialog::getColor
+ * App::PVXmlParamColorDialog::getColor
  *
  *****************************************************************************/
-QString PVInspector::PVXmlParamColorDialog::getColor()
+QString App::PVXmlParamColorDialog::getColor()
 {
 	return color;
 }

@@ -27,14 +27,14 @@
 
 #include <pvbase/general.h>
 #include <pvkernel/core/PVCrashReportSender.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include <algorithm>
 
 int main()
 {
 
-#ifndef INENDI_DEVELOPER_MODE
+#ifndef SQUEY_DEVELOPER_MODE
 	bool auth_successful = PVCore::PVCrashReportSender::test_auth();
 	PV_ASSERT_VALID(auth_successful);
 #endif

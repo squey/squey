@@ -30,12 +30,12 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include "helpers.h"
 #include "common.h"
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr static size_t nb_dup = 20;
 #else
 constexpr static size_t nb_dup = 1;
@@ -44,14 +44,14 @@ constexpr static size_t nb_dup = 1;
 int main(int argc, char** argv)
 {
 	const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/csv/proxy_sample.csv";
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/csv/proxy_sample.csv.out";
 #endif
 
 	size_t n = 15;
 	if (argc == 4) {
 		log_file = argv[1];
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 		ref_file = argv[2];
 #endif
 		n = std::atoi(argv[3]);
@@ -80,7 +80,7 @@ int main(int argc, char** argv)
 
 	PV_VALID(nelts_valid, nelts_org);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	// Check output is the same as the reference
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));

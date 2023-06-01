@@ -8,7 +8,7 @@ lcov --remove main_coverage.info -o main_coverage.info \
 '/usr/*' \
 '/app/*' \
 '*/third_party/*' \
-'*/inendi-utils/*' \
+'*/squey-utils/*' \
 '*/external/*' \
 '*/build/*' \
 '*/moc_*' \

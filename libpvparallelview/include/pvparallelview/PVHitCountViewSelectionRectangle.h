@@ -27,11 +27,11 @@
 
 #include <pvparallelview/PVSelectionRectangle.h>
 
-namespace Inendi
+namespace Squey
 {
 
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {

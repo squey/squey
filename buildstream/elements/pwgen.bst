@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: tar
 
-  url: http://http.debian.net/debian/pool/main/p/pwgen/pwgen_2.07.orig.tar.gz
-  ref: eb74593f58296c21c71cd07933e070492e9222b79cedf81d1a02ce09c0e11556
+  url: http://http.debian.net/debian/pool/main/p/pwgen/pwgen_2.08.orig.tar.gz
+  ref: dab03dd30ad5a58e578c5581241a6e87e184a18eb2c3b2e0fffa8a9cf105c97b
 depends:
 - base.bst

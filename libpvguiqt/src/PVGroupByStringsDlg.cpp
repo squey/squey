@@ -25,8 +25,8 @@
 
 #include <pvguiqt/PVGroupByStringsDlg.h>
 
-#include <inendi/PVSource.h>
-#include <inendi/PVView.h>
+#include <squey/PVSource.h>
+#include <squey/PVView.h>
 
 #include <pvkernel/rush/PVNraw.h>
 
@@ -39,10 +39,10 @@
 #include <numeric>
 
 PVGuiQt::PVStatsModel* PVGuiQt::PVGroupByStringsDlg::details_create_model(
-    const Inendi::PVView& view, PVCol, Inendi::PVSelection const&)
+    const Squey::PVView& view, PVCol, Squey::PVSelection const&)
 {
 	const PVRush::PVNraw& nraw = view.get_rushnraw_parent();
-	Inendi::PVSelection const& indexes = model().current_selection();
+	Squey::PVSelection const& indexes = model().current_selection();
 
 	if (not indexes.is_empty()) {
 		pvcop::db::array col1_out;
@@ -72,7 +72,7 @@ PVGuiQt::PVStatsModel* PVGuiQt::PVGroupByStringsDlg::details_create_model(
 		    QObject::tr("Computing values..."), parentWidget());
 
 		QString col2_name =
-		    lib_view()->get_parent<Inendi::PVSource>().get_format().get_axes().at(_col2).get_name();
+		    lib_view()->get_parent<Squey::PVSource>().get_format().get_axes().at(_col2).get_name();
 
 		return new PVStatsModel("Count", col2_name, QString(), std::move(col1_out),
 		                        std::move(col2_out), std::move(sum), std::move(minmax));

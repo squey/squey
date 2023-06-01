@@ -26,7 +26,7 @@
 #include <iostream>
 #include <pvkernel/core/PVSelBitField.h>
 
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 static constexpr size_t SELECTION_COUNT = 100000000;
 

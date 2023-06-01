@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_intrin.h>
+#include <pvkernel/core/squey_intrin.h>
 
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVZoneTree.h>

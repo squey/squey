@@ -11,7 +11,7 @@
 #########################################################################
 set(CORE_SRC_FILES
 core/network.cpp
-core/inendi_intrin.cpp
+core/squey_intrin.cpp
 core/sse4detector.cpp
 core/segfault_handler.cpp
 core/serialize_numbers.cpp

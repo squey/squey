@@ -23,8 +23,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/inendi_intrin.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_intrin.h>
+#include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
@@ -37,14 +37,14 @@ using namespace PVRush;
 using namespace PVCore;
 
 static constexpr const char* input_file = TEST_FOLDER "/pvkernel/rush/charset/utf8";
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/charset/utf8.out";
 #endif
 
 int main(int argc, char** argv)
 {
 	const char* input = (argc < 4) ? input_file : argv[1];
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	const char* ref = (argc < 4) ? ref_file : argv[2];
 #endif
 	const size_t chunk_size = (argc < 4) ? 20000 : atoi(argv[3]);
@@ -71,7 +71,7 @@ int main(int argc, char** argv)
 		std::cout << dur.count();
 	}
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref));

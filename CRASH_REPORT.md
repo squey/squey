@@ -11,16 +11,16 @@ make install
 
 2. Convert the DMP crash report to core dump
 
-minidump-2-core /tmp/inendi-inspector_<version>_coredumps/xxxxxxxx-xxxx-xxxx-xxxxxxxx-xxxxxxxx.dmp > /tmp/crash.core
+minidump-2-core /tmp/squey_<version>_coredumps/xxxxxxxx-xxxx-xxxx-xxxxxxxx-xxxxxxxx.dmp > /tmp/crash.core
 
 3. Install the debug symbols from the proper flatpak branch (usually master)
 
-flatpak install <repo> com.gitlab.inendi.Inspector.Debug//<branch_name>
+flatpak install <repo> org.squey.Squey.Debug//<branch_name>
 
 4. Run flatpak with the debug symbols
 
-flatpak run --devel --command=bash com.gitlab.inendi.Inspector//<branch_name>
+flatpak run --devel --command=bash org.squey.Squey//<branch_name>
 
 5. Run gdb with the core dump
 
-gdb inendi-inspector /tmp/crash.core
+gdb squey /tmp/crash.core

@@ -32,12 +32,12 @@
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::create_actions
+ * App::PVMainWindow::create_actions
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::create_actions()
+void App::PVMainWindow::create_actions()
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
 	/************************
 	 * For the "File" menu entry
 	 ************************/
@@ -131,12 +131,12 @@ void PVInspector::PVMainWindow::create_actions()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::create_menus
+ * App::PVMainWindow::create_menus
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::create_menus()
+void App::PVMainWindow::create_menus()
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
 
 	menubar = menuBar();
 
@@ -208,20 +208,20 @@ void PVInspector::PVMainWindow::create_menus()
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::create_actions_import_types
+ * App::PVMainWindow::create_actions_import_types
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::create_actions_import_types(QMenu* menu)
+void App::PVMainWindow::create_actions_import_types(QMenu* menu)
 {
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(menu, this, SLOT(import_type_Slot()));
 }
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::menu_activate_is_file_opened
+ * App::PVMainWindow::menu_activate_is_file_opened
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
+void App::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
 	export_selection_Action->setEnabled(cond);
 
@@ -237,12 +237,12 @@ void PVInspector::PVMainWindow::menu_activate_is_file_opened(bool cond)
 
 /******************************************************************************
  *
- * PVInspector::PVMainWindow::connect_actions()
+ * App::PVMainWindow::connect_actions()
  *
  *****************************************************************************/
-void PVInspector::PVMainWindow::connect_actions()
+void App::PVMainWindow::connect_actions()
 {
-	PVLOG_DEBUG("PVInspector::PVMainWindow::%s\n", __FUNCTION__);
+	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
 	connect(solution_new_Action, &QAction::triggered, this, &PVMainWindow::solution_new_Slot);
 	connect(solution_load_Action, &QAction::triggered, this, &PVMainWindow::solution_load_Slot);
 	connect(solution_save_Action, &QAction::triggered, this, &PVMainWindow::solution_save_Slot);

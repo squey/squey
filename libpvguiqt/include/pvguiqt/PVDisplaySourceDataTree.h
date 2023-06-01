@@ -38,7 +38,7 @@ class PVDisplaySourceDataTree : public PVDisplaySourceIf
 
   public:
 	QWidget*
-	create_widget(Inendi::PVSource* src, QWidget* parent, Params const& data = {}) const override;
+	create_widget(Squey::PVSource* src, QWidget* parent, Params const& data = {}) const override;
 
 	CLASS_REGISTRABLE(PVDisplaySourceDataTree)
 };

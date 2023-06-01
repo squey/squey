@@ -30,19 +30,19 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
 #include <pvkernel/rush/PVUtils.h>
-#include <pvkernel/core/inendi_assert.h>
+#include <pvkernel/core/squey_assert.h>
 
 #include "helpers.h"
 #include "common.h"
 
-#ifdef INSPECTOR_BENCH
+#ifdef SQUEY_BENCH
 constexpr static size_t nb_dup = 1000;
 #else
 constexpr static size_t nb_dup = 1;
 #endif
 
 static constexpr const char* log_file = TEST_FOLDER "/pvkernel/rush/splitters/ip/ipv4";
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 static constexpr const char* ref_file = TEST_FOLDER "/pvkernel/rush/splitters/ip/ipv4.out";
 #endif
 
@@ -123,7 +123,7 @@ int main()
 	PVFilter::PVFieldsSplitter::p_type sp_lib_p =
 	    LIB_CLASS(PVFilter::PVFieldsSplitter)::get().get_class_by_name("ip");
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	for (size_t i = 0; i < valid_params_list.size(); ++i) {
 		check_valid_params(sp_lib_p, valid_params_list[i], valid_params_result[i]);
 	}
@@ -150,7 +150,7 @@ int main()
 
 	PV_VALID(nelts_valid, nelts_org);
 
-#ifndef INSPECTOR_BENCH
+#ifndef SQUEY_BENCH
 	// Check output is the same as the reference
 	std::cout << std::endl << output_file << " - " << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_file, ref_file));

@@ -38,11 +38,11 @@ class PVDisplayViewZoomedParallel : public PVDisplayViewIf
 
   public:
 	QWidget*
-	create_widget(Inendi::PVView* view, QWidget* parent, Params const& data = {}) const override;
+	create_widget(Squey::PVView* view, QWidget* parent, Params const& data = {}) const override;
 	void add_to_axis_menu(QMenu& menu,
 	                      PVCol axis,
 	                      PVCombCol axis_comb,
-	                      Inendi::PVView* view,
+	                      Squey::PVView* view,
 	                      PVDisplaysContainer* container) override;
 
 	CLASS_REGISTRABLE(PVDisplayViewZoomedParallel)

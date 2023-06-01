@@ -35,10 +35,10 @@ class QPropertyAnimation;
 class QPainter;
 class QGraphicsSceneMouseEvent;
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -63,7 +63,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 {
 	Q_OBJECT
   public:
-	PVAxisHeader(const Inendi::PVView& view, PVCombCol comb_col, PVAxisGraphicsItem* parent);
+	PVAxisHeader(const Squey::PVView& view, PVCombCol comb_col, PVAxisGraphicsItem* parent);
 
   public:
 	void set_width(int width);
@@ -96,7 +96,7 @@ class PVAxisHeader : public QObject, public QGraphicsRectItem
 	PVCol get_axis_index() const;
 
   private:
-	const Inendi::PVView& _view;
+	const Squey::PVView& _view;
 	PVCombCol _comb_col;
 
 	__impl::PVAxisSelectedAnimation* _axis_selected_animation;

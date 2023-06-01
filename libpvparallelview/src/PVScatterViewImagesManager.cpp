@@ -34,7 +34,7 @@ PVParallelView::PVScatterViewImagesManager::PVScatterViewImagesManager(
     PVZonesProcessor& zp_sel,
     PVZonesManager const& zm,
     const PVCore::PVHSVColor* colors,
-    Inendi::PVSelection const& sel)
+    Squey::PVSelection const& sel)
     : _zm(zm)
     , _sel(sel)
     , _colors(colors)

@@ -29,11 +29,11 @@
 #include <pvparallelview/PVAxisGraphicsItem.h>
 #include <pvparallelview/PVLinesView.h>
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -50,36 +50,36 @@ constexpr unsigned int AND_MODIFIER = (Qt::ShiftModifier | Qt::ControlModifier);
 void compute_selection_from_parallel_view_rect(int32_t width,
                                                PVZoneTree const& ztree,
                                                QRect rect,
-                                               Inendi::PVSelection& sel);
+                                               Squey::PVSelection& sel);
 
 uint32_t compute_selection_from_parallel_view_sliders(
     PVLinesView& lines_view,
     size_t zone_index,
     const typename PVAxisGraphicsItem::selection_ranges_t& ranges,
-    Inendi::PVSelection& sel);
+    Squey::PVSelection& sel);
 
 uint32_t compute_selection_from_hit_count_view_rect(const PVHitGraphBlocksManager& manager,
                                                     const QRectF& rect,
                                                     const uint32_t max_count,
-                                                    Inendi::PVSelection& sel,
+                                                    Squey::PVSelection& sel,
                                                     bool use_selectable);
 
 uint32_t compute_selection_from_plotted_range(const uint32_t* plotted,
                                               PVRow nrows,
                                               uint64_t y_min,
                                               uint64_t y_max,
-                                              Inendi::PVSelection& sel,
-                                              Inendi::PVSelection const& layers_sel);
+                                              Squey::PVSelection& sel,
+                                              Squey::PVSelection const& layers_sel);
 
 uint32_t compute_selection_from_plotteds_ranges(const uint32_t* y1_plotted,
                                                 const uint32_t* y2_plotted,
                                                 const PVRow nrows,
                                                 const QRectF& rect,
-                                                Inendi::PVSelection& sel,
-                                                Inendi::PVSelection const& layers_sel);
+                                                Squey::PVSelection& sel,
+                                                Squey::PVSelection const& layers_sel);
 
-void process_selection(Inendi::PVView& view,
-                       Inendi::PVSelection const& sel,
+void process_selection(Squey::PVView& view,
+                       Squey::PVSelection const& sel,
                        bool use_modifiers = true);
 } // namespace PVSelectionGenerator
 ;
@@ -90,21 +90,21 @@ uint32_t compute_selection_from_plotted_range_sse(const uint32_t* plotted,
                                                   PVRow nrows,
                                                   uint64_t y_min,
                                                   uint64_t y_max,
-                                                  Inendi::PVSelection& sel,
-                                                  Inendi::PVSelection const& layers_sel);
+                                                  Squey::PVSelection& sel,
+                                                  Squey::PVSelection const& layers_sel);
 
 uint32_t compute_selection_from_plotteds_ranges_sse(const uint32_t* y1_plotted,
                                                     const uint32_t* y2_plotted,
                                                     const PVRow nrows,
                                                     const QRectF& rect,
-                                                    Inendi::PVSelection& sel,
-                                                    Inendi::PVSelection const& layers_sel);
+                                                    Squey::PVSelection& sel,
+                                                    Squey::PVSelection const& layers_sel);
 
 uint32_t
 compute_selection_from_hit_count_view_rect_sse_invariant_omp(const PVHitGraphBlocksManager& manager,
                                                              const QRectF& rect,
                                                              const uint32_t max_count,
-                                                             Inendi::PVSelection& sel,
+                                                             Squey::PVSelection& sel,
                                                              bool use_selectable);
 } // namespace __impl
 } // namespace PVParallelView

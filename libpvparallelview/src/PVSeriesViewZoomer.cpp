@@ -26,7 +26,7 @@
 #include <pvparallelview/PVSeriesViewZoomer.h>
 
 #include <pvparallelview/PVSeriesView.h>
-#include <inendi/PVRangeSubSampler.h>
+#include <squey/PVRangeSubSampler.h>
 #include <pvkernel/core/PVProgressBox.h>
 
 #include <QMouseEvent>
@@ -232,7 +232,7 @@ struct PVSeriesViewZoomerRectangleFragment : public QWidget {
 };
 
 PVSeriesViewZoomer::PVSeriesViewZoomer(PVSeriesView* child,
-                                       Inendi::PVRangeSubSampler& sampler,
+                                       Squey::PVRangeSubSampler& sampler,
                                        QWidget* parent)
     : PVViewZoomer(parent), _series_view(child), _rss(sampler), _animation_timer(new QTimer(this))
 {

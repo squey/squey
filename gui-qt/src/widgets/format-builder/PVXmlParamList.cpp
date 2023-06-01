@@ -25,7 +25,7 @@
 
 #include <PVXmlParamList.h>
 
-PVInspector::PVXmlParamList::PVXmlParamList(QString name) : QListWidget(), _name(std::move(name))
+App::PVXmlParamList::PVXmlParamList(QString name) : QListWidget(), _name(std::move(name))
 {
 	setSelectionMode(QAbstractItemView::ExtendedSelection);
 
@@ -35,13 +35,13 @@ PVInspector::PVXmlParamList::PVXmlParamList(QString name) : QListWidget(), _name
 	setMaximumHeight(70);
 }
 
-void PVInspector::PVXmlParamList::setItems(QStringList const& l)
+void App::PVXmlParamList::setItems(QStringList const& l)
 {
 	clear();
 	addItems(l);
 }
 
-QStringList PVInspector::PVXmlParamList::selectedList()
+QStringList App::PVXmlParamList::selectedList()
 {
 	QStringList ret;
 	QList<QListWidgetItem*> sel = selectedItems();
@@ -51,7 +51,7 @@ QStringList PVInspector::PVXmlParamList::selectedList()
 	return ret;
 }
 
-void PVInspector::PVXmlParamList::select(QStringList const& l)
+void App::PVXmlParamList::select(QStringList const& l)
 {
 	for (int i = 0; i < count(); i++) {
 		QListWidgetItem* litem = item(i);

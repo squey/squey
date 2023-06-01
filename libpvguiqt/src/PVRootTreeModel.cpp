@@ -23,15 +23,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVRoot.h>
-#include <inendi/PVView.h>
+#include <squey/PVRoot.h>
+#include <squey/PVView.h>
 
 #include <pvguiqt/PVRootTreeModel.h>
 
 #include <QBrush>
 #include <QFont>
 
-PVGuiQt::PVRootTreeModel::PVRootTreeModel(Inendi::PVSource& root, QObject* parent)
+PVGuiQt::PVRootTreeModel::PVRootTreeModel(Squey::PVSource& root, QObject* parent)
     : PVHiveDataTreeModel(root, parent)
 {
 }
@@ -39,9 +39,9 @@ PVGuiQt::PVRootTreeModel::PVRootTreeModel(Inendi::PVSource& root, QObject* paren
 QVariant PVGuiQt::PVRootTreeModel::data(const QModelIndex& index, int role) const
 {
 	if (auto* v =
-	        dynamic_cast<Inendi::PVView*>((PVCore::PVDataTreeObject*)index.internalPointer())) {
+	        dynamic_cast<Squey::PVView*>((PVCore::PVDataTreeObject*)index.internalPointer())) {
 		if (role == Qt::FontRole) {
-			if (v->get_parent<Inendi::PVRoot>().current_view() == v) {
+			if (v->get_parent<Squey::PVRoot>().current_view() == v) {
 				QFont font;
 				font.setBold(true);
 				return font;

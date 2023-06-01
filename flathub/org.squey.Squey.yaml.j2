@@ -1,0 +1,24 @@
+app-id: org.squey.Squey
+runtime: org.freedesktop.Platform
+runtime-version: '22.08'
+sdk: org.freedesktop.Sdk
+command: squey_launcher.sh
+finish-args:
+  - --socket=x11
+  - --share=network
+  - --share=ipc
+  - --filesystem=host
+  - --filesystem=/opt/squey
+  - --filesystem=~/.squey
+  - --filesystem=/tmp
+  - --device=dri
+  - --allow=devel
+modules:
+  - name: squey
+    buildsystem: simple
+    build-commands:
+      - cp -r files/* /app
+    sources:
+      - type: archive
+        url: https://squey.gitlab.io/squey/squey_flatpak_{{version}}.tar.xz
+        sha256: {{sha256}}

@@ -25,15 +25,15 @@
 #ifndef PVGUIQT_PVAXESCOMBINATIONDIALOG_H
 #define PVGUIQT_PVAXESCOMBINATIONDIALOG_H
 
-#include <inendi/PVAxesCombination.h>
+#include <squey/PVAxesCombination.h>
 
 #include <QDialog>
 #include <QDialogButtonBox>
 
-namespace Inendi
+namespace Squey
 {
 class PVView;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -45,13 +45,13 @@ class PVAxesCombinationDialog : public QDialog
 	Q_OBJECT
 
   public:
-	explicit PVAxesCombinationDialog(Inendi::PVView& view, QWidget* parent = nullptr);
+	explicit PVAxesCombinationDialog(Squey::PVView& view, QWidget* parent = nullptr);
 
   public:
 	void reset_used_axes();
 
   private:
-	Inendi::PVView& lib_view() { return _lib_view; }
+	Squey::PVView& lib_view() { return _lib_view; }
 
   protected Q_SLOTS:
 	void commit_axes_comb_to_view();
@@ -59,8 +59,8 @@ class PVAxesCombinationDialog : public QDialog
 
   protected:
 	PVAxesCombinationWidget* _axes_widget;
-	Inendi::PVAxesCombination _temp_axes_comb;
-	Inendi::PVView& _lib_view;
+	Squey::PVAxesCombination _temp_axes_comb;
+	Squey::PVView& _lib_view;
 
   private:
 	QDialogButtonBox* _box_buttons;

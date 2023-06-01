@@ -32,18 +32,18 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 
-#include <inendi/PVPlotted.h>
-#include <inendi/PVView.h>
+#include <squey/PVPlotted.h>
+#include <squey/PVView.h>
 
 #include <pvparallelview/PVZone.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/PVRenderingJob.h>
 
 // Forward declarations
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -58,7 +58,7 @@ class PVZonesManager : public QObject
 	friend class PVParallelView::__impl::ZoneCreation;
 
   public:
-	explicit PVZonesManager(Inendi::PVView const& view);
+	explicit PVZonesManager(Squey::PVView const& view);
 	PVZonesManager(PVZonesManager const&) = delete;
 
   public:
@@ -92,7 +92,7 @@ class PVZonesManager : public QObject
 	void update_all(bool reinit_zones = true);
 	void reset_axes_comb();
 	void update_from_axes_comb(std::vector<PVCol> const& ac);
-	void update_from_axes_comb(Inendi::PVView const& view);
+	void update_from_axes_comb(Squey::PVView const& view);
 	void update_zone(PVZoneID zone);
 	[[nodiscard]] auto acquire_zone(PVZoneID zone) -> ZoneRetainer;
 	void release_zone(PVZoneID zone);
@@ -113,8 +113,8 @@ class PVZonesManager : public QObject
 
 	PVZoomedZoneTree& get_zoom_zone_tree(PVZoneID z) { return get_zone(z).zoomed_ztree(); }
 
-	void filter_zone_by_sel(PVZoneID zone_id, const Inendi::PVSelection& sel);
-	void filter_zone_by_sel_background(PVZoneID zone_id, const Inendi::PVSelection& sel);
+	void filter_zone_by_sel(PVZoneID zone_id, const Squey::PVSelection& sel);
+	void filter_zone_by_sel_background(PVZoneID zone_id, const Squey::PVSelection& sel);
 
   public:
 	/* Get the number of managed zones from axes combination. Some zones are independant (e.g. a
@@ -148,14 +148,14 @@ class PVZonesManager : public QObject
   public:
 	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
-		const auto& plotted = _view.get_parent<Inendi::PVPlotted>();
+		const auto& plotted = _view.get_parent<Squey::PVPlotted>();
 
 		return {_view.get_row_count(), plotted.get_column_pointer(z.first),
 		        plotted.get_column_pointer(z.second)};
 	}
 
   protected:
-	const Inendi::PVView& _view;
+	const Squey::PVView& _view;
 	// _axes_comb is copied to handle update once the axes_combination have been update in the view.
 	std::vector<PVCol> _axes_comb;
 	std::vector<std::pair<PVZoneID, PVZone>> _zones;

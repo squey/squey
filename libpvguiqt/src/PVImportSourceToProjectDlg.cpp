@@ -23,8 +23,8 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <inendi/PVRoot.h>
-#include <inendi/PVScene.h>
+#include <squey/PVRoot.h>
+#include <squey/PVScene.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 
 #include <QDialogButtonBox>
@@ -32,8 +32,8 @@
 #include <QLabel>
 #include <QComboBox>
 
-PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot const& root,
-                                                                Inendi::PVScene const* sel_scene,
+PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Squey::PVRoot const& root,
+                                                                Squey::PVScene const* sel_scene,
                                                                 QWidget* parent /* = 0 */)
     : QDialog(parent)
 {
@@ -64,7 +64,7 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 	int cur_idx = 0;
 	for (auto const& scene : root.get_children()) {
 		QVariant var;
-		var.setValue<void*>(const_cast<Inendi::PVScene*>(scene));
+		var.setValue<void*>(const_cast<Squey::PVScene*>(scene));
 		if (scene == sel_scene) {
 			cur_idx = _combo_box->count();
 		}
@@ -76,11 +76,11 @@ PVGuiQt::PVImportSourceToProjectDlg::PVImportSourceToProjectDlg(Inendi::PVRoot c
 	show();
 }
 
-Inendi::PVScene const* PVGuiQt::PVImportSourceToProjectDlg::get_selected_scene() const
+Squey::PVScene const* PVGuiQt::PVImportSourceToProjectDlg::get_selected_scene() const
 {
 	int sel_idx = _combo_box->currentIndex();
-	Inendi::PVScene const* ret =
-	    (Inendi::PVScene const*)_combo_box->itemData(sel_idx).value<void*>();
+	Squey::PVScene const* ret =
+	    (Squey::PVScene const*)_combo_box->itemData(sel_idx).value<void*>();
 	assert(ret);
 	return ret;
 }

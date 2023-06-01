@@ -35,10 +35,10 @@ namespace PVCore
 class PVHSVColor;
 } // namespace PVCore
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -90,7 +90,7 @@ class PVZonesProcessor
 	static PVZonesProcessor declare_processor_zm_sel(PVRenderingPipeline& pipeline,
 	                                                 PVZonesManager& zm,
 	                                                 PVCore::PVHSVColor const* colors,
-	                                                 Inendi::PVSelection const& sel);
+	                                                 Squey::PVSelection const& sel);
 
 	/**
 	 * Create a ZonesProcessor for background image.
@@ -98,7 +98,7 @@ class PVZonesProcessor
 	static PVZonesProcessor declare_background_processor_zm_sel(PVRenderingPipeline& pipeline,
 	                                                            PVZonesManager& zm,
 	                                                            PVCore::PVHSVColor const* colors,
-	                                                            Inendi::PVSelection const& sel);
+	                                                            Squey::PVSelection const& sel);
 
   private:
 	receiver_type& _in_port;

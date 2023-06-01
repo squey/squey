@@ -27,7 +27,7 @@
 
 #include <pvguiqt/PVAbstractTableModel.h>
 
-#include <pvkernel/core/inendi_bench.h>
+#include <pvkernel/core/squey_bench.h>
 
 #include <pvcop/db/types.h>
 

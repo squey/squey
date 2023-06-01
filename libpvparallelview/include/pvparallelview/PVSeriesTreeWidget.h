@@ -38,8 +38,8 @@
 
 #include <assert.h>
 
-#include <inendi/PVView.h>
-#include <inendi/PVRangeSubSampler.h>
+#include <squey/PVView.h>
+#include <squey/PVRangeSubSampler.h>
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVNraw.h>
 
@@ -110,8 +110,8 @@ class PVSeriesTreeModel : public QAbstractItemModel
 
   public:
 	explicit PVSeriesTreeModel(
-	    Inendi::PVView* view,
-	    const Inendi::PVRangeSubSampler& sampler /*const QString &data, QObject *parent = nullptr*/)
+	    Squey::PVView* view,
+	    const Squey::PVRangeSubSampler& sampler /*const QString &data, QObject *parent = nullptr*/)
 	    : QAbstractItemModel(/*parent*/ nullptr)
 	{
 		_root_item = new PVSeriesTreeItem();
@@ -212,9 +212,9 @@ class PVSeriesTreeModel : public QAbstractItemModel
 	}
 
   private:
-	void setup_model_data(Inendi::PVView* _view, const Inendi::PVRangeSubSampler& sampler)
+	void setup_model_data(Squey::PVView* _view, const Squey::PVRangeSubSampler& sampler)
 	{
-		const Inendi::PVAxesCombination& axes_comb = _view->get_axes_combination();
+		const Squey::PVAxesCombination& axes_comb = _view->get_axes_combination();
 		PVCol column_count = _view->get_rushnraw_parent().column_count();
 		for (PVCol col(0); col < column_count; col++) {
 			const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);

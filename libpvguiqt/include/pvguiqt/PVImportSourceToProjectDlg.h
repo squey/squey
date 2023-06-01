@@ -28,11 +28,11 @@
 #include <QDialog>
 #include <QComboBox>
 
-namespace Inendi
+namespace Squey
 {
 class PVScene;
 class PVRoot;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVGuiQt
 {
@@ -42,12 +42,12 @@ class PVImportSourceToProjectDlg : public QDialog
 	Q_OBJECT;
 
   public:
-	PVImportSourceToProjectDlg(Inendi::PVRoot const& root,
-	                           Inendi::PVScene const* sel_scene,
+	PVImportSourceToProjectDlg(Squey::PVRoot const& root,
+	                           Squey::PVScene const* sel_scene,
 	                           QWidget* parent = 0);
 
   public:
-	Inendi::PVScene const* get_selected_scene() const;
+	Squey::PVScene const* get_selected_scene() const;
 
   private:
 	QComboBox* _combo_box;

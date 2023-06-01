@@ -29,7 +29,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
-#include <inendi/PVRoot.h>
+#include <squey/PVRoot.h>
 
 #include"pybind11/pybind11.h"
 #include"pybind11/embed.h"
@@ -54,7 +54,7 @@ PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
 {
 }
 
-static void run_python(const std::function<void()>& f, Inendi::PVPythonInterpreter& python_interpreter, QTextEdit* console_output, QWidget* parent)
+static void run_python(const std::function<void()>& f, Squey::PVPythonInterpreter& python_interpreter, QTextEdit* console_output, QWidget* parent)
 {
 	auto start = std::chrono::system_clock::now();
 
@@ -95,12 +95,12 @@ static void run_python(const std::function<void()>& f, Inendi::PVPythonInterpret
 	pvlogger::info() << "python script execution took : " << diff.count() << " ms" << std::endl << std::flush;
 }
 
-QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Inendi::PVView* view,
+QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* view,
                                                                QWidget* parent,
                                                                Params const&) const
 {
-	auto& root = view->get_parent<Inendi::PVRoot>();
-	Inendi::PVPythonInterpreter& python_interpreter = Inendi::PVPythonInterpreter::get(root);
+	auto& root = view->get_parent<Squey::PVRoot>();
+	Squey::PVPythonInterpreter& python_interpreter = Squey::PVPythonInterpreter::get(root);
 
 	auto* console_widget = new QWidget(parent);
 

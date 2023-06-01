@@ -36,10 +36,10 @@ namespace tbb
 class task_group_context;
 } // namespace tbb
 
-namespace Inendi
+namespace Squey
 {
 class PVSelection;
-} // namespace Inendi
+} // namespace Squey
 
 namespace PVParallelView
 {
@@ -158,7 +158,7 @@ class PVScatterViewDataInterface : boost::noncopyable
 	}
 
 	inline void process_image_sel(ProcessParams const& params,
-	                              Inendi::PVSelection const& sel,
+	                              Squey::PVSelection const& sel,
 	                              tbb::task_group_context* ctxt = nullptr)
 	{
 		process_sel(params, image_sel_processing(), sel, ctxt);
@@ -168,7 +168,7 @@ class PVScatterViewDataInterface : boost::noncopyable
 	}
 
 	inline void process_all_images(ProcessParams const& params,
-	                               Inendi::PVSelection const& sel,
+	                               Squey::PVSelection const& sel,
 	                               tbb::task_group_context* ctxt = nullptr)
 	{
 		process_all(params, image_bg_processing(), image_sel_processing(), sel, ctxt);
@@ -209,12 +209,12 @@ class PVScatterViewDataInterface : boost::noncopyable
 	                        tbb::task_group_context* ctxt = nullptr) const = 0;
 	virtual void process_sel(ProcessParams const& params,
 	                         PVScatterViewImage& image,
-	                         Inendi::PVSelection const& sel,
+	                         Squey::PVSelection const& sel,
 	                         tbb::task_group_context* ctxt = nullptr) const = 0;
 	virtual void process_all(ProcessParams const& params,
 	                         PVScatterViewImage& image_bg,
 	                         PVScatterViewImage& image_sel,
-	                         Inendi::PVSelection const& sel,
+	                         Squey::PVSelection const& sel,
 	                         tbb::task_group_context* ctxt = nullptr) const
 	{
 		process_bg(params, image_bg, ctxt);

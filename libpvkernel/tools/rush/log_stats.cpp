@@ -109,10 +109,10 @@ int main(int argc, char** argv)
 /*
  * Override environment variables when deploying the tool to bypass the fact
  * that we are in fact using the internal test API.
- * The correct fix is probably to use the import API in Inendi namespace...
+ * The correct fix is probably to use the import API in Squey namespace...
  */
-#ifndef INENDI_DEVELOPER_MODE
-	setenv("INENDI_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
+#ifndef SQUEY_DEVELOPER_MODE
+	setenv("SQUEY_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
 	setenv("PVKERNEL_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
 #endif
 

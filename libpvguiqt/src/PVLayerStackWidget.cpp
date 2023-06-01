@@ -34,14 +34,14 @@
 #include <pvguiqt/PVLayerStackWidget.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
-#include <inendi/widgets/PVNewLayerDialog.h>
+#include <squey/widgets/PVNewLayerDialog.h>
 
 /******************************************************************************
  *
  * PVGuiQt::PVLayerStackWidget::PVLayerStackWidget
  *
  *****************************************************************************/
-PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Inendi::PVView& lib_view, QWidget* parent)
+PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Squey::PVView& lib_view, QWidget* parent)
     : QWidget(parent)
 {
 	QVBoxLayout* main_layout;

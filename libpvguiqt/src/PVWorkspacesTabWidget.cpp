@@ -26,7 +26,7 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>
 
-#include <inendi/PVRoot.h>
+#include <squey/PVRoot.h>
 
 #include <pvkernel/core/PVProgressBox.h>
 
@@ -92,7 +92,7 @@ void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
 	byte_array.reserve(sizeof(void*));
 	byte_array.append((const char*)&workspace, sizeof(void*));
 
-	mimeData->setData("application/x-inendi_workspace", byte_array);
+	mimeData->setData("application/x-squey_workspace", byte_array);
 
 	drag->setMimeData(mimeData);
 
@@ -155,7 +155,7 @@ void PVGuiQt::PVSceneTabBar::resizeEvent(QResizeEvent* event)
  * PVGuiQt::PVSceneWorkspacesTabWidget
  *
  *****************************************************************************/
-PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Inendi::PVScene& scene,
+PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Squey::PVScene& scene,
                                                                 QWidget* parent /* = 0 */)
     : QTabWidget(parent), _scene(scene)
 {
@@ -255,5 +255,5 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 
 	auto* workspace = qobject_cast<PVSourceWorkspace*>(widget(index));
 	assert(workspace);
-	get_scene().get_parent<Inendi::PVRoot>().select_source(*workspace->get_source());
+	get_scene().get_parent<Squey::PVRoot>().select_source(*workspace->get_source());
 }
