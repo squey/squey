@@ -55,4 +55,4 @@ ${TBB_BUILD_DIR}/libtbbmalloc.so.${TBB_MAJOR}
 DESTINATION ${CUSTOM_TBB_PATH})
 
 # doc 
-add_definitions(-DDOC_URL="https://squey.gitlab.io/squey-reference-manual")
+add_definitions(-DDOC_URL="https://squey.gitlab.io/reference-manual")
