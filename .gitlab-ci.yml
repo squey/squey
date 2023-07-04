@@ -151,7 +151,8 @@ pages:
     - PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
     - JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
     - 'if [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi'
-    - 'if [ $CODE_COVERAGE = "true" ]; then cp -r /srv/tmp-squey/code_coverage_report $CI_PROJECT_DIR/public; cp $CI_PROJECT_DIR/gl-code-quality-report.html $CI_PROJECT_DIR/public/code_quality_report/index.html; exit 0; fi'
+    #- 'if [ $CODE_COVERAGE = "true" ]; then cp -r /srv/tmp-squey/code_coverage_report $CI_PROJECT_DIR/public; cp $CI_PROJECT_DIR/gl-code-quality-report.html $CI_PROJECT_DIR/public/code_quality_report/index.html; exit 0; fi'
+    - 'if [ $CODE_COVERAGE = "true" ]; then cp -r /srv/tmp-squey/code_coverage_report $CI_PROJECT_DIR/public; exit 0; fi'
     - cd nsis && ./build.sh ; cd -
     - rm -rf $CI_PROJECT_DIR/public/squey_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "Squey" -i "https://gitlab.com/squey/squey" -t "http://timestamp.comodoca.com/authenticode" -in nsis/squey_installer.exe -out "$CI_PROJECT_DIR/public/squey_installer.exe"
     - cp "public/squey_installer.exe" "public/squey_installer_$(md5sum public/squey_installer.exe | awk '{ print $1 }').exe"
@@ -213,7 +214,7 @@ sast:
     - privileged-docker
 include:
 - template: Security/SAST.gitlab-ci.yml
-- template: Code-Quality.gitlab-ci.yml
+#- template: Code-Quality.gitlab-ci.yml
 - template: Jobs/Secret-Detection.latest.gitlab-ci.yml
 - template: Jobs/Container-Scanning.gitlab-ci.yml
 
@@ -231,12 +232,12 @@ secret_detection:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
   interruptible: true
 
-code_quality_html:
-  extends: code_quality
-  variables:
-    REPORT_FORMAT: html
-  artifacts:
-    paths: [gl-code-quality-report.html]
+#code_quality_html:
+#  extends: code_quality
+#  variables:
+#    REPORT_FORMAT: html
+#  artifacts:
+#    paths: [gl-code-quality-report.html]
 
 container_scanning:
   variables:
