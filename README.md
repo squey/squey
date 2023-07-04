@@ -55,7 +55,7 @@ See ```README.md``` contained in archive file
 
 ## Reference manual
 
-https://squey.gitlab.io/reference-manual
+https://doc.squey.org
 
 ## Development
 
