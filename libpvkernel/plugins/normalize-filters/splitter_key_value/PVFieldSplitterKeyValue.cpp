@@ -56,6 +56,7 @@ void PVFilter::PVFieldSplitterKeyValue::set_args(PVCore::PVArgumentList const& a
 	}
 
 	set_number_expected_fields(_keys.size());
+	set_children_names(args.at("keys").toStringList());
 }
 
 DEFAULT_ARGS_FILTER(PVFilter::PVFieldSplitterKeyValue)

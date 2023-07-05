@@ -66,6 +66,8 @@ class PVFieldsFilterParamWidgetBase
 	virtual size_t force_number_children() = 0;
 	virtual void set_child_count(size_t count) = 0;
 	virtual size_t get_child_count() = 0;
+	virtual	void set_children_names(QStringList names) = 0;
+	virtual QStringList get_children_names() = 0;
 	virtual void clear_filter_data() = 0;
 	virtual void push_data(QString const& data) = 0;
 	virtual QStringList const& get_data() const = 0;
@@ -82,9 +84,16 @@ class PVFieldsFilterParamWidgetBase
 		connect(this, SIGNAL(nchilds_changed_Signal()), dst, slot);
 	}
 
+
+	void connect_to_child_names_changed(QObject* dst, const char* slot)
+	{
+		connect(this, SIGNAL(children_names_changed_Signal()), dst, slot);
+	}
+
   Q_SIGNALS:
 	void args_changed_Signal();
 	void nchilds_changed_Signal();
+	void children_names_changed_Signal();
 };
 
 typedef std::shared_ptr<PVFieldsFilterParamWidgetBase> PVFieldsFilterParamWidgetBase_p;
@@ -146,6 +155,9 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	// That should be "type-specific" and returns 0 for a field filter !
 	size_t get_child_count() override { return _nchilds; }
 
+	void set_children_names(QStringList names) override { _children_names = names; }
+	QStringList get_children_names() override { return _children_names; }
+
   protected:
 	base_registrable* _clone_me() const override { return nullptr; }
 
@@ -154,6 +166,7 @@ class PVFieldsFilterParamWidget : public PVFieldsFilterParamWidgetBase
 	filter_p _filter;
 	QStringList _filter_data;
 	size_t _nchilds;
+	QStringList _children_names;
 };
 
 typedef PVFieldsFilterParamWidget<PVFilter::one_to_many> PVFieldsSplitterParamWidget;

@@ -41,7 +41,7 @@ void PVParallelView::PVZoneRendering::finished(p_type const& this_sp)
 	assert(this_sp.get() == this);
 
 	{
-		boost::lock_guard<boost::mutex> lock(_wait_mut);
+		std::lock_guard<std::mutex> lock(_wait_mut);
 		_finished = true;
 
 		// Cancellation state may have been changed in the middle, but the listeners

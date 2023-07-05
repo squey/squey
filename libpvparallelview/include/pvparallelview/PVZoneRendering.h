@@ -34,8 +34,8 @@
 
 #include <tbb/atomic.h>
 
-#include <boost/thread/mutex.hpp>
-#include <boost/thread/condition_variable.hpp>
+#include <mutex>
+#include <condition_variable>
 
 #include <tbb/spin_rw_mutex.h>
 
@@ -117,7 +117,7 @@ class PVZoneRendering
 
 	inline void set_render_finished_slot(QObject* receiver, const char* slot)
 	{
-		boost::unique_lock<boost::mutex> lock(_wait_mut);
+		std::unique_lock<std::mutex> lock(_wait_mut);
 		_qobject_finished_success = receiver;
 		_qobject_slot = slot;
 	}
@@ -125,7 +125,7 @@ class PVZoneRendering
   public:
 	void wait_end()
 	{
-		boost::unique_lock<boost::mutex> lock(_wait_mut);
+		std::unique_lock<std::mutex> lock(_wait_mut);
 		while (!_finished) {
 			_wait_cond.wait(lock);
 		}
@@ -146,8 +146,8 @@ class PVZoneRendering
 	const char* _qobject_slot;
 
 	// Synchronisation
-	boost::mutex _wait_mut;
-	boost::condition_variable _wait_cond;
+	std::mutex _wait_mut;
+	std::condition_variable _wait_cond;
 	bool _finished;
 
 	// Next job when this one has been canceled

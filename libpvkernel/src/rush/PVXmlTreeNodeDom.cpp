@@ -522,6 +522,31 @@ void PVRush::PVXmlTreeNodeDom::setNbr(int nbr)
 
 /******************************************************************************
  *
+ * PVRush::PVXmlTreeNodeDom::setNbr
+ *
+ *****************************************************************************/
+void PVRush::PVXmlTreeNodeDom::setNbr(QStringList names)
+{
+	int nbr = names.size();
+
+	// this function update the number of field with their names in a splitter
+	switch (this->type) {
+	case Type::splitter:
+		PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::setNbr(%d)\n", nbr);
+		if (nbr > this->getNbr()) {
+			QStringList newList(names.mid(this->getNbr(), nbr));
+			addField(newList); // add some fields
+		} else if (nbr < this->getNbr()) {
+			delField(this->getNbr() - nbr); // delete some fiels
+		}
+		break;
+	default:
+		break;
+	}
+}
+
+/******************************************************************************
+ *
  * PVRush::PVXmlTreeNodeDom::getDom
  *
  *****************************************************************************/
@@ -543,6 +568,23 @@ void PVRush::PVXmlTreeNodeDom::addField(int nbr)
 	    nbr > 0) {
 		for (int i = 0; i < nbr; i++) {
 			addOneField("");
+		}
+	}
+}
+
+/******************************************************************************
+ *
+ * PVRush::PVXmlTreeNodeDom::addField
+ *
+ *****************************************************************************/
+void PVRush::PVXmlTreeNodeDom::addField(QStringList names)
+{
+	int nbr = names.size();
+	PVLOG_DEBUG("PVRush::PVXmlTreeNodeDom::addField(%d)\n", nbr);
+	if ((this->type == Type::splitter) &&
+	    nbr > 0) {
+		for (int i = 0; i < nbr; i++) {
+			addOneField(names[i]);
 		}
 	}
 }

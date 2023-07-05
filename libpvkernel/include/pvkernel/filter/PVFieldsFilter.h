@@ -90,6 +90,10 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 		_fields_expected = n;
 	}
 
+	void set_children_names(const QStringList& names) {
+		_fields_names = names;
+	}
+
   protected:
 	// Defines field interfaces
 
@@ -122,6 +126,7 @@ class PVFieldsFilter : public PVFieldsBaseFilter
   protected:
 	// Defines the number of expected children. 0 means that this information is unavailable.
 	size_t _fields_expected;
+	QStringList _fields_names;
 
 	CLASS_FILTER_NONREG_NOPARAM(FilterT)
 

@@ -158,12 +158,14 @@ class PVXmlTreeNodeDom : public QObject
 
 	int getNbr();
 	void setNbr(int nbr);
+	void setNbr(QStringList names);
 
 	void setSplitterPlugin(PVFilter::PVFieldsSplitterParamWidget_p plugin)
 	{
 		splitterPlugin = plugin;
 		splitterPlugin->connect_to_args_changed(this, SLOT(slot_update()));
 		splitterPlugin->connect_to_nchilds_changed(this, SLOT(slot_update_number_childs()));
+		splitterPlugin->connect_to_child_names_changed(this, SLOT(slot_update_child_names()));
 	}
 
 	PVFilter::PVFieldsSplitterParamWidget_p getSplitterPlugin()
@@ -321,6 +323,7 @@ class PVXmlTreeNodeDom : public QObject
 	 * @param n
 	 */
 	void addField(int n);
+	void addField(QStringList names);
 
 	/**
 	 * delete 'n' field.
@@ -351,6 +354,14 @@ class PVXmlTreeNodeDom : public QObject
 		assert(splitterPlugin);
 		PVLOG_DEBUG("slot_update_number_childs with plugin %x\n", splitterPlugin.get());
 		setNbr(splitterPlugin->get_child_count());
+		Q_EMIT data_changed();
+	}
+
+	void slot_update_child_names()
+	{
+		assert(splitterPlugin);
+		PVLOG_DEBUG("slot_update_child_names with plugin %x\n", splitterPlugin.get());
+		setNbr(splitterPlugin->get_children_names());
 		Q_EMIT data_changed();
 	}
 

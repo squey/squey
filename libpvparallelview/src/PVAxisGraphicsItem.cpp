@@ -175,6 +175,8 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	connect(_header_zone, &PVAxisHeader::change_mapping, this, &PVAxisGraphicsItem::change_mapping);
 	connect(_header_zone, &PVAxisHeader::change_plotting, this,
 	        &PVAxisGraphicsItem::change_plotting);
+
+	connect(this, &PVAxisGraphicsItem::density_changed, [&]() { update(boundingRect());});
 }
 
 PVParallelView::PVAxisGraphicsItem::~PVAxisGraphicsItem()
@@ -508,16 +510,7 @@ QImage PVParallelView::PVAxisGraphicsItem::get_axis_density()
 				render_density(axis_length);
 				_axis_density_worker_finished.clear();
 
-				// Update bounding rect from main thread
-				auto* timer = new QTimer();
-				timer->moveToThread(qApp->thread());
-				timer->setSingleShot(true);
-				QObject::connect(timer, &QTimer::timeout, [this,timer]() {
-					// main thread
-					update(boundingRect());
-					timer->deleteLater();
-				});
-				QMetaObject::invokeMethod(timer, "start", Qt::QueuedConnection, Q_ARG(int, 0));
+				Q_EMIT density_changed();
 
 			});
 		} else {

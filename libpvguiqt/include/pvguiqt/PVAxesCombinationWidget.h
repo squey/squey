@@ -52,6 +52,9 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
   public:
 	void reset_used_axes();
 
+  Q_SIGNALS:
+	void closed();
+
   public Q_SLOTS:
 	void update_orig_axes();
 	void update_used_axes();
@@ -66,6 +69,7 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	void update_combination();
 	void enable_drop(bool enable);
 	QList<QListWidgetItem*> ordered_selected(QListWidget* list_widget) const;
+	void closeEvent(QCloseEvent *event) override;
 
   protected Q_SLOTS:
 	void reset_comb_Slot();

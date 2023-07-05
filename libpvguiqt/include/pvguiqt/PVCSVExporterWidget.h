@@ -102,13 +102,6 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		QHBoxLayout* custom_axes_combination_layout = new QHBoxLayout();
 		QRadioButton* custom_axis = new QRadioButton("Use custom axes combination");
 		button_group->addButton(custom_axis);
-		QObject::connect(custom_axis, &QRadioButton::toggled, [&](bool checked) {
-			if (checked) {
-				_exporter.set_column_indexes(_custom_axes_combination.get_combination());
-				_exporter.set_header(_custom_axes_combination.get_combined_names());
-				_selected_radio_button = custom_axis;
-			}
-		});
 		QPushButton* edit_axes_combination = new QPushButton("Edit");
 		edit_axes_combination->setEnabled(custom_axis->isChecked());
 
@@ -144,6 +137,13 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		                 [=](bool show) { edit_axes_combination->setEnabled(show); });
 		QObject::connect(edit_axes_combination, &QPushButton::clicked,
 		                 [=]() { axes_combination_widget->show(); });
+		QObject::connect(axes_combination_widget, &PVGuiQt::PVAxesCombinationWidget::closed, [&]() {
+			if (custom_axis->isChecked()) {
+				_exporter.set_column_indexes(_custom_axes_combination.get_combination());
+				_exporter.set_header(_custom_axes_combination.get_combined_names());
+				_selected_radio_button = custom_axis;
+			}
+		});
 
 		//////
 		// Rows to export

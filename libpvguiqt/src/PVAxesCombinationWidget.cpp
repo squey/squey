@@ -30,6 +30,7 @@
 
 #include <QDialogButtonBox>
 #include <QDebug>
+#include <QCloseEvent>
 
 #include <unordered_set>
 
@@ -430,4 +431,13 @@ PVGuiQt::PVAxesCombinationWidget::ordered_selected(QListWidget* list_widget) con
 		return list_widget->row(lh) < list_widget->row(rh);
 	});
 	return selected_used;
+}
+
+void PVGuiQt::PVAxesCombinationWidget::closeEvent(QCloseEvent *event) {
+
+	if (event->spontaneous()) {
+		Q_EMIT closed();
+	} else {
+		QWidget::closeEvent(event);
+	}
 }
