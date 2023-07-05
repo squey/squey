@@ -154,6 +154,7 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	void mouse_clicked(PVCombCol axis);
 	void change_mapping(QString const& selected_mapping);
 	void change_plotting(QString const& selected_plotting);
+	void density_changed();
 
   private:
 	void set_axis_text_value(QGraphicsTextItem* item, PVRow const r);
