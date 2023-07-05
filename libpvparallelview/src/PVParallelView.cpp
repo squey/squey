@@ -134,10 +134,13 @@ namespace PVParallelView::common
  ************************************************************/
 RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	if (PVBCIDrawingBackendOpenCL::get().is_gpu_accelerated()) {
+	// Note : a performance regression in Qt QPainter::drawLine made the QPainter backend
+	// suboptimal compared to the OpenCL software one.
+
+	/*if (PVBCIDrawingBackendOpenCL::get().is_gpu_accelerated()) {*/
 		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
-	} else {
+	/*} else {
 		_instance->init_backends<PVBCIDrawingBackendQPainter>();
-	}
+	}*/
 }
 } // namespace PVParallelView
