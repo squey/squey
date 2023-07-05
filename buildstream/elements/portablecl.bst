@@ -5,16 +5,20 @@ description: |
 
 sources:
 - kind: tar
-  url: http://portablecl.org/downloads/pocl-3.0.tar.gz
-  ref: a3fd3889ef7854b90b8e4c7899c5de48b7494bf770e39fba5ad268a5cbcc719d
+  url: https://codeload.github.com/pocl/pocl/tar.gz/refs/tags/v4.0
+  ref: 7f4e8ab608b3191c2b21e3f13c193f1344b40aba7738f78762f7b88f45e8ce03
 
 - kind: patch
   path: buildstream/patches/portablecl/cl.hpp.patch
   strip-level: 1
+
   
 variables:
   cmake-local: |
+    -DCMAKE_CXX_COMPILER=clang++ \
     -DINSTALL_OPENCL_HEADERS=1 \
+    -DLLVM_ENABLE_RTTI=ON \
+    -DLLVM_ENABLE_EH=ON \
     -DEXTRA_HOST_LD_FLAGS=-L%{prefix}/lib \
     -DCMAKE_BUILD_TYPE=Release \
     -DLLC_HOST_CPU=corei7
