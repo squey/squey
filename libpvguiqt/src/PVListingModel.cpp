@@ -160,6 +160,11 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
  *****************************************************************************/
 QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientation, int role) const
 {
+	// Sometimes Qt is using an invalid row value...
+	if (row >= (int)_view.get_row_count()) {
+		return {};
+	}
+
 	PVCombCol comb_col(orientation == Qt::Horizontal ? row : 0);
 	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 
