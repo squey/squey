@@ -1,11 +1,10 @@
-4.9.12 (2023-07-05)
+4.9.12 (2023-07-09)
 ------------------
 
 This minor release fixes or improves:
 * Fix crash in parallel coordinates density
 * Fix crash in listing
 * Fix custom axes combination not being properly used during data export
-* Fixed Qt performance regression in parallel coordinates software backend
 * Fix key:value splitter items not being correctly serialized
 * Improve key:value splitter to automatically set columns names
 
