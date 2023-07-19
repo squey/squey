@@ -1,16 +1,14 @@
 app-id: org.squey.Squey
 runtime: org.freedesktop.Platform
-runtime-version: '22.08'
+runtime-version: '23.08'
 sdk: org.freedesktop.Sdk
 command: squey_launcher.sh
 finish-args:
-  - --socket=x11
+  - --socket=wayland
+  - --socket=fallback-x11
   - --share=network
   - --share=ipc
   - --filesystem=host
-  - --filesystem=/opt/squey
-  - --filesystem=~/.squey
-  - --filesystem=/tmp
   - --device=dri
   - --allow=devel
 modules:
