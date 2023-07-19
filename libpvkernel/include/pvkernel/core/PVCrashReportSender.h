@@ -166,43 +166,25 @@ class PVCrashReportSender
 		std::string result;
 		curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &result);
 
-		std::unique_ptr<curl_httppost, std::function<void(curl_httppost*)>> postvars(
-			nullptr, [](curl_httppost* formpost) { curl_formfree(formpost); });
-
-		struct curl_httppost* formpost = nullptr;
-		struct curl_httppost* lastptr = nullptr;
-
 		curl_easy_setopt(curl.get(), CURLOPT_URL, SQUEY_BUGSPLAT_API_ENDPOINT);
-		curl_formadd(
-			&formpost,
-			&lastptr,
-			CURLFORM_COPYNAME,
-			"upload_file_minidump",
-			CURLFORM_FILE,
-			compressed_minidump_path.c_str(),
-			CURLFORM_END
-		);
-		curl_formadd(
-			&formpost,
-			&lastptr,
-			CURLFORM_COPYNAME,
-			"product",
-			CURLFORM_COPYCONTENTS,
-			"Squey",
-			CURLFORM_END
-		);
-		curl_formadd(
-			&formpost,
-			&lastptr,
-			CURLFORM_COPYNAME,
-			"version",
-			CURLFORM_COPYCONTENTS,
-			version.c_str(),
-			CURLFORM_END
-		);
 
-		postvars.reset(formpost);
-		curl_easy_setopt(curl.get(), CURLOPT_HTTPPOST, postvars.get());
+		std::unique_ptr<curl_mime, std::function<void(curl_mime*)>> multipart(
+					curl_mime_init(curl.get()), [](curl_mime* mime) { curl_mime_free(mime); });
+
+		curl_mimepart* part = curl_mime_addpart(multipart.get());
+		curl_mime_name(part, "upload_file_minidump");
+		curl_mime_filedata(part, compressed_minidump_path.c_str());
+
+		part = curl_mime_addpart(multipart.get());
+		curl_mime_name(part, "product");
+		curl_mime_data(part, "Squey", CURL_ZERO_TERMINATED);
+
+		part = curl_mime_addpart(multipart.get());
+		curl_mime_name(part, "version");
+		curl_mime_data(part, version.c_str(), CURL_ZERO_TERMINATED);
+
+		curl_easy_setopt(curl.get(), CURLOPT_MIMEPOST, multipart.get());
+
 
 		// Upload crash report
 		curl_easy_perform(curl.get());
