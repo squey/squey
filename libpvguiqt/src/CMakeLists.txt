@@ -113,7 +113,7 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES}
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6OpenGL Qt63DCore Qt63DRender Qt63DInput Qt63DExtras)
+set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6OpenGL)
 
 set(PVGUIQT_LINK_LIBRARIES pvdisplays pvsquey pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT6_LIBS} /app/lib/libKF5SyntaxHighlighting.so)
