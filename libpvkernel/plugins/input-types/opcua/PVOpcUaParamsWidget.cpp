@@ -635,7 +635,7 @@ void PVRush::PVOpcUaParamsWidget::update_custom_format()
 		auto node_id_open62541 = PVOpcUaAPI::NodeId(deserialized_query[3 * i + 1]).open62541();
 		if (auto* data_type = UA_findDataType(&node_id_open62541)) {
 			/*PVRush::PVXmlTreeNodeDom* node =*/
-				format_root->addOneField(column_name, QString(PVRush::PVOpcUaAPI::pvcop_type(data_type->typeIndex)));
+				format_root->addOneField(column_name, QString(PVRush::PVOpcUaAPI::pvcop_type(data_type->typeId.namespaceIndex)));
 		} else {
 			/*PVRush::PVXmlTreeNodeDom* node = */format_root->addOneField(column_name, QString("uint8"));
 		}

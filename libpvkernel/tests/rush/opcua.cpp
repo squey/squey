@@ -464,9 +464,9 @@ void connect_to_server()
 	}
 
 	UA_StatusCode retval =
-	    UA_Client_connect_username(client, SERVER_URL, SERVER_USER, SERVER_PASSWORD);
+	    UA_Client_connectUsername(client, SERVER_URL, SERVER_USER, SERVER_PASSWORD);
 
-	qDebug() << "UA_Client_connect_username:" << QDBGSTS(retval);
+	qDebug() << "UA_Client_connectUsername:" << QDBGSTS(retval);
 
 	/* Read historical values (uint32) */
 	printf("\nStart historical read (1, \"myUintValue\"):\n");
