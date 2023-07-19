@@ -1,9 +1,0 @@
---- a/Makefile
-+++ b/Makefile
-@@ -80,3 +80,6 @@
- 	@echo runtime=$(runtime)
- 	@echo tbb_build_prefix=$(tbb_build_prefix)
- 
-+install:
-+	cp -r include/* /app/include
-+	cp $(work_dir)_release/*.so* /app/lib

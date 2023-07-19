@@ -50,6 +50,7 @@ depends:
 - libnuma.bst
 - google-breakpad.bst
 - portablecl.bst
+- opencl-headers.bst
 - libpcap.bst
 - lightpcapng.bst
 - tshark.bst
@@ -60,10 +61,8 @@ depends:
 - kitemmodels.bst
 - ksyntaxhighlighting.bst
 # - erf.bst
-- qtopcua.bst
 - pybind11.bst
 - python3-pip.bst
-# - conda.bst
 - numpy.bst
 - libomp.bst
 - lcov.bst
@@ -72,7 +71,8 @@ depends:
 build-depends:
 - freedesktop-sdk.bst:components/git.bst
 - freedesktop-sdk.bst:components/flatpak-xdg-utils.bst 
-- clang-tools-extra.bst
+#- clang-tools-extra.bst
+- fix_gdb.bst
 
 sources:
 - kind: local
@@ -80,6 +80,7 @@ sources:
 
 environment:
   CCACHE_DIR: ".ccache"
+  LC_ALL: "C.UTF-8"
   
 variables:
   build-dir: "build"

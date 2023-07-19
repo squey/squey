@@ -7,7 +7,7 @@ sources:
 - kind: git
 
   url: https://anongit.kde.org/kitemmodels.git
-  ref: 78cde10a52194c24db7b676b13dbd8e6847c2424
+  ref: 064c9699a8ea82b51b57c21e4ae2d02c783a8056
 
 variables:
   cmake-local: |

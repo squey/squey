@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
   url: https://github.com/open62541/open62541.git
-  ref: b9a3d72a3a331417b2faa7aa5ac0d6b553811080
+  ref: 1b7e2b5d669661c568fda5577ee92011a029cf75
   submodules:
     deps/mdnsd:
       checkout: true
@@ -14,10 +14,6 @@ sources:
     deps/ua-nodeset:
       checkout: true
       url: https://github.com/OPCFoundation/UA-Nodeset
-  
-- kind: patch
-  path: buildstream/patches/open62541/open62541_history.patch
-  strip-level: 1
 
 variables:
   cmake-local: |
@@ -41,3 +37,4 @@ config:
 depends:
 - base.bst
 - mbedtls.bst
+- freedesktop-sdk.bst:components/python3.bst

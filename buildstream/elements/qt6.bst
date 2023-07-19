@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: https://download.qt.io/archive/qt/6.4/6.4.1/single/qt-everywhere-src-6.4.1.tar.xz
-  ref: e20b850b6134098a7f2e7701cfddfb213c6cf394b9e848e6fbc5b0e89dcfcc09
+  url: https://download.qt.io/archive/qt/6.5/6.5.2/single/qt-everywhere-src-6.5.2.tar.xz
+  ref: cde57be663d0f875759797298bdc37a936d517c39f2013e4e6ece5e12edeed12
 
 - kind: patch
   path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
@@ -14,6 +14,10 @@ sources:
   
 - kind: patch
   path: buildstream/patches/qt6/Fix-rectangle-intersection-issue-because-of-floating.patch
+  strip-level: 1
+
+- kind: patch
+  path: buildstream/patches/qt6/ffmpeg-chromium-binutils-2.41.patch
   strip-level: 1
 
 variables:
@@ -46,10 +50,46 @@ variables:
     -no-feature-renameat2 \
     -no-feature-getentropy \
     -no-feature-statx \
-    -gtk
+    -xcb-xlib \
+    -bundled-xcb-xinput \
+    -skip qt3d \
+    -skip qtquick3d \
+    -skip qtquick3dphysics \
+    -skip qtcanvas3d \
+    -skip qtandroidextras \
+    -skip qtconnectivity \
+    -skip qtdatavis3d \
+    -skip qtdoc \
+    -skip qtlocation \
+    -skip qtmacextras \
+    -skip qtmultimedia \
+    -skip qtgamepad \
+    -skip qtpurchasing \
+    -skip qtsensors \
+    -skip qtserialbus \
+    -skip qtserialport \
+    -skip qtspeech \
+    -skip qtvirtualkeyboard \
+    -gtk \
+    -webengine-icu \
+    -no-feature-webengine-geolocation \
+    -no-feature-webengine-kerberos \
+    -no-feature-webengine-pepper-plugins \
+    -no-feature-webengine-printing-and-pdf \
+    -no-feature-webengine-spellchecker \
+    -no-feature-webengine-webrtc \
+    -no-feature-webengine-webrtc-pipewire \
+    -no-feature-webengine-developer-build \
+    -no-feature-webengine-full-debug-info \
+    -no-feature-webengine-native-spellchecker \
+    -no-feature-webengine-system-minizip \
+    -no-webengine-proprietary-codecs \
+    -no-webengine-pulseaudio \
+    -no-webengine-alsa \
+    -no-webengine-ffmpeg
     
 config:
-  create-dev-shm: true
+  #create-dev-shm: true
 
   configure-commands:
     - ./configure %{conf-local}
@@ -65,7 +105,7 @@ config:
 
 environment:
   OPENSSL_LIBS: "-L/%{prefix}/lib -lssl -lcrypto"
-  PYTHONPATH: "/usr/lib/python3.10/site-packages:/%{prefix}/lib/python3.10/site-packages"
+  PYTHONPATH: "/usr/lib/python3.11/site-packages:/%{prefix}/lib/python3.11/site-packages"
 
 depends:
 - base.bst
@@ -82,14 +122,24 @@ depends:
 - freedesktop-sdk.bst:components/cups.bst
 - freedesktop-sdk.bst:components/dbus.bst
 - freedesktop-sdk.bst:components/fontconfig.bst
+- freedesktop-sdk.bst:components/freetype.bst
 - freedesktop-sdk.bst:components/gtk3.bst
 - freedesktop-sdk.bst:components/harfbuzz.bst
 - freedesktop-sdk.bst:components/vulkan-headers.bst
+- freedesktop-sdk.bst:components/xcb-util.bst
+- freedesktop-sdk.bst:components/xcb-util-cursor.bst
 - freedesktop-sdk.bst:components/xcb-util-image.bst
 - freedesktop-sdk.bst:components/xcb-util-keysyms.bst
 - freedesktop-sdk.bst:components/xcb-util-renderutil.bst
 - freedesktop-sdk.bst:components/xcb-util-wm.bst
 - freedesktop-sdk.bst:components/xorg-lib-xcb.bst
+- freedesktop-sdk.bst:components/xorg-lib-xrender.bst
+- freedesktop-sdk.bst:components/xorg-lib-xrandr.bst
+- freedesktop-sdk.bst:components/xorg-lib-xfixes.bst
+- freedesktop-sdk.bst:components/xorg-lib-xext.bst
+- freedesktop-sdk.bst:components/xorg-lib-x11.bst
+- freedesktop-sdk.bst:components/xorg-lib-xinerama.bst
+- freedesktop-sdk.bst:components/libxkbcommon.bst
 - freedesktop-sdk.bst:components/libglvnd.bst
 - mysql.bst
 - libpq.bst

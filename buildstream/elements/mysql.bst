@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://github.com/mysql/mysql-server/archive/refs/tags/mysql-8.0.30.tar.gz
-  ref: e76636197f9cb764940ad8d800644841771def046ce6ae75c346181d5cdd879a
+  url: https://github.com/mysql/mysql-server/archive/refs/tags/mysql-8.0.33.tar.gz
+  ref: d986cbcb3028676eef037d94f82eaac79caf4af24e1b4c304dab49896fc5eaf7
 
   
 variables:

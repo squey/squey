@@ -7,7 +7,7 @@ sources:
 - kind: git
 
   url: https://anongit.kde.org/extra-cmake-modules.git
-  ref: ce726d388a59b941e2e6f6f487132532511af03d
+  ref: 553e9e8657b724139a96a68cdbefc6c261b662cb
 
 depends:
 - base.bst

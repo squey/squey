@@ -160,7 +160,7 @@ list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 
 set(LINK_LIBRARIES pvdisplays pvsquey pvkernel ${QT6_LIBS} ${OPENGL_LIBRARIES}
 	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES} 
-	${PVHWLOC_LIBRARIES} /app/lib/libKF5ItemModels.so)
+	${PVHWLOC_LIBRARIES} /app/lib/libKF6ItemModels.so)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
