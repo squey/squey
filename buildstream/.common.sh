@@ -45,8 +45,10 @@ fi
 MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
 
 # Install Buildstream and bst-external plugins if needed
-command -v "bst" &> /dev/null || { pip install --user BuildStream==1.6.7; }
+command -v "bst" &> /dev/null || { pip install --user BuildStream==2.0.1; }
 python3 -c "import bst_external" &> /dev/null || pip install --user -e "$DIR/plugins/bst-external"
+pip install --user -e "$DIR/plugins/buildstream-plugins"
+pip install --user -e "$DIR/plugins/bst-plugins-experimental" && pip install --user dulwich
 
 function check_bindfs()
 {
@@ -71,11 +73,11 @@ function open_workspace()
         fi
     
         bst workspace close squey.bst || true
-        bst fetch freedesktop-sdk.bst
+        bst source fetch freedesktop-sdk.bst
         if [ ! -d "$WORKSPACE_PATH" ]; then
-            bst workspace open squey.bst $WORKSPACE_PATH
+            bst workspace open squey.bst --directory $WORKSPACE_PATH
         else
-            bst workspace open --no-checkout squey.bst $WORKSPACE_PATH
+            bst workspace open --no-checkout squey.bst --directory $WORKSPACE_PATH
         fi
         
         if [ "$WORKSPACE_NAME" == "workspace_build" ]; then

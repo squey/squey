@@ -8,7 +8,6 @@ depends:
 
 config:
   directory: '%{prefix}'
-  export: 'export'
 
   metadata:
     Application:
@@ -20,9 +19,9 @@ config:
 
     Context:
       shared: "network;ipc;"
-      sockets: "x11;wayland;pulseaudio;"
-      devices: "all;"
-      filesystems: "host;xdg-download;/opt/squey;~/.squey;/tmp;"
+      sockets: "x11;wayland;"
+      devices: "dri;"
+      filesystems: "host;"
       features: "devel"
 
     'Extension org.squey.Squey.Debug':
