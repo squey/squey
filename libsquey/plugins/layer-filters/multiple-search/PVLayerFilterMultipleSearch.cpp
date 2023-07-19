@@ -41,7 +41,7 @@
 
 #include <tbb/enumerable_thread_specific.h>
 
-#include <pcrecpp.h>
+#include <regex>
 
 #include <QMessageBox>
 
@@ -191,29 +191,27 @@ void Squey::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer& 
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
-			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
-			return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			return std::regex_match(array_value, std::regex(exp_value));
 		};
 		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION | CASE_INSENSITIVE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
-			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
-			return re.FullMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			return std::regex_match(array_value, std::regex(exp_value, std::regex_constants::icase));
 		};
 		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (REGULAR_EXPRESSION): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
-			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8);
-			return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			std::smatch match;
+			return std::regex_search(array_value, match, std::regex(exp_value));
 		};
 		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (REGULAR_EXPRESSION | CASE_INSENSITIVE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
-			pcrecpp::RE re(exp_value.c_str(), PCRE_UTF8 | PCRE_CASELESS);
-			return re.PartialMatch(pcrecpp::StringPiece(array_value.c_str(), array_value.size()));
+			std::smatch match;
+			return std::regex_search(array_value, match, std::regex(exp_value, std::regex_constants::icase));
 		};
 		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
