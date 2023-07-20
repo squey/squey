@@ -41,8 +41,9 @@ int main(int argc, char** argv)
 
 #ifndef SQUEY_BENCH
 	std::string file_extension = input_file.substr(input_file.rfind('.') + 1);
-	std::string cmd = PVCore::PVStreamingDecompressor::executable(file_extension);
+	const auto& [args, argv_] = PVCore::PVStreamingDecompressor::executable(file_extension, PVCore::PVStreamingDecompressor::EExecType::DECOMPRESSOR);
 	std::string uncompressed_file = output_file;
+	std::string cmd = args[0];
 	if (not cmd.empty()) {
 		std::string output_file2 = import_export(output_file, format, test_selection);
 		uncompressed_file = output_file2.substr(0, output_file2.find_last_of("."));

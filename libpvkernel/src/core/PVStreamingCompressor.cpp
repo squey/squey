@@ -36,11 +36,13 @@
 #include <sys/wait.h>
 #include <unistd.h>
 
+#include <boost/algorithm/string.hpp>
+
 #include <pvlogger.h>
 
 const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
     PVCore::__impl::PVStreamingBase::_supported_compressors = {
-        {"gz", {"pigz", "unpigz"}}, {"bz2", {"lbzip2", "lbunzip2"}}, {"zip", {"zip", "funzip"}}};
+        {"gz", {"pigz", "unpigz"}}, {"bz2", {"lbzip2", "lbunzip2"}}, {"zip", {"zip", "funzip"}}, {"xz", {"xz -T0", "unxz -T0"}}};
 
 /******************************************************************************
  *
@@ -88,6 +90,30 @@ void PVCore::__impl::PVStreamingBase::wait_finished()
 std::vector<std::string> PVCore::__impl::PVStreamingBase::supported_extensions()
 {
 	return _supported_compressors.keys();
+}
+
+std::tuple<std::vector<std::string>, std::vector<char*>> PVCore::__impl::PVStreamingBase::executable(const std::string& extension, EExecType type)
+{
+	std::string exec;
+	auto it = _supported_compressors.find(extension);
+	if (it != _supported_compressors.end()) {
+		if (type == EExecType::COMPRESSOR) {
+			exec = _supported_compressors.at(extension).first;
+		}
+		else {
+			exec = _supported_compressors.at(extension).second;
+		}
+	}
+	std::vector<std::string> args;
+	boost::algorithm::split(args, exec, boost::is_any_of(" "));
+
+	std::vector<char*> argv;
+	for (const auto& arg : args) {
+		argv.push_back((char*)arg.data());
+	}
+	argv.push_back(nullptr);
+
+	return {args, argv};
 }
 
 int PVCore::__impl::PVStreamingBase::return_status(std::string* status_msg /* = nullptr */)
@@ -142,7 +168,7 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
 	int exec_pipe[2];
 	pipe(exec_pipe);
 
-	const std::string& cmd = executable(_extension);
+	const auto & [args, argv] = executable(_extension, EExecType::COMPRESSOR);
 	switch (_child_pid = vfork()) {
 	case 0: { // child process
 		setpgid(0, 0);
@@ -168,7 +194,7 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
 		}
 		dup2(compression_fd, STDOUT_FILENO);
 
-		if (execlp(cmd.c_str(), cmd.c_str(), (char*)nullptr) == -1) {
+		if (execvp(args[0].c_str(), argv.data())) {
 			_exit(-1);
 		}
 	} break;
@@ -250,16 +276,6 @@ void PVCore::PVStreamingCompressor::do_wait_finished()
 	}
 }
 
-std::string PVCore::PVStreamingCompressor::executable(const std::string& extension)
-{
-	std::string exec;
-	auto it = _supported_compressors.find(extension);
-	if (it != _supported_compressors.end()) {
-		exec = _supported_compressors.at(extension).first;
-	}
-	return exec;
-}
-
 /******************************************************************************
  *
  * PVCore::PVStreamingDecompressor
@@ -311,7 +327,7 @@ void PVCore::PVStreamingDecompressor::init()
 	/**
 	 * We need to spawn a new process to have unshared file descriptors
 	 */
-	const std::string& cmd = executable(_extension);
+	const auto & [args, argv] = executable(_extension, EExecType::DECOMPRESSOR);
 	switch (_child_pid = vfork()) {
 	case 0: { // child process
 		setpgid(0, 0);
@@ -328,11 +344,11 @@ void PVCore::PVStreamingDecompressor::init()
 		close(err_pipe[STDIN_FILENO]);
 		dup2(err_pipe[STDOUT_FILENO], STDERR_FILENO);
 
-		// set close-on-exec flag to check execlp status
+		// set close-on-exec flag to check execvp status
 		close(exec_pipe[STDIN_FILENO]);
 		fcntl(exec_pipe[STDOUT_FILENO], F_SETFD, FD_CLOEXEC);
 
-		if (execlp(cmd.c_str(), cmd.c_str(), (char*)nullptr) == -1) {
+		if (execvp(args[0].c_str(), argv.data()) == -1) {
 			write(exec_pipe[STDOUT_FILENO], std::to_string(errno).c_str(), sizeof(errno));
 			_exit(errno);
 		}
@@ -465,14 +481,4 @@ void PVCore::PVStreamingDecompressor::reset()
 			cancel();
 		}
 	}
-}
-
-std::string PVCore::PVStreamingDecompressor::executable(const std::string& extension)
-{
-	std::string exec;
-	auto it = _supported_compressors.find(extension);
-	if (it != _supported_compressors.end()) {
-		exec = _supported_compressors.at(extension).second;
-	}
-	return exec;
 }

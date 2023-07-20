@@ -53,6 +53,12 @@ class PVStreamingBase
 	    _supported_compressors;
 
   public:
+  enum class EExecType {
+	COMPRESSOR,
+	DECOMPRESSOR
+  };
+
+  public:
 	PVStreamingBase(const std::string& path);
 	virtual ~PVStreamingBase();
 
@@ -63,6 +69,9 @@ class PVStreamingBase
   public:
 	static std::vector<std::string> supported_extensions();
 	const std::string& path() const { return _path; }
+
+  public:
+	static std::tuple<std::vector<std::string>, std::vector<char*>> executable(const std::string& extension, EExecType type);
 
   protected:
 	int return_status(std::string* status_message = nullptr);
@@ -96,9 +105,6 @@ class PVStreamingCompressor : public __impl::PVStreamingBase
   public:
 	void write(const std::string& content);
 
-  public:
-	static std::string executable(const std::string& extension);
-
   private:
 	void do_wait_finished() override;
 };
@@ -119,9 +125,6 @@ class PVStreamingDecompressor : public __impl::PVStreamingBase
   public:
 	chunk_sizes_t read(char* buffer, size_t count);
 	void reset();
-
-  public:
-	static std::string executable(const std::string& extension);
 
   private:
 	void init();
