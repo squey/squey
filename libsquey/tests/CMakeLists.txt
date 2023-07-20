@@ -30,6 +30,8 @@ add_squey_test(Tsquey_export_selection Tsquey_export_selection ${TESTS_FILES_DIR
 add_squey_test(Tsquey_export_small_selection_gz Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
 add_squey_test(Tsquey_export_small_selection_bz2 Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.bz2 ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
 add_squey_test(Tsquey_export_small_selection_zip Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.zip ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
+add_squey_test(Tsquey_export_small_selection_xz Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.xz ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
+
 
 # Test selection
 add_squey_test(Tsquey_export_odd_selection Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log ${TESTS_FILES_DIR}/formats/proxy.log.format 1 ${TESTS_FILES_DIR}/sources/proxy_odd.log)
