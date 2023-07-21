@@ -26,6 +26,7 @@
 #include <QSplitter>
 #include <QDesktopServices>
 #include <QScreen>
+#include <QInputDialog>
 
 #include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
@@ -266,6 +267,8 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	actionAddAxisIn->setIcon(QIcon(":/add-axis"));
 	actionAddFilterAfter = new QAction("add a filter", (QObject*)this);
 	actionAddFilterAfter->setIcon(QIcon(":/filter"));
+	actionNameAxes = new QAction("Set axes name", (QObject*)this);
+	actionNameAxes->setIcon(QIcon(":/edit"));
 	actionAddRegExAfter = new QAction("add a RegEx", (QObject*)this);
 	actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
 	actionAddUrl = new QAction("add URL splitter", (QObject*)this);
@@ -320,6 +323,8 @@ void App::PVFormatBuilderWidget::initConnexions()
 	connect(actionAddAxisIn, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddAxisIn);
 	connect(actionAddFilterAfter, &QAction::triggered, this,
 	        &PVFormatBuilderWidget::slotAddFilterAfter);
+	connect(actionNameAxes, &QAction::triggered, this,
+	        &PVFormatBuilderWidget::slotSetAxesName);
 	connect(actionAddRegExAfter, &QAction::triggered, this,
 	        &PVFormatBuilderWidget::slotAddRegExAfter);
 	connect(actionDelete, &QAction::triggered, this, &PVFormatBuilderWidget::slotDelete);
@@ -362,7 +367,8 @@ void App::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 
 	tools->addAction(actionAddFilterAfter);
 	tools->addAction(actionAddAxisIn);
-
+	tools->addSeparator();
+	tools->addAction(actionNameAxes);
 	tools->addSeparator();
 	tools->addAction(actionMoveDown);
 	tools->addAction(actionMoveUp);
@@ -393,6 +399,23 @@ void App::PVFormatBuilderWidget::slotAddAxisIn()
 void App::PVFormatBuilderWidget::slotAddFilterAfter()
 {
 	myTreeView->addFilterAfter();
+}
+
+/******************************************************************************
+ *
+ * App::PVFormatBuilderWidget::slotSetAxesName
+ *
+ *****************************************************************************/
+void App::PVFormatBuilderWidget::slotSetAxesName()
+{
+	bool ok;
+	QString axes_name_text = QInputDialog::getText(this, tr("Set axes name"),
+	tr("Space separated axes name:"), QLineEdit::Normal, "", &ok);
+	if (ok) {
+		axes_name_text.replace("\n", "");
+		QStringList axes_name_list = axes_name_text.split(" ");
+		myTreeModel->setAxesNames(axes_name_list);
+	}
 }
 
 /******************************************************************************

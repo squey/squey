@@ -41,6 +41,7 @@
 	<file alias="green-check">resources/22x22/green-check.png</file>
 	<file alias="filter">resources/22x22/filter.png</file>
 	<file alias="add-axis">resources/22x22/add-axis.png</file>
+	<file alias="edit">resources/edit.png</file>
 	<file alias="add-regexp">resources/22x22/add-regexp.png</file>
 	<file alias="add-url">resources/22x22/add-url.png</file>
 	<file alias="help">resources/22x22/help.png</file>
