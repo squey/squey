@@ -167,6 +167,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	// Tree slots
 	void slotAddAxisIn();
 	void slotAddFilterAfter();
+	void slotSetAxesName();
 	void slotAddRegExAfter();
 	void slotAddSplitter();
 	void slotAddConverter();
@@ -239,6 +240,7 @@ class PVFormatBuilderWidget : public QMainWindow
 
 	QAction* actionAddAxisAfter;
 	QAction* actionAddAxisIn;
+	QAction* actionNameAxes;
 	QAction* actionAddFilterAfter;
 	QAction* actionAddRegExAfter;
 	QAction* actionAddRegExBefore;
