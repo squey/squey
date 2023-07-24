@@ -569,8 +569,6 @@ std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_
 		PVFilter::PVFieldsBaseFilter_p field_f = xmldata_to_filter(fdata);
 
 		// Create the mapping (field_id)->field_filter
-		PVFilter::PVFieldsBaseFilter_p mapping(
-		    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f));
 		filter_by_axes->add_filter(std::unique_ptr<PVFilter::PVFieldsBaseFilter>(
 		    new PVFilter::PVFieldsMappingFilter(fdata.axis_id, field_f)));
 	}

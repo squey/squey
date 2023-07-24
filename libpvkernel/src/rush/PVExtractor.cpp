@@ -113,7 +113,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	// deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = std::make_shared<PVControllerJob>(
-	    start, end, _agg, _chk_flt, _output, _chunks, _format.have_grep_filter());
+	    start, end, _agg, _chk_flt, _output, _chunks, /*_format.have_grep_filter()*/ true);
 	job->run_job();
 
 	return job;
