@@ -11,7 +11,6 @@ fi
 
 cd "$SOURCE_DIR"
 source buildstream/env.conf
-export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:"$GL_TARGET_DIR/lib"
 python_version=`python3 -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
 export PYTHONPATH="/app/lib/python${python_version}/site-packages"
 runtime_branch=`sed -n "s/  track: 'freedesktop-sdk-\(.*\)'\.*$/\1/ p" "${SOURCE_DIR}/buildstream/elements/freedesktop-sdk.bst" | cut -d "." -f 1,2`
@@ -26,7 +25,21 @@ elif [ -d "$PYTHONPATH_DIR_SYSTEM" ]; then
 fi
 
 
-echo "/app/lib/libpocl.so" > "$GL_TARGET_DIR/OpenCL/vendors/pocl.icd" 2> /dev/null
+OCL_ICD_VENDORS="$GL_TARGET_DIR/OpenCL/vendors"
+
+# Enable PortableCL ICD
+echo "/app/lib/libpocl.so" > "$OCL_ICD_VENDORS/pocl.icd" 2> /dev/null
+
+# Enable NVIDIA ICD
+NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"`
+NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME |sed -e "s/nvidia-//" | sed 's/-/./g'`
+if [ ! -z "$NVIDIA_VERSION_NAME" ]; then
+    echo "/usr/lib/x86_64-linux-gnu/GL/$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > "$OCL_ICD_VENDORS/nvidia.icd" 2> /dev/null
+    export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GL_TARGET_DIR/$NVIDIA_VERSION_NAME/lib:"$GL_TARGET_DIR/lib"
+fi
+
+# Set EGL vendor dirs
+export __EGL_VENDOR_LIBRARY_DIRS="$__EGL_VENDOR_LIBRARY_DIRS:$(find /usr/lib/x86_64-linux-gnu/GL/ -name egl_vendor.d | xargs | tr ' ' ':')"
 
 for build_type in debug release
 do
