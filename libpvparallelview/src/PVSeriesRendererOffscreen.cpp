@@ -277,6 +277,9 @@ PVSeriesRendererOffscreen::PVSeriesRendererOffscreen(Squey::PVRangeSubSampler co
 
 bool PVSeriesRendererOffscreen::capability()
 {
+	// temporarily disable accelerated backends
+	return false;
+
 	static const bool s_offscreenopengl_capable = [] {
 		if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
 			qDebug() << "backend_opencl/force_cpu is set to true in user config";
