@@ -1,5 +1,14 @@
+4.9.13 (2023-07-25)
+-------------------
+
+This minor release fixes or improves:
+* Add support for xz parallelized streaming compression/decompression format
+* Batch-edit axes name in Format Builder
+* Ignore explicitely rejected events in views
+* Temporarily disable series GPU accelerated backends
+
 4.9.12 (2023-07-09)
-------------------
+-------------------
 
 This minor release fixes or improves:
 * Fix crash in parallel coordinates density
@@ -9,14 +18,14 @@ This minor release fixes or improves:
 * Improve key:value splitter to automatically set columns names
 
 4.9.11 (2023-03-26)
-------------------
+-------------------
 
 This minor release fixes or improves:
 * Fix parallel coordinates density refresh
 * Fix crash reports generation
 
 4.9.10 (2022-12-23)
-------------------
+-------------------
 
 This minor release fixes or improves:
 * fixed a crash in the software parallel coordinates rendering backend
