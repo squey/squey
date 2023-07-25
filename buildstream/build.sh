@@ -105,7 +105,9 @@ if [ ! -z "$SQUEY_CRASH_REPORTER_TOKEN" ]; then
 fi
 
 # Fill-in release and date
-jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" files/org.squey.Squey.metainfo.xml.j2 > files/org.squey.Squey.metainfo.xml
+CHANGELOG_CONTENT="$(awk '/^---.*---$/ {count++} count == 1 {print} count == 2 {exit}' ../CHANGELOG | head -n -2 | tail -n +3)"
+CHANGELOG_CONTENT="$(echo "$CHANGELOG_CONTENT" | sed '1 s|\(.*\)|<p>\1</p>\n          <ul>|' | sed 's|\* \(.*\)|            <li>\1</li>|' | (tee -a && echo '          </ul>'))"
+jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" -D changelog="$CHANGELOG_CONTENT" files/org.squey.Squey.metainfo.xml.j2 > files/org.squey.Squey.metainfo.xml
 
 # Build Squey
 BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER"
