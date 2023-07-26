@@ -1210,7 +1210,7 @@ void App::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 	// Update the data displaying of the filter param widgers
 	myTreeModel->updateFiltersDataDisplay();
 
-	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end);
+	PVRush::PVControllerJob_p job = _log_extract->process_from_agg_idxes(start, end, false);
 	job->wait_end();
 
 	_nraw_model->set_format(get_format_from_dom());

@@ -100,7 +100,8 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_nlines(chunk_ind
 }
 
 PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_index start,
-                                                                      chunk_index end)
+                                                                      chunk_index end,
+                                                                      bool compress_nraw /* = true */)
 {
 	set_sources_number_fields();
 	if (_format.get_line_count() != 0) {
@@ -113,7 +114,7 @@ PVRush::PVControllerJob_p PVRush::PVExtractor::process_from_agg_idxes(chunk_inde
 	// deletion of this
 	// object when it is not needed anymore !
 	PVControllerJob_p job = std::make_shared<PVControllerJob>(
-	    start, end, _agg, _chk_flt, _output, _chunks, /*_format.have_grep_filter()*/ true);
+	    start, end, _agg, _chk_flt, _output, _chunks, compress_nraw);
 	job->run_job();
 
 	return job;
