@@ -84,6 +84,8 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 
 	_nb_values_edit->setText(QString("%L1").arg(model->size()));
 
+	_select_groupbox->setVisible(false);
+
 	set_description(QString());
 
 	// Show contextual menu on right click in the table (set menuPolicy to emit
