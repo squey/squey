@@ -489,6 +489,8 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 	_ctxt_menu->addAction(_create_layers_for_values_act);
 
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
+
+	_select_groupbox->setVisible(true);
 }
 
 /******************************************************************************
