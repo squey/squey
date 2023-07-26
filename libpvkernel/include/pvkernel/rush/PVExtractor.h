@@ -68,12 +68,13 @@ class PVExtractor
 	/*! \brief Process param[in]s between indexes "start" and "end"
 	 *  \param[in] start Index to start the extraction from (an index is typically a line number).
 	 *  \param[in] end Index to end the extraction at
+	 *  \param[in] compress_nraw Remove rejected events from nraw
 	 *  \return A PVControllerJob object that represent the job that has been pushed to the internal
 	 * job controller. It can be used by the caller to wait for the end of the job (see
 	 * PVControllerJob::wait_end).
 	 *  \sa PVAggregator
 	 */
-	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end);
+	PVControllerJob_p process_from_agg_idxes(chunk_index start, chunk_index end, bool compress_nraw = true);
 
 	void release_inputs(bool cancel_first = false) { _agg.release_inputs(cancel_first); }
 
