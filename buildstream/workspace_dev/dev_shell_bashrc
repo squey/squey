@@ -31,10 +31,11 @@ OCL_ICD_VENDORS="$GL_TARGET_DIR/OpenCL/vendors"
 echo "/app/lib/libpocl.so" > "$OCL_ICD_VENDORS/pocl.icd" 2> /dev/null
 
 # Enable NVIDIA ICD
+find "$GL_TARGET_DIR" -name "nvidia-*" -empty -type d -delete
 NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"`
 NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME |sed -e "s/nvidia-//" | sed 's/-/./g'`
 if [ ! -z "$NVIDIA_VERSION_NAME" ]; then
-    echo "/usr/lib/x86_64-linux-gnu/GL/$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > "$OCL_ICD_VENDORS/nvidia.icd" 2> /dev/null
+    echo "$GL_TARGET_DIR/$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > "$OCL_ICD_VENDORS/nvidia.icd" 2> /dev/null
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GL_TARGET_DIR/$NVIDIA_VERSION_NAME/lib:"$GL_TARGET_DIR/lib"
 fi
 
