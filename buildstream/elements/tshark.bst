@@ -1,9 +1,8 @@
 kind: cmake
 description: |
 
-    libsigc++ implements a typesafe callback system for standard C++.
-    It allows you to define signals and to connect those signals to any callback function,
-    either global or a member function, regardless of whether it is static or virtual. 
+    TShark is a terminal oriented version of Wireshark designed for capturing and displaying packets
+    when an interactive user interface isn’t necessary or available
 
 sources:
 - kind: git
