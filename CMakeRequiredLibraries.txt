@@ -146,7 +146,7 @@ find_package(CURL "7.38.0" REQUIRED)
 # Check for SIGCPP installation
 ###############################################################################      
 
-find_package(SIGCPP REQUIRED)
+pkg_check_modules(SIGCPP REQUIRED sigc++-3.0)
 
 ###############################################################################
 # type_safe library

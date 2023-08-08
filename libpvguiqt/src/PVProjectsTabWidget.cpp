@@ -142,7 +142,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 	        &PVProjectsTabWidget::tab_close_requested);
 
 	root->_scene_updated.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene));
+	    sigc::mem_fun(*this, &PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene));
 }
 
 void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()

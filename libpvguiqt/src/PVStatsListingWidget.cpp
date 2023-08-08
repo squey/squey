@@ -114,15 +114,15 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	// Observe selection to handle automatic refresh mode
 	Squey::PVView& view_sp = _listing_view->lib_view();
 	view_sp._update_output_selection.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
+	    sigc::mem_fun(*this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observe layerstack to handle automatic refresh mode
 	view_sp._update_output_layer.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::selection_changed));
+	    sigc::mem_fun(*this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
 	// Observer axes combination changes
 	view_sp._axis_combination_updated.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVStatsListingWidget::axes_comb_changed));
+	    sigc::mem_fun(*this, &PVGuiQt::PVStatsListingWidget::axes_comb_changed));
 
 	init_plugins();
 	create_vhead_ctxt_menu();

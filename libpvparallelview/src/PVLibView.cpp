@@ -56,24 +56,25 @@ PVParallelView::PVLibView::PVLibView(Squey::PVView& view_sp)
           view_sp.get_layer_stack_output_layer().get_selection()))
 {
 	view_sp.get_parent<Squey::PVPlotted>()._plotted_updated.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVLibView::plotting_updated));
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::plotting_updated));
 
 	view_sp._update_output_selection.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVLibView::selection_updated));
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::selection_updated));
 
 	view_sp._update_output_layer.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVLibView::output_layer_updated));
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::output_layer_updated));
 
 	view_sp._update_layer_stack_output_layer.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVLibView::layer_stack_output_layer_updated));
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::layer_stack_output_layer_updated));
 
 	view_sp._axis_combination_updated.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_updated));
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::axes_comb_updated));
+
 	view_sp._axis_combination_about_to_update.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVLibView::axes_comb_about_to_be_updated));
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::axes_comb_about_to_be_updated));
 
 	view_sp._about_to_be_delete.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVLibView::view_about_to_be_deleted));
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::view_about_to_be_deleted));
 }
 
 PVParallelView::PVLibView::~PVLibView()

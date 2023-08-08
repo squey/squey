@@ -79,18 +79,18 @@ PVParallelView::PVSlidersGroup::PVSlidersGroup(PVSlidersManager* sm_p,
 
 	// Connect the slider_manager to update this group with slider_manager update.
 	_sliders_manager_p->_new_zoom_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_new_zoom_slider));
+	    sigc::mem_fun(*this, &PVParallelView::PVSlidersGroup::on_new_zoom_slider));
 	_sliders_manager_p->_new_selection_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_new_selection_sliders));
+	    sigc::mem_fun(*this, &PVParallelView::PVSlidersGroup::on_new_selection_sliders));
 	_sliders_manager_p->_new_zoomed_selection_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders));
+	    sigc::mem_fun(*this, &PVParallelView::PVSlidersGroup::on_new_zoomed_selection_sliders));
 
 	_sliders_manager_p->_del_zoom_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_del_zoom_sliders));
+	    sigc::mem_fun(*this, &PVParallelView::PVSlidersGroup::on_del_zoom_sliders));
 	_sliders_manager_p->_del_selection_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_del_selection_sliders));
+	    sigc::mem_fun(*this, &PVParallelView::PVSlidersGroup::on_del_selection_sliders));
 	_sliders_manager_p->_del_zoomed_selection_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders));
+	    sigc::mem_fun(*this, &PVParallelView::PVSlidersGroup::on_del_zoomed_selection_sliders));
 }
 
 /*****************************************************************************

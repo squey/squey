@@ -64,7 +64,7 @@ struct connecter {
 	void call() const
 	{
 		PVCore::PVRecentItemsManager::get()._add_item[c].connect(
-		    sigc::mem_fun(&sc, &PVGuiQt::PVStartScreenWidget::refresh_recent_items<c>));
+		    sigc::mem_fun(sc, &PVGuiQt::PVStartScreenWidget::refresh_recent_items<c>));
 	}
 
 	PVGuiQt::PVStartScreenWidget& sc;

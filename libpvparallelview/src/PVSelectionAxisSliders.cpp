@@ -71,7 +71,7 @@ void PVParallelView::PVSelectionAxisSliders::initialize(id_t id, int64_t y_min, 
 	        &PVSelectionAxisSliders::do_sliders_moved);
 
 	_sliders_manager_p->_update_selection_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVSelectionAxisSliders::on_selection_sliders_update));
+	    sigc::mem_fun(*this, &PVParallelView::PVSelectionAxisSliders::on_selection_sliders_update));
 }
 
 /*****************************************************************************

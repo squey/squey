@@ -79,8 +79,8 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
     , _headers_width(view.get_column_count(), horizontalHeader()->defaultSectionSize())
 {
 
-	view._axis_hovered.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::highlight_column));
-	view._axis_clicked.connect(sigc::mem_fun(this, &PVGuiQt::PVListingView::set_section_visible));
+	view._axis_hovered.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::highlight_column));
+	view._axis_clicked.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::set_section_visible));
 
 	// SIZE STUFF
 	setMinimumSize(60, 40);

@@ -135,14 +135,14 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 
 	// Register view for unselected & zombie events toggle
 	pvview_sp._toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
-	    this, &PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility));
+	    *this, &PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility));
 
 	sliders_manager_p->_update_zoom_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update));
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update));
 	sliders_manager_p->_del_zoom_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del));
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del));
 	sliders_manager_p->_del_zoomed_selection_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del));
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del));
 
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);

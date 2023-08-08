@@ -1,4 +1,4 @@
-kind: autotools
+kind: cmake
 description: |
 
     libsigc++ implements a typesafe callback system for standard C++.
@@ -8,12 +8,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://download.gnome.org/sources/libsigc++/2.10/libsigc++-2.10.0.tar.xz
-  ref: f843d6346260bfcb4426259e314512b99e296e8ca241d771d21ac64f28298d81
-
-config:
-  configure-commands:
-  - "%{configure} --disable-documentation"
+  url: https://download.gnome.org/sources/libsigc++/3.4/libsigc%2B%2B-3.4.0.tar.xz
+  ref: 02e2630ffb5ce93cd52c38423521dfe7063328863a6e96d41d765a6116b8707e
 
 depends:
 - base.bst
