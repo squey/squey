@@ -288,8 +288,11 @@ void PVGuiQt::PVStatsListingWidget::set_refresh_buttons_enabled(bool loading)
 	}
 }
 
-void PVGuiQt::PVStatsListingWidget::axes_comb_changed()
+void PVGuiQt::PVStatsListingWidget::axes_comb_changed(bool async /* = true */)
 {
+	if (not async) {
+		return;
+	}
 	int old_count = _stats_panel->columnCount();
 	int new_count = _listing_view->lib_view().get_column_count();
 	int delta = new_count - old_count;

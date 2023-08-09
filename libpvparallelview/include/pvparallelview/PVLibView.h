@@ -79,7 +79,7 @@ class PVLibView : public sigc::trackable
 	void layer_stack_output_layer_updated();
 	void view_about_to_be_deleted();
 	void axes_comb_about_to_be_updated();
-	void axes_comb_updated();
+	void axes_comb_updated(bool async = true);
 	void plotting_updated(QList<PVCol> const& cols_updated);
 
   private:

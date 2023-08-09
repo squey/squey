@@ -27,6 +27,7 @@
 #include <squey/PVPythonInputDialog.h>
 
 #include <squey/PVRoot.h>
+#include <pvkernel/core/PVProgressBox.h>
 
 Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(), _root(&root)
 {
@@ -79,8 +80,8 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
 
 Squey::PVPythonInterpreter& Squey::PVPythonInterpreter::get(Squey::PVRoot& root)
 {
-static PVPythonInterpreter instance(root);
-return instance;
+    static PVPythonInterpreter instance(root);
+    return instance;
 }
 
 void Squey::PVPythonInterpreter::execute_script(const std::string& script, bool is_path)

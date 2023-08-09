@@ -48,12 +48,14 @@ class PVProgressBox : public QDialog
 	typedef std::function<void(PVProgressBox&)> process_t;
 	typedef std::function<void(void)> func_t;
 
-  private:
+  protected:
 	PVProgressBox(QString msg, QWidget* parent);
 
   public:
 	void set_value(int v);
 	void set_maximum(int v);
+
+	void set_message(QString const& str);
 
 	void set_extended_status(QString const& str);
 	void set_extended_status(std::string const& str);
@@ -79,6 +81,8 @@ class PVProgressBox : public QDialog
 	void set_value_sig(int v);
 	void set_maximum_sig(int v);
 
+	void set_message_sig(QString const& str);
+
 	void set_extended_status_sig(QString const& str);
 
 	void set_enable_cancel_sig(bool cancel);
@@ -100,6 +104,8 @@ class PVProgressBox : public QDialog
 	void set_value_slot(int v);
 	void set_maximum_slot(int v);
 
+	void set_message_slot(QString const& str);
+
 	void set_extended_status_slot(QString const& str);
 
 	void set_enable_cancel_slot(bool cancel);
@@ -115,12 +121,11 @@ class PVProgressBox : public QDialog
 
   public:
 	static CancelState progress(process_t f, QString const& name, QWidget* parent);
-	static CancelState progress_python(process_t f, QString const& name, QWidget* parent);
 
-  private:
+  protected:
 	void cancel();
 
-  private:
+  protected:
 	QLabel* message;
 	QProgressBar* progress_bar;
 	QPushButton* _btnCancel;

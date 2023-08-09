@@ -154,7 +154,7 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	 * With axes combination modifications, we have to update the model and
 	 * reorder/add/remove columns.
 	 */
-	void axes_comb_changed();
+	void axes_comb_changed(bool async = true);
 
   public Q_SLOTS:
 	/**

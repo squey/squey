@@ -357,7 +357,7 @@ void PVParallelView::PVLibView::axes_comb_about_to_be_updated()
 	}
 }
 
-void PVParallelView::PVLibView::axes_comb_updated()
+void PVParallelView::PVLibView::axes_comb_updated(bool async /*= true*/)
 {
 	get_zones_manager().update_from_axes_comb(*lib_view());
 
@@ -396,34 +396,63 @@ void PVParallelView::PVLibView::axes_comb_updated()
 
 	_zoomed_parallel_scenes = new_zps;
 
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& /*pbox*/) {
+	auto update_zoomed_parallel_views = [&](){
 		    for (PVZoomedParallelScene* view : _zoomed_parallel_scenes) {
 			    view->set_enabled(true);
 			    request_zoomed_zone_trees(view->get_axis_index());
-			    view->update_all_async();
+				if (async) {
+					view->update_all_async();
+				}
+				else {
+					view->update_all();
+				}
 		    }
-		},
-	    "Updating zoomed parallel views", nullptr);
+	};
 
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& /*pbox*/) {
-		    for (PVScatterView* view : _scatter_views) {
-			    view->set_enabled(true);
-			    _zones_manager.request_zoomed_zone(view->get_zone_id());
-			    view->update_all_async();
-		    }
-		},
-	    "Updating scatter views", nullptr);
+	auto update_scatter_views = [&](){
+		for (PVScatterView* view : _scatter_views) {
+			view->set_enabled(true);
+			_zones_manager.request_zoomed_zone(view->get_zone_id());
+			if (async) {
+				view->update_all_async();
+			}
+			else {
+				view->update_all();
+			}
+		}
+	};
 
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& /*pbox*/) {
-		    for (PVHitCountView* view : _hit_count_views) {
-			    view->set_enabled(true);
-			    view->update_all();
-		    }
-		},
-	    "Updating hit-count views", nullptr);
+	auto update_hitcount_views = [&](){
+		for (PVHitCountView* view : _hit_count_views) {
+			view->set_enabled(true);
+			view->update_all();
+		}
+	};
+
+	if (async) {
+		PVCore::PVProgressBox::progress(
+			[&](PVCore::PVProgressBox& /*pbox*/) {
+				update_zoomed_parallel_views();
+			},
+			"Updating zoomed parallel views", nullptr);
+
+		PVCore::PVProgressBox::progress(
+			[&](PVCore::PVProgressBox& /*pbox*/) {
+				update_scatter_views();
+			},
+			"Updating scatter views", nullptr);
+
+		PVCore::PVProgressBox::progress(
+			[&](PVCore::PVProgressBox& /*pbox*/) {
+				update_hitcount_views();
+			},
+			"Updating hit-count views", nullptr);
+	}
+	else {
+		update_zoomed_parallel_views();
+		update_scatter_views();
+		update_hitcount_views();
+	}
 }
 
 void PVParallelView::PVLibView::remove_view(PVFullParallelScene* scene)

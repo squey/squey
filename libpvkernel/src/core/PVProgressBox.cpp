@@ -36,8 +36,6 @@
 #include <QMessageBox>
 
 #include <boost/thread.hpp>
-#include <boost/lexical_cast.hpp>
-#include "pybind11/pybind11.h"
 
 #include <pvlogger.h>
 
@@ -108,6 +106,8 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	 */
 	connect(this, &PVProgressBox::set_enable_cancel_sig, this,
 	        &PVProgressBox::set_enable_cancel_slot, Qt::QueuedConnection);
+	connect(this, &PVProgressBox::set_message_sig, this,
+	        &PVProgressBox::set_message_slot, Qt::QueuedConnection);
 	connect(this, &PVProgressBox::set_extended_status_sig, this,
 	        &PVProgressBox::set_extended_status_slot, Qt::QueuedConnection);
 	connect(this, &PVProgressBox::set_value_sig, this, &PVProgressBox::set_value_slot,
@@ -160,6 +160,11 @@ void PVCore::PVProgressBox::set_value(int v)
 void PVCore::PVProgressBox::set_maximum(int v)
 {
 	Q_EMIT set_maximum_sig(v);
+}
+
+void PVCore::PVProgressBox::set_message(QString const& str)
+{
+	Q_EMIT set_message_sig(str);
 }
 
 void PVCore::PVProgressBox::set_extended_status(QString const& str)
@@ -215,6 +220,11 @@ void PVCore::PVProgressBox::set_value_slot(int v)
 void PVCore::PVProgressBox::set_maximum_slot(int v)
 {
 	progress_bar->setMaximum(v);
+}
+
+void PVCore::PVProgressBox::set_message_slot(QString const& str)
+{
+	message->setText(str);
 }
 
 void PVCore::PVProgressBox::set_extended_status_slot(QString const& str)
@@ -286,46 +296,6 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
 		}
 	}
 
-	th.join();
-
-	return pbox.get_cancel_state();
-}
-
-PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress_python(
-	PVCore::PVProgressBox::process_t f,
-	QString const& name,
-	QWidget* parent)
-{
-	PVProgressBox pbox(name, parent);
-
-	connect(&pbox, &PVProgressBox::cancel_asked_sig, [&](){
-		pbox.message->setText("Canceling python script...");
-		pbox.update();
-
-		// Cancel python script execution
-		auto threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
-		unsigned long threadNumber = 0;
-		sscanf(threadId.c_str(), "%lx", &threadNumber);
-		PyGILState_STATE gstate = PyGILState_Ensure();
-		PyThreadState_SetAsyncExc(threadNumber, PyExc_InterruptedError);
-		PyGILState_Release(gstate);
-	});
-
-	boost::thread th([&]() {
-		try {
-			f(pbox);
-		} catch (const pybind11::error_already_set &eas) {
-			Q_EMIT pbox.canceled_sig(); // dismiss progress box in GUI thread
-			return;
-		}
-		Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread
-	});
-
-	if (!th.timed_join(boost::posix_time::milliseconds(250))) {
-		pbox.exec();
-	}
-
-	pybind11::gil_scoped_release gil_release;
 	th.join();
 
 	return pbox.get_cancel_state();

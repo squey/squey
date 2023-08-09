@@ -146,7 +146,7 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	bool show_bg() const { return _show_bg; }
 	bool show_labels() const { return _show_labels; }
 
-  private Q_SLOTS:
+  public Q_SLOTS:
 	void do_update_all();
 	void update_all();
 	void update_sel();

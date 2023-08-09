@@ -26,21 +26,25 @@
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
 #include <pvguiqt/PVPythonCodeEditor.h>
+#include <pvguiqt/PVProgressBoxPython.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
 #include <squey/PVRoot.h>
+#include <squey/PVPythonSource.h>
 
 #include"pybind11/pybind11.h"
 #include"pybind11/embed.h"
 #include"pybind11/numpy.h"
 
+#include <QApplication>
 #include <QDesktopServices>
 #include <QTextEdit>
 #include <QGridLayout>
 #include <QPushButton>
 #include <QLineEdit>
 #include <QLabel>
+
 
 #include <functional>
 
@@ -54,12 +58,12 @@ PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
 {
 }
 
-static void run_python(const std::function<void()>& f, Squey::PVPythonInterpreter& python_interpreter, QTextEdit* console_output, QWidget* parent)
+static void run_python(const std::function<void()>& f, Squey::PVPythonInterpreter& python_interpreter, Squey::PVView* view, QTextEdit* console_output, QWidget* /*parent*/)
 {
 	auto start = std::chrono::system_clock::now();
 
 	std::string exception_msg;
-	PVCore::PVProgressBox::CancelState cancel_state = PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
+	PVCore::PVProgressBox::CancelState cancel_state = PVGuiQt::PVProgressBoxPython::progress([&](PVCore::PVProgressBox& pbox) {
 		pbox.set_enable_cancel(true);
 		try {
 			f();
@@ -72,7 +76,7 @@ static void run_python(const std::function<void()>& f, Squey::PVPythonInterprete
 			}
 			throw; // rethrow exception to handle progress box dismiss
 		}
-	}, QString("Executing python script..."), parent);
+	}, view, QString("Executing python script..."), nullptr);
 
 	if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE) {
 		if (exception_msg.empty()) {
@@ -113,7 +117,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* vi
 	QObject::connect(exec_script, &QPushButton::clicked, [=,&python_interpreter](){
 		run_python([=,&python_interpreter](){
 			python_interpreter.execute_script(console_input->toPlainText().toStdString(), false);
-		}, python_interpreter, console_output, parent);
+		}, python_interpreter, view, console_output, parent);
 	});
 
 	auto* exec_file_label = new QLabel("Python file:");
@@ -136,7 +140,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* vi
 		if (QFileInfo(file_path).exists()) {
 			run_python([=,&python_interpreter](){
 				python_interpreter.execute_script(file_path.toStdString(), true);
-			}, python_interpreter, console_output, parent);
+			}, python_interpreter, view, console_output, parent);
 		}
 	});
 

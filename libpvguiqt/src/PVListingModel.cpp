@@ -258,7 +258,7 @@ Qt::ItemFlags PVGuiQt::PVListingModel::flags(const QModelIndex& /*index*/) const
  * PVGuiQt::PVListingModel::axes_comb_changed
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::axes_comb_changed()
+void PVGuiQt::PVListingModel::axes_comb_changed(bool /*async*/)
 {
 	// Inform others widgets model is reset and view have to be reloaded
 	beginResetModel();

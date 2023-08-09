@@ -260,7 +260,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 */
 	void configure_axis(bool reset_view_param = false);
 
-  private Q_SLOTS:
+  public Q_SLOTS:
 	/**
 	 * Start an update of the selection images.
 	 */

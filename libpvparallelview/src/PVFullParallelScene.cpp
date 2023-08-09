@@ -682,7 +682,7 @@ void PVParallelView::PVFullParallelScene::update_new_selection_async()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_number_of_zones()
 {
-	assert(QThread::currentThread() == this->thread());
+	assert(QThread::currentThread() == QApplication::instance()->thread());
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 

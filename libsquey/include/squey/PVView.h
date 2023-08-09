@@ -331,7 +331,6 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	sigc::signal<void(PVCombCol)> _axis_clicked;
 	sigc::signal<void(PVCombCol, size_t)> _section_clicked;
 	sigc::signal<void(bool)> _axis_combination_updated;
-	sigc::signal<void()> _axis_combination_update_done;
 	sigc::signal<void()> _axis_combination_about_to_update;
 	sigc::signal<void()> _update_current_min_max;
 	sigc::signal<void()> _layer_stack_about_to_refresh;
