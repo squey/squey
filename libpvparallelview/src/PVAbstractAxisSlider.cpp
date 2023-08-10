@@ -185,6 +185,7 @@ void PVParallelView::PVAbstractAxisSlider::paint(QPainter* painter,
                                                  const QStyleOptionGraphicsItem* /*option*/,
                                                  QWidget* /*widget*/)
 {
+	(void)painter;
 #ifdef SQUEY_DEVELOPER_MODE
 	if (common::show_bboxes()) {
 		painter->save();
