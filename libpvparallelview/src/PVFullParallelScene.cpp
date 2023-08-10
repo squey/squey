@@ -91,18 +91,18 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	// Register view for unselected & zombie events toggle
 	_lib_view._toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
-	    this, &PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility));
+	    *this, &PVParallelView::PVFullParallelScene::toggle_unselected_zombie_visibility));
 
 	// Register source for sections hover events
 	view_sp._axis_hovered.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::highlight_axis));
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::highlight_axis));
 
 	// Register source for sections click events
 	view_sp._section_clicked.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::sync_axis_with_section));
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::sync_axis_with_section));
 
 	view_sp._update_current_min_max.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
 
 	setBackgroundBrush(QBrush(common::color_view_bg()));
 
@@ -682,7 +682,7 @@ void PVParallelView::PVFullParallelScene::update_new_selection_async()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::update_number_of_zones()
 {
-	assert(QThread::currentThread() == this->thread());
+	assert(QThread::currentThread() == QApplication::instance()->thread());
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 

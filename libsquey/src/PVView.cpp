@@ -704,7 +704,7 @@ void Squey::PVView::set_axes_combination(std::vector<PVCol> const& comb)
 
 	_axes_combination.set_combination(comb);
 
-	_axis_combination_updated.emit();
+	_axis_combination_updated.emit(true);
 }
 
 PVRow Squey::PVView::get_plotted_col_min_row(PVCombCol const combined_col) const
@@ -776,7 +776,7 @@ void Squey::PVView::delete_axis(PVCombCol comb_col)
 		if (format.has_multi_inputs() and col != 0) {
 			original_format.delete_axis(col-PVCol(1));
 		}
-		_axis_combination_updated.emit();
+		_axis_combination_updated.emit(true);
     }, Qt::BlockingQueuedConnection);
 
 	// Delete mapping and plotting

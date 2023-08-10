@@ -67,7 +67,7 @@ void PVParallelView::PVZoomAxisSliders::initialize(id_t id, int64_t y_min, int64
 	connect(_sl_max, &PVZoomAxisSlider::slider_moved, this, &PVZoomAxisSliders::do_sliders_moved);
 
 	_sliders_manager_p->_update_zoom_sliders.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVZoomAxisSliders::on_zoom_sliders_update));
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomAxisSliders::on_zoom_sliders_update));
 }
 
 /*****************************************************************************

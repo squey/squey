@@ -93,7 +93,7 @@ void PVGuiQt::PVViewDisplay::register_view(Squey::PVView* view)
 	if (view) {
 
 		view->get_parent<Squey::PVPlotted>()._plotted_updated.connect(
-		    sigc::mem_fun(this, &PVGuiQt::PVViewDisplay::plotting_updated));
+		    sigc::mem_fun(*this, &PVGuiQt::PVViewDisplay::plotting_updated));
 	}
 }
 

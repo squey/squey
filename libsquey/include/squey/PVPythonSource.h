@@ -34,6 +34,7 @@
 //Q_DECLARE_METATYPE(Squey::PVView*);
 
 #include <QThread>
+#include <QApplication>
 
 namespace Squey
 {
@@ -42,6 +43,16 @@ class PVView;
 class PVPythonSource
 {
 public:
+    static constexpr const char*const GUI_UPDATE_VAR = "__squey_update__";
+
+public:
+    enum GuiUpdateType
+    {
+        NONE = 0,
+        PLOTTING = 1,
+        LAYER = 2
+    };
+
     enum class StringColumnAs
     {
         STRING = 0,

@@ -272,13 +272,11 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
 
     // Notifify axes combination update on Qt GUI thread
     if (ret) {
-        Squey::PVView* view = _source.current_view();
-        QMetaObject::invokeMethod(qApp, [view](){
-            view->_axis_combination_updated.emit();
-            view->get_parent<Squey::PVPlotted>().update_plotting();
-        }, Qt::QueuedConnection);
+        pybind11::module main = pybind11::module::import("__main__");
+        main.attr(GUI_UPDATE_VAR) = pybind11::cast((uint32_t)GuiUpdateType::PLOTTING);
     }
 }
+    
 
 void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t position  /* = 0 */)
 {
@@ -332,8 +330,6 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
     }
     layer->compute_selectable_count();
 
-    QMetaObject::invokeMethod(qApp, [view](){
-        view->_layer_stack_refreshed.emit();
-	    view->_update_current_min_max.emit();
-    }, Qt::QueuedConnection);
+    pybind11::module main = pybind11::module::import("__main__");
+    main.attr(GUI_UPDATE_VAR) = pybind11::cast((uint32_t)GuiUpdateType::LAYER);
  }

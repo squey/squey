@@ -71,7 +71,7 @@ void PVParallelView::PVZoomedSelectionAxisSliders::initialize(id_t id, int64_t y
 	        &PVZoomedSelectionAxisSliders::do_sliders_moved);
 
 	_sliders_manager_p->_update_zoomed_selection_sliders.connect(sigc::mem_fun(
-	    this, &PVParallelView::PVZoomedSelectionAxisSliders::on_zoomed_selection_sliders_update));
+	    *this, &PVParallelView::PVZoomedSelectionAxisSliders::on_zoomed_selection_sliders_update));
 }
 
 /*****************************************************************************

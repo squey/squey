@@ -46,7 +46,7 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
 {
 	// Update the full model if axis combination change
 	view._axis_combination_updated.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVListingModel::axes_comb_changed));
+	    sigc::mem_fun(*this, &PVGuiQt::PVListingModel::axes_comb_changed));
 
 	// Call update_filter on selection update
 	view._update_output_selection.connect([&](){
@@ -56,13 +56,13 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
 	});
 
 	// Update filter if we change layer content
-	view._update_output_layer.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
+	view._update_output_layer.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of zombie lines on option toggling
-	view._toggle_zombie.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
+	view._toggle_zombie.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Update display of unselected lines on option toogling
-	view._toggle_unselected.connect(sigc::mem_fun(this, &PVGuiQt::PVListingModel::update_filter));
+	view._toggle_unselected.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingModel::update_filter));
 
 	// Set listing view on visible_selection_listing selection.
 	update_filter();
@@ -258,7 +258,7 @@ Qt::ItemFlags PVGuiQt::PVListingModel::flags(const QModelIndex& /*index*/) const
  * PVGuiQt::PVListingModel::axes_comb_changed
  *
  *****************************************************************************/
-void PVGuiQt::PVListingModel::axes_comb_changed()
+void PVGuiQt::PVListingModel::axes_comb_changed(bool /*async*/)
 {
 	// Inform others widgets model is reset and view have to be reloaded
 	beginResetModel();

@@ -45,9 +45,9 @@ PVGuiQt::PVLayerStackModel::PVLayerStackModel(Squey::PVView& lib_view, QObject* 
 	select_font.setBold(true);
 
 	lib_view._layer_stack_about_to_refresh.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed));
+	    sigc::mem_fun(*this, &PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed));
 	lib_view._layer_stack_refreshed.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVLayerStackModel::layer_stack_refreshed));
+	    sigc::mem_fun(*this, &PVGuiQt::PVLayerStackModel::layer_stack_refreshed));
 }
 
 /******************************************************************************

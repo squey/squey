@@ -172,7 +172,7 @@ class PVRecentItemsManager
 	PVRecentItemsManager& operator=(const PVRecentItemsManager&);
 
   public:
-	std::array<sigc::signal<void>, LAST> _add_item;
+	std::array<sigc::signal<void()>, LAST> _add_item;
 
   private:
 	QSettings _recents_settings;

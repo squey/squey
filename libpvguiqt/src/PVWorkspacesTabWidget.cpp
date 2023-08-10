@@ -167,7 +167,7 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Squey::PVScene& 
 	tabBar()->setMouseTracking(true);
 
 	scene._project_updated.connect(
-	    sigc::mem_fun(this, &PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified));
+	    sigc::mem_fun(*this, &PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified));
 
 	setTabBar(new PVSceneTabBar(this));
 }

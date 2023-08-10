@@ -151,15 +151,15 @@ class PVSlidersManager
 	                           const range_functor_t& functor) const;
 
   public:
-	sigc::signal<void, PVCombCol, id_t, int64_t, int64_t> _new_zoom_sliders;
-	sigc::signal<void, PVCombCol, id_t, int64_t, int64_t> _new_selection_sliders;
-	sigc::signal<void, PVCombCol, id_t, int64_t, int64_t> _new_zoomed_selection_sliders;
-	sigc::signal<void, PVCombCol, id_t> _del_zoom_sliders;
-	sigc::signal<void, PVCombCol, id_t> _del_selection_sliders;
-	sigc::signal<void, PVCombCol, id_t> _del_zoomed_selection_sliders;
-	sigc::signal<void, PVCombCol, id_t, int64_t, int64_t, ZoomSliderChange> _update_zoom_sliders;
-	sigc::signal<void, PVCombCol, id_t, int64_t, int64_t> _update_selection_sliders;
-	sigc::signal<void, PVCombCol, id_t, int64_t, int64_t> _update_zoomed_selection_sliders;
+	sigc::signal<void(PVCombCol, id_t, int64_t, int64_t)> _new_zoom_sliders;
+	sigc::signal<void(PVCombCol, id_t, int64_t, int64_t)> _new_selection_sliders;
+	sigc::signal<void(PVCombCol, id_t, int64_t, int64_t)> _new_zoomed_selection_sliders;
+	sigc::signal<void(PVCombCol, id_t)> _del_zoom_sliders;
+	sigc::signal<void(PVCombCol, id_t)> _del_selection_sliders;
+	sigc::signal<void(PVCombCol, id_t)> _del_zoomed_selection_sliders;
+	sigc::signal<void(PVCombCol, id_t, int64_t, int64_t, ZoomSliderChange)> _update_zoom_sliders;
+	sigc::signal<void(PVCombCol, id_t, int64_t, int64_t)> _update_selection_sliders;
+	sigc::signal<void(PVCombCol, id_t, int64_t, int64_t)> _update_zoomed_selection_sliders;
 
   private:
 	range_geometry_set_t _zoom_geometries;

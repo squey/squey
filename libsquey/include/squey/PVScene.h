@@ -101,7 +101,7 @@ class PVScene : public PVCore::PVDataTreeParent<PVSource, PVScene>,
 	void serialize_write(PVCore::PVSerializeObject& so) const;
 
   public:
-	sigc::signal<void> _project_updated;
+	sigc::signal<void()> _project_updated;
 
   private:
 	Squey::PVSource* _last_active_src;

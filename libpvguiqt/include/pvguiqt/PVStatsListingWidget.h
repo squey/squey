@@ -128,7 +128,7 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 	void refresh();
 	void resize_panel();
 	void selection_changed();
-	void axes_comb_changed();
+	void axes_comb_changed(bool async = true);
 	void vertical_header_section_clicked(const QPoint&);
 
   public:

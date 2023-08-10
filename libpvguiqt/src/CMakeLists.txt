@@ -50,6 +50,7 @@ PVDisplayViewAxesCombination.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp
 PVDisplayViewPythonConsole.cpp
+PVProgressBoxPython.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -81,6 +82,7 @@ SET(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVAboutBoxDialog.h
 ../include/pvguiqt/PVPythonScriptWidget.h
 ../include/pvguiqt/PVPythonCodeEditor.h
+../include/pvguiqt/PVProgressBoxPython.h
 )
 
 SET(UI_FILES

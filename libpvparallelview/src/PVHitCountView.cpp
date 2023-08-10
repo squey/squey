@@ -255,7 +255,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 
 	// Register view for unselected & zombie events toggle
 	pvview_sp._toggle_unselected_zombie_visibility.connect(
-	    sigc::mem_fun(this, &PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility));
+	    sigc::mem_fun(*this, &PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility));
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);

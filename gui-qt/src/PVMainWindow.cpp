@@ -62,6 +62,7 @@
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
+#include <pvguiqt/PVProgressBoxPython.h>
 
 #include <PVFormatBuilderWidget.h>
 
@@ -1088,7 +1089,7 @@ void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_i
 		}
 		else {
 			Squey::PVPythonInterpreter& python_interpreter = Squey::PVPythonInterpreter::get(_root);
-			PVCore::PVProgressBox::progress_python([&](PVCore::PVProgressBox& pbox) {
+			PVGuiQt::PVProgressBoxPython::progress([&](PVCore::PVProgressBox& pbox) {
 				pbox.set_enable_cancel(true);
 				try {
 					python_interpreter.execute_script(python_script.toStdString(), is_path);
@@ -1097,7 +1098,7 @@ void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_i
 					pbox.warning("Error while executing Python script", eas.what());
 					throw; // rethrow exception to handle progress box dismiss
 				}
-			}, QString("Executing python script"), this);
+			}, current_view(), QString("Executing python script"), nullptr);
 		}
 	}
 }
