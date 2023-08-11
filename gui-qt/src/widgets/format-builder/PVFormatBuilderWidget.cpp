@@ -409,8 +409,8 @@ void App::PVFormatBuilderWidget::slotAddFilterAfter()
 void App::PVFormatBuilderWidget::slotSetAxesName()
 {
 	bool ok;
-	QString axes_name_text = QInputDialog::getText(this, tr("Set axes name"),
-	tr("Space separated axes name:"), QLineEdit::Normal, "", &ok);
+	QString axes_name_text = QInputDialog::getText(this, tr("Set column names"),
+	tr("Space separated column names:"), QLineEdit::Normal, "", &ok);
 	if (ok) {
 		axes_name_text.replace("\n", "");
 		QStringList axes_name_list = axes_name_text.split(" ");
@@ -798,9 +798,17 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 	if (has_header) {
 		if (QMessageBox::question(
 		        this, "Header detected",
-		        "A header has been detected: use it to fill the name of the axes?") ==
+		        "A header was detected: use it to fill column names?") ==
 		    QMessageBox::Yes) {
 			_options_widget->set_lines_range(1, myTreeModel->get_line_count());
+		}
+	}
+	else {
+		if (QMessageBox::question(
+		        this, "No header was detected",
+		        "No header was detected: do you want to manually enter column names?") ==
+		    QMessageBox::Yes) {
+			slotSetAxesName();
 		}
 	}
 
