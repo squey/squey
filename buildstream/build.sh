@@ -12,8 +12,8 @@ function cleanup {
 trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
 
 usage() {
-echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite] [--cxx_compiler=<g++/clang++>] [--user-target=<USER_TARGET>]"
-echo "                  [--workspace-prefix=<prefix>] [--repo=<repository_path>] [--gpg-private-key-path=<key>]"
+echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite=<true/false>] [--cxx_compiler=<g++/clang++>] [--user-target=<USER_TARGET>]"
+echo "                  [--workspace-prefix=<prefix>] [--flatpak-export=<true/false>] [--flatpak-repo=<repository_path>] [--gpg-private-key-path=<key>]"
 echo "                  [--gpg-sign-key=<key>] [--code-coverage=<true/false>]" 1>&2; exit 1;
 
 }
@@ -114,7 +114,7 @@ BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER"
 if [ $USER_TARGET_SPECIFIED = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option user_target $USER_TARGET"
 fi
-if  [ "$RUN_TESTSUITE" = false ]; then
+if  [ "$TESTSUITE_DISABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option disable_testsuite True"
 fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
