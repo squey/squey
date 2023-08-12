@@ -1,3 +1,12 @@
+4.9.14 (2023-08-12)
+-------------------
+
+This minor release fixes or improves:
+* Fix crash when trying to update the GUI from python thread
+* Fix regression in Format Builder with rejected events
+* Ask for columns name when no dataset header was found
+* Hide irrelevant selection part of the rejected events dialog
+
 4.9.13 (2023-07-25)
 -------------------
 
