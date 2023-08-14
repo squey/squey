@@ -36,8 +36,8 @@
 namespace pvpcap
 {
 
-// use BEL character as separator as it is very unlikely to be present
-static constexpr const char SEPARATOR[] = "\a";
+// use DEL character as separator as it is very unlikely to be present and is XML 1.0 compliant
+static constexpr const char SEPARATOR[] = "\x7F";
 static constexpr const char QUOTE[] = "n";
 
 /**
