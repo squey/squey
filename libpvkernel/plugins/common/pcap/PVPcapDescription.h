@@ -78,6 +78,7 @@ class PVPcapDescription : public PVFileDescription
 		} else {
 			so.attribute_write("file_path", _original_pcap_path);
 		}
+		so.attribute_write("packets_count_offset", (qulonglong) _pcap_packets_count_offset);
 	}
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
@@ -90,8 +91,9 @@ class PVPcapDescription : public PVFileDescription
 			// FIXME : As long as the pcap preprocessing phase is not properly integrated to
 			//         the import pipeline, it will not be possible to reload an investigation
 			//         with a missing cache (ie. from the original pcap files)
+			size_t pcap_packets_count_offset = so.attribute_read<qulonglong>("packets_count_offset");
 			return std::unique_ptr<PVInputDescription>(
-			    new PVPcapDescription("", path, 0, {}, 0, {}, false));
+			    new PVPcapDescription("", path, pcap_packets_count_offset, {}, 0, {}, false));
 		} else {
 			throw PVCore::PVSerializeReparaibleFileError(
 			    "Source file: '" + path.toStdString() + "' can't be found",
