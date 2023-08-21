@@ -149,7 +149,7 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	_nraw_model = new PVNrawListingModel();
 	_nraw_widget = new PVNrawListingWidget(_nraw_model);
 	_nraw_widget->connect_preview(this, &PVFormatBuilderWidget::slotExtractorPreview);
-	_nraw_widget->connect_autodetect(this, &PVFormatBuilderWidget::slotAutoDetectAxesTypes);
+	_nraw_widget->connect_autodetect(this, [this](){slotAutoDetectAxesTypes(false);});
 	_nraw_widget->connect_axes_name(this, &PVFormatBuilderWidget::set_axes_name_selected_row_Slot);
 	_nraw_widget->connect_table_header(this,
 	                                   &PVFormatBuilderWidget::slotItemClickedInMiniExtractor);
@@ -717,7 +717,7 @@ void App::PVFormatBuilderWidget::slotSaveAs()
 	saveAs();
 }
 
-void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
+void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes(bool handle_header /* = true */)
 {
 	static constexpr const size_t mega = 1024 * 1024;
 
@@ -795,20 +795,22 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes()
 		}
 	}
 
-	if (has_header) {
-		if (QMessageBox::question(
-		        this, "Header detected",
-		        "A header was detected: use it to fill column names?") ==
-		    QMessageBox::Yes) {
-			_options_widget->set_lines_range(1, myTreeModel->get_line_count());
+	if (handle_header) {
+		if (has_header) {
+			if (QMessageBox::question(
+					this, "Header detected",
+					"A header was detected: use it to fill column names?") ==
+				QMessageBox::Yes) {
+				_options_widget->set_lines_range(1, myTreeModel->get_line_count());
+			}
 		}
-	}
-	else {
-		if (QMessageBox::question(
-		        this, "No header was detected",
-		        "No header was detected: do you want to manually enter column names?") ==
-		    QMessageBox::Yes) {
-			slotSetAxesName();
+		else {
+			if (QMessageBox::question(
+					this, "No header was detected",
+					"No header was detected: do you want to manually enter column names?") ==
+				QMessageBox::Yes) {
+				slotSetAxesName();
+			}
 		}
 	}
 

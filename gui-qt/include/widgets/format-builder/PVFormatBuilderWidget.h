@@ -182,7 +182,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	void slotOpenLog();
 	void slotSave();
 	void slotSaveAs();
-	void slotAutoDetectAxesTypes();
+	void slotAutoDetectAxesTypes(bool handle_header = true);
 	void slotUpdateToolsState(const QModelIndex& index = QModelIndex());
 	void slotExtractorPreview();
 	void slotItemClickedInView(const QModelIndex& index);
