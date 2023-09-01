@@ -434,7 +434,6 @@ PVGuiQt::PVAxesCombinationWidget::ordered_selected(QListWidget* list_widget) con
 }
 
 void PVGuiQt::PVAxesCombinationWidget::closeEvent(QCloseEvent *event) {
-
 	if (event->spontaneous()) {
 		Q_EMIT closed();
 	} else {

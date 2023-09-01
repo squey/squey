@@ -137,7 +137,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		                 [=](bool show) { edit_axes_combination->setEnabled(show); });
 		QObject::connect(edit_axes_combination, &QPushButton::clicked,
 		                 [=]() { axes_combination_widget->show(); });
-		QObject::connect(axes_combination_widget, &PVGuiQt::PVAxesCombinationWidget::closed, [&]() {
+		QObject::connect(axes_combination_widget, &PVGuiQt::PVAxesCombinationWidget::closed, [&,custom_axis]() {
 			if (custom_axis->isChecked()) {
 				_exporter.set_column_indexes(_custom_axes_combination.get_combination());
 				_exporter.set_header(_custom_axes_combination.get_combined_names());
