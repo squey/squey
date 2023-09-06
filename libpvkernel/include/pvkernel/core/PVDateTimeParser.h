@@ -36,7 +36,7 @@
 
 #include <boost/pool/object_pool.hpp>
 
-using namespace icu_71;
+using namespace icu_73;
 
 namespace PVCore
 {

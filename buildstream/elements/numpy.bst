@@ -4,10 +4,9 @@ description: |
     NumPy is the fundamental package needed for scientific computing with Python.
 
 sources:
-- kind: git
-  url: https://github.com/numpy/numpy
-  ref: 21cacafbeeff812cf49ca0102d1dd582b6d77e2b
-  checkout-submodules: True
+- kind: tar
+  url: https://github.com/numpy/numpy/archive/refs/tags/v1.25.1.tar.gz
+  ref: 77779aaf9bd7308b8cff3456144b22934a4aefa8e1b8f2bbadc18e21efcb5128
   
 config:
   configure-commands:
@@ -18,7 +17,7 @@ config:
     include_dirs = /app/include:/usr/local/include:/usr/include
     EOF
   install-commands:
-    - python3 setup.py build -j `nproc` install --root=%{install-root} --prefix=%{prefix}
+    - python3 setup.py build --cpu-dispatch="max -avx512f -avx512cd -avx512_knl -avx512_knm -avx512_skx -avx512_clx -avx512_cnl -avx512_icl -avx512_spr" -j `nproc` install --root=%{install-root} --prefix=%{prefix}
 
 depends:
 - base.bst

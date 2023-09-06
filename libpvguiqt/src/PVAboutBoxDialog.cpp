@@ -115,98 +115,98 @@ class PVChangeLogWidget : public QWidget
 	}
 };
 
-PVGuiQt::__impl::OrbitTransformController::OrbitTransformController(QObject* parent)
-    : QObject(parent), m_target(nullptr), m_matrix(), m_radius(1.0f), m_angle(0.0f)
-{
-}
+// PVGuiQt::__impl::OrbitTransformController::OrbitTransformController(QObject* parent)
+//     : QObject(parent), m_target(nullptr), m_matrix(), m_radius(1.0f), m_angle(0.0f)
+// {
+// }
 
-void PVGuiQt::__impl::OrbitTransformController::setTarget(Qt3DCore::QTransform* target)
-{
-	if (m_target != target) {
-		m_target = target;
-		targetChanged();
-	}
-}
+// void PVGuiQt::__impl::OrbitTransformController::setTarget(Qt3DCore::QTransform* target)
+// {
+// 	if (m_target != target) {
+// 		m_target = target;
+// 		targetChanged();
+// 	}
+// }
 
-Qt3DCore::QTransform* PVGuiQt::__impl::OrbitTransformController::target() const
-{
-	return m_target;
-}
+// Qt3DCore::QTransform* PVGuiQt::__impl::OrbitTransformController::target() const
+// {
+// 	return m_target;
+// }
 
-void PVGuiQt::__impl::OrbitTransformController::setRadius(float radius)
-{
-	if (!qFuzzyCompare(radius, m_radius)) {
-		m_radius = radius;
-		updateMatrix();
-		radiusChanged();
-	}
-}
+// void PVGuiQt::__impl::OrbitTransformController::setRadius(float radius)
+// {
+// 	if (!qFuzzyCompare(radius, m_radius)) {
+// 		m_radius = radius;
+// 		updateMatrix();
+// 		radiusChanged();
+// 	}
+// }
 
-float PVGuiQt::__impl::OrbitTransformController::radius() const
-{
-	return m_radius;
-}
+// float PVGuiQt::__impl::OrbitTransformController::radius() const
+// {
+// 	return m_radius;
+// }
 
-void PVGuiQt::__impl::OrbitTransformController::setAngle(float angle)
-{
-	if (!qFuzzyCompare(angle, m_angle)) {
-		m_angle = angle;
-		updateMatrix();
-		angleChanged();
-	}
-}
+// void PVGuiQt::__impl::OrbitTransformController::setAngle(float angle)
+// {
+// 	if (!qFuzzyCompare(angle, m_angle)) {
+// 		m_angle = angle;
+// 		updateMatrix();
+// 		angleChanged();
+// 	}
+// }
 
-float PVGuiQt::__impl::OrbitTransformController::angle() const
-{
-	return m_angle;
-}
+// float PVGuiQt::__impl::OrbitTransformController::angle() const
+// {
+// 	return m_angle;
+// }
 
-void PVGuiQt::__impl::OrbitTransformController::updateMatrix()
-{
-	m_matrix.setToIdentity();
-	m_matrix.rotate(m_angle, QVector3D(0.0f, 1.0f, 0.0f));
-	m_matrix.translate(m_radius, 0.0f, 0.0f);
-	m_target->setMatrix(m_matrix);
-}
+// void PVGuiQt::__impl::OrbitTransformController::updateMatrix()
+// {
+// 	m_matrix.setToIdentity();
+// 	m_matrix.rotate(m_angle, QVector3D(0.0f, 1.0f, 0.0f));
+// 	m_matrix.translate(m_radius, 0.0f, 0.0f);
+// 	m_target->setMatrix(m_matrix);
+// }
 
-Qt3DCore::QEntity* createScene()
-{
-	// Root entity
-	auto* rootEntity = new Qt3DCore::QEntity;
+// Qt3DCore::QEntity* createScene()
+// {
+// 	// Root entity
+// 	auto* rootEntity = new Qt3DCore::QEntity;
 
-	// Material
-	auto* material = new Qt3DExtras::QPhongMaterial(rootEntity);
-	material->setAmbient(QColor(0xf1, 0x40, 0x00, 0xff));
-	//material->setDiffuse(QColor(0xf1, 0x59, 0x22, 0xff));
+// 	// Material
+// 	auto* material = new Qt3DExtras::QPhongMaterial(rootEntity);
+// 	material->setAmbient(QColor(0xf1, 0x40, 0x00, 0xff));
+// 	//material->setDiffuse(QColor(0xf1, 0x59, 0x22, 0xff));
 
-	auto* meshTransform = new Qt3DCore::QTransform;
-	meshTransform->setScale3D(QVector3D(1, 1, 1));
-	meshTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 0.0f));
-	meshTransform->setTranslation({0,-100,0});
+// 	auto* meshTransform = new Qt3DCore::QTransform;
+// 	meshTransform->setScale3D(QVector3D(1, 1, 1));
+// 	meshTransform->setRotation(QQuaternion::fromAxisAndAngle(QVector3D(1, 0, 0), 0.0f));
+// 	meshTransform->setTranslation({0,-100,0});
 
-	auto* controller = new PVGuiQt::__impl::OrbitTransformController(meshTransform);
-	controller->setTarget(meshTransform);
-	controller->setRadius(0.0f);
+// 	auto* controller = new PVGuiQt::__impl::OrbitTransformController(meshTransform);
+// 	controller->setTarget(meshTransform);
+// 	controller->setRadius(0.0f);
 
-	auto* meshRotateTransformAnimation = new QPropertyAnimation(meshTransform);
-	meshRotateTransformAnimation->setTargetObject(controller);
-	meshRotateTransformAnimation->setPropertyName("angle");
-	meshRotateTransformAnimation->setStartValue(QVariant::fromValue(0));
-	meshRotateTransformAnimation->setEndValue(QVariant::fromValue(360));
-	meshRotateTransformAnimation->setDuration(4000);
-	meshRotateTransformAnimation->setLoopCount(-1);
-	meshRotateTransformAnimation->start();
+// 	auto* meshRotateTransformAnimation = new QPropertyAnimation(meshTransform);
+// 	meshRotateTransformAnimation->setTargetObject(controller);
+// 	meshRotateTransformAnimation->setPropertyName("angle");
+// 	meshRotateTransformAnimation->setStartValue(QVariant::fromValue(0));
+// 	meshRotateTransformAnimation->setEndValue(QVariant::fromValue(360));
+// 	meshRotateTransformAnimation->setDuration(4000);
+// 	meshRotateTransformAnimation->setLoopCount(-1);
+// 	meshRotateTransformAnimation->start();
 
-	auto* meshEntity = new Qt3DCore::QEntity(rootEntity);
-	auto mesh = new Qt3DRender::QMesh();
-	QUrl data = QUrl::fromLocalFile(":/logo3d");
-	mesh->setSource(data);
-	meshEntity->addComponent(mesh);
-	meshEntity->addComponent(meshTransform);
-	meshEntity->addComponent(material);
+// 	auto* meshEntity = new Qt3DCore::QEntity(rootEntity);
+// 	auto mesh = new Qt3DRender::QMesh();
+// 	QUrl data = QUrl::fromLocalFile(":/logo3d");
+// 	mesh->setSource(data);
+// 	meshEntity->addComponent(mesh);
+// 	meshEntity->addComponent(meshTransform);
+// 	meshEntity->addComponent(material);
 
-	return rootEntity;
-}
+// 	return rootEntity;
+// }
 
 PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* parent /*= 0*/, QVariant /* data  = {} */)
     : QDialog(parent)
@@ -244,71 +244,71 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	_view3D_layout = new QHBoxLayout();
 
 	if (PVParallelView::egl_support() && false) { // Disabled for now as it crash with Qt 5.15.2
-		auto widget3d_maker = [this] {
-			auto widget3d = new Qt3DExtras::Qt3DWindow();
-			{
-				Qt3DCore::QEntity* scene = createScene();
+		// auto widget3d_maker = [this] {
+		// 	auto widget3d = new Qt3DExtras::Qt3DWindow();
+		// 	{
+		// 		Qt3DCore::QEntity* scene = createScene();
 
-				// Camera
-				Qt3DRender::QCamera* camera = widget3d->camera();
-				camera->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
-				camera->setPosition(QVector3D(6.f, 0, 0));
-				camera->setViewCenter(QVector3D(0, 0, 0));
+		// 		// Camera
+		// 		Qt3DRender::QCamera* camera = widget3d->camera();
+		// 		camera->lens()->setPerspectiveProjection(45.0f, 16.0f / 9.0f, 0.1f, 1000.0f);
+		// 		camera->setPosition(QVector3D(6.f, 0, 0));
+		// 		camera->setViewCenter(QVector3D(0, 0, 0));
 
-				// For camera controls
-				// Qt3DExtras::QOrbitCameraController* camController =
-				//     new Qt3DExtras::QOrbitCameraController(scene);
-				// camController->setLinearSpeed(50.0f);
-				// camController->setLookSpeed(180.0f);
-				// camController->setCamera(camera);
+		// 		// For camera controls
+		// 		// Qt3DExtras::QOrbitCameraController* camController =
+		// 		//     new Qt3DExtras::QOrbitCameraController(scene);
+		// 		// camController->setLinearSpeed(50.0f);
+		// 		// camController->setLookSpeed(180.0f);
+		// 		// camController->setCamera(camera);
 
-				widget3d->resize(400, 400);
+		// 		widget3d->resize(400, 400);
 
-				widget3d->setRootEntity(scene);
-			}
-			widget3d->defaultFrameGraph()->setClearColor(
-			    palette().color(QPalette::Normal, QPalette::Light));
-			return widget3d;
-		};
+		// 		widget3d->setRootEntity(scene);
+		// 	}
+		// 	widget3d->defaultFrameGraph()->setClearColor(
+		// 	    palette().color(QPalette::Normal, QPalette::Light));
+		// 	return widget3d;
+		// };
 
-		auto widget3d = widget3d_maker();
-		auto windowcontainer = QWidget::createWindowContainer(widget3d);
-		windowcontainer->setSizePolicy(QSizePolicy::MinimumExpanding,
-		                               QSizePolicy::MinimumExpanding);
-		windowcontainer->setMinimumSize(QSize(200, 200));
+		// auto widget3d = widget3d_maker();
+		// auto windowcontainer = QWidget::createWindowContainer(widget3d);
+		// windowcontainer->setSizePolicy(QSizePolicy::MinimumExpanding,
+		//                                QSizePolicy::MinimumExpanding);
+		// windowcontainer->setMinimumSize(QSize(200, 200));
 
-		struct EvFilter: public QObject
-		{
-			std::function<bool(QEvent*)> verif;
-			std::function<void()> f;
-			EvFilter(decltype(verif) ver, decltype(f) fun) : verif(ver), f(fun) {}
-			bool eventFilter(QObject* obj, QEvent* event) override
-			{
-				if (verif(event)) {
-					f();
-				}
-				return QObject::eventFilter(obj, event);
-			}
-		};
-		widget3d->installEventFilter(
-		    new EvFilter([](QEvent* event) { return event->type() == QEvent::MouseButtonDblClick; },
-		                 [widget3d_maker] {
-			                 auto window = widget3d_maker();
-			                 window->setModality(Qt::WindowModality::ApplicationModal);
-			                 window->installEventFilter(new EvFilter(
-			                     [window](QEvent* event) {
-				                     if (event->type() == QEvent::Close) {
-					                     window->deleteLater(); // to prevent window handle leak and
-					                                            // crash at app quit
-				                     }
-				                     return event->type() == QEvent::KeyPress and
-				                            ((QKeyEvent*)event)->key() == Qt::Key_Escape;
-			                     },
-			                     [window] { window->close(); }));
-			                 window->showFullScreen();
-		                 }));
+		// struct EvFilter: public QObject
+		// {
+		// 	std::function<bool(QEvent*)> verif;
+		// 	std::function<void()> f;
+		// 	EvFilter(decltype(verif) ver, decltype(f) fun) : verif(ver), f(fun) {}
+		// 	bool eventFilter(QObject* obj, QEvent* event) override
+		// 	{
+		// 		if (verif(event)) {
+		// 			f();
+		// 		}
+		// 		return QObject::eventFilter(obj, event);
+		// 	}
+		// };
+		// widget3d->installEventFilter(
+		//     new EvFilter([](QEvent* event) { return event->type() == QEvent::MouseButtonDblClick; },
+		//                  [widget3d_maker] {
+		// 	                 auto window = widget3d_maker();
+		// 	                 window->setModality(Qt::WindowModality::ApplicationModal);
+		// 	                 window->installEventFilter(new EvFilter(
+		// 	                     [window](QEvent* event) {
+		// 		                     if (event->type() == QEvent::Close) {
+		// 			                     window->deleteLater(); // to prevent window handle leak and
+		// 			                                            // crash at app quit
+		// 		                     }
+		// 		                     return event->type() == QEvent::KeyPress and
+		// 		                            ((QKeyEvent*)event)->key() == Qt::Key_Escape;
+		// 	                     },
+		// 	                     [window] { window->close(); }));
+		// 	                 window->showFullScreen();
+		//                  }));
 
-		_view3D_layout->addWidget(windowcontainer, 0);
+		// _view3D_layout->addWidget(windowcontainer, 0);
 	} else {
 		auto logo_icon_label = new QLabel;
 		logo_icon_label->setPixmap(QPixmap(":/logo_icon.png"));

@@ -29,6 +29,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h> // for EChunkType
 
+#define DISABLE_STD_HASH_UINT128 ON
 #include <pvcop/db/sink.h>
 #include <pvcop/types/number.h>
 

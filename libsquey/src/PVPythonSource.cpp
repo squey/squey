@@ -94,7 +94,8 @@ pybind11::array Squey::PVPythonSource::column(size_t index, StringColumnAs strin
                     int len = column.at(i, buffer_ptr + maxlen * i, maxlen);
                     buffer_ptr[(maxlen * i) + len] = '\0';
                 }
-                pybind11::array arr(pybind11::dtype(std::string("S") + std::to_string(maxlen)), {column.size()}, {maxlen}, buffer_ptr);
+                pybind11::dtype dt(std::string("S") + std::to_string(maxlen));
+                pybind11::array arr(dt, {column.size()}, {maxlen}, buffer_ptr);
                 return arr;
             }
             case StringColumnAs::DICT : {
@@ -115,7 +116,8 @@ pybind11::array Squey::PVPythonSource::column(size_t index, StringColumnAs strin
         }
     }
     pybind11::str dummy_data_owner; // hack to disable ownership
-    auto arr = pybind11::array(dtype_str.c_str(), column.size(), column.data(), dummy_data_owner);
+    const pybind11::dtype dt(dtype_str);
+    auto arr = pybind11::array(dt, column.size(), column.data(), dummy_data_owner);
     reinterpret_cast<pybind11::detail::PyArray_Proxy*>(arr.ptr())->flags &= ~pybind11::detail::npy_api::NPY_ARRAY_WRITEABLE_; // hack to set flags.writable=false
     return arr;
 }
@@ -205,7 +207,8 @@ Squey::PVPythonSelection Squey::PVPythonSource::selection(int layer_index)
         selection = &layerstack.get_layer_n(layer_index).get_selection();
     }
     pybind11::str dummy_data_owner; // hack to disable ownership
-    auto arr = pybind11::array("uint64", selection->chunk_count(), selection->get_buffer(), dummy_data_owner);
+    pybind11::dtype dt("uint64");
+    auto arr = pybind11::array(dt, selection->chunk_count(), selection->get_buffer(), dummy_data_owner);
     reinterpret_cast<pybind11::detail::PyArray_Proxy*>(arr.ptr())->flags &= ~pybind11::detail::npy_api::NPY_ARRAY_WRITEABLE_; // hack to set flags.writable=false
     return Squey::PVPythonSelection(*view, *selection, arr);
 }

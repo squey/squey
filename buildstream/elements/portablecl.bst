@@ -5,13 +5,9 @@ description: |
 
 sources:
 - kind: tar
-  url: http://portablecl.org/downloads/pocl-3.0.tar.gz
-  ref: a3fd3889ef7854b90b8e4c7899c5de48b7494bf770e39fba5ad268a5cbcc719d
+  url: https://codeload.github.com/pocl/pocl/tar.gz/refs/tags/v4.0
+  ref: 7f4e8ab608b3191c2b21e3f13c193f1344b40aba7738f78762f7b88f45e8ce03
 
-- kind: patch
-  path: buildstream/patches/portablecl/cl.hpp.patch
-  strip-level: 1
-  
 variables:
   cmake-local: |
     -DINSTALL_OPENCL_HEADERS=1 \
@@ -24,4 +20,5 @@ depends:
 - freedesktop-sdk.bst:components/llvm.bst
 - freedesktop-sdk.bst:components/opencl.bst
 - freedesktop-sdk.bst:components/patch.bst
+- freedesktop-sdk.bst:components/python3.bst
 - libhwloc.bst

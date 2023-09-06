@@ -111,8 +111,8 @@ void PVRush::PVOpcUaAPI::connect_to_server()
 	} else {
 		auto login = _infos.get_login().toUtf8();
 		auto password = _infos.get_password().toUtf8();
-		UA_StatusCode retval = UA_Client_connect_username(_client, endpoint_url, login.data(), password.data());
-		qDebug() << "UA_Client_connect_username:" << QDBGSTS(retval);
+		UA_StatusCode retval = UA_Client_connectUsername(_client, endpoint_url, login.data(), password.data());
+		qDebug() << "UA_Client_connectUsername:" << QDBGSTS(retval);
 		check_opcua_code(retval);
 	}
 }
@@ -337,10 +337,13 @@ PVRush::PVOpcUaAPI::NodeId::NodeId(QString id)
 	assert(ok);
 }
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 PVRush::PVOpcUaAPI::NodeId::~NodeId()
 {
 	UA_NodeId_deleteMembers(&_node_id);
 }
+#pragma GCC diagnostic pop
 
 const char* PVRush::PVOpcUaAPI::pvcop_type(int opcua_type_index)
 {
@@ -357,20 +360,19 @@ std::string PVRush::PVOpcUaAPI::to_json_string(UA_Variant const& value)
 {
 	std::string json_value;
 	if (value.arrayLength) {
-		json_value.resize(UA_calcSizeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], nullptr, 0,
-		                                  nullptr, 0, true));
+		json_value.resize(UA_calcSizeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], nullptr));
 		auto* json_value_pos = json_value.data();
 		auto* json_value_end = json_value.data() + json_value.size();
-		auto ret = UA_encodeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], (uint8_t**)&json_value_pos,
-		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+		auto ret = UA_encodeJson(&value, &UA_TYPES[UA_TYPES_VARIANT], (UA_String*)&json_value_pos,
+		              (const UA_EncodeJsonOptions*)&json_value_end);
 		(void) ret;
 	} else {
 		json_value.resize(
-		    UA_calcSizeJson(value.data, value.type, nullptr, 0, nullptr, 0, true));
+		    UA_calcSizeJson(value.data, value.type, nullptr));
 		auto* json_value_pos = json_value.data();
 		auto* json_value_end = json_value.data() + json_value.size();
-		auto ret = UA_encodeJson(value.data, value.type, (uint8_t**)&json_value_pos,
-		              (const uint8_t**)&json_value_end, nullptr, 0, nullptr, 0, true);
+		auto ret = UA_encodeJson(value.data, value.type, (UA_String*)&json_value_pos,
+		              (const UA_EncodeJsonOptions*)&json_value_end);
 		(void) ret;
 	}
 	return json_value;

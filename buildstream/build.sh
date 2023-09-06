@@ -159,7 +159,7 @@ if [ "$EXPORT_BUILD" = true ]; then
   # Export flatpak Release image
   rm -rf $DIR/build
   bst $BUILD_OPTIONS build flatpak/org.squey.Squey.bst
-  bst $BUILD_OPTIONS checkout flatpak/org.squey.Squey.bst "$DIR/build"
+  bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$DIR/build"
   if [[ ! -z "$GPG_SIGN_KEY" ]]; then
     flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
   else
@@ -178,4 +178,4 @@ if [ "$EXPORT_BUILD" = true ]; then
 fi
 
 # Push artifacts
-bst --option push_artifacts True push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
+bst --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true

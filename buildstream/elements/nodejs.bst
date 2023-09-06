@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://nodejs.org/dist/v18.8.0/node-v18.8.0.tar.xz
-  ref: 2b5d9825d05ede6614f1668a8d97d774fe92ebc81088ec5fdf58184dce3c86b9
+  url: https://nodejs.org/dist/v20.4.0/node-v20.4.0.tar.xz
+  ref: 09bd0b73c526b63c029d5ddfd885d10962e7ad87c975b94583c1f8ce90ee5348
 
 config:
   configure-commands:
@@ -15,3 +15,4 @@ config:
 
 depends:
 - base.bst
+- freedesktop-sdk.bst:components/python3.bst

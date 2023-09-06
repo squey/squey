@@ -31,10 +31,10 @@ add_definitions(-DTBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 ###############################################################################
 # Define the OpenCL runtime
 ###############################################################################
-
-pkg_check_modules(OPENCL REQUIRED OpenCL)
+pkg_check_modules(OPENCL REQUIRED)
 
 if(OPENCL_FOUND)
+  set(OPENCL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libOpenCL.so")
 	message(STATUS "OpenCL runtime libraries: " ${OPENCL_LIBRARIES})
   add_definitions(-DCL_TARGET_OPENCL_VERSION=220)
 
@@ -112,12 +112,6 @@ set(BREAKPAD_INCLUDE_DIRS /usr/include/breakpad /app/include/breakpad /include/b
 pkg_check_modules(BREAKPAD REQUIRED breakpad-client)
 message(STATUS "Google Breakpad libraries: ${BREAKPAD_LIBRARIES}")
 message(STATUS "Google Breakpad include: ${BREAKPAD_INCLUDE_DIRS}")
-
-###############################################################################
-# Check for libpcre++
-# This is a library to handle perl regex
-###############################################################################
-find_package(PCRE REQUIRED)
 
 ###############################################################################
 # OpenGL

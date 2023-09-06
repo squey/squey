@@ -1,4 +1,4 @@
-kind: distutils
+kind: setuptools
 
 sources:
 - kind: tar

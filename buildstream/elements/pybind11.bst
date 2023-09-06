@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: https://github.com/pybind/pybind11/archive/v2.6.1.tar.gz
-  ref: cdbe326d357f18b83d10322ba202d69f11b2f49e2d87ade0dc2be0c5c34f8e2a
+  url: https://github.com/pybind/pybind11/archive/v2.10.0.tar.gz
+  ref: eacf582fa8f696227988d08cfc46121770823839fe9e301a20fbce67e7cd70ec
   
 variables:
   cmake-local: |

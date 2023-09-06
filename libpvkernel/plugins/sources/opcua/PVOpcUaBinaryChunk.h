@@ -49,7 +49,7 @@ class PVOpcUaBinaryChunk : public PVCore::PVBinaryChunk
     {
         _values[node_index] = std::move(node_values); 
         set_raw_column_chunk(PVCol(1 + node_index), _values[node_index].data(), rows_count(),
-		                     type->memSize, PVRush::PVOpcUaAPI::pvcop_type(type->typeIndex));
+		                     type->memSize, PVRush::PVOpcUaAPI::pvcop_type(type->typeId.namespaceIndex));
     }
 
   private:

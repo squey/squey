@@ -87,7 +87,8 @@ void Squey::PVPythonSelection::set(const pybind11::array& sel_array)
 
 pybind11::array_t<uint8_t> Squey::PVPythonSelection::get()
 {
-    auto sel_array = pybind11::array("bool", size());
+    pybind11::dtype dt("bool");
+    auto sel_array = pybind11::array(dt, size());
     pybind11::buffer_info sel_buffer = sel_array.request();
 #pragma omp parallel for
     for (size_t i = 0; i < size(); i++) {

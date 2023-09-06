@@ -1,15 +1,5 @@
---- a/include/CL/CMakeLists.txt
-+++ b/include/CL/CMakeLists.txt
-@@ -27,6 +27,7 @@
- 
- if(INSTALL_OPENCL_HEADERS)
-   install(FILES cl.h
-+                cl.hpp
-                 cl_d3d10.h
-                 cl_d3d11.h
-                 cl_dx9_media_sharing.h
---- a/include/CL/cl.hpp
-+++ b/include/CL/cl.hpp
+--- a/CL/cl.hpp
++++ b/CL/cl.hpp
 @@ -0,0 +1,12459 @@
 +/*******************************************************************************
 + * Copyright (c) 2008-2013 The Khronos Group Inc.

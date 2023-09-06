@@ -13,9 +13,15 @@
 [submodule "tests"]
 	path = tests
 	url = ../squey-testsuite.git
-[submodule "buildstream/plugins/bst-external"]
-	path = buildstream/plugins/bst-external
-	url = https://gitlab.com/BuildStream/bst-external.git
 [submodule "external/breakpad"]
 	path = external/breakpad
 	url = ../breakpad
+[submodule "buildstream/plugins/bst-plugins-experimental"]
+	path = buildstream/plugins/bst-plugins-experimental
+	url = https://gitlab.com/BuildStream/bst-plugins-experimental
+[submodule "buildstream/plugins/bst-external"]
+	path = buildstream/plugins/bst-external
+	url = https://gitlab.com/BuildStream/bst-external
+[submodule "buildstream/plugins/buildstream-plugins"]
+	path = buildstream/plugins/buildstream-plugins
+	url = https://github.com/apache/buildstream-plugins

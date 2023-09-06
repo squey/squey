@@ -30,7 +30,7 @@
 
 #include <unicode/ucnv.h>
 
-using namespace icu_71;
+using namespace icu_73;
 
 namespace PVRush
 {

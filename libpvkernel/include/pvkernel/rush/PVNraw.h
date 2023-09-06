@@ -202,7 +202,7 @@ class PVNraw
 	std::unique_ptr<pvcop::collector> _collector = nullptr; //!< Structure to fill NRaw content.
 
 	PVCore::PVSelBitField _valid_rows_sel;
-	size_t _valid_elements_count;
+	size_t _valid_elements_count = 0;
 };
 } // namespace PVRush
 
