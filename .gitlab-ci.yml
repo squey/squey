@@ -1,4 +1,6 @@
-image: registry.gitlab.com/squey/container-images/squey_build:main
+image:
+  name: registry.gitlab.com/squey/container-images/squey_build:4cfbcc50
+  pull_policy: [if-not-present]
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
