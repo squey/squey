@@ -91,7 +91,7 @@ if ! ongoing_installation ; then
     squey_flatpak_package="org.squey.Squey"
     flatpak remote-ls --updates | grep -q "$squey_flatpak_package"
     if [ "$?" = "0" ]; then
-        flatpak_commands+=( "sudo flatpak update -y $squey_flatpak_package" )
+        flatpak_commands+=( "sudo flatpak update --no-related -y $squey_flatpak_package" )
     fi
     
     # Run flatpak commands
