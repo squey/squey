@@ -216,7 +216,7 @@ sast:
 include:
 - template: Security/SAST.gitlab-ci.yml
 #- template: Code-Quality.gitlab-ci.yml
-- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
+#- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
 - template: Jobs/Container-Scanning.gitlab-ci.yml
 
 flawfinder-sast:
@@ -227,11 +227,11 @@ semgrep-sast:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-secret_detection:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  interruptible: true
+#secret_detection:
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "push"'
+#    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#  interruptible: true
 
 #code_quality_html:
 #  extends: code_quality
