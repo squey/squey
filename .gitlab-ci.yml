@@ -86,7 +86,7 @@ build release:
   allow_failure: false
 
 build container image:
-  image: quay.io/buildah/stable:v1.29.1
+  image: quay.io/buildah/stable:latest
   stage: build
   tags:
     - privileged-docker
