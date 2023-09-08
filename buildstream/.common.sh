@@ -46,9 +46,9 @@ MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /s
 
 # Install Buildstream and bst-external plugins if needed
 command -v "bst" &> /dev/null || { pip install --user BuildStream==2.0.1; }
-python3 -c "import bst_external" &> /dev/null || pip install --user -e "$DIR/plugins/bst-external"
-pip install --user -e "$DIR/plugins/buildstream-plugins"
-pip install --user -e "$DIR/plugins/bst-plugins-experimental" && pip install --user dulwich
+python3 -c "import bst_external" &> /dev/null || pip install --break-system-packages --user -e "$DIR/plugins/bst-external"
+pip install --break-system-packages --user -e "$DIR/plugins/buildstream-plugins"
+pip install --break-system-packages --user -e "$DIR/plugins/bst-plugins-experimental" && pip install --break-system-packages --user dulwich
 
 function check_bindfs()
 {

@@ -1,4 +1,6 @@
-image: registry.gitlab.com/squey/container-images/squey_build:main
+image:
+  name: registry.gitlab.com/squey/container-images/squey_build:4cfbcc50
+  pull_policy: [if-not-present]
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
@@ -97,10 +99,9 @@ build container image:
     - if [ $PUBLISH_CONTAINER_IMAGE = "true" ] && [ $CI_COMMIT_REF_PROTECTED = "true" ]; then
         echo $DOCKERHUB_TOKEN | buildah login -u squey --password-stdin registry-1.docker.io &&
         buildah push localhost/squey/squey registry-1.docker.io/squey/squey:latest
-      ; else
-        echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
-        buildah push localhost/squey/squey $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-      ; fi
+      ; fi ;
+      echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
+      buildah push localhost/squey/squey $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
@@ -215,7 +216,7 @@ sast:
 include:
 - template: Security/SAST.gitlab-ci.yml
 #- template: Code-Quality.gitlab-ci.yml
-- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
+#- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
 - template: Jobs/Container-Scanning.gitlab-ci.yml
 
 flawfinder-sast:
@@ -226,11 +227,11 @@ semgrep-sast:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
-secret_detection:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "push"'
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-  interruptible: true
+#secret_detection:
+#  rules:
+#    - if: '$CI_PIPELINE_SOURCE == "push"'
+#    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+#  interruptible: true
 
 #code_quality_html:
 #  extends: code_quality
