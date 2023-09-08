@@ -14,5 +14,5 @@ then
     rm -rf "${DIR}"/*.flatpak
 else # online installation
     flatpak install -y --no-related https://dl.flathub.org/repo/appstream/org.squey.Squey.flatpakref
-    flatpak update -y
+    flatpak update -y --no-related
 fi

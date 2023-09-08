@@ -33,7 +33,7 @@ then
     then
         flatpak install $USER_OPT -y flathub "$RUNTIME_NAME//$RUNTIME_BRANCH"  &> /dev/null
     else
-        flatpak update $USER_OPT -y "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
+        flatpak update --no-related $USER_OPT -y "$RUNTIME_NAME//$RUNTIME_BRANCH" &> /dev/null
     fi
     flatpak build-bundle --runtime $FLATPAK_REPO_DIR "${DATA_PATH}/runtime.flatpak" "$RUNTIME_NAME" "$RUNTIME_BRANCH"
     if [ $runtime_not_installed -eq 1 ]
@@ -49,7 +49,7 @@ then
     then
         flatpak install $USER_OPT -y flathub "${SQUEY_NAME}" &> /dev/null
     else
-        flatpak update $USER_OPT -y "${SQUEY_NAME}" &> /dev/null
+        flatpak update --no-related $USER_OPT -y "${SQUEY_NAME}" &> /dev/null
     fi
     flatpak build-bundle --repo-url="${FLATHUB_REPO}" --runtime-repo="${FLATHUB_REPO_FLATPAKREF}" $FLATPAK_REPO_DIR "${DATA_PATH}/squey.flatpak" "${SQUEY_NAME}" "stable"
     if [ $squey_not_installed -eq 1 ]
