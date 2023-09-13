@@ -4,16 +4,16 @@
 
 ## What is Squey?
 
-Squey (formerely INENDI Inspector) allows any user to perform interactive explorations over very large amounts of data.
+[Squey](https://squey.org) (formerely INENDI Inspector) allows any user to perform interactive explorations over very large amounts of data.
 
 Thanks to its innovative set of visualisations, the user is freed from the classical burden of query-based interactions and can then use all his logical and deductive power to discover valuable insights from the data.
-
-The ability to correlate several datasets with different structures permits to intuitively understand the causal chains over the course of the whole life cycle of the studied product.
 
 It can be used for different purposes:
 - Initial understanding of large and complex datasets
 - Isolating weak signals very efficiently
 - Controlling and improving Machine Learning algorithms
+
+The ability to correlate several datasets with different structures permits to intuitively understand causal chains.
 
 ## Installation
 
