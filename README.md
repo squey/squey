@@ -1,6 +1,6 @@
 # About
 
-![](squey_screenshot.png)
+![](https://gitlab.com/squey/squey/-/raw/main/squey_screenshot.png)
 
 ## What is Squey?
 
