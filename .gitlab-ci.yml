@@ -1,5 +1,5 @@
 image:
-  name: registry.gitlab.com/squey/container-images/squey_build:4cfbcc50
+  name: registry.gitlab.com/squey/container-images/squey_build:3d10714d
   pull_policy: [if-not-present]
 
 variables:
