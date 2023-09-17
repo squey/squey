@@ -47,7 +47,6 @@ build testsuite:
         --branch="${CI_COMMIT_REF_NAME}" 
         --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
         --flatpak-repo="/srv/flatpak_repo" 
-        --crash-reporter-token=$SQUEY_CRASH_REPORTER_TOKEN
         --code-coverage=$CODE_COVERAGE
   after_script:
     - cp /srv/tmp-squey/junit.xml $CI_PROJECT_DIR
@@ -74,7 +73,6 @@ build release:
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
       --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
       --upload-debug-symbols=true 
-      --crash-reporter-token=$SQUEY_CRASH_REPORTER_TOKEN 
       ; fi
   artifacts:
     paths:

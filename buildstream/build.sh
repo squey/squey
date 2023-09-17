@@ -34,7 +34,7 @@ CODE_COVERAGE_ENABLED=false
 UPLOAD_DEBUG_SYMBOLS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:c:d:g:k:e:p,l,u --long help,flatpak-export:,flatpak-repo:,crash-reporter-token:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u --long help,flatpak-export:,flatpak-repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -47,7 +47,6 @@ while true; do
     -d | --disable-testsuite ) TESTSUITE_DISABLED="$2"; shift 2 ;;
     -e | --flatpak-export ) EXPORT_BUILD="$2"; shift 2 ;;
     -r | --flatpak-repo ) REPO_DIR="$2"; shift 2 ;;
-    -c | --crash-reporter-token) SQUEY_CRASH_REPORTER_TOKEN="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -l | --code-coverage ) CODE_COVERAGE_ENABLED="$2"; shift 2 ;;
@@ -58,12 +57,6 @@ while true; do
 done
 
 source .common.sh
-
-# Fill-in crash reporter token
-if [ ! -z "$SQUEY_CRASH_REPORTER_TOKEN" ]; then
-  SQUEY_CRASH_REPORTER_TOKEN_FILE="$WORKSPACE_PREFIX/$WORKSPACE_NAME/libpvkernel/include/pvkernel/core/PVCrashReporterToken.h"
-  sed -e "s|\(SQUEY_CRASH_REPORTER_TOKEN\) \"\"|\1 \"$SQUEY_CRASH_REPORTER_TOKEN\"|" -i "$SQUEY_CRASH_REPORTER_TOKEN_FILE"
-fi
 
 # Fill-in release and date
 CHANGELOG_CONTENT="$(awk '/^---.*---$/ {count++} count == 1 {print} count == 2 {exit}' ../CHANGELOG | head -n -2 | tail -n +3)"
