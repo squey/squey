@@ -13,8 +13,8 @@ trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
 
 usage() {
 echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite=<true/false>] [--cxx_compiler=<g++/clang++>] [--user-target=<USER_TARGET>]"
-echo "                  [--flatpak-export=<true/false>] [--flatpak-repo=<repository_path>] [--gpg-private-key-path=<key>] [--gpg-sign-key=<key>] "
-echo "                  [--code-coverage=<true/false>]" 1>&2; exit 1;
+echo "                  [--flatpak-export=<true/false>] [--flatpak-repo=<repository_path>] [--gpg-private-key-path=<key>]"
+echo "                  [--gpg-sign-key=<key>] [--code-coverage=<true/false>] [--push-artifacts=<true/false>]" 1>&2; exit 1;
 
 }
 
@@ -32,9 +32,10 @@ GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 CODE_COVERAGE_ENABLED=false
 UPLOAD_DEBUG_SYMBOLS=false
+PUSH_ARTIFACTS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u --long help,flatpak-export:,flatpak-repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a --long help,flatpak-export:,flatpak-repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -51,6 +52,7 @@ while true; do
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -l | --code-coverage ) CODE_COVERAGE_ENABLED="$2"; shift 2 ;;
     -u | --upload-debug-symbols ) UPLOAD_DEBUG_SYMBOLS="$2"; shift 2 ;;
+    -a | --push-artifacts ) PUSH_ARTIFACTS="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -132,4 +134,6 @@ if [ "$EXPORT_BUILD" = true ]; then
 fi
 
 # Push artifacts
-bst --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
+if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
+  bst --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
+fi
