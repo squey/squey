@@ -3,7 +3,10 @@
 set -e
 set -x
 
+TMP_ARTIFACT_DIR="$(mktemp -d)"
+
 function cleanup {
+  rm -rf -- "${TMP_ARTIFACT_DIR}"
   rm -rf $HOME/.cache/buildstream/artifacts/extract/squey/squey
   rm -rf $HOME/.cache/buildstream/build
   rm -rf /srv/tmp-squey/tomjon/*
@@ -70,6 +73,9 @@ BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER"
 if [ $USER_TARGET_SPECIFIED = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option user_target $USER_TARGET"
 fi
+if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
+  BUILD_OPTIONS="$BUILD_OPTIONS --option keep_build_dir True"
+fi
 if  [ "$TESTSUITE_DISABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option disable_testsuite True"
 fi
@@ -78,27 +84,13 @@ if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
 fi
 bst $BUILD_OPTIONS build squey.bst
 
-# Run testsuite with "bst shell" to have network access (bst hasn't a "test-commands" (yet?) like in flatpak-builder)
-if  [ "$TESTSUITE_DISABLED" = "false" ]; then
-    bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
-    cp --preserve -r /compilation/* .
-    TESTS=\"-R SQUEY_TEST\"
-    if [ $CODE_COVERAGE_ENABLED = true ]; then CODE_COVERAGE_COMMAND=\"-T coverage\"; TESTS=\"-R 'SQUEY_TEST|PVCOP_TEST'\"; fi
-    cd build && run_cmd.sh ctest --output-junit /srv/tmp-squey/junit.xml --output-on-failure -T test \${CODE_COVERAGE_COMMAND} \${TESTS} || if [ $CODE_COVERAGE_ENABLED = false ]; then exit 1; fi
-    # Generate code coverage report
-    if [ $CODE_COVERAGE_ENABLED = true ]; then
-        ./scripts/gen_code_coverage_report.sh
-        cp -r code_coverage_report /srv/tmp-squey
-    fi" || exit 1 # fail the testsuite on errors
-fi
-
 # Upload debug symbols
 if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
   VERSION="$(cat ../VERSION.txt)"
   bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
       SYM_DIR=\"/tmp/squey.sym.d\"
       rm -rf \"\$SYM_DIR\" && mkdir -p \"\$SYM_DIR\"
-      cd /compilation/build
+      cd /compilation_build
       find . -type f \( -name *.so* -o -name \"squey\" \) -exec sh -c 'dump_syms \"\$0\" > \"\$1\"/\"\$(basename \"\$0\").sym\"' \"{}\" \"\$SYM_DIR\" \;
       find \"\$SYM_DIR\" -type f -exec sed 's|/buildstream/squey/squey.bst/||' -i \"{}\" \;
       find \"\$SYM_DIR\" -type f -exec sym_upload \"{}\" \"https://squey.bugsplat.com/post/bp/symbol/breakpadsymbols.php?appName=Squey&appVer=$VERSION\" \;
@@ -136,4 +128,9 @@ fi
 # Push artifacts
 if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
   bst --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
+fi
+
+# Extract testsuite and code coverage reports out of the build sandbox
+if [ "$GITLAB_CI" = true ]; then
+  bst $BUILD_OPTIONS artifact checkout squey.bst --no-integrate --ignore-project-artifact-remotes --deps none --hardlinks --directory "${TMP_ARTIFACT_DIR}" && cp -r "${TMP_ARTIFACT_DIR}"/{junit.xml,code_coverage_report} .. || true
 fi
