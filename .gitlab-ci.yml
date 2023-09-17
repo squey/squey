@@ -45,7 +45,6 @@ build testsuite:
     - ./build.sh 
         --cxx_compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
         --branch="${CI_COMMIT_REF_NAME}" 
-        --workspace-prefix="/bst_workspace" 
         --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
         --flatpak-repo="/srv/flatpak_repo" 
         --crash-reporter-token=$SQUEY_CRASH_REPORTER_TOKEN
@@ -70,7 +69,6 @@ build release:
       --user-target=customer 
       --cxx_compiler=g++ 
       --branch="${CI_COMMIT_REF_NAME}" 
-      --workspace-prefix="/bst_workspace" 
       --flatpak-export=true 
       --flatpak-repo="$CI_PROJECT_DIR/public/flatpak" 
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
