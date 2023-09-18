@@ -5,7 +5,7 @@ description: |
 
 sources:
 - kind: tar
-  url: https://github.com/pybind/pybind11/archive/v2.10.0.tar.gz
+  url: github:pybind/pybind11/archive/v2.10.0.tar.gz
   ref: eacf582fa8f696227988d08cfc46121770823839fe9e301a20fbce67e7cd70ec
   
 variables:

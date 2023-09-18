@@ -8,7 +8,7 @@ description: |
 sources:
 - kind: tar
 
-  url: https://download.gnome.org/sources/libsigc++/3.4/libsigc%2B%2B-3.4.0.tar.xz
+  url: gnome:sources/libsigc++/3.4/libsigc%2B%2B-3.4.0.tar.xz
   ref: 02e2630ffb5ce93cd52c38423521dfe7063328863a6e96d41d765a6116b8707e
 
 depends:

@@ -6,7 +6,7 @@ description: |
 
 sources:
 - kind: tar  
-  url: https://github.com/oneapi-src/oneTBB/archive/v2020.3.tar.gz
+  url: github:oneapi-src/oneTBB/archive/v2020.3.tar.gz
   ref: ebc4f6aa47972daed1f7bf71d100ae5bf6931c2e3144cf299c8cc7d041dca2f3
 
 - kind: patch

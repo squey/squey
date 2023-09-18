@@ -5,7 +5,7 @@ description: |
 
 sources:
 - kind: tar
-  url: https://codeload.github.com/pocl/pocl/tar.gz/refs/tags/v4.0
+  url: github_codeload:pocl/pocl/tar.gz/refs/tags/v4.0
   ref: 7f4e8ab608b3191c2b21e3f13c193f1344b40aba7738f78762f7b88f45e8ce03
 
 variables:

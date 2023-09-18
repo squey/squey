@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
 
-  url: https://anongit.kde.org/extra-cmake-modules.git
+  url: kde:extra-cmake-modules.git
   ref: 553e9e8657b724139a96a68cdbefc6c261b662cb
 
 depends:

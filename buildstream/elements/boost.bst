@@ -10,7 +10,7 @@ description: |
 sources:
 - kind: tar
 
-  url: https://boostorg.jfrog.io/artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2
+  url: boost:artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2
   ref: fc9f85fc030e233142908241af7a846e60630aa7388de9a5fafb1f3a26840854
   
 config:

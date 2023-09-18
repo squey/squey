@@ -8,7 +8,7 @@ description: |
 
 sources:
 - kind: git
-  url: https://github.com/rvelea/LightPcapNg.git
+  url: github:rvelea/LightPcapNg.git
   ref: ff286c2b89a6541ef1793a7f931fa0f94206d26f
   
 config:

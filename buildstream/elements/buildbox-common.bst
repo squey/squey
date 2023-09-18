@@ -2,7 +2,7 @@ kind: cmake
 
 sources:
 - kind: git
-  url: https://gitlab.com/BuildGrid/buildbox/buildbox-common.git
+  url: gitlab:BuildGrid/buildbox/buildbox-common.git
   ref: 6e70ed24cfc654031308f7b7b99ed68f649562cd
   
 depends:

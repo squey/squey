@@ -13,7 +13,7 @@ config:
 
 sources:
 - kind: git_tag
-  url: https://github.com/pypa/pip.git
+  url: github:pypa/pip.git
   track: master
   ref: 22.3.1-0-g1463081f10de6bfad81afe0d68272e7c3bedbadf
   exclude:

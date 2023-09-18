@@ -13,7 +13,7 @@ description: |
 sources:
 - kind: tar
 
-  url: https://github.com/maxmind/libmaxminddb/archive/1.7.1.tar.gz
+  url: github:maxmind/libmaxminddb/archive/1.7.1.tar.gz
   ref: 4ed9c409667f0adeb3eca653780785ad04713b8a87f2fcfbb31967b213826322
 
 config:

@@ -10,7 +10,7 @@ depends:
 
 sources:
 - kind: git
-  url: https://gitlab.com/BuildGrid/recc.git
+  url: gitlab:BuildGrid/recc.git
   ref: 1f48bc5c11d07a4b03cab1bf475e2ed1feff1a7d
 
 - kind: patch

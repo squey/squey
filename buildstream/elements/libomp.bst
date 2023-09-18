@@ -5,7 +5,7 @@ description: |
 
 sources:
 - kind: tar
-  url: https://github.com/llvm/llvm-project/releases/download/llvmorg-16.0.6/openmp-16.0.6.src.tar.xz
+  url: github:llvm/llvm-project/releases/download/llvmorg-16.0.6/openmp-16.0.6.src.tar.xz
   ref: a2536f06373774f2829d892b72eea5f97bab20e69b26b03042d947f992eb8e38
 
 - kind: patch

@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: tar
 
-  url: https://www.tcpdump.org/release/libpcap-1.9.0.tar.gz
+  url: tcpdump:release/libpcap-1.9.0.tar.gz
   ref: 2edb88808e5913fdaa8e9c1fcaf272e19b2485338742b5074b9fe44d68f37019
 
 depends:

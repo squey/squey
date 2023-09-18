@@ -5,7 +5,7 @@ description: |
 
 sources:
 - kind: tar
-  url: https://github.com/Reference-LAPACK/lapack/archive/v3.9.0.tar.gz
+  url: github:Reference-LAPACK/lapack/archive/v3.9.0.tar.gz
   ref: 106087f1bb5f46afdfba7f569d0cbe23dacb9a07cd24733765a0e89dbe1ad573
   
 environment:

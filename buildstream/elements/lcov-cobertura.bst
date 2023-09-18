@@ -6,7 +6,7 @@ description: |
     
 sources:
 - kind: tar  
-  url: https://github.com/eriwen/lcov-to-cobertura-xml/archive/refs/tags/2.0.2.tar.gz
+  url: github:eriwen/lcov-to-cobertura-xml/archive/refs/tags/2.0.2.tar.gz
   ref: bbbf0867ec7bf90d4a071097242edc88437a819d072a522cd79d8a44432861ca
 
 config:

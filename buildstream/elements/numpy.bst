@@ -5,7 +5,7 @@ description: |
 
 sources:
 - kind: tar
-  url: https://github.com/numpy/numpy/archive/refs/tags/v1.25.1.tar.gz
+  url: github:numpy/numpy/archive/refs/tags/v1.25.1.tar.gz
   ref: 77779aaf9bd7308b8cff3456144b22934a4aefa8e1b8f2bbadc18e21efcb5128
   
 config:

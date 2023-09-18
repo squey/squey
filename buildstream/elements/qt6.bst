@@ -5,7 +5,7 @@ description: |
 
 sources:
 - kind: tar
-  url: https://download.qt.io/archive/qt/6.5/6.5.2/single/qt-everywhere-src-6.5.2.tar.xz
+  url: qt:archive/qt/6.5/6.5.2/single/qt-everywhere-src-6.5.2.tar.xz
   ref: cde57be663d0f875759797298bdc37a936d517c39f2013e4e6ece5e12edeed12
 
 - kind: patch

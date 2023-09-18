@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
 
-  url: https://anongit.kde.org/kitemmodels.git
+  url: kde:kitemmodels.git
   ref: 064c9699a8ea82b51b57c21e4ae2d02c783a8056
 
 variables:
