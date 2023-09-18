@@ -32,7 +32,7 @@
 static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy.log";
 static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
 static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
-static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation.pvi";
+static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation_multisource.pvi";
 static constexpr unsigned int ROW_COUNT = 100000;
 static constexpr unsigned int MINESET_ROW_COUNT = 1000;
 #ifdef SQUEY_BENCH
