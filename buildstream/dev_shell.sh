@@ -12,4 +12,5 @@ if [ -d ".venv" ]; then
     source .venv/bin/activate
 fi
 
+bst build base.bst
 bst shell $MOUNT_OPTS --build squey.bst
