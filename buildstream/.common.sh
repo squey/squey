@@ -44,8 +44,6 @@ fi
 
 MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
 
-# Install Buildstream and bst-external plugins if needed
-command -v "bst" &> /dev/null || { pip install --user BuildStream==2.0.1; }
-python3 -c "import bst_external" &> /dev/null || pip install --break-system-packages --user -e "$DIR/plugins/bst-external"
-pip install --break-system-packages --user -e "$DIR/plugins/buildstream-plugins"
-pip install --break-system-packages --user -e "$DIR/plugins/bst-plugins-experimental" && pip install --break-system-packages --user dulwich
+# Install Buildstream if needed
+BST_VERSION="2.0.1"
+[ $(bst --version) != "${BST_VERSION}" ] && pip install --break-system-packages --user BuildStream==${BST_VERSION} dulwich requests packaging || true
