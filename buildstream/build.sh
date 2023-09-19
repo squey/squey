@@ -15,9 +15,17 @@ function cleanup {
 trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
 
 usage() {
-echo "Usage: $0 [--branch=<branch_name_or_tag_name>] [--disable-testsuite=<true/false>] [--cxx_compiler=<g++/clang++>] [--user-target=<USER_TARGET>]"
-echo "                  [--flatpak-export=<true/false>] [--flatpak-repo=<repository_path>] [--gpg-private-key-path=<key>]"
-echo "                  [--gpg-sign-key=<key>] [--code-coverage=<true/false>] [--push-artifacts=<true/false>]" 1>&2; exit 1;
+echo "Usage: $0 [--branch=<branch_name_or_tag_name>]"
+echo "                  [--code-coverage=<true/false>]"
+echo "                  [--cxx_compiler=<g++/clang++>]"
+echo "                  [--disable-testsuite=<true/false>]"
+echo "                  [--flatpak-export=<true/false>]"
+echo "                  [--flatpak-repo=<repository_path>]"
+echo "                  [--gpg-private-key-path=<key>]"
+echo "                  [--gpg-sign-key=<key>]"
+echo "                  [--push-artifacts=<true/false>]"
+echo "                  [--upload-debug-symbols=<true/false>]"
+echo "                  [--user-target=<USER_TARGET>]" 1>&2; exit 1;
 
 }
 
