@@ -8,7 +8,7 @@ description: |
 sources:
 - kind: tar
 
-  url: http://sources.buildroot.net/mbedtls/mbedtls-2.16.2-apache.tgz
+  url: buildroot:mbedtls/mbedtls-2.16.2-apache.tgz
   ref: a6834fcd7b7e64b83dfaaa6ee695198cb5019a929b2806cb0162e049f98206a4
 
 variables:

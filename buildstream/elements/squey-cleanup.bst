@@ -7,7 +7,9 @@ description: |
 config:
   root-read-only: False
   commands:
-    - rm -rf %{prefix}/compilation
+    - rm -rf %{prefix}/compilation_build
+    - rm -rf %{prefix}/junit.xml
+    - rm -rf %{prefix}/code_coverage_report
     - rm -rf %{prefix}/include
     - rm -rf %{prefix}/lib/cmake
     - rm -rf %{prefix}/sbin

@@ -5,15 +5,15 @@ description: |
 
 sources:
 - kind: git
-  url: https://github.com/open62541/open62541.git
+  url: github:open62541/open62541.git
   ref: 1b7e2b5d669661c568fda5577ee92011a029cf75
   submodules:
     deps/mdnsd:
       checkout: true
-      url: https://github.com/Pro/mdnsd.git
+      url: github:Pro/mdnsd.git
     deps/ua-nodeset:
       checkout: true
-      url: https://github.com/OPCFoundation/UA-Nodeset
+      url: github:OPCFoundation/UA-Nodeset
 
 variables:
   cmake-local: |

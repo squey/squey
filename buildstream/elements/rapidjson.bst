@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
 
-  url: https://github.com/Tencent/rapidjson
+  url: github:Tencent/rapidjson
   ref: 012be8528783cdbf4b7a9e64f78bd8f056b97e24
   
 variables:

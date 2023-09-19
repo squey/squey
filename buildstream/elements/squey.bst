@@ -73,14 +73,18 @@ build-depends:
 - freedesktop-sdk.bst:components/flatpak-xdg-utils.bst 
 #- clang-tools-extra.bst
 - fix_gdb.bst
+- recc.bst
 
 sources:
 - kind: local
   path: .
 
 environment:
-  CCACHE_DIR: ".ccache"
   LC_ALL: "C.UTF-8"
+  RECC_CACHE_ONLY: 1
+  RECC_CACHE_UPLOAD_LOCAL_BUILD: 1
+  RECC_CAS_SERVER: unix:/tmp/casd.sock
+  RECC_MAX_THREADS: -1
   
 variables:
   build-dir: "build"
@@ -95,26 +99,37 @@ variables:
 config:
   configure-commands:
     - |
-      CCACHE_COMPILER=$([ "%{code_coverage}" = "1" ] && echo "%{cxx_compiler}" || echo "ccache")
       if [ "%{code_coverage}" = "1" ] || grep "CMAKE_CXX_COMPILER:STRING" "build/CMakeCache.txt" | grep -v -q "/%{cxx_compiler}" ; then
         rm -rf "%{build-dir}" # Clean build cache when changing compiler or executing code coverage
       fi
       WARNINGS_AS_ERRORS=$([ "%{cxx_compiler}" = "clang++" ] && echo 1 || echo 0)
       CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
-      cmake -B"%{build-dir}" -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER=$CCACHE_COMPILER \
+      cmake -B"%{build-dir}" -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER="recc" \
                                                           -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
                                                           -DCMAKE_COMPILE_WARNING_AS_ERROR=$WARNINGS_AS_ERRORS
     
   (?):
   - disable_testsuite == False:
       build-commands:
-        - cd "%{build-dir}" && ninja && ninja squey_testsuite
-        - cd "%{build-dir}" ; if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
-        - cp -r scripts "%{build-dir}"
+      - |
+        cd "%{build-dir}" && ninja && ninja squey_testsuite
+        if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
+        TESTS="-R SQUEY_TEST"
+        if [ "%{code_coverage}" = "1" ]; then CODE_COVERAGE_COMMAND="-T coverage"; TESTS="-R 'SQUEY_TEST|PVCOP_TEST'"; fi
+        mkdir -p /tmp/.squey/squey/tmp-squey/tomjon && cp ../pvconfig.ini /tmp/.squey/squey/config.ini && sed 's|\(nraw_tmp=\)/srv/tmp-squey|\1/tmp/.squey/squey/tmp-squey|' -i /tmp/.squey/squey/config.ini
+        ../buildstream/files/run_cmd.sh ctest -j $(nproc) --output-junit junit.xml --output-on-failure -T test ${CODE_COVERAGE_COMMAND} ${TESTS} || if [ "%{code_coverage}" = "0" ]; then exit 1; fi
+        # Generate code coverage report
+        if [ "%{code_coverage}" = "1" ]; then
+            ../scripts/gen_code_coverage_report.sh
+        fi || exit 1 # fail the testsuite on errors
       install-commands:
-        - "%{make-install}"
-        - cp --preserve -r . "%{install-root}/compilation"
-        - "%{copy-launchers}"
+      - |
+        %{make-install}
+        %{copy-launchers}
+        if [ "%{keep_build_dir}" = "1" ]; then
+          cp --preserve -r "%{build-dir}" "%{install-root}/compilation_build"
+        fi
+        cp -r %{build-dir}/junit.xml %{build-dir}/code_coverage_report %{install-root} || true
   - disable_testsuite == True:
       build-commands:
         - cd "%{build-dir}" && ninja

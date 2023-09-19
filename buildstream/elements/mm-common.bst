@@ -9,7 +9,7 @@ description: |
 
 sources:
 - kind: tar
-  url: https://download.gnome.org/sources/mm-common/0.9/mm-common-0.9.10.tar.xz
+  url: gnome:sources/mm-common/0.9/mm-common-0.9.10.tar.xz
   ref: 16c0e2bc196b67fbc145edaecb5dbe5818386504fe5703de27002d77140fa217
 
 config:

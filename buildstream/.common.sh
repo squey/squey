@@ -44,46 +44,6 @@ fi
 
 MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
 
-# Install Buildstream and bst-external plugins if needed
-command -v "bst" &> /dev/null || { pip install --user BuildStream==2.0.1; }
-python3 -c "import bst_external" &> /dev/null || pip install --break-system-packages --user -e "$DIR/plugins/bst-external"
-pip install --break-system-packages --user -e "$DIR/plugins/buildstream-plugins"
-pip install --break-system-packages --user -e "$DIR/plugins/bst-plugins-experimental" && pip install --break-system-packages --user dulwich
-
-function check_bindfs()
-{
-    command -v "bindfs" &> /dev/null || { echo >&2 "'bindfs' executable not found, please install bindfs (then log out and log back in)"; exit 1; }
-}
-
-# Use workspace to have persistence over CCACHE_DIR
-function open_workspace()
-{
-    WORKSPACE_NAME="$1"
-    WORKSPACE_PATH="$WORKSPACE_PREFIX/$WORKSPACE_NAME"
-
-    CURRENT_WORKSPACE=`bst workspace list | grep "directory:" | awk -F ': ' '{print $2}'`
-    if [ "$CURRENT_WORKSPACE" != "$WORKSPACE_PATH" ]; then
-        if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
-            check_bindfs
-            mkdir -p "$DIR/../builds"
-            bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/../builds"
-        elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
-            check_bindfs
-            bindfs --no-allow-other -o nonempty "$DIR/empty/" "$DIR/workspace_build"
-        fi
-    
-        bst workspace close squey.bst || true
-        bst source fetch freedesktop-sdk.bst
-        if [ ! -d "$WORKSPACE_PATH" ]; then
-            bst workspace open squey.bst --directory $WORKSPACE_PATH
-        else
-            bst workspace open --no-checkout squey.bst --directory $WORKSPACE_PATH
-        fi
-        
-        if [ "$WORKSPACE_NAME" == "workspace_build" ]; then
-            fusermount -u "$DIR/../builds"
-        elif [ "$WORKSPACE_NAME" == "workspace_dev" ] && [ -d "$DIR/workspace_build" ]; then
-            fusermount -u "$DIR/workspace_build"
-        fi
-    fi
-}
+# Install Buildstream if needed
+BST_VERSION="2.0.1"
+[ $(bst --version) != "${BST_VERSION}" ] && pip install --break-system-packages --user BuildStream==${BST_VERSION} dulwich requests packaging || true

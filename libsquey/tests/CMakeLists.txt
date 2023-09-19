@@ -129,6 +129,7 @@ add_squey_test(Tsquey_investigation Tsquey_investigation)
 
 add_squey_compile_test(Tsquey_investigation_multisource LINKS ${LINK_LIBRARIES} FILES investigation_multisource.cpp)
 add_squey_test(Tsquey_investigation_multisource Tsquey_investigation_multisource)
+set_tests_properties(SQUEY_TEST_Tsquey_investigation_multisource PROPERTIES DEPENDS SQUEY_TEST_Tsquey_investigation)
 
 add_squey_compile_test(Tplotting_integer_default_default LINKS ${LINK_LIBRARIES} FILES plotting.cpp)
 add_squey_test(Tplotting_integer_default_default Tplotting_integer_default_default ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv.format)

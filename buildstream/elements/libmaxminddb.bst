@@ -13,8 +13,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://github.com/maxmind/libmaxminddb/archive/1.3.2.tar.gz
-  ref: c0785521c7e5515f1169db90ed6e51bc2a5a000377d0fbad87e4d5a791a6e364
+  url: github:maxmind/libmaxminddb/archive/1.7.1.tar.gz
+  ref: 4ed9c409667f0adeb3eca653780785ad04713b8a87f2fcfbb31967b213826322
 
 config:
 
@@ -26,4 +26,4 @@ config:
 
 depends:
 - base.bst
-- c-ares.bst
+- freedesktop-sdk.bst:components/c-ares.bst

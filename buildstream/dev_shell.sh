@@ -12,6 +12,5 @@ if [ -d ".venv" ]; then
     source .venv/bin/activate
 fi
 
-open_workspace "workspace_dev"
-
+bst build base.bst
 bst shell $MOUNT_OPTS --build squey.bst

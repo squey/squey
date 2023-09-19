@@ -9,7 +9,7 @@ description: |
     
 sources:
 - kind: tar  
-  url: https://github.com/linux-test-project/lcov/archive/refs/tags/v1.16.tar.gz
+  url: github:linux-test-project/lcov/archive/refs/tags/v1.16.tar.gz
   ref: 02eece2802697c079ff51ce056b0a6691020f21082c46ccfe6604bbfd06d7937
 
 config:
