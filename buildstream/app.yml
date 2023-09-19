@@ -17,7 +17,7 @@ environment:
   PKG_CONFIG_PATH: "%{libdir}/pkgconfig:"
 
 shell:
-  command: [ '/usr/bin/bash', '--noprofile', '--init-file', 'dev_shell_bashrc', '-i' ]
+  command: [ '/usr/bin/bash', '--noprofile', '--init-file', 'buildstream/dev_shell_bashrc', '-i' ]
 
   environment:
     HOME: '$HOME'
