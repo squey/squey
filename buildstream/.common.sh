@@ -46,4 +46,8 @@ MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /s
 
 # Install Buildstream if needed
 BST_VERSION="2.0.1"
-[ $(bst --version) != "${BST_VERSION}" ] && pip install --break-system-packages --user BuildStream==${BST_VERSION} dulwich requests packaging || true
+if [ ! -x "$(command -v bst)" ] || [ $(bst --version) != "${BST_VERSION}" ]; then
+    pip install BuildStream==${BST_VERSION} dulwich requests packaging
+    # Patch BuildStream to expose CAS socket in order to use recc from the build sandbox
+    sed '135 i \            buildbox_command.append("--bind-mount={}:/tmp/casd.sock".format(casd_process_manager._socket_path))\n' -i .venv/lib/python*/site-packages/buildstream/sandbox/_sandboxbuildboxrun.py
+fi
