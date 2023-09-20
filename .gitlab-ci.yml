@@ -44,7 +44,7 @@ build testsuite:
   extends: .build
   script:
     - ./build.sh 
-        --cxx_compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
+        --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
         --branch="${CI_COMMIT_REF_NAME}" 
         --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
         --flatpak-repo="/srv/flatpak_repo" 
@@ -66,7 +66,7 @@ build release:
     - if [ "$UPDATE_INSTALLERS_ONLY" = "false" ]; then
       ./build.sh 
       --user-target=customer 
-      --cxx_compiler=g++ 
+      --cxx-compiler=g++ 
       --branch="${CI_COMMIT_REF_NAME}" 
       --flatpak-export=true 
       --flatpak-repo="$CI_PROJECT_DIR/public/flatpak" 

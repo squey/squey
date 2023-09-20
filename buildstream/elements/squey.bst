@@ -81,6 +81,7 @@ sources:
 
 environment:
   LC_ALL: "C.UTF-8"
+  RECC_PROJECT_ROOT: ".."
   RECC_CACHE_ONLY: 1
   RECC_CACHE_UPLOAD_LOCAL_BUILD: 1
   RECC_CAS_SERVER: unix:/tmp/casd.sock
@@ -99,9 +100,6 @@ variables:
 config:
   configure-commands:
     - |
-      if [ "%{code_coverage}" = "1" ] || grep "CMAKE_CXX_COMPILER:STRING" "build/CMakeCache.txt" | grep -v -q "/%{cxx_compiler}" ; then
-        rm -rf "%{build-dir}" # Clean build cache when changing compiler or executing code coverage
-      fi
       WARNINGS_AS_ERRORS=$([ "%{cxx_compiler}" = "clang++" ] && echo 1 || echo 0)
       CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
       cmake -B"%{build-dir}" -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER="recc" \

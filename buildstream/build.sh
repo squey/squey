@@ -46,7 +46,7 @@ UPLOAD_DEBUG_SYMBOLS=false
 PUSH_ARTIFACTS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a --long help,flatpak-export:,flatpak-repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx_compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a --long help,flatpak-export:,flatpak-repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx-compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -54,7 +54,7 @@ while true; do
     -h | --help ) usage >&2 ; exit 0 ;;
     -b | --branch ) BRANCH_NAME="$2"; shift 2 ;;
     -t | --build-type ) BUILD_TYPE="$2"; shift 2 ;;
-    -p | --cxx_compiler ) CXX_COMPILER="$2"; shift 2 ;;
+    -p | --cxx-compiler ) CXX_COMPILER="$2"; shift 2 ;;
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
     -d | --disable-testsuite ) TESTSUITE_DISABLED="$2"; shift 2 ;;
     -e | --flatpak-export ) EXPORT_BUILD="$2"; shift 2 ;;
@@ -92,7 +92,7 @@ fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
 fi
-bst $BUILD_OPTIONS build squey.bst
+bst $BUILD_OPTIONS --error-lines 10000 build squey.bst
 
 # Upload debug symbols
 if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
