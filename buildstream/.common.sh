@@ -1,5 +1,25 @@
 #!/bin/bash
 
+# Load Python virtual environment
+if [ "$GITLAB_CI" != "true" ]; then
+    if [ ! -d ".venv" ]; then
+        python -m venv .venv
+    fi
+
+    echo "Activating python virtual environment"
+    source .venv/bin/activate
+    pip install --upgrade pip
+
+    # Install Buildstream if needed
+    BST_VERSION="2.0.1"
+    BST_PATH=".venv/bin/bst"
+    if [ ! -x "${BST_PATH}" ] || [ $("${BST_PATH}" --version) != "${BST_VERSION}" ]; then
+        pip install BuildStream==${BST_VERSION} dulwich requests packaging
+        # Patch BuildStream to expose CAS socket in order to use recc from the build sandbox
+        sed '135 i \            buildbox_command.append("--bind-mount={}:/tmp/casd.sock".format(casd_process_manager._socket_path))\n' -i .venv/lib/python*/site-packages/buildstream/sandbox/_sandboxbuildboxrun.py
+    fi
+fi
+
 export PATH="${PATH}:${HOME}/.local/bin"
 
 command -v "pip3" &> /dev/null || { echo >&2 "'pip3' executable not found, please install python3-pip"; exit 1; }
@@ -40,12 +60,3 @@ else
 fi
 
 MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
-
-# Install Buildstream if needed
-BST_VERSION="2.0.1"
-command -v bst
-if [ ! -x "$(command -v bst)" ] || [ $(bst --version) != "${BST_VERSION}" ]; then
-    pip install BuildStream==${BST_VERSION} dulwich requests packaging
-    # Patch BuildStream to expose CAS socket in order to use recc from the build sandbox
-    sed '135 i \            buildbox_command.append("--bind-mount={}:/tmp/casd.sock".format(casd_process_manager._socket_path))\n' -i .venv/lib/python*/site-packages/buildstream/sandbox/_sandboxbuildboxrun.py
-fi
