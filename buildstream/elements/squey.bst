@@ -100,9 +100,6 @@ variables:
 config:
   configure-commands:
     - |
-      if [ "%{code_coverage}" = "1" ] || grep "CMAKE_CXX_COMPILER:STRING" "build/CMakeCache.txt" | grep -v -q "/%{cxx_compiler}" ; then
-        rm -rf "%{build-dir}" # Clean build cache when changing compiler or executing code coverage
-      fi
       WARNINGS_AS_ERRORS=$([ "%{cxx_compiler}" = "clang++" ] && echo 1 || echo 0)
       CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
       cmake -B"%{build-dir}" -H. -G"Ninja" %{cmake-local} -DCMAKE_CXX_COMPILER_LAUNCHER="recc" \
