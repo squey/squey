@@ -8,9 +8,6 @@ command -v "flatpak" &> /dev/null || { echo >&2 "'flatpak' executable not found,
 source env.conf
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
-if [ -z "$WORKSPACE_PREFIX" ]; then
-    WORKSPACE_PREFIX="$DIR"
-fi
 
 GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/22.08/active/files"
 GL_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_HOST_DIR"
@@ -46,6 +43,7 @@ MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /s
 
 # Install Buildstream if needed
 BST_VERSION="2.0.1"
+command -v bst
 if [ ! -x "$(command -v bst)" ] || [ $(bst --version) != "${BST_VERSION}" ]; then
     pip install BuildStream==${BST_VERSION} dulwich requests packaging
     # Patch BuildStream to expose CAS socket in order to use recc from the build sandbox
