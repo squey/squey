@@ -81,6 +81,7 @@ sources:
 
 environment:
   LC_ALL: "C.UTF-8"
+  RECC_PROJECT_ROOT: ".."
   RECC_CACHE_ONLY: 1
   RECC_CACHE_UPLOAD_LOCAL_BUILD: 1
   RECC_CAS_SERVER: unix:/tmp/casd.sock
