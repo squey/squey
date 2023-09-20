@@ -92,7 +92,7 @@ fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
 fi
-bst $BUILD_OPTIONS build squey.bst
+bst $BUILD_OPTIONS --error-lines 10000 build squey.bst
 
 # Upload debug symbols
 if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
