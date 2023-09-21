@@ -14,7 +14,7 @@ lcov --remove main_coverage.info -o main_coverage.info \
 '*/moc_*' \
 
 # Generate HTML report
-genhtml main_coverage.info --output-directory code_coverage_report --dark-mode
+SOURCE_DATE_EPOCH=$(date +%s) genhtml main_coverage.info --output-directory code_coverage_report --dark-mode
 
 # Generate Cobertura XML report
 python /usr/lib/python3.*/site-packages/lcov_cobertura/lcov_cobertura.py main_coverage.info --output code_coverage_report/cobertura-coverage.xml --demangle
