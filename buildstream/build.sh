@@ -142,8 +142,8 @@ fi
 
 # Extract testsuite and code coverage reports out of the build sandbox
 if [ "$GITLAB_CI" = true ]; then
-  bst $BUILD_OPTIONS artifact checkout squey.bst --no-integrate --ignore-project-artifact-remotes --deps none --hardlinks --directory "${TMP_ARTIFACT_DIR}" && cp -r "${TMP_ARTIFACT_DIR}"/{junit.xml,code_coverage_report} .. || true
   if [ "$CODE_COVERAGE_ENABLED" = true ]; then
     bst $BUILD_OPTIONS artifact log squey.bst | cat # show artifact log to extract code coverage percentage
   fi
+  bst $BUILD_OPTIONS artifact checkout squey.bst --no-integrate --ignore-project-artifact-remotes --deps none --hardlinks --directory "${TMP_ARTIFACT_DIR}" && cp -r "${TMP_ARTIFACT_DIR}"/{junit.xml,code_coverage_report} .. || true
 fi
