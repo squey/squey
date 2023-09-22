@@ -79,7 +79,7 @@ fi
 jinja2 -D version="$(cat ../VERSION.txt | tr -d '\n')" -D date="$(date --iso)" -D changelog="$CHANGELOG_CONTENT" files/org.squey.Squey.metainfo.xml.j2 > files/org.squey.Squey.metainfo.xml
 
 # Build Squey
-BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER"
+BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER --error-lines 10000 "
 if [ $USER_TARGET_SPECIFIED = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option user_target $USER_TARGET"
 fi
@@ -92,7 +92,34 @@ fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
 fi
-bst $BUILD_OPTIONS --error-lines 10000 build squey.bst
+
+if [ "$EXPORT_BUILD" = false ]; then
+  bst $BUILD_OPTIONS build squey.bst
+else # Export flatpak images
+  if [[ ! -z "$GPG_PRIVATE_KEY_PATH" ]]; then
+    # Import GPG private key
+    gpg --import --no-tty --batch --yes $GPG_PRIVATE_KEY_PATH
+  fi
+
+  # Export flatpak Release image
+  bst $BUILD_OPTIONS build flatpak/org.squey.Squey.bst
+  bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$TMP_ARTIFACT_DIR/flatpak_files"
+  if [[ ! -z "$GPG_SIGN_KEY" ]]; then
+    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
+  else
+    flatpak build-export --files=files $REPO_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
+  fi
+
+  ## Export flatpak Debug image
+  #rm -rf $DIR/build
+  #bst $BUILD_OPTIONS build flatpak/org.squey.Squey.Debug.bst
+  #bst $BUILD_OPTIONS checkout flatpak/org.squey.Squey.Debug.bst "$DIR/build"
+  #if [[ ! -z "$GPG_SIGN_KEY" ]]; then
+  #  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  #else
+  #  flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  #fi
+fi
 
 # Upload debug symbols
 if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
@@ -107,34 +134,6 @@ if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
       "
 fi
 
-# Export flatpak images
-if [ "$EXPORT_BUILD" = true ]; then
-  if [[ ! -z "$GPG_PRIVATE_KEY_PATH" ]]; then
-    # Import GPG private key
-    gpg --import --no-tty --batch --yes $GPG_PRIVATE_KEY_PATH
-  fi
-
-  # Export flatpak Release image
-  rm -rf $DIR/build
-  bst $BUILD_OPTIONS build flatpak/org.squey.Squey.bst
-  bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$DIR/build"
-  if [[ ! -z "$GPG_SIGN_KEY" ]]; then
-    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-  else
-    flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-  fi
-
-  ## Export flatpak Debug image
-  #rm -rf $DIR/build
-  #bst $BUILD_OPTIONS build flatpak/org.squey.Squey.Debug.bst
-  #bst $BUILD_OPTIONS checkout flatpak/org.squey.Squey.Debug.bst "$DIR/build"
-  #if [[ ! -z "$GPG_SIGN_KEY" ]]; then
-  #  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-  #else
-  #  flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
-  #fi
-fi
-
 # Push artifacts
 if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
   bst --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
@@ -145,5 +144,5 @@ if [ "$GITLAB_CI" = true ]; then
   if [ "$CODE_COVERAGE_ENABLED" = true ]; then
     bst $BUILD_OPTIONS artifact log squey.bst | cat # show artifact log to extract code coverage percentage
   fi
-  bst $BUILD_OPTIONS artifact checkout squey.bst --no-integrate --ignore-project-artifact-remotes --deps none --hardlinks --directory "${TMP_ARTIFACT_DIR}" && cp -r "${TMP_ARTIFACT_DIR}"/{junit.xml,code_coverage_report} .. || true
+  bst $BUILD_OPTIONS artifact checkout squey.bst --no-integrate --ignore-project-artifact-remotes --deps none --hardlinks --directory "${TMP_ARTIFACT_DIR}/build" && cp -r "${TMP_ARTIFACT_DIR}"/build/{junit.xml,code_coverage_report} .. || true
 fi

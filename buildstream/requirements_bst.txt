@@ -1,0 +1,4 @@
+BuildStream==2.0.1
+dulwich==0.21.6
+requests==2.31.0
+packaging==23.1

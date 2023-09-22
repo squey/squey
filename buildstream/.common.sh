@@ -4,6 +4,8 @@
 if [ "$GITLAB_CI" != "true" ]; then
     if [ ! -d ".venv" ]; then
         python -m venv .venv
+        source .venv/bin/activate
+        pip install -r requirements.txt
     fi
 
     echo "Activating python virtual environment"
@@ -14,7 +16,8 @@ if [ "$GITLAB_CI" != "true" ]; then
     BST_VERSION="2.0.1"
     BST_PATH=".venv/bin/bst"
     if [ ! -x "${BST_PATH}" ] || [ $("${BST_PATH}" --version) != "${BST_VERSION}" ]; then
-        pip install BuildStream==${BST_VERSION} dulwich requests packaging
+        pip install BuildStream==${BST_VERSION}
+        pip install -r requirements_bst.txt
         # Patch BuildStream to expose CAS socket in order to use recc from the build sandbox
         sed '135 i \            buildbox_command.append("--bind-mount={}:/tmp/casd.sock".format(casd_process_manager._socket_path))\n' -i .venv/lib/python*/site-packages/buildstream/sandbox/_sandboxbuildboxrun.py
     fi
