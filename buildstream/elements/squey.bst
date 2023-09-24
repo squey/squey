@@ -76,6 +76,7 @@ build-depends:
 - procps.bst
 - waypipe.bst
 - llvm.bst
+- mold.bst
 
 sources:
 - kind: local
