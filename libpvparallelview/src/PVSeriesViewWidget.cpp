@@ -100,6 +100,9 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 			    QObject::tr("Sampling..."), this);
 		}
 	});
+
+	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Zoom (horizontal)", "Pan view", "Zoom (horizontal)");
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
 
 void PVParallelView::PVSeriesViewWidget::minmax_changed(const pvcop::db::array& minmax)
@@ -509,11 +512,38 @@ void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
 		return;
 	}
 
+	if (event->key() == Qt::Key_Control) {
+		_mouse_buttons_current_legend.set_left_button_legend("Zoom (homothetic)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (homothetic)");
+	}
+	else if (event->key() == Qt::Key_Shift) {
+		_mouse_buttons_current_legend.set_left_button_legend("Selection (horizontal)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+
 	QWidget::keyPressEvent(event);
+}
+
+void PVParallelView::PVSeriesViewWidget::keyReleaseEvent(QKeyEvent* event)
+{
+	if ((event->key() == Qt::Key_Shift or event->key() == Qt::Key_Control) and event->modifiers() == Qt::NoModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Zoom (horizontal)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (horizontal)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	QWidget::keyReleaseEvent(event);
 }
 
 void PVParallelView::PVSeriesViewWidget::enterEvent(QEnterEvent*)
 {
+	if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Zoom (homothetic)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (homothetic)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Selection (horizontal)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
 	setFocus(Qt::MouseFocusReason);
 }
 
@@ -522,11 +552,12 @@ void PVParallelView::PVSeriesViewWidget::leaveEvent(QEvent*)
 	clearFocus();
 }
 
+
+
 void PVParallelView::PVSeriesViewWidget::update_window_title(PVCol axis)
 {
-	setWindowTitle(QString("%1 (%2) [%3]").arg(
+	setWindowTitle(QString("%1 (%2)").arg(
 		QObject::tr("Series"),
-		_view->get_nraw_axis_name(axis),
-		QString::fromStdString(_view->get_name())));
+		_view->get_nraw_axis_name(axis)));
 }
 

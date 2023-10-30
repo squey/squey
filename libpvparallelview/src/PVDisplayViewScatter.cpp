@@ -48,8 +48,15 @@ QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Squey::PVView* view,
                                                          Params const& params) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	QWidget* widget = lib_view->create_scatter_view(col_param(view, params, 0),
+	auto widget = lib_view->create_scatter_view(col_param(view, params, 0),
 	                                                col_param(view, params, 1), parent);
+
+	QObject::connect(widget, &PVParallelView::PVScatterView::set_status_bar_mouse_legend, [this,widget](PVWidgets::PVMouseButtonsLegend legend){
+		_set_status_bar_mouse_legend.emit(widget, legend);
+	});
+	QObject::connect(widget, &PVParallelView::PVScatterView::clear_status_bar_mouse_legend, [this,widget](){
+		_clear_status_bar_mouse_legend.emit(widget);
+	});
 
 	return widget;
 }

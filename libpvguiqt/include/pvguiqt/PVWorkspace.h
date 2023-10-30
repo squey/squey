@@ -37,6 +37,7 @@ class QWidget;
 #include <pvguiqt/PVListDisplayDlg.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
+#include <pvdisplays/PVDisplayIf.h>
 
 #include <squey/PVView.h>
 
@@ -114,7 +115,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	PVViewDisplay* add_view_display(Squey::PVView* view,
 	                                QWidget* view_display,
-	                                bool can_be_central_display = true,
+	                                PVDisplays::PVDisplayIf& display_if,
 	                                bool delete_on_close = true,
 	                                Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
@@ -153,6 +154,11 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *  \note Used by workspace_under_mouse to disambiguate overlapping workspaces.
 	 */
 	void changeEvent(QEvent* event) override;
+
+  protected:
+  	/*! \brief Forward mouse buttons legend changed signals to the status bar
+	 */
+  	void track_mouse_buttons_legend_changed(PVDisplays::PVDisplayIf& display_if, QWidget* widget);
 
   public Q_SLOTS:
 	/*! \brief Create the widget used by the view display.

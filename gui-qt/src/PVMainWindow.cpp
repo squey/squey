@@ -48,7 +48,6 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/core/PVWSLHelper.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -66,6 +65,7 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVProgressBoxPython.h>
+#include <pvguiqt/PVStatusBar.h>
 
 #include <pvparallelview/PVZoneTree.h>
 
@@ -155,26 +155,10 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
-	/**
-	 * Show warning message when no GPU accelerated device has been found
-	 * Except under WSL where GPU is not supported yet
-	 * (https://wpdev.uservoice.com/forums/266908-command-prompt-console-windows-subsystem-for-l/suggestions/16108045-opencl-cuda-gpu-support)
-	 */
-	if (not PVParallelView::common::is_gpu_accelerated() and
-	    not PVCore::PVWSLHelper::is_microsoft_wsl()) {
-		/* the warning icon
-		 */
-		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
-		auto* warning_label_icon = new QLabel;
-		warning_label_icon->setPixmap(warning_icon.pixmap(QSize(16, 16)));
-		statusBar()->addPermanentWidget(warning_label_icon, 0);
-
-		/* and the message
-		 */
-		auto* warning_msg = new QLabel("<font color=\"orange\"><b>You are running in degraded "
-		                                 "mode without GPU acceleration. </b></font>");
-		statusBar()->addPermanentWidget(warning_msg, 0);
-	}
+	// Set status bar
+	PVGuiQt::PVStatusBar* status_bar = new PVGuiQt::PVStatusBar(this);
+	setStatusBar(status_bar);
+	statusBar()->showMessage(tr("Ready"));
 
 	pv_centralMainWidget->setLayout(pv_mainLayout);
 

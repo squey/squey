@@ -40,6 +40,7 @@ PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
 PVPythonCodeEditor.cpp
 PVDockWidgetTitleBar.cpp
+PVStatusBar.cpp
 
 # FormatBuilder
 format-builder/PVFormatBuilderWidget.cpp
@@ -101,6 +102,7 @@ SET(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVPythonCodeEditor.h
 ../include/pvguiqt/PVProgressBoxPython.h
 ../include/pvguiqt/PVDockWidgetTitleBar.h
+../include/pvguiqt/PVStatusBar.h
 
 # FormatBuilder
 ../include/pvguiqt/format-builder/PVFormatBuilderWidget.h

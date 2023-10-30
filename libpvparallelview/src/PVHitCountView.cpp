@@ -44,6 +44,7 @@
 #include <pvparallelview/PVHitCountViewInteractor.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
 
+#include <QApplication>
 #include <QCheckBox>
 #include <QGraphicsScene>
 #include <QLabel>
@@ -263,6 +264,9 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 
 	_sel_rect->set_x_range(0, _max_count);
 	_sel_rect->set_y_range(0, UINT32_MAX);
+
+	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Select", "Pan view", "Zoom (vertical)");
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
 
 /*****************************************************************************
@@ -437,6 +441,87 @@ void PVParallelView::PVHitCountView::drawBackground(QPainter* painter, const QRe
 
 void PVParallelView::PVHitCountView::drawForeground(QPainter* /*painter*/, const QRectF& /*rect*/)
 {
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::enterEvent
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::enterEvent(QEnterEvent* /*event*/)
+{
+	if (QGuiApplication::keyboardModifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize (local)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	setFocus(Qt::MouseFocusReason);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::leaveEvent
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::leaveEvent(QEvent*)
+{
+	Q_EMIT clear_status_bar_mouse_legend();
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
+	clearFocus();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::keyPressEvent
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::keyPressEvent(QKeyEvent* event)
+{
+	if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	if (event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (horizontal)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+
+	PVZoomableDrawingAreaWithAxes::keyPressEvent(event);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::keyReleaseEvent
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::keyReleaseEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Control and event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (horizontal)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Shift and event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Control or event->key() == Qt::Key_Shift) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (vertical)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+
+	PVZoomableDrawingAreaWithAxes::keyReleaseEvent(event);
 }
 
 /*****************************************************************************
@@ -720,8 +805,7 @@ QString PVParallelView::PVHitCountView::get_y_value_at(const qint64 value)
 
 void PVParallelView::PVHitCountView::update_window_title(PVCol axis)
 {
-	setWindowTitle(QString("%1 (%2) [%3]").arg(
+	setWindowTitle(QString("%1 (%2)").arg(
 		QObject::tr("Hit count"),
-		_pvview.get_nraw_axis_name(axis),
-		QString::fromStdString(_pvview.get_name())));
+		_pvview.get_nraw_axis_name(axis)));
 }

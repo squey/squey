@@ -34,6 +34,8 @@
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVZoneRendering_types.h>
 
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
+
 #include <boost/noncopyable.hpp>
 
 #include <sigc++/sigc++.h>
@@ -134,7 +136,10 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   protected:
 	void drawBackground(QPainter* painter, const QRectF& rect) override;
+	void enterEvent(QEnterEvent* event) override;
+	void leaveEvent(QEvent*) override;
 	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
 	QString get_x_value_at(const qint64 value) override;
 	QString get_y_value_at(const qint64 value) override;
 
@@ -146,6 +151,10 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
 	bool show_bg() const { return _show_bg; }
 	bool show_labels() const { return _show_labels; }
+
+  Q_SIGNALS:
+	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend legend);
+	void clear_status_bar_mouse_legend();
 
   public Q_SLOTS:
 	void do_update_all();
@@ -198,6 +207,9 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
 	bool _show_bg;
 	bool _show_labels;
+
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_current_legend;
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_default_legend;
 };
 } // namespace PVParallelView
 

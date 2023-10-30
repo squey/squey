@@ -29,6 +29,7 @@
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 
@@ -39,6 +40,8 @@
 #include <QWidget>
 #include <QString>
 #include <QDebug>
+
+#include <sigc++/sigc++.h>
 
 #include <unordered_map>
 #include <vector>
@@ -94,6 +97,11 @@ class PVDisplayIf
 	}
 
 	QIcon toolbar_icon() const { return _toolbar_icon; }
+
+
+  public:
+   sigc::signal<void(QWidget*, PVWidgets::PVMouseButtonsLegend)> _set_status_bar_mouse_legend;
+   sigc::signal<void(QWidget*)> _clear_status_bar_mouse_legend;
 
   private:
 	int _flags;

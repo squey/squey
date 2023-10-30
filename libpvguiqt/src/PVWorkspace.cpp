@@ -36,8 +36,7 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVSimpleStringListModel.h>
-
-#include <pvdisplays/PVDisplayIf.h>
+#include <pvguiqt/PVStatusBar.h>
 
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
 #include <squey/widgets/PVViewArgumentEditorCreator.h>
@@ -46,6 +45,9 @@
 #include <pvkernel/core/PVZoneIndexType.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
+
+#include <pvkernel/core/qobject_helpers.h>
 
 /******************************************************************************
  *
@@ -106,15 +108,39 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent* event)
 	}
 }
 
+void PVGuiQt::PVWorkspaceBase::track_mouse_buttons_legend_changed(PVDisplays::PVDisplayIf& display_if, QWidget* widget)
+{
+	display_if._set_status_bar_mouse_legend.connect(
+	[widget](QWidget* w, const PVWidgets::PVMouseButtonsLegend& legend){
+		if (widget != w) return;
+		QMainWindow* mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(w);
+		mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(mw);
+		PVGuiQt::PVStatusBar* status_bar = qobject_cast<PVGuiQt::PVStatusBar*>(mw->statusBar());
+
+		status_bar->set_mouse_buttons_legend(legend);
+	});
+
+	display_if._clear_status_bar_mouse_legend.connect(
+	[widget](QWidget* w){
+		if (widget != w) return;
+		QMainWindow* mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(w);
+		mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(mw);
+		PVGuiQt::PVStatusBar* status_bar = qobject_cast<PVGuiQt::PVStatusBar*>(mw->statusBar());
+
+		status_bar->clear_mouse_buttons_legend();
+	});
+}
+
 PVGuiQt::PVViewDisplay*
 PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
                                            QWidget* view_widget,
-                                           bool can_be_central_display /*= true*/,
+                                           PVDisplays::PVDisplayIf& display_if,
                                            bool delete_on_close /* = true*/,
                                            Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
 )
 {
 	bool has_help_page = display_if.match_flags(PVDisplays::PVDisplayIf::HasHelpPage);
+	bool can_be_central_display = display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget);
 	auto* view_display =
 	    new PVViewDisplay(view, view_widget, can_be_central_display, has_help_page, delete_on_close, this);
 
@@ -134,6 +160,8 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
 	        &PVWorkspaceBase::try_automatic_tab_switch);
 	_displays.append(view_display);
+
+	track_mouse_buttons_legend_changed(display_if, view_widget);
 
 	return view_display;
 }
@@ -239,7 +267,7 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
 		view_d->setVisible(!view_d->isVisible());
 	} else {
 		view_d = add_view_display(
-		    nullptr, w, display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
+		    nullptr, w, display_if,
 		    false);
 		/* when the dock widget's "close" button is pressed, the
 		 * associated QAction has to be unchecked
@@ -259,7 +287,7 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& d
 	QWidget* w = PVDisplays::get_widget(display_if, view, nullptr, params);
 	auto area = display_if.default_position_hint();
 	add_view_display(view, w,
-	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), true,
+	                 display_if, true,
 	                 area ? area : Qt::TopDockWidgetArea);
 }
 
@@ -370,6 +398,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 				    already_center = true;
 					bool has_help_page = obj.match_flags(PVDisplays::PVDisplayIf::HasHelpPage);
 				    set_central_display(view, w, has_help_page, delete_on_close);
+					track_mouse_buttons_legend_changed(obj, w);
 			    } else {
 				    Qt::DockWidgetArea pos = obj.default_position_hint();
 				    if (as_central && already_center) {
@@ -377,7 +406,7 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 				    }
 				    add_view_display(
 				        view, w,
-				        obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
+				        obj,
 				        delete_on_close, pos);
 			    }
 		    },

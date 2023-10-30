@@ -43,7 +43,16 @@ QWidget* PVDisplays::PVDisplayViewTimeseries::create_widget(Squey::PVView* view,
                                                             QWidget* parent,
                                                             Params const& params) const
 {
-	return new PVParallelView::PVSeriesViewWidget(view, col_param(view, params, 0), parent);
+	auto w = new PVParallelView::PVSeriesViewWidget(view, col_param(view, params, 0), parent);
+
+    QObject::connect(w, &PVParallelView::PVSeriesViewWidget::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
+		_set_status_bar_mouse_legend.emit(w, legend);
+	});
+	QObject::connect(w, &PVParallelView::PVSeriesViewWidget::clear_status_bar_mouse_legend, [this,w](){
+		_clear_status_bar_mouse_legend.emit(w);
+	});
+
+    return w;
 }
 
 bool PVDisplays::PVDisplayViewTimeseries::abscissa_filter(Squey::PVView* view, PVCol axis) const

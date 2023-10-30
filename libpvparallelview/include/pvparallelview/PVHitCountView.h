@@ -34,6 +34,8 @@
 #include <pvparallelview/PVZoomConverterScaledPowerOfTwo.h>
 #include <pvparallelview/PVHitCountViewBackend.h>
 
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
+
 #include <QTimer>
 #include <QSize>
 
@@ -134,9 +136,17 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
   public:
 	PVHitCountViewSelectionRectangle* get_selection_rect() const { return _sel_rect; }
 
+  Q_SIGNALS:
+	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend legend);
+	void clear_status_bar_mouse_legend();
+
   protected:
 	void drawBackground(QPainter* painter, const QRectF& rect) override;
 	void drawForeground(QPainter* painter, const QRectF& rect) override;
+	void enterEvent(QEnterEvent* event) override;
+	void leaveEvent(QEvent* event) override;
+	void keyPressEvent(QKeyEvent *event) override;
+	void keyReleaseEvent(QKeyEvent *event) override;
 
 	void set_x_axis_zoom();
 	void set_x_zoom_level_from_sel();
@@ -239,6 +249,9 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 
 	PVHitCountViewParamsWidget* _params_widget;
 	PVWidgets::PVHelpWidget* _help_widget;
+
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_current_legend;
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_default_legend;
 };
 } // namespace PVParallelView
 

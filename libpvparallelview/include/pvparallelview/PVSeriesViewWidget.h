@@ -34,6 +34,7 @@
 #include <squey/PVRangeSubSampler.h>
 
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 #include <pvkernel/core/PVDisconnector.h>
 
 #include <pvcop/db/array.h>
@@ -67,6 +68,7 @@ class PVSeriesViewWidget : public QWidget
 
   protected:
 	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
 	void enterEvent(QEnterEvent*) override;
 	void leaveEvent(QEvent*) override;
 
@@ -85,6 +87,10 @@ class PVSeriesViewWidget : public QWidget
 	bool is_in_region(const QRect region, PVCol col) const;
 	void minmax_changed(const pvcop::db::array& minmax);
 	void select_all_series(bool use_axes_combination = true);
+
+  Q_SIGNALS:
+	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend legend);
+	void clear_status_bar_mouse_legend();
 
   private:
 	Squey::PVView* _view;
@@ -111,6 +117,9 @@ class PVSeriesViewWidget : public QWidget
 	PVWidgets::PVHelpWidget _help_widget;
 
 	std::vector<std::function<void()>> _updaters;
+
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_current_legend;
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_default_legend;
 };
 } // namespace PVParallelView
 

@@ -40,9 +40,11 @@
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVDisplayViewDistinctValues.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvdisplays/PVDisplayIf.h>
+
 
 #include <QApplication>
 #include <QClipboard>
@@ -76,7 +78,6 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
     , _ctxt_process(nullptr)
     , _headers_width(view.get_column_count(), horizontalHeader()->defaultSectionSize())
 {
-
     _ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
 	_vhead_ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
 
@@ -379,23 +380,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 		// creation.
 		PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 		PVDisplays::add_displays_view_axis_menu(menu, container, &_view, col, comb_col);
-		menu.addSeparator();
 	}
-
-	auto action_col_sort = new QAction(tr("Sort this axis"), this);
-	action_col_sort->setIcon(PVModdedIcon("arrow-down-short-wide"));
-
-	bool empty_sel = _view.get_output_layer().get_selection().is_empty();
-	action_col_sort->setEnabled(not empty_sel);
-
-	if (not empty_sel) {
-		connect(action_col_sort, &QAction::triggered, [this, comb_col]{
-			auto order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
-			sort(comb_col, order);
-		});
-	}
-
-	menu.addAction(action_col_sort);
 
 	menu.exec(QCursor::pos());
 }
@@ -548,9 +533,24 @@ void PVGuiQt::PVListingView::section_hovered_enter(PVCombCol col, bool entered)
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_clicked(int col)
 {
-	int x = horizontalHeader()->sectionViewportPosition(col);
-	int width = horizontalHeader()->sectionSize(col);
-	lib_view().set_section_clicked((PVCombCol)col, verticalHeader()->width() + x + width / 2);
+	if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) { // TODO : close when ctrl+clicked again ?
+		bool empty_sel = _view.get_output_layer().get_selection().is_empty();
+		if (not empty_sel) {
+			auto container = PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this);
+			container->create_view_widget(
+				PVDisplays::display_view_if<PVDisplays::PVDisplayViewDistinctValues>(), &lib_view(),
+				{PVCol(col)});
+		}
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		int x = horizontalHeader()->sectionViewportPosition(col);
+		int width = horizontalHeader()->sectionSize(col);
+		lib_view().set_section_clicked((PVCombCol)col, verticalHeader()->width() + x + width / 2);
+	}
+	else {
+		auto order = (Qt::SortOrder) ((bool)horizontalHeader()->sortIndicatorOrder());
+		sort(col, order);
+	}
 }
 
 /******************************************************************************
@@ -826,4 +826,64 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 		QRect r(QPoint(rect.right() - p.width(), rect.top()), rect.bottomRight());
 		painter->drawPixmap(r, p);
 	}
+}
+
+
+void PVGuiQt::PVHorizontalHeaderView::enterEvent(QEnterEvent* event)
+{
+	setFocus(Qt::MouseFocusReason);
+	PVWidgets::PVMouseButtonsLegend legend;
+	if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		legend.set_left_button_legend("Distinct values");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		legend.set_left_button_legend("Align axis");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else {
+		legend.set_left_button_legend("Sort");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	QHeaderView::enterEvent(event);
+}
+
+void PVGuiQt::PVHorizontalHeaderView::leaveEvent(QEvent*)
+{
+	Q_EMIT qobject_cast<PVListingView*>(parentWidget())->clear_status_bar_mouse_legend();
+	clearFocus();
+}
+
+void PVGuiQt::PVHorizontalHeaderView::keyPressEvent(QKeyEvent* event)
+{
+	PVWidgets::PVMouseButtonsLegend legend;
+	if (event->modifiers() == Qt::ControlModifier) {
+		legend.set_left_button_legend("Distinct values");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (event->modifiers() == Qt::ShiftModifier) {
+		legend.set_left_button_legend("Align axis");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+
+	QHeaderView::keyPressEvent(event);
+}
+
+void PVGuiQt::PVHorizontalHeaderView::keyReleaseEvent(QKeyEvent* event)
+{
+	PVWidgets::PVMouseButtonsLegend legend;
+	if (event->key() == Qt::Key_Control and event->modifiers() == Qt::ShiftModifier) {
+		legend.set_left_button_legend("Align axis");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (event->key() == Qt::Key_Shift and event->modifiers() == Qt::ControlModifier) {
+		legend.set_left_button_legend("Distinct values");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (event->modifiers() == Qt::NoModifier) {
+		legend.set_left_button_legend("Sort");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+
+	QHeaderView::keyReleaseEvent(event);
 }

@@ -31,6 +31,7 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVAbstractTableView.h>
@@ -125,6 +126,9 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * Signal emited to update the Stat view (lower part of listing)
 	 */
 	void resized();
+
+	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend);
+	void clear_status_bar_mouse_legend();
 
   private:
 	/**
@@ -281,6 +285,10 @@ class PVHorizontalHeaderView : public QHeaderView
 
   protected:
 	bool event(QEvent* ev) override;
+	void enterEvent(QEnterEvent* event) override;
+	void leaveEvent(QEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
 	void paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const override;
 
   private:

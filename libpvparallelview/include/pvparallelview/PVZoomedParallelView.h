@@ -26,6 +26,7 @@
 #define PVPARALLELVIEW_PVZOOMEDPARALLELVIEW_H
 
 #include <pvkernel/widgets/PVGraphicsView.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 #include <pvbase/types.h>
 
 class QPainter;
@@ -59,6 +60,8 @@ class PVZoomedParallelViewParamsWidget;
  */
 class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 {
+	Q_OBJECT
+
 	friend class PVZoomedParallelScene;
 
   public:
@@ -88,9 +91,21 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 	PVZoomedParallelViewParamsWidget* params_widget() { return _params_widget; }
 
+  protected:
+	void enterEvent(QEnterEvent* event) override;
+	void leaveEvent(QEvent* event) override;
+	void keyPressEvent(QKeyEvent *event) override;
+	void keyReleaseEvent(QKeyEvent *event) override;
+
+  Q_SIGNALS:
+	void set_status_bar_mouse_legend(const PVWidgets::PVMouseButtonsLegend&);
+	void clear_status_bar_mouse_legend();
+
   private:
 	PVWidgets::PVHelpWidget* _help_widget;
 	PVZoomedParallelViewParamsWidget* _params_widget;
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_current_legend;
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_default_legend;
 };
 } // namespace PVParallelView
 

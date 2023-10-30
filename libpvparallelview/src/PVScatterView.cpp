@@ -210,6 +210,9 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 
 	_sel_rect->set_x_range(0, UINT32_MAX);
 	_sel_rect->set_y_range(0, UINT32_MAX);
+
+	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Select", "Pan view", "Resize");
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
 
 /*****************************************************************************
@@ -269,6 +272,37 @@ void PVParallelView::PVScatterView::update_all_async()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVScatterView::enterEvent
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::enterEvent(QEnterEvent* /*event*/)
+{
+	if (QGuiApplication::keyboardModifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize (local)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	setFocus(Qt::MouseFocusReason);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::leaveEvent
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::leaveEvent(QEvent*)
+{
+	Q_EMIT clear_status_bar_mouse_legend();
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
+	clearFocus();
+}
+
+/*****************************************************************************
  * PVParallelView::PVScatterView::keyPressEvent
  *****************************************************************************/
 void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
@@ -280,6 +314,39 @@ void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
 	}
 	get_viewport()->update();
 #endif
+
+	if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	if (event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::keyReleaseEvent
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::keyReleaseEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Control and event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Shift and event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Control or event->key() == Qt::Key_Shift) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
 }
 
 /*****************************************************************************
@@ -543,11 +610,10 @@ QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value)
 
 void PVParallelView::PVScatterView::update_window_title()
 {
-	setWindowTitle(QString("%1 (x:%2|y:%3) [%4]").arg(
+	setWindowTitle(QString("%1 (x:%2 | y:%3)").arg(
 		QObject::tr("Scatter"),
 		_view.get_nraw_axis_name(_zone_id.first),
-		_view.get_nraw_axis_name(_zone_id.second),
-		QString::fromStdString(_view.get_name())));
+		_view.get_nraw_axis_name(_zone_id.second)));
 }
 
 ////

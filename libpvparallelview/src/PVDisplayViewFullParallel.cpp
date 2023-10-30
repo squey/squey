@@ -34,6 +34,7 @@
 #include <pvparallelview/PVDisplayViewFullParallel.h>
 
 #include <pvkernel/widgets/PVModdedIcon.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
@@ -58,6 +59,12 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Squey::PVView* vie
 	    "Initializing full parallel view...", parent);
 
 	auto w = lib_view->create_view(parent);
+	QObject::connect(w, &PVParallelView::PVFullParallelView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
+		_set_status_bar_mouse_legend.emit(w, legend);
+	});
+	QObject::connect(w, &PVParallelView::PVFullParallelView::clear_status_bar_mouse_legend, [this,w](){
+		_clear_status_bar_mouse_legend.emit(w);
+	});
 	w->setWindowTitle(default_window_title(*view));
 	return w;
 }

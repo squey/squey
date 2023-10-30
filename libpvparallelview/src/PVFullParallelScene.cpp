@@ -28,6 +28,7 @@
 #include <pvkernel/core/qmetaobject_helper.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <squey/PVStateMachine.h>
 #include <squey/PVView.h>
@@ -215,6 +216,9 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 
 void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCombCol col, bool entered)
 {
+	PVWidgets::PVMouseButtonsLegend legend = _full_parallel_view->_mouse_buttons_current_legend;
+	legend.set_right_button_legend(entered ? "Context menu" : legend.right_button_legend());
+	Q_EMIT _full_parallel_view->set_status_bar_mouse_legend(legend);
 	_lib_view.set_axis_hovered(col, entered);
 }
 

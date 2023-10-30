@@ -29,6 +29,7 @@
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
 
+#include <QGuiApplication>
 #include <QScrollBar>
 #include <QPainter>
 
@@ -56,6 +57,9 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(
 
 	_params_widget = new PVZoomedParallelViewParamsWidget(axes_comb, this);
 	_params_widget->adjustSize();
+
+	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Select", "Pan view", "Zoom");
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
 
 PVParallelView::PVZoomedParallelView::~PVZoomedParallelView()
@@ -81,8 +85,52 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent* event)
 
 void PVParallelView::PVZoomedParallelView::update_window_title(Squey::PVView& view, PVCombCol combcol)
 {
-	setWindowTitle(QString("%1 (%2) [%3]").arg(
-		QObject::tr("Zoomed"),
-		view.get_axis_name(combcol),
-		QString::fromStdString(view.get_name())));
+	setWindowTitle(QString("%1 (%2)").arg(QObject::tr("Zoomed"), view.get_axis_name(combcol)));
+}
+
+void PVParallelView::PVZoomedParallelView::enterEvent(QEnterEvent* /*event*/)
+{
+	if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Pan view (1px)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Pan view (step)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	setFocus(Qt::MouseFocusReason);
+}
+
+void PVParallelView::PVZoomedParallelView::leaveEvent(QEvent*)
+{
+	Q_EMIT clear_status_bar_mouse_legend();
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
+	clearFocus();
+}
+
+void PVParallelView::PVZoomedParallelView::keyPressEvent(QKeyEvent* event)
+{
+	if (event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Pan view (1px)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Pan view (step)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+
+	PVWidgets::PVGraphicsView::keyPressEvent(event);
+}
+
+void PVParallelView::PVZoomedParallelView::keyReleaseEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Control) {
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Shift) {
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+
+	PVWidgets::PVGraphicsView::keyReleaseEvent(event);
 }

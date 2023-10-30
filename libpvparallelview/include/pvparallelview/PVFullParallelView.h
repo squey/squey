@@ -34,6 +34,8 @@
 #include <iostream>
 
 #include <pvparallelview/common.h>
+#include <pvkernel/widgets/PVGraphicsView.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <squey/PVView.h>
 
@@ -76,6 +78,8 @@ class PVFullParallelView : public QGraphicsView
 	void resizeEvent(QResizeEvent* event) override;
 	void enterEvent(QEnterEvent* event) override;
 	void leaveEvent(QEvent* event) override;
+	void keyPressEvent(QKeyEvent *event) override;
+	void keyReleaseEvent(QKeyEvent *event) override;
 
 	void drawForeground(QPainter* painter, const QRectF& rect) override;
 
@@ -88,6 +92,8 @@ class PVFullParallelView : public QGraphicsView
 
   Q_SIGNALS:
 	void new_zoomed_parallel_view(Squey::PVView* view, int axis_index);
+	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend legend);
+	void clear_status_bar_mouse_legend();
 
   private:
 	PVWidgets::PVHelpWidget* _help_widget;
@@ -97,6 +103,9 @@ class PVFullParallelView : public QGraphicsView
 	uint32_t _selected_events_number = 0;
 	uint32_t _axes_number = 0;
 	bool _first_resize;
+
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_current_legend;
+	PVWidgets::PVMouseButtonsLegend _mouse_buttons_default_legend;
 };
 } // namespace PVParallelView
 

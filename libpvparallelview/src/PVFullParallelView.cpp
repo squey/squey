@@ -75,6 +75,9 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent)
 
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
+
+	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Select", "Pan view", "Resize");
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
 
 /******************************************************************************
@@ -248,9 +251,19 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent* event)
  * PVParallelView::PVFullParallelView::enterEvent
  *****************************************************************************/
 
-void PVParallelView::PVFullParallelView::enterEvent(QEnterEvent*)
+void PVParallelView::PVFullParallelView::enterEvent(QEnterEvent* /*event*/)
 {
-	
+	if (QGuiApplication::keyboardModifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize (local)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
 	setFocus(Qt::MouseFocusReason);
 }
 
@@ -260,7 +273,58 @@ void PVParallelView::PVFullParallelView::enterEvent(QEnterEvent*)
 
 void PVParallelView::PVFullParallelView::leaveEvent(QEvent*)
 {
+	Q_EMIT clear_status_bar_mouse_legend();
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 	clearFocus();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelView::keyPressEvent
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelView::keyPressEvent(QKeyEvent* event)
+{
+	if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	if (event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize (local)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+
+	QGraphicsView::keyPressEvent(event);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelView::keyReleaseEvent
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelView::keyReleaseEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Control and event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Shift and event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize (local)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Control or event->key() == Qt::Key_Shift) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+
+	QGraphicsView::keyReleaseEvent(event);
 }
 
 /*****************************************************************************
