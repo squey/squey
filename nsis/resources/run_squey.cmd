@@ -45,8 +45,79 @@ If [%WSLG_VERSION%]==[] (
     set DISPLAY_CONFIG=DISPLAY=%display%
 )
 
+@REM configure monitors scaling factor
+set index=0
+for /f "usebackq" %%i in (`wmic path Win32_PnPEntity where "Service='monitor' and Status='OK'" get PNPDeviceID /format:value ^| findstr /r /v "^$"`) do (
+	set pnp_device_ids[!index!]=%%i
+	set /A index+=1
+)
+set /A end=index-1
+set index=0
+for /F "usebackq" %%i in (`wmic path Win32_DesktopMonitor get PNPDeviceID /format:value^| findstr /r /v "^$"`) do (
+	call:iterate_pnp_device_ids "%%i" !index!
+	set /A index+=1
+)
+goto:compute_index_mapping_end
+:iterate_pnp_device_ids
+	set pnp_device_id=%1
+	set index=%2
+	FOR /L %%G IN (0,1,%end%) DO (
+		call:compute_index_mapping %pnp_device_id% %index% %%G
+	)
+	goto:eof
+:iterate_pnp_device_ids_end
+:compute_index_mapping
+	set pdi1=%1
+	set index=%2
+	set current_index=%3
+	set pdi2="!pnp_device_ids[%current_index%]!"
+	if [%pdi1%] == [%pdi2%] (
+		set index_mapping[%current_index%]=%index%
+	)
+	goto:eof
+:compute_index_mapping_end
+set index=0
+for /F "usebackq" %%i in (`wmic path Win32_DesktopMonitor get ScreenWidth /value^| findstr /r /v "^$"`) do (
+	for /f "tokens=1,2 delims==" %%a in ("%%i") do (
+		if [%%b]==[] (
+			set resolutions[!index!]=1920.0
+		) else (
+			set resolutions[!index!]=%%b.0
+		)
+		set /A index+=1
+	)
+)
+FOR /L %%G IN (0,1,%end%) DO (
+	call:divide %%G
+)
+goto:divide_end
+:divide
+	set decimals=1
+	set /A one=1, decimalsP1=decimals+1
+	for /L %%i in (1,1,%decimals%) do set "one=!one!0"
+	set dividend=!resolutions[%1]!
+	set divider=1920.0
+	set "fpdividend=%dividend:.=%"
+	set "fpdivider=%divider:.=%"
+	set /A div=fpdividend*one/fpdivider
+	set ratios[%1]=!div:~0,-%decimals%!.!div:~-%decimals%!
+	goto:eof
+:divide_end
+FOR /L %%G IN (0,1,%end%) DO (
+	call:resolve_index_mapping %%G
+)
+goto:resolve_index_mapping_end
+:resolve_index_mapping
+	set index=%1
+	set mapped_index=!index_mapping[%index%]!
+	call set "QT_SCREEN_SCALE_FACTORS=%%QT_SCREEN_SCALE_FACTORS%%!ratios[%mapped_index%]!;"
+	goto:eof
+:resolve_index_mapping_end
+
+echo QT_SCREEN_SCALE_FACTORS=%QT_SCREEN_SCALE_FACTORS%
+
 @REM Run Squey
-wsl -d squey_linux --user squey --exec sh -c "%squey_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --user --device=shm --allow=devel --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/squey'"
+wsl -d squey_linux --user squey --exec sh -c "%squey_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --user --device=shm --allow=devel --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --env='QT_SCREEN_SCALE_FACTORS=%QT_SCREEN_SCALE_FACTORS%' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/squey'"
 
 @REM Stop VcXsrv if needed
 set instance_count_cmd="tasklist /FI "imagename eq squey" 2>nul | find /I /C "squey""
