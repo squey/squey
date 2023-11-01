@@ -1,5 +1,5 @@
 FROM docker.io/nvidia/cudagl:11.4.2-runtime-ubuntu20.04
-LABEL maintainer="jean-baptiste+squey@leonesio.fr"
+LABEL maintainer="contact@squey.org"
 
 ARG INSTALL_PATH
 ARG INSTALL_MODE
