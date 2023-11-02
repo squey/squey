@@ -39,8 +39,7 @@ PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidg
     : QToolBar(parent)
 {
 	setIconSize(QSize(17, 17));
-	setStyleSheet("QToolBar {" + frame_qss_bg_color + "} QComboBox { font-weight: bold; color: " +
-	              frame_text_color.name(QColor::HexArgb) + "; }");
+
 	setAutoFillBackground(true);
 
 	_menu = new PVWidgets::PVAxisComboBox(axes_comb,

@@ -115,7 +115,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 		} else if (_view.get_real_output_selection().get_line(r)) {
 			// Selected elements, use output layer color
 			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
-			if (color == HSV_COLOR_WHITE) {
+			if (color == HSV_COLOR_WHITE or color == HSV_COLOR_BLACK) {
 				return QBrush();
 			}
 			else {

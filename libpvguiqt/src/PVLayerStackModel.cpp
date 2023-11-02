@@ -90,12 +90,6 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 		}
 		break;
 
-	case (Qt::BackgroundRole):
-		if (lib_layer_stack().get_selected_layer_index() == lib_index) {
-			return QBrush(QColor(205, 139, 204));
-		}
-		break;
-
 	case (Qt::DisplayRole):
 		switch (index.column()) {
 		case 1:

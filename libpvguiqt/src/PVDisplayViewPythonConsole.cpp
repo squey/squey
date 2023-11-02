@@ -107,7 +107,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* vi
 
 	auto* console_widget = new QWidget(parent);
 
-	auto* console_input = new PVGuiQt::PVPythonCodeEditor(PVGuiQt::PVPythonCodeEditor::EThemeType::DARK, parent);
+	auto* console_input = new PVGuiQt::PVPythonCodeEditor(parent);
 
 	auto* console_output = new QTextEdit(parent);
 	console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");

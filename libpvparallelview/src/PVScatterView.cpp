@@ -174,7 +174,7 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 	        &PVScatterView::do_pan_change);
 
 	_params_widget = new PVScatterViewParamsWidget(this);
-	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
+
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 	set_params_widget_position();

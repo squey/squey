@@ -44,6 +44,8 @@
 #include <squey/PVRoot.h>
 #include <squey/PVPlotted.h>
 
+#include <pvkernel/core/PVTheme.h>
+
 PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
                                       QWidget* view_widget,
                                       bool can_be_central_widget,
@@ -61,11 +63,7 @@ PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
 	setFocusPolicy(Qt::StrongFocus);
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
-	auto* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
-	if (scroll_area) {
-		scroll_area->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-		scroll_area->horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
-	}
+	const QString& theme = PVTheme::color_scheme_name();
 
 	if (view) {
 		// Set view color

@@ -28,8 +28,11 @@
 #include <QFile>
 #include <QLabel>
 #include <QMessageBox>
+#include <QShortcut>
 #include <QStatusBar>
 #include <QVBoxLayout>
+#include <QStyleHints>
+#include <QStyleFactory>
 
 #include <PVMainWindow.h>
 #include <PVStringListChooserWidget.h>
@@ -193,16 +196,30 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	QRect r = geometry();
 	r.moveCenter(QGuiApplication::primaryScreen()->availableGeometry().center());
 	setGeometry(r);
-
-	// Set stylesheet
-	QFile css_file(":/gui.css");
-	css_file.open(QFile::ReadOnly);
-	QTextStream css_stream(&css_file);
-	QString css_string(css_stream.readAll());
-	css_file.close();
-	setStyleSheet(css_string);
-
+	PVTheme::set_color_scheme(PVTheme::color_scheme());
 	showMaximized();
+
+
+	// CSS stylesheet hot reloading
+	QShortcut* refresh_theme = new QShortcut(QKeySequence(Qt::Key_Dollar), this);
+	QShortcut* switch_theme = new QShortcut(QKeySequence("Shift+$"), this);
+	refresh_theme->setContext(Qt::ApplicationShortcut);
+	switch_theme->setContext(Qt::ApplicationShortcut);
+	auto refresh_f = [&](bool switch_theme) {
+		PVLOG_INFO("Reloading CSS\n");
+		if (switch_theme) {
+			PVTheme::set_color_scheme((PVTheme::EColorScheme)(not (bool)PVTheme::color_scheme()));
+		}
+		else { // force refresh
+			PVTheme::set_color_scheme(PVTheme::color_scheme());
+		}
+	};
+	connect(refresh_theme, &QShortcut::activated, [refresh_f](){
+		refresh_f(false);
+	});
+	connect(switch_theme, &QShortcut::activated, [refresh_f](){
+		refresh_f(true);
+	});
 }
 
 bool App::PVMainWindow::event(QEvent* event)
@@ -702,38 +719,6 @@ void App::PVMainWindow::import_type_Slot(const QString& itype)
 {
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
 	import_type(in_t);
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::keyPressEvent()
- *
- *****************************************************************************/
-void App::PVMainWindow::keyPressEvent(QKeyEvent* event)
-{
-	QMainWindow::keyPressEvent(event);
-#ifdef SQUEY_DEVELOPER_MODE
-	switch (event->key()) {
-
-	case Qt::Key_Dollar: {
-		/*if (pv_WorkspacesTabWidget->currentIndex() == -1) {
-		        break;
-		}*/
-		PVLOG_INFO("Reloading CSS\n");
-
-		QFile css_file(SQUEY_SOURCE_DIRECTORY "/gui-qt/src/resources/gui.css");
-		if (css_file.open(QFile::ReadOnly)) {
-			QTextStream css_stream(&css_file);
-			QString css_string(css_stream.readAll());
-			css_file.close();
-
-			setStyleSheet(css_string);
-			setStyle(QApplication::style());
-		}
-		break;
-	}
-	}
-#endif
 }
 
 /******************************************************************************

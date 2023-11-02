@@ -397,7 +397,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 		                  frame_width, frame_height);
 
 		painter->setPen(Qt::NoPen);
-		painter->setBrush(frame_bg_color);
+
 		painter->drawRect(frame);
 
 		painter->setPen(QPen(frame_text_color, 0));
@@ -414,7 +414,7 @@ void PVParallelView::PVZoomableDrawingAreaWithAxes::draw_deco_v3(QPainter* paint
 		                  text_size.height() + frame_margins.top() + frame_margins.bottom());
 
 		painter->setPen(Qt::NoPen);
-		painter->setBrush(frame_bg_color);
+
 		painter->drawRect(frame);
 
 		painter->setPen(QPen(frame_text_color, 0));

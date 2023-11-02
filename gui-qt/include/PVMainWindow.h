@@ -46,6 +46,7 @@
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
 
+
 #include <PVFilesTypesSelWidget.h>
 
 #include <tbb/task_scheduler_init.h>
@@ -252,7 +253,6 @@ class PVMainWindow : public QMainWindow
 	QString _current_save_root_folder;
 
   protected:
-	void keyPressEvent(QKeyEvent* event) override;
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 
   public:

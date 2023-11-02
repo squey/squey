@@ -41,6 +41,8 @@
 #include <pvparallelview/PVDisplayViewScatter.h>
 #include <pvparallelview/PVDisplayViewTimeseries.h>
 
+#include <pvkernel/core/PVTheme.h>
+
 #include <QSettings>
 
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;

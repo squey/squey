@@ -48,11 +48,13 @@ core/PVMemory2D.cpp
 core/PVQueryBuilderJsonConverter.cpp
 core/PVStreamingCompressor.cpp
 core/PVVersion.cpp
+core/PVTheme.cpp
 )
 
 SET(CORE_MOC_HEADERS
 ../include/pvkernel/core/PVProgressBox.h
 ../include/pvkernel/core/PVDBusConnection.h
+../include/pvkernel/core/PVTheme.h
 )
 
 set(OPENCL_SRC_FILES
@@ -214,6 +216,7 @@ widgets/PVLongLongSpinBox.cpp
 widgets/PVFileDialog.cpp
 widgets/PVExportDlg.cpp
 widgets/PVMultipleFileDialog.cpp
+widgets/PVModdedIcon.cpp
 )
 
 SET(UI_FILES

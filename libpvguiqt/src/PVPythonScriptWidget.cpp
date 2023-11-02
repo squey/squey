@@ -86,7 +86,7 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
 	_python_script_content_radio = new QRadioButton();
 	_python_script_content_radio->setAutoExclusive(true);
 	auto* exec_python_content_label = new QLabel("Python script:");
-	_python_script_content_text = new PVGuiQt::PVPythonCodeEditor(PVGuiQt::PVPythonCodeEditor::EThemeType::LIGHT, parent);;
+	_python_script_content_text = new PVGuiQt::PVPythonCodeEditor(parent);;
 
     connect(_python_script_content_text, &QTextEdit::textChanged, this, [this](){
         notify_python_script_updated();

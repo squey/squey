@@ -105,10 +105,7 @@ struct constants {
 
 /* common views information/stats constants
  */
-static const QColor frame_bg_color(QRgb(0x1b1e20));
-static const QString
-    frame_qss_bg_color("background-color: " + frame_bg_color.name(QColor::HexArgb) + ";");
-static const QColor frame_text_color(0x40, 0x40, 0x40); // QRgb(0x1b1e20)
+static const QColor frame_text_color(QRgb(0x838989));
 static const QMargins frame_margins(14, 6, 14, 7);
 static const QMargins frame_offsets(3, 2, 3, 2);
 

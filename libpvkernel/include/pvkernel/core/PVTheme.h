@@ -1,6 +1,6 @@
-/* * MIT License
+/* MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2024
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,38 +21,53 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#ifndef __PVTHEME_H__
+#define __PVTHEME_H__
 
-#ifndef __PVGUIQT_PVPYTHONCODEEDITOR_H__
-#define __PVGUIQT_PVPYTHONCODEEDITOR_H__
+#include <pvbase/general.h>
 
-#include <QTextEdit>
+#include <QObject>
 
-class QMimeData;
+class QDBusVariant;
 
-namespace PVGuiQt
+
+class PVTheme : public QObject
 {
-
-class PVPythonCodeEditor : public QTextEdit
-{
-public:
     Q_OBJECT
 
 public:
-    enum class EThemeType {
-        LIGHT,
-        DARK
+    enum class EColorScheme {
+        LIGHT = 0,
+        DARK = 1
     };
 
-public:
-    PVPythonCodeEditor(QWidget* parent = nullptr);
+private:
+    PVTheme();
 
-protected:
-    void insertFromMimeData(const QMimeData * source) override;
+public:
+    static PVTheme& get();
+
+    static EColorScheme color_scheme();
+    static bool is_color_scheme_light();
+    static bool is_color_scheme_dark();
+    static void set_color_scheme(bool dark_theme);
+    static void set_color_scheme(EColorScheme color_scheme);
+    static const char* color_scheme_name();
+    static void follow_system_scheme(bool follow);
 
 private:
-    static const char* _theme_types_name[];
+    static void apply_style(bool dark_theme);
+
+Q_SIGNALS:
+    void color_scheme_changed(EColorScheme color_scheme);
+
+
+public Q_SLOTS:
+    void setting_changed(const QString& ns, const QString& key, const QDBusVariant& value);
+
+private:
+    PVTheme::EColorScheme _color_scheme;
+    bool _follow_system_scheme = true;
 };
 
-} // namespace PVGuiQt
-
-#endif // __PVGUIQT_PVPYTHONCODEEDITOR_H__
+#endif // __PVTHEME_H__

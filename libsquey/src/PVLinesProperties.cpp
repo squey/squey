@@ -28,6 +28,7 @@
 
 #include <pvkernel/core/PVHSVColor.h> // for PVHSVColor
 #include <pvkernel/core/PVSerializeObject.h>
+#include <pvkernel/core/PVTheme.h>
 
 #include <pvbase/types.h> // for PVRow
 
@@ -51,8 +52,7 @@ void Squey::PVLinesProperties::A2B_copy_restricted_by_selection(Squey::PVLinesPr
  *****************************************************************************/
 void Squey::PVLinesProperties::reset_to_default_color()
 {
-	std::fill(_colors.begin(), _colors.end(),
-	          PVCore::PVHSVColor(0xFF)); // FIXME : should use PVCore::PVHSVColor::WHITE
+	std::fill(_colors.begin(), _colors.end(), HSV_COLOR_WHITE);
 }
 
 /******************************************************************************

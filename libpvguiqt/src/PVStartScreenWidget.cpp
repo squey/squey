@@ -503,7 +503,6 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	_widget->setLayout(layout);
 
 	// Icon
-	_icon_label = nullptr;
 	switch (cat) {
 		case PVCore::Category::SOURCES: {
 			_icon_label = new PVModdedIconLabel("database", QSize(16, 16));
@@ -522,6 +521,7 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
   			break;
 	}
 	
+	//_icon_label->setPixmap(icon.pixmap(16, 16));
 	_icon_label->setMouseTracking(true);
 	_icon_label->installEventFilter(this);
 	_checkbox = new QCheckBox();
@@ -643,6 +643,9 @@ void PVStartScreenWidget::refresh_recent_items<PVCore::Category::SOURCES>()
 	custom_listwidget_t* list = _recent_list_widgets[PVCore::Category::SOURCES];
 	QPushButton* clear_button = _recent_push_buttons[PVCore::Category::SOURCES];
 	list->setObjectName("RecentProjectItem");
+	for(int i = 0; i < list->count(); i++) {
+		delete list->takeItem(i);
+	}
 	list->clear();
 
 	PVCore::PVRecentItemsManager::get().clear_missing_files();

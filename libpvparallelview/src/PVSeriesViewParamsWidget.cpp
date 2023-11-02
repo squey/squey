@@ -55,7 +55,7 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol absciss
 	add_sampling_mode_selector();
 	add_split_selector();
 
-	setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
+
 	setAutoFillBackground(true);
 	adjustSize();
 }

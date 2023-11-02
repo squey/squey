@@ -72,7 +72,7 @@ PVParallelView::PVFullParallelView::PVFullParallelView(QWidget* parent)
 	_help_widget->finalizeText();
 
 	_params_widget = new PVFullParallelViewParamsWidget(this);
-	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
+
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 }
@@ -117,8 +117,8 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	 */
 	const QString max_sel_text = QString("%L1").arg(_total_events_number);
 
-	const QColor sel_col(0xd9, 0x28, 0x28);
-	const QColor percent_col(0xc9, 0x5d, 0x1e);
+	const QColor sel_col(QRgb(0x71b4eb));
+	const QColor percent_col = sel_col;
 
 	QFont f(painter->font());
 	f.setWeight(QFont::Bold);
@@ -153,7 +153,7 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 	/* the "stats" frame
 	 */
 	painter->setPen(Qt::NoPen);
-	painter->setBrush(frame_bg_color);
+
 	painter->drawRect(frame);
 
 	/* The "stats" strings are drawn only if necessary
