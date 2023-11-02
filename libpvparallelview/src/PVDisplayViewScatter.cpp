@@ -36,7 +36,7 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu | PVDisplayIf::HasHelpPage,
                       "Scatter view",
                       PVModdedIcon("scatter"),
                       "New scatter view with axis...")

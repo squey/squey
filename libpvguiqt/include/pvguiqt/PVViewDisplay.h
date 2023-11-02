@@ -54,6 +54,7 @@ namespace PVGuiQt
 
 class PVWorkspaceBase;
 class PVSourceWorkspace;
+class PVDockWidgetTitleBar;
 
 /**
  * \class PVViewDisplay
@@ -80,24 +81,19 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	Squey::PVView* get_view() { return _view; }
 	void set_view(Squey::PVView* view) { _view = view; }
 
+	bool has_help_page() const { return _has_help_page; }
+	void set_help_page_visible(bool visible);
+
+	PVGuiQt::PVDockWidgetTitleBar* titlebar_widget();
+	void setWindowTitle(const QString& window_title);
+
   protected:
-	/*! \brief Filter events to allow a PVViewDisplay to be docked inside any other PVWorkspace.
-	 */
-	bool event(QEvent* event) override;
 
 	/*! \brief Create the view display right click menu.
 	 */
 	void contextMenuEvent(QContextMenuEvent* event) override;
 
   private Q_SLOTS:
-	/*! \brief Store the state of the drag&drop operation.
-	 */
-	void drag_started(bool started);
-
-	/*! \brief Store the state of the drag&drop operation.
-	 */
-	void drag_ended();
-
 	void restore();
 
 	/*! \brief Maximize a view display on a given screen.
@@ -124,6 +120,7 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	              QWidget* view_widget,
 	              bool can_be_central_widget,
 	              bool delete_on_close,
+	              bool has_help_page,
 	              PVWorkspaceBase* parent);
 
   private:
@@ -132,6 +129,7 @@ class PVViewDisplay : public QDockWidget, public sigc::trackable
 	PVWorkspaceBase* _workspace;
 	QPoint _press_pt;
 	bool _can_be_central_widget;
+	bool _has_help_page;
 
 	int _width;
 	int _height;

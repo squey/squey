@@ -34,7 +34,8 @@ class PVDisplayViewCorrelation : public PVDisplayViewIf
   public:
 	PVDisplayViewCorrelation():
 		PVDisplayViewIf(ShowInCtxtMenu)
-	{}
+	{
+	}
 
 	QWidget*
 	create_widget(Squey::PVView* view, QWidget* parent, Params const& data = {}) const override;

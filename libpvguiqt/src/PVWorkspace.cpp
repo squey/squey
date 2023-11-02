@@ -114,8 +114,9 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
                                            Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
 )
 {
+	bool has_help_page = display_if.match_flags(PVDisplays::PVDisplayIf::HasHelpPage);
 	auto* view_display =
-	    new PVViewDisplay(view, view_widget, can_be_central_display, delete_on_close, this);
+	    new PVViewDisplay(view, view_widget, can_be_central_display, has_help_page, delete_on_close, this);
 
 	// note : new connect syntax is causing a crash (Qt bug ?)
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
@@ -139,10 +140,11 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Squey::PVView* view,
                                                                       QWidget* view_widget,
+																	  bool has_help_page,
                                                                       bool delete_on_close)
 {
 	auto* view_display =
-	    new PVViewDisplay(view, view_widget, true, delete_on_close, this);
+	    new PVViewDisplay(view, view_widget, true, has_help_page, delete_on_close, this);
 	view_display->setStyleSheet("QDockWidget { font: bold }");
 	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	view_display->setSizePolicy(
@@ -189,20 +191,18 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 		central_dock->set_view(display_view);
 		display_dock->set_view(central_view);
 
-		// Exchange colors
-		QColor col1 = central_dock->get_view()->get_color();
-		QColor col2 = display_dock->get_view()->get_color();
-		QPalette Pal1(display_dock->palette());
-		Pal1.setColor(QPalette::Window, col2);
-		display_dock->setAutoFillBackground(true);
-		display_dock->setPalette(Pal1);
-		QPalette Pal2(central_dock->palette());
-		Pal2.setColor(QPalette::Window, col1);
-		central_dock->setAutoFillBackground(true);
-		central_dock->setPalette(Pal2);
+		// Exchange help button visibility
+		bool central_help = central_dock->has_help_page();
+		bool display_help = display_dock->has_help_page();
+		central_dock->set_help_page_visible(display_help);
+		display_dock->set_help_page_visible(central_help);
 	} else {
-		set_central_display(display_dock->get_view(), display_dock->widget(),
-		                    display_dock->testAttribute(Qt::WA_DeleteOnClose));
+		set_central_display(
+			display_dock->get_view(),
+			display_dock->widget(),
+			central_dock->has_help_page(),
+			display_dock->testAttribute(Qt::WA_DeleteOnClose)
+		);
 		removeDockWidget(display_dock);
 	}
 }
@@ -368,7 +368,8 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 			        !obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
 			    if (as_central && !already_center) {
 				    already_center = true;
-				    set_central_display(view, w, delete_on_close);
+					bool has_help_page = obj.match_flags(PVDisplays::PVDisplayIf::HasHelpPage);
+				    set_central_display(view, w, has_help_page, delete_on_close);
 			    } else {
 				    Qt::DockWidgetArea pos = obj.default_position_hint();
 				    if (as_central && already_center) {

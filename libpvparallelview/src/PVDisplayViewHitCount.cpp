@@ -32,7 +32,7 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu | PVDisplayIf::HasHelpPage,
                       "Hit count view",
                       PVModdedIcon("hitcount"),
                       "New hit count view")

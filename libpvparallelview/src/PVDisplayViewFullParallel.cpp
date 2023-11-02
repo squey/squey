@@ -37,7 +37,7 @@
 
 PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
-                          PVDisplayIf::DefaultPresenceInSourceWorkspace,
+                      PVDisplayIf::DefaultPresenceInSourceWorkspace | PVDisplayIf::HasHelpPage, 
                       "Full parallel view",
                       PVModdedIcon("parallel-coordinates"),
                       Qt::TopDockWidgetArea)

@@ -35,7 +35,7 @@
 
 #include <QActionGroup>
 
-PVDisplays::PVDisplayViewMappingPlotting::PVDisplayViewMappingPlotting()
+PVDisplays::PVDisplayViewMappingScaling::PVDisplayViewMappingScaling()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters | ShowInCtxtMenu,
                       "Mapping/Plotting",
                       PVModdedIcon("mapping-scaling"))

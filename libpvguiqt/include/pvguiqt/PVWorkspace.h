@@ -128,6 +128,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	PVViewDisplay* set_central_display(Squey::PVView* view,
 	                                   QWidget* view_widget,
+	                                   bool has_help_page,
 	                                   bool delete_on_close);
 
 	/*! \brief Create or display the widget used by the view display.

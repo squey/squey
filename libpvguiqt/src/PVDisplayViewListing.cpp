@@ -36,7 +36,7 @@
 
 PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
-                          PVDisplayIf::DefaultPresenceInSourceWorkspace,
+                      PVDisplayIf::DefaultPresenceInSourceWorkspace | PVDisplayIf::HasHelpPage,
                       "Listing",
                       PVModdedIcon("table-list"),
                       Qt::NoDockWidgetArea)

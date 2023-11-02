@@ -32,7 +32,7 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 PVDisplays::PVDisplayViewTimeseries::PVDisplayViewTimeseries()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu | PVDisplayIf::HasHelpPage,
                       "Series view",
                       PVModdedIcon("series"),
                       "New series view")

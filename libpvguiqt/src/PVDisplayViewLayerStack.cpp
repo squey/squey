@@ -32,7 +32,7 @@
 
 PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
-                          PVDisplayIf::DefaultPresenceInSourceWorkspace,
+                      PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Layer stack",
                       PVModdedIcon("layer-group"),
                       Qt::RightDockWidgetArea)

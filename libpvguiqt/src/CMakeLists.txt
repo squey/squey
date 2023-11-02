@@ -39,6 +39,7 @@ PVExportSelectionDlg.cpp
 PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
 PVPythonCodeEditor.cpp
+PVDockWidgetTitleBar.cpp
 
 # FormatBuilder
 format-builder/PVFormatBuilderWidget.cpp
@@ -99,6 +100,7 @@ SET(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVPythonScriptWidget.h
 ../include/pvguiqt/PVPythonCodeEditor.h
 ../include/pvguiqt/PVProgressBoxPython.h
+../include/pvguiqt/PVDockWidgetTitleBar.h
 
 # FormatBuilder
 ../include/pvguiqt/format-builder/PVFormatBuilderWidget.h

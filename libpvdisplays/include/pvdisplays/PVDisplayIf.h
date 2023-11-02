@@ -63,7 +63,8 @@ class PVDisplayIf
 		ShowInDockWidget = 4,
 		ShowInCentralDockWidget = 8,
 		ShowInCtxtMenu = 16,
-		DefaultPresenceInSourceWorkspace = 32
+		DefaultPresenceInSourceWorkspace = 32,
+		HasHelpPage = 64
 	} Flags;
 
   protected:
@@ -146,7 +147,8 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Squey::PVView>,
 	                QString tooltip_str = {},
 	                QIcon toolbar_icon = {},
 	                QString axis_menu_name = {},
-	                Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
+	                Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea
+					)
 	    : PVDisplayDataTreeIf(flags, tooltip_str, toolbar_icon, def_pos)
 	    , _axis_menu_name(axis_menu_name)
 	{
