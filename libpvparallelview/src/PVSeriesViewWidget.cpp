@@ -142,12 +142,13 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 	layout->setContentsMargins(0, 0, 0, 0);
 
 	auto* series_widget = new QWidget;
-	auto* vlayout = new QVBoxLayout;
-	vlayout->setContentsMargins(0, 0, 0, 0);
+	auto* series_widget_layout = new QVBoxLayout;
+	series_widget_layout->setContentsMargins(0, 0, 0, 0);
 
-	vlayout->addWidget(replaceable(&_series_tree_widget, nullptr));
-	vlayout->addWidget(replaceable(&_selected_series_tree, nullptr));
-	series_widget->setLayout(vlayout);
+	series_widget_layout->addWidget(replaceable(&_series_tree_widget, nullptr));
+	series_widget_layout->addWidget(replaceable(&_selected_series_tree, nullptr));
+	series_widget->setLayout(series_widget_layout);
+	series_widget->setContentsMargins(0, 0, 0, 0);
 
 	auto* splitter = new QSplitter(Qt::Horizontal);
 	splitter->setSizePolicy(
@@ -159,12 +160,16 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 	splitter->setStretchFactor(1, 0);
 
 	auto* bottom_layout = new QHBoxLayout;
+	bottom_layout->setContentsMargins(0, 0, 0, 0);
 	bottom_layout->addWidget(replaceable(&_range_edit, nullptr));
-	bottom_layout->addStretch();
 	bottom_layout->addWidget(_params_widget);
 
+	QWidget* bottom_widget = new QWidget;
+	bottom_widget->setContentsMargins(0, 0, 0, 0);
+	bottom_widget->setLayout(bottom_layout);
+
 	layout->addWidget(splitter);
-	layout->addLayout(bottom_layout);
+	layout->addWidget(bottom_widget);
 
 	setLayout(layout);
 }

@@ -11,16 +11,16 @@ body {
 
 b {
   font-weight: bold;
-  color: #951b81;
+  color: #1A72BB;
 }
 
 p {
   text-align: left;
   font-weight: bold;
-  color: #951b81;
+  color: #1A72BB;
   border-style: solid;
   border-width: 0 0 1px 0;
-  border-color: #951b81;
+  border-color: #1A72BB;
 }
 
 table {

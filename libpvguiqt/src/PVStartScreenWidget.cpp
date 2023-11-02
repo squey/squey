@@ -47,6 +47,7 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/widgets/PVUtils.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include SQUEY_VERSION_FILE_PATH
 
@@ -98,20 +99,6 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	start_widget->setObjectName("PVStartScreenWidget");
 	start_widget->setLayout(main_layout);
 	pv_startLayout->addWidget(start_widget);
-
-	auto versionLayout = new QGridLayout();
-	auto* label = new QLabel(tr("Current version") + QString(" :"));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 0, 0);
-	label = new QLabel(QString(SQUEY_CURRENT_VERSION_STR));
-	label->setAlignment(Qt::AlignRight);
-	versionLayout->addWidget(label, 0, 2);
-
-	auto hboxVersionLayout = new QHBoxLayout();
-	hboxVersionLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Expanding, QSizePolicy::Minimum));
-	hboxVersionLayout->addLayout(versionLayout);
-
-	pv_startLayout->addLayout(hboxVersionLayout);
 
 	// setLayout(pv_startLayout);
 
@@ -204,7 +191,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// used
 	auto format_used_widget_line = new QFrame(format_widget);
 	format_used_widget_line->setFrameShape(QFrame::HLine);
-	auto* format_text_used_label = new QLabel("Recent used formats:", format_widget);
+	auto* format_text_used_label = new QLabel("Recently used formats:", format_widget);
 	format_text_used_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_used_widget_line);
 	format_widget_layout->addWidget(format_text_used_label);
@@ -232,7 +219,7 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// edited
 	auto format_edited_widget_line = new QFrame(format_widget);
 	format_edited_widget_line->setFrameShape(QFrame::HLine);
-	auto* format_text_edited_label = new QLabel("Recent edited formats:", format_widget);
+	auto* format_text_edited_label = new QLabel("Recently edited formats:", format_widget);
 	format_text_edited_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_edited_widget_line);
 	auto edited_format_header_layout = new QHBoxLayout();
@@ -516,16 +503,25 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	_widget->setLayout(layout);
 
 	// Icon
-	_icon_label = new QLabel();
-	QIcon icon;
-	if (filenames.size() == 1) {
-		QFileInfo finfo(filenames[0]);
-		QFileIconProvider ficon;
-		icon = ficon.icon(finfo);
-	} else {
-		icon = QApplication::style()->standardIcon(QStyle::SP_FileDialogNewFolder);
+	_icon_label = nullptr;
+	switch (cat) {
+		case PVCore::Category::SOURCES: {
+			_icon_label = new PVModdedIconLabel("database", QSize(16, 16));
+			break;
+		}
+		case PVCore::Category::USED_FORMATS:
+		case PVCore::Category::EDITED_FORMATS: {
+			_icon_label = new PVModdedIconLabel("code", QSize(16, 16));
+			break;
+		}
+		case PVCore::Category::PROJECTS: {
+			_icon_label = new PVModdedIconLabel("share-all", QSize(16, 16));
+			break;
+		}
+		default:
+  			break;
 	}
-	_icon_label->setPixmap(icon.pixmap(15, 15));
+	
 	_icon_label->setMouseTracking(true);
 	_icon_label->installEventFilter(this);
 	_checkbox = new QCheckBox();
@@ -538,14 +534,14 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	// Text
 	auto text_label = new QLabel();
 	text_label->setTextFormat(Qt::RichText);
-	text_label->setText(QString("<a href=\"%1;%2\">" + short_string + "</a>").arg(cat).arg(index));
+	text_label->setText(QString("<a style=\"color: #1a72bb;\" href=\"%1;%2\">" + short_string + "</a>").arg(cat).arg(index));
 	text_label->setToolTip(long_string);
 	connect(text_label, &QLabel::linkActivated, start_screen_widget,
 	        &PVStartScreenWidget::dispatch_action);
 	layout->addWidget(text_label);
 
 	setSizeHint(QSize(_widget->sizeHint().width(),
-	                  _widget->sizeHint().height() - 6)); // Do not forget this!
+	                  _widget->sizeHint().height())); // Do not forget this!
 
 	// This ugly workaround is needed to avoid missing QEvent::Leave events when
 	// switch from checkbox to icon

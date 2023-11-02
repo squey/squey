@@ -42,6 +42,7 @@
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <pvcop/db/algo.h>
 #include <pvcop/db/types.h>
@@ -358,7 +359,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 	auto* sync_button = new QPushButton;
 	connect(sync_button, &QPushButton::toggled,
 	        [&](bool checked) { _selection_change_connection.block(not checked); });
-	sync_button->setIcon(QIcon(":/refresh"));
+	sync_button->setIcon(PVModdedIcon("arrows-rotate"));
 	sync_button->setToolTip("Keep in sync with selection");
 	sync_button->setCheckable(true);
 	sync_button->setChecked(true);

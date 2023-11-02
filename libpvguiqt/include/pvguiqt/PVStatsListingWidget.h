@@ -72,8 +72,13 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
   public:
 	typedef std::unordered_map<uint32_t, std::unordered_map<uint32_t, PVParams>> param_t;
 
+	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
+
   public:
 	explicit PVStatsListingWidget(PVListingView* listing_view);
+
+  protected:
+  	void keyPressEvent(QKeyEvent* event) override;
 
   private:
 	param_t& get_params() { return _params; }
@@ -87,7 +92,7 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 	void init_plugins();
 
 	template <typename T>
-	int init_plugin(QString header_text, bool visible = false)
+	int init_plugin(QString header_text, QIcon icon, bool visible = false)
 	{
 		int row = _stats_panel->rowCount();
 		_stats_panel->insertRow(row);
@@ -96,7 +101,10 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 		}
 
 		QStringList vertical_headers;
-		_stats_panel->setVerticalHeaderItem(row, new QTableWidgetItem(header_text));
+		QTableWidgetItem* item = new QTableWidgetItem();
+		item->setToolTip(header_text);
+		item->setIcon(icon);
+		_stats_panel->setVerticalHeaderItem(row, item);
 		if (!visible) {
 			_stats_panel->hideRow(row);
 		}
@@ -149,6 +157,9 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 	int _row_min;
 	int _row_max;
 	int _row_avg;
+
+	// Help menu
+	PVWidgets::PVHelpWidget _help_widget; //!< Help menu for listing view
 };
 
 namespace __impl

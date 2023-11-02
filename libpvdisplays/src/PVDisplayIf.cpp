@@ -24,7 +24,7 @@
 //
 
 #include <pvdisplays/PVDisplayIf.h>
-
+#include <pvkernel/widgets/PVModdedIcon.h>
 #include <squey/PVView.h>
 
 #include <QApplication>
@@ -60,7 +60,7 @@ void add_displays_view_axis_menu(QMenu& menu,
                                  PVCombCol axis_comb)
 {
 	auto action_col_copy = new QAction(QObject::tr("Copy axis name to clipboard"), &menu);
-	action_col_copy->setIcon(QIcon(":/edit-paste.png"));
+	action_col_copy->setIcon(PVModdedIcon("copy"));
 	QObject::connect(action_col_copy, &QAction::triggered, [view, axis_comb]{
 		QApplication::clipboard()->setText(view->get_axis_name(axis_comb));
 	});

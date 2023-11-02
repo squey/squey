@@ -23,19 +23,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvparallelview/PVDisplayViewScatter.h>
+
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvkernel/widgets/PVFilterableMenu.h>
 
+#include <pvparallelview/PVDisplayViewScatter.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVScatterView.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
                       "Scatter view",
-                      QIcon(":/view-scatter"),
+                      PVModdedIcon("scatter"),
                       "New scatter view with axis...")
 {
 }

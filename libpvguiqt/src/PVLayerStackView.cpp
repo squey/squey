@@ -37,6 +37,8 @@
 #include <pvguiqt/PVLayerStackView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 /******************************************************************************
  *
  * App::PVLayerStackView::PVLayerStackView
@@ -78,61 +80,65 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	_ctxt_menu->addSeparator();
 
 	_ctxt_menu_set_sel_layer = new QAction(tr("Set selection from this layer content"), nullptr);
+	_ctxt_menu_set_sel_layer->setIcon(PVModdedIcon("circle-dot"));
 	_ctxt_menu->addAction(_ctxt_menu_set_sel_layer);
 	_ctxt_menu_export_layer_sel = new QAction(tr("Export this layer selection"), nullptr);
+	_ctxt_menu_export_layer_sel->setIcon(PVModdedIcon("file-export"));
 	_ctxt_menu->addAction(_ctxt_menu_export_layer_sel);
 	_ctxt_menu_reset_colors = new QAction(tr("Reset this layer colors to white"), nullptr);
+	_ctxt_menu_reset_colors->setIcon(PVModdedIcon("arrow-rotate-left"));
 	_ctxt_menu->addAction(_ctxt_menu_reset_colors);
 
 	_ctxt_menu->addSeparator();
 
 	_ctxt_menu_show_this_layer_only = new QAction(tr("Show this layer only"), nullptr);
+	_ctxt_menu_show_this_layer_only->setIcon(PVModdedIcon("eye"));
 	_ctxt_menu->addAction(_ctxt_menu_show_this_layer_only);
 
 	_ctxt_menu->addSeparator();
 
-	_ctxt_menu_union = new QAction(QIcon(":/union"), tr("Union"), nullptr);
+	_ctxt_menu_union = new QAction(PVModdedIcon("union"), tr("Union"), nullptr);
 	_ctxt_menu_union->setToolTip(
 	    "Union of the current selection and this layer content (restricted to visible layer)");
 	_ctxt_menu->addAction(_ctxt_menu_union);
 
-	_ctxt_menu_intersection = new QAction(QIcon(":/intersection"), tr("Intersection"), nullptr);
+	_ctxt_menu_intersection = new QAction(PVModdedIcon("intersection"), tr("Intersection"), nullptr);
 	_ctxt_menu_intersection->setToolTip("Intersection of the current selection and this layer "
 	                                    "content (restricted to visible layer)");
 	_ctxt_menu->addAction(_ctxt_menu_intersection);
 
-	_ctxt_menu_difference = new QAction(QIcon(":/difference"), tr("Difference"), nullptr);
+	_ctxt_menu_difference = new QAction(PVModdedIcon("difference"), tr("Difference"), nullptr);
 	_ctxt_menu_difference->setToolTip(
 	    "Difference of the current selection and this layer content (restricted to visible layer)");
 	_ctxt_menu->addAction(_ctxt_menu_difference);
 
 	_ctxt_menu_symmetric_differrence =
-	    new QAction(QIcon(":/symmetric"), tr("Symmetric difference"), nullptr);
+	    new QAction(PVModdedIcon("symmetric-difference"), tr("Symmetric difference"), nullptr);
 	_ctxt_menu_symmetric_differrence->setToolTip("Symmetric difference of the current selection "
 	                                             "and this layer content (restricted to visible "
 	                                             "layer)");
 	_ctxt_menu->addAction(_ctxt_menu_symmetric_differrence);
 
 	_ctxt_menu_activate_union =
-	    new QAction(QIcon(":/union_activate"), tr("Activate and Union"), nullptr);
+	    new QAction(PVModdedIcon("union-activate"), tr("Activate and Union"), nullptr);
 	_ctxt_menu_activate_union->setToolTip(
 	    "Activate this layer and Union of the current selection and its content");
 	_ctxt_menu->addAction(_ctxt_menu_activate_union);
 
 	_ctxt_menu_activate_intersection =
-	    new QAction(QIcon(":/intersection_activate"), tr("Activate and Intersection"), nullptr);
+	    new QAction(PVModdedIcon("intersection-activate"), tr("Activate and Intersection"), nullptr);
 	_ctxt_menu_activate_intersection->setToolTip(
 	    "Activate this layer and Intersection of the current selection and its content");
 	_ctxt_menu->addAction(_ctxt_menu_activate_intersection);
 
 	_ctxt_menu_activate_difference =
-	    new QAction(QIcon(":/difference_activate"), tr("Activate and Difference"), nullptr);
+	    new QAction(PVModdedIcon("difference-activate"), tr("Activate and Difference"), nullptr);
 	_ctxt_menu_activate_difference->setToolTip(
 	    "Activate this layer and Difference of the current selection and its content");
 	_ctxt_menu->addAction(_ctxt_menu_activate_difference);
 
 	_ctxt_menu_activate_symmetric_differrence = new QAction(
-	    QIcon(":/symmetric_activate"), tr("Activate and Symmetric difference"), nullptr);
+	    PVModdedIcon("symmetric-difference-activate"), tr("Activate and Symmetric difference"), nullptr);
 	_ctxt_menu_activate_symmetric_differrence->setToolTip(
 	    "Activate this layer and Symmetric difference of the current selection and its content");
 	_ctxt_menu->addAction(_ctxt_menu_activate_symmetric_differrence);
@@ -141,6 +147,7 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 
 	_ctxt_menu_copy_to_clipboard_act =
 	    new QAction(tr("Copy layerstack details to clipboard"), nullptr);
+	_ctxt_menu_copy_to_clipboard_act->setIcon(PVModdedIcon("copy"));
 	_ctxt_menu->addAction(_ctxt_menu_copy_to_clipboard_act);
 }
 

@@ -31,6 +31,7 @@
 
 #include <pvparallelview/common.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <squey/PVRangeSubSampler.h>
 #include <squey/widgets/PVAxisComboBox.h>
@@ -107,7 +108,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_split_selector()
 void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enable)
 {
 	auto* sel = new QAction(this);
-	sel->setIcon(QIcon(":/zoom-autofit-horizontal"));
+	sel->setIcon(PVModdedIcon("horizontal-selection-cursors"));
 	sel->setCheckable(true);
 	sel->setChecked(false);
 	sel->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -135,7 +136,7 @@ void PVParallelView::PVSeriesViewParamsWidget::add_selection_activator(bool enab
 void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator(bool enable)
 {
 	auto* hunt = new QAction(this);
-	hunt->setIcon(QIcon(":/zoom-autofit-both"));
+	hunt->setIcon(PVModdedIcon("square"));
 	hunt->setCheckable(true);
 	hunt->setChecked(false);
 	hunt->setShortcutContext(Qt::WidgetWithChildrenShortcut);
@@ -166,7 +167,6 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 
 	_rendering_mode_button = new QToolButton(this);
 	_rendering_mode_button->setPopupMode(QToolButton::InstantPopup);
-	_rendering_mode_button->setIcon(QIcon(":/series-view-lines"));
 	_rendering_mode_button->setToolTip(tr("Rendering mode"));
 
 	// Lines always rendering mode
@@ -175,7 +175,8 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 	    new QShortcut(QKeySequence(Qt::Key_L), _series_view_widget);
 	connect(forced_lines_mode_shortcut, &QShortcut::activated,
 	        [this, forced_lines_mode]() { set_rendering_mode(forced_lines_mode); });
-	forced_lines_mode->setIcon(QIcon(":/series-view-linesalways"));
+	forced_lines_mode->setShortcut(Qt::Key_L);
+	forced_lines_mode->setIcon(PVModdedIcon("chart-line"));
 	forced_lines_mode->setToolTip("Points are always connected");
 	forced_lines_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	forced_lines_mode->setData((int)PVSeriesView::DrawMode::LinesAlways);
@@ -189,7 +190,7 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 	connect(lines_mode_shortcut, &QShortcut::activated,
 	        [this, lines_mode]() { set_rendering_mode(lines_mode); });
 	lines_mode->setShortcut(Qt::Key_M);
-	lines_mode->setIcon(QIcon(":/series-view-lines"));
+	lines_mode->setIcon(PVModdedIcon("chart-mixed"));
 	lines_mode->setToolTip("Points are connected if they are horizontally adjacent");
 	lines_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	lines_mode->setData((int)PVSeriesView::DrawMode::Lines);
@@ -203,13 +204,15 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_select
 	connect(points_mode_shortcut, &QShortcut::activated,
 	        [this, points_mode]() { set_rendering_mode(points_mode); });
 	points_mode->setShortcut(Qt::Key_P);
-	points_mode->setIcon(QIcon(":/series-view-points"));
+	points_mode->setIcon(PVModdedIcon("chart-dot"));
 	points_mode->setToolTip("Points are never connected");
 	points_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	points_mode->setData((int)PVSeriesView::DrawMode::Points);
 	_rendering_mode_button->addAction(points_mode);
 	connect(points_mode, &QAction::triggered, this,
 	        qOverload<>(&PVSeriesViewParamsWidget::set_rendering_mode));
+
+	set_rendering_mode(lines_mode);
 
 	addWidget(_rendering_mode_button);
 
@@ -245,7 +248,6 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 
 	_sampling_mode_button = new QToolButton(this);
 	_sampling_mode_button->setPopupMode(QToolButton::InstantPopup);
-	_sampling_mode_button->setIcon(QIcon(":/avg_by"));
 	_sampling_mode_button->setToolTip(tr("Sampling mode"));
 
 	// Mean sampling mode
@@ -253,7 +255,7 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	auto* mean_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_1), _series_view_widget);
 	connect(mean_mode_shortcut, &QShortcut::activated,
 	        [this, mean_mode]() { set_sampling_mode(mean_mode); });
-	mean_mode->setIcon(QIcon(":/avg_by"));
+	mean_mode->setIcon(PVModdedIcon("average-by"));
 	mean_mode->setToolTip("Each pixel is the average of its horizontal subrange");
 	mean_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	mean_mode->setData(Squey::PVRangeSubSampler::SAMPLING_MODE::MEAN);
@@ -266,7 +268,7 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	auto* min_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_2), _series_view_widget);
 	connect(min_mode_shortcut, &QShortcut::activated,
 	        [this, min_mode]() { set_sampling_mode(min_mode); });
-	min_mode->setIcon(QIcon(":/min_by"));
+	min_mode->setIcon(PVModdedIcon("arrow-down-to-line"));
 	min_mode->setToolTip("Each pixel is the minimum of its horizontal subrange");
 	min_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	min_mode->setData(Squey::PVRangeSubSampler::SAMPLING_MODE::MIN);
@@ -279,13 +281,15 @@ QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_sampling_mode_selecto
 	auto* max_mode_shortcut = new QShortcut(QKeySequence(Qt::Key_3), _series_view_widget);
 	connect(max_mode_shortcut, &QShortcut::activated,
 	        [this, max_mode]() { set_sampling_mode(max_mode); });
-	max_mode->setIcon(QIcon(":/max_by"));
+	max_mode->setIcon(PVModdedIcon("arrow-up-to-line"));
 	max_mode->setToolTip("Each pixel is the maximum of its horizontal subrange");
 	max_mode->setShortcutContext(Qt::WidgetWithChildrenShortcut);
 	max_mode->setData(Squey::PVRangeSubSampler::SAMPLING_MODE::MAX);
 	_sampling_mode_button->addAction(max_mode);
 	connect(max_mode, &QAction::triggered, this,
 	        qOverload<>(&PVSeriesViewParamsWidget::set_sampling_mode));
+
+	set_sampling_mode(mean_mode);
 
 	addWidget(_sampling_mode_button);
 

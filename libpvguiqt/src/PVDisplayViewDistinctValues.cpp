@@ -24,6 +24,7 @@
 #include <pvguiqt/PVDisplayViewDistinctValues.h>
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <squey/PVView.h>
 
@@ -37,7 +38,7 @@ namespace PVDisplays
 PVDisplays::PVDisplayViewDistinctValues::PVDisplayViewDistinctValues()
     : PVDisplayViewIf(ShowInCtxtMenu,
                       QObject::tr("Distinct values"),
-                      QIcon(":/fileslist_black"),
+                      PVModdedIcon("brackets-curly"),
 					  QObject::tr("Distinct values"),
 					  Qt::LeftDockWidgetArea)
 {

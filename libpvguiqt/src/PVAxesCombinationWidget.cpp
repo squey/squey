@@ -27,6 +27,7 @@
 #include <squey/PVView.h>
 #include <squey/PVPlotted.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QDialogButtonBox>
 #include <QDebug>
@@ -73,6 +74,21 @@ PVGuiQt::PVAxesCombinationWidget::PVAxesCombinationWidget(
 		connect(_btn_sel_singleton, &QAbstractButton::clicked, this,
 		        &PVAxesCombinationWidget::sel_singleton_Slot);
 	}
+
+	_btn_select_all->setIcon(PVModdedIcon("square-check"));
+	_btn_invert_selection->setIcon(PVModdedIcon("square-check-inverted"));
+	_btn_sel_singleton->setIcon(PVModdedIcon("square-1"));
+	_btn_axis_top->setIcon(PVModdedIcon("arrow-up-to-line"));
+	_btn_axis_up->setIcon(PVModdedIcon("arrow-up-long"));
+	_btn_gather->setIcon(PVModdedIcon("arrows-minimize"));
+	_btn_axis_down->setIcon(PVModdedIcon("arrow-down-long"));
+	_btn_axis_bottom->setIcon(PVModdedIcon("arrow-down-to-line"));
+	_btn_axis_remove->setIcon(PVModdedIcon("trash-xmark"));
+	_btn_remove_duplicates->setIcon(PVModdedIcon("copy-x"));
+	_btn_sort->setIcon(PVModdedIcon("arrow-down-short-wide"));
+	_btn_reset->setIcon(PVModdedIcon("arrow-rotate-left"));
+	_btn_axis_add_before->setIcon(PVModdedIcon("insert-before"));
+	_btn_axis_add_after->setIcon(PVModdedIcon("insert-after"));
 }
 
 void PVGuiQt::PVAxesCombinationWidget::reset_comb_Slot()

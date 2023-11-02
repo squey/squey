@@ -24,6 +24,7 @@
 #define PVDISPLAYS_PVDISPLAYVIEWGROUPBY_H
 
 #include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 #include <pvdisplays/PVDisplayIf.h>
 
 #include <squey/PVSelection.h>
@@ -60,7 +61,7 @@ class PVDisplayViewCountBy : public PVDisplayViewGroupBy
 {
   public:
 	PVDisplayViewCountBy(): PVDisplayViewGroupBy(ShowInCtxtMenu,
-		QObject::tr("Count by"), QIcon(":/count_by"), QObject::tr("Count by"), Qt::LeftDockWidgetArea)
+		QObject::tr("Count by"), PVModdedIcon("count-by"), QObject::tr("Count by"), Qt::LeftDockWidgetArea)
 	{}
 
 	bool is_groupable_by(QString const&) override { return true; }
@@ -84,7 +85,7 @@ class PVDisplayViewSumBy : public PVDisplayViewGroupBy
 {
   public:
 	PVDisplayViewSumBy(): PVDisplayViewGroupBy(ShowInCtxtMenu,
-		QObject::tr("Sum by"), QIcon(":/sum_by"), QObject::tr("Sum by"), Qt::LeftDockWidgetArea)
+		QObject::tr("Sum by"), PVModdedIcon("sigma"), QObject::tr("Sum by"), Qt::LeftDockWidgetArea)
 	{}
 
 	bool is_groupable_by(QString const& axis_type) override { return summable_types.contains(axis_type); }
@@ -99,7 +100,7 @@ class PVDisplayViewMinBy : public PVDisplayViewGroupBy
 {
   public:
 	PVDisplayViewMinBy(): PVDisplayViewGroupBy(ShowInCtxtMenu,
-		QObject::tr("Min by"), QIcon(":/min_by"), QObject::tr("Min by"), Qt::LeftDockWidgetArea)
+		QObject::tr("Min by"), PVModdedIcon("arrow-down-to-line"), QObject::tr("Min by"), Qt::LeftDockWidgetArea)
 	{}
 
 	bool is_groupable_by(QString const& axis_type) override { return summable_types.contains(axis_type); }
@@ -114,7 +115,7 @@ class PVDisplayViewMaxBy : public PVDisplayViewGroupBy
 {
   public:
 	PVDisplayViewMaxBy(): PVDisplayViewGroupBy(ShowInCtxtMenu,
-		QObject::tr("Max by"), QIcon(":/max_by"), QObject::tr("Max by"), Qt::LeftDockWidgetArea)
+		QObject::tr("Max by"), PVModdedIcon("arrow-up-to-line"), QObject::tr("Max by"), Qt::LeftDockWidgetArea)
 	{}
 
 	bool is_groupable_by(QString const& axis_type) override { return summable_types.contains(axis_type); }
@@ -129,7 +130,7 @@ class PVDisplayViewAverageBy : public PVDisplayViewGroupBy
 {
   public:
 	PVDisplayViewAverageBy(): PVDisplayViewGroupBy(ShowInCtxtMenu,
-		QObject::tr("Average by"), QIcon(":/avg_by"), QObject::tr("Average by"), Qt::LeftDockWidgetArea)
+		QObject::tr("Average by"), PVModdedIcon("average-by"), QObject::tr("Average by"), Qt::LeftDockWidgetArea)
 	{}
 
 	bool is_groupable_by(QString const& axis_type) override { return summable_types.contains(axis_type); }

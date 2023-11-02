@@ -250,6 +250,7 @@ void PVParallelView::PVFullParallelView::resizeEvent(QResizeEvent* event)
 
 void PVParallelView::PVFullParallelView::enterEvent(QEnterEvent*)
 {
+	
 	setFocus(Qt::MouseFocusReason);
 }
 

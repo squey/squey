@@ -32,12 +32,13 @@
 #include <squey/PVView.h>
 
 #include <QObject>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Listing",
-                      QIcon(":/view-listing"),
+                      PVModdedIcon("table-list"),
                       Qt::NoDockWidgetArea)
 {
 }

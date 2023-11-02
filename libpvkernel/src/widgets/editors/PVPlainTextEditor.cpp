@@ -36,6 +36,7 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVInputFile.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 /******************************************************************************
  *
@@ -53,17 +54,17 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget* parent) : QWidget(paren
 	_text_edit->setSizePolicy(
 	    QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 	auto import_file = new QPushButton();
-	import_file->setIcon(QIcon(":/import_file"));
+	import_file->setIcon(PVModdedIcon("file-import"));
 	import_file->setIconSize(QSize(24, 24));
 	import_file->setToolTip(tr("Import from file..."));
 	import_file->setFlat(true);
 	auto export_file = new QPushButton();
-	export_file->setIcon(QIcon(":/export_file"));
+	export_file->setIcon(PVModdedIcon("file-export"));
 	export_file->setIconSize(QSize(24, 24));
 	export_file->setToolTip(tr("Export to file..."));
 	export_file->setFlat(true);
 	auto export_and_append_file = new QPushButton();
-	export_and_append_file->setIcon(QIcon(":/append_file"));
+	export_and_append_file->setIcon(PVModdedIcon("file-export-append"));
 	export_and_append_file->setIconSize(QSize(24, 24));
 	export_and_append_file->setToolTip(tr("Export and append to file..."));
 	export_and_append_file->setFlat(true);

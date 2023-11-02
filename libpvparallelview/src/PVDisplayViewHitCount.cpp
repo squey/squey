@@ -29,10 +29,12 @@
 
 #include <pvparallelview/PVDisplayViewHitCount.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
                       "Hit count view",
-                      QIcon(":/view-hit-count"),
+                      PVModdedIcon("hitcount"),
                       "New hit count view")
 {
 }

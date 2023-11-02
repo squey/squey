@@ -29,10 +29,12 @@
 #include <pvparallelview/PVDisplayViewTimeseries.h>
 #include <pvparallelview/PVSeriesViewWidget.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewTimeseries::PVDisplayViewTimeseries()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
                       "Series view",
-                      QIcon(":/view-series"),
+                      PVModdedIcon("series"),
                       "New series view")
 {
 }

@@ -40,6 +40,7 @@ class QLabel;
 
 #include <pvkernel/core/PVRecentItemsManager.h>
 
+class PVModdedIconLabel;
 namespace PVGuiQt
 {
 
@@ -163,7 +164,7 @@ class PVListWidgetItem : public QObject, public QListWidgetItem
 
   private:
 	QCheckBox* _checkbox;
-	QLabel* _icon_label;
+	PVModdedIconLabel* _icon_label;
 	QWidget* _widget;
 	PVCore::Category _cat;
 	QTimer _timer;

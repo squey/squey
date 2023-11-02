@@ -25,6 +25,7 @@
 
 #include <PVMainWindow.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QAction>
 #include <QDesktopServices>
@@ -75,6 +76,7 @@ void App::PVMainWindow::create_actions()
 	selection_inverse_Action = new QAction(tr("&Invert selection"), this);
 	selection_inverse_Action->setShortcut(QKeySequence(Qt::Key_I));
 	set_color_Action = new QAction(tr("Set color"), this);
+	set_color_Action->setIcon(PVModdedIcon("palette"));
 	set_color_Action->setShortcut(QKeySequence(Qt::Key_C));
 	selection_from_current_layer_Action = new QAction(tr("Set selection from current layer"), this);
 	selection_from_layer_Action = new QAction(tr("Set selection from layer..."), this);
@@ -139,8 +141,9 @@ void App::PVMainWindow::create_menus()
 	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
 
 	menubar = menuBar();
-
+	
 	file_Menu = menubar->addMenu(tr("&File"));
+	file_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	auto* solution_Menu = new QMenu(tr("&Investigation"));
 	solution_Menu->addAction(solution_new_Action);
 	solution_Menu->addAction(solution_load_Action);
@@ -166,6 +169,7 @@ void App::PVMainWindow::create_menus()
 	file_Menu->addAction(quit_Action);
 
 	selection_Menu = menubar->addMenu(tr("&Selection"));
+	selection_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	selection_Menu->addAction(selection_all_Action);
 	selection_Menu->addAction(selection_none_Action);
 	selection_Menu->addAction(selection_inverse_Action);
@@ -180,28 +184,34 @@ void App::PVMainWindow::create_menus()
 	selection_Menu->addSeparator();
 
 	filter_Menu = menubar->addMenu(tr("Fil&ters"));
+	filter_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	filter_Menu->addAction(filter_reprocess_last_filter);
 	filter_Menu->addSeparator();
 	create_filters_menu_and_actions();
 
 	source_Menu = menubar->addMenu(tr("&Source"));
+	source_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	source_Menu->addAction(view_display_inv_elts_Action);
 
 	view_Menu = menubar->addMenu(tr("&View"));
+	view_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	view_Menu->addAction(axes_combination_editor_Action);
 
 	events_Menu = menubar->addMenu(tr("&Events"));
+	events_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	events_Menu->addAction(events_display_unselected_listing_Action);
 	events_Menu->addAction(events_display_zombies_listing_Action);
 	events_Menu->addSeparator();
 	events_Menu->addAction(events_display_unselected_zombies_parallelview_Action);
 
 	tools_Menu = menubar->addMenu(tr("F&ormat"));
+	tools_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	tools_Menu->addAction(tools_new_format_Action);
 	tools_Menu->addAction(tools_open_format_Action);
 	tools_Menu->addAction(tools_cur_format_Action);
 
 	help_Menu = menubar->addMenu(tr("&Help"));
+	help_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	help_Menu->addAction(about_Action);
 	help_Menu->addAction(refman_Action);
 }

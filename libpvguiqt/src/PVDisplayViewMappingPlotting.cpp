@@ -26,6 +26,7 @@
 #include <pvguiqt/PVDisplayViewMappingPlotting.h>
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <squey/widgets/PVMappingPlottingEditDialog.h>
 #include <squey/PVView.h>
@@ -37,7 +38,7 @@
 PVDisplays::PVDisplayViewMappingPlotting::PVDisplayViewMappingPlotting()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters | ShowInCtxtMenu,
                       "Mapping/Plotting",
-                      QIcon(":/view-datatree"))
+                      PVModdedIcon("mapping-scaling"))
 {
 }
 
@@ -66,7 +67,9 @@ void PVDisplays::PVDisplayViewMappingPlotting::add_to_axis_menu(
 	Squey::PVMappingProperties& mpp =
 	    mapped.get_properties_for_col(axis);
 
+	menu.addSeparator();
 	QMenu* chm = menu.addMenu("Change mapping to...");
+	chm->setIcon(PVModdedIcon("mapping"));
 	QActionGroup* chm_group = new QActionGroup(chm);
 
 	for (auto& kvnode : LIB_CLASS(Squey::PVMappingFilter)::get().get_list()) {
@@ -91,6 +94,8 @@ void PVDisplays::PVDisplayViewMappingPlotting::add_to_axis_menu(
 	    plotted.get_properties_for_col(axis);
 
 	QMenu* chp = menu.addMenu("Change plotting to...");
+	chp->setIcon(PVModdedIcon("scaling"));
+	menu.addSeparator();
 	QActionGroup* chp_group = new QActionGroup(chp);
 
 	for (auto& kvnode : LIB_CLASS(Squey::PVPlottingFilter)::get().get_list()) {

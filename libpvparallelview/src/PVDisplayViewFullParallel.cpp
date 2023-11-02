@@ -33,11 +33,13 @@
 
 #include <pvparallelview/PVDisplayViewFullParallel.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Full parallel view",
-                      QIcon(":/view-parallel-full"),
+                      PVModdedIcon("parallel-coordinates"),
                       Qt::TopDockWidgetArea)
 {
 }

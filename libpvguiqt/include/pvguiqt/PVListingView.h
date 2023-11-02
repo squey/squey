@@ -186,7 +186,6 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	/// Getters
 	Squey::PVView const& lib_view() const { return _view; }
 	Squey::PVView& lib_view() { return _view; }
-	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
   private Q_SLOTS:
 	/**
@@ -254,9 +253,6 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	// Vertical context menu
 	QMenu _vhead_ctxt_menu;          //!< Context menu for right click on vertival header
 	QAction* _action_copy_row_value; //!< Copy clicked row action for vertical header action
-
-	// Help menu
-	PVWidgets::PVHelpWidget _help_widget; //!< Help menu for listing view
 
 	// FIXME : This should be in a "context menu" context
 	PVRow _ctxt_row;                                    //!< Clicked row for context menu actions

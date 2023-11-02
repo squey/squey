@@ -29,10 +29,12 @@
 
 #include <pvparallelview/PVDisplayViewZoomedParallel.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
                       "Zoomed parallel view",
-                      QIcon(":/view-parallel-zoomed"),
+                      PVModdedIcon("zoomed-parallel-coordinates"),
                       "New zoomed parallel view")
 {
 }

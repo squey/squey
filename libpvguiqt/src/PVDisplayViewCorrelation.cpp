@@ -19,6 +19,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <pvguiqt/PVDisplayViewCorrelation.h>
 
@@ -57,7 +58,7 @@ void PVDisplays::PVDisplayViewCorrelation::add_to_axis_menu(
 	}
 
 	auto menu_add_correlation = new QMenu(QObject::tr("Bind parent axis with..."), &menu);
-	menu_add_correlation->setIcon(QIcon(":/bind"));
+	menu_add_correlation->setIcon(PVModdedIcon("link"));
 
 	Squey::PVRoot& root = view->get_parent<Squey::PVRoot>();
 

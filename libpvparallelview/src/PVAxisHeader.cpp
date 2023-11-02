@@ -36,6 +36,7 @@
 
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QActionGroup>
 #include <QApplication>
@@ -83,6 +84,7 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 		menu.addSeparator();
 	}
 	QAction* ars = menu.addAction("New selection cursors");
+	ars->setIcon(PVModdedIcon("vertical-selection-cursors"));
 	connect(ars, &QAction::triggered, this, &PVAxisHeader::new_selection_slider);
 
 	if (menu.exec(event->screenPos()) != nullptr) {

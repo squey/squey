@@ -25,7 +25,7 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/qmetaobject_helper.h>
-
+#include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
 #include <squey/PVView.h>
@@ -43,8 +43,6 @@
 #include <pvparallelview/PVHitCountViewParamsWidget.h>
 #include <pvparallelview/PVHitCountViewInteractor.h>
 #include <pvparallelview/PVSelectionRectangleInteractor.h>
-
-#include <pvkernel/rush/PVNraw.h>
 
 #include <QCheckBox>
 #include <QGraphicsScene>

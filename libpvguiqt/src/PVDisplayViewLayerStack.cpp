@@ -28,11 +28,13 @@
 
 #include <squey/PVView.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Layer stack",
-                      QIcon(":/view-layerstack"),
+                      PVModdedIcon("layer-group"),
                       Qt::RightDockWidgetArea)
 {
 }

@@ -29,6 +29,8 @@
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 /******************************************************************************
  *
  * PVGuiQt::PVLayerStackModel::PVLayerStackModel
@@ -80,9 +82,9 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 		switch (index.column()) {
 		case 0:
 			if (lib_layer_stack().get_layer_n(lib_index).get_visible()) {
-				return QPixmap(":/layer-active.png");
+				return PVModdedIcon("eye");
 			} else {
-				return QPixmap(":/layer-inactive.png");
+				return PVModdedIcon("eye_disabled");
 			}
 			break;
 		}

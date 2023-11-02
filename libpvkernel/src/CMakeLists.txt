@@ -180,6 +180,7 @@ set(WIDGETS_MOC_HEADERS
 ../include/pvkernel/widgets/PVLongLongSpinBox.h
 ../include/pvkernel/widgets/PVExportDlg.h
 ../include/pvkernel/widgets/PVCSVExporterWidget.h
+../include/pvkernel/widgets/PVModdedIcon.h
 )
 
 set(WIDGETS_SRC_FILES

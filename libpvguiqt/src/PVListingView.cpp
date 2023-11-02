@@ -30,6 +30,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVColorDialog.h>
 #include <pvkernel/widgets/PVFilterableMenu.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <squey/PVLayerFilter.h>
 #include <squey/PVView.h>
@@ -72,10 +73,12 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
     , _view(view)
     , _ctxt_menu(this)
     , _vhead_ctxt_menu(this)
-    , _help_widget(this)
     , _ctxt_process(nullptr)
     , _headers_width(view.get_column_count(), horizontalHeader()->defaultSectionSize())
 {
+
+    _ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
+	_vhead_ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
 
 	view._axis_hovered.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::highlight_column));
 	view._axis_clicked.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::set_section_visible));
@@ -124,7 +127,9 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 		_ctxt_menu.addSeparator();
 	}
 	_act_copy = new QAction(tr("Copy this value to the clipboard"), &_ctxt_menu);
+	_act_copy->setIcon(PVModdedIcon("copy"));
 	_act_set_color = new QAction(tr("Set color"), &_ctxt_menu);
+	_act_set_color->setIcon(PVModdedIcon("palette"));
 	_ctxt_menu.addAction(_act_copy);
 	_ctxt_menu.addSeparator();
 	_ctxt_menu.addAction(_act_set_color);
@@ -139,6 +144,7 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 
 	// Context menu on vertical header
 	_action_copy_row_value = new QAction(tr("Copy line index to clipbard"), this);
+	_action_copy_row_value->setIcon(PVModdedIcon("copy"));
 	_vhead_ctxt_menu.addAction(_action_copy_row_value);
 
 	verticalHeader()->setSectionsClickable(true);
@@ -150,22 +156,6 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 
 	// enabling QSS for the horizontal headers
 	horizontalHeader()->setObjectName("horizontalHeader_of_PVAbstractTableView");
-
-	// Define help
-	_help_widget.hide();
-
-	_help_widget.initTextFromFile("listing view's help", ":help-style");
-	_help_widget.addTextFromFile(":help-selection");
-	_help_widget.addTextFromFile(":help-layers");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-lines");
-	_help_widget.addTextFromFile(":help-application");
-
-	_help_widget.newTable();
-	_help_widget.addTextFromFile(":help-mouse-listing-view");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-shortcuts-listing-view");
-	_help_widget.finalizeText();
 
 	// We fix the vertical header size on bold max number of line to avoid
 	// resizing on scrolling
@@ -267,14 +257,6 @@ void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
  *****************************************************************************/
 void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 {
-	if (PVWidgets::PVHelpWidget::is_help_key(event->key())) {
-		if (help_widget()->isHidden()) {
-			help_widget()->popup(viewport(), PVWidgets::PVTextPopupWidget::AlignCenter,
-			                     PVWidgets::PVTextPopupWidget::ExpandAll);
-		}
-		return;
-	}
-
 	switch (event->key()) {
 	case Qt::Key_G:
 		goto_line();
@@ -388,6 +370,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	section_hovered_enter(comb_col, false);
 
 	QMenu menu(this);
+	menu.setAttribute(Qt::WA_TranslucentBackground);
 
 	// Add view creation based on an axis.
 	if (auto container =
@@ -400,7 +383,7 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	}
 
 	auto action_col_sort = new QAction(tr("Sort this axis"), this);
-	action_col_sort->setIcon(QIcon(":/sort_desc"));
+	action_col_sort->setIcon(PVModdedIcon("arrow-down-short-wide"));
 
 	bool empty_sel = _view.get_output_layer().get_selection().is_empty();
 	action_col_sort->setEnabled(not empty_sel);
@@ -838,7 +821,7 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	bool existing_correlation = root.correlations().exists(&listing->lib_view(), original_col1);
 
 	if (existing_correlation) {
-		QPixmap p(":/bind");
+		QPixmap p(PVModdedIcon("link").pixmap(rect.height(),rect.width()));
 		p = p.scaledToWidth(rect.height(), Qt::SmoothTransformation);
 		QRect r(QPoint(rect.right() - p.width(), rect.top()), rect.bottomRight());
 		painter->drawPixmap(r, p);

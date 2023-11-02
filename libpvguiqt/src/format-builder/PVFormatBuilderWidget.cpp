@@ -44,7 +44,9 @@
 #include <pvkernel/rush/PVConverter.h>
 
 #include <pvguiqt/PVAxesCombinationWidget.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
+
 
 #include <boost/thread.hpp>
 #include <memory>
@@ -265,32 +267,32 @@ App::PVFormatBuilderWidget::~PVFormatBuilderWidget()
 void App::PVFormatBuilderWidget::actionAllocation()
 {
 	actionAddAxisIn = new QAction("add an axis", (QObject*)this);
-	actionAddAxisIn->setIcon(QIcon(":/add-axis"));
+	actionAddAxisIn->setIcon(PVModdedIcon("chart-simple"));
 	actionAddFilterAfter = new QAction("add a filter", (QObject*)this);
-	actionAddFilterAfter->setIcon(QIcon(":/filter"));
+	actionAddFilterAfter->setIcon(PVModdedIcon("filter"));
 	actionNameAxes = new QAction("Set axes name", (QObject*)this);
-	actionNameAxes->setIcon(QIcon(":/edit"));
+	actionNameAxes->setIcon(PVModdedIcon("pen-to-square"));
 	actionAddRegExAfter = new QAction("add a RegEx", (QObject*)this);
 	actionAddRegExAfter->setIcon(QIcon(":/add-regexp"));
 	actionAddUrl = new QAction("add URL splitter", (QObject*)this);
 
 	actionSave = new QAction("&Save format", (QObject*)this);
 	actionSave->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
-	actionSave->setIcon(QIcon(":/save"));
+	actionSave->setIcon(PVModdedIcon("floppy-disk"));
 	actionSaveAs = new QAction("Save format as...", (QObject*)this);
 	actionDelete = new QAction("Delete", (QObject*)this);
+	actionDelete->setIcon(PVModdedIcon("trash-xmark"));
 	actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
-	actionDelete->setIcon(QIcon(":/red-cross"));
 	actionDelete->setEnabled(false);
 	actionMoveDown = new QAction("move down", (QObject*)this);
 	actionMoveDown->setShortcut(QKeySequence(Qt::Key_Down));
-	actionMoveDown->setIcon(QIcon(":/go-down.png"));
+	actionMoveDown->setIcon(PVModdedIcon("arrow-down-long"));
 	actionMoveUp = new QAction("move up", (QObject*)this);
 	actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
-	actionMoveUp->setIcon(QIcon(":/go-up.png"));
+	actionMoveUp->setIcon(PVModdedIcon("arrow-up-long"));
 	actionOpen = new QAction(tr("Open format..."), (QObject*)this);
 	actionOpen->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_O));
-	actionOpen->setIcon(QIcon(":/document-open.png"));
+	actionOpen->setIcon(PVModdedIcon("folder-open"));
 
 	actionNewWindow = new QAction(tr("New window"), (QObject*)this);
 	actionCloseWindow = new QAction(tr("Close window"), (QObject*)this);

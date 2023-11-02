@@ -50,10 +50,12 @@
 
 #include <boost/thread.hpp>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget,
                       "Python console",
-                      QIcon(":/python"),
+                      PVModdedIcon("python"),
                       Qt::NoDockWidgetArea)
 {
 }

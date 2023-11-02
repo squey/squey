@@ -27,6 +27,8 @@
 #include <pvparallelview/PVScatterViewSelectionRectangle.h>
 #include <pvparallelview/PVScatterView.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 #include <QSignalMapper>
 #include <QToolBar>
 #include <QToolButton>
@@ -48,7 +50,7 @@ PVParallelView::PVScatterViewParamsWidget::PVScatterViewParamsWidget(PVScatterVi
 	    PVSelectionRectangle::add_selection_mode_selector(parent, this, _sel_mode_signal_mapper);
 
 	_show_labels = new QAction(this);
-	_show_labels->setIcon(QIcon(":/labeled-axis"));
+	_show_labels->setIcon(PVModdedIcon("labels"));
 	_show_labels->setCheckable(true);
 	_show_labels->setChecked(false);
 	_show_labels->setShortcut(Qt::Key_T);

@@ -848,7 +848,7 @@ void App::PVMainWindow::edit_format_Slot(const QString& format)
 
 void App::PVMainWindow::open_format_Slot()
 {
-	auto* editorWidget = new PVFormatBuilderWidget(this);
+	auto* editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	QString url = editorWidget->slotOpen();
 
 	if (!url.isEmpty()) {

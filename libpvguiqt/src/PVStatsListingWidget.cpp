@@ -25,6 +25,7 @@
 
 #include <pvguiqt/PVStatsListingWidget.h>
 #include <pvguiqt/PVDisplayViewDistinctValues.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <squey/PVSource.h>
 
@@ -63,10 +64,10 @@ static uint32_t compute_qtablewidget_height(QTableWidget* stats)
  * PVGuiQt::PVStatsListingWidget
  *
  *****************************************************************************/
-const QColor PVGuiQt::PVStatsListingWidget::INVALID_COLOR = QColor(0xf9, 0xd7, 0xd7);
 
 PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* listing_view)
     : _listing_view(listing_view)
+	, _help_widget(this)
 {
 	_params.clear();
 
@@ -124,11 +125,28 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	view_sp._axis_combination_updated.connect(
 	    sigc::mem_fun(*this, &PVGuiQt::PVStatsListingWidget::axes_comb_changed));
 
+	// Define help
+	_help_widget.hide();
+
+	_help_widget.initTextFromFile("listing view's help", ":help-style");
+	_help_widget.addTextFromFile(":help-selection");
+	_help_widget.addTextFromFile(":help-layers");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-lines");
+	_help_widget.addTextFromFile(":help-application");
+
+	_help_widget.newTable();
+	_help_widget.addTextFromFile(":help-mouse-listing-view");
+	_help_widget.newColumn();
+	_help_widget.addTextFromFile(":help-shortcuts-listing-view");
+	_help_widget.finalizeText();
+
 	init_plugins();
 	create_vhead_ctxt_menu();
 
 	resize_panel();
 	refresh();
+	
 }
 
 void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
@@ -136,7 +154,7 @@ void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
 	_vhead_ctxt_menu = new QMenu(this);
 
 	for (int row = 0; row < _stats_panel->rowCount(); row++) {
-		const QString& section_text = _stats_panel->verticalHeaderItem(row)->text();
+		const QString& section_text = _stats_panel->verticalHeaderItem(row)->toolTip();
 		auto* act = new QAction(section_text, this);
 		act->setCheckable(true);
 		act->setEnabled(_stats_panel->isRowHidden(row));
@@ -184,11 +202,11 @@ void PVGuiQt::PVStatsListingWidget::init_plugins()
 	}
 
 	_row_distinct =
-	    init_plugin<__impl::PVUniqueValuesCellWidget>("distinct\nvalues", /* visible = */ true);
-	_row_sum = init_plugin<__impl::PVSumCellWidget>("sum", /* visible = */ false);
-	_row_min = init_plugin<__impl::PVMinCellWidget>("min", /* visible = */ false);
-	_row_max = init_plugin<__impl::PVMaxCellWidget>("max", /* visible = */ false);
-	_row_avg = init_plugin<__impl::PVAverageCellWidget>("avg", /* visible = */ false);
+	    init_plugin<__impl::PVUniqueValuesCellWidget>("Distinct values", PVModdedIcon("brackets-curly"), /* visible = */ true);
+	_row_sum = init_plugin<__impl::PVSumCellWidget>("Sum", PVModdedIcon("sigma"), /* visible = */ false);
+	_row_min = init_plugin<__impl::PVMinCellWidget>("Min", PVModdedIcon("arrow-down-to-line"), /* visible = */ false);
+	_row_max = init_plugin<__impl::PVMaxCellWidget>("Max", PVModdedIcon("arrow-up-to-line"), /* visible = */ false);
+	_row_avg = init_plugin<__impl::PVAverageCellWidget>("Average", PVModdedIcon("average-by"), /* visible = */ false);
 
 	for (PVCombCol col(0); col < _listing_view->horizontalHeader()->count(); col++) {
 		_stats_panel->setColumnWidth(col, _listing_view->horizontalHeader()->sectionSize(col));
@@ -330,6 +348,17 @@ void PVGuiQt::PVStatsListingWidget::vertical_header_section_clicked(const QPoint
 	_vhead_ctxt_menu->exec(QCursor::pos());
 }
 
+void PVGuiQt::PVStatsListingWidget::keyPressEvent(QKeyEvent* event)
+{
+	if (PVWidgets::PVHelpWidget::is_help_key(event->key())) {
+		if (help_widget()->isHidden()) {
+			help_widget()->popup(this, PVWidgets::PVTextPopupWidget::AlignCenter,
+			                     PVWidgets::PVTextPopupWidget::ExpandAll);
+		}
+		return;
+	}
+}
+
 /******************************************************************************
  *
  * PVGuiQt::__impl::PVVerticalHeaderView
@@ -366,7 +395,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
     : _table(table)
     , _view(view)
     , _item(item)
-    , _refresh_pixmap(QPixmap::fromImage(QImage(":/refresh_small_grey")))
+    , _refresh_pixmap(QPixmap::fromImage(QImage(":/refresh_small_grey"))) // FIXME
     , _autorefresh_on_pixmap(QPixmap::fromImage(QImage(":/icon_linked")))
     , _autorefresh_off_pixmap(QPixmap::fromImage(QImage(":/icon_unlinked")))
 {
@@ -379,7 +408,7 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 	_refresh_icon->setCursor(QCursor(Qt::PointingHandCursor));
 	_refresh_icon->setFlat(true);
 	_refresh_icon->setStyleSheet("QPushButton { border: none; }");
-	_refresh_icon->setIcon(_refresh_pixmap);
+	_refresh_icon->setIcon(PVModdedIcon("arrows-rotate"));
 	_refresh_icon->setFocusPolicy(Qt::NoFocus);
 	_refresh_icon->setToolTip("Refresh");
 	connect(_refresh_icon, &QAbstractButton::clicked, this, &PVCellWidgetBase::refresh);
@@ -566,8 +595,7 @@ void PVGuiQt::__impl::PVCellWidgetBase::set_refresh_button_enabled(bool loading)
 void PVGuiQt::__impl::PVCellWidgetBase::set_invalid()
 {
 	_refresh_icon->setEnabled(true);
-	_item->setBackground(QBrush(PVGuiQt::PVStatsListingWidget::INVALID_COLOR));
-	_text->setText("N/A");
+	_text->setText("");
 	_valid = false;
 }
 
@@ -612,7 +640,7 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
 	unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } "
 	                                      "QPushButton:pressed { padding-left : "
 	                                      "0px; }");
-	unique_values_dlg_icon->setIcon(QPixmap::fromImage(QImage(":/fileslist_black")));
+	unique_values_dlg_icon->setIcon(PVModdedIcon("brackets-curly"));
 	unique_values_dlg_icon->setFocusPolicy(Qt::NoFocus);
 	unique_values_dlg_icon->setToolTip("Show distinct values");
 	connect(unique_values_dlg_icon, &QAbstractButton::clicked, this,

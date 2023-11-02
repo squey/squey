@@ -115,4 +115,5 @@ then
 fi
 
 export PATH=$PATH:$IBRD/libpvguiqt/src/
+if [ -z $DARK_THEME ]; then export DARK_THEME=$([ `gsettings get org.gnome.desktop.interface color-scheme` = "'prefer-dark'" ] && echo "true"); fi
 $IBRD/gui-qt/src/squey $LOAD_PROJECT $@
