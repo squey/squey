@@ -26,6 +26,7 @@
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVPythonInputDialog.h>
 #include <squey/PVRoot.h>
+
 #include <pvkernel/core/PVProgressBox.h>
 
 #include <boost/algorithm/string.hpp>
@@ -96,13 +97,12 @@ Squey::PVPythonInterpreter& Squey::PVPythonInterpreter::get(Squey::PVRoot& root)
 
 void Squey::PVPythonInterpreter::execute_script(const std::string& script, bool is_path)
 {
-    auto global = pybind11::globals();
-    auto local = pybind11::dict(); // local variables are deleted when out of scope
+    auto globals = pybind11::globals();
 	if (is_path) {
-		pybind11::eval_file(script, global, local);
+		pybind11::eval_file(script, globals);
 	}
 	else {
-		pybind11::exec(script, global, local);
+		pybind11::exec(script, globals);
 	}
 }
 
