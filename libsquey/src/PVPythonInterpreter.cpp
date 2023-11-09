@@ -25,12 +25,22 @@
 
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVPythonInputDialog.h>
-
 #include <squey/PVRoot.h>
 #include <pvkernel/core/PVProgressBox.h>
 
+#include <boost/algorithm/string.hpp>
+
 Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(), _root(&root)
 {
+    if (const char* python_path = std::getenv("PYTHONPATH")) {
+        pybind11::module sys = pybind11::module::import("sys");
+        std::vector<std::string> python_sys_paths;
+        boost::split(python_sys_paths, python_path, boost::is_any_of(":"));
+        for (const std::string& path : python_sys_paths) {
+            sys.attr("path").attr("insert")(1, path.c_str());
+        }
+    }
+
     pybind11::module main = pybind11::module::import("__main__");
     pybind11::class_<PVPythonInterpreter> pysquey(main, "squey");
     pysquey.def("source", [&](size_t index) {
