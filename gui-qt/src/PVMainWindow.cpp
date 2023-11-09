@@ -1088,17 +1088,21 @@ void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_i
 				python_script + tr(" is missing"), QMessageBox::Ok);
 		}
 		else {
+			QString exception_message;
 			Squey::PVPythonInterpreter& python_interpreter = Squey::PVPythonInterpreter::get(_root);
-			PVGuiQt::PVProgressBoxPython::progress([&](PVCore::PVProgressBox& pbox) {
+			PVCore::PVProgressBox::CancelState cancel_state = PVGuiQt::PVProgressBoxPython::progress([&](PVCore::PVProgressBox& pbox) {
 				pbox.set_enable_cancel(true);
 				try {
 					python_interpreter.execute_script(python_script.toStdString(), is_path);
 				}
 				catch (const pybind11::error_already_set &eas) {
-					pbox.warning("Error while executing Python script", eas.what());
-					throw; // rethrow exception to handle progress box dismiss
+					throw eas; // rethrow exception to handle progress box dismiss
 				}
-			}, current_view(), QString("Executing python script"), nullptr);
+			}, current_view(), QString("Executing python script"), exception_message, this);
+
+			if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE and not exception_message.isEmpty()) {
+				QMessageBox::critical(this, "Error while executing Python script", exception_message , QMessageBox::Ok);
+			}
 		}
 	}
 }

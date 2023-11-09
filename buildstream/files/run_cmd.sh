@@ -7,6 +7,10 @@ mkdir -p $OCL_ICD_VENDORS
 NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"|sed -e "s/nvidia-//"`
 NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed 's/-/./g'`
 
+# export PYTHONPATH
+PYTHON_VERSION=`python3 -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
+export PYTHONPATH="$PYTHONPATH:$(echo $XDG_DATA_HOME/python/lib/python${PYTHON_VERSION}/site-packages)"
+
 echo "/app/lib/libpocl.so" > $OCL_ICD_VENDORS/pocl.icd
 if [ -n "$NVIDIA_VERSION" ]; then
 	echo "$GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > $OCL_ICD_VENDORS/nvidia.icd

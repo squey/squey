@@ -62,7 +62,7 @@ static void run_python(const std::function<void()>& f, Squey::PVPythonInterprete
 {
 	auto start = std::chrono::system_clock::now();
 
-	std::string exception_msg;
+	QString exception_msg;
 	PVCore::PVProgressBox::CancelState cancel_state = PVGuiQt::PVProgressBoxPython::progress([&](PVCore::PVProgressBox& pbox) {
 		pbox.set_enable_cancel(true);
 		try {
@@ -71,21 +71,18 @@ static void run_python(const std::function<void()>& f, Squey::PVPythonInterprete
 			if (eas.matches(PyExc_InterruptedError)) {
 				pbox.set_canceled();
 			}
-			else {
-				exception_msg = eas.what();
-			}
-			throw; // rethrow exception to handle progress box dismiss
+			throw eas; // rethrow exception to handle progress box dismiss
 		}
-	}, view, QString("Executing python script..."), nullptr);
+	}, view, QString("Executing python script..."), exception_msg, nullptr);
 
 	if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE) {
-		if (exception_msg.empty()) {
+		if (exception_msg.isEmpty()) {
 			console_output->setText(python_interpreter.python_output.stdoutString().c_str());
 			python_interpreter.python_output.clearStdout();
 			console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
 		}
 		else {
-			console_output->setText(exception_msg.c_str());
+			console_output->setText(exception_msg);
 			console_output->setStyleSheet("QTextEdit { background-color : black; color : red; }");
 		}
 	}

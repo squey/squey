@@ -240,5 +240,5 @@ add_squey_test(Tsquey_multi_inputs Tsquey_multi_inputs)
 
 # python_scripting
 add_squey_compile_test(Tsquey_python_scripting LINKS ${LINK_LIBRARIES} FILES python_scripting.cpp)
-#add_squey_test(Tsquey_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
-#add_squey_test(Tsquey_embeded_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_embeded_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
+add_squey_test(Tsquey_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
+add_squey_test(Tsquey_embeded_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_embeded_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)

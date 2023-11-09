@@ -95,7 +95,7 @@ variables:
     -DUSER_TARGET=%{user_target} \
     -DCMAKE_CXX_COMPILER=%{cxx_compiler} \
     -DCODE_COVERAGE=%{code_coverage}
-  copy-launchers: "cp -r buildstream/files/{run_cmd.sh,squey_launcher.sh} %{install-root}%{prefix}/bin"
+  copy-launchers: "cp -r buildstream/files/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"
     
 config:
   configure-commands:
@@ -110,6 +110,7 @@ config:
   - disable_testsuite == False:
       build-commands:
       - |
+        export PYTHONPATH=$(bash -c "echo /app/lib/python*/site-packages")
         cd "%{build-dir}" && ninja && ninja squey_testsuite
         if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
         TESTS="-R SQUEY_TEST"
