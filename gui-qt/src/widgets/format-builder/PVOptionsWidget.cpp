@@ -78,7 +78,7 @@ App::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) : QWidget
 	
 	main_layout->addWidget(lines_range_group_box);
 	main_layout->addWidget(_python_scripting_widget);
-	main_layout->addSpacerItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	_python_scripting_widget->setSizePolicy(QSizePolicy(QSizePolicy::MinimumExpanding, QSizePolicy::MinimumExpanding));
 
 	setLayout(main_layout);
 
