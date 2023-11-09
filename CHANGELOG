@@ -1,3 +1,11 @@
+4.9.17 (2023-11-09)
+-------------------
+
+This minor release fixes or improves:
+* Fix a Python scripting regression introduced in 4.9.16
+* Improve Python scripting objects scope visibility
+* Enable multiple screens fractional scaling under Windows
+
 4.9.16 (2023-09-07)
 -------------------
 
