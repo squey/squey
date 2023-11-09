@@ -40,6 +40,7 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 	PVCore::PVProgressBox::process_t f,
 	Squey::PVView* view,
 	QString const& name,
+	QString& exception_message,
 	QWidget* parent)
 {
 	PVProgressBoxPython pbox(name, parent);
@@ -90,6 +91,7 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 			}
 		} catch (const pybind11::error_already_set &eas) {
 			Q_EMIT pbox.canceled_sig(); // dismiss progress box in GUI thread
+			exception_message = eas.what();
 			return;
 		}
 		Q_EMIT pbox.finished_sig(); // dismiss progress box in GUI thread

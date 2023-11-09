@@ -45,6 +45,7 @@ public:
         PVCore::PVProgressBox::process_t f,
         Squey::PVView* view,
         QString const& name,
+        QString& exception_message,
         QWidget* parent);
 
 public Q_SLOTS:
