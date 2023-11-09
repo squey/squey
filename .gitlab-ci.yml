@@ -159,7 +159,7 @@ pages:
     - cp -r docker squey_docker && 
       zip -r public/squey_docker.zip squey_docker && 
       rm -rf squey_docker
-    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/main public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
+    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
     - rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     reports:

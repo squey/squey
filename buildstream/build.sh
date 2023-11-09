@@ -101,8 +101,20 @@ else # Export flatpak images
     gpg --import --no-tty --batch --yes $GPG_PRIVATE_KEY_PATH
   fi
 
+
   # Export flatpak Release image
   bst $BUILD_OPTIONS build flatpak/org.squey.Squey.bst
+  if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then   # Upload debug symbols
+    VERSION="$(cat ../VERSION.txt)"
+    bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
+        SYM_DIR=\"/tmp/squey.sym.d\"
+        rm -rf \"\$SYM_DIR\" && mkdir -p \"\$SYM_DIR\"
+        cd /compilation_build
+        find . -type f \( -name *.so* -o -name \"squey\" \) -exec sh -c 'dump_syms \"\$0\" > \"\$1\"/\"\$(basename \"\$0\").sym\"' \"{}\" \"\$SYM_DIR\" \;
+        find \"\$SYM_DIR\" -type f -exec sed 's|/buildstream/squey/squey.bst/||' -i \"{}\" \;
+        find \"\$SYM_DIR\" -type f -exec sym_upload \"{}\" \"https://squey.bugsplat.com/post/bp/symbol/breakpadsymbols.php?appName=Squey&appVer=$VERSION\" \;
+        "
+  fi
   bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$TMP_ARTIFACT_DIR/flatpak_files"
   if [[ ! -z "$GPG_SIGN_KEY" ]]; then
     flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
@@ -119,19 +131,6 @@ else # Export flatpak images
   #else
   #  flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
   #fi
-fi
-
-# Upload debug symbols
-if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then
-  VERSION="$(cat ../VERSION.txt)"
-  bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
-      SYM_DIR=\"/tmp/squey.sym.d\"
-      rm -rf \"\$SYM_DIR\" && mkdir -p \"\$SYM_DIR\"
-      cd /compilation_build
-      find . -type f \( -name *.so* -o -name \"squey\" \) -exec sh -c 'dump_syms \"\$0\" > \"\$1\"/\"\$(basename \"\$0\").sym\"' \"{}\" \"\$SYM_DIR\" \;
-      find \"\$SYM_DIR\" -type f -exec sed 's|/buildstream/squey/squey.bst/||' -i \"{}\" \;
-      find \"\$SYM_DIR\" -type f -exec sym_upload \"{}\" \"https://squey.bugsplat.com/post/bp/symbol/breakpadsymbols.php?appName=Squey&appVer=$VERSION\" \;
-      "
 fi
 
 # Push artifacts
