@@ -1,3 +1,10 @@
+4.9.18 (2023-11-21)
+-------------------
+
+This minor release fixes or improves:
+* Add auto preview in FormatBuilder 
+* Remove unmaintened Splunk, ERF and OPC-UA input plugins
+
 4.9.17 (2023-11-09)
 -------------------
 
