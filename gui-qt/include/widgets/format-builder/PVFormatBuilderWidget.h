@@ -192,6 +192,9 @@ class PVFormatBuilderWidget : public QMainWindow
 	// Slot for the NRAW listing
 	void set_axes_name_selected_row_Slot(int row);
 
+  Q_SIGNALS:
+    void extractorPreview();
+
   protected:
 	PVRush::PVInputDescription_p _log_input; //!< File use for Format building.
 	PVRush::PVInputType_p _log_input_type;   //!< InputType plugin to load data.

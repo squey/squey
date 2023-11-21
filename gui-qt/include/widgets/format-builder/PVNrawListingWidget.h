@@ -91,6 +91,8 @@ class PVNrawListingWidget : public QWidget
 	void select_column(PVCol col);
 	void mark_row_as_invalid(size_t row_index);
 	void select_header(PVCol column);
+	void set_error_message(QString error);
+	void unset_error_message();
 
   public Q_SLOTS:
 	void nraw_custom_menu_Slot(const QPoint& pt);
