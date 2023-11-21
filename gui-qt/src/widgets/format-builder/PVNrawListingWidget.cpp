@@ -165,6 +165,19 @@ void App::PVNrawListingWidget::select_header(PVCol column)
 	_nraw_model->sel_visible(true);
 }
 
+void App::PVNrawListingWidget::set_error_message(QString error)
+{
+	_nraw_table->setVisible(false);
+	_src_label->setStyleSheet("QLabel { color : red; }");
+	_src_label->setText(error);
+}
+
+void App::PVNrawListingWidget::unset_error_message()
+{
+	_src_label->setStyleSheet("");
+	_nraw_table->setVisible(true);
+}
+
 void App::PVNrawListingWidget::select_column(PVCol col)
 {
 	PVLOG_DEBUG("(PVNrawListingWidget) select column %d\n", col);

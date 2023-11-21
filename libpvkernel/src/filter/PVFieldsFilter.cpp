@@ -62,9 +62,6 @@ PVCore::list_fields& PVFieldsFilter<one_to_one>::operator()(PVCore::list_fields&
 template <>
 PVCore::list_fields& PVFieldsFilter<one_to_many>::operator()(PVCore::list_fields& fields)
 {
-	assert(_fields_expected > 0 && "this splitter has not set its number of expected fields using "
-	                               "'set_number_expected_fields'");
-
 	PVCore::list_fields::iterator it, ite, it_cur;
 	ite = fields.end();
 	it = fields.begin();

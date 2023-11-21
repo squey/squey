@@ -149,6 +149,7 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	_nraw_model = new PVNrawListingModel();
 	_nraw_widget = new PVNrawListingWidget(_nraw_model);
 	_nraw_widget->connect_preview(this, &PVFormatBuilderWidget::slotExtractorPreview);
+	connect(myTreeModel, &App::PVXmlDomModel::layoutChanged, this, &PVFormatBuilderWidget::slotExtractorPreview, Qt::QueuedConnection);
 	_nraw_widget->connect_autodetect(this, [this](){slotAutoDetectAxesTypes(false);});
 	_nraw_widget->connect_axes_name(this, &PVFormatBuilderWidget::set_axes_name_selected_row_Slot);
 	_nraw_widget->connect_table_header(this,
@@ -504,6 +505,7 @@ void App::PVFormatBuilderWidget::slotDelete()
 		myTreeView->deleteSelection();
 		myParamBord_old_model->drawForNo(QModelIndex());
 		slotUpdateToolsState(myTreeView->currentIndex());
+		Q_EMIT extractorPreview();
 	}
 }
 
@@ -536,6 +538,11 @@ void App::PVFormatBuilderWidget::slotNeedApply()
 {
 	QModelIndex index;
 	myTreeView->applyModification(myParamBord_old_model, index);
+
+	// Refresh params widget
+	if (_log_input_type) {
+		Q_EMIT extractorPreview();
+	}
 }
 
 /******************************************************************************
@@ -1156,22 +1163,19 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		update_table(rstart, rend);
 
 	} catch (PVRush::PVInputException& e) {
-		QMessageBox::critical(this, "Error",
-		                      "Error while importing a source: " + QString(e.what()));
+		_nraw_widget->set_error_message("Error while importing a source: " + QString(e.what()));
 		has_error = true;
 	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
-		QMessageBox::critical(this, "Error", e.what());
+		_nraw_widget->set_error_message(e.what());
 		has_error = true;
 	} catch (PVRush::PVFormatInvalid const& e) {
-		QMessageBox::critical(this, "Error",
-		                      "The current format is not valid. We can't perform an import : " +
-		                          QString(e.what()));
+		_nraw_widget->set_error_message("The current format is not valid. We can't perform an import : " + QString(e.what()));
 		has_error = true;
 	} catch (PVRush::PVFormatInvalidTime const& e) {
-		QMessageBox::critical(this, "Error", e.what());
+		_nraw_widget->set_error_message(e.what());
 		has_error = true;
 	} catch (PVRush::PVConverterCreationError const& e) {
-		QMessageBox::critical(this, "Unsupported charset", e.what());
+		_nraw_widget->set_error_message(QString("Unsupported charset : ") + e.what());
 		has_error = true;
 	}
 
@@ -1184,6 +1188,7 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		_nraw_output = std::make_unique<PVRush::PVNrawOutput>(*_nraw);
 		return;
 	}
+	_nraw_widget->unset_error_message();
 
 	// Tell the NRAW widget that the input has changed
 	_nraw_widget->set_last_input(_log_input_type, _log_input);
@@ -1239,9 +1244,11 @@ void App::PVFormatBuilderWidget::update_table(PVRow start, PVRow end)
 
 void App::PVFormatBuilderWidget::slotExtractorPreview()
 {
-	PVRow start, end;
-	_nraw_widget->get_ext_args(start, end);
-	load_log(start, end);
+	if (_log_input_type) {
+		PVRow start, end;
+		_nraw_widget->get_ext_args(start, end);
+		load_log(start, end);
+	}
 }
 
 bool App::PVFormatBuilderWidget::is_dom_empty()
