@@ -126,15 +126,6 @@ add_squey_compile_test(Trush_database LINKS ${LINK_LIBRARIES} pvkernel Qt6Sql FI
 #add_squey_test(Trush_database Trush_database ${TESTS_FILES_DIR})
 
 # Plugin sources
-add_squey_compile_test(Trush_splunk_source LINKS ${LINK_LIBRARIES}
-	FILES splunk_source.cpp helpers.cpp
-	../../plugins/common/splunk/PVSplunkInfos.cpp
-	../../plugins/common/splunk/PVSplunkQuery.cpp)
-#add_squey_test(Trush_splunk_source Trush_splunk_source)
-add_bench(Trush_splunk_source LINKS ${LINK_LIBRARIES}
-	FILES splunk_source.cpp helpers.cpp
-	../../plugins/common/splunk/PVSplunkInfos.cpp
-	../../plugins/common/splunk/PVSplunkQuery.cpp)
 
 add_squey_compile_test(Trush_elasticsearch_source LINKS ${LINK_LIBRARIES}
 	FILES elasticsearch_source.cpp helpers.cpp
@@ -189,16 +180,6 @@ set(ELASTICSEARCH_SRC_FILES
 add_squey_compile_test(Trush_elasticsearch LINKS ${LINK_LIBRARIES} pvkernel curl FILES elasticsearch.cpp ${ELASTICSEARCH_SRC_FILES})
 #add_squey_test(Trush_elasticsearch Trush_elasticsearch ${TESTS_FILES_DIR}/exports/Trush_elasticsearch)
 
-# Splunk plugin test
-set(SPLUNK_SRC_FILES
-../../plugins/common/splunk/PVSplunkAPI.cpp
-../../plugins/common/splunk/PVSplunkInfos.cpp
-../../plugins/common/splunk/PVSplunkQuery.cpp
-../../plugins/common/splunk/PVSplunkJsonConverter.cpp
-)
-add_squey_compile_test(Trush_splunk LINKS ${LINK_LIBRARIES} pvkernel curl FILES splunk.cpp ${SPLUNK_SRC_FILES})
-#add_squey_test(Trush_splunk Trush_splunk ${TESTS_FILES_DIR}/exports/Trush_splunk)
-
 # Datetime ICU to boost
 add_squey_compile_test(Trush_datetime_support LINKS ${LINK_LIBRARIES} FILES datetime_support.cpp)
 add_squey_test(Trush_datetime_support Trush_datetime_support)
@@ -239,43 +220,3 @@ add_bench(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_di
 # squey-logstats
 add_squey_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
 add_squey_test(Trush_logstats Trush_logstats)
-
-# ERF
-#set(ERF_LIBS
-#    /app/lib/libhdf5_cpp.so
-#	/app/lib/liberf_cpp_sp.so
-#)
-#include_directories(AFTER /app/include/erf/include)
-#include_directories(AFTER /app/include/erf/include/c)
-#include_directories(AFTER /app/include/erf/include/cpp)
-
-#add_squey_compile_test(Trush_erf LINKS ${LINK_LIBRARIES} ${ERF_LIBS} FILES erf.cpp ../../plugins/common/erf/PVERFAPI.cpp)
-#add_squey_test(
-#	Trush_erf Trush_erf
-#	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.erfh5"
-#	"{\"post\":{\"constant\":{\"connectivities\":[\"SHELL\"],\"entityresults\":{\"NODE\":{\"list\":\"\", \"groups\":[\"COORDINATE\"]},\"SHELL\":[\"Domain\"]}},\"singlestate\":{\"entityresults\":{\"NODE\":{\"list\":\"\", \"groups\":[\"Velocity\"]}},\"states\":\"3,20\"}}}"
-#	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output1"
-#	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output2"
-#	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output3"
-#	"${PVRUSH_TEST_FILES}/erf/triangle_RESULT.output4"
-#)
-
-# OPC-UA
-find_package(Qt6OpcUa REQUIRED)
-include_directories(SYSTEM ${Qt6OpcUa_INCLUDE_DIRS})
-
-find_package(Qt6Network REQUIRED)
-include_directories(SYSTEM ${Qt6Network_INCLUDE_DIRS})
-
-#find_package(open62541 REQUIRED)
-#include_directories(SYSTEM ${open62541_INCLUDE_DIRS})
-
-set(OPCUA_SRC_FILES
-../../plugins/common/opcua/PVOpcUaTreeItem.cpp
-../../plugins/common/opcua/PVOpcUaTreeModel.cpp
-../../plugins/common/opcua/PVOpcUaAPI.cpp
-../../plugins/common/opcua/PVOpcUaInfos.cpp
-../../plugins/common/opcua/PVOpcUaQuery.cpp
-)
-add_squey_compile_test(Topcua LINKS ${LINK_LIBRARIES} Qt6Network Qt6OpcUa open62541 ssl crypto FILES opcua.cpp ${OPCUA_SRC_FILES})
-#add_squey_test(Topcua Topcua)
