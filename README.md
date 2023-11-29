@@ -78,7 +78,7 @@ Compiling and running the software from the development shell:
 cd builds/{clang++,g++}/{debug,release} && cmake --build . && ./squey.sh
 ```
 
-### Generating an installing a local flatpak package
+### Generating and installing a local flatpak package
 
 ```
 cd buildstream && ./build.sh --flatpak-export=true --flatpak-repo=local_repo
