@@ -189,10 +189,6 @@ void App::PVMainWindow::create_menus()
 	filter_Menu->addSeparator();
 	create_filters_menu_and_actions();
 
-	source_Menu = menubar->addMenu(tr("&Source"));
-	source_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	source_Menu->addAction(view_display_inv_elts_Action);
-
 	view_Menu = menubar->addMenu(tr("&View"));
 	view_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	view_Menu->addAction(axes_combination_editor_Action);
@@ -239,7 +235,6 @@ void App::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	events_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond && is_solution_untitled());
-	source_Menu->setEnabled(cond);
 	view_Menu->setEnabled(cond);
 	solution_save_Action->setEnabled(cond);
 	solution_saveas_Action->setEnabled(cond);

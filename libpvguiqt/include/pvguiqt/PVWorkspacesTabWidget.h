@@ -35,12 +35,14 @@
 
 class QMouseEvent;
 class QWidget;
+class QStackedWidget;
 
 namespace PVGuiQt
 {
 
 class PVWorkspaceBase;
 class PVSceneWorkspacesTabWidget;
+class PVImportWorkflowTabBar;
 
 /**
  * \class PVSceneTabBar
@@ -52,12 +54,12 @@ class PVSceneTabBar : public QTabBar
 	Q_OBJECT
 
   public:
-	explicit PVSceneTabBar(PVSceneWorkspacesTabWidget* tab_widget);
+	explicit PVSceneTabBar(QWidget* parent = nullptr);
 
   public:
 	/*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
 	 */
-	void resizeEvent(QResizeEvent* event) override;
+	//void resizeEvent(QResizeEvent* event) override;
 
   protected:
 	void mousePressEvent(QMouseEvent* event) override;
@@ -82,10 +84,18 @@ class PVSceneTabBar : public QTabBar
  * ie: It is the tab widget with all sources of the scene and tab modification add/updage/change
  * sources.
  */
-class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
+class PVSceneWorkspacesTabWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 	Q_PROPERTY(int tab_width READ get_tab_width WRITE set_tab_width);
+
+  private:
+	enum class EImportWorkflowStage : size_t {
+		//DATA = 0,
+		FORMAT = 0,
+		ERRORS,
+		WORKSPACE
+	};
 
   public:
 	explicit PVSceneWorkspacesTabWidget(Squey::PVScene& scene, QWidget* parent = 0);
@@ -95,9 +105,24 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 	 */
 	void add_workspace(PVWorkspaceBase* page, const QString& label);
 
+	void show_errors_and_warnings();
+
 	/*! \brief Remove a workspace with or without animation.
 	 */
 	void remove_workspace(int index);
+
+	int current_index() const { return _workspace_tab_bar->currentIndex(); }
+
+	void set_current_tab(int index);
+	void set_current_workflow_tab(int index);
+
+	void set_worflow_tab_status(int index);
+
+	QWidget* current_widget();
+
+	int index_of(QWidget* workspace);
+
+	QString tab_text(int index) { return _workspace_tab_bar->tabText(index); }
 
   public:
 	bool is_project_modified() { return _project_modified; }
@@ -114,9 +139,9 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 	 */
 	void tab_close_requested(int index);
 
-	/*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
-	 */
-	void resizeEvent(QResizeEvent* event) override;
+	// /*! \brief Handle the resizing of the tabs for prettier TextElideMode display than QT's way.
+	//  */
+	// void resizeEvent(QResizeEvent* event) override;
 
   private Q_SLOTS:
 	/*! \brief Change the CSS property width of the selected tab (used by the animation).
@@ -149,6 +174,13 @@ class PVSceneWorkspacesTabWidget : public QTabWidget, public sigc::trackable
 
   private:
 	Squey::PVScene& _scene;
+	PVGuiQt::PVSceneTabBar* _workspace_tab_bar = nullptr;
+	PVGuiQt::PVImportWorkflowTabBar* _import_worflow_tab_bar = nullptr;
+	QStackedWidget* _stacked_widget = nullptr;
+	QStackedWidget* _stacked_widget_data = nullptr;
+	QStackedWidget* _stacked_widget_format = nullptr;
+	QStackedWidget* _stacked_widget_errors = nullptr;
+	QStackedWidget* _stacked_widget_workspace = nullptr;
 	bool _project_modified = false;
 };
 } // namespace PVGuiQt

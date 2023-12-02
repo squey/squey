@@ -156,6 +156,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	bool save_modified_projects();
 	bool is_current_project_untitled() { return current_project() != nullptr; }
 	void collapse_tabs(bool collapse = true);
+	void show_errors_and_warnings();
 
 	inline Squey::PVScene* current_scene() const { return _root->current_scene(); }
 	PVSceneWorkspacesTabWidget* current_workspace_tab_widget() const;
@@ -170,7 +171,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	inline void select_tab_from_scene(Squey::PVScene* scene);
 	inline PVWorkspaceBase* current_workspace() const
 	{
-		return current_project() ? (PVWorkspaceBase*)current_project()->currentWidget() : nullptr;
+		return current_project() ? (PVWorkspaceBase*)current_project()->current_widget() : nullptr;
 	}
 	inline Squey::PVView* current_view() const { return _root->current_view(); }
 	inline int projects_count() { return _tab_widget->count() - FIRST_PROJECT_INDEX; }

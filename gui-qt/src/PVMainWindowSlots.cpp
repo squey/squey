@@ -753,8 +753,8 @@ void App::PVMainWindow::get_screenshot_widget()
 			 * page or on a data collection page
 			 */
 			int current_tab_index =
-			    _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
-			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tabText(
+			    _projects_tab_widget->current_workspace_tab_widget()->current_index();
+			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tab_text(
 			                     current_tab_index))
 			           .baseName();
 		} else {

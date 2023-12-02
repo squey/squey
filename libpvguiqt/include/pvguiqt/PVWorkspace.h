@@ -220,6 +220,9 @@ class PVSourceWorkspace : public PVWorkspaceBase
   public:
 	inline Squey::PVSource* get_source() const { return _source; }
 
+	bool has_errors_or_warnings() const;
+	QString source_type() const;
+
 	/**
 	 * Get the Dialog widget that show invalid elements.
 	 */
@@ -233,7 +236,7 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	QToolBar* _toolbar = nullptr;
 	QComboBox* _toolbar_combo_views = nullptr;
 
-	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.
+	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg = nullptr; //<! Dialog with listing of invalid elements.
 };
 } // namespace PVGuiQt
 

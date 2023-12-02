@@ -185,10 +185,17 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 	_splitter->setSizes(sizes);
 }
 
+void PVGuiQt::PVProjectsTabWidget::show_errors_and_warnings()
+{
+	auto* workspace_tab_widget = qobject_cast<PVSceneWorkspacesTabWidget*>(_stacked_widget->widget(_tab_widget->count()-1));
+	workspace_tab_widget->show_errors_and_warnings();
+}
+
 PVGuiQt::PVSceneWorkspacesTabWidget*
 PVGuiQt::PVProjectsTabWidget::add_project(Squey::PVScene& scene_p)
 {
 	auto* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
+	workspace_tab_widget->setObjectName("workspace_tab_widget");
 	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::workspace_dragged_outside, this,
 	        &PVProjectsTabWidget::emit_workspace_dragged_outside);
 	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::is_empty, this,
@@ -198,7 +205,10 @@ PVGuiQt::PVProjectsTabWidget::add_project(Squey::PVScene& scene_p)
 
 	int index = _tab_widget->count();
 	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p.get_name()));
+
 	_stacked_widget->insertWidget(index, workspace_tab_widget);
+
+
 	_tab_widget->setTabToolTip(index, QString::fromStdString(scene_p.get_name()));
 	_tab_widget->setCurrentIndex(index);
 
@@ -278,9 +288,9 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 	}
 	workspace_tab_widget->add_workspace(workspace, QString::fromStdString(tab_name));
 
-	int index = workspace_tab_widget->indexOf(workspace);
-	workspace_tab_widget->setTabToolTip(index, src->get_tooltip());
-	workspace_tab_widget->setCurrentIndex(index);
+	int index = workspace_tab_widget->index_of(workspace);
+	//workspace_tab_widget->setTabToolTip(index, src->get_tooltip());
+	workspace_tab_widget->set_current_tab(index);
 
 	_tab_widget->setCurrentIndex(_stacked_widget->indexOf(workspace_tab_widget));
 }
@@ -289,7 +299,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace
 {
 	auto& scene = workspace->get_source()->get_parent<Squey::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
-	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace));
+	workspace_tab_widget->remove_workspace(workspace_tab_widget->index_of(workspace));
 }
 
 void PVGuiQt::PVProjectsTabWidget::remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget)

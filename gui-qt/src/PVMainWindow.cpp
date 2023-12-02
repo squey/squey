@@ -152,7 +152,6 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setContentsMargins(0, 0, 0, 0);
-
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
 	// Set status bar
@@ -1046,22 +1045,6 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 		}
 		QMessageBox::critical(this, "Cannot load sources", msg);
 		return false;
-	} else {
-		size_t inv_col_count = invalid_columns_count(src);
-		const QString& details = bad_conversions_as_string(src);
-		if (inv_col_count > 0 and not details.isEmpty()) {
-			// We can continue with it but user have to know that some values are
-			// incorrect.
-			QMessageBox warning_message(
-			    QMessageBox::Warning, "Failed conversion(s)",
-			    "\n" + QString::number(inv_col_count) + "/" +
-			        QString::number(src->get_nraw_column_count()) +
-			        " column(s) have some values that failed to be properly "
-			        "converted from text to binary during import...",
-			    QMessageBox::Ok, this);
-			warning_message.setDetailedText(details);
-			warning_message.exec();
-		}
 	}
 
 	BENCH_STOP(lff);
@@ -1092,6 +1075,8 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 	}
 
 	source_loaded(*src, update_recent_items);
+
+	_projects_tab_widget->show_errors_and_warnings();
 
 	return true;
 }

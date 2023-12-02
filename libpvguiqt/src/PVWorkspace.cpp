@@ -37,6 +37,7 @@
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVSimpleStringListModel.h>
 #include <pvguiqt/PVStatusBar.h>
+#include <pvguiqt/PVErrorsAndWarnings.h>
 
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
 #include <squey/widgets/PVViewArgumentEditorCreator.h>
@@ -71,7 +72,7 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 				    project_tab_widget->current_workspace_tab_widget();
 				if (workspace_tab_widget) {
 					auto* workspace =
-					    qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->currentWidget());
+					    qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->current_widget());
 					if (workspace) {
 						active_workspaces.append(workspace);
 					}
@@ -412,6 +413,16 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 		    },
 		    PVDisplays::PVDisplayIf::DefaultPresenceInSourceWorkspace);
 	}
+}
+
+bool PVGuiQt::PVSourceWorkspace::has_errors_or_warnings() const
+{
+	return get_source_invalid_evts_dlg() != nullptr or PVErrorsAndWarnings::invalid_columns_count(get_source()) > 0;
+}
+
+QString PVGuiQt::PVSourceWorkspace::source_type() const
+{
+	return _source->get_source_creator()->name();
 }
 
 const PVGuiQt::PVWorkspaceBase::PVViewWidgets&

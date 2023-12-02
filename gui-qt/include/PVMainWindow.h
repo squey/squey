@@ -207,7 +207,6 @@ class PVMainWindow : public QMainWindow
 	QMenu* events_Menu;
 	QMenu* selection_Menu;
 	QMenu* tools_Menu;
-	QMenu* source_Menu;
 	QMenu* view_Menu;
 	QMenu* help_Menu;
 
