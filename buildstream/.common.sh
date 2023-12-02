@@ -32,10 +32,10 @@ source env.conf
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/22.08/active/files"
+GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/23.08/active/files"
 GL_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_HOST_DIR"
 GL_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_HOST_DIR"
-GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/22.08-extra/active/files"
+GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/23.08-extra/active/files"
 GL_EXTRA_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_EXTRA_HOST_DIR"
 GL_EXTRA_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_EXTRA_HOST_DIR"
 NVIDIA_VERSION_NAME=$(flatpak --gl-drivers|grep "nvidia") || true
