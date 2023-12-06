@@ -42,3 +42,4 @@ include_directories(AFTER include)
 
 
 add_subdirectory(src)
+add_subdirectory(tests)

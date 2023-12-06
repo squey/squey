@@ -175,7 +175,7 @@ void App::PVMainWindow::export_selection_Slot()
 	Squey::PVView* view = current_view();
 	Squey::PVSelection const& sel = view->get_real_output_selection();
 
-	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel);
+	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel, this);
 }
 
 /******************************************************************************

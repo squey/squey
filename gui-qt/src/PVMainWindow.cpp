@@ -246,6 +246,7 @@ void App::PVMainWindow::closeEvent(QCloseEvent* event)
 {
 	if (maybe_save_solution()) {
 		event->accept();
+		deleteLater();
 	} else {
 		event->ignore();
 	}
@@ -649,6 +650,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	}
 
 	_projects_tab_widget->setVisible(true);
+	Q_EMIT change_of_current_view_Signal();
 }
 
 /******************************************************************************

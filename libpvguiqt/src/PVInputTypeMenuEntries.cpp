@@ -77,6 +77,7 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout,
 		QObject::connect(action, SIGNAL(triggered()), parent, slot);
 
 		auto* button = new QPushButton(in->menu_input_name());
+		button->setObjectName(in->registered_name());
 		button->setIcon(in->icon());
 		button->setCursor(in->cursor());
 

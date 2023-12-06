@@ -50,6 +50,7 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	QFileDialog::FileMode file_mode /* = QFileDialog::AnyFile */)
     : PVWidgets::PVExportDlg(parent, accept_mode, file_mode)
 {
+	setObjectName("PVExportSelectionDlg");
 	delete _groupbox->layout();
 	delete _exporter_widget;
 
@@ -106,10 +107,11 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
  * It creates the ExportSelectionDlg and handle the result.
  */
 void PVGuiQt::PVExportSelectionDlg::export_selection(Squey::PVView& view,
-                                                     const Squey::PVSelection& sel)
+                                                     const Squey::PVSelection& sel,
+													 QWidget* parent /* = nullptr */)
 {
 	// FileDialog for option selection and file to write
-	PVGuiQt::PVExportSelectionDlg export_selection_dlg(view);
+	PVGuiQt::PVExportSelectionDlg export_selection_dlg(view, parent);
 
 	QFile file;
 	// Ask for file until a valid name is given or the action is aborted
@@ -155,6 +157,8 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Squey::PVView& view,
 		    }
 	    },
 	    "Selection export", nullptr);
+
+	Q_EMIT export_selection_dlg.selection_exported();
 }
 
 void PVGuiQt::PVExportSelectionDlg::export_layers(Squey::PVView& view)

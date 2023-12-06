@@ -63,7 +63,7 @@ class PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	 * ExportSelectionDlg can't be created directly, creation and export are
 	 * done in one step.
 	 */
-	static void export_selection(Squey::PVView& view, const Squey::PVSelection& sel);
+	static void export_selection(Squey::PVView& view, const Squey::PVSelection& sel, QWidget* parent = nullptr);
 	
 	static void export_layers(Squey::PVView& view);
 
@@ -85,6 +85,9 @@ class PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	{
 		return _is_source_exporter ? *_source_exporter : *_exporter;
 	}
+
+	Q_SIGNALS:
+	void selection_exported();
 
   private:
 	bool _is_source_exporter;

@@ -31,15 +31,6 @@ include(CMakeCompilers.txt)
 # Define folder for find_package macro
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${squey_SOURCE_DIR}/cmake)
 
-# FIXME : This is a Hack waiting for QWebEngine integration
-set(QT_WEBKIT 0)
-if(${QT_WEBKIT})
-	add_definitions(-DQT_WEBKIT)
-	message(STATUS "Using QtWebKit")
-else(${QT_WEBKIT})
-	message(STATUS "Using QtWebEngine")
-endif(${QT_WEBKIT})
-
 # Required libraries
 # Define library that will be used everywhere in Squey
 include(CMakeRequiredLibraries.txt)
