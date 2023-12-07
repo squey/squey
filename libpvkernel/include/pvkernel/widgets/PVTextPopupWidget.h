@@ -186,11 +186,7 @@ class PVTextPopupWidget : public PVPopupWidget
 	bool eventFilter(QObject* obj, QEvent* event) override;
 
   private:
-#ifdef QT_WEBKIT
-	QWebView* _webview;
-#else
 	QWebEngineView* _webview;
-#endif
 	QWidget* _last_widget;
 	QString _temp_text;
 	int _last_align;
