@@ -109,7 +109,7 @@ config:
       build-commands:
       - |
         export PYTHONPATH=$(bash -c "echo /app/lib/python*/site-packages")
-        cd "%{build-dir}" && ninja && ninja squey_testsuite
+        cd "%{build-dir}" && (ninja && ninja squey_testsuite) || exit 1
         if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
         TESTS="-R SQUEY_TEST"
         if [ "%{code_coverage}" = "1" ]; then CODE_COVERAGE_COMMAND="-T coverage"; TESTS="-R 'SQUEY_TEST|PVCOP_TEST'"; fi
