@@ -37,11 +37,8 @@
 #include <QSettings>
 #include <QString>
 
-#ifdef QT_WEBKIT
-#include <QtWebKitWidgets/QWebView>
-#else
 #include <QWebEngineView>
-#endif
+#include <QWebEngineSettings>
 
 /**
  * RH: the code snipset from http://jsfiddle.net/r9yrM/1/ has been used as a template for the

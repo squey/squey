@@ -29,12 +29,7 @@
 
 #include <QString>
 
-#ifdef QT_WEBKIT
-class QWebView;
-#else
 class QWebEngineView;
-#endif
-
 class QPaintEvent;
 
 namespace PVWidgets

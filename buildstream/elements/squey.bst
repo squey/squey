@@ -72,6 +72,10 @@ build-depends:
 #- clang-tools-extra.bst
 - fix_gdb.bst
 - recc.bst
+- openssh-portable.bst
+- procps.bst
+- waypipe.bst
+- llvm.bst
 
 sources:
 - kind: local

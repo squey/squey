@@ -32,14 +32,18 @@ fi
 # Set EGL vendor dirs
 export __EGL_VENDOR_LIBRARY_DIRS="$__EGL_VENDOR_LIBRARY_DIRS:$(find /usr/lib/x86_64-linux-gnu/GL/ -name egl_vendor.d | xargs | tr ' ' ':')"
 
-for build_type in debug release
+# Run ssh server to enable remote debugging into development sandbox
+buildstream/sshd/run_ssh_server.sh &
+
+declare -A compilers=(["GCC"]="g++" ["Clang"]="clang++")
+for build_type in Debug RelWithDebInfo
 do
-    for compiler in g++ clang++
+    for compiler in "${!compilers[@]}"
     do
         BUILD_FOLDER="builds/$compiler/$build_type"
         if [ ! -d "$BUILD_FOLDER" ]
         then
-            cmake -B"$BUILD_FOLDER" -DCMAKE_CXX_COMPILER="$compiler" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            cmake -B"$BUILD_FOLDER" -DCMAKE_CXX_COMPILER="${compilers[$compiler]}" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         fi
     done
 done
