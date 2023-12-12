@@ -91,6 +91,10 @@ if  [ "$TESTSUITE_DISABLED" = true ]; then
 fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
+  pushd .
+  cd ../libpvcop/tests/files
+  git submodule update --checkout
+  popd
 fi
 
 if [ "$EXPORT_BUILD" = false ]; then
