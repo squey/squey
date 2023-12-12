@@ -2,6 +2,8 @@
 # @file
 #
 
+include_directories(AFTER ../include/pvguiqt/format-builder)
+
 ################################################
 # Ressource declaration
 ################################################
@@ -44,6 +46,26 @@ PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
 PVPythonCodeEditor.cpp
 
+# FormatBuilder
+format-builder/PVFormatBuilderWidget.cpp
+format-builder/PVNrawListingModel.cpp
+format-builder/PVNrawListingWidget.cpp
+format-builder/PVXmlDomModel.cpp
+format-builder/PVXmlParamColorDialog.cpp
+format-builder/PVXmlParamComboBox.cpp
+format-builder/PVXmlParamList.cpp
+format-builder/PVXmlParamTextEdit.cpp
+format-builder/PVXmlParamWidget.cpp
+format-builder/PVXmlParamWidgetBoardAxis.cpp
+format-builder/PVXmlParamWidgetBoardFilter.cpp
+format-builder/PVXmlParamWidgetBoardSplitterRegEx.cpp
+format-builder/PVXmlParamWidgetEditorBox.cpp
+format-builder/PVXmlRegValidatorHighLight.cpp
+format-builder/PVXmlTreeItemDelegate.cpp
+format-builder/PVXmlTreeView.cpp
+format-builder/PVXmlTimeValidatorHighLight.cpp
+format-builder/PVOptionsWidget.cpp
+
 # Displays that will be registered to libpvdisplays
 PVDisplaySourceDataTree.cpp
 PVDisplayViewAxesCombination.cpp
@@ -83,6 +105,22 @@ SET(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVPythonScriptWidget.h
 ../include/pvguiqt/PVPythonCodeEditor.h
 ../include/pvguiqt/PVProgressBoxPython.h
+
+# FormatBuilder
+../include/pvguiqt/format-builder/PVFormatBuilderWidget.h
+../include/pvguiqt/format-builder/PVNrawListingWidget.h
+../include/pvguiqt/format-builder/PVXmlTreeView.h
+../include/pvguiqt/format-builder/PVXmlParamColorDialog.h
+../include/pvguiqt/format-builder/PVXmlParamComboBox.h
+../include/pvguiqt/format-builder/PVXmlParamList.h
+../include/pvguiqt/format-builder/PVXmlParamTextEdit.h
+../include/pvguiqt/format-builder/PVXmlParamWidget.h
+../include/pvguiqt/format-builder/PVXmlParamWidgetBoardAxis.h
+../include/pvguiqt/format-builder/PVXmlParamWidgetBoardFilter.h
+../include/pvguiqt/format-builder/PVXmlParamWidgetBoardSplitterRegEx.h
+../include/pvguiqt/format-builder/PVXmlRegValidatorHighLight.h
+../include/pvguiqt/format-builder/PVXmlTimeValidatorHighLight.h
+../include/pvguiqt/format-builder/PVOptionsWidget.h
 )
 
 SET(UI_FILES

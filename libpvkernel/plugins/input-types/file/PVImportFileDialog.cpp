@@ -40,6 +40,8 @@ PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget*
 	setWindowTitle("Import file");
 	setFileMode(QFileDialog::ExistingFiles);
 
+	setObjectName("PVImportFileDialog");
+
 	auto* this_layout = (QGridLayout*)layout();
 
 	auto* option_group = new QGroupBox();

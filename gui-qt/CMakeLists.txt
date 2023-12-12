@@ -34,10 +34,12 @@ include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
+include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS}/pvguiqt/format-builder)
 include_directories(AFTER ${PVLICENSE_INCLUDE_DIR})
 include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
 
 include_directories(AFTER include)
-include_directories(AFTER include/widgets/format-builder)
+
 
 add_subdirectory(src)
+add_subdirectory(tests)

@@ -140,11 +140,7 @@ PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent)
 	l->setContentsMargins(0, 0, 0, 0);
 	setLayout(l);
 
-#ifdef QT_WEBKIT
-	_webview = new QWebView();
-#else
 	_webview = new QWebEngineView();
-#endif
 
 	// no need for "reload" context menu
 	_webview->setContextMenuPolicy(Qt::NoContextMenu);

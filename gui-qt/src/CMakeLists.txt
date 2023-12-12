@@ -14,21 +14,6 @@ SET(MOC_HEADERS
 ../include/PVFilesTypesSelWidget.h
 ../include/PVMainWindow.h
 ../include/PVStringListChooserWidget.h
-
-../include/widgets/format-builder/PVFormatBuilderWidget.h
-../include/widgets/format-builder/PVNrawListingWidget.h
-../include/widgets/format-builder/PVXmlTreeView.h 
-../include/widgets/format-builder/PVXmlParamColorDialog.h
-../include/widgets/format-builder/PVXmlParamComboBox.h
-../include/widgets/format-builder/PVXmlParamList.h
-../include/widgets/format-builder/PVXmlParamTextEdit.h
-../include/widgets/format-builder/PVXmlParamWidget.h
-../include/widgets/format-builder/PVXmlParamWidgetBoardAxis.h
-../include/widgets/format-builder/PVXmlParamWidgetBoardFilter.h
-../include/widgets/format-builder/PVXmlParamWidgetBoardSplitterRegEx.h
-../include/widgets/format-builder/PVXmlRegValidatorHighLight.h
-../include/widgets/format-builder/PVXmlTimeValidatorHighLight.h
-../include/widgets/format-builder/PVOptionsWidget.h
 )
 
 SET(SRC_FILES
@@ -39,25 +24,6 @@ PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
 PVSaveDataTreeDialog.cpp
 PVStringListChooserWidget.cpp
-
-widgets/format-builder/PVFormatBuilderWidget.cpp
-widgets/format-builder/PVNrawListingModel.cpp
-widgets/format-builder/PVNrawListingWidget.cpp
-widgets/format-builder/PVXmlDomModel.cpp
-widgets/format-builder/PVXmlParamColorDialog.cpp
-widgets/format-builder/PVXmlParamComboBox.cpp
-widgets/format-builder/PVXmlParamList.cpp
-widgets/format-builder/PVXmlParamTextEdit.cpp
-widgets/format-builder/PVXmlParamWidget.cpp
-widgets/format-builder/PVXmlParamWidgetBoardAxis.cpp
-widgets/format-builder/PVXmlParamWidgetBoardFilter.cpp
-widgets/format-builder/PVXmlParamWidgetBoardSplitterRegEx.cpp
-widgets/format-builder/PVXmlParamWidgetEditorBox.cpp
-widgets/format-builder/PVXmlRegValidatorHighLight.cpp
-widgets/format-builder/PVXmlTreeItemDelegate.cpp
-widgets/format-builder/PVXmlTreeView.cpp
-widgets/format-builder/PVXmlTimeValidatorHighLight.cpp
-widgets/format-builder/PVOptionsWidget.cpp
 )
 
 SET(QRC_FILES

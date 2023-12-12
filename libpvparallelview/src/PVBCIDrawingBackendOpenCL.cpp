@@ -131,6 +131,10 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	if (force_cpu == false) {
 		_context = PVOpenCL::find_first_usable_context(true, fun);
 	}
+	else {
+		_is_gpu_accelerated = false;
+		return;
+	}
 
 	if (_context() == nullptr) {
 		_context = PVOpenCL::find_first_usable_context(false, fun);

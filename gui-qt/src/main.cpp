@@ -230,13 +230,6 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	pv_mw.show();
 	splash.finish(&pv_mw);
 
-	setenv("QMLSCENE_DEVICE", "softwarecontext", 1);
-	QWebEngineView dummy_webengine(&pv_mw); // workaround to avoid Chromium terminate with
-	// "FATAL:file_path_watcher_linux.cc(226)] Check failed: 1024 >
-	// inotify_fd_"
-	dummy_webengine.show();
-	dummy_webengine.hide();
-
 	// Show changelog if software version has changed
 	{
 		PVGuiQt::PVChangelogMessage changelog_msg(&pv_mw);
