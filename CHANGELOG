@@ -1,3 +1,9 @@
+4.9.19 (2023-12-13)
+-------------------
+
+This minor release fixes or improves:
+* Fix PCAP input plugin regression introduced in 4.9.17
+
 4.9.18 (2023-11-21)
 -------------------
 
