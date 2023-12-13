@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: https://c-ares.haxx.se/download/c-ares-1.15.0.tar.gz
-  ref: 6cdb97871f2930530c97deb7cf5c8fa4be5a0b02c7cea6e7c7667672a39d6852
+  url: https://c-ares.org/download/c-ares-1.23.0.tar.gz
+  ref: cb614ecf78b477d35963ebffcf486fc9d55cc3d3216f00700e71b7d4868f79f5
 
 depends:
 - base.bst
