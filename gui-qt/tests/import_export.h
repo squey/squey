@@ -2,14 +2,21 @@
 #define __IMPORT_EXPORT_H__
 
 #include <QObject>
+#include <pvparallelview/PVParallelView.h>
 
 class ImportExportTest : public QObject
 {
     Q_OBJECT
 
-private Q_SLOTS:
-    void run_test();
+public:
+    ImportExportTest();
 
+private Q_SLOTS:
+    void import_file();
+    void import_pcap();
+
+private:
+    PVParallelView::common::RAII_backend_init backend_resources;
 };
 
 #endif // __IMPORT_EXPORT_H__

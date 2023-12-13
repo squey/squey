@@ -47,6 +47,7 @@ class PVPcapExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		complete_streams->setChecked(_exporter.get_export_complete_stream());
 
 		QCheckBox* open_pcap = new QCheckBox("Open PCAP after export");
+		open_pcap->setObjectName("open_pcap_checkbox");
 		QObject::connect(open_pcap, &QCheckBox::stateChanged,
 		                 [&](int state) { _exporter.set_open_pcap_after_export((bool)state); });
 		open_pcap->setChecked(_exporter.get_open_pcap_after_export());

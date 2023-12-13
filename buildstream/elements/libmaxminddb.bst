@@ -13,17 +13,13 @@ description: |
 sources:
 - kind: tar
 
-  url: github:maxmind/libmaxminddb/archive/1.7.1.tar.gz
-  ref: 4ed9c409667f0adeb3eca653780785ad04713b8a87f2fcfbb31967b213826322
+  url: https://github.com/maxmind/libmaxminddb/releases/download/1.8.0/libmaxminddb-1.8.0.tar.gz
+  ref: 1107799f77be6aa3b9796ad0eed8ffcc334bf45f8bd18e6a984d8adf3e719c6d
 
-config:
-
-  # Override autotools element default configure-commands
-  configure-commands:
-  - |
-    ./bootstrap
-    %{configure} --disable-tests
+variables:
+  conf-local: |
+    --disable-tests
 
 depends:
 - base.bst
-- freedesktop-sdk.bst:components/c-ares.bst
+- c-ares.bst
