@@ -13,7 +13,7 @@ description: |
 sources:
 - kind: tar
 
-  url: https://github.com/maxmind/libmaxminddb/releases/download/1.8.0/libmaxminddb-1.8.0.tar.gz
+  url: github:maxmind/libmaxminddb/releases/download/1.8.0/libmaxminddb-1.8.0.tar.gz
   ref: 1107799f77be6aa3b9796ad0eed8ffcc334bf45f8bd18e6a984d8adf3e719c6d
 
 variables:
