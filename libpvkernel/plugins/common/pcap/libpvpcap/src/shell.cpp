@@ -39,6 +39,7 @@
 #include <pwd.h>
 
 #include <pvkernel/core/PVConfig.h>
+#include <pvbase/general.h>
 #include <QDir>
 
 #include <tbb/pipeline.h>
@@ -352,7 +353,7 @@ std::string get_system_profile_dir()
 	if (pluginsdirs.isEmpty()) {
 		return (QString(PVKERNEL_PLUGIN_PATH) + "/input-types/pcap/profiles").toStdString();
 	} else {
-		return "../libpvkernel/plugins/common/pcap/profiles";
+		return (QString(SQUEY_SOURCE_DIRECTORY) + "/libpvkernel/plugins/common/pcap/profiles").toStdString();
 	}
 }
 
