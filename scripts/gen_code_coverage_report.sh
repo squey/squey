@@ -1,17 +1,10 @@
 #!/bin/bash
 
-# Run code coverage analysis
-lcov -c -d . -o main_coverage.info
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
-# Remove unwanted stuff
-lcov --remove main_coverage.info -o main_coverage.info \
-'/usr/*' \
-'/app/*' \
-'*/third_party/*' \
-'*/squey-utils/*' \
-'*/external/*' \
-'*/build/*' \
-'*/moc_*' \
+# Run code coverage analysis
+python $DIR/fastcov.py --lcov -o main_coverage.info \
+    --exclude /usr/ /app/ third_party/ squey-utils/ external/ build/ /moc_
 
 # Generate HTML report
 SOURCE_DATE_EPOCH=$(date +%s) genhtml main_coverage.info --output-directory code_coverage_report --dark-mode
