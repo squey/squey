@@ -67,7 +67,7 @@ add_squey_test(Tplotting_ipv4_uniform Tplotting_ipv4_uniform ${TESTS_FILES_DIR}/
 add_bench(Tplotting_ipv4_uniform LINKS ${LINK_LIBRARIES} FILES plotting_uniform.cpp)
 
 add_squey_compile_test(Tplotting_ipv6_uniform LINKS ${LINK_LIBRARIES} FILES plotting_uniform.cpp)
-add_squey_test(Tplotting_ipv6_uniform Tplotting_ipv6_uniform ${TESTS_FILES_DIR}/picviz/ipv6.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format)
+add_squey_test(Tplotting_ipv6_uniform Tplotting_ipv6_uniform ${TESTS_FILES_DIR}/picviz/ipv6_10000.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format)
 add_bench(Tplotting_ipv6_uniform LINKS ${LINK_LIBRARIES} FILES plotting_uniform.cpp)
 
 add_squey_compile_test(Tmapping_string_4bsort LINKS ${LINK_LIBRARIES} FILES mapping_string_4bsort.cpp)
