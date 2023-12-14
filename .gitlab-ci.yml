@@ -34,7 +34,7 @@ workflow:
   tags:
     - privileged-docker
   before_script:
-    - export PUSH_ARTIFACTS=$([ -n `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream` ] && echo "true" || echo "false")
+    - export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
     - for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
     - mkdir -p "$CI_PROJECT_DIR/public/flatpak"
     - cd buildstream
