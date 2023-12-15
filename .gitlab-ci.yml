@@ -33,11 +33,11 @@ workflow:
   stage: build
   tags:
     - privileged-docker
-  before_script:
-    - export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
-    - for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
-    - mkdir -p "$CI_PROJECT_DIR/public/flatpak"
-    - cd buildstream
+  before_script: |
+    export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
+    for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
+    mkdir -p "$CI_PROJECT_DIR/public/flatpak"
+    cd buildstream
   interruptible: true
 
 build testsuite:
@@ -90,20 +90,20 @@ build container image:
   stage: build
   tags:
     - privileged-docker
-  before_script:
-    - VERSION=$(curl -s -L https://flathub.org/api/v2/appstream/org.squey.Squey | jq -r .releases[0].version)
-    - VERSION_NOT_PUBLISHED=$([ $(curl -s -L -o /dev/null https://hub.docker.com/v2/repositories/squey/squey/tags/$VERSION -w "%{http_code}") -eq 404 ] && echo "true" || echo "false")
-    - PUBLISH_CONTAINER_IMAGE=$([ $PUBLISH_CONTAINER_IMAGE -o $VERSION_NOT_PUBLISHED ] && echo "true" || echo "false")
-    - cd docker
-  script:
-    - PRODUCTION=1 ./build.sh
-    - if [ $PUBLISH_CONTAINER_IMAGE = "true" ] && [ $CI_COMMIT_REF_PROTECTED = "true" ]; then
+  before_script: |
+    VERSION=$(curl -s -L https://flathub.org/api/v2/appstream/org.squey.Squey | jq -r .releases[0].version)
+    VERSION_NOT_PUBLISHED=$([ $(curl -s -L -o /dev/null https://hub.docker.com/v2/repositories/squey/squey/tags/$VERSION -w "%{http_code}") -eq 404 ] && echo "true" || echo "false")
+    PUBLISH_CONTAINER_IMAGE=$([ $PUBLISH_CONTAINER_IMAGE -o $VERSION_NOT_PUBLISHED ] && echo "true" || echo "false")
+    cd docker
+  script: |
+    PRODUCTION=1 ./build.sh
+    if [ $PUBLISH_CONTAINER_IMAGE = "true" ] && [ $CI_COMMIT_REF_PROTECTED = "true" ]; then
         echo $DOCKERHUB_TOKEN | buildah login -u squey --password-stdin registry-1.docker.io &&
         buildah push localhost/squey/squey registry-1.docker.io/squey/squey:latest
         buildah push localhost/squey/squey registry-1.docker.io/squey/squey:$VERSION
-      ; fi ;
-      echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
-      buildah push localhost/squey/squey $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
+    fi
+    echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
+    buildah push localhost/squey/squey $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
@@ -122,14 +122,14 @@ build container image stop: # Retag merged branch container to $CI_DEFAULT_BRANC
   stage: stop
   tags:
    - privileged-docker
-  script:
-    - if [ "$PUBLISH_CONTAINER_IMAGE" = "false" ]; then
-      crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY &&
-      crane tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME $CI_DEFAULT_BRANCH &&
-      wget "https://github.com/genuinetools/reg/releases/download/v0.16.1/reg-linux-amd64" -O ./reg &&
-      chmod a+x ./reg &&
+  script: |
+    if [ "$PUBLISH_CONTAINER_IMAGE" = "false" ]; then
+      crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+      crane tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME $CI_DEFAULT_BRANCH
+      wget "https://github.com/genuinetools/reg/releases/download/v0.16.1/reg-linux-amd64" -O ./reg
+      chmod a+x ./reg
       ./reg rm -d --auth-url $CI_REGISTRY -u $ CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_COMMIT_REF_NAME
-      ; fi
+    fi
   environment:
     name: review/$CI_COMMIT_REF_SLUG
     action: stop
@@ -146,24 +146,24 @@ pages:
   stage: pages
   tags:
     - privileged-docker
-  before_script:
-    - cp nsis/resources/{AccessControl.dll,ExecDos.dll,INetC.dll,KillProcDLL.dll} /usr/share/nsis/Plugins/x86-unicode/
-    - mkdir -p $CI_PROJECT_DIR/public/code_quality_report
-  script:
-    - VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
-    - PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
-    - JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
-    - 'if [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi'
-    - 'if [ $CODE_COVERAGE = "true" ]; then rm -rf $CI_PROJECT_DIR/public/code_coverage_report && mv code_coverage_report $CI_PROJECT_DIR/public; fi; exit 0'
-    - cd nsis && ./build.sh ; cd -
-    - rm -rf $CI_PROJECT_DIR/public/squey_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "Squey" -i "https://gitlab.com/squey/squey" -t "http://timestamp.comodoca.com/authenticode" -in nsis/squey_installer.exe -out "$CI_PROJECT_DIR/public/squey_installer.exe"
-    - cp "public/squey_installer.exe" "public/squey_installer_$(md5sum public/squey_installer.exe | awk '{ print $1 }').exe"
-    - cp buildstream/install.flatpakref public
-    - cp -r docker squey_docker && 
-      zip -r public/squey_docker.zip squey_docker && 
-      rm -rf squey_docker
-    - 'if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi'
-    - rm -rf "$CI_PROJECT_DIR/public/flatpak"
+  before_script: |
+    cp nsis/resources/{AccessControl.dll,ExecDos.dll,INetC.dll,KillProcDLL.dll} /usr/share/nsis/Plugins/x86-unicode/
+    mkdir -p $CI_PROJECT_DIR/public/code_quality_report
+  script: |
+    VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
+    PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
+    JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
+    if [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
+    if [ $CODE_COVERAGE = "true" ]; then rm -rf $CI_PROJECT_DIR/public/code_coverage_report && mv code_coverage_report $CI_PROJECT_DIR/public; fi; exit 0
+    cd nsis && ./build.sh ; cd -
+    rm -rf $CI_PROJECT_DIR/public/squey_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "Squey" -i "https://gitlab.com/squey/squey" -t "http://timestamp.comodoca.com/authenticode" -in nsis/squey_installer.exe -out "$CI_PROJECT_DIR/public/squey_installer.exe"
+    cp "public/squey_installer.exe" "public/squey_installer_$(md5sum public/squey_installer.exe | awk '{ print $1 }').exe"
+    cp buildstream/install.flatpakref public
+    cp -r docker squey_docker && 
+    zip -r public/squey_docker.zip squey_docker && 
+    rm -rf squey_docker
+    if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi
+    rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     reports:
       coverage_report:
@@ -183,26 +183,26 @@ flathub:
     - privileged-docker
   needs:
     - pages
-  before_script:
-    - export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-    - eval $(ssh-agent -s)
-    - echo "$SSH_FLATHUB_PRIVATE_KEY_B64" | base64 -d | ssh-add - > /dev/null
-    - rm -rf org.squey.Squey
-    - git clone git@github.com:flathub/org.squey.Squey.git
-    - git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
-    - git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
-    - export VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
-    - export BRANCH_NAME="publish-$VERSION"
-    - cd "$CI_PROJECT_DIR/org.squey.Squey"
-    - git checkout -b "$BRANCH_NAME"
-  script:
-    - cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
-    - jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
-    - git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
-    - git push -f --set-upstream origin "$BRANCH_NAME"
-    - echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
-    - gh pr --repo "flathub/org.squey.Squey" create --head master --base "$BRANCH_NAME" --fill || true
-    - gh pr --repo "flathub/org.squey.Squey" merge "$BRANCH_NAME" --auto --merge --delete-branch
+  before_script: |
+    export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+    eval $(ssh-agent -s)
+    echo "$SSH_FLATHUB_PRIVATE_KEY_B64" | base64 -d | ssh-add - > /dev/null
+    rm -rf org.squey.Squey
+    git clone git@github.com:flathub/org.squey.Squey.git
+    git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
+    git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
+    export VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
+    export BRANCH_NAME="publish-$VERSION"
+    cd "$CI_PROJECT_DIR/org.squey.Squey"
+    git checkout -b "$BRANCH_NAME"
+  script: |
+    cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
+    jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
+    git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
+    git push -f --set-upstream origin "$BRANCH_NAME"
+    echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
+    gh pr --repo "flathub/org.squey.Squey" create --head master --base "$BRANCH_NAME" --fill || true
+    gh pr --repo "flathub/org.squey.Squey" merge "$BRANCH_NAME" --auto --merge --delete-branch
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
   
