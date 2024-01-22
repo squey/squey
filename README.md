@@ -59,40 +59,7 @@ https://doc.squey.org
 
 ## Development
 
-### Roadmap
-
-https://gitlab.com/groups/squey/-/roadmap
-
-### Getting a development shell
-
-Note : you should have `python`, `git` and `git-lfs` installed.
-
-```
-git clone --recursive https://gitlab.com/squey/squey.git
-cd squey/buildstream && ./dev_shell.sh
-```
-
-Compiling and running the software from the development shell:
-
-```
-cd builds/{clang++,g++}/{debug,release} && cmake --build . && ./squey.sh
-```
-
-### Generating and installing a local flatpak package
-
-```
-cd buildstream && ./build.sh --flatpak-export=true --flatpak-repo=local_repo
-```
-
-Adding the flatpak local remote (once):
-```
-flatpak --user remote-add --no-gpg-verify squey_local ./local_repo
-```
-
-Installing a local package:
-```
-flatpak install --user squey_local org.squey.Squey//main
-```
+See the developement [README.md](buildstream/README.md) page.
 
 ### Installing a flatpak development branch
 
@@ -106,3 +73,7 @@ Installing a development branch:
 ```
 flatpak install --user squey_dev org.squey.Squey//<dev_branch_name>
 ```
+
+### Roadmap
+
+https://gitlab.com/groups/squey/-/roadmap

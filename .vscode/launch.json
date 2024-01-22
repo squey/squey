@@ -1,0 +1,51 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "(gdb) Debug Squey",
+            "type": "cppdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/builds/GCC/Debug/gui-qt/src/squey",
+            "cwd": "${workspaceFolder}/builds/GCC/Debug",
+            "environment": [
+                { "name": "QT_QPA_PLATFORM", "value": "wayland" },
+                { "name": "QT_QUICK_BACKEND", "value": "software" },
+                { "name": "PVKERNEL_PLUGIN_PATH", "value": "${workspaceFolder}/builds/GCC/Debug/libpvkernel/plugins" },
+                { "name": "SQUEY_PLUGIN_PATH", "value": "${workspaceFolder}/builds/GCC/Debug/libsquey/plugins" },
+                { "name": "QUERY_BUILDER_PATH", "value": "${workspaceFolder}/libpvkernel/src/widgets/querybuilder" },
+                { "name": "COPYING_DIR", "value": "${workspaceFolder}/COPYING" },
+                { "name": "PVFORMAT_HELPER", "value": "${workspaceFolder}/libpvkernel/plugins" }
+            ],
+            "MIMode": "gdb",
+            "setupCommands": [
+                {
+                    "description": "Enable pretty-printing for gdb",
+                    "text": "-enable-pretty-printing",
+                    "ignoreFailures": true
+                }
+            ],
+            "preLaunchTask": "CMake: build (g++)",
+        },
+        {
+            "name": "(lldb) Debug Squey",
+            "type": "lldb",
+            "request": "launch",
+            "program": "${workspaceFolder}/builds/Clang/Debug/gui-qt/src/squey",
+            "cwd": "${workspaceFolder}/builds/Clang/Debug",
+            "env": {
+                "QT_QPA_PLATFORM": "wayland",
+                "QT_QUICK_BACKEND": "software",
+
+                "PVKERNEL_PLUGIN_PATH": "${workspaceFolder}/builds/Clang/Debug/libpvkernel/plugins",
+                "SQUEY_PLUGIN_PATH": "${workspaceFolder}/builds/Clang/Debug/libsquey/plugins",
+                "QUERY_BUILDER_PATH": "${workspaceFolder}/libpvkernel/src/widgets/querybuilder",
+                "COPYING_DIR": "${workspaceFolder}/COPYING",
+                "PVFORMAT_HELPER": "${workspaceFolder}/libpvkernel/plugins"
+            },
+            "preLaunchTask": "CMake: build (clang++)",
+        }
+    ]
+}

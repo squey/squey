@@ -110,6 +110,8 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 	auto& config = PVCore::PVConfig::get().config();
 	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
+	const char* force_cpu_env = getenv("FORCE_CPU");
+	force_cpu |= (force_cpu_env != nullptr && std::string(force_cpu_env) == "1");
 
 	// List all usable OpenCL devices and create appropriate structures
 	const auto fun = [&](cl::Context& ctx, cl::Device& dev) {

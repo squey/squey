@@ -1,0 +1,6 @@
+
+Host Squey
+  HostName localhost
+  Port 6666
+  RemoteForward /tmp/squey-waypipe-socket-server /tmp/squey-waypipe-socket-client
+  SendEnv XDG_RUNTIME_DIR

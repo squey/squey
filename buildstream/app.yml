@@ -43,7 +43,6 @@ shell:
   - '/etc/hosts'
   - '/etc/resolv.conf'
 
-  - path: '/dev'
   - path: '/dev/dri'
     optional: True
   - path: '/dev/mali'
