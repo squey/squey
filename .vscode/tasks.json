@@ -6,7 +6,7 @@
             "command": "ninja",
             "args": [],
             "options": {
-                "cwd": "${workspaceFolder}/g++/debug"
+                "cwd": "${workspaceFolder}/builds/GCC/Debug"
             },
             "problemMatcher": [
                 "$gcc"
@@ -19,7 +19,7 @@
             "label": "CMake: build (g++)",
             "command": "build",
             "options": {
-                "cwd": "${workspaceFolder}/g++/debug"
+                "cwd": "${workspaceFolder}/builds/GCC/Debug"
             },
             "targets": [
                 "all"
@@ -34,7 +34,7 @@
             "command": "ninja",
             "args": [],
             "options": {
-                "cwd": "${workspaceFolder}/clang++/debug"
+                "cwd": "${workspaceFolder}/builds/Clang/Debug"
             },
             "problemMatcher": [
                 "$gcc"
@@ -47,7 +47,7 @@
             "label": "CMake: build (clang++)",
             "command": "build",
             "options": {
-                "cwd": "${workspaceFolder}/clang++/debug"
+                "cwd": "${workspaceFolder}/builds/Clang/Debug"
             },
             "targets": [
                 "all"
