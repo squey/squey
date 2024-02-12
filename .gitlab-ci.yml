@@ -91,6 +91,7 @@ build container image:
   tags:
     - privileged-docker
   before_script: |
+    dnf install -y jq
     VERSION=$(curl -s -L https://flathub.org/api/v2/appstream/org.squey.Squey | jq -r .releases[0].version)
     VERSION_NOT_PUBLISHED=$([ $(curl -s -L -o /dev/null https://hub.docker.com/v2/repositories/squey/squey/tags/$VERSION -w "%{http_code}") -eq 404 ] && echo "true" || echo "false")
     PUBLISH_CONTAINER_IMAGE=$([ $PUBLISH_CONTAINER_IMAGE -o $VERSION_NOT_PUBLISHED ] && echo "true" || echo "false")
