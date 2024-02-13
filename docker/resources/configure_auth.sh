@@ -3,7 +3,7 @@
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 source "${DIR}/env.conf"
 
-useradd -m squey
+groupadd "squey"
 
 if [ ! -z "${LDAP_URI}" ] # Configure PAM LDAP authentication if specified
 then
@@ -27,7 +27,9 @@ fi
 crudini --set /etc/adduser.conf '' DIR_MODE 0700
 if [ ! -z "${USER_NAME}" ] # Create local user if specified
 then
-    groupadd "${USER_NAME}"
+    if [ "${USER_NAME}" != "squey" ]; then
+        groupadd "${USER_NAME}"
+    fi
     useradd "${USER_NAME}" -m -g "${USER_NAME}"
     if [ $? -eq 0 ]
     then
