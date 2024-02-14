@@ -99,10 +99,17 @@ class Handler(SimpleHTTPRequestHandler):
         token=secrets.token_hex()
         subprocess.run(['/usr/bin/dcvsimpleextauth', 'add-user', '--append', f'--user={user}', f'--session={session_id}'], input=token, encoding='ascii')
 
-        self.send_response(301)
         host = self.headers.get('Host')
-        self.send_header('Location', f'https://{host}/dcv/?authToken={token}#{session_id}')
-        self.end_headers()
+        new_location = f'https://{host}/dcv/?authToken={token}#{session_id}'
+        if self.headers.get('X-Requested-With') == 'XMLHttpRequest':
+            self.send_response(200)
+            self.send_header('Content-type', 'text/plain')
+            self.end_headers()
+            self.wfile.write(bytes(new_location, 'utf-8'))
+        else:
+            self.send_response(301)
+            self.send_header('Location', new_location)
+            self.end_headers()
 
 class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     """Handle requests in a separate thread."""

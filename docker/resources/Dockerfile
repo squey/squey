@@ -65,8 +65,7 @@ RUN echo "ALL ALL=(ALL:ALL) NOPASSWD: /usr/bin/flatpak" | tee /etc/sudoers.d/fla
 RUN chmod +x "${INSTALL_PATH}/squey_loop.sh"
 RUN chmod +x "${INSTALL_PATH}/cuda-devices"
 RUN mkdir -p /srv/tmp-squey
-RUN usermod -a -G squey squey
-RUN chown squey: /srv/tmp-squey
+RUN chgrp squey /srv/tmp-squey
 RUN chmod g+w /srv/tmp-squey
 
 # Install DCV server
