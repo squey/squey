@@ -17,10 +17,11 @@ RUN apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv A4B469963BF863C
 RUN apt-get update && apt-get -y dist-upgrade && \
 apt-get install -y --no-install-recommends apt-utils pkg-config libglvnd-dev libglu1-mesa \ 
 libglu1 pciutils xorg xserver-xorg-input-all xinit xserver-xorg xserver-xorg-video-all \
-xserver-xorg-video-dummy xutils-dev kwin software-properties-common flatpak python3 python3-pip \
+xserver-xorg-video-dummy xutils-dev kwin software-properties-common software-properties-common python3 python3-pip \
 crudini pamtester nginx ssl-cert pocl-opencl-icd mesa-utils ocl-icd-libopencl1 clinfo wget patch \
 xterm kdialog systemd libxcb-xtest0 libcairo2 libcrack2 libgstreamer-plugins-base1.0-0 libgtk-3-0 \
 v4l2loopback-dkms libvdpau1 libva-drm2 qdbus-qt5 sudo && \
+add-apt-repository -y ppa:flatpak/stable && apt-get update && apt-get install -y flatpak && \
 echo "/usr/lib/x86_64-linux-gnu/libnvidia-opencl.so.1" > /etc/OpenCL/vendors/nvidia.icd && \
 cd /lib/systemd/system/sysinit.target.wants/ && \
 ls | grep -v systemd-tmpfiles-setup | xargs rm -f $1 && \
