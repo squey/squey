@@ -119,7 +119,7 @@ build container image:
 build container image stop: # Retag merged branch container to $CI_DEFAULT_BRANCH
   image: 
     name: gcr.io/go-containerregistry/crane:debug
-    entrypoint: ['ash']
+    entrypoint: [""]
   stage: stop
   tags:
    - privileged-docker
