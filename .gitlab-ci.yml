@@ -129,7 +129,7 @@ build container image stop: # Retag merged branch container to $CI_DEFAULT_BRANC
       crane tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME $CI_DEFAULT_BRANCH
       wget "https://github.com/genuinetools/reg/releases/download/v0.16.1/reg-linux-amd64" -O ./reg
       chmod a+x ./reg
-      ./reg rm -d --auth-url $CI_REGISTRY -u $ CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_COMMIT_REF_NAME
+      ./reg rm -d --auth-url $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_COMMIT_REF_NAME
     fi
   environment:
     name: review/$CI_COMMIT_REF_SLUG
