@@ -61,6 +61,14 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	                          PVCore::PVArgumentList& args_ext,
 	                          QWidget* parent = nullptr) const = 0;
 
+	virtual bool create_source_description_params(
+		const QString& /*params_json*/,
+		list_inputs& /*inputs*/,
+		PVFormat& /*format*/
+	) const
+	{ return false; }
+
+
 	/* exporter */
 	virtual std::unique_ptr<PVRush::PVExporterBase>
 	create_exporter(const list_inputs& /*inputs*/, PVRush::PVNraw const& /*nraw*/) const

@@ -50,6 +50,8 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 	                  PVCore::PVArgumentList& args_ext,
 	                  QWidget* parent = nullptr) const override;
 
+	bool create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const override;
+
 	/* exporter */
 	std::unique_ptr<PVRush::PVExporterBase>
 	create_exporter(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
@@ -68,6 +70,9 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 
 	QIcon icon() const override { return QIcon(":/parquet_icon"); }
 	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
+
+  private:
+	bool create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const;
 
   protected:
 	mutable QStringList _tmp_dir_to_delete;

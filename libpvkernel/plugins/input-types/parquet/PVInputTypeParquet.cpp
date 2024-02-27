@@ -45,7 +45,7 @@ PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVParquetFile
 
 bool PVRush::PVInputTypeParquet::createWidget(hash_formats& formats,
                                               list_inputs& inputs,
-                                              QString& format,
+                                              QString& format_str,
                                               PVCore::PVArgumentList& /*args_ext*/,
                                               QWidget* parent) const
 {
@@ -60,16 +60,52 @@ bool PVRush::PVInputTypeParquet::createWidget(hash_formats& formats,
 		return false;
 	}
 
+	PVFormat format;
+	if (create_source_description_params(file_paths, inputs, format)) {
+		formats[QString("custom")] = format;
+		format_str = "custom";
+		return true;
+	}
+	else {
+		return false;
+	}
+}
+
+bool PVRush::PVInputTypeParquet::create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const
+{
+	QStringList paths;
+	rapidjson::Document json;
+	json.Parse<0>(params_json.toStdString().c_str());
+	if (not json.HasParseError()) {
+		if (json.HasMember("paths")) {
+			const rapidjson::Value& json_paths = json["paths"];
+			if (json_paths.IsArray()) {
+				for (rapidjson::SizeType i = 0; i < json_paths.Size(); i++) {
+					const std::string& path_str = json_paths[i].GetString();
+					paths << QString::fromStdString(path_str);
+				}
+			}
+		}
+	}
+	if (paths.isEmpty()) {
+		QMessageBox::critical(nullptr, tr("Parquet | Import data parameters error"), "Unable to import data using the following JSON parameters: \n\n" + params_json);
+		return false;
+	}
+	return create_source_description_params(paths, inputs, format);
+}
+
+bool PVRush::PVInputTypeParquet::create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const
+{
 	try {
-		PVParquetFileDescription* input_desc = new PVParquetFileDescription(file_paths);
+		PVParquetFileDescription* input_desc = new PVParquetFileDescription(paths);
 		PVParquetAPI api(input_desc);
+
 		if (not api.same_schemas()) {
 			QMessageBox::critical(nullptr, tr("Incompatible schemas"), tr("All files should have the exact same schema in order to be loaded as a concatenation."));
 			return false;
 		}
 
-		formats[QString("custom")] = PVRush::PVFormat(api.get_format().documentElement());
-		format = "custom";
+		format = PVRush::PVFormat(api.get_format().documentElement());
 		inputs.push_back(PVInputDescription_p(input_desc));
 	}
 	catch (const std::exception& e) {
