@@ -155,7 +155,7 @@ pages:
     PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
     JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
     if [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
-    if [ $CODE_COVERAGE = "true" ]; then rm -rf $CI_PROJECT_DIR/public/code_coverage_report && mv code_coverage_report $CI_PROJECT_DIR/public; fi; exit 0
+    if [ $CODE_COVERAGE = "true" ]; then rm -rf $CI_PROJECT_DIR/public/code_coverage_report && mv code_coverage_report $CI_PROJECT_DIR/public; exit 0; fi;
     cd nsis && ./build.sh ; cd -
     rm -rf $CI_PROJECT_DIR/public/squey_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "Squey" -i "https://gitlab.com/squey/squey" -t "http://timestamp.comodoca.com/authenticode" -in nsis/squey_installer.exe -out "$CI_PROJECT_DIR/public/squey_installer.exe"
     cp "public/squey_installer.exe" "public/squey_installer_$(md5sum public/squey_installer.exe | awk '{ print $1 }').exe"
