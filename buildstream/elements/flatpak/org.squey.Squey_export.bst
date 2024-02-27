@@ -19,7 +19,7 @@ config:
     Name=Squey
     Exec=squey_launcher.sh
     Icon=org.squey.Squey
-    Categories=Science,Graphics;Network;
+    Categories=Science;Graphics;Network;
     EOF
     install -D -m 0644 "org.squey.Squey.desktop" -t "%{install-root}%{prefix}/share/applications"
   - install -D -m 0644 "org.squey.Squey.metainfo.xml" -t "%{install-root}%{prefix}/share/metainfo"
