@@ -47,6 +47,10 @@ set(utf8proc_LIB /app/lib/libutf8proc.a)
 find_package(Arrow CONFIG REQUIRED)
 find_package(Parquet CONFIG REQUIRED)
 
+find_package(Qt6DBus REQUIRED)
+include_directories(SYSTEM ${Qt6DBus_INCLUDE_DIRS})
+
+
 ##################################################################
 # set installation path for query builder and plugins
 ##################################################################

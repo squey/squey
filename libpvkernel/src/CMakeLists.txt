@@ -52,6 +52,7 @@ core/PVVersion.cpp
 
 SET(CORE_MOC_HEADERS
 ../include/pvkernel/core/PVProgressBox.h
+../include/pvkernel/core/PVDBusConnection.h
 )
 
 set(OPENCL_SRC_FILES
@@ -238,7 +239,7 @@ add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
 # Define third_party libs we have to link with for the library
-set(QT6_LIBS Qt6Core Qt6OpenGL Qt6Widgets Qt6Gui Qt6Xml)
+set(QT6_LIBS Qt6Core Qt6OpenGL Qt6Widgets Qt6Gui Qt6Xml Qt6DBus)
 find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
 
 set(QT6_LIBS ${QT6_LIBS} Qt6WebEngineWidgets Qt6WebEngineCore)
