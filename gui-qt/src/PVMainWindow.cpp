@@ -246,7 +246,6 @@ void App::PVMainWindow::closeEvent(QCloseEvent* event)
 {
 	if (maybe_save_solution()) {
 		event->accept();
-		deleteLater();
 	} else {
 		event->ignore();
 	}
