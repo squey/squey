@@ -213,17 +213,16 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 {
 	setWindowTitle("About Squey");
 
-	auto main_layout = new QGridLayout;
-	main_layout->setHorizontalSpacing(0);
+	auto main_layout = new QVBoxLayout;
 
 	QString content = "Squey version \"" + QString(SQUEY_CURRENT_VERSION_STR) + "\"";
 
-	content += "<br/>website - <a "
+	content += "<br/>website - <a style=\"color: #1a72bb;\""
 	           "href=\"https://squey.org\">https://squey.org</a><br/>";
-	content += "source code repository - <a "
+	content += "source code repository - <a style=\"color: #1a72bb;\""
 	           "href=\"https://gitlab.com/squey/squey\">gitlab.com/squey/squey</a><br/>";
-	content += QString("documentation") + " - <a href=\"" + DOC_URL +"\">" + QString(DOC_URL).replace("https://","") + "</a><br/>";
-	content += "contact - <a href=\"mailto:";
+	content += QString("documentation") + " - <a style=\"color: #1a72bb;\" href=\"" + DOC_URL +"\">" + QString(DOC_URL).replace("https://","") + "</a><br/>";
+	content += "contact - <a style=\"color: #1a72bb;\" href=\"mailto:";
 	content += EMAIL_ADDRESS_CONTACT;
 	content += "?subject=%5BSQUEY%5D\">";
 	content += EMAIL_ADDRESS_CONTACT;
@@ -313,11 +312,11 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 		// _view3D_layout->addWidget(windowcontainer, 0);
 	} else {
 		auto logo_icon_label = new QLabel;
-		logo_icon_label->setPixmap(QPixmap(":/logo_icon.png"));
-		logo_icon_label->setSizePolicy(QSizePolicy::Minimum,
-		                               QSizePolicy::Minimum);
-		logo_icon_label->setMinimumSize(100, 100);
-		_view3D_layout->addWidget(logo_icon_label, 0, Qt::AlignRight);
+		logo_icon_label->setPixmap(QPixmap(":/start-logo"));
+
+		_view3D_layout->addStretch();
+		_view3D_layout->addWidget(logo_icon_label);
+		_view3D_layout->addStretch();
 	}
 
 	auto text = new QLabel(content);
@@ -336,11 +335,13 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
   		*a = 1;
 	});
 
-	auto* software_layout = new QGridLayout;
-	software_layout->setHorizontalSpacing(0);
-	software_layout->addLayout(_view3D_layout, 0, 0);
-	software_layout->addWidget(text, 1, 0);
-	software_layout->addWidget(crash, 2, 1);
+	auto* software_layout = new QVBoxLayout;
+	software_layout->addLayout(_view3D_layout);
+	software_layout->addWidget(text);
+	QHBoxLayout* crash_layout = new QHBoxLayout;
+	crash_layout->addStretch();
+	crash_layout->addWidget(crash);
+	software_layout->addLayout(crash_layout);
 
 	auto* tab_software = new QWidget;
 	tab_software->setLayout(software_layout);
@@ -350,8 +351,8 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	_tab_widget->addTab(_changelog_tab, "Changelog");
 	_tab_widget->addTab(new PVOpenSourceSoftwareWidget, "Open source software");
 
-	main_layout->addWidget(_tab_widget, 0, 0);
-	main_layout->addWidget(ok, 1, 0);
+	main_layout->addWidget(_tab_widget);
+	main_layout->addWidget(ok);
 
 	setLayout(main_layout);
 

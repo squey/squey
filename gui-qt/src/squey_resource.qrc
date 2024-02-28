@@ -54,7 +54,8 @@
 	<file alias="Presets_Save_Action_Icon">resources/Presets_Save_Action_Icon.png</file>
 	<file alias="remove-preset">resources/22x22/remove-preset.png</file>
 	
-	<file alias="squey-logo">resources/logo.png</file>
+  <file alias="squey-logo.svg">resources/squey-logo.svg</file>
+	<file alias="squey-logo">resources/icon.png</file>
 	<file alias="splash-screen">resources/splash_noversion.png</file>
 
 	<file alias="save32-32.png">resources/save32-32.png</file>
