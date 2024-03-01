@@ -67,7 +67,7 @@ Note : Merge Requests having the `action::flatpak_export` [label](https://gitlab
 
 Adding the flatpak development remote (once):
 ```
-flatpak --user remote-add --no-gpg-verify squey_dev https://dev.squey.org/flatpak
+flatpak --user remote-add --no-gpg-verify squey_dev http://inspector-cassiopee.ensam.eu/flatpak
 ```
 Installing a development branch:
 ```
