@@ -43,6 +43,10 @@ else(${QT_WEBKIT})
 	include_directories(SYSTEM ${Qt6WebEngineCore_INCLUDE_DIRS})
 endif(${QT_WEBKIT})
 
+set(utf8proc_LIB /app/lib/libutf8proc.a)
+find_package(Arrow CONFIG REQUIRED)
+find_package(Parquet CONFIG REQUIRED)
+
 ##################################################################
 # set installation path for query builder and plugins
 ##################################################################
