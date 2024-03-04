@@ -218,7 +218,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	QString content = "Squey version \"" + QString(SQUEY_CURRENT_VERSION_STR) + "\"";
 
 	content += "<br/>website - <a style=\"color: #1a72bb;\""
-	           "href=\"https://squey.org\">https://squey.org</a><br/>";
+	           "href=\"https://squey.org\">squey.org</a><br/>";
 	content += "source code repository - <a style=\"color: #1a72bb;\""
 	           "href=\"https://gitlab.com/squey/squey\">gitlab.com/squey/squey</a><br/>";
 	content += QString("documentation") + " - <a style=\"color: #1a72bb;\" href=\"" + DOC_URL +"\">" + QString(DOC_URL).replace("https://","") + "</a><br/>";
