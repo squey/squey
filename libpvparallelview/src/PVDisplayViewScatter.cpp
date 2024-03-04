@@ -78,6 +78,7 @@ void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
 
 	auto* axes_menu =
 	    new PVWidgets::PVFilterableMenu(axis_menu_name(), &menu);
+	axes_menu->setAttribute(Qt::WA_TranslucentBackground);
 	QList<QAction*> actions;
 	QAction* next_axis = nullptr;
 

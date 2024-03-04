@@ -58,6 +58,7 @@ void PVDisplays::PVDisplayViewGroupBy::add_to_axis_menu(
 	Squey::PVView* view, PVDisplaysContainer* container)
 {
 	auto menu_col_group_by = new PVWidgets::PVFilterableMenu(axis_menu_name());
+	menu_col_group_by->setAttribute(Qt::WA_TranslucentBackground);
 	menu_col_group_by->setIcon(toolbar_icon());
 	menu.addMenu(menu_col_group_by);
 

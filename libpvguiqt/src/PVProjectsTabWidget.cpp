@@ -54,6 +54,7 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 		int index = tabAt(event->pos());
 		if (index >= PVProjectsTabWidget::FIRST_PROJECT_INDEX) {
 			auto* menu = new QMenu(this);
+			menu->setAttribute(Qt::WA_TranslucentBackground);
 			QAction* rename_action = menu->addAction("&Rename...");
 			rename_action->setData(QVariant::fromValue(index));
 			connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));

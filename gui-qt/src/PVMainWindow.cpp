@@ -380,6 +380,7 @@ void App::PVMainWindow::create_filters_menu_and_actions()
 
 				// Step 2: we connect the menus with each other and connect the actions
 				QMenu* menu_to_add = create_filters_menu_exists(actions_list, actions_name[i], i);
+				menu_to_add->setAttribute(Qt::WA_TranslucentBackground);
 				if (!menu_to_add) {
 					PVLOG_ERROR("The menu named '%s' at position level %d cannot be "
 					            "added since it was not append previously!\n",

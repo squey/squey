@@ -69,6 +69,7 @@ void PVDisplays::PVDisplayViewMappingPlotting::add_to_axis_menu(
 
 	menu.addSeparator();
 	QMenu* chm = menu.addMenu("Change mapping to...");
+	chm->setAttribute(Qt::WA_TranslucentBackground);
 	chm->setIcon(PVModdedIcon("mapping"));
 	QActionGroup* chm_group = new QActionGroup(chm);
 
@@ -94,6 +95,7 @@ void PVDisplays::PVDisplayViewMappingPlotting::add_to_axis_menu(
 	    plotted.get_properties_for_col(axis);
 
 	QMenu* chp = menu.addMenu("Change plotting to...");
+	chp->setAttribute(Qt::WA_TranslucentBackground);
 	chp->setIcon(PVModdedIcon("scaling"));
 	menu.addSeparator();
 	QActionGroup* chp_group = new QActionGroup(chp);

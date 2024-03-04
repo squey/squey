@@ -920,7 +920,7 @@ void App::PVFormatBuilderWidget::slotUpdateToolsState(const QModelIndex& index)
 void App::PVFormatBuilderWidget::initMenuBar()
 {
 	QMenu* file = menuBar->addMenu(tr("&File"));
-
+	file->setAttribute(Qt::WA_TranslucentBackground);
 	file->addAction(actionNewWindow);
 	file->addSeparator();
 	file->addAction(actionOpen);
@@ -933,6 +933,7 @@ void App::PVFormatBuilderWidget::initMenuBar()
 
 	// add all splitting plugins
 	_splitters = menuBar->addMenu(tr("&Splitters"));
+	_splitters->setAttribute(Qt::WA_TranslucentBackground);
 
 	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list()) {
 		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
@@ -950,6 +951,7 @@ void App::PVFormatBuilderWidget::initMenuBar()
 
 	// add all conversion plugins
 	_converters = menuBar->addMenu(tr("&Converters"));
+	_converters->setAttribute(Qt::WA_TranslucentBackground);
 
 	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list()) {
 		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = it.value();

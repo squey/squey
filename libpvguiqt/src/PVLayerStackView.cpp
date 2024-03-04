@@ -76,6 +76,7 @@ PVGuiQt::PVLayerStackView::PVLayerStackView(QWidget* parent) : QTableView(parent
 	setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_ctxt_menu = new QMenu(this);
+	_ctxt_menu->setAttribute(Qt::WA_TranslucentBackground);
 	_ctxt_menu->setToolTipsVisible(true);
 	_ctxt_menu->addSeparator();
 

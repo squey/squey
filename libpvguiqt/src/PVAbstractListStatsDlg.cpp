@@ -474,6 +474,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 
 	// Copy values menu
 	_copy_values_menu = new QMenu();
+	_copy_values_menu->setAttribute(Qt::WA_TranslucentBackground);
 	_copy_values_act->setMenu(_copy_values_menu);
 	_copy_values_with_count_act = new QAction("with count", this);
 	_copy_values_with_count_act->setShortcut(

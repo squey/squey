@@ -95,6 +95,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 
 	if (add_menu) {
 		auto* ctxt_menu = new QMenu(this);
+		ctxt_menu->setAttribute(Qt::WA_TranslucentBackground);
 
 		if (_can_be_central_widget) {
 			// Set as central display
