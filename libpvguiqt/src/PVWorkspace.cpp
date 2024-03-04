@@ -375,13 +375,8 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 	};
 
 	_toolbar_combo_views = new PVToolbarComboViews(_source);
-	_toolbar->addWidget(_toolbar_combo_views);
-
-	_toolbar->addSeparator();
 
 	populate_display<PVDisplays::PVDisplayViewIf>();
-
-	_toolbar->addSeparator();
 
 	bool already_center = false;
 	// Only one central widget is possible for QDockWidget.

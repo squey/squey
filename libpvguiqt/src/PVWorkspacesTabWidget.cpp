@@ -265,12 +265,20 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::add_workspace(PVWorkspaceBase* workspa
 {
 	// Add the new workspace and select it
 	int index = _workspace_tab_bar->addTab(label);
+
+	auto views = _scene.get_children<Squey::PVView>();
+	Squey::PVView* view = *std::next(views.begin(), index);
+
+	QPixmap pm(24, 24);
+	pm.fill(view->get_color());
+	_workspace_tab_bar->setTabIcon(index, QIcon(pm));
+
 	_stacked_widget_workspace->addWidget(workspace);
 	set_current_tab(index);
 
 
 	// Add the format builder widget to its stacked widget // FIXME: what if more sources uses the same format ?
-	auto& cur_src = _scene.get_parent<Squey::PVRoot>().current_view()->get_parent<Squey::PVSource>();
+	auto& cur_src = view->get_parent<Squey::PVSource>();
 	PVRush::PVFormat const& format = cur_src.get_original_format();
 	auto* editorWidget = new App::PVFormatBuilderWidget(this);
 	if (not format.get_full_path().isEmpty()) {
