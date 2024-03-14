@@ -48,6 +48,7 @@ class PVBinaryChunk : public PVChunk
 	{
 		_columns_chunk.resize(columns_count);
 		_invalid_columns.resize(columns_count, false);
+		_null_bitmaps.resize(columns_count);
 	}
 
 	void set_raw_column_chunk(PVCol col,
@@ -70,8 +71,23 @@ class PVBinaryChunk : public PVChunk
 		return std::move(_dicts);
 	}
 
+	bool optimized_invalid() const { return _optimized_invalid; }
+
+	const auto& invalids() const { return _invalids; }
 	void set_invalid(PVCol col, size_t row) { _invalids.insert({col, row}); }
 	void set_invalid_column(PVCol col) { _invalid_columns[col] = true; }
+
+	void set_null_bitmap(PVCol col, std::unique_ptr<uint8_t[]> null_bitmap)
+	{
+		_null_bitmaps[col] = std::move(null_bitmap);
+		set_invalid_column(col);
+		_optimized_invalid = true;
+	}
+
+	const uint8_t* null_bitmap(PVCol col) const
+	{
+		return _null_bitmaps[col].get();
+	}
 
 	void set_rows_count(size_t rows_count) { _rows_count = rows_count; }
 
@@ -89,8 +105,10 @@ class PVBinaryChunk : public PVChunk
 	PVRow _start_index;
 	pvcop::db::sink::columns_chunk_t _columns_chunk;
 	std::vector<std::pair<PVCol, std::unique_ptr<pvcop::db::write_dict>>> _dicts;
-	std::multimap<PVCol, size_t> _invalids;
-	std::vector<bool> _invalid_columns;
+	std::multimap<PVCol, PVRow> _invalids;
+	std::vector<std::unique_ptr<uint8_t[]>> _null_bitmaps;
+	std::vector<uint8_t> _invalid_columns; // note: std::vector<bool> would not have been thread-safe
+	bool _optimized_invalid = false;
 };
 
 } // namespace PVCore

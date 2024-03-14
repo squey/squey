@@ -179,6 +179,24 @@ QT6_WRAP_UI(ELASTICSEARCH_UI_SRCS ${ELASTICSEARCH_UI})
 add_library(input_type_elasticsearch SHARED ${ELASTICSEARCH_UI_SRCS} ${ELASTICSEARCH_SRC_FILES} ${ELASTICSEARCH_MOC_SRCS})
 target_link_libraries(input_type_elasticsearch pvkernel curl)
 
+################################################
+# Parquet input plugin
+################################################
+# Define ressources
+
+SET(PARQUET_SRC
+parquet/PVInputTypeParquet.cpp
+../common/parquet/PVParquetAPI.cpp
+parquet/register.cpp
+)
+
+# Generate moc files
+QT6_WRAP_CPP(PARQUET_MOC_SRC ${PARQUET_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+
+# Generate linkage configuration
+add_library(input_type_parquet SHARED ${PARQUET_SRC} ${PARQUET_MOC_SRC})
+target_link_libraries(input_type_parquet pvkernel ${ARCHIVE_LIBRARY})
+
 ###############################################################################
 # Install plugins
 ###############################################################################
@@ -188,6 +206,7 @@ set(INPUTS_DIST_LIST
 	input_type_remotefile
 	input_type_database
 	input_type_elasticsearch
+	input_type_parquet
 	)
 
 INSTALL(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/input-types

@@ -225,6 +225,7 @@
 
 	<!-- INPUT TYPES -->
 	<file alias="elasticsearch_icon">resources/elasticsearch.png</file>
+	<file alias="parquet_icon">resources/parquet.png</file>
 
 	<!-- CORRELATION -->
 	<file alias="bind">resources/link.png</file>
