@@ -220,3 +220,10 @@ add_bench(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_di
 # squey-logstats
 add_squey_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
 add_squey_test(Trush_logstats Trush_logstats)
+
+set(PARQUET_SRC_FILES
+../../plugins/common/parquet/PVParquetAPI.cpp
+../../plugins/input-types/parquet/PVParquetExporter.cpp
+)
+add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet Trush_apache_parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multi.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multi_optim.csv)
