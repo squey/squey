@@ -93,11 +93,11 @@ void Squey::PVPlottingFilterLogMinmax::operator()(pvcop::db::array const& mapped
 		compute_log_plotting<uint16_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_int32") {
 		compute_log_plotting<int32_t>(mapped, minmax, invalid_selection, dest);
-	} else if (mapped.type() == "number_uint32" or mapped.type() == "datetime" or
+	} else if (mapped.type() == "number_uint32" or
 	           mapped.type() == "ipv4") {
 		compute_log_plotting<uint32_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_uint64" or mapped.type() == "datetime_us" or
-	           mapped.type() == "datetime_ms") {
+	           mapped.type() == "datetime" or mapped.type() == "datetime_ms") {
 		compute_log_plotting<uint64_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_int64") {
 		compute_log_plotting<int64_t>(mapped, minmax, invalid_selection, dest);

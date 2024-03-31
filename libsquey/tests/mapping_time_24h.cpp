@@ -60,7 +60,7 @@ int main()
 	// Compute distinct values.
 	PVRush::PVNraw const& nraw = env.root.get_children<Squey::PVSource>().front()->get_rushnraw();
 	const pvcop::db::array& column = nraw.column(PVCol(0));
-	auto& array = column.to_core_array<uint32_t>();
+	auto& array = column.to_core_array<uint64_t>();
 
 	std::vector<uint32_t> order(column.size());
 	std::iota(order.begin(), order.end(), 0);
