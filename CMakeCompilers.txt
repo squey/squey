@@ -21,22 +21,22 @@ if (CODE_COVERAGE)
     message(STATUS "Code coverage instrumentation enabled")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")
+set(CMAKE_CXX_FLAGS ${CMAKE_CXX_FLAGS} "${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")
 
 ###############################################################################
 # Configure linker
 ###############################################################################
-# Use ld.gold if available
-OPTION(USE_LD_GOLD "Use GNU gold linker" ON)
-if (USE_LD_GOLD)
-    execute_process(COMMAND ${CMAKE_C_COMPILER} -fuse-ld=gold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
-    if ("${LD_VERSION}" MATCHES "GNU gold")
-        message(STATUS "using GNU gold linker as it is available.")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
-        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=gold -Wl,--disable-new-dtags")
+# Use ld.mold if available
+OPTION(USE_LD_MOLD "Use mold linker" ON)
+if (USE_LD_MOLD)
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=mold -Wl,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
+    if ("${LD_VERSION}" MATCHES "mold")
+        message(STATUS "using mold linker as it is available.")
+        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=mold -Wl,--disable-new-dtags")
+        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fuse-ld=mold -Wl,--disable-new-dtags")
     else ()
-        message(WARNING "GNU gold linker isn't available, using the default system linker.")
-        set(USE_LD_GOLD OFF)
+        message(WARNING "mold linker isn't available, using the default system linker.")
+        set(USE_LD_MOLD OFF)
     endif ()
 endif () 
 
@@ -60,7 +60,7 @@ OPTION(USE_LTO "Use LTO" OFF)
 if (${USER_TARGET} STREQUAL "Customer")
     set(USE_LTO true)
 endif()
-if (USE_LD_GOLD AND USE_LTO)
+if (USE_LD_MOLD AND USE_LTO)
 	message(STATUS "LTO will be used.")
 	if (CMAKE_COMPILER_IS_GNUCC)
 		set(LTO_CXX_FLAGS "-flto")
