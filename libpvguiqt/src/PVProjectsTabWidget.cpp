@@ -113,6 +113,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 	setObjectName("PVProjectsTabWidget");
 
 	auto* main_layout = new QHBoxLayout();
+	main_layout->setContentsMargins (0, 0, 0, 0);
 
 	_tab_widget = new __impl::PVTabWidget(*root);
 	_tab_widget->setTabsClosable(true);
