@@ -4,7 +4,7 @@
 
 ## What is Squey?
 
-[Squey](https://squey.org) (formerely INENDI Inspector) allows any user to perform interactive explorations over very large amounts of data.
+[Squey](https://squey.org) (formerly INENDI Inspector) allows any user to perform interactive explorations over very large amounts of data.
 
 Thanks to its innovative set of visualisations, the user is freed from the classical burden of query-based interactions and can then use all his logical and deductive power to discover valuable insights from the data.
 
