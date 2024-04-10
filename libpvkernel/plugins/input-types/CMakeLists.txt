@@ -115,38 +115,6 @@ QT6_WRAP_UI(DB_UI_SRCS ${DB_UI})
 add_library(input_type_database SHARED ${DB_UI_SRCS} ${DB_MOC_SRCS} ${DB_SRC_FILES})
 target_link_libraries(input_type_database pvkernel ${DB_LIBS})
 
-################################################
-# Remote file input plugin
-################################################
-# Declare ressource
-set(REMOTEFILE_MOC_HEADERS
-remote_file/include/addmachinedialog.h
-remote_file/include/fileconnectiondialog.h
-remote_file/include/filedownloader.h
-remote_file/include/logviewerwidget.h
-remote_file/include/PVLogViewerDialog.h
-file/PVImportFileDialog.h
-)
-
-SET(REMOTEFILE_SRC
-remote_file/addmachinedialog.cpp
-remote_file/fileconnectiondialog.cpp
-remote_file/filedownloader.cpp
-remote_file/logviewerwidget.cpp
-remote_file/PVLogViewerDialog.cpp
-remote_file/PVInputTypeRemoteFilename.cpp
-remote_file/register.cpp
-file/PVInputTypeFilename.cpp
-file/PVImportFileDialog.cpp
-)
-
-# Generate moc files
-QT6_WRAP_CPP(REMOTEFILE_MOC_SRCS ${REMOTEFILE_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
-
-# Generate linkage configuration
-include_directories(SYSTEM AFTER ${CURL_INCLUDE_DIR})
-add_library(input_type_remotefile SHARED ${REMOTEFILE_SRC} ${REMOTEFILE_MOC_SRCS})
-target_link_libraries(input_type_remotefile pvkernel ${ARCHIVE_LIBRARY} ${CURL_LIBRARIES})
 
 ###############################################################################
 # Elasticsearch
@@ -208,7 +176,6 @@ target_link_libraries(input_type_parquet pvkernel ${ARCHIVE_LIBRARY})
 
 set(INPUTS_DIST_LIST
 	input_type_file
-	input_type_remotefile
 	input_type_database
 	input_type_elasticsearch
 	input_type_parquet
