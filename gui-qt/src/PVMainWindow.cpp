@@ -91,6 +91,7 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	// OBJECTNAME STUFF
 	setObjectName("PVMainWindow");
+	QGuiApplication::setDesktopFileName("org.squey.Squey");
 
 	// FIXME: check fonts licenses to be sure we can distribute them with Squey
 	QFontDatabase::addApplicationFont(QString(":/Convergence-Regular.ttf"));
