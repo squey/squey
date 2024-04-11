@@ -24,7 +24,9 @@
 
 #include "PVParquetBinaryChunk.h"
 
-#include <execution>
+#include <algorithm>
+
+#include <QCryptographicHash>
 
 #include "boost/date_time/posix_time/posix_time.hpp"
 
@@ -63,15 +65,11 @@ template <typename T>
 void* convert_binary(const std::shared_ptr<T>& binary_array, pvcop::db::index_t* values, pvcop::db::write_dict* dict)
 {
 	for (int64_t i = 0; i < binary_array->length(); ++i) {
-		std::ostringstream oss;
-		oss << "b'";
 		const auto& value = binary_array->GetString(i);
-		const uint8_t* bytes = reinterpret_cast<const uint8_t*>(value.c_str());
-		for (size_t j = 0; j < value.size(); ++j) {
-			oss << std::hex << static_cast<uint8_t>(bytes[j]);
-		}
-		oss << "'";
-		values[i] = dict->insert(oss.str().c_str());
+		QCryptographicHash hash(QCryptographicHash::Sha256);
+        hash.addData(QByteArrayView(value.data(), value.size()));
+        QString checksum = QString(hash.result().toHex()) + " (sha256)";
+		values[i] = dict->insert(checksum.toStdString().c_str());
 	}
 
 	return values;
@@ -162,7 +160,7 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
     bool multi_inputs,
     bool is_bit_optimizable,
     size_t input_index,
-    arrow::RecordBatch* record_batch,
+    std::shared_ptr<arrow::Table>& table,
     const std::vector<size_t>& column_indexes,
     std::vector<pvcop::db::write_dict*>& dicts,
     size_t row_count,
@@ -181,7 +179,7 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 #pragma omp parallel for schedule(dynamic)
 		for (size_t i = 0 ; i < column_indexes.size(); i++) {
 			const size_t column_index = column_indexes[i];
-			const std::shared_ptr<arrow::Array>& column_array = record_batch->column(column_index);
+			const std::shared_ptr<arrow::Array>& column_array = table->column(column_index)->chunk(0);
 
 			if (column_array == nullptr) {
 				continue;
@@ -242,7 +240,7 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 		if (not is_bit_optimizable) {
 			for (size_t i = 0 ; i < column_indexes.size(); i++) {
 				const size_t column_index = column_indexes[i];
-				const std::shared_ptr<arrow::Array>& column_array = record_batch->column(column_index);
+				const std::shared_ptr<arrow::Array>& column_array = table->column(column_index)->chunk(0);
 				if (column_array->null_count() > 0) {
 					set_invalid_column(PVCol(i+1));
 					for (PVRow j = 0; j < column_array->length(); ++j) {

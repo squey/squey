@@ -71,6 +71,7 @@ class PVParquetAPI
 	bool multi_inputs() const { return files_count() > 1 and _input_desc->multi_inputs(); }
 	bool is_bit_optimizable() const;
 	bool same_schemas() const;
+	static std::shared_ptr<arrow::Schema> flatten_schema(const std::shared_ptr<arrow::Schema>& schema);
 
   public:
 	QDomDocument get_format();

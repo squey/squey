@@ -73,11 +73,16 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 	std::shared_ptr<arrow::RecordBatch> record_batch = _recordbatch_reader->Next().ValueOrDie();
 	const size_t record_row_count = record_batch->num_rows();
 
+	std::shared_ptr<arrow::Schema> schema;
+	arrow::Status status = _api.arrow_reader()->GetSchema(&schema);
+	std::shared_ptr<arrow::Table> table = arrow::Table::FromRecordBatches(schema, {record_batch}).ValueOrDie();
+	std::shared_ptr<arrow::Table> flat_table = table->Flatten().ValueOrDie();
+
 	PVRush::PVParquetBinaryChunk* chunk = new PVRush::PVParquetBinaryChunk(
 		multi_inputs,
 		_is_bit_optimizable,
 		_current_file_index,
-		record_batch.get(),
+		flat_table,
 		_api.column_indexes(),
 		_dicts_ptr,
 		record_row_count,

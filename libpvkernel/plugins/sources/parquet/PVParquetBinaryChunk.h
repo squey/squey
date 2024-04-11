@@ -45,7 +45,7 @@ class PVParquetBinaryChunk : public PVCore::PVBinaryChunk
 		bool multi_inputs,
 		bool is_bit_optimizable,
 		size_t input_index,
-		arrow::RecordBatch* record_batch,
+		std::shared_ptr<arrow::Table>& table,
 		const std::vector<size_t>& column_indexes,
 		std::vector<pvcop::db::write_dict*>& dicts,
 		size_t row_count,
