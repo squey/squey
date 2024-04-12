@@ -68,7 +68,7 @@ QString PVRush::PVInputTypeDatabase::name() const
 
 QString PVRush::PVInputTypeDatabase::human_name() const
 {
-	return {"Database import plugin"};
+	return {"SQL databases import plugin"};
 }
 
 QString PVRush::PVInputTypeDatabase::human_name_serialize() const
@@ -83,7 +83,7 @@ QString PVRush::PVInputTypeDatabase::internal_name() const
 
 QString PVRush::PVInputTypeDatabase::menu_input_name() const
 {
-	return {"Database..."};
+	return {"SQL"};
 }
 
 QString PVRush::PVInputTypeDatabase::tab_name_of_inputs(list_inputs const& in) const
