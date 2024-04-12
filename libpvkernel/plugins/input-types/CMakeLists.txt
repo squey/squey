@@ -183,8 +183,13 @@ target_link_libraries(input_type_elasticsearch pvkernel curl)
 # Parquet input plugin
 ################################################
 # Define ressources
+SET(PARQUET_MOC_HEADERS
+parquet/PVParquetExporterWidget.h
+)
 
 SET(PARQUET_SRC
+parquet/PVParquetExporter.cpp
+parquet/PVParquetExporterWidget.cpp
 parquet/PVInputTypeParquet.cpp
 ../common/parquet/PVParquetAPI.cpp
 parquet/register.cpp

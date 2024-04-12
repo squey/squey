@@ -25,6 +25,8 @@
 #ifndef __PVINPUTTYPEPARQUET_H__
 #define __PVINPUTTYPEPARQUET_H__
 
+#include "parquet/PVParquetExporter.h"
+#include "parquet/PVParquetExporterWidget.h"
 #include <pvkernel/rush/PVInputType.h>
 #include "../common/parquet/PVParquetFileDescription.h"
 
@@ -47,6 +49,14 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,
 	                  QWidget* parent = nullptr) const override;
+
+	/* exporter */
+	std::unique_ptr<PVRush::PVExporterBase>
+	create_exporter(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
+	PVWidgets::PVExporterWidgetInterface*
+	create_exporter_widget(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
+	QString get_exporter_filter_string(const list_inputs& inputs) const override;
+
 	QString name() const override;
 	QString human_name() const override;
 	QString human_name_serialize() const override;

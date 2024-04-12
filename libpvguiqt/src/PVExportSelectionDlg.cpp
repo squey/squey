@@ -151,7 +151,7 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Squey::PVView& view,
 
 		    try {
 			    exporter.export_rows(file.fileName().toStdString(), sel);
-		    } catch (const PVRush::PVExportError& e) {
+		    } catch (const std::exception& e) {
 			    pbox.critical("Error when exporting data", e.what());
 			    std::remove(file.fileName().toStdString().c_str());
 		    }

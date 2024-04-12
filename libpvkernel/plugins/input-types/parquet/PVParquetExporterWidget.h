@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2024
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,26 +22,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __PVGUIQT_PVEXPORTERWIDGETINTERFACE_H__
-#define __PVGUIQT_PVEXPORTERWIDGETINTERFACE_H__
+#ifndef __PVKERNEL_PVPARQUETEXPORTERWIDGET_H__
+#define __PVKERNEL_PVPARQUETEXPORTERWIDGET_H__
 
-#include <pvkernel/rush/PVExporter.h>
+#include <pvkernel/widgets/PVExporterWidgetInterface.h>
+#include <pvkernel/rush/PVInputType.h>
 
-#include <QWidget>
+namespace PVRush
+{
+	class PVParquetBase;
+}
 
 namespace PVWidgets
 {
 
-class PVExporterWidgetInterface : public QWidget
+class PVParquetExporterWidget : public PVWidgets::PVExporterWidgetInterface
 {
-  public:
-	PVExporterWidgetInterface(){}
-	virtual ~PVExporterWidgetInterface(){}
+	Q_OBJECT
 
   public:
-	virtual PVRush::PVExporterBase& exporter() = 0;
+	PVParquetExporterWidget(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw);
+	virtual ~PVParquetExporterWidget(){};
+
+  public:
+	PVRush::PVExporterBase& exporter() override { return *_exporter; }
+
+  private:
+	std::unique_ptr<PVRush::PVExporterBase> _exporter;
 };
 
 } // namespace PVWidgets
 
-#endif // __PVGUIQT_PVEXPORTERWIDGETINTERFACE_H__
+#endif // __PVKERNEL_PVPARQUETEXPORTERWIDGET_H__

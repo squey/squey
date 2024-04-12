@@ -80,6 +80,25 @@ bool PVRush::PVInputTypeParquet::createWidget(hash_formats& formats,
 	return true;
 }
 
+PVWidgets::PVExporterWidgetInterface*
+PVRush::PVInputTypeParquet::create_exporter_widget(const list_inputs& inputs,
+                                                   PVRush::PVNraw const& nraw) const
+{
+	return new PVWidgets::PVParquetExporterWidget(inputs, nraw);
+}
+
+std::unique_ptr<PVRush::PVExporterBase>
+PVRush::PVInputTypeParquet::create_exporter(const list_inputs& inputs,
+                                         PVRush::PVNraw const& nraw) const
+{
+	return std::make_unique<PVRush::PVParquetExporter>(inputs, nraw);
+}
+
+QString PVRush::PVInputTypeParquet::get_exporter_filter_string(const list_inputs& /*inputs*/) const
+{
+	return ".parquet files (*.parquet)";
+}
+
 QString PVRush::PVInputTypeParquet::name() const
 {
 	return {"parquet"};
@@ -97,12 +116,12 @@ QString PVRush::PVInputTypeParquet::human_name_serialize() const
 
 QString PVRush::PVInputTypeParquet::internal_name() const
 {
-	return {"07-parquet"};
+	return {"01-parquet"};
 }
 
 QString PVRush::PVInputTypeParquet::menu_input_name() const
 {
-	return {"Parquet..."};
+	return {"Parquet"};
 }
 
 QString PVRush::PVInputTypeParquet::tab_name_of_inputs(list_inputs const& in) const
