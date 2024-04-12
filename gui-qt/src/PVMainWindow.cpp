@@ -916,8 +916,6 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 		    pbox.set_cancel_btn_text("Discard");
 		    pbox.set_confirmation(true);
 		    constexpr size_t mega = 1024 * 1024;
-		    // set min and max to 0 to have an activity effect
-		    pbox.set_maximum(src->max_size() / mega);
 
 		    // PVCore::PVProgressBox::progress();
 		    PVRush::PVControllerJob_p job_import;
@@ -941,8 +939,14 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 				    pbox.set_extended_status(
 				        QString("Number of extracted events: %L1\nNumber of rejected events: %L2")
 				            .arg(job_import->status())
-				            .arg(job_import->rejected_elements()));
+				            .arg(job_import->rejected_elements())
+						);
+				        if (job_import->get_value() > 0) {
+				            // setting a maximum put the progress bar out of the undeterminate state
+				            pbox.set_maximum(src->max_size() / mega);
+				        }
 				    pbox.set_value(job_import->get_value() / mega);
+
 				    boost::this_thread::interruption_point();
 				    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 			    }
