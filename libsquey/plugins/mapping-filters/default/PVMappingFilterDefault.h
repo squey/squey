@@ -61,6 +61,11 @@ class PVMappingFilterDefault : public PVMappingFilter
 	}
 
 	/**
+	 * Specify that mapping values are not computed but rather pointing to nraw values
+	 */
+	bool is_computed() const override { return false; }
+
+	/**
 	 * Metainformation for this plugin.
 	 */
 	QString get_human_name() const override { return QString("Default"); }

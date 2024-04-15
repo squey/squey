@@ -73,6 +73,8 @@ class PVMappingFilter : public PVFilter::PVFilterFunctionBase<pvcop::db::array, 
 	 */
 	virtual std::unordered_set<std::string> list_usable_type() const = 0;
 
+	virtual bool is_computed() const { return true; }
+
 	/**
 	 * Define the valid range of values.
 	 *
