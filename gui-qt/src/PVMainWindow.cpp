@@ -523,6 +523,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	treat_invalid_formats(formats_error);
 
 	// First, try complete autodetection
+	bool browse_format_file = true;
 	if (!file_type_found and choosenFormat.compare(SQUEY_BROWSE_FORMAT_STR) != 0) {
 		for (auto& input : inputs) {
 			try {
@@ -556,10 +557,20 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
 				break;
 			}
+			catch (const PVRush::PVFormatInvalid& e) {
+				QMessageBox::StandardButton user_choice = QMessageBox::question(
+					this,
+					tr("Format autodetection failed"),
+					tr("Do you want to browse for an existing format file ?"),
+					QMessageBox::Yes | QMessageBox::No
+				);
+				browse_format_file = user_choice == QMessageBox::Yes;
+				break;
+			}
 		}
 	}
 
-	if (!file_type_found) {
+	if (not file_type_found and browse_format_file) {
 
 		/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
 		 * because this latter does not used QFileDialog's global environment
