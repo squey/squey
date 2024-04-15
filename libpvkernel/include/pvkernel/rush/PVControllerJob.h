@@ -85,6 +85,7 @@ class PVControllerJob : public QObject
 	bool done() const;
 	bool running() const;
 	void cancel();
+	void pause(bool pause);
 
 	/**
 	 * Return the number of rows saved in the NRaw.
@@ -137,6 +138,8 @@ class PVControllerJob : public QObject
 	std::future<void>
 	    _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
 	PVPipelineTask* _pipeline; //!< The TBB pipeline performing data import.
+
+	std::mutex _pause;
 };
 
 typedef PVControllerJob::p_type PVControllerJob_p;

@@ -82,6 +82,9 @@ void PVRush::PVControllerJob::run_job()
 
 tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 {
+	tbb::filter_t<void, void> pause_filter(
+		tbb::filter::serial_in_order, [&](tbb::flow_control& /*fc*/) { std::lock_guard<std::mutex> lg(_pause); });
+
 	if (_agg.chunk_type() == EChunkType::TEXT) {
 		tbb::filter_t<void, PVCore::PVTextChunk*> input_filter(
 		    tbb::filter::serial_in_order,
@@ -111,7 +114,7 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 		tbb::filter_t<PVCore::PVTextChunk*, void> out_filter(
 		    tbb::filter::parallel, [this](PVCore::PVTextChunk* chunk) { _out_filter(chunk); });
 
-		return filter & out_filter;
+		return filter & out_filter & pause_filter;
 	} else { // EChunkType::BINARY
 		tbb::filter_t<void, PVCore::PVChunk*> input_filter(
 		    tbb::filter::serial_in_order, [this](tbb::flow_control& fc) { return _agg(fc); });
@@ -120,7 +123,7 @@ tbb::filter_t<void, void> PVRush::PVControllerJob::create_tbb_filter()
 		tbb::filter_t<PVCore::PVChunk*, void> out_filter(
 		    tbb::filter::parallel, [this](PVCore::PVChunk* chunk) { _out_filter(chunk); });
 
-		return input_filter & out_filter;
+		return input_filter & out_filter & pause_filter;
 	}
 }
 
@@ -134,9 +137,20 @@ void PVRush::PVControllerJob::wait_end()
 
 void PVRush::PVControllerJob::cancel()
 {
+	pause(false);
 	if (_pipeline)
 		_pipeline->cancel();
 	wait_end();
+}
+
+void PVRush::PVControllerJob::pause(bool pause)
+{
+	if (pause) {
+		_pause.lock();
+	}
+	else {
+		_pause.unlock();
+	}
 }
 
 void PVRush::PVControllerJob::job_has_run()
