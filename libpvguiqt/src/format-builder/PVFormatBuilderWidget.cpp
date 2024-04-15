@@ -1049,6 +1049,15 @@ App::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_so
 	    tree_model.addSplitterWithAxes(tree_model.index(0, 0, QModelIndex()), sp_widget, axes_name);
 	node->setFromArgumentList(sp->get_args());
 
+	// Set proper strings mapping
+	for (PVRush::PVXmlTreeNodeDom* elt : node->getChildren()) {
+		for (PVRush::PVXmlTreeNodeDom* axis : elt->getChildren()) {
+			if (axis->attribute("type") == "string") {
+				axis->setMappingProperties("string", {}, {});
+			}
+		}
+	}
+
 	return PVRush::PVFormat(tree_model.getRootDom());
 }
 
