@@ -64,6 +64,8 @@
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVProgressBoxPython.h>
 
+#include <pvparallelview/PVZoneTree.h>
+
 #include <PVFormatBuilderWidget.h>
 
 #include <tbb/tick_count.h>
@@ -898,6 +900,29 @@ static QString bad_conversions_as_string(const Squey::PVSource* src)
 	return l.join("\n");
 }
 
+/***
+ * Compute additionnal memory structures consumption increase after import
+ ***/
+static size_t forecasted_memory_consumption_increase(Squey::PVSource* src)
+{
+	const size_t column_count = src->get_nraw_column_count();
+	const size_t row_count = src->get_row_count();
+
+	const PVRush::PVFormat& format = src->get_format();
+
+	size_t mapped_size = 0;
+	for (size_t i = 0; i < column_count; i++) {
+		const Squey::PVMappingProperties& mapping_properties = Squey::PVMappingProperties(format, PVCol(i));
+		mapped_size += mapping_properties.get_mapping_filter()->is_computed() * sizeof(Squey::PVPlottingFilter::value_type) * row_count;
+	}
+
+	size_t plotted_size = sizeof(Squey::PVPlotted::value_type) * row_count * column_count;
+
+	size_t zones_size = 2 * column_count * (sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS + sizeof(PVRow) * row_count);
+
+	return mapped_size + plotted_size + zones_size;
+}
+
 /******************************************************************************
  *
  * App::PVMainWindow::load_source
@@ -935,6 +960,7 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 
 		    try {
 			    // launch a thread in order to update the status of the progress bar
+				bool monitor_memory_consumption = true;
 			    while (job_import->running()) {
 				    pbox.set_extended_status(
 				        QString("Number of extracted events: %L1\nNumber of rejected events: %L2")
@@ -946,6 +972,26 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 				            pbox.set_maximum(src->max_size() / mega);
 				        }
 				    pbox.set_value(job_import->get_value() / mega);
+				    if (monitor_memory_consumption and forecasted_memory_consumption_increase(src) > (PVCore::available_memory() * 0.8)) {
+						job_import->pause(true);
+
+						QMessageBox::StandardButton user_choice;
+						pbox.exec_gui([&]() {
+							user_choice = QMessageBox::warning(
+								this,
+								"Low available RAM warning",
+								"Continuing importing data will likely exceed the available RAM and cause system instabilities.\n\n"
+								"Do you want to stop the import process here ?",
+								QMessageBox::Yes | QMessageBox::No);
+						});
+						if (user_choice == QMessageBox::Yes) {
+							job_import->cancel();
+						}
+						else {
+							monitor_memory_consumption = false;
+							job_import->pause(false);
+						}
+				    }
 
 				    boost::this_thread::interruption_point();
 				    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
