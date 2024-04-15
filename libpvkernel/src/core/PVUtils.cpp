@@ -31,6 +31,9 @@
 
 #include <boost/algorithm/string.hpp>
 
+#include <QFile>
+#include <QTextStream>
+
 #include <pvlogger.h>
 
 std::string& PVCore::replace(std::string& str,
@@ -108,3 +111,22 @@ void PVCore::remove_common_folders(std::vector<std::string>& paths)
 		}
 	}
  }
+
+ size_t PVCore::available_memory()
+{
+    std::string token;
+    std::ifstream file("/proc/meminfo");
+    while(file >> token) {
+        if(token == "MemAvailable:") {
+            unsigned long mem;
+            if(file >> mem) {
+                return mem * 1024;
+            } else {
+                return 0;
+            }
+        }
+        // Ignore the rest of the line
+        file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
+    }
+    return 0; // Nothing found
+}
