@@ -8,12 +8,12 @@ PVModdedIconEngine::PVModdedIconEngine(QString icon_name) : QIconEngine()
 
 QPixmap PVModdedIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    return _icons[(int)PVTheme::is_color_scheme_dark()].pixmap(size, mode, state);
+    return _icons[(int)PVCore::PVTheme::is_color_scheme_dark()].pixmap(size / 2, mode, state);
 }
 
 void PVModdedIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state)
 {
-    _icons[(int)PVTheme::is_color_scheme_dark()].paint(painter, rect, Qt::AlignCenter, mode, state);
+    _icons[(int)PVCore::PVTheme::is_color_scheme_dark()].paint(painter, rect, Qt::AlignCenter, mode, state);
 }
 
 QIconEngine* PVModdedIconEngine::clone() const
@@ -40,7 +40,7 @@ PVModdedIconLabel::PVModdedIconLabel(QString name, QSize size) :
     _name(name),
     _size(size)
 {
-    connect(&PVTheme::get(), &PVTheme::color_scheme_changed, this, &PVModdedIconLabel::set_pixmap);
+    connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this, &PVModdedIconLabel::set_pixmap);
     set_pixmap();
 }
 

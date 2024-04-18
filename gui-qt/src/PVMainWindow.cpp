@@ -179,7 +179,7 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	QRect r = geometry();
 	r.moveCenter(QGuiApplication::primaryScreen()->availableGeometry().center());
 	setGeometry(r);
-	PVTheme::set_color_scheme(PVTheme::color_scheme());
+	PVCore::PVTheme::init();
 	showMaximized();
 
 
@@ -191,10 +191,10 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	auto refresh_f = [&](bool switch_theme) {
 		PVLOG_INFO("Reloading CSS\n");
 		if (switch_theme) {
-			PVTheme::set_color_scheme((PVTheme::EColorScheme)(not (bool)PVTheme::color_scheme()));
+			PVCore::PVTheme::set_color_scheme((PVCore::PVTheme::EColorScheme)(not (bool)PVCore::PVTheme::color_scheme()));
 		}
 		else { // force refresh
-			PVTheme::set_color_scheme(PVTheme::color_scheme());
+			PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::color_scheme());
 		}
 	};
 	connect(refresh_theme, &QShortcut::activated, [refresh_f](){

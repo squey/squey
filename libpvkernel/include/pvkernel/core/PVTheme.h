@@ -30,7 +30,8 @@
 
 class QDBusVariant;
 
-
+namespace PVCore
+{
 class PVTheme : public QObject
 {
     Q_OBJECT
@@ -38,7 +39,8 @@ class PVTheme : public QObject
 public:
     enum class EColorScheme {
         LIGHT = 0,
-        DARK = 1
+        DARK = 1,
+        UNKNOWN = 2
     };
 
 private:
@@ -46,8 +48,11 @@ private:
 
 public:
     static PVTheme& get();
+    static void init();
 
     static EColorScheme color_scheme();
+    static EColorScheme system_color_scheme();
+    static QString settings_color_scheme();
     static bool is_color_scheme_light();
     static bool is_color_scheme_dark();
     static void set_color_scheme(bool dark_theme);
@@ -66,8 +71,10 @@ public Q_SLOTS:
     void setting_changed(const QString& ns, const QString& key, const QDBusVariant& value);
 
 private:
-    PVTheme::EColorScheme _color_scheme;
-    bool _follow_system_scheme = true;
+    PVCore::PVTheme::EColorScheme _color_scheme;
+    bool _follow_system_scheme = false;
 };
+
+} // namespace PVCore
 
 #endif // __PVTHEME_H__

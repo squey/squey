@@ -53,7 +53,7 @@ PVGuiQt::PVPythonCodeEditor::PVPythonCodeEditor(QWidget* parent /* = nullptr */)
     highlighter->setDefinition(repository->definitionForName("Python"));
 
     // Theme
-    const auto& theme = repository->theme(_theme_types_name[(size_t) PVTheme::color_scheme()]);
+    const auto& theme = repository->theme(_theme_types_name[(size_t) PVCore::PVTheme::color_scheme()]);
     highlighter->setTheme(theme);
     setStyleSheet(QString("QTextEdit { background-color : %1; }").arg(QColor(theme.editorColor(KSyntaxHighlighting::Theme::EditorColorRole::BackgroundColor)).name()));
 }
