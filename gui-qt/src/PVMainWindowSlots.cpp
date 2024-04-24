@@ -39,7 +39,6 @@
 #include <pvparallelview/PVLibView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
@@ -122,34 +121,6 @@ void App::PVMainWindow::move_selection_to_new_layer_Slot()
 
 /******************************************************************************
  *
- * App::PVMainWindow::events_display_unselected_listing_Slot()
- *
- *****************************************************************************/
-void App::PVMainWindow::events_display_unselected_listing_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	current_view()->toggle_listing_unselected_visibility();
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::events_display_zombies_listing_Slot()
- *
- *****************************************************************************/
-void App::PVMainWindow::events_display_zombies_listing_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	current_view()->toggle_listing_zombie_visibility();
-}
-
-/******************************************************************************
- *
  * App::PVMainWindow::events_display_unselected_zombies_parallelview_Slot()
  *
  *****************************************************************************/
@@ -176,52 +147,6 @@ void App::PVMainWindow::export_selection_Slot()
 	Squey::PVSelection const& sel = view->get_real_output_selection();
 
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel, this);
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::filter_Slot
- *
- *****************************************************************************/
-void App::PVMainWindow::filter_Slot(void)
-{
-	if (current_view()) {
-		QObject* s = sender();
-		Squey::PVView* lib_view = current_view();
-		QString filter_name = s->objectName();
-
-		Squey::PVLayerFilter::p_type filter_org =
-		    LIB_CLASS(Squey::PVLayerFilter)::get().get_class_by_name(filter_name);
-		Squey::PVLayerFilter::p_type fclone = filter_org->clone<Squey::PVLayerFilter>();
-		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
-		auto* filter_widget =
-		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
-		filter_widget->show();
-	}
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::filter_reprocess_last_Slot
- *
- *****************************************************************************/
-void App::PVMainWindow::filter_reprocess_last_Slot()
-{
-	if (current_view()) {
-		Squey::PVView* lib_view = current_view();
-		if (!lib_view->is_last_filter_used_valid()) {
-			return;
-		}
-		QString const& filter_name = lib_view->get_last_used_filter();
-		Squey::PVLayerFilter::p_type filter_org =
-		    LIB_CLASS(Squey::PVLayerFilter)::get().get_class_by_name(filter_name);
-		Squey::PVLayerFilter::p_type fclone = filter_org->clone<Squey::PVLayerFilter>();
-		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
-		auto* filter_widget =
-		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
-		filter_widget->show();
-		filter_widget->preview_Slot();
-	}
 }
 
 /******************************************************************************
@@ -855,17 +780,6 @@ void App::PVMainWindow::open_format_Slot()
 		editorWidget->show();
 		PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(url);
 	}
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::enable_menu_filter_Slot()
- *
- *****************************************************************************/
-void App::PVMainWindow::enable_menu_filter_Slot(bool f)
-{
-	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
-	filter_Menu->setEnabled(f);
 }
 
 void App::PVMainWindow::edit_format_Slot(QString const& path, QWidget* parent)

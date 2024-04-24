@@ -73,6 +73,7 @@ PVDisplayViewGroupBy.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp
 PVDisplayViewPythonConsole.cpp
+PVDisplayViewFilters.cpp
 PVProgressBoxPython.cpp
 )
 

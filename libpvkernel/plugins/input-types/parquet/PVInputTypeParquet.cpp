@@ -173,8 +173,3 @@ QString PVRush::PVInputTypeParquet::tab_name_of_inputs(list_inputs const& in) co
 	}
 	return tab_name;
 }
-
-QKeySequence PVRush::PVInputTypeParquet::menu_shortcut() const
-{
-	return QKeySequence::Italic;
-}

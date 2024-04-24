@@ -34,12 +34,14 @@
 #include <pvguiqt/PVDisplayViewListing.h>
 #include <pvguiqt/PVDisplayViewLayerStack.h>
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
+#include <pvguiqt/PVDisplayViewFilters.h>
 
 void PVGuiQt::common::register_displays()
 {
 	REGISTER_CLASS("guiqt_axes-combination", PVDisplays::PVDisplayViewAxesCombination);
 	REGISTER_CLASS("guiqt_correlation", PVDisplays::PVDisplayViewCorrelation);
 	REGISTER_CLASS("guiqt_mapping-plotting", PVDisplays::PVDisplayViewMappingPlotting);
+	REGISTER_CLASS("guiqt_filters", PVDisplays::PVDisplayViewFilters);
 	REGISTER_CLASS("guiqt_distinct-values", PVDisplays::PVDisplayViewDistinctValues);
 	REGISTER_CLASS("guiqt_count-by", PVDisplays::PVDisplayViewCountBy);
 	REGISTER_CLASS("guiqt_sum-by", PVDisplays::PVDisplayViewSumBy);

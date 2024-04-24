@@ -188,8 +188,3 @@ bool PVRush::PVInputTypeFilename::get_custom_formats(PVInputDescription_p in,
 
 	return true;
 }
-
-QKeySequence PVRush::PVInputTypeFilename::menu_shortcut() const
-{
-	return QKeySequence::Italic;
-}

@@ -28,6 +28,7 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QAction>
+#include <QActionGroup>
 #include <QDesktopServices>
 #include <QMenuBar>
 
@@ -44,11 +45,18 @@ void App::PVMainWindow::create_actions()
 	 ************************/
 
 	// The solution actions
-	solution_new_Action = new QAction(tr("&New investigation"), this);
-	solution_load_Action = new QAction(tr("&Load an investigation..."), this);
-	solution_save_Action = new QAction(tr("&Save investigation"), this);
+	solution_new_Action = new QAction(tr("&New"), this);
+	solution_new_Action->setShortcut(QKeySequence::New);
+	solution_new_Action->setIcon(PVModdedIcon("folder-plus"));
+	solution_load_Action = new QAction(tr("&Open"), this);
+	solution_load_Action->setShortcut(QKeySequence::Open);
+	solution_load_Action->setIcon(PVModdedIcon("folder-open"));
+	solution_save_Action = new QAction(tr("&Save"), this);
 	solution_save_Action->setShortcut(QKeySequence::Save);
-	solution_saveas_Action = new QAction(tr("S&ave investigation as..."), this);
+	solution_save_Action->setIcon(PVModdedIcon("floppy-disk"));
+	solution_saveas_Action = new QAction(tr("Save &as..."), this);
+	solution_saveas_Action->setShortcut(QKeySequence::SaveAs);
+	solution_saveas_Action->setIcon(PVModdedIcon("floppy-disk-circle-arrow-right"));
 
 	// The project actions
 	project_new_Action = new QAction(tr("&New data collection"), this);
@@ -61,30 +69,39 @@ void App::PVMainWindow::create_actions()
 	new_file_Action->setWhatsThis(tr("Use this to create a new file."));
 
 	// Export our selection Action
-	export_selection_Action = new QAction(tr("&Selection..."), this);
+	export_selection_Action = new QAction(tr("E&xport"), this);
+	export_selection_Action->setIcon(PVModdedIcon("file-export"));
 	export_selection_Action->setToolTip(tr("Export the current selection"));
 
 	quit_Action = new QAction(tr("&Quit"), this);
-	quit_Action->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Q));
+	quit_Action->setShortcut(QKeySequence::Quit);
+	quit_Action->setIcon(PVModdedIcon("power-off"));
 
 	/************************
 	 * For the "Selection" menu entry
 	 ************************/
 	selection_all_Action = new QAction(tr("Select &all events"), this);
 	selection_all_Action->setShortcut(QKeySequence(Qt::Key_A));
+	selection_all_Action->setIcon(PVModdedIcon("square-full"));
 	selection_none_Action = new QAction(tr("&Empty selection"), this);
+	selection_none_Action->setIcon(PVModdedIcon("square"));
 	selection_inverse_Action = new QAction(tr("&Invert selection"), this);
 	selection_inverse_Action->setShortcut(QKeySequence(Qt::Key_I));
+	selection_inverse_Action->setIcon(PVModdedIcon("square-half"));
 	set_color_Action = new QAction(tr("Set color"), this);
 	set_color_Action->setIcon(PVModdedIcon("palette"));
 	set_color_Action->setShortcut(QKeySequence(Qt::Key_C));
 	selection_from_current_layer_Action = new QAction(tr("Set selection from current layer"), this);
+	selection_from_current_layer_Action->setIcon(PVModdedIcon("radio-checked"));
 	selection_from_layer_Action = new QAction(tr("Set selection from layer..."), this);
+	selection_from_layer_Action->setIcon(PVModdedIcon("selection-from-layer"));
 
 	commit_selection_to_new_layer_Action = new QAction(tr("Create new layer from selection"), this);
 	commit_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT | Qt::Key_K));
+	commit_selection_to_new_layer_Action->setIcon(PVModdedIcon("layer-from-selection"));
 	move_selection_to_new_layer_Action = new QAction(tr("Move selection to new layer"), this);
 	move_selection_to_new_layer_Action->setShortcut(QKeySequence(Qt::ALT | Qt::Key_M));
+	move_selection_to_new_layer_Action->setIcon(PVModdedIcon("move-layer-from-selection"));
 
 	/******************************
 	 * For the "Filter" menu entry
@@ -104,31 +121,46 @@ void App::PVMainWindow::create_actions()
 	 ************************/
 	view_display_inv_elts_Action = new QAction(tr("&Display invalid events..."), this);
 
-	/***************************
-	 * For the "View" menu entry
-	 ***************************/
-	axes_combination_editor_Action = new QAction(tr("Edit axes combination..."), this);
+	/**************************
+	 * For the "Settings" menu entry
+	 **************************/
+	auto* act_group_theme = new QActionGroup(this);
+	const QString& settings_color_scheme = PVCore::PVTheme::settings_color_scheme();
+	act_group_theme->setExclusive(true);
+	settings_dark_theme_Action = new QAction(tr("&Dark"), act_group_theme);
+	settings_dark_theme_Action->setCheckable(true);
+	settings_dark_theme_Action->setChecked(settings_color_scheme == "dark");
+	connect(settings_dark_theme_Action, &QAction::triggered, [](){
+		PVCore::PVTheme::follow_system_scheme(false);
+		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme::DARK);
+	});
+	//settings_dark_theme_Action->setIcon(PVModdedIcon("moon"));
 
-	/***************************
-	 * For the "Events" menu entry
-	 ***************************/
-	events_display_unselected_listing_Action =
-	    new QAction(tr("Toggle unselected events in listing"), this);
-	events_display_unselected_listing_Action->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_U));
+	settings_light_theme_Action = new QAction(tr("&Light"), act_group_theme);
+	settings_light_theme_Action->setCheckable(true);
+	settings_light_theme_Action->setChecked(settings_color_scheme == "light");
+	connect(settings_light_theme_Action, &QAction::triggered, [](){
+		PVCore::PVTheme::follow_system_scheme(false);
+		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme::LIGHT);
+	});
+	//settings_light_theme_Action->setIcon(PVModdedIcon("sun-bright"));
 
-	events_display_zombies_listing_Action =
-	    new QAction(tr("Toggle zombies events in listing"), this);
-	events_display_zombies_listing_Action->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Z));
-
-	events_display_unselected_zombies_parallelview_Action =
-	    new QAction(tr("Toggle unselected and zombies events"), this);
-	events_display_unselected_zombies_parallelview_Action->setShortcut(QKeySequence(Qt::Key_U));
+	settings_follow_system_theme_Action = new QAction(tr("&Auto"), act_group_theme);
+	settings_follow_system_theme_Action->setCheckable(true);
+	settings_follow_system_theme_Action->setChecked(settings_color_scheme == "system");
+	connect(settings_follow_system_theme_Action, &QAction::triggered, [](){
+		PVCore::PVTheme::follow_system_scheme(true);
+		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::system_color_scheme());
+	});
+	//settings_follow_system_theme_Action->setIcon(PVModdedIcon("moon-over-sun"));
 
 	/**************************
 	 * For the "Help" menu entry
 	 **************************/
 	about_Action = new QAction(tr("&About"), this);
+	about_Action->setIcon(PVModdedIcon("circle-info"));
 	refman_Action = new QAction(tr("Reference &Manual"), this);
+	refman_Action->setIcon(PVModdedIcon("book-open"));
 }
 
 /******************************************************************************
@@ -145,6 +177,7 @@ void App::PVMainWindow::create_menus()
 	file_Menu = menubar->addMenu(tr("&File"));
 	file_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	auto* solution_Menu = new QMenu(tr("&Investigation"));
+	solution_Menu->setIcon(PVModdedIcon("magnifying-glass-waveform"));
 	solution_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	solution_Menu->addAction(solution_new_Action);
 	solution_Menu->addAction(solution_load_Action);
@@ -162,17 +195,15 @@ void App::PVMainWindow::create_menus()
 	file_Menu->addSeparator();
 	file_Menu->addSeparator();
 	auto* import_Menu = new QMenu(tr("I&mport"));
+	import_Menu->setIcon(PVModdedIcon("file-import"));
 	import_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	create_actions_import_types(import_Menu);
 	file_Menu->addMenu(import_Menu);
-	auto* export_Menu = new QMenu(tr("E&xport"));
-	export_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	export_Menu->addAction(export_selection_Action);
-	file_Menu->addMenu(export_Menu);
+	file_Menu->addAction(export_selection_Action);
 	file_Menu->addSeparator();
 	file_Menu->addAction(quit_Action);
 
-	selection_Menu = menubar->addMenu(tr("&Selection"));
+	selection_Menu = menubar->addMenu(tr("S&election"));
 	selection_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	selection_Menu->addAction(selection_all_Action);
 	selection_Menu->addAction(selection_none_Action);
@@ -180,40 +211,27 @@ void App::PVMainWindow::create_menus()
 	selection_Menu->addSeparator();
 	selection_Menu->addAction(selection_from_current_layer_Action);
 	selection_Menu->addAction(selection_from_layer_Action);
-	selection_Menu->addSeparator();
-	selection_Menu->addAction(set_color_Action);
-	selection_Menu->addSeparator();
 	selection_Menu->addAction(commit_selection_to_new_layer_Action);
 	selection_Menu->addAction(move_selection_to_new_layer_Action);
 	selection_Menu->addSeparator();
+	selection_Menu->addAction(set_color_Action);
 
-	filter_Menu = menubar->addMenu(tr("Fil&ters"));
-	filter_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	filter_Menu->addAction(filter_reprocess_last_filter);
-	filter_Menu->addSeparator();
-	create_filters_menu_and_actions();
+	settings_Menu = menubar->addMenu(tr("&Settings"));
+	settings_Menu->setAttribute(Qt::WA_TranslucentBackground);
+	auto* theme_Menu = settings_Menu->addMenu(tr("&Theme"));
+	theme_Menu->setIcon(PVModdedIcon("sun-bright"));
+	theme_Menu->setAttribute(Qt::WA_TranslucentBackground);
 
-	view_Menu = menubar->addMenu(tr("&View"));
-	view_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	view_Menu->addAction(axes_combination_editor_Action);
-
-	events_Menu = menubar->addMenu(tr("&Events"));
-	events_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	events_Menu->addAction(events_display_unselected_listing_Action);
-	events_Menu->addAction(events_display_zombies_listing_Action);
-	events_Menu->addSeparator();
-	events_Menu->addAction(events_display_unselected_zombies_parallelview_Action);
-
-	tools_Menu = menubar->addMenu(tr("F&ormat"));
-	tools_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	tools_Menu->addAction(tools_new_format_Action);
-	tools_Menu->addAction(tools_open_format_Action);
-	tools_Menu->addAction(tools_cur_format_Action);
+	theme_Menu->addAction(settings_dark_theme_Action);
+	theme_Menu->addAction(settings_light_theme_Action);
+	if (QString(std::getenv("DISABLE_FOLLOW_SYSTEM_THEME")).isEmpty()) {
+		theme_Menu->addAction(settings_follow_system_theme_Action);
+	}
 
 	help_Menu = menubar->addMenu(tr("&Help"));
 	help_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	help_Menu->addAction(about_Action);
 	help_Menu->addAction(refman_Action);
+	help_Menu->addAction(about_Action);
 }
 
 /******************************************************************************
@@ -235,11 +253,8 @@ void App::PVMainWindow::menu_activate_is_file_opened(bool cond)
 {
 	export_selection_Action->setEnabled(cond);
 
-	filter_Menu->setEnabled(cond);
-	events_Menu->setEnabled(cond);
 	selection_Menu->setEnabled(cond);
 	tools_cur_format_Action->setEnabled(cond && is_solution_untitled());
-	view_Menu->setEnabled(cond);
 	solution_save_Action->setEnabled(cond);
 	solution_saveas_Action->setEnabled(cond);
 }
@@ -281,19 +296,6 @@ void App::PVMainWindow::connect_actions()
 	        &PVMainWindow::commit_selection_to_new_layer_Slot);
 	connect(move_selection_to_new_layer_Action, &QAction::triggered, this,
 	        &PVMainWindow::move_selection_to_new_layer_Slot);
-
-	connect(axes_combination_editor_Action, &QAction::triggered, this,
-	        &PVMainWindow::axes_combination_editor_Slot); //
-
-	connect(filter_reprocess_last_filter, &QAction::triggered, this,
-	        &PVMainWindow::filter_reprocess_last_Slot);
-
-	connect(events_display_unselected_listing_Action, &QAction::triggered, this,
-	        &PVMainWindow::events_display_unselected_listing_Slot);
-	connect(events_display_zombies_listing_Action, &QAction::triggered, this,
-	        &PVMainWindow::events_display_zombies_listing_Slot);
-	connect(events_display_unselected_zombies_parallelview_Action, &QAction::triggered, this,
-	        &PVMainWindow::events_display_unselected_zombies_parallelview_Slot);
 
 	connect(tools_new_format_Action, &QAction::triggered, this, &PVMainWindow::new_format_Slot);
 	connect(tools_open_format_Action, &QAction::triggered, this, &PVMainWindow::open_format_Slot);

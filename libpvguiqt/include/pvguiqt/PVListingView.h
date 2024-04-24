@@ -246,6 +246,9 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 */
 	void section_hovered_enter(PVCombCol col, bool enter);
 
+	void toggle_unselected_events_visibility();
+	void toggle_zombies_events_visibility();
+
   private:
 	Squey::PVView& _view;
 

@@ -61,6 +61,7 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(QMenu* menu,
 		auto* action = new QAction(in->menu_input_name(), parent);
 		action->setData(QVariant(key));
 		action->setShortcut(in->menu_shortcut());
+		action->setIcon(in->icon());
 		QObject::connect(action, SIGNAL(triggered()), parent, slot);
 		menu->addAction(action);
 	});

@@ -33,6 +33,7 @@
 #include <QPaintEvent>
 #include <QApplication>
 #include <QScrollBar>
+#include <QShortcut>
 
 /******************************************************************************
  *

@@ -58,6 +58,7 @@
 #include <QWheelEvent>
 #include <QToolTip>
 #include <QScrollBar>
+#include <QShortcut>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/task_scheduler_init.h>
@@ -168,6 +169,12 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 	// Handle selection modification signal.
 	connect(this, &PVAbstractTableView::validate_selection, this,
 	        &PVListingView::update_view_selection_from_listing_selection);
+
+	QShortcut* toggle_unselected_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_U), this);
+	QObject::connect(toggle_unselected_shortcut, &QShortcut::activated, this, &PVGuiQt::PVListingView::toggle_unselected_events_visibility);
+
+	QShortcut* toggle_zombies_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Z), this);
+	QObject::connect(toggle_zombies_shortcut, &QShortcut::activated, this, &PVGuiQt::PVListingView::toggle_zombies_events_visibility);
 }
 
 /******************************************************************************
@@ -741,6 +748,26 @@ void PVGuiQt::PVListingView::set_section_visible(PVCombCol col)
 	clearSelection();
 
 	setSelectionBehavior(old_sel_behavior);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::toggle_unselected_events_visibility
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::toggle_unselected_events_visibility()
+{
+	_view.toggle_listing_unselected_visibility();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::toggle_zombies_events_visibility
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::toggle_zombies_events_visibility()
+{
+	_view.toggle_listing_zombie_visibility();
 }
 
 /******************************************************************************

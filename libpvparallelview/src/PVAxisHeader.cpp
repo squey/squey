@@ -76,6 +76,7 @@ PVParallelView::PVAxisHeader::PVAxisHeader(const Squey::PVView& view,
 void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
 	QMenu menu;
+	menu.setAttribute(Qt::WA_TranslucentBackground);
 
 	if (auto* container =
 	        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(event->widget())) {

@@ -40,7 +40,6 @@
 #include <pvkernel/widgets/PVFileDialog.h>
 
 
-#include <squey/PVLayerFilter.h>
 #include <squey/PVSelection.h>
 
 #include <pvguiqt/PVProjectsTabWidget.h>
@@ -90,7 +89,6 @@ class PVMainWindow : public QMainWindow
 	PVGuiQt::PVProjectsTabWidget* _projects_tab_widget;
 
 	QMenuBar* menubar;
-	QMenu* filter_Menu;
 
 	char* last_sendername;
 	bool report_started;
@@ -136,17 +134,13 @@ class PVMainWindow : public QMainWindow
 	void selection_set_from_layer_Slot();
 	void export_selection_Slot();
 
-	void filter_Slot();
 	void new_format_Slot();
 	void cur_format_Slot();
 	void edit_format_Slot(const QString& format);
 	void open_format_Slot();
-	void filter_reprocess_last_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
 	void import_type_Slot(const QString& itype);
-	void events_display_unselected_listing_Slot();
-	void events_display_zombies_listing_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	Squey::PVScene& project_new_Slot();
@@ -154,7 +148,6 @@ class PVMainWindow : public QMainWindow
 	void selection_all_Slot();
 	void selection_inverse_Slot();
 	void selection_none_Slot();
-	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
 	void view_display_inv_elts_Slot();
 	void get_screenshot_widget();
@@ -204,18 +197,13 @@ class PVMainWindow : public QMainWindow
 
   private:
 	QMenu* file_Menu;
-	QMenu* events_Menu;
 	QMenu* selection_Menu;
-	QMenu* tools_Menu;
-	QMenu* view_Menu;
+	QMenu* events_Menu;
+	QMenu* settings_Menu;
 	QMenu* help_Menu;
 
 	QAction* about_Action;
 	QAction* refman_Action;
-	QAction* axes_combination_editor_Action;
-	QAction* events_display_unselected_listing_Action;
-	QAction* events_display_zombies_listing_Action;
-	QAction* events_display_unselected_zombies_parallelview_Action;
 	QAction* commit_selection_to_new_layer_Action;
 	QAction* move_selection_to_new_layer_Action;
 	QAction* filter_reprocess_last_filter;
@@ -240,6 +228,9 @@ class PVMainWindow : public QMainWindow
 	QAction* tools_cur_format_Action;
 	QAction* view_Action;
 	QAction* view_display_inv_elts_Action;
+	QAction* settings_dark_theme_Action;
+	QAction* settings_light_theme_Action;
+	QAction* settings_follow_system_theme_Action;
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;

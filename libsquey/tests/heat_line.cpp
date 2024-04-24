@@ -30,7 +30,7 @@
 
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
-#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVOriginalAxisIndexType.h>
 
 #include <pvkernel/core/squey_assert.h>
 
@@ -92,7 +92,7 @@ int main()
 	PVCore::PVArgumentList& args = view->get_last_args_filter("frequency-gradient");
 
 	// Setup parameters.
-	args["axes"].setValue(PVCore::PVAxisIndexType(PVCol(1)));
+	args["axis"].setValue(PVCore::PVOriginalAxisIndexType(PVCol(1)));
 	auto scale = args["scale"].value<PVCore::PVEnumType>();
 	scale.set_sel(1);
 	args["scale"].setValue(scale);
