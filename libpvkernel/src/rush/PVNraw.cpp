@@ -181,6 +181,7 @@ bool PVRush::PVNraw::add_chunk_utf16(PVCore::PVTextChunk const& chunk)
 
 bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk& chunk)
 {
+	{
 	pvcop::db::sink snk(*_collector);
 	snk.write_chunk_by_column(chunk.start_index(), chunk.rows_count(), chunk.columns_chunk());
 
@@ -188,14 +189,30 @@ bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk& chunk)
 	for (std::pair<PVCol, std::unique_ptr<pvcop::db::write_dict>>& col_dict : chunk.take_column_dicts()) {
 		snk.set_column_dict(col_dict.first, std::move(col_dict.second));
 	}
+	if (chunk.optimized_invalid()) {
+		for (size_t col = 0; col < chunk.columns_chunk().size(); ++col) {
+			if (chunk.is_invalid(PVCol(col))) {
+				const uint8_t* null_bitmap = chunk.null_bitmap(PVCol(col));
+				snk.set_chunk_null_bitmap(PVCol(col), chunk.start_index(), chunk.rows_count(), null_bitmap);
+			}
+		}
+	}
+	}
 
-	// for (size_t col = 0; col < chunk.columns_chunk().size(); ++col) {
-	// 	if (chunk.is_invalid(PVCol(col))) {
-	// 		for (size_t row = 0; row < chunk.rows_count(); ++row) {
-	// 			snk.set_invalid(col, chunk.start_index() + row);
-	// 		}
-	// 	}
-	// }
+	if (not chunk.optimized_invalid())
+	{
+		// Set null values if any
+		pvcop::sink snk(*_collector);
+		for (size_t col = 0; col < chunk.columns_chunk().size(); ++col) {
+			if (chunk.is_invalid(PVCol(col))) {
+				auto range =  chunk.invalids().equal_range(PVCol(col));
+				for (auto it = range.first; it != range.second; ++it) {
+					snk.set_invalid(col, chunk.start_index() + it->second);
+				}
+			}
+		}
+	}
+
 
 #pragma omp atomic
 	_real_nrows += chunk.rows_count();

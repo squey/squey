@@ -64,6 +64,8 @@
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVProgressBoxPython.h>
 
+#include <pvparallelview/PVZoneTree.h>
+
 #include <PVFormatBuilderWidget.h>
 
 #include <tbb/tick_count.h>
@@ -130,6 +132,16 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	        &PVMainWindow::close_solution_Slot);
 	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::active_project, this,
 	        &PVMainWindow::menu_activate_is_file_opened);
+	connect(&_dbus_connection, &PVCore::PVDBusConnection::import_signal, [this](const QString& input_type, const QString& params_json) {
+			PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(input_type.toStdString().c_str());
+			PVRush::PVInputType::list_inputs inputs;
+			PVRush::PVFormat format;
+			if (in_t->create_source_description_params(params_json, inputs, format)) {
+				PVRush::PVSourceCreator_p sc = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
+				PVRush::PVSourceDescription src_desc(inputs, sc, format);
+				load_source_from_description_Slot(src_desc);
+			}
+	});
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -522,6 +534,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 	treat_invalid_formats(formats_error);
 
 	// First, try complete autodetection
+	bool browse_format_file = true;
 	if (!file_type_found and choosenFormat.compare(SQUEY_BROWSE_FORMAT_STR) != 0) {
 		for (auto& input : inputs) {
 			try {
@@ -555,10 +568,20 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
 				break;
 			}
+			catch (const PVRush::PVFormatInvalid& e) {
+				QMessageBox::StandardButton user_choice = QMessageBox::question(
+					this,
+					tr("Format autodetection failed"),
+					tr("Do you want to browse for an existing format file ?"),
+					QMessageBox::Yes | QMessageBox::No
+				);
+				browse_format_file = user_choice == QMessageBox::Yes;
+				break;
+			}
 		}
 	}
 
-	if (!file_type_found) {
+	if (not file_type_found and browse_format_file) {
 
 		/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
 		 * because this latter does not used QFileDialog's global environment
@@ -899,6 +922,29 @@ static QString bad_conversions_as_string(const Squey::PVSource* src)
 	return l.join("\n");
 }
 
+/***
+ * Compute additionnal memory structures consumption increase after import
+ ***/
+static size_t forecasted_memory_consumption_increase(Squey::PVSource* src)
+{
+	const size_t column_count = src->get_nraw_column_count();
+	const size_t row_count = src->get_row_count();
+
+	const PVRush::PVFormat& format = src->get_format();
+
+	size_t mapped_size = 0;
+	for (size_t i = 0; i < column_count; i++) {
+		const Squey::PVMappingProperties& mapping_properties = Squey::PVMappingProperties(format, PVCol(i));
+		mapped_size += mapping_properties.get_mapping_filter()->is_computed() * sizeof(Squey::PVPlottingFilter::value_type) * row_count;
+	}
+
+	size_t plotted_size = sizeof(Squey::PVPlotted::value_type) * row_count * column_count;
+
+	size_t zones_size = 2 * column_count * (sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS + sizeof(PVRow) * row_count);
+
+	return mapped_size + plotted_size + zones_size;
+}
+
 /******************************************************************************
  *
  * App::PVMainWindow::load_source
@@ -917,8 +963,6 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 		    pbox.set_cancel_btn_text("Discard");
 		    pbox.set_confirmation(true);
 		    constexpr size_t mega = 1024 * 1024;
-		    // set min and max to 0 to have an activity effect
-		    pbox.set_maximum(src->max_size() / mega);
 
 		    // PVCore::PVProgressBox::progress();
 		    PVRush::PVControllerJob_p job_import;
@@ -938,12 +982,39 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 
 		    try {
 			    // launch a thread in order to update the status of the progress bar
+				bool monitor_memory_consumption = true;
 			    while (job_import->running()) {
 				    pbox.set_extended_status(
 				        QString("Number of extracted events: %L1\nNumber of rejected events: %L2")
 				            .arg(job_import->status())
-				            .arg(job_import->rejected_elements()));
+				            .arg(job_import->rejected_elements())
+						);
+				        if (job_import->get_value() > 0) {
+				            // setting a maximum put the progress bar out of the undeterminate state
+				            pbox.set_maximum(src->max_size() / mega);
+				        }
 				    pbox.set_value(job_import->get_value() / mega);
+				    if (monitor_memory_consumption and forecasted_memory_consumption_increase(src) > (PVCore::available_memory() * 0.8)) {
+						job_import->pause(true);
+
+						QMessageBox::StandardButton user_choice;
+						pbox.exec_gui([&]() {
+							user_choice = QMessageBox::warning(
+								this,
+								"Low available RAM warning",
+								"Continuing importing data will likely exceed the available RAM and cause system instabilities.\n\n"
+								"Do you want to stop the import process here ?",
+								QMessageBox::Yes | QMessageBox::No);
+						});
+						if (user_choice == QMessageBox::Yes) {
+							job_import->cancel();
+						}
+						else {
+							monitor_memory_consumption = false;
+							job_import->pause(false);
+						}
+				    }
+
 				    boost::this_thread::interruption_point();
 				    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
 			    }

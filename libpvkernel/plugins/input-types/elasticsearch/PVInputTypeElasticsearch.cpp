@@ -77,12 +77,12 @@ QString PVRush::PVInputTypeElasticsearch::human_name_serialize() const
 
 QString PVRush::PVInputTypeElasticsearch::internal_name() const
 {
-	return {"04-elasticsearch"};
+	return {"03-elasticsearch"};
 }
 
 QString PVRush::PVInputTypeElasticsearch::menu_input_name() const
 {
-	return {"Elasticsearch..."};
+	return {"Elasticsearch"};
 }
 
 QString PVRush::PVInputTypeElasticsearch::tab_name_of_inputs(list_inputs const& in) const

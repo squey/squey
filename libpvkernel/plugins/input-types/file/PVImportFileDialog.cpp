@@ -37,7 +37,7 @@
 PVRush::PVImportFileDialog::PVImportFileDialog(QStringList pluginslist, QWidget* parent)
     : PVWidgets::PVFileDialog(parent)
 {
-	setWindowTitle("Import file");
+	setWindowTitle("Import text files");
 	setFileMode(QFileDialog::ExistingFiles);
 
 	setObjectName("PVImportFileDialog");

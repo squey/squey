@@ -35,8 +35,8 @@ namespace PVWidgets
 class PVExporterWidgetInterface : public QWidget
 {
   public:
-	PVExporterWidgetInterface() {}
-	virtual ~PVExporterWidgetInterface(){};
+	PVExporterWidgetInterface(){}
+	virtual ~PVExporterWidgetInterface(){}
 
   public:
 	virtual PVRush::PVExporterBase& exporter() = 0;

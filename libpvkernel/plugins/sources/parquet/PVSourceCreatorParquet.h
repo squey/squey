@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2024
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,22 +22,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef LOGVIEWERLIB_H
-#define LOGVIEWERLIB_H
+#ifndef SQUEY_PVSOURCECREATORERF_H
+#define SQUEY_PVSOURCECREATORERF_H
 
-#include <qglobal.h>
+#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/rush/PVSourceCreator.h>
+#include <pvkernel/rush/PVUnicodeSource.h>
 
-#define LOGVIEWER_STATICLIB 1
+namespace PVRush
+{
 
-#ifdef LOGVIEWER_STATICLIB
-#undef LOGVIEWER_SHAREDLIB
-#define LOGVIEWER_EXPORT
-#else
-#ifdef LOGVIEWER_BUILD_LOGVIEWER_LIB
-#define LOGVIEWER_EXPORT Q_DECL_EXPORT
-#else
-#define LOGVIEWER_EXPORT Q_DECL_IMPORT
-#endif
-#endif
+class PVSourceCreatorParquet : public PVRush::PVSourceCreator
+{
+  public:
+	source_p create_source_from_input(PVRush::PVInputDescription_p input) const override;
+	QString supported_type() const override;
+	bool custom_multi_inputs() const override { return true; }
+	QString name() const override;
 
-#endif /* LOGVIEWERLIB_H */
+	CLASS_REGISTRABLE(PVSourceCreatorParquet)
+};
+} // namespace PVRush
+
+#endif // SQUEY_PVSOURCECREATORERF_H

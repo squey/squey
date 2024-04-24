@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// © ESI Group, 2015
+// © Squey, 2024
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -28,10 +28,10 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/rush/PVInputType.h>
 
-#include "PVInputTypeRemoteFilename.h"
+#include "PVInputTypeParquet.h"
 
 // This method will be called by libpvrush
 LibCPPExport void register_class()
 {
-	REGISTER_CLASS("remote_file", PVRush::PVInputTypeRemoteFilename);
+	REGISTER_CLASS("parquet", PVRush::PVInputTypeParquet);
 }

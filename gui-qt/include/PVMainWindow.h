@@ -32,11 +32,13 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVMeanValue.h>
+#include <pvkernel/core/PVDBusConnection.h>
 
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+
 
 #include <squey/PVLayerFilter.h>
 #include <squey/PVSelection.h>
@@ -276,6 +278,7 @@ class PVMainWindow : public QMainWindow
 	static int sequence_n;
 	Squey::PVRoot _root;
 	bool _auto_detect_cancellation;
+	PVCore::PVDBusConnection _dbus_connection;
 
   private:
 	QString _screenshot_root_dir;

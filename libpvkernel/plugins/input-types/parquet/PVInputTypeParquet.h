@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2024
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,24 +22,26 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef SQUEY_PVINPUTTYPEREMOTEFILENAME_H
-#define SQUEY_PVINPUTTYPEREMOTEFILENAME_H
+#ifndef __PVINPUTTYPEPARQUET_H__
+#define __PVINPUTTYPEPARQUET_H__
 
+#include "parquet/PVParquetExporter.h"
+#include "parquet/PVParquetExporterWidget.h"
 #include <pvkernel/rush/PVInputType.h>
-
-#include "../file/PVInputTypeFilename.h"
+#include "../common/parquet/PVParquetFileDescription.h"
 
 #include <QString>
+#include <QStringList>
 #include <QIcon>
 #include <QCursor>
 
 namespace PVRush
 {
 
-class PVInputTypeRemoteFilename : public PVInputTypeFilename
+class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 {
   public:
-	PVInputTypeRemoteFilename();
+	PVInputTypeParquet();
 
   public:
 	bool createWidget(hash_formats& formats,
@@ -47,23 +49,37 @@ class PVInputTypeRemoteFilename : public PVInputTypeFilename
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,
 	                  QWidget* parent = nullptr) const override;
+
+	bool create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const override;
+
+	/* exporter */
+	std::unique_ptr<PVRush::PVExporterBase>
+	create_exporter(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
+	PVWidgets::PVExporterWidgetInterface*
+	create_exporter_widget(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
+	QString get_exporter_filter_string(const list_inputs& inputs) const override;
+
 	QString name() const override;
 	QString human_name() const override;
 	QString human_name_serialize() const override;
 	QString internal_name() const override;
-	QString human_name_of_input(PVInputDescription_p in) const override;
 	QString menu_input_name() const override;
 	QString tab_name_of_inputs(list_inputs const& in) const override;
 	QKeySequence menu_shortcut() const override;
-	bool get_custom_formats(PVInputDescription_p in, hash_formats& formats) const override;
+	bool get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const override { return false; }
 
-	QIcon icon() const override { return QIcon(":/import-icon-white"); }
+	QIcon icon() const override { return QIcon(":/parquet_icon"); }
 	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
-  protected:
-	mutable QHash<QString, QUrl> _hash_real_filenames;
+  private:
+	bool create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const;
 
-	CLASS_REGISTRABLE_NOCOPY(PVInputTypeRemoteFilename)
+  protected:
+	mutable QStringList _tmp_dir_to_delete;
+	int _limit_nfds;
+
+  protected:
+	CLASS_REGISTRABLE_NOCOPY(PVInputTypeParquet)
 };
 } // namespace PVRush
 

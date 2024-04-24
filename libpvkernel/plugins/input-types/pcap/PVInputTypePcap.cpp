@@ -223,12 +223,12 @@ QString PVPcapsicum::PVInputTypePcap::human_name_serialize() const
 
 QString PVPcapsicum::PVInputTypePcap::internal_name() const
 {
-	return {"06-pcap"};
+	return {"04-pcap"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::menu_input_name() const
 {
-	return {"Pcap..."};
+	return {"Pcap"};
 }
 
 QString

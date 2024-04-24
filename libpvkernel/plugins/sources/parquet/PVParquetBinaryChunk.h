@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2024
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,35 +22,41 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef FILEDOWNLOADER_H
-#define FILEDOWNLOADER_H
+#ifndef __PVCORE_PVPARQUETBINARYCHUNK__
+#define __PVCORE_PVPARQUETBINARYCHUNK__
 
-#include "logviewer_export.h"
-#include "connectionsettings.h"
+#include <pvkernel/core/PVBinaryChunk.h>
+#include "../../common/parquet/PVParquetAPI.h"
 
-#include <QObject>
-#include <QUrl>
+#include <arrow/record_batch.h>
+#include <arrow/api.h>
+#include <arrow/util/type_fwd.h>
 
-class LOGVIEWER_EXPORT FileDownLoader : public QObject
+namespace PVRush
 {
-	Q_OBJECT
-  public:
-	explicit FileDownLoader(QObject* parent = 0);
-	~FileDownLoader();
-	bool download(const QString& remoteFile,
-	              QString& tempFile,
-	              const ConnectionSettings& settings,
-	              const QString& hostName,
-	              QString& errorMessage,
-	              QUrl& url,
-	              bool& cancel);
 
-  Q_SIGNALS:
-	void downloadError(const QString&, int errorCode);
+class PVParquetBinaryChunk : public PVCore::PVBinaryChunk
+{
+  public:
+	static constexpr const size_t MEGA = 1024 * 1024;
+
+  public:
+	PVParquetBinaryChunk(
+		bool multi_inputs,
+		bool is_bit_optimizable,
+		size_t input_index,
+		std::shared_ptr<arrow::Table>& table,
+		const std::vector<size_t>& column_indexes,
+		std::vector<pvcop::db::write_dict*>& dicts,
+		size_t row_count,
+		size_t nraw_start_row
+	);
 
   private:
-	class FileDownLoaderPrivate;
-	FileDownLoaderPrivate* d;
+	std::vector<std::vector<void*>> _values;
+	std::vector<pvcop::db::index_t> _input_index;
 };
 
-#endif /* FILEDOWNLOADER_H */
+} // namespace PVRush
+
+#endif // __PVCORE_PVPARQUETBINARYCHUNK__

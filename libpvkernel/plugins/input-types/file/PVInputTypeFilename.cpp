@@ -132,7 +132,7 @@ QString PVRush::PVInputTypeFilename::internal_name() const
 
 QString PVRush::PVInputTypeFilename::menu_input_name() const
 {
-	return {"Local files..."};
+	return {"Text"};
 }
 
 QString PVRush::PVInputTypeFilename::tab_name_of_inputs(list_inputs const& in) const

@@ -32,8 +32,6 @@
 #include <QString>
 #include <QIODevice>
 
-#include <sys/sysinfo.h>
-
 namespace PVCore
 {
 
@@ -94,16 +92,7 @@ std::string join(It it_begin, It it_end, const std::string& separator)
 
 void remove_common_folders(std::vector<std::string>& paths);
 
-inline size_t available_memory()
-{
-	struct sysinfo info;
-
-	if (sysinfo(&info) < 0) {
-		return 0;
-	}
-
-	return info.freeram;
-}
+size_t available_memory();
 
 } // namespace PVCore
 

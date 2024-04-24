@@ -65,6 +65,7 @@ depends:
 - libomp.bst
 - lcov.bst
 - lcov-cobertura.bst
+- apache-arrow.bst
 
 build-depends:
 - freedesktop-sdk.bst:components/git.bst

@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2024
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,13 +22,35 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef LOGVIEWERWIDGET_P_H
-#define LOGVIEWERWIDGET_P_H
+#ifndef __PVKERNEL_PVPARQUETEXPORTERWIDGET_H__
+#define __PVKERNEL_PVPARQUETEXPORTERWIDGET_H__
 
-class LogViewerPrivate
+#include <pvkernel/widgets/PVExporterWidgetInterface.h>
+#include <pvkernel/rush/PVInputType.h>
+
+namespace PVRush
 {
+	class PVParquetBase;
+}
+
+namespace PVWidgets
+{
+
+class PVParquetExporterWidget : public PVWidgets::PVExporterWidgetInterface
+{
+	Q_OBJECT
+
   public:
-	static QStringList defaultStringI18nProtocol;
+	PVParquetExporterWidget(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw);
+	virtual ~PVParquetExporterWidget(){};
+
+  public:
+	PVRush::PVExporterBase& exporter() override { return *_exporter; }
+
+  private:
+	std::unique_ptr<PVRush::PVExporterBase> _exporter;
 };
 
-#endif /* LOGVIEWERWIDGET_P_H */
+} // namespace PVWidgets
+
+#endif // __PVKERNEL_PVPARQUETEXPORTERWIDGET_H__

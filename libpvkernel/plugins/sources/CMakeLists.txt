@@ -88,12 +88,30 @@ add_library(source_pcap SHARED ${PCAP_SRC_FILES})
 target_link_libraries(source_pcap pvkernel)
 
 ###############################################################################
+# parquet sources
+###############################################################################
+
+# Define ressources
+set(PARQUET_SRC_FILES
+	../common/parquet/PVParquetAPI.cpp
+	parquet/PVParquetSource.cpp
+	parquet/PVParquetBinaryChunk.cpp
+	parquet/PVSourceCreatorParquet.cpp
+	parquet/register.cpp
+)
+
+# Create lib
+add_library(source_parquet SHARED ${PARQUET_SRC_FILES})
+target_link_libraries(source_parquet pvkernel)
+
+###############################################################################
 # Define installation folders
 ###############################################################################
 set(SOURCES_DIST_LIST
 source_text_file
 source_elasticsearch
 source_pcap
+source_parquet
 )
 INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
 				     RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)
