@@ -77,9 +77,8 @@ void PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(QBoxLayout* layout,
 		action->setShortcut(in->menu_shortcut());
 		QObject::connect(action, SIGNAL(triggered()), parent, slot);
 
-		auto* button = new QPushButton(in->menu_input_name());
+		auto* button = new QPushButton(in->icon(), QString(" ") + in->menu_input_name());
 		button->setObjectName(in->registered_name());
-		button->setIcon(in->icon());
 		button->setIconSize(QSize(24, 24));
 		button->setFixedHeight(32);
 		button->setCursor(in->cursor());

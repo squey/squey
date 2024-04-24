@@ -33,6 +33,7 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/widgets/PVExporterWidgetInterface.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 #include <QList>
 #include <QKeySequence>
 #include <QObject>
@@ -93,7 +94,7 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	virtual QString tab_name_of_inputs(list_inputs const& in) const = 0;
 	virtual bool get_custom_formats(PVInputDescription_p in, hash_formats& formats) const = 0;
 	virtual PVInputDescription_p serialize_read(PVCore::PVSerializeObject& so) = 0;
-	virtual QIcon icon() const { return QIcon(); }
+	virtual PVModdedIcon icon() const { return PVModdedIcon(); }
 	virtual QCursor cursor() const { return QCursor(); }
 
 	virtual void save_input_to_qsettings(const PVInputDescription& input_descr,

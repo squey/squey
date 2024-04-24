@@ -25,6 +25,10 @@ PVModdedIcon::PVModdedIcon(QString icon_name) : QIcon(new PVModdedIconEngine(ico
 {
 }
 
+PVModdedIcon::PVModdedIcon() : QIcon()
+{
+}
+
 QIcon PVModdedIconEngine::create_icon(QString icon_name, QString color_scheme) {
     QIcon icon;
     QString icon_rc = QString(":/qss_icons/" + color_scheme + "/rc." + color_scheme + "/%1");

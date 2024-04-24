@@ -35,6 +35,7 @@ class PVModdedIcon : public QIcon
 {
 public:
     PVModdedIcon(QString icon_name);
+    PVModdedIcon();
 };
 
 class PVModdedIconLabel : public QLabel

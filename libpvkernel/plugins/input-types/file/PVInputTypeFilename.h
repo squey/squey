@@ -58,7 +58,7 @@ class PVInputTypeFilename : public PVInputTypeDesc<PVFileDescription>
 	QString tab_name_of_inputs(list_inputs const& in) const override;
 	bool get_custom_formats(PVInputDescription_p in, hash_formats& formats) const override;
 
-	QIcon icon() const override { return QIcon(":/text_icon"); }
+	PVModdedIcon icon() const override { return PVModdedIcon("text"); }
 	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
   protected:

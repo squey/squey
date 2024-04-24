@@ -225,13 +225,6 @@
 	<file alias="single_value_axis">resources/single_value_axis.png</file>
 	<file alias="sort_az">resources/22x22/sort-22.png</file>
 
-	<!-- INPUT TYPES -->
-	<file alias="text_icon">resources/plugins/text.png</file>
-	<file alias="sql_icon">resources/plugins/sql.png</file>
-	<file alias="elasticsearch_icon">resources/plugins/elasticsearch.png</file>
-	<file alias="pcap_icon">resources/plugins/pcap.png</file>
-	<file alias="parquet_icon">resources/plugins/parquet.png</file>
-
 	<!-- CORRELATION -->
 	<file alias="bind">resources/link.png</file>
 	</qresource>

@@ -71,7 +71,7 @@ class PVInputTypePcap : public PVRush::PVInputTypeDesc<PVRush::PVPcapDescription
 	bool get_custom_formats(PVRush::PVInputDescription_p in,
 	                        PVRush::hash_formats& formats) const override;
 
-	QIcon icon() const override { return QIcon(":/pcap_icon"); }
+	PVModdedIcon icon() const override { return PVModdedIcon("pcap"); }
 	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
   public:
