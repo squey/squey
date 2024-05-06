@@ -241,6 +241,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 		content += "<br/>No OpenCL™ support; using software fallback";
 	}
 	content += "<br/><br/>Qt® version " + QString(QT_VERSION_STR);
+	content += "<br/><br/>Display server : " + QGuiApplication::platformName();
 
 	_view3D_layout = new QHBoxLayout();
 
