@@ -54,7 +54,7 @@ class PVHitGraphDataInterface : boost::noncopyable
 
   public:
 	struct ProcessParams {
-		ProcessParams(uint32_t const* col_plotted_,
+		ProcessParams(uint32_t const* col_scaled_,
 		              PVRow const nrows_,
 		              uint32_t const y_min_,
 		              int const zoom_,
@@ -62,7 +62,7 @@ class PVHitGraphDataInterface : boost::noncopyable
 		              const double& alpha_,
 		              int const block_start_,
 		              int const nblocks_)
-		    : col_plotted(col_plotted_)
+		    : col_scaled(col_scaled_)
 		    , nrows(nrows_)
 		    , y_min(y_min_)
 		    , zoom(zoom_)
@@ -73,7 +73,7 @@ class PVHitGraphDataInterface : boost::noncopyable
 		{
 		}
 
-		uint32_t const* col_plotted;
+		uint32_t const* col_scaled;
 		PVRow nrows;
 		uint32_t y_min;
 		int zoom;

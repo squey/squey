@@ -75,12 +75,12 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 
 	set_abscissa(axis);
 
-	// Subscribe to plotting changes
-	_plotting_change_connection = _view->get_parent<Squey::PVPlotted>()._plotted_updated.connect(
-	    [this](const QList<PVCol>& plotteds_updated) {
+	// Subscribe to scaling changes
+	_scaling_change_connection = _view->get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	    [this](const QList<PVCol>& scaleds_updated) {
 		    if (_sampler) {
-			    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
-			                                                  plotteds_updated.end());
+			    std::unordered_set<size_t> updated_timeseries(scaleds_updated.begin(),
+			                                                  scaleds_updated.end());
 			    PVCore::PVProgressBox::progress(
 			        [this, &updated_timeseries](PVCore::PVProgressBox& pbox) {
 				        pbox.set_enable_cancel(false);
@@ -210,12 +210,12 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 	const pvcop::db::array& time = nraw.column(abscissa);
 
 	{
-		auto plotteds = _view->get_parent<Squey::PVSource>().get_children<Squey::PVPlotted>();
-		const auto& plotteds_vector = plotteds.front()->get_plotteds();
+		auto scaleds = _view->get_parent<Squey::PVSource>().get_children<Squey::PVScaled>();
+		const auto& scaleds_vector = scaleds.front()->get_scaleds();
 
 		std::vector<pvcop::core::array<uint32_t>> timeseries;
 		for (PVCol col(0); col < nraw.column_count(); col++) {
-			timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
+			timeseries.emplace_back(scaleds_vector[col].to_core_array<uint32_t>());
 		}
 
 		_sampler = std::make_unique<Squey::PVRangeSubSampler>(

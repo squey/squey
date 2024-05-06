@@ -31,6 +31,6 @@
 
 std::string squey_plugins_get_layer_filters_dir();
 std::string squey_plugins_get_mapping_filters_dir();
-std::string squey_plugins_get_plotting_filters_dir();
+std::string squey_plugins_get_scaling_filters_dir();
 
 #endif /* _SQUEY_PLUGINS_H_ */

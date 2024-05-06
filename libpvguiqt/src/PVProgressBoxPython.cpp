@@ -26,7 +26,7 @@
 
 #include <pvguiqt/PVProgressBoxPython.h>
 #include <squey/PVPythonSource.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <boost/thread.hpp>
 #include <boost/lexical_cast.hpp>
@@ -69,15 +69,15 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 			// Update the GUI in the main thread
             pbox.moveToThread(QCoreApplication::instance()->thread());
 			auto update_type = main.attr(Squey::PVPythonSource::GUI_UPDATE_VAR).cast<uint32_t>();
-			if (update_type & Squey::PVPythonSource::GuiUpdateType::PLOTTING) {
+			if (update_type & Squey::PVPythonSource::GuiUpdateType::SCALING) {
                 QObject::connect(
 					&pbox,
-					&PVGuiQt::PVProgressBoxPython::emit_plotting_updated,
+					&PVGuiQt::PVProgressBoxPython::emit_scaling_updated,
 					&pbox,
-					&PVGuiQt::PVProgressBoxPython::do_emit_plotting_updated,
+					&PVGuiQt::PVProgressBoxPython::do_emit_scaling_updated,
 					Qt::QueuedConnection
 				);
-                Q_EMIT pbox.emit_plotting_updated(view);
+                Q_EMIT pbox.emit_scaling_updated(view);
 			}
 			if (update_type & Squey::PVPythonSource::GuiUpdateType::LAYER) {
                 QObject::connect(
@@ -107,10 +107,10 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 	return pbox.get_cancel_state();
 }
 
-void PVGuiQt::PVProgressBoxPython::do_emit_plotting_updated(Squey::PVView* view)
+void PVGuiQt::PVProgressBoxPython::do_emit_scaling_updated(Squey::PVView* view)
 {
     view->_axis_combination_updated.emit(false);
-    view->get_parent<Squey::PVPlotted>().update_plotting();
+    view->get_parent<Squey::PVScaled>().update_scaling();
 }
 
 

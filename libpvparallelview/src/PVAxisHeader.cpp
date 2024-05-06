@@ -31,7 +31,7 @@
 #include <pvdisplays/PVDisplaysContainer.h>
 
 #include <squey/PVView.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVMapped.h>
 
 #include <pvkernel/core/qobject_helpers.h>

@@ -160,7 +160,7 @@ class PVClassLibraryLibLoader
 	 * Load plugins from several directories
 	 *
 	 * @param pluginsdirs list of directories separated with the semicolon char ';'
-	 * @param prefix plugin type prefix, such as "plotting_filter" for the plotting filter plugin
+	 * @param prefix plugin type prefix, such as "scaling_filter" for the scaling filter plugin
 	 *type
 	 */
 	static int load_class_from_dirs(QString const& pluginsdirs, QString const& prefix);

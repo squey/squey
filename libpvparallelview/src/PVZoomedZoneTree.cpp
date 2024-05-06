@@ -444,8 +444,8 @@ void PVParallelView::PVZoomedZoneTree::process_omp_from_zt(const PVZoneProcessin
 {
 	init_structures();
 
-	const uint32_t* pcol_a = zp.plotted_a;
-	const uint32_t* pcol_b = zp.plotted_b;
+	const uint32_t* pcol_a = zp.scaled_a;
+	const uint32_t* pcol_b = zp.scaled_b;
 
 	BENCH_START(zztree);
 	tbb::parallel_for(

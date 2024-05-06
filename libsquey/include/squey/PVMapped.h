@@ -26,7 +26,7 @@
 #define SQUEY_PVMAPPED_H
 
 #include <squey/PVMappingProperties.h> // for PVMappingProperties
-#include <squey/PVPlotted.h>           // for PVPlotted
+#include <squey/PVScaled.h>           // for PVScaled
 
 #include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeChild, etc
 
@@ -60,13 +60,13 @@ namespace Squey
 /**
  * \class PVMapped
  *
- * PVMapped is child of PVSource and its children are PVPlotted.
+ * PVMapped is child of PVSource and its children are PVScaled.
  *
  * It is mainly a proxy class forwarding function to DataTree (for general purpose function)
  * PVMapping for others.
  * It contains only mapping values which certainly should be merged in PVMapping.
  */
-class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
+class PVMapped : public PVCore::PVDataTreeParent<PVScaled, PVMapped>,
                  public PVCore::PVDataTreeChild<PVSource, PVMapped>
 {
   public:
@@ -81,7 +81,7 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 
   public:
 	/**
-	 * Compute mapping and chain to plottings.
+	 * Compute mapping and chain to scalings.
 	 */
 	void update_mapping();
 
@@ -139,9 +139,9 @@ class PVMapped : public PVCore::PVDataTreeParent<PVPlotted, PVMapped>,
 
   private:
 	/**
-	 * Mark plotted as invalid as they will need to be recomputed.
+	 * Mark scaled as invalid as they will need to be recomputed.
 	 */
-	void invalidate_plotted_children_column(PVCol j);
+	void invalidate_scaled_children_column(PVCol j);
 
   protected:
 	mapped_table_t _trans_table; //!< This is a vector of vector which contains "for each column"

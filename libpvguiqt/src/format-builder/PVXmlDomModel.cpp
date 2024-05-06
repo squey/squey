@@ -629,7 +629,7 @@ void App::PVXmlDomModel::setDefaultAttributesForAxis(QDomElement& elt)
 	elt.setAttribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 	elt.setAttribute(PVFORMAT_AXIS_COLOR_STR, PVFORMAT_AXIS_COLOR_DEFAULT);
 	elt.setAttribute(PVFORMAT_AXIS_MAPPING_STR, PVFORMAT_AXIS_MAPPING_DEFAULT);
-	elt.setAttribute(PVFORMAT_AXIS_PLOTTING_STR, PVFORMAT_AXIS_PLOTTING_DEFAULT);
+	elt.setAttribute(PVFORMAT_AXIS_SCALING_STR, PVFORMAT_AXIS_SCALING_DEFAULT);
 	elt.setAttribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT);
 }
 
@@ -831,17 +831,17 @@ bool App::PVXmlDomModel::hasFormatChanged() const
 	return xmlFile.toString() != _original_xml_content;
 }
 
-void App::PVXmlDomModel::setEltMappingPlotting(QDomElement& elt,
+void App::PVXmlDomModel::setEltMappingScaling(QDomElement& elt,
                                                        QString const& type,
                                                        QString const& mode_mapping,
-                                                       QString const& mode_plotting)
+                                                       QString const& mode_scaling)
 {
 	elt.setAttribute("type", type);
 
 	QDomElement elt_map = xmlFile.createElement("mapping");
 	elt_map.setAttribute("mode", mode_mapping);
-	QDomElement elt_plot = xmlFile.createElement("plotting");
-	elt_plot.setAttribute("mode", mode_plotting);
+	QDomElement elt_plot = xmlFile.createElement("scaling");
+	elt_plot.setAttribute("mode", mode_scaling);
 
 	elt.appendChild(elt_map);
 	elt.appendChild(elt_plot);
@@ -901,52 +901,52 @@ void App::PVXmlDomModel::addUrlIn(const QModelIndex& index)
 
 	// set all axis
 	protocol.setAttribute("name", "Protocol");
-	setEltMappingPlotting(protocol, "string", "default", "default");
+	setEltMappingScaling(protocol, "string", "default", "default");
 	protocol.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	protocol.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	subdomain.setAttribute("name", "Subdomain");
-	setEltMappingPlotting(subdomain, "string", "default", "default");
+	setEltMappingScaling(subdomain, "string", "default", "default");
 	subdomain.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	subdomain.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	host.setAttribute("name", "Host");
-	setEltMappingPlotting(host, "string", "default", "default");
+	setEltMappingScaling(host, "string", "default", "default");
 	host.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	host.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	domain.setAttribute("name", "Domain");
-	setEltMappingPlotting(domain, "string", "default", "default");
+	setEltMappingScaling(domain, "string", "default", "default");
 	domain.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	domain.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	tld.setAttribute("name", "TLD");
-	setEltMappingPlotting(tld, "string", "default", "default");
+	setEltMappingScaling(tld, "string", "default", "default");
 	tld.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	tld.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	port.setAttribute("name", "Port");
-	setEltMappingPlotting(port, "number_uint16", "default", "port");
+	setEltMappingScaling(port, "number_uint16", "default", "port");
 	port.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	port.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	url.setAttribute("name", "URL");
-	setEltMappingPlotting(url, "string", "default", "default");
+	setEltMappingScaling(url, "string", "default", "default");
 	url.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	url.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	variable.setAttribute("name", "Variable");
-	setEltMappingPlotting(variable, "string", "default", "default");
+	setEltMappingScaling(variable, "string", "default", "default");
 	variable.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	variable.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	fragment.setAttribute("name", "Anchor");
-	setEltMappingPlotting(fragment, "string", "default", "default");
+	setEltMappingScaling(fragment, "string", "default", "default");
 	fragment.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	fragment.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 
 	credentials.setAttribute("name", "Credentials");
-	setEltMappingPlotting(credentials, "string", "default", "default");
+	setEltMappingScaling(credentials, "string", "default", "default");
 	credentials.setAttribute("color", PVFORMAT_AXIS_COLOR_DEFAULT);
 	credentials.setAttribute("titlecolor", PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 

@@ -554,7 +554,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				if (load_source_from_description_Slot(src_desc)) {
 					one_extraction_successful = true;
 				}
-			} catch (Squey::InvalidPlottingMapping const& e) {
+			} catch (Squey::InvalidScalingMapping const& e) {
 				invalid_formats.append(it.key() + ": " + e.what());
 			} catch (PVRush::PVInvalidFile const& e) {
 				invalid_formats.append(it.key() + ": " + e.what());
@@ -568,7 +568,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		if (not invalid_formats.isEmpty()) {
 			QMessageBox error_message(
 			    QMessageBox::Warning, "Invalid format",
-			    "Some format can't be use as types, mapping and plotting are not compatible.",
+			    "Some format can't be use as types, mapping and scaling are not compatible.",
 			    QMessageBox::Ok, this);
 			error_message.setDetailedText(invalid_formats.join("\n"));
 			error_message.exec();
@@ -810,14 +810,14 @@ static size_t forecasted_memory_consumption_increase(Squey::PVSource* src)
 	size_t mapped_size = 0;
 	for (size_t i = 0; i < column_count; i++) {
 		const Squey::PVMappingProperties& mapping_properties = Squey::PVMappingProperties(format, PVCol(i));
-		mapped_size += mapping_properties.get_mapping_filter()->is_computed() * sizeof(Squey::PVPlottingFilter::value_type) * row_count;
+		mapped_size += mapping_properties.get_mapping_filter()->is_computed() * sizeof(Squey::PVScalingFilter::value_type) * row_count;
 	}
 
-	size_t plotted_size = sizeof(Squey::PVPlotted::value_type) * row_count * column_count;
+	size_t scaled_size = sizeof(Squey::PVScaled::value_type) * row_count * column_count;
 
 	size_t zones_size = 2 * column_count * (sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS + sizeof(PVRow) * row_count);
 
-	return mapped_size + plotted_size + zones_size;
+	return mapped_size + scaled_size + zones_size;
 }
 
 /******************************************************************************
@@ -968,12 +968,12 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 		        auto& mapped = src->emplace_add_child();
 
 		        pbox.set_value(1);
-		        pbox.set_extended_status("Computing plotting...");
-		        auto& plotted = mapped.emplace_add_child();
+		        pbox.set_extended_status("Computing scaling...");
+		        auto& scaled = mapped.emplace_add_child();
 
 		        pbox.set_value(2);
 		        pbox.set_extended_status("Creating views...");
-		        plotted.emplace_add_child();
+		        scaled.emplace_add_child();
 
 		        pbox.set_value(3);
 	        },

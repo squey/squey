@@ -27,7 +27,7 @@
 
 #include <pvbase/types.h>
 #include <pvparallelview/common.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVQuadTree.h>

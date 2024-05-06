@@ -149,7 +149,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		// Rows to export
 		PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
 		_exporter.set_total_row_count(nraw.row_count());
-		const Squey::PVPlotted& plotted = view.get_parent<Squey::PVPlotted>();
+		const Squey::PVScaled& scaled = view.get_parent<Squey::PVScaled>();
 		PVRush::PVCSVExporter::export_func_f export_func =
 		    [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
 		        const std::string& quote) {
@@ -158,7 +158,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 				    exported_row = std::to_string(row + 1) + sep;
 			    }
 			    if (_exporter.get_export_internal_values()) {
-				    exported_row += plotted.export_line(row, cols, sep, quote);
+				    exported_row += scaled.export_line(row, cols, sep, quote);
 			    } else {
 				    exported_row += nraw.export_line(row, cols, sep, quote);
 			    }

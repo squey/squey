@@ -26,7 +26,7 @@
 #include <pvkernel/core/squey_intrin.h>
 
 #include <squey/PVMapped.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVSource.h>
 #include <squey/PVView.h>
 #include <squey/PVRoot.h>
@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 	Squey::PVRoot root;
 	Squey::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
 	src.emplace_add_child()   // Mapped
-	    .emplace_add_child()  // Plotted
+	    .emplace_add_child()  // Scaled
 	    .emplace_add_child(); // View
 
 	// Qt app

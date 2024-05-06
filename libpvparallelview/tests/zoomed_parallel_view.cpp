@@ -28,7 +28,7 @@
 #include <pvkernel/core/squey_bench.h>
 
 #include <squey/PVAxis.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>

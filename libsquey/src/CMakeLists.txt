@@ -18,9 +18,9 @@ PVLayerStack.cpp
 PVLinesProperties.cpp
 PVMapped.cpp
 PVMappingProperties.cpp
-PVPlotted.cpp
-PVPlottedNrawCache.cpp
-PVPlottingProperties.cpp
+PVScaled.cpp
+PVScaledNrawCache.cpp
+PVScalingProperties.cpp
 PVRoot.cpp
 PVScene.cpp
 PVSource.cpp
@@ -38,7 +38,7 @@ plugins.cpp
 
 set(WIDGETS_MOC_HEADERS
 ../include/squey/widgets/PVAxisComboBox.h
-../include/squey/widgets/PVMappingPlottingEditDialog.h
+../include/squey/widgets/PVMappingScalingEditDialog.h
 ../include/squey/widgets/PVNewLayerDialog.h
 
 ../include/squey/widgets/editors/PVAxisIndexCheckBoxEditor.h
@@ -54,9 +54,9 @@ widgets/PVArgumentListWidgetFactory.cpp
 widgets/PVAxisComboBox.cpp
 widgets/PVAxisTypeWidget.cpp
 widgets/PVMappingModeWidget.cpp
-widgets/PVMappingPlottingEditDialog.cpp
+widgets/PVMappingScalingEditDialog.cpp
 widgets/PVNewLayerDialog.cpp
-widgets/PVPlottingModeWidget.cpp
+widgets/PVScalingModeWidget.cpp
 
 widgets/editors/PVAxisIndexCheckBoxEditor.cpp
 widgets/editors/PVAxisIndexEditor.cpp

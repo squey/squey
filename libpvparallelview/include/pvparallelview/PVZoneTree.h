@@ -30,7 +30,7 @@
 #include <pvhwloc.h>
 
 #include <squey/PVSelection.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVZoneProcessing.h>

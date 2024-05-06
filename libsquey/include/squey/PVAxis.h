@@ -40,9 +40,9 @@ namespace Squey
 {
 
 /**
- * Exception raised when mapping/plotting combination is invalid.
+ * Exception raised when mapping/scaling combination is invalid.
  */
-struct InvalidPlottingMapping : public std::runtime_error {
+struct InvalidScalingMapping : public std::runtime_error {
 	using std::runtime_error::runtime_error;
 };
 
@@ -66,7 +66,7 @@ class PVAxis : public PVRush::PVAxisFormat
 
   public:
 	PVCore::PVArgumentList const& get_args_mapping() const { return _args_mapping; }
-	PVCore::PVArgumentList const& get_args_plotting() const { return _args_plotting; }
+	PVCore::PVArgumentList const& get_args_scaling() const { return _args_scaling; }
 
   private:
 	static PVCore::PVArgumentList args_from_node(node_args_t const& args_str,
@@ -74,7 +74,7 @@ class PVAxis : public PVRush::PVAxisFormat
 
   private:
 	PVCore::PVArgumentList _args_mapping;
-	PVCore::PVArgumentList _args_plotting;
+	PVCore::PVArgumentList _args_scaling;
 };
 } // namespace Squey
 

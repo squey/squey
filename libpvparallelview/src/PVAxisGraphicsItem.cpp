@@ -228,7 +228,7 @@ void PVParallelView::PVAxisGraphicsItem::paint(QPainter* painter,
 			                   get_axis_density());
 		}
 	} else {
-		const double valid_range = (1 - Squey::PVPlottingFilter::INVALID_RESERVED_PERCENT_RANGE);
+		const double valid_range = (1 - Squey::PVScalingFilter::INVALID_RESERVED_PERCENT_RANGE);
 
 		painter->fillRect(0, -axis_extend, _axis_width,
 		                  ((_axis_length * valid_range) + (axis_extend) + 2),
@@ -292,8 +292,8 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 {
 	const PVCombCol combined_col = get_combined_axis_column();
 
-	const PVRow min_row = _lib_view.get_plotted_col_min_row(combined_col);
-	const PVRow max_row = _lib_view.get_plotted_col_max_row(combined_col);
+	const PVRow min_row = _lib_view.get_scaled_col_min_row(combined_col);
+	const PVRow max_row = _lib_view.get_scaled_col_max_row(combined_col);
 
 	set_axis_text_value(_axis_min_value, min_row);
 	set_axis_text_value(_axis_max_value, max_row);
@@ -331,10 +331,10 @@ void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 	PVRow min_row;
 	PVRow max_row;
 	if ((size_t)original_col >= vmins.size() || (size_t)original_col >= vmaxs.size()) {
-		// Min/max values haven't been computed ! Take them from the plotted.
+		// Min/max values haven't been computed ! Take them from the scaled.
 		const PVCombCol combined_col = get_combined_axis_column();
-		min_row = _lib_view.get_plotted_col_min_row(combined_col);
-		max_row = _lib_view.get_plotted_col_max_row(combined_col);
+		min_row = _lib_view.get_scaled_col_min_row(combined_col);
+		max_row = _lib_view.get_scaled_col_max_row(combined_col);
 	} else {
 		min_row = vmins[original_col];
 		max_row = vmaxs[original_col];
@@ -462,8 +462,8 @@ void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 
 	std::vector<size_t> histogram(axis_length);
 
-	auto const& plotted = _lib_view.get_parent<Squey::PVPlotted>();
-	auto col_data = plotted.get_column_pointer(get_original_axis_column());
+	auto const& scaled = _lib_view.get_parent<Squey::PVScaled>();
+	auto col_data = scaled.get_column_pointer(get_original_axis_column());
 
 	auto const& selection = _lib_view.get_real_output_selection();
 	selection.visit_selected_lines([&histogram, col_data, axis_length](PVRow row) {

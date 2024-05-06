@@ -24,7 +24,7 @@
 //
 
 #include <pvguiqt/PVHiveDataTreeModel.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVMapped.h>
 #include <squey/PVSource.h>
 
@@ -94,7 +94,7 @@ QModelIndex PVHiveDataTreeModel::index(int row, int column, const QModelIndex& p
 	    (parent.isValid()) ? (PVCore::PVDataTreeObject*)parent.internalPointer() : &_root;
 
 	auto* child =
-	    apply_on<PVCore::PVDataTreeObject*, Squey::PVPlotted, Squey::PVMapped, Squey::PVSource>(
+	    apply_on<PVCore::PVDataTreeObject*, Squey::PVScaled, Squey::PVMapped, Squey::PVSource>(
 	        p, ith_child{row});
 
 	return createIndex(row, column, child);
@@ -121,7 +121,7 @@ int PVHiveDataTreeModel::rowCount(const QModelIndex& parent) const
 	} else if (dynamic_cast<Squey::PVView*>(p)) {
 		return 0;
 	} else {
-		return apply_on<size_t, Squey::PVPlotted, Squey::PVMapped, Squey::PVSource>(p,
+		return apply_on<size_t, Squey::PVScaled, Squey::PVMapped, Squey::PVSource>(p,
 		                                                                               get_size{});
 	}
 }
@@ -160,7 +160,7 @@ QModelIndex PVHiveDataTreeModel::parent(const QModelIndex& index) const
 		row = 0;
 	} else {
 		std::tie(row, parent) =
-		    apply_on<std::tuple<int, PVCore::PVDataTreeObject*>, Squey::PVPlotted, Squey::PVView>(
+		    apply_on<std::tuple<int, PVCore::PVDataTreeObject*>, Squey::PVScaled, Squey::PVView>(
 		        id, parent_pos{this});
 	}
 
@@ -217,7 +217,7 @@ int PVHiveDataTreeModel::pos_from_obj(PVCore::PVDataTreeObject const* id) const
 	if (dynamic_cast<Squey::PVSource const*>(id)) {
 		return 0;
 	} else {
-		return apply_on<int, const Squey::PVPlotted, const Squey::PVMapped, const Squey::PVView>(
+		return apply_on<int, const Squey::PVScaled, const Squey::PVMapped, const Squey::PVView>(
 		    id, obj_pos{});
 	}
 }

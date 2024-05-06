@@ -25,7 +25,7 @@
 
 #include <squey/PVLayer.h>
 #include <squey/PVLinesProperties.h> // for PVLinesProperties
-#include <squey/PVPlotted.h>         // for PVPlotted
+#include <squey/PVScaled.h>         // for PVScaled
 #include <squey/PVSelection.h>       // for PVSelection
 
 #include <pvkernel/core/PVSerializeObject.h> // for PVSerializeObject
@@ -108,16 +108,16 @@ void Squey::PVLayer::reset_to_full_and_default_color()
 	selection.select_all();
 }
 
-void Squey::PVLayer::compute_min_max(PVPlotted const& plotted)
+void Squey::PVLayer::compute_min_max(PVScaled const& scaled)
 {
-	PVCol col_count = plotted.get_nraw_column_count();
+	PVCol col_count = scaled.get_nraw_column_count();
 	_row_mins.resize(col_count);
 	_row_maxs.resize(col_count);
 
 #pragma omp parallel for
 	for (PVCol::value_type j = 0; j < col_count; j++) {
 		PVRow min, max;
-		plotted.get_col_minmax(min, max, selection, PVCol(j));
+		scaled.get_col_minmax(min, max, selection, PVCol(j));
 		_row_mins[j] = min;
 		_row_maxs[j] = max;
 	}

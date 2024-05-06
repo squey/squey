@@ -34,12 +34,12 @@
 #ifdef SQUEY_BENCH
 constexpr size_t SIZE = 10000; // Means X ** 2 total lines
 #else
-// Number of line on each plotting axe (use all combination between these values)
+// Number of line on each scaling axe (use all combination between these values)
 constexpr size_t SIZE = 1 << 11;
 #endif
 
 /**
- * Check ZoneTree building from two plotted axes and its bucket creations.
+ * Check ZoneTree building from two scaled axes and its bucket creations.
  */
 int main()
 {
@@ -49,7 +49,7 @@ int main()
 	std::vector<uint32_t> plota(SIZE * SIZE);
 	std::vector<uint32_t> plotb(SIZE * SIZE);
 
-	// Generate plotting to have equireparted line on both sides.
+	// Generate scaling to have equireparted line on both sides.
 	for (size_t i = 0; i < SIZE; i++) {
 		uint32_t r = i << (32 - 11); // Make sure values are equireparted in the 10 upper bites.
 		for (size_t j = 0; j < SIZE; j++) {

@@ -110,7 +110,7 @@ class PVSeriesViewWidget : public QWidget
 	PVCol _abscissa_axis;
 	PVCol _split_axis;
 
-	PVCore::PVDisconnector _plotting_change_connection;
+	PVCore::PVDisconnector _scaling_change_connection;
 	PVCore::PVDisconnector _selection_change_connection;
 
 	PVSeriesViewParamsWidget* _params_widget = nullptr;

@@ -37,7 +37,7 @@
 #include <QScreen>
 
 #include <squey/PVMapped.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVSource.h>
 
 #include "common.h"
@@ -98,10 +98,10 @@ int main(int argc, char** argv)
 	Squey::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
 	Squey::PVSource& src2 = get_src_from_file(*root.get_children().front(), argv[1], argv[2]);
 	src2.emplace_add_child()  // Mapped
-	    .emplace_add_child()  // Plotted
+	    .emplace_add_child()  // Scaled
 	    .emplace_add_child(); // View
 	src.emplace_add_child()   // Mapped
-	    .emplace_add_child()  // Plotted
+	    .emplace_add_child()  // Scaled
 	    .emplace_add_child(); // View
 
 	src.current_view()->get_parent().emplace_add_child();

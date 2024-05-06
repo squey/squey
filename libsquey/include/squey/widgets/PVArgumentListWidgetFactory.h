@@ -39,7 +39,7 @@ namespace PVArgumentListWidgetFactory
 {
 
 QItemEditorFactory* create_layer_widget_factory(Squey::PVView const& view);
-QItemEditorFactory* create_mapping_plotting_widget_factory();
+QItemEditorFactory* create_mapping_scaling_widget_factory();
 } // namespace PVArgumentListWidgetFactory
 } // namespace PVWidgets
 

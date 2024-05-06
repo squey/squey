@@ -30,7 +30,7 @@
 #include <squey/PVLayerStack.h>        // for PVLayerStack
 #include <squey/PVLinesProperties.h>   // for PVLinesProperties
 #include <squey/PVMapped.h>            // for PVMapped
-#include <squey/PVPlotted.h>           // for PVPlotted
+#include <squey/PVScaled.h>           // for PVScaled
 #include <squey/PVRoot.h>              // for PVRoot
 #include <squey/PVSelection.h>         // for PVSelection
 #include <squey/PVSource.h>            // for PVSource
@@ -82,8 +82,8 @@ PVCore::PVHSVColor Squey::PVView::_default_zombie_line_properties(HSV_COLOR_BLAC
  * Squey::PVView::PVView
  *
  *****************************************************************************/
-Squey::PVView::PVView(PVPlotted& plotted)
-    : PVCore::PVDataTreeChild<PVPlotted, PVView>(plotted)
+Squey::PVView::PVView(PVScaled& scaled)
+    : PVCore::PVDataTreeChild<PVScaled, PVView>(scaled)
     , _view_selection(get_row_count())
     , post_filter_layer("post_filter_layer", get_row_count())
     , layer_stack_output_layer("view_layer_stack_output_layer", get_row_count())
@@ -677,7 +677,7 @@ bool& Squey::PVView::are_view_unselected_zombie_visible()
 
 void Squey::PVView::compute_layer_min_max(Squey::PVLayer& layer)
 {
-	layer.compute_min_max(get_parent<Squey::PVPlotted>());
+	layer.compute_min_max(get_parent<Squey::PVScaled>());
 }
 
 void Squey::PVView::update_current_layer_min_max()
@@ -706,16 +706,16 @@ void Squey::PVView::set_axes_combination(std::vector<PVCol> const& comb)
 	_axis_combination_updated.emit(true);
 }
 
-PVRow Squey::PVView::get_plotted_col_min_row(PVCombCol const combined_col) const
+PVRow Squey::PVView::get_scaled_col_min_row(PVCombCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
-	return get_parent<PVPlotted>().get_col_min_row(col);
+	return get_parent<PVScaled>().get_col_min_row(col);
 }
 
-PVRow Squey::PVView::get_plotted_col_max_row(PVCombCol const combined_col) const
+PVRow Squey::PVView::get_scaled_col_max_row(PVCombCol const combined_col) const
 {
 	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
-	return get_parent<PVPlotted>().get_col_max_row(col);
+	return get_parent<PVScaled>().get_col_max_row(col);
 }
 
 void Squey::PVView::sort_indexes(PVCol col,
@@ -742,17 +742,17 @@ bool Squey::PVView::insert_axis(const pvcop::db::type_t& column_type, const pybi
 		axis_format.set_name(axis_name);
 		axis_format.set_type(column_type.c_str());
 		axis_format.set_mapping("default"); // FIXME : use string for string
-		axis_format.set_plotting("default");
+		axis_format.set_scaling("default");
 		axis_format.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
 		axis_format.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 		format.insert_axis(axis_format, PVCombCol(0), true); // FIXME
 		_axes_combination.axis_append(col);
 
-		// compute mapping and plotting
+		// compute mapping and scaling
 		auto& mapped = get_parent<PVMapped>();
 		mapped.append_mapped();
-		auto& plotted = get_parent<PVPlotted>();
-		plotted.append_plotted();
+		auto& scaled = get_parent<PVScaled>();
+		scaled.append_scaled();
 		mapped.compute();
 	}
 
@@ -778,8 +778,8 @@ void Squey::PVView::delete_axis(PVCombCol comb_col)
 		_axis_combination_updated.emit(true);
     }, Qt::BlockingQueuedConnection);
 
-	// Delete mapping and plotting
-	get_parent<PVPlotted>().delete_plotted(col);
+	// Delete mapping and scaling
+	get_parent<PVScaled>().delete_scaled(col);
 	get_parent<PVMapped>().delete_mapped(col);
 
 	// Delete column from disk
@@ -801,7 +801,7 @@ void Squey::PVView::serialize_write(PVCore::PVSerializeObject& so) const
 }
 
 Squey::PVView& Squey::PVView::serialize_read(PVCore::PVSerializeObject& so,
-                                               Squey::PVPlotted& parent)
+                                               Squey::PVScaled& parent)
 {
 
 	so.set_current_status("Loading view...");

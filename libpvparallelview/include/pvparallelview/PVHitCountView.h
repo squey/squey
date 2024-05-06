@@ -123,7 +123,7 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 		return _backend->get_hit_graph_manager();
 	}
 
-	inline Squey::PVPlottedNrawCache& get_y_labels_cache()
+	inline Squey::PVScaledNrawCache& get_y_labels_cache()
 	{
 		return _backend->get_y_labels_cache();
 	}

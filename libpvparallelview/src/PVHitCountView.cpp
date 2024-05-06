@@ -336,7 +336,7 @@ void PVParallelView::PVHitCountView::update_all_async()
 bool PVParallelView::PVHitCountView::update_zones()
 {
 	/* RH: no need to follows the axis_id yet. We need informations to
-	 * retrieve the plotted pointer...
+	 * retrieve the scaled pointer...
 	 */
 	return true;
 }

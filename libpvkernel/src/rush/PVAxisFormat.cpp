@@ -59,9 +59,9 @@ void PVRush::PVAxisFormat::set_name(const QString& str)
 	name = str;
 }
 
-void PVRush::PVAxisFormat::set_plotting(QString str)
+void PVRush::PVAxisFormat::set_scaling(QString str)
 {
-	plotting = str;
+	scaling = str;
 }
 
 void PVRush::PVAxisFormat::set_titlecolor(QString str)

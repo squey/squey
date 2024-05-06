@@ -51,7 +51,7 @@ y_to_idx_in_red_buffer(const uint32_t y, const uint32_t zoom, const double alpha
 }
 
 PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(
-    const uint32_t* col_plotted,
+    const uint32_t* col_scaled,
     const PVRow nrows,
     uint32_t nblocks,
     Squey::PVSelection const& layer_sel,
@@ -60,7 +60,7 @@ PVParallelView::PVHitGraphBlocksManager::PVHitGraphBlocksManager(
     , _data(PARALLELVIEW_ZZT_BBITS, nblocks)
     , _layer_sel(layer_sel)
     , _sel(sel)
-    , _data_params(col_plotted, nrows, 0, -1, PARALLELVIEW_ZT_BBITS, 0.5, 0, nblocks)
+    , _data_params(col_scaled, nrows, 0, -1, PARALLELVIEW_ZT_BBITS, 0.5, 0, nblocks)
 {
 }
 

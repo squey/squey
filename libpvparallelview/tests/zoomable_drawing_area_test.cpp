@@ -371,7 +371,7 @@ class PVZoomableDrawingAreaConstraintsZPV : public PVParallelView::PVZoomableDra
  * test views
  *****************************************************************************/
 
-class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
+class MyScalingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 {
 	constexpr static int zoom_steps = 5;
 	constexpr static int zoom_min = -22 * zoom_steps;
@@ -380,7 +380,7 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 	using zoom_converter_t = PVParallelView::PVZoomConverterScaledPowerOfTwo<zoom_steps>;
 
   public:
-	MyPlottingZDAWA(QWidget* parent = nullptr)
+	MyScalingZDAWA(QWidget* parent = nullptr)
 	    : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
 	{
 		set_gl_viewport();
@@ -424,7 +424,7 @@ class MyPlottingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 		set_ticks_per_level(8);
 	}
 
-	~MyPlottingZDAWA() override
+	~MyScalingZDAWA() override
 	{
 		// PVZoomableDrawingArea does not care about the constraints deletion
 		delete get_constraints();
@@ -538,11 +538,11 @@ int main(int argc, char** argv)
 {
 	QApplication app(argc, argv);
 
-	PVParallelView::PVZoomableDrawingAreaWithAxes* pzdawa = new MyPlottingZDAWA;
+	PVParallelView::PVZoomableDrawingAreaWithAxes* pzdawa = new MyScalingZDAWA;
 	pzdawa->set_y_axis_inverted(true);
 	pzdawa->resize(600, 600);
 	pzdawa->show();
-	pzdawa->setWindowTitle("PV Plotting test");
+	pzdawa->setWindowTitle("PV Scaling test");
 
 	PVParallelView::PVZoomableDrawingArea* zzda = new MyZoomingZDA;
 	zzda->set_y_axis_inverted(true);

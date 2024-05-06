@@ -41,7 +41,7 @@ typedef QMap<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_AXIS_NAME_STR "name"
 #define PVFORMAT_AXIS_TYPE_STR "type"
 #define PVFORMAT_AXIS_MAPPING_STR "mapping"
-#define PVFORMAT_AXIS_PLOTTING_STR "plotting"
+#define PVFORMAT_AXIS_SCALING_STR "scaling"
 #define PVFORMAT_AXIS_COLOR_STR "color"
 #define PVFORMAT_AXIS_TITLECOLOR_STR "titlecolor"
 #define PVFORMAT_AXIS_TYPE_FORMAT_STR "type_format"
@@ -50,7 +50,7 @@ typedef QMap<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_AXIS_NAME_DEFAULT ""
 #define PVFORMAT_AXIS_TYPE_DEFAULT "string"
 #define PVFORMAT_AXIS_MAPPING_DEFAULT "default"
-#define PVFORMAT_AXIS_PLOTTING_DEFAULT "default"
+#define PVFORMAT_AXIS_SCALING_DEFAULT "default"
 #define PVFORMAT_AXIS_KEY_DEFAULT "false"
 #define PVFORMAT_AXIS_COLOR_DEFAULT "#1a72bb"
 #define PVFORMAT_AXIS_TITLECOLOR_DEFAULT PVFORMAT_AXIS_COLOR_DEFAULT
@@ -66,7 +66,7 @@ typedef QMap<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_FILTER_TYPE_DEFAULT ""
 #define PVFORMAT_FILTER_NAME_DEFAULT ""
 
-// Mapping/plotting properties'name
+// Mapping/scaling properties'name
 #define PVFORMAT_MAP_PLOT_MODE_STR "mode"
 #define PVFORMAT_MAP_PLOT_MODE_DEFAULT "default"
 
@@ -79,6 +79,7 @@ typedef QMap<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_XML_TAG_AXES_COMBINATION_STR "axes-combination"
 #define PVFORMAT_XML_TAG_MAPPING "mapping"
 #define PVFORMAT_XML_TAG_PLOTTING "plotting"
+#define PVFORMAT_XML_TAG_SCALING "scaling"
 
 // Format version
 #define PVFORMAT_CURRENT_VERSION "9"

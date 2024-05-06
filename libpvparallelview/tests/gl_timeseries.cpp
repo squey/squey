@@ -68,12 +68,12 @@ int main(int argc, char** argv)
 	pvtest::TestEnv env(csv_file, csv_file_format, 1, pvtest::ProcessUntil::Source);
 
 	env.compute_mappings();
-	env.compute_plottings();
+	env.compute_scalings();
 	env.compute_views();
 
-	auto plotteds = env.root.get_children<Squey::PVPlotted>();
+	auto scaleds = env.root.get_children<Squey::PVScaled>();
 
-	const auto& plotteds_vector = plotteds.front()->get_plotteds();
+	const auto& scaleds_vector = scaleds.front()->get_scaleds();
 
 	Squey::PVView* view = env.root.get_children<Squey::PVView>().front();
 	view->select_all();
@@ -82,8 +82,8 @@ int main(int argc, char** argv)
 	QApplication a(argc, argv);
 
 	std::vector<pvcop::core::array<uint32_t>> timeseries;
-	for (size_t i = 1; i < plotteds_vector.size(); i++) {
-		timeseries.emplace_back(plotteds_vector[i].to_core_array<uint32_t>());
+	for (size_t i = 1; i < scaleds_vector.size(); i++) {
+		timeseries.emplace_back(scaleds_vector[i].to_core_array<uint32_t>());
 	}
 	Squey::PVRangeSubSampler sampler(nraw.column(PVCol(0)), timeseries, nraw,
 	                                  view->get_real_output_selection());

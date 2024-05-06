@@ -341,9 +341,9 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 			setToolTip("Current coherent viewset for this source");
 			connect(this, &QComboBox::activated, [this](int index){
 				if (index == count() - 1) {
-					if (auto plotteds = _source->get_children<Squey::PVPlotted>(); plotteds.size() > 0) {
-						// At time of writing, there is only one mapping/plotting per source
-						plotteds.back()->emplace_add_child();
+					if (auto scaleds = _source->get_children<Squey::PVScaled>(); scaleds.size() > 0) {
+						// At time of writing, there is only one mapping/scaling per source
+						scaleds.back()->emplace_add_child();
 						fill_views();
 						setCurrentIndex(count() - 2);
 					}

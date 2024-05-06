@@ -32,7 +32,7 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
 
 #include <pvparallelview/PVZone.h>
@@ -148,10 +148,10 @@ class PVZonesManager : public QObject
   public:
 	inline PVZoneProcessing get_zone_processing(PVZoneID const z) const
 	{
-		const auto& plotted = _view.get_parent<Squey::PVPlotted>();
+		const auto& scaled = _view.get_parent<Squey::PVScaled>();
 
-		return {_view.get_row_count(), plotted.get_column_pointer(z.first),
-		        plotted.get_column_pointer(z.second)};
+		return {_view.get_row_count(), scaled.get_column_pointer(z.first),
+		        scaled.get_column_pointer(z.second)};
 	}
 
   protected:

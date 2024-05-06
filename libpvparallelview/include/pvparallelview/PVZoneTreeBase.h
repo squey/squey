@@ -25,7 +25,7 @@
 #ifndef PVPARALLELVIEW_PVZONETREEBASE_H
 #define PVPARALLELVIEW_PVZONETREEBASE_H
 
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <pvparallelview/common.h>
 

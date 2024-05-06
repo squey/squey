@@ -92,10 +92,10 @@ PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(Squey::PVVie
 
 /******************************************************************************
  *
- * App::PVArgumentListWidget::create_mapping_plotting_widget_factory
+ * App::PVArgumentListWidget::create_mapping_scaling_widget_factory
  *
  *****************************************************************************/
-QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory()
+QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_mapping_scaling_widget_factory()
 {
 	/* AG: try this later...
 	static QItemEditorFactory* args_widget_factory = nullptr;

@@ -24,13 +24,13 @@
 //
 
 #include <squey/PVMapped.h>
-#include <squey/widgets/PVMappingPlottingEditDialog.h>
+#include <squey/widgets/PVMappingScalingEditDialog.h>
 #include <pvguiqt/PVQMapped.h>
 #include <pvkernel/core/PVProgressBox.h>
 
 bool PVGuiQt::PVQMapped::edit_mapped(Squey::PVMapped& mapped, QWidget* parent)
 {
-	PVWidgets::PVMappingPlottingEditDialog dlg(&mapped, nullptr, parent);
+	PVWidgets::PVMappingScalingEditDialog dlg(&mapped, nullptr, parent);
 	if (dlg.exec() != QDialog::Accepted) {
 		return false;
 	}

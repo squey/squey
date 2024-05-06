@@ -43,7 +43,7 @@
 
 #include <squey/PVView.h>
 #include <squey/PVRoot.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
                                       QWidget* view_widget,

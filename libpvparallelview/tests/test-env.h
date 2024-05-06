@@ -45,7 +45,7 @@ static void init_env()
 	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
 	Squey::common::load_mapping_filters();
-	Squey::common::load_plotting_filters();
+	Squey::common::load_scaling_filters();
 }
 
 #endif

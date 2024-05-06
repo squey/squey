@@ -55,7 +55,7 @@ std::string get_tmp_filename()
 	return tmpnam(buffer);
 }
 
-enum class ProcessUntil { Source, Mapped, Plotted, View };
+enum class ProcessUntil { Source, Mapped, Scaled, View };
 
 /**
  * Create and save context for a view creation.
@@ -93,13 +93,13 @@ class TestEnv
 		case ProcessUntil::Mapped:
 			compute_mappings();
 			return;
-		case ProcessUntil::Plotted:
+		case ProcessUntil::Scaled:
 			compute_mappings();
-			compute_plottings();
+			compute_scalings();
 			return;
 		case ProcessUntil::View:
 			compute_mappings();
-			compute_plottings();
+			compute_scalings();
 			compute_views();
 			return;
 		}
@@ -170,10 +170,10 @@ class TestEnv
 	}
 
 	/**
-	 * Compute plotting assuming PVMapped is valid.
+	 * Compute scaling assuming PVMapped is valid.
 	 */
-	Squey::PVPlotted&
-	compute_plotting(size_t scene_id = 0, size_t src_id = 0, size_t mapped_id = 0)
+	Squey::PVScaled&
+	compute_scaling(size_t scene_id = 0, size_t src_id = 0, size_t mapped_id = 0)
 	{
 		// And plot the mapped values
 		const auto& scenes = root.get_children();
@@ -194,7 +194,7 @@ class TestEnv
 		return (*mapped_it)->emplace_add_child();
 	}
 
-	void compute_plottings()
+	void compute_scalings()
 	{
 		// And plot the mapped values
 		for (auto* mapped : root.get_children<Squey::PVMapped>()) {
@@ -204,8 +204,8 @@ class TestEnv
 
 	void compute_views()
 	{
-		for (auto* plotted : root.get_children<Squey::PVPlotted>()) {
-			plotted->emplace_add_child();
+		for (auto* scaled : root.get_children<Squey::PVScaled>()) {
+			scaled->emplace_add_child();
 		}
 	}
 

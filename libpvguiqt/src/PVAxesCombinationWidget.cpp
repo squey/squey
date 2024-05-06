@@ -25,7 +25,7 @@
 
 #include <squey/PVAxesCombination.h>
 #include <squey/PVView.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <pvguiqt/PVAxesCombinationWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
@@ -398,7 +398,7 @@ void PVGuiQt::PVAxesCombinationWidget::set_selection_from_cols(QList<PVCol> cons
 void PVGuiQt::PVAxesCombinationWidget::sel_singleton_Slot()
 {
 	assert(_view);
-	QList<PVCol> cols_rem = _view->get_parent<Squey::PVPlotted>().get_singleton_columns_indexes();
+	QList<PVCol> cols_rem = _view->get_parent<Squey::PVScaled>().get_singleton_columns_indexes();
 	set_selection_from_cols(cols_rem);
 }
 

@@ -34,7 +34,7 @@ static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log
 static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
 static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation.pvi";
 static constexpr const char* ref_mapped_file = TEST_FOLDER "/picviz/ref_mapped";
-static constexpr const char* ref_plotted_file = TEST_FOLDER "/picviz/ref_plotted";
+static constexpr const char* ref_scaled_file = TEST_FOLDER "/picviz/ref_scaled";
 static constexpr unsigned int ROW_COUNT = 100000;
 #ifdef SQUEY_BENCH
 static constexpr unsigned int dupl = 200;
@@ -69,7 +69,7 @@ double save_investigation()
 	PV_VALID((*it)->get_name(), std::string("proxy_1bad.log"));
 
 	env.compute_mappings();
-	env.compute_plottings();
+	env.compute_scalings();
 	env.compute_views();
 
 	auto mappeds = env.root.get_children<Squey::PVMapped>();
@@ -78,11 +78,11 @@ double save_investigation()
 	mapped->set_name("other");
 	PV_VALID(mapped->get_name(), std::string("other"));
 
-	auto plotteds = env.root.get_children<Squey::PVPlotted>();
-	PV_VALID(plotteds.size(), 3UL);
-	auto* plotted = plotteds.front();
-	plotted->set_name("my plotting name");
-	PV_VALID(plotted->get_name(), std::string("my plotting name"));
+	auto scaleds = env.root.get_children<Squey::PVScaled>();
+	PV_VALID(scaleds.size(), 3UL);
+	auto* scaled = scaleds.front();
+	scaled->set_name("my scaling name");
+	PV_VALID(scaled->get_name(), std::string("my scaling name"));
 
 	size_t view_size = env.root.size<Squey::PVView>();
 	PV_VALID(view_size, 3UL);
@@ -213,29 +213,29 @@ double load_investigation()
 	PV_VALID(core_minmax[1], (string_index_t)90038U);
 
 	/**
-	 * Check plotteds
+	 * Check scaleds
 	 */
-	auto plotteds = root.get_children<Squey::PVPlotted>();
-	PV_VALID(plotteds.size(), 3UL);
-	auto const* plotted = plotteds.front();
-	PV_VALID(plotted->get_name(), std::string("my plotting name"));
+	auto scaleds = root.get_children<Squey::PVScaled>();
+	PV_VALID(scaleds.size(), 3UL);
+	auto const* scaled = scaleds.front();
+	PV_VALID(scaled->get_name(), std::string("my scaling name"));
 
-	uint32_t const* plotting_values = plotted->get_column_pointer(PVCol(0));
-	std::ifstream ref_plotted_stream(ref_plotted_file);
-	for (size_t i = 0; i < plotted->get_row_count(); i++) {
+	uint32_t const* scaling_values = scaled->get_column_pointer(PVCol(0));
+	std::ifstream ref_scaled_stream(ref_scaled_file);
+	for (size_t i = 0; i < scaled->get_row_count(); i++) {
 		uint32_t ref;
-		ref_plotted_stream >> ref;
-		if (ref != plotting_values[i]) {
+		ref_scaled_stream >> ref;
+		if (ref != scaling_values[i]) {
 			pvlogger::info() << "#" << i << std::endl;
 		}
 		if (i > 0) {
-			PV_VALID(ref, plotting_values[i]);
+			PV_VALID(ref, scaling_values[i]);
 		}
 	}
 
-	PV_VALID(plotted->get_properties_for_col(PVCol(2)).get_mode(), std::string("default"));
-	PV_VALID(plotted->get_col_min_row(PVCol(2)), 75173U);
-	PV_VALID(plotted->get_col_max_row(PVCol(2)), 0U);
+	PV_VALID(scaled->get_properties_for_col(PVCol(2)).get_mode(), std::string("default"));
+	PV_VALID(scaled->get_col_min_row(PVCol(2)), 75173U);
+	PV_VALID(scaled->get_col_max_row(PVCol(2)), 0U);
 
 	/**
 	 * Check view

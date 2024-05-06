@@ -67,7 +67,7 @@ format-builder/PVOptionsWidget.cpp
 # Displays that will be registered to libpvdisplays
 PVDisplayViewCorrelation.cpp
 PVDisplayViewAxesCombination.cpp
-PVDisplayViewMappingPlotting.cpp
+PVDisplayViewMappingScaling.cpp
 PVDisplayViewDistinctValues.cpp
 PVDisplayViewGroupBy.cpp
 PVDisplayViewLayerStack.cpp

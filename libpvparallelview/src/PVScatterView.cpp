@@ -476,9 +476,9 @@ void PVParallelView::PVScatterView::do_update_all()
 		return;
 	}
 
-	// Hack to revert plotting inversion
-	y1_min = PVCore::invert_plotting_value(view_rect.x() + view_rect.width());
-	y1_max = PVCore::invert_plotting_value(view_rect.x());
+	// Hack to revert scaling inversion
+	y1_min = PVCore::invert_scaling_value(view_rect.x() + view_rect.width());
+	y1_max = PVCore::invert_scaling_value(view_rect.x());
 	y2_min = view_rect.y();
 	y2_max = view_rect.y() + view_rect.height();
 
@@ -513,7 +513,7 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 		img_manager.set_zone(zid);
 
 		PVZoneProcessing zp = _backend->get_images_manager().get_zones_manager().get_zone_processing(zid);
-		_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
+		_sel_rect->set_scaleds(zp.scaled_a, zp.scaled_b, zp.size);
 
 		set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
 		               zoom_min);
@@ -593,7 +593,7 @@ QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
 	if (_show_labels and _backend) {
 		return get_elided_text(_backend->get_x_labels_cache().get(
-		    std::numeric_limits<Squey::PVPlotted::value_type>::max() - value));
+		    std::numeric_limits<Squey::PVScaled::value_type>::max() - value));
 	} else {
 		return {};
 	}

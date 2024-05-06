@@ -26,7 +26,7 @@
 #include <squey/PVMapped.h>            // for PVMapped, etc
 #include <squey/PVMappingFilter.h>     // for PVMappingFilter, etc
 #include <squey/PVMappingProperties.h> // for PVMappingProperties
-#include <squey/PVPlotted.h>           // for PVPlotted
+#include <squey/PVScaled.h>           // for PVScaled
 #include <squey/PVSource.h>            // for PVSource
 
 #include <pvkernel/core/PVDataTreeObject.h>  // for PVDataTreeChild
@@ -131,7 +131,7 @@ void Squey::PVMapped::compute()
 		    mapping_filter->get_minmax(get_column(j), nraw.column(j).valid_selection()));
 
 		get_properties_for_col(j).set_uptodate();
-		invalidate_plotted_children_column(j);
+		invalidate_scaled_children_column(j);
 	}
 }
 
@@ -198,21 +198,21 @@ PVCol Squey::PVMapped::get_nraw_column_count() const
 void Squey::PVMapped::update_mapping()
 {
 	compute();
-	// Process plotting children
-	for (auto* plotted_p : get_children()) {
-		plotted_p->update_plotting();
+	// Process scaling children
+	for (auto* scaled_p : get_children()) {
+		scaled_p->update_scaling();
 	}
 }
 
 /******************************************************************************
  *
- * Squey::PVMapped::invalidate_plotted_children_column
+ * Squey::PVMapped::invalidate_scaled_children_column
  *
  *****************************************************************************/
-void Squey::PVMapped::invalidate_plotted_children_column(PVCol j)
+void Squey::PVMapped::invalidate_scaled_children_column(PVCol j)
 {
-	for (auto* plotted_p : get_children()) {
-		plotted_p->invalidate_column(j);
+	for (auto* scaled_p : get_children()) {
+		scaled_p->invalidate_column(j);
 	}
 }
 
@@ -239,13 +239,13 @@ void Squey::PVMapped::serialize_write(PVCore::PVSerializeObject& so) const
 	so.attribute_write("prop_count", idx);
 
 	// Read the data colletions
-	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted");
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scaled");
 	idx = 0;
-	for (PVPlotted const* plotted : get_children()) {
+	for (PVScaled const* scaled : get_children()) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx++));
-		plotted->serialize_write(*new_obj);
+		scaled->serialize_write(*new_obj);
 	}
-	so.attribute_write("plotted_count", idx);
+	so.attribute_write("scaled_count", idx);
 }
 
 /******************************************************************************
@@ -271,12 +271,12 @@ Squey::PVMapped& Squey::PVMapped::serialize_read(PVCore::PVSerializeObject& so,
 
 	PVMapped& mapped = parent.emplace_add_child(name.toStdString(), std::move(columns));
 
-	// Create the list of plotted
-	PVCore::PVSerializeObject_p list_obj = so.create_object("plotted");
-	int plotted_count = so.attribute_read<int>("plotted_count");
-	for (int idx = 0; idx < plotted_count; idx++) {
+	// Create the list of scaled
+	PVCore::PVSerializeObject_p list_obj = so.create_object("scaled");
+	int scaled_count = so.attribute_read<int>("scaled_count");
+	for (int idx = 0; idx < scaled_count; idx++) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-		PVPlotted::serialize_read(*new_obj, mapped);
+		PVScaled::serialize_read(*new_obj, mapped);
 	}
 
 	return mapped;

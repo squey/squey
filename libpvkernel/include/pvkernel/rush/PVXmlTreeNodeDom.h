@@ -298,10 +298,10 @@ class PVXmlTreeNodeDom : public QObject
 	QString getMappingProperties(PVCore::PVArgumentList const& def_args,
 	                             PVCore::PVArgumentList& args);
 
-	void setPlottingProperties(QString const& mode,
+	void setScalingProperties(QString const& mode,
 	                           PVCore::PVArgumentList const& def_args,
 	                           PVCore::PVArgumentList const& args);
-	QString getPlottingProperties(PVCore::PVArgumentList const& def_args,
+	QString getScalingProperties(PVCore::PVArgumentList const& def_args,
 	                              PVCore::PVArgumentList& args);
 
   private:
@@ -335,7 +335,7 @@ class PVXmlTreeNodeDom : public QObject
 
   private:
 	QDomElement getMappingElement();
-	QDomElement getPlottingElement();
+	QDomElement getScalingElement();
 
   public Q_SLOTS:
 	void slot_update()

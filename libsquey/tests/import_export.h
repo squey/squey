@@ -41,7 +41,7 @@
 #include <squey/PVSelection.h>
 #include <squey/PVScene.h>
 #include <squey/PVMapped.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
 #include <squey/PVPythonInterpreter.h>
 

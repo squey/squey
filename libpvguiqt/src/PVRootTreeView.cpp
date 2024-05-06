@@ -26,12 +26,12 @@
 #include <squey/PVRoot.h>
 #include <squey/PVScene.h>
 #include <squey/PVMapped.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
-#include <squey/widgets/PVMappingPlottingEditDialog.h>
+#include <squey/widgets/PVMappingScalingEditDialog.h>
 
 #include <pvguiqt/PVQMapped.h>
-#include <pvguiqt/PVQPlotted.h>
+#include <pvguiqt/PVQScaled.h>
 #include <pvguiqt/PVRootTreeModel.h>
 #include <pvguiqt/PVRootTreeView.h>
 
@@ -55,13 +55,13 @@ PVGuiQt::PVRootTreeView::PVRootTreeView(QAbstractItemModel* model, QWidget* pare
 
 	// Actions
 	_act_new_view = new QAction(tr("Create new view"), this);
-	_act_new_plotted = new QAction(tr("Create new plotted..."), this);
+	_act_new_scaled = new QAction(tr("Create new scaled..."), this);
 	_act_new_mapped = new QAction(tr("Create new mapped..."), this);
 	_act_edit_mapping = new QAction(tr("Edit mapping..."), this);
-	_act_edit_plotting = new QAction(tr("Edit plotting..."), this);
+	_act_edit_scaling = new QAction(tr("Edit scaling..."), this);
 
 	connect(_act_new_view, &QAction::triggered, this, &PVRootTreeView::create_new_view);
-	connect(_act_edit_plotting, &QAction::triggered, this, &PVRootTreeView::edit_plotting);
+	connect(_act_edit_scaling, &QAction::triggered, this, &PVRootTreeView::edit_scaling);
 	connect(_act_edit_mapping, &QAction::triggered, this, &PVRootTreeView::edit_mapping);
 }
 
@@ -99,11 +99,11 @@ void PVGuiQt::PVRootTreeView::contextMenuEvent(QContextMenuEvent* event)
 
 	auto* obj = (PVCore::PVDataTreeObject*)idx_click.internalPointer();
 
-	auto* plotted = dynamic_cast<Squey::PVPlotted*>(obj);
-	if (plotted) {
+	auto* scaled = dynamic_cast<Squey::PVScaled*>(obj);
+	if (scaled) {
 		auto* ctxt_menu = new QMenu(this);
 		ctxt_menu->addAction(_act_new_view);
-		ctxt_menu->addAction(_act_edit_plotting);
+		ctxt_menu->addAction(_act_edit_scaling);
 		ctxt_menu->popup(QCursor::pos());
 		return;
 	}
@@ -137,9 +137,9 @@ void PVGuiQt::PVRootTreeView::leaveEvent(QEvent*)
 
 void PVGuiQt::PVRootTreeView::create_new_view()
 {
-	auto* plotted = get_selected_obj_as<Squey::PVPlotted>();
-	if (plotted) {
-		plotted->emplace_add_child();
+	auto* scaled = get_selected_obj_as<Squey::PVScaled>();
+	if (scaled) {
+		scaled->emplace_add_child();
 	}
 }
 
@@ -151,11 +151,11 @@ void PVGuiQt::PVRootTreeView::edit_mapping()
 	}
 }
 
-void PVGuiQt::PVRootTreeView::edit_plotting()
+void PVGuiQt::PVRootTreeView::edit_scaling()
 {
-	auto* plotted = get_selected_obj_as<Squey::PVPlotted>();
-	if (plotted) {
-		PVQPlotted::edit_plotted(*plotted, this);
+	auto* scaled = get_selected_obj_as<Squey::PVScaled>();
+	if (scaled) {
+		PVQScaled::edit_scaled(*scaled, this);
 	}
 }
 

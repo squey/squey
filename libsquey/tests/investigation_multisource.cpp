@@ -58,14 +58,14 @@ double save_investigation()
 	PV_ASSERT_VALID(source1.compare(source1.length() - source2.length(), source2.length(), source2) == 0);
 
 	env.compute_mappings();
-	env.compute_plottings();
+	env.compute_scalings();
 	env.compute_views();
 
 	size_t mapped_size = env.root.size<Squey::PVMapped>();
 	PV_VALID(mapped_size, 2UL);
 
-	size_t plotted_size = env.root.size<Squey::PVPlotted>();
-	PV_VALID(plotted_size, 2UL);
+	size_t scaled_size = env.root.size<Squey::PVScaled>();
+	PV_VALID(scaled_size, 2UL);
 
 	size_t view_size = env.root.size<Squey::PVView>();
 	PV_VALID(view_size, 2UL);
@@ -142,10 +142,10 @@ double load_investigation()
 	PV_VALID(mapped_size, 2UL);
 
 	/**
-	 * Check plotteds
+	 * Check scaleds
 	 */
-	size_t plotted_size = root.size<Squey::PVPlotted>();
-	PV_VALID(plotted_size, 2UL);
+	size_t scaled_size = root.size<Squey::PVScaled>();
+	PV_VALID(scaled_size, 2UL);
 
 	/**
 	 * Check view

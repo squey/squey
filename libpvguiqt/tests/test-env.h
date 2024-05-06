@@ -36,8 +36,8 @@ void init_env()
 	setenv("PVRUSH_SOURCE_DIR", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins/sources", 0);
 	setenv("SQUEY_MAPPING_FILTERS_DIR",
 	       SQUEY_BUILD_DIRECTORY "/libsquey/plugins/mapping-filters", 0);
-	setenv("SQUEY_PLOTTING_FILTERS_DIR",
-	       SQUEY_BUILD_DIRECTORY "/libsquey/plugins/plotting-filters", 0);
+	setenv("SQUEY_SCALING_FILTERS_DIR",
+	       SQUEY_BUILD_DIRECTORY "/libsquey/plugins/scaling-filters", 0);
 	setenv("SQUEY_LAYER_FILTERS_DIR", SQUEY_BUILD_DIRECTORY "/libsquey/plugins/layer-filters",
 	       0);
 	Squey::common::load_filters();

@@ -29,12 +29,12 @@ namespace PVParallelView
 {
 
 /**
- * Data with plotted information about a given zone.
+ * Data with scaled information about a given zone.
  */
 struct PVZoneProcessing {
 	const size_t size;
-	uint32_t const* const plotted_a;
-	uint32_t const* const plotted_b;
+	uint32_t const* const scaled_a;
+	uint32_t const* const scaled_b;
 };
 } // namespace PVParallelView
 

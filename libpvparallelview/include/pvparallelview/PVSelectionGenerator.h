@@ -64,15 +64,15 @@ uint32_t compute_selection_from_hit_count_view_rect(const PVHitGraphBlocksManage
                                                     Squey::PVSelection& sel,
                                                     bool use_selectable);
 
-uint32_t compute_selection_from_plotted_range(const uint32_t* plotted,
+uint32_t compute_selection_from_scaled_range(const uint32_t* scaled,
                                               PVRow nrows,
                                               uint64_t y_min,
                                               uint64_t y_max,
                                               Squey::PVSelection& sel,
                                               Squey::PVSelection const& layers_sel);
 
-uint32_t compute_selection_from_plotteds_ranges(const uint32_t* y1_plotted,
-                                                const uint32_t* y2_plotted,
+uint32_t compute_selection_from_scaleds_ranges(const uint32_t* y1_scaled,
+                                                const uint32_t* y2_scaled,
                                                 const PVRow nrows,
                                                 const QRectF& rect,
                                                 Squey::PVSelection& sel,
@@ -86,15 +86,15 @@ void process_selection(Squey::PVView& view,
 
 namespace __impl
 {
-uint32_t compute_selection_from_plotted_range_sse(const uint32_t* plotted,
+uint32_t compute_selection_from_scaled_range_sse(const uint32_t* scaled,
                                                   PVRow nrows,
                                                   uint64_t y_min,
                                                   uint64_t y_max,
                                                   Squey::PVSelection& sel,
                                                   Squey::PVSelection const& layers_sel);
 
-uint32_t compute_selection_from_plotteds_ranges_sse(const uint32_t* y1_plotted,
-                                                    const uint32_t* y2_plotted,
+uint32_t compute_selection_from_scaleds_ranges_sse(const uint32_t* y1_scaled,
+                                                    const uint32_t* y2_scaled,
                                                     const PVRow nrows,
                                                     const QRectF& rect,
                                                     Squey::PVSelection& sel,

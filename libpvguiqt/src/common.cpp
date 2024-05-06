@@ -28,7 +28,7 @@
 
 #include <pvguiqt/PVDisplayViewAxesCombination.h>
 #include <pvguiqt/PVDisplayViewCorrelation.h>
-#include <pvguiqt/PVDisplayViewMappingPlotting.h>
+#include <pvguiqt/PVDisplayViewMappingScaling.h>
 #include <pvguiqt/PVDisplayViewDistinctValues.h>
 #include <pvguiqt/PVDisplayViewGroupBy.h>
 #include <pvguiqt/PVDisplayViewListing.h>
@@ -40,7 +40,7 @@ void PVGuiQt::common::register_displays()
 {
 	REGISTER_CLASS("guiqt_axes-combination", PVDisplays::PVDisplayViewAxesCombination);
 	REGISTER_CLASS("guiqt_correlation", PVDisplays::PVDisplayViewCorrelation);
-	REGISTER_CLASS("guiqt_mapping-plotting", PVDisplays::PVDisplayViewMappingPlotting);
+	REGISTER_CLASS("guiqt_mapping-scaling", PVDisplays::PVDisplayViewMappingScaling);
 	REGISTER_CLASS("guiqt_filters", PVDisplays::PVDisplayViewFilters);
 	REGISTER_CLASS("guiqt_distinct-values", PVDisplays::PVDisplayViewDistinctValues);
 	REGISTER_CLASS("guiqt_count-by", PVDisplays::PVDisplayViewCountBy);

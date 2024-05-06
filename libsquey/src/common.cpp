@@ -38,7 +38,7 @@ void Squey::common::load_filters()
 	// PVRoot handle the filters
 	load_layer_filters();
 	load_mapping_filters();
-	load_plotting_filters();
+	load_scaling_filters();
 
 	// Load PVRush plugins
 	PVRush::PVPluginsLoad::load_all_plugins();
@@ -86,21 +86,21 @@ int Squey::common::load_mapping_filters()
 	return ret;
 }
 
-// Plotting filters loading
+// Scaling filters loading
 
 /******************************************************************************
  *
- * Squey::common::load_plotting_filters
+ * Squey::common::load_scaling_filters
  *
  *****************************************************************************/
-int Squey::common::load_plotting_filters()
+int Squey::common::load_scaling_filters()
 {
 	int ret = PVCore::PVClassLibraryLibLoader::load_class_from_dirs(
-	    QString::fromStdString(squey_plugins_get_plotting_filters_dir()), "plotting_filter");
+	    QString::fromStdString(squey_plugins_get_scaling_filters_dir()), "scaling_filter");
 	if (ret == 0) {
-		PVLOG_WARN("No plotting filters have been loaded !\n");
+		PVLOG_WARN("No scaling filters have been loaded !\n");
 	} else {
-		PVLOG_INFO("%d plotting filters have been loaded.\n", ret);
+		PVLOG_INFO("%d scaling filters have been loaded.\n", ret);
 	}
 	return ret;
 }

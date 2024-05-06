@@ -88,7 +88,7 @@ int main()
 	// Check result against reference file
 	int last_blue = 255;
 	int last_red = 0;
-	std::ifstream plotted_values(outputvalues);
+	std::ifstream scaled_values(outputvalues);
 
 	QColor qcolor = out.get_lines_properties().get_line_properties(0).toQColor();
 	PV_VALID(qcolor.blue(), last_blue);
@@ -103,7 +103,7 @@ int main()
 		PVCore::PVHSVColor color = out.get_lines_properties().get_line_properties(i);
 		uint32_t wanted_color;
 
-		plotted_values >> wanted_color;
+		scaled_values >> wanted_color;
 		uint8_t actual_color = color.h();
 
 		qcolor = color.toQColor();

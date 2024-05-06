@@ -25,7 +25,7 @@
 #ifndef PVPARALLELVIEW_PVPARALLELVIEW_H
 #define PVPARALLELVIEW_PVPARALLELVIEW_H
 
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
@@ -62,7 +62,7 @@ class PVParallelViewImpl
 
 	PVLibView* get_lib_view(Squey::PVView& view);
 	PVLibView* get_lib_view(Squey::PVView& view,
-	                        Squey::PVPlotted::plotteds_t const& plotteds,
+	                        Squey::PVScaled::scaleds_t const& scaleds,
 	                        PVRow nrows,
 	                        PVCol ncols);
 
@@ -140,11 +140,11 @@ inline PVLibView* get_lib_view(Squey::PVView& view)
 	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view);
 }
 inline PVLibView* get_lib_view(Squey::PVView& view,
-                               Squey::PVPlotted::plotteds_t const& plotteds,
+                               Squey::PVScaled::scaleds_t const& scaleds,
                                PVRow nrows,
                                PVCol ncols)
 {
-	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, plotteds, nrows, ncols);
+	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, scaleds, nrows, ncols);
 }
 inline PVBCIDrawingBackend& backend()
 {

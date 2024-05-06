@@ -276,7 +276,7 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
     // Notifify axes combination update on Qt GUI thread
     if (ret) {
         pybind11::module main = pybind11::module::import("__main__");
-        main.attr(GUI_UPDATE_VAR) = pybind11::cast((uint32_t)GuiUpdateType::PLOTTING);
+        main.attr(GUI_UPDATE_VAR) = pybind11::cast((uint32_t)GuiUpdateType::SCALING);
     }
 }
     

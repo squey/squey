@@ -50,7 +50,7 @@ int main()
 	std::vector<uint32_t> plota(SIZE * SIZE);
 	std::vector<uint32_t> plotb(SIZE * SIZE);
 
-	// Generate plotting to have equireparted line on both sides.
+	// Generate scaling to have equireparted line on both sides.
 	for (size_t i = 0; i < SIZE; i++) {
 		uint32_t r = i << (32 - 11); // Make sure values are equireparted in the 10 upper bites.
 		for (size_t j = 0; j < SIZE; j++) {

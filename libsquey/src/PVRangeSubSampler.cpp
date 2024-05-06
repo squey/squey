@@ -29,7 +29,7 @@
 #include <pvcop/db/algo.h>
 #include <pvcop/types/datetime_us.h>
 #include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
