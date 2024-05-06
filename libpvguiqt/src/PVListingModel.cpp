@@ -68,6 +68,17 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
 	update_filter();
 }
 
+static QBrush black_or_white_best_contrast(const QBrush& brush) // https://stackoverflow.com/a/1855903/340754
+{
+	const QColor& color = brush.color();
+
+	double luminance = (0.299 * color.red() + 0.587 * color.green() + 0.114 * color.blue()) / 255;
+
+	int c = (luminance > 0.5) ? 0 : 255;
+
+	return QBrush(QColor(c, c, c));
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVListingModel::data
@@ -88,26 +99,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 		return {};
 	}
 
-	switch (role) {
-
-	// Set content and tooltip
-	case Qt::DisplayRole: {
-		const auto& src = _view.get_parent<Squey::PVSource>();
-		return QString::fromStdString(src.get_value(r, org_col));
-	}
-	case Qt::ToolTipRole: {
-		const auto& src = _view.get_parent<Squey::PVSource>();
-		return get_wrapped_string(QString::fromStdString(src.get_value(r, org_col)));
-	}
-
-	// Set alignment
-	case Qt::TextAlignmentRole: {
-		return {Qt::AlignLeft | Qt::AlignVCenter};
-	}
-
-	// Set cell color
-	case Qt::BackgroundRole: {
-
+	auto get_background_brush = [&](const QModelIndex& index) {
 		if (is_selected(index)) {
 			// Visual selected lines from current selection
 			// and "in progress" selection
@@ -129,16 +121,37 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 			/* The event is a ZOMBIE */
 			return _zombie_brush;
 		}
+	};
+
+	switch (role) {
+
+	// Set content and tooltip
+	case Qt::DisplayRole: {
+		const auto& src = _view.get_parent<Squey::PVSource>();
+		return QString::fromStdString(src.get_value(r, org_col));
+	}
+	case Qt::ToolTipRole: {
+		const auto& src = _view.get_parent<Squey::PVSource>();
+		return get_wrapped_string(QString::fromStdString(src.get_value(r, org_col)));
+	}
+
+	// Set alignment
+	case Qt::TextAlignmentRole: {
+		return {Qt::AlignLeft | Qt::AlignVCenter};
+	}
+
+	// Set cell color
+	case Qt::BackgroundRole: {
+		return get_background_brush(index);
 	}
 
 	// Set font color
 	case (Qt::ForegroundRole): {
-		// Show text in white if this is a zombie event
-		if (!_view.get_real_output_selection().get_line(r) &&
-		    !_view.get_line_state_in_layer_stack_output_layer(r)) {
-			return QBrush(Qt::white);
+		const QBrush& bg_brush = get_background_brush(index);
+		if (bg_brush == QBrush()) {
+			return PVCore::PVTheme::is_color_scheme_light() ? QBrush(Qt::black) : QBrush(Qt::white);
 		}
-		return {};
+		return black_or_white_best_contrast(bg_brush);
 	}
 
 	// Set value in italic if conversion during import has failed
