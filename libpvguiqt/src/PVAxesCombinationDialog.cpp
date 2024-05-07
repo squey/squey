@@ -50,7 +50,7 @@ PVGuiQt::PVAxesCombinationDialog::PVAxesCombinationDialog(Squey::PVView& view, Q
 	        &PVAxesCombinationDialog::box_btn_clicked);
 	connect(_box_buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
 
-	setWindowTitle("Edit axes combination... [" + QString::fromStdString(view.get_name()) + "]");
+	setWindowTitle("Axes combination");
 }
 
 void PVGuiQt::PVAxesCombinationDialog::reset_used_axes()
