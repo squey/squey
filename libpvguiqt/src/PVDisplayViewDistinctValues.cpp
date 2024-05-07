@@ -40,7 +40,7 @@ PVDisplays::PVDisplayViewDistinctValues::PVDisplayViewDistinctValues()
                       QObject::tr("Distinct values"),
                       PVModdedIcon("brackets-curly"),
 					  QObject::tr("Distinct values"),
-					  Qt::LeftDockWidgetArea)
+					  Qt::RightDockWidgetArea)
 {
 }
 
