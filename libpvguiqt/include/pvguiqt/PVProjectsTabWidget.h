@@ -190,6 +190,10 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	Squey::PVScene* get_scene_from_path(const QString& path);
 	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Squey::PVScene* scene);
 
+	Squey::PVScene& project_new();
+
+	void increase_sequence(size_t inc) { sequence_n += inc; }
+
   private Q_SLOTS:
 	void current_tab_changed(int index);
 	void emit_workspace_dragged_outside(QWidget* workspace)
@@ -200,6 +204,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	void close_project();
 	void project_modified();
 	void select_tab_from_current_scene();
+	void project_new_Slot();
 
   Q_SIGNALS:
 	void is_empty();
@@ -220,6 +225,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	bool maybe_save_project(int index);
 	void create_unclosable_tabs();
 	void remove_project(int index);
+	QString get_next_scene_name();
 
   private:
 	__impl::PVSplitter* _splitter = nullptr;
@@ -230,6 +236,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	PVStartScreenWidget* _start_screen_widget;
 	int _current_workspace_tab_widget_index;
 	Squey::PVRoot* _root;
+	static int sequence_n;
 };
 } // namespace PVGuiQt
 

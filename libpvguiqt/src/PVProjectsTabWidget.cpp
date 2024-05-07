@@ -33,6 +33,7 @@
 #include <QAction>
 
 const QString star = "*";
+int PVGuiQt::PVProjectsTabWidget::sequence_n = 1;
 
 /******************************************************************************
  *
@@ -116,7 +117,19 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 	main_layout->setContentsMargins (0, 0, 0, 0);
 
 	_tab_widget = new __impl::PVTabWidget(*root);
+	_tab_widget->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
 	_tab_widget->setTabsClosable(true);
+
+	QWidget* tab_layout_widget = new QWidget;
+	QVBoxLayout* tab_layout = new QVBoxLayout;
+	tab_layout_widget->setLayout(tab_layout);
+	tab_layout->addWidget(_tab_widget);
+	QPushButton* new_data_collection = new QPushButton("+");
+	new_data_collection->setToolTip("New data collection");
+	new_data_collection->setFixedSize(QSize(16, 16));
+	tab_layout->addWidget(new_data_collection);
+
+	connect(new_data_collection, &QPushButton::clicked, this, &PVGuiQt::PVProjectsTabWidget::project_new_Slot);
 
 	_stacked_widget = new QStackedWidget();
 
@@ -124,7 +137,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 
 	_splitter = new __impl::PVSplitter(Qt::Horizontal);
 	_splitter->setChildrenCollapsible(true);
-	_splitter->addWidget(_tab_widget);
+	_splitter->addWidget(tab_layout_widget);
 	_splitter->addWidget(_stacked_widget);
 	_splitter->setStretchFactor(0, 0);
 	_splitter->setStretchFactor(1, 1);
@@ -390,4 +403,22 @@ void PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene()
 	}
 
 	select_tab_from_scene(cur_scene);
+}
+
+QString PVGuiQt::PVProjectsTabWidget::get_next_scene_name()
+{
+	return tr("Data collection %1").arg(sequence_n++);
+}
+
+void PVGuiQt::PVProjectsTabWidget::project_new_Slot()
+{
+	project_new();
+}
+
+Squey::PVScene& PVGuiQt::PVProjectsTabWidget::project_new()
+{
+	Squey::PVScene& scene_p = _root->emplace_add_child(get_next_scene_name().toStdString());
+	add_project(scene_p);
+
+	return scene_p;
 }

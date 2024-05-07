@@ -1163,11 +1163,6 @@ void App::PVMainWindow::close_solution()
 	close_solution_Slot();
 }
 
-std::string App::PVMainWindow::get_next_scene_name()
-{
-	return tr("Data collection %1").arg(sequence_n++).toStdString();
-}
-
 // Mainly from Qt's SDI example
 App::PVMainWindow* App::PVMainWindow::find_main_window(const QString& path)
 {

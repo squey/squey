@@ -58,9 +58,6 @@ void App::PVMainWindow::create_actions()
 	solution_saveas_Action->setShortcut(QKeySequence::SaveAs);
 	solution_saveas_Action->setIcon(PVModdedIcon("floppy-disk-circle-arrow-right"));
 
-	// The project actions
-	project_new_Action = new QAction(tr("&New data collection"), this);
-
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
 	new_file_Action->setIcon(QIcon(":/document-new.png"));
@@ -184,15 +181,7 @@ void App::PVMainWindow::create_menus()
 	solution_Menu->addAction(solution_save_Action);
 	solution_Menu->addAction(solution_saveas_Action);
 
-	auto* project_Menu = new QMenu(tr("&Data collection"));
-	project_Menu->setAttribute(Qt::WA_TranslucentBackground);
-	project_Menu->addAction(project_new_Action);
-
 	file_Menu->addMenu(solution_Menu);
-	file_Menu->addSeparator();
-	file_Menu->addMenu(project_Menu);
-	file_Menu->addSeparator();
-	file_Menu->addSeparator();
 	file_Menu->addSeparator();
 	auto* import_Menu = new QMenu(tr("I&mport"));
 	import_Menu->setIcon(PVModdedIcon("file-import"));
@@ -272,8 +261,6 @@ void App::PVMainWindow::connect_actions()
 	connect(solution_save_Action, &QAction::triggered, this, &PVMainWindow::solution_save_Slot);
 	connect(solution_saveas_Action, &QAction::triggered, this, &PVMainWindow::solution_saveas_Slot);
 
-	connect(project_new_Action, SIGNAL(triggered()), this,
-	        SLOT(project_new_Slot())); // new connect syntax breaks compilation
 	connect(export_selection_Action, &QAction::triggered, this,
 	        &PVMainWindow::export_selection_Slot);
 	connect(quit_Action, &QAction::triggered, this, &PVMainWindow::quit_Slot);

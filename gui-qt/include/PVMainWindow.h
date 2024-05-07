@@ -143,7 +143,6 @@ class PVMainWindow : public QMainWindow
 	void import_type_Slot(const QString& itype);
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
-	Squey::PVScene& project_new_Slot();
 	void quit_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
@@ -207,7 +206,6 @@ class PVMainWindow : public QMainWindow
 	QAction* commit_selection_to_new_layer_Action;
 	QAction* move_selection_to_new_layer_Action;
 	QAction* filter_reprocess_last_filter;
-	QAction* project_new_Action;
 	QAction* solution_new_Action;
 	QAction* solution_load_Action;
 	QAction* solution_save_Action;
@@ -256,8 +254,6 @@ class PVMainWindow : public QMainWindow
 	void reset_root();
 	void close_solution();
 
-	std::string get_next_scene_name();
-
   Q_SIGNALS:
 	void change_of_current_view_Signal();
 	void filter_applied_Signal();
@@ -265,7 +261,6 @@ class PVMainWindow : public QMainWindow
 
   private:
 	QString _cur_project_file;
-	static int sequence_n;
 	Squey::PVRoot _root;
 	bool _auto_detect_cancellation;
 	PVCore::PVDBusConnection _dbus_connection;
