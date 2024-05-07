@@ -21,15 +21,14 @@ public:
     PVDBusConnection()
     {
         if (not _connection.isConnected()) {
-            qWarning("Cannot connect to the D-Bus session bus.\n"
+            pvlogger::warn() << "Cannot connect to the D-Bus session bus.\n"
                     "To start it, run:\n"
-                    "\teval `dbus-launch --auto-syntax`\n");
+                    "\teval `dbus-launch --auto-syntax`\n" << std::endl;
             return;
         }
 
         if (not _connection.registerService(DBUS_SERVICE_NAME)) {
-            qWarning("%s\n", qPrintable(_connection.lastError().message()));
-            exit(1);
+            pvlogger::warn() << "Unable to register D-Bus service '" << DBUS_SERVICE_NAME << "'. Another application instance may be running." << std::endl;
         }
 
         _connection.registerObject("/", this, QDBusConnection::ExportAllSlots);
