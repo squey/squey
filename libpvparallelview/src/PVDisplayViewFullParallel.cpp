@@ -39,7 +39,7 @@
 PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                       PVDisplayIf::DefaultPresenceInSourceWorkspace | PVDisplayIf::HasHelpPage, 
-                      "Full parallel view",
+                      "Parallel coordinates",
                       PVModdedIcon("parallel-coordinates"),
                       Qt::TopDockWidgetArea)
 {
@@ -56,7 +56,7 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Squey::PVView* vie
 		    pbox.set_enable_cancel(false);
 		    lib_view = PVParallelView::common::get_lib_view(*view);
 		},
-	    "Initializing full parallel view...", parent);
+	    "Initializing parallel coordinates view...", parent);
 
 	auto w = lib_view->create_view(parent);
 	QObject::connect(w, &PVParallelView::PVFullParallelView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
