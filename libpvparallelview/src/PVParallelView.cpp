@@ -50,8 +50,6 @@ PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nul
 PVParallelView::PVParallelViewImpl::PVParallelViewImpl()
     : _backend(nullptr), _pipeline(nullptr), _show_bboxes(false)
 {
-	_color_view_bg = QRgb(0x1b1e20);
-
 	qRegisterMetaType<PVParallelView::PVZoneRendering_p>();
 	qRegisterMetaType<PVParallelView::PVZoneRendering_p>("PVZoneRendering_p");
 }

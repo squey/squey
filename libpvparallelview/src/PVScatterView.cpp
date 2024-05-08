@@ -206,7 +206,7 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);
-	set_background_color(common::color_view_bg());
+	set_background_color(color_view_bg);
 
 	_sel_rect->set_x_range(0, UINT32_MAX);
 	_sel_rect->set_y_range(0, UINT32_MAX);

@@ -503,7 +503,7 @@ void PVParallelView::PVZoomedParallelScene::drawBackground(QPainter* painter,
 	// the pen has to be saved too
 	QPen old_pen = painter->pen();
 
-	painter->fillRect(screen_rect, common::color_view_bg());
+	painter->fillRect(screen_rect, color_view_bg);
 
 	// draw axis
 	painter->setPen(

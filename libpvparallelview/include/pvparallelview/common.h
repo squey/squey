@@ -105,6 +105,7 @@ struct constants {
 
 /* common views information/stats constants
  */
+static const QColor color_view_bg(QRgb(0x1b1e20));
 static const QColor frame_text_color(QRgb(0x838989));
 static const QMargins frame_margins(14, 6, 14, 7);
 static const QMargins frame_offsets(3, 2, 3, 2);

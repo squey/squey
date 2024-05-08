@@ -105,7 +105,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	view_sp._update_current_min_max.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
 
-	setBackgroundBrush(QBrush(common::color_view_bg()));
+	setBackgroundBrush(QBrush(color_view_bg));
 
 	// this scrollbar is totally useless
 	//_full_parallel_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);

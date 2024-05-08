@@ -25,6 +25,7 @@
 
 #include <pvparallelview/PVSeriesViewWidget.h>
 
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVSeriesView.h>
 #include <pvparallelview/PVSeriesViewParamsWidget.h>
 #include <pvparallelview/PVSeriesViewZoomer.h>
@@ -223,7 +224,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis));
 	}
 	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
-	_plot->set_background_color(QColor(10, 10, 10, 255));
+	_plot->set_background_color(color_view_bg);
 
 	_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 

@@ -79,8 +79,6 @@ class PVParallelViewImpl
 		return *_pipeline;
 	}
 
-	QColor const& color_view_bg() const { return _color_view_bg; }
-
 #ifdef SQUEY_DEVELOPER_MODE
 	bool show_bboxes() const { return _show_bboxes; }
 	void toggle_show_bboxes() { _show_bboxes = !_show_bboxes; }
@@ -98,8 +96,6 @@ class PVParallelViewImpl
 
 	map_lib_views _lib_views;
 	tbb::mutex _mutex;
-
-	QColor _color_view_bg;
 
 	// This is used in developer mode to tell whether bounding boxes should be visible
 	// This is let even if non developer mode not to change the size of this structure...
@@ -153,10 +149,6 @@ inline PVBCIDrawingBackend& backend()
 inline PVRenderingPipeline& pipeline()
 {
 	return PVParallelView::PVParallelViewImpl::get().pipeline();
-}
-inline QColor const& color_view_bg()
-{
-	return PVParallelView::PVParallelViewImpl::get().color_view_bg();
 }
 
 inline bool is_gpu_accelerated()
