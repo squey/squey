@@ -174,6 +174,7 @@
 	<file alias="help-sel-rect-simple">resources/help/view-sel-rect-simple.html</file>
 	<file alias="help-sel-rect-full">resources/help/view-sel-rect-full.html</file>
 	<file alias="help-mouse-listing-view">resources/help/view-mouse-listing.html</file>
+  <file alias="help-mouse-listing-horizontal-header-view">resources/help/view-mouse-listing-horizontal-header.html</file>
 	<file alias="help-shortcuts-listing-view">resources/help/view-shortcuts-listing.html</file>
 	<file alias="help-mouse-full-parallel-view">resources/help/view-mouse-full-parallel.html</file>
 	<file alias="help-shortcuts-full-parallel-view">resources/help/view-shortcuts-full-parallel.html</file>

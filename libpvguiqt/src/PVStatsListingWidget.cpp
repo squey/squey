@@ -137,6 +137,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 
 	_help_widget.newTable();
 	_help_widget.addTextFromFile(":help-mouse-listing-view");
+	_help_widget.addTextFromFile(":help-mouse-listing-horizontal-header-view");
 	_help_widget.newColumn();
 	_help_widget.addTextFromFile(":help-shortcuts-listing-view");
 	_help_widget.finalizeText();
