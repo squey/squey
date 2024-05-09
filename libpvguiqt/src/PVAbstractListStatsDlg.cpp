@@ -358,8 +358,12 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 
 	auto* sync_button = new QPushButton;
 	connect(sync_button, &QPushButton::toggled,
-	        [&](bool checked) { _selection_change_connection.block(not checked); });
+	        [&,sync_button](bool checked) {
+		_selection_change_connection.block(not checked);
+		sync_button->setIcon(PVModdedIcon(checked ? "arrows-rotate" : "arrows-no-rotate" ));
+	});
 	sync_button->setIcon(PVModdedIcon("arrows-rotate"));
+
 	sync_button->setToolTip("Keep in sync with selection");
 	sync_button->setCheckable(true);
 	sync_button->setChecked(true);
