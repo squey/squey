@@ -1,1 +1,2 @@
 gui-qt/src/rc.*/**/**.png filter=lfs diff=lfs merge=lfs -text
+buildstream/files/screenshots/**/**.png filter=lfs diff=lfs merge=lfs -text
