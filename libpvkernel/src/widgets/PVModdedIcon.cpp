@@ -1,5 +1,8 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
 
+#include <QScreen>
+#include <QWindow>
+
 PVModdedIconEngine::PVModdedIconEngine(QString icon_name) : QIconEngine()
 {
     _icons.append(create_icon(icon_name, "light"));
@@ -8,7 +11,17 @@ PVModdedIconEngine::PVModdedIconEngine(QString icon_name) : QIconEngine()
 
 QPixmap PVModdedIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    return _icons[(int)PVCore::PVTheme::is_color_scheme_dark()].pixmap(size / 2, mode, state);
+    QWindow* window = QGuiApplication::focusWindow();
+    double divide_by = 1;
+    if (window) {
+        double primary_screen_device_pixel_ratio = QGuiApplication::primaryScreen()->devicePixelRatio();
+        double current_screen_device_pixel_ratio = window->screen()->devicePixelRatio();
+        if (current_screen_device_pixel_ratio != 0) {
+            divide_by = primary_screen_device_pixel_ratio / current_screen_device_pixel_ratio;
+        }
+    }
+
+    return _icons[(int)PVCore::PVTheme::is_color_scheme_dark()].pixmap(size / divide_by, mode, state);
 }
 
 void PVModdedIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state)
