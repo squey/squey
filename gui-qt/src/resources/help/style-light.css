@@ -4,9 +4,10 @@
  */
 
 body {
-  color: white;
+  color: black;
   font-family: Arial, sans-serif;
   font-size: 16px;
+  background-color: #fbfafd;
 }
 
 b {

@@ -128,7 +128,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	// Define help
 	_help_widget.hide();
 
-	_help_widget.initTextFromFile("listing view's help", ":help-style");
+	_help_widget.initTextFromFile("listing view's help");
 	_help_widget.addTextFromFile(":help-selection");
 	_help_widget.addTextFromFile(":help-layers");
 	_help_widget.newColumn();

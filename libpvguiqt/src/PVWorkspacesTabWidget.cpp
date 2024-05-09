@@ -394,6 +394,17 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 void PVGuiQt::PVSceneWorkspacesTabWidget::set_worflow_tab_status(int index)
 {
 	auto* workspace = qobject_cast<PVSourceWorkspace*>(_stacked_widget_workspace->widget(index));
-	_import_worflow_tab_bar->setTabEnabled((int) EImportWorkflowStage::ERRORS, dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)->has_errors_or_warnings());
-	_import_worflow_tab_bar->setTabEnabled((int) EImportWorkflowStage::FORMAT, dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)->source_type() == "text");
+	
+	bool has_format = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)->source_type() == "text";
+	bool has_errors_or_warnings = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)->has_errors_or_warnings();
+
+	_import_worflow_tab_bar->setTabEnabled((int) EImportWorkflowStage::FORMAT, has_format);
+	_import_worflow_tab_bar->setTabEnabled((int) EImportWorkflowStage::ERRORS, has_errors_or_warnings);
+
+	if (not has_format) {
+		_import_worflow_tab_bar->setTabToolTip((int) EImportWorkflowStage::FORMAT, "This source has no format");
+	}
+	if (not has_errors_or_warnings) {
+		_import_worflow_tab_bar->setTabToolTip((int) EImportWorkflowStage::ERRORS, "This source has no errors");
+	}
 }

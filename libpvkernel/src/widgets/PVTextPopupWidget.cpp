@@ -25,6 +25,7 @@
 
 #include "pvkernel/widgets/PVPopupWidget.h"     // for PVPopupWidget
 #include "pvkernel/widgets/PVTextPopupWidget.h" // for PVTextPopupWidget, etc
+#include <pvkernel/core/PVTheme.h>
 
 #include <pvkernel/core/PVConfig.h> // for PVConfig
 #include <pvkernel/core/PVLogger.h> // for PVLOG_WARN
@@ -36,6 +37,7 @@
 #include <QResizeEvent>
 #include <QSettings>
 #include <QString>
+#include <QDomDocument>
 
 #include <QWebEngineView>
 #include <QWebEngineSettings>
@@ -90,8 +92,42 @@ PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent)
 	_webview->setContextMenuPolicy(Qt::NoContextMenu);
 	_webview->setHtml(DEFAULT_HTML_TEXT);
 	l->addWidget(_webview);
+
+	connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this, &PVWidgets::PVTextPopupWidget::refresh_theme);
 }
 
+/*****************************************************************************
+ * PVWidgets::PVTextPopupWidget::refresh_theme
+ *****************************************************************************/
+void PVWidgets::PVTextPopupWidget::refresh_theme(PVCore::PVTheme::EColorScheme /*cs*/)
+{
+    setText(_temp_text.arg(get_style()));
+}
+
+/*****************************************************************************
+ * PVWidgets::PVTextPopupWidget::get_style
+ *****************************************************************************/
+
+QString PVWidgets::PVTextPopupWidget::get_style()
+{
+	const QString& css_filename = PVCore::PVTheme::is_color_scheme_light() ? ":help-style-light" : ":help-style-dark";
+
+	QFile file(css_filename);
+	QString text;
+
+	QString style;
+
+	if (file.open(QIODevice::ReadOnly)) {
+		QByteArray data;
+		data = file.read(file.size());
+		style += QString(data);
+	} else {
+		PVLOG_WARN("ignoring help content from '%s' because it can not be loaded\n",
+		           qPrintable(css_filename));
+	}
+
+	return style;
+}
 /*****************************************************************************
  * PVWidgets::PVTextPopupWidget::setText
  *****************************************************************************/
@@ -127,29 +163,11 @@ void PVWidgets::PVTextPopupWidget::setTextFromFile(const QString& filename)
  * PVWidgets::PVTextPopupWidget::initTextFromFile
  *****************************************************************************/
 
-void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title,
-                                                    const QString& css_filename)
+void PVWidgets::PVTextPopupWidget::initTextFromFile(const QString& title)
 {
 	_temp_text = QString();
-	_temp_text += "<html>\n<head>\n<title>" + title + "</title>\n" + "<style type=\"text/css\">\n";
-
-	QFile file(css_filename);
-	QString text;
-
-	if (file.open(QIODevice::ReadOnly)) {
-		QByteArray data;
-		data = file.read(file.size());
-		_temp_text += QString(data);
-	} else {
-		PVLOG_WARN("ignoring help content from '%s' because it can not be loaded\n",
-		           qPrintable(css_filename));
-	}
-
-	_temp_text += "\n";
-	_temp_text += "body {\n";
-	_temp_text += "  background-color: #1b1e20;\n";
-	_temp_text += "}\n";
-	_temp_text += "</style>\n";
+	_temp_text += "<html>\n<head>\n<title>" + title + "</title>\n";
+	_temp_text += "<style>%1</style>";
 	_temp_text += "</head>\n";
 	_temp_text += "<body>\n";
 
@@ -205,7 +223,7 @@ void PVWidgets::PVTextPopupWidget::finalizeText()
 {
 	write_close_table(_temp_text);
 	_temp_text += "</body>\n</html>";
-	setText(_temp_text);
+	setText(_temp_text.arg(get_style()));
 
 #if 0
 	//RH: may be usefull to dump the constructed
@@ -215,8 +233,6 @@ void PVWidgets::PVTextPopupWidget::finalizeText()
 	}
 	file.close();
 #endif
-
-	_temp_text = QString();
 }
 
 /*****************************************************************************

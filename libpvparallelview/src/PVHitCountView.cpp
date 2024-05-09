@@ -236,7 +236,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
 
-	_help_widget->initTextFromFile("hit count view's help", ":help-style");
+	_help_widget->initTextFromFile("hit count view's help");
 	_help_widget->addTextFromFile(":help-selection");
 	_help_widget->addTextFromFile(":help-layers");
 	_help_widget->newColumn();

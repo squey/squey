@@ -57,7 +57,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 	setFocusPolicy(Qt::StrongFocus);
 	_help_widget.hide();
 
-	_help_widget.initTextFromFile("series view's help", ":help-style");
+	_help_widget.initTextFromFile("series view's help");
 	_help_widget.addTextFromFile(":help-series-view-navigation");
 	_help_widget.newColumn();
 	_help_widget.addTextFromFile(":help-series-view-selection");
