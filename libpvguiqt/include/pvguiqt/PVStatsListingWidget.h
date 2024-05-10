@@ -43,6 +43,7 @@ class QEvent;
 class QMenu;
 class QPixmap;
 class QPushButton;
+class QToolButton;
 class QTableWidgetItem;
 class QDialog;
 
@@ -252,7 +253,7 @@ class PVCellWidgetBase : public QWidget
 
 	QHBoxLayout* _main_layout;
 	QHBoxLayout* _customizable_layout;
-	QPushButton* _refresh_icon;
+	QToolButton* _refresh_icon;
 	QPushButton* _autorefresh_icon;
 	PVLoadingLabel* _loading_label;
 	static QMovie* _loading_movie;

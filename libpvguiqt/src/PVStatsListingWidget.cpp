@@ -39,7 +39,7 @@
 #include <QMenu>
 #include <QMimeData>
 #include <QPushButton>
-#include <QPushButton>
+#include <QToolButton>
 #include <QScrollBar>
 #include <QVBoxLayout>
 
@@ -91,10 +91,16 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	main_layout->setSpacing(0);
 	main_layout->setContentsMargins(0, 0, 0, 0);
 
-	auto* hide_button = new QPushButton("...");
+	auto* hide_button = new QToolButton();
+	hide_button->setSizePolicy(QSizePolicy(QSizePolicy::Preferred, QSizePolicy::Maximum));
 	hide_button->setToolTip(tr("Toggle stats panel visibility"));
+	hide_button->setIcon(PVModdedIcon("arrow-down"));
+	connect(hide_button, &QPushButton::clicked,[&,hide_button]() {
+		static bool checked = true;
+		hide_button->setIcon(PVModdedIcon(checked ? "arrow-up" : "arrow-down" ));
+		checked = not checked;
+	});
 	hide_button->setMaximumHeight(10);
-	hide_button->setFlat(true);
 	connect(hide_button, &QAbstractButton::clicked, this,
 	        &PVStatsListingWidget::toggle_stats_panel_visibility);
 
@@ -405,9 +411,8 @@ PVGuiQt::__impl::PVCellWidgetBase::PVCellWidgetBase(QTableWidget* table,
 
 	_text = new QLabel();
 
-	_refresh_icon = new QPushButton();
+	_refresh_icon = new QToolButton();
 	_refresh_icon->setCursor(QCursor(Qt::PointingHandCursor));
-	_refresh_icon->setFlat(true);
 	_refresh_icon->setStyleSheet("QPushButton { border: none; }");
 	_refresh_icon->setIcon(PVModdedIcon("arrows-rotate"));
 	_refresh_icon->setFocusPolicy(Qt::NoFocus);
@@ -635,9 +640,8 @@ PVGuiQt::__impl::PVUniqueValuesCellWidget::PVUniqueValuesCellWidget(QTableWidget
                                                                     QTableWidgetItem* item)
     : PVCellWidgetBase(table, view, item)
 {
-	auto* unique_values_dlg_icon = new QPushButton();
+	auto* unique_values_dlg_icon = new QToolButton();
 	unique_values_dlg_icon->setCursor(QCursor(Qt::PointingHandCursor));
-	unique_values_dlg_icon->setFlat(true);
 	unique_values_dlg_icon->setStyleSheet("QPushButton { border: none; } "
 	                                      "QPushButton:pressed { padding-left : "
 	                                      "0px; }");
