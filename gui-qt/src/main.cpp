@@ -265,8 +265,8 @@ int run_squey(QApplication& app, int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-	setlocale(LC_ALL, "C");
-	setenv("LANG", "C", 1);
+	setlocale(LC_ALL, "C.UTF-8");
+	setenv("LANG", "C.UTF-8", 1);
 	setenv("TZ", "GMT", 1);
 	tzset();
 
