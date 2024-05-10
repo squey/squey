@@ -100,6 +100,7 @@
 	<file alias="Jura-DemiBold.ttf">resources/fonts/Jura/Jura-DemiBold.ttf</file>
 	<file alias="PT_Sans-Narrow-Web-Regular.ttf">resources/fonts/PT_Sans-Narrow-Web/PT_Sans-Narrow-Web-Regular.ttf</file>
 	<file alias="PT_Sans-Narrow-Web-Bold.ttf">resources/fonts/PT_Sans-Narrow-Web/PT_Sans-Narrow-Web-Bold.ttf</file>
+  <file alias="BlackHanSans-Regular.ttf">resources/fonts/BlackHanSans-Regular.ttf</file>
 	
 	<!-- HANDLES -->
 	<file alias="vertical_handle">resources/gui-elements/pv_vertical_handle_01.png</file>

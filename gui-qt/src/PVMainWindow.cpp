@@ -104,6 +104,7 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	QFontDatabase::addApplicationFont(QString(":/OSP-DIN.ttf"));
 	QFontDatabase::addApplicationFont(QString(":/PT_Sans-Narrow-Web-Bold.ttf"));
 	QFontDatabase::addApplicationFont(QString(":/PT_Sans-Narrow-Web-Regular.ttf"));
+	QFontDatabase::addApplicationFont(QString(":/BlackHanSans-Regular.ttf"));
 
 	// import_source = nullptr;
 	report_started = false;

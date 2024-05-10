@@ -88,12 +88,12 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon.width(), pv_welcomeIcon.height());
 
 	auto pv_startLayout = new QVBoxLayout(this);
-	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	pv_startLayout->addItem(new QSpacerItem(1, 100, QSizePolicy::Minimum, QSizePolicy::Maximum));
 	auto centerLayout = new QVBoxLayout();
 	centerLayout->setAlignment(Qt::AlignHCenter);
 	centerLayout->addWidget(pv_labelWelcomeIcon);
 	pv_startLayout->addLayout(centerLayout);
-	pv_startLayout->addItem(new QSpacerItem(1, 1, QSizePolicy::Minimum, QSizePolicy::Expanding));
+	pv_startLayout->addItem(new QSpacerItem(1, 100, QSizePolicy::Minimum, QSizePolicy::Maximum));
 
 	auto start_widget = new QWidget();
 	start_widget->setObjectName("PVStartScreenWidget");
@@ -146,57 +146,79 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	project_widget->setLayout(project_widget_layout);
 
 	// We create the headers labels
+	const QString& headers_font = "Black Han Sans, Expanded";
+	const size_t headers_font_size = 20;
 	auto* format_label = new QLabel("FORMATS");
+	format_label->setFont(QFont(headers_font, headers_font_size));
 	format_label->setObjectName("PVStartScreenWidget_header");
 	auto* import_label = new QLabel("SOURCES");
+	import_label->setFont(QFont(headers_font, headers_font_size));
 	import_label->setObjectName("PVStartScreenWidget_header");
-	auto* project_label = new QLabel("INVESTIGATIONS");
-	project_label->setObjectName("PVStartScreenWidget_header");
 
-	// We add the labels
-	format_widget_layout->addWidget(format_label);
-	import_widget_layout->addWidget(import_label);
-	project_widget_layout->addWidget(project_label);
+	QWidget* format_label_widget = new QWidget;
+	QHBoxLayout* format_label_widget_layout = new QHBoxLayout;
+	format_label_widget->setLayout(format_label_widget_layout);
 
-	// Buttons
-	auto* create_new_format_button = new QPushButton("Create a new format...");
-	create_new_format_button->setIcon(QIcon(":/new-icon-white"));
+	auto* create_new_format_button = new QPushButton("");
+	create_new_format_button->setIcon(PVModdedIcon("folder-plus"));
+	create_new_format_button->setToolTip("Create a new format");
 	create_new_format_button->setCursor(Qt::PointingHandCursor);
 
-	auto* edit_format_button = new QPushButton("Edit a format...");
-	edit_format_button->setIcon(QIcon(":/edit-icon-white"));
+	auto* edit_format_button = new QPushButton("");
+	edit_format_button->setIcon(PVModdedIcon("folder-open"));
+	edit_format_button->setToolTip("Edit a format");
 	edit_format_button->setCursor(Qt::PointingHandCursor);
 
-	auto* create_new_project_button = new QPushButton("Create a new investigation");
-	create_new_project_button->setIcon(QIcon(":/new-icon-white"));
+	format_label_widget_layout->addWidget(format_label);
+	format_label_widget_layout->addWidget(create_new_format_button);
+	format_label_widget_layout->addWidget(edit_format_button);
+	format_label_widget_layout->addStretch();
+
+	QWidget* project_label_widget = new QWidget;
+	QHBoxLayout* project_label_widget_layout = new QHBoxLayout;
+	project_label_widget->setLayout(project_label_widget_layout);
+
+	auto* project_label = new QLabel("INVESTIGATIONS");
+	project_label->setFont(QFont(headers_font, headers_font_size));
+	project_label->setObjectName("PVStartScreenWidget_header");
+
+	auto* create_new_project_button = new QPushButton("");
+	create_new_project_button->setIcon(PVModdedIcon("folder-plus"));
+	create_new_project_button->setToolTip("Create a new investigation");
 	create_new_project_button->setCursor(Qt::PointingHandCursor);
 
-	auto* open_project_button = new QPushButton("Open an investigation...");
-	open_project_button->setIcon(QIcon(":/open-icon-white"));
+	auto* open_project_button = new QPushButton("");
+	open_project_button->setIcon(PVModdedIcon("folder-open"));
+	open_project_button->setToolTip("Open an investigation");
 	open_project_button->setCursor(Qt::PointingHandCursor);
 
-	// adding these buttons to their parent widgets...
-	format_widget_layout->addWidget(create_new_format_button);
-	format_widget_layout->addWidget(edit_format_button);
+	project_label_widget_layout->addWidget(project_label);
+	project_label_widget_layout->addWidget(create_new_project_button);
+	project_label_widget_layout->addWidget(open_project_button);
+	project_label_widget_layout->addStretch();
+
+	// We add the labels
+	format_widget_layout->addWidget(format_label_widget);
+	import_widget_layout->addWidget(import_label);
+	project_widget_layout->addWidget(project_label_widget);
 
 	// Import buttons
 	auto hl = new QHBoxLayout();
 	import_widget_layout->addLayout(hl);
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_layout(hl, this, SLOT(import_type()));
 
-	project_widget_layout->addWidget(create_new_project_button);
-	project_widget_layout->addWidget(open_project_button);
-
 	// Formats (texts and lines)
 	// used
 	auto format_used_widget_line = new QFrame(format_widget);
 	format_used_widget_line->setFrameShape(QFrame::HLine);
-	auto* format_text_used_label = new QLabel("Recently used formats:", format_widget);
+	auto* format_text_used_label = new QLabel("<b>Recently used formats:</b>", format_widget);
 	format_text_used_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_used_widget_line);
 	format_widget_layout->addWidget(format_text_used_label);
 	auto used_format_header_layout = new QHBoxLayout();
-	auto* clear_used_format_history = new QPushButton("Clear");
+	auto* clear_used_format_history = new QPushButton("");
+	clear_used_format_history->setIcon(PVModdedIcon("clear"));
+	clear_used_format_history->setToolTip("Clear");
 	clear_used_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_used_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_used_format_history->setCursor(Qt::PointingHandCursor);
@@ -219,11 +241,13 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// edited
 	auto format_edited_widget_line = new QFrame(format_widget);
 	format_edited_widget_line->setFrameShape(QFrame::HLine);
-	auto* format_text_edited_label = new QLabel("Recently edited formats:", format_widget);
+	auto* format_text_edited_label = new QLabel("<b>Recently edited formats:</b>", format_widget);
 	format_text_edited_label->setObjectName("PVStartScreenWidget_text");
 	format_widget_layout->addWidget(format_edited_widget_line);
 	auto edited_format_header_layout = new QHBoxLayout();
-	auto* clear_edited_format_history = new QPushButton("Clear");
+	auto* clear_edited_format_history = new QPushButton("");
+	clear_edited_format_history->setIcon(PVModdedIcon("clear"));
+	clear_edited_format_history->setToolTip("Clear");
 	clear_edited_format_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_edited_format_history->setFocusPolicy(Qt::NoFocus);
 	clear_edited_format_history->setCursor(Qt::PointingHandCursor);
@@ -247,10 +271,12 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	auto project_widget_line = new QFrame(import_widget);
 	project_widget_line->setFrameShape(QFrame::HLine);
 	project_widget_layout->addWidget(project_widget_line);
-	auto* project_text_label = new QLabel("Recent investigations:", project_widget);
+	auto* project_text_label = new QLabel("<b>Recent investigations:</b>", project_widget);
 	project_text_label->setObjectName("PVStartScreenWidget_text");
 	auto projects_header_layout = new QHBoxLayout();
-	auto* clear_project_history = new QPushButton("Delete");
+	auto* clear_project_history = new QPushButton("");
+	clear_project_history->setIcon(PVModdedIcon("trash-xmark"));
+	clear_project_history->setToolTip("Delete");
 	clear_project_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_project_history->setFocusPolicy(Qt::NoFocus);
 	clear_project_history->setCursor(Qt::PointingHandCursor);
@@ -269,10 +295,12 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	// Imports (text and line)
 	auto import_widget_line = new QFrame(project_widget);
 	import_widget_line->setFrameShape(QFrame::HLine);
-	auto* import_text_label = new QLabel("Recent sources:", import_widget);
+	auto* import_text_label = new QLabel("<b>Recent sources:</b>", import_widget);
 	auto sources_header_layout = new QHBoxLayout();
 	import_text_label->setCursor(Qt::PointingHandCursor);
-	auto* clear_source_history = new QPushButton("Clear");
+	auto* clear_source_history = new QPushButton("");
+	clear_source_history->setIcon(PVModdedIcon("clear"));
+	clear_source_history->setToolTip("clear");
 	clear_source_history->setFocusPolicy(Qt::NoFocus);
 	clear_source_history->setObjectName("PVStartScreenWidget_clearHistoryButton");
 	clear_source_history->setCursor(Qt::PointingHandCursor);
@@ -296,11 +324,6 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	_recent_push_buttons[PVCore::Category::SOURCES] = clear_source_history;
 
 	_item_font = &import_list->font();
-
-	// Final Stretch as Spacer ...
-	format_widget_layout->addStretch(1);
-	import_widget_layout->addStretch(1);
-	project_widget_layout->addStretch(1);
 
 	// Connections
 	connect(create_new_project_button, &QAbstractButton::clicked, this,
