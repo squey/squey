@@ -110,7 +110,7 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 	case (Qt::TextAlignmentRole):
 		switch (index.column()) {
 		case 0:
-			return {Qt::AlignCenter | Qt::AlignVCenter};
+			return {Qt::AlignHCenter | Qt::AlignVCenter};
 
 		case 2:
 			return {Qt::AlignRight | Qt::AlignVCenter};
@@ -152,25 +152,6 @@ Qt::ItemFlags PVGuiQt::PVLayerStackModel::flags(const QModelIndex& index) const
 	default:
 		return (Qt::ItemIsEditable | Qt::ItemIsEnabled);
 	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackModel::headerData
- *
- *****************************************************************************/
-QVariant PVGuiQt::PVLayerStackModel::headerData(int /*section*/,
-                                                Qt::Orientation /*orientation*/,
-                                                int role) const
-{
-	// FIXME : this should not be used : delegate...
-	switch (role) {
-	case (Qt::SizeHintRole):
-		return QSize(37, 37);
-		break;
-	}
-
-	return {};
 }
 
 /******************************************************************************
