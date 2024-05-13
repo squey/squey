@@ -159,6 +159,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
 {
 	_vhead_ctxt_menu = new QMenu(this);
+	_vhead_ctxt_menu->setAttribute(Qt::WA_TranslucentBackground);
 
 	for (int row = 0; row < _stats_panel->rowCount(); row++) {
 		const QString& section_text = _stats_panel->verticalHeaderItem(row)->toolTip();
@@ -366,6 +367,11 @@ void PVGuiQt::PVStatsListingWidget::keyPressEvent(QKeyEvent* event)
 	}
 }
 
+void PVGuiQt::__impl::PVVerticalHeaderView::mousePressEvent(QMouseEvent* /*event*/)
+{
+	_stats_listing_widget->vertical_header_section_clicked(QCursor::pos());
+}
+
 /******************************************************************************
  *
  * PVGuiQt::__impl::PVVerticalHeaderView
@@ -373,12 +379,14 @@ void PVGuiQt::PVStatsListingWidget::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 PVGuiQt::__impl::PVVerticalHeaderView::PVVerticalHeaderView(PVStatsListingWidget* parent)
     : QHeaderView(Qt::Vertical, parent)
+	, _stats_listing_widget(parent)
 {
 	// These two calls are required since they are done on the headers in
 	// QTableView::QTableView
 	// instead of in QHeaderView::QHeaderView !
 	setSectionsClickable(true);
 	setHighlightSections(true);
+	setMouseTracking(true);
 
 	// Context menu of the horizontal header
 	connect(this, SIGNAL(customContextMenuRequested(const QPoint&)), parent,

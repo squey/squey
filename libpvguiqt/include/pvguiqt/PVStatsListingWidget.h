@@ -57,12 +57,14 @@ namespace __impl
 class PVCellWidgetBase;
 class PVUniqueValuesCellWidget;
 class PVSumCellWidget;
+class PVVerticalHeaderView;
 } // namespace __impl
 
 class PVStatsListingWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 	friend class __impl::PVCellWidgetBase;
+	friend class __impl::PVVerticalHeaderView;
 
   public:
 	struct PVParams {
@@ -151,7 +153,7 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 
 	int _old_maximum_width;
 	bool _maxed = false;
-	QMenu* _vhead_ctxt_menu;
+	QMenu* _vhead_ctxt_menu = nullptr;
 
 	int _row_distinct;
 	int _row_sum;
@@ -172,6 +174,10 @@ class PVVerticalHeaderView : public QHeaderView
 
   public:
 	explicit PVVerticalHeaderView(PVStatsListingWidget* parent);
+	void mousePressEvent(QMouseEvent* event) override;
+
+  private:
+	PVStatsListingWidget* _stats_listing_widget = nullptr;
 };
 
 class PVLoadingLabel : public QLabel

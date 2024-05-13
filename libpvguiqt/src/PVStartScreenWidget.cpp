@@ -131,8 +131,8 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	project_widget->setObjectName("project_widget_of_PVStartScreenWidget");
 
 	// We put these Widgets in the right layouts and in the right order
-	left_layout->addWidget(project_widget);
 	left_layout->addWidget(import_widget);
+	left_layout->addWidget(project_widget);
 	right_layout->addWidget(format_widget);
 
 	// Each of these three Widget needs a Layout
