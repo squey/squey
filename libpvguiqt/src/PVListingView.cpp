@@ -164,7 +164,7 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
 	_vhead_max_width = QFontMetrics(font).horizontalAdvance(QString().leftJustified(
-	    QString::number(view.get_rushnraw_parent().row_count() + 1).size(), '9'));
+	    QString::number((view.get_rushnraw_parent().row_count() + 1) * 10).size(), '9'));
 
 	// Handle selection modification signal.
 	connect(this, &PVAbstractTableView::validate_selection, this,
