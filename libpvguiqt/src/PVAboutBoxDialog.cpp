@@ -45,6 +45,7 @@
 
 #include <pvparallelview/PVSeriesRendererOffscreen.h>
 #include <pvkernel/opencl/common.h>
+#include <pvkernel/core/PVTheme.h>
 
 #include <cassert>
 
@@ -215,33 +216,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	auto main_layout = new QVBoxLayout;
 
-	QString content = "Squey version \"" + QString(SQUEY_CURRENT_VERSION_STR) + "\"";
 
-	content += "<br/>website - <a style=\"color: #1a72bb;\""
-	           "href=\"https://squey.org\">squey.org</a><br/>";
-	content += "source code repository - <a style=\"color: #1a72bb;\""
-	           "href=\"https://gitlab.com/squey/squey\">gitlab.com/squey/squey</a><br/>";
-	content += QString("documentation") + " - <a style=\"color: #1a72bb;\" href=\"" + DOC_URL +"\">" + QString(DOC_URL).replace("https://","") + "</a><br/>";
-	content += "contact - <a style=\"color: #1a72bb;\" href=\"mailto:";
-	content += EMAIL_ADDRESS_CONTACT;
-	content += "?subject=%5BSQUEY%5D\">";
-	content += EMAIL_ADDRESS_CONTACT;
-	content += "</a><br/><br/>";
-
-	if (PVParallelView::egl_support()) {
-		content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();
-		content += "<br/><b>EGL™ support:</b><br/>" + PVParallelView::egl_vendor();
-	} else {
-		content += "<br/>No EGL™/OpenGL® support; using software fallback";
-	}
-	if (auto openclver = PVOpenCL::opencl_version(); not openclver.empty()) {
-		content += "<br/><b>OpenCL™ support:</b><br/>";
-		content += QString::fromStdString(openclver);
-	} else {
-		content += "<br/>No OpenCL™ support; using software fallback";
-	}
-	content += "<br/><br/>Qt® version " + QString(QT_VERSION_STR);
-	content += "<br/><br/>Display server : " + QGuiApplication::platformName();
 
 	_view3D_layout = new QHBoxLayout();
 
@@ -320,11 +295,13 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 		_view3D_layout->addStretch();
 	}
 
-	auto text = new QLabel(content);
-	text->setAlignment(Qt::AlignCenter);
-	text->setTextFormat(Qt::RichText);
-	text->setTextInteractionFlags(Qt::TextBrowserInteraction);
-	text->setOpenExternalLinks(true);
+	_software_info_label = new QLabel();
+	set_software_info_content();
+	connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this, &PVGuiQt::PVAboutBoxDialog::set_software_info_content);
+	_software_info_label->setAlignment(Qt::AlignCenter);
+	_software_info_label->setTextFormat(Qt::RichText);
+	_software_info_label->setTextInteractionFlags(Qt::TextBrowserInteraction);
+	_software_info_label->setOpenExternalLinks(true);
 
 	auto* ok = new QPushButton("OK");
 
@@ -338,7 +315,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	auto* software_layout = new QVBoxLayout;
 	software_layout->addLayout(_view3D_layout);
-	software_layout->addWidget(text);
+	software_layout->addWidget(_software_info_label);
 	QHBoxLayout* crash_layout = new QHBoxLayout;
 	crash_layout->addStretch();
 	crash_layout->addWidget(crash);
@@ -362,6 +339,39 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	resize(520, 550);
 
 	select_tab(tab);
+}
+
+void PVGuiQt::PVAboutBoxDialog::set_software_info_content()
+{
+	QString content = "Squey version \"" + QString(SQUEY_CURRENT_VERSION_STR) + "\"";
+
+	content += "<br/>website - <a style=\"color: %1;\""
+	           "href=\"https://squey.org\">squey.org</a><br/>";
+	content += "source code repository - <a style=\"color: %1;\""
+	           "href=\"https://gitlab.com/squey/squey\">gitlab.com/squey/squey</a><br/>";
+	content += QString("documentation") + " - <a style=\"color: %1;\" href=\"" + DOC_URL +"\">" + QString(DOC_URL).replace("https://","") + "</a><br/>";
+	content += "contact - <a style=\"color: %1;\" href=\"mailto:";
+	content += EMAIL_ADDRESS_CONTACT;
+	content += "?subject=%5BSQUEY%5D\">";
+	content += EMAIL_ADDRESS_CONTACT;
+	content += "</a><br/><br/>";
+
+	if (PVParallelView::egl_support()) {
+		content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();
+		content += "<br/><b>EGL™ support:</b><br/>" + PVParallelView::egl_vendor();
+	} else {
+		content += "<br/>No EGL™/OpenGL® support; using software fallback";
+	}
+	if (auto openclver = PVOpenCL::opencl_version(); not openclver.empty()) {
+		content += "<br/><b>OpenCL™ support:</b><br/>";
+		content += QString::fromStdString(openclver);
+	} else {
+		content += "<br/>No OpenCL™ support; using software fallback";
+	}
+	content += "<br/><br/>Qt® version " + QString(QT_VERSION_STR);
+	content += "<br/><br/>Display server : " + QGuiApplication::platformName();
+
+	_software_info_label->setText(content.arg(PVCore::PVTheme::link_colors[(int)PVCore::PVTheme::color_scheme()].name()));
 }
 
 void PVGuiQt::PVAboutBoxDialog::select_tab(Tab tab)

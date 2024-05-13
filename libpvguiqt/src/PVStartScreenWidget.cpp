@@ -557,7 +557,9 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	// Text
 	auto text_label = new QLabel();
 	text_label->setTextFormat(Qt::RichText);
-	text_label->setText(QString("<a style=\"color: #1a72bb;\" href=\"%1;%2\">" + short_string + "</a>").arg(cat).arg(index));
+	const QString& link_color = PVCore::PVTheme::link_colors[(int)PVCore::PVTheme::color_scheme()].name();
+	text_label->setText(QString("<a style=\"color: " + link_color +";\" href=\"%1;%2\">" + short_string + "</a>").arg(cat).arg(index));
+
 	text_label->setToolTip(long_string);
 	connect(text_label, &QLabel::linkActivated, start_screen_widget,
 	        &PVStartScreenWidget::dispatch_action);

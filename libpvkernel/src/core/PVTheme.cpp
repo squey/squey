@@ -45,6 +45,8 @@ static constexpr const char* DBUS_KEY = "color-scheme";
 
 static constexpr const char* COLOR_SCHEME_SETTINGS_KEY = "gui/theme_scheme";
 
+const QColor PVCore::PVTheme::link_colors[] = { 0x1a72bb, 0x1b98ff };
+
 PVCore::PVTheme::PVTheme()
 {
     QString dark_theme = QString(std::getenv("DARK_THEME"));

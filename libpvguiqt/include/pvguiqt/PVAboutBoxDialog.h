@@ -48,6 +48,7 @@
 // #include <Qt3DExtras/Qt3DWindow>
 
 class QTabWidget;
+class QLabel;
 
 namespace PVGuiQt
 {
@@ -62,10 +63,14 @@ class PVAboutBoxDialog : public QDialog
 	void select_tab(Tab);
 
   private:
+	void set_software_info_content();
+
+  private:
 	QHBoxLayout* _view3D_layout;
 
-	QTabWidget* _tab_widget;
-	QWidget* _changelog_tab;
+	QTabWidget* _tab_widget = nullptr;
+	QWidget* _changelog_tab = nullptr;
+	QLabel* _software_info_label = nullptr;
 };
 
 namespace __impl

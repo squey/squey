@@ -37,6 +37,9 @@ class PVTheme : public QObject
     Q_OBJECT
 
 public:
+    static const QColor link_colors[];
+
+public:
     enum class EColorScheme {
         LIGHT = 0,
         DARK = 1,
