@@ -58,7 +58,6 @@ class PVParquetFileDescription : public PVFileDescription
 	void serialize_write(PVCore::PVSerializeObject& so) const override
 	{
 		so.set_current_status("Saving source file information...");
-		pvlogger::warn() << _paths.join("\n").toStdString() << std::endl;
 		so.attribute_write("files_path", _paths);
 	}
 
