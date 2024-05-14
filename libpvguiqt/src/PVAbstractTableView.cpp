@@ -50,8 +50,7 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent) : PVTableView(parent)
 	connect(verticalScrollBar(), &QScrollBar::sliderReleased, this,
 	        &PVAbstractTableView::clip_slider);
 
-	// Sorting disable as we do it ourself
-	setSortingEnabled(false);
+	setSortingEnabled(true);
 
 	// Text elipsis
 	setWordWrap(false);

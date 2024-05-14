@@ -59,6 +59,7 @@
 #include <QToolTip>
 #include <QScrollBar>
 #include <QShortcut>
+#include <QStylePainter>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/task_scheduler_init.h>
@@ -158,6 +159,8 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 
 	// enabling QSS for the horizontal headers
 	horizontalHeader()->setObjectName("horizontalHeader_of_PVAbstractTableView");
+	horizontalHeader()->setSortIndicatorShown(false);
+	setSortingEnabled(false);
 
 	// We fix the vertical header size on bold max number of line to avoid
 	// resizing on scrolling
@@ -175,6 +178,40 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 
 	QShortcut* toggle_zombies_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Z), this);
 	QObject::connect(toggle_zombies_shortcut, &QShortcut::activated, this, &PVGuiQt::PVListingView::toggle_zombies_events_visibility);
+
+	connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this, &PVGuiQt::PVListingView::corner_widget_refresh_sort_indicator);
+	corner_widget_refresh_sort_indicator();
+
+	PVCornerWidgetEventFilter* corner_widget_event_filter = new PVCornerWidgetEventFilter(this);
+	if(auto button = findChild<QAbstractButton*>(QString(), Qt::FindDirectChildrenOnly)) {
+		button->setToolTip("Sort index column");
+		disconnect(button, Q_NULLPTR, this, Q_NULLPTR);
+		connect(button, &QAbstractButton::clicked, [&]() {
+			Qt::SortOrder sort_order = Qt::SortOrder::AscendingOrder;
+			if (table_model() and table_model()->sorted_col() == -1) {
+				sort_order = (Qt::SortOrder) (not (bool) table_model()->sort_order());
+			}
+			sort(-1, sort_order);
+		});
+		button->installEventFilter(corner_widget_event_filter);
+	}
+}
+
+void PVGuiQt::PVListingView::corner_widget_refresh_sort_indicator()
+{
+	const QString& theme_scheme = PVCore::PVTheme::color_scheme_name();
+	QString order = "down";
+	PVCombCol col(-1);
+	if (table_model()) {
+		order =  table_model()->sort_order() == Qt::SortOrder::AscendingOrder ? "down" : "up";
+		col = table_model()->sorted_col();
+	}
+	if (col == -1) {
+		setStyleSheet(QString("QTableView QTableCornerButton::section{ image: url(:/qss_icons/%1/rc.%1/arrow-%2.png); }").arg(theme_scheme).arg(order));
+	}
+	else {
+		setStyleSheet(""); // clear sort indicator
+	}
 }
 
 /******************************************************************************
@@ -710,9 +747,10 @@ void PVGuiQt::PVListingView::goto_line()
  *****************************************************************************/
 void PVGuiQt::PVListingView::sort(int column, Qt::SortOrder order)
 {
+	horizontalHeader()->setSortIndicatorShown(column != -1);
 	PVCombCol col(column);
 
-	assert(col >= 0 && col < listing_model()->columnCount());
+	assert(col >= -1 && col < listing_model()->columnCount());
 	auto changed = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(false);
@@ -726,9 +764,13 @@ void PVGuiQt::PVListingView::sort(int column, Qt::SortOrder order)
 		},
 	    tr("Sorting..."), this);
 	if (changed == PVCore::PVProgressBox::CancelState::CONTINUE) {
-		horizontalHeader()->setSortIndicator(col, order);
-		verticalHeader()->viewport()->update();
+		if (col != -1) {
+			horizontalHeader()->setSortIndicator(col, order);
+			verticalHeader()->viewport()->update();
+		}
 	}
+
+	corner_widget_refresh_sort_indicator();
 }
 
 /******************************************************************************
@@ -913,4 +955,16 @@ void PVGuiQt::PVHorizontalHeaderView::keyReleaseEvent(QKeyEvent* event)
 	}
 
 	QHeaderView::keyReleaseEvent(event);
+}
+
+bool PVGuiQt::PVCornerWidgetEventFilter::eventFilter(QObject* object, QEvent* event)
+{
+	if (event->type() == QEvent::HoverEnter) {
+		QApplication::setOverrideCursor(Qt::PointingHandCursor);
+	}
+	else if (event->type() == QEvent::HoverLeave) {
+		QApplication::restoreOverrideCursor() ;
+	}
+
+    return QObject::eventFilter(object, event);
 }

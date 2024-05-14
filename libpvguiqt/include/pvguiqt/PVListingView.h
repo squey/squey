@@ -53,6 +53,17 @@ namespace PVGuiQt
 class PVLayerFilterProcessWidget;
 class PVListingModel;
 
+class PVCornerWidgetEventFilter : public QObject
+{
+    Q_OBJECT;
+
+  public:
+	PVCornerWidgetEventFilter(QObject* parent = nullptr) : QObject(parent) {}
+
+  protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+};
+
 /**
  * \class PVListingView
  */
@@ -177,6 +188,12 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * @param[in] order : Order to use for sort
 	 */
 	void sort(int col, Qt::SortOrder order);
+
+
+	/**
+	 * Refresh the corner widget sort indicator
+	 */
+	void corner_widget_refresh_sort_indicator();
 
 	/**
 	 * Set the given column visible in listing

@@ -370,8 +370,6 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 	horizontalLayout_3->addWidget(sync_button);
 
 	// Enable values view sorting capability
-	_values_view->horizontalHeader()->setSortIndicatorShown(true);
-	_values_view->setSortingEnabled(true);
 	_values_view->sortByColumn(PVCol(1), Qt::DescendingOrder);
 
 	_values_view->horizontalHeader()->show();

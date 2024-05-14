@@ -292,8 +292,15 @@ void PVGuiQt::PVListingModel::sort_on_col(PVCombCol comb_col,
                                           Qt::SortOrder order,
                                           tbb::task_group_context& ctxt)
 {
-	PVCol orig_col = _view.get_axes_combination().get_nraw_axis(comb_col);
-	_view.sort_indexes(orig_col, _display.sorting(), &ctxt);
+	if (comb_col == -1) { // sort "index" virtual column
+		auto& indexes = _display.sorting().to_core_array();
+		std::iota(indexes.begin(), indexes.end(), 0);
+	}
+	else {
+		PVCol orig_col = _view.get_axes_combination().get_nraw_axis(comb_col);
+		_view.sort_indexes(orig_col, _display.sorting(), &ctxt);
+	}
+
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(comb_col, order); // set Qt sort indicator
 		update_filter();
