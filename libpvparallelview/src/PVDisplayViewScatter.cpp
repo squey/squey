@@ -23,19 +23,22 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvparallelview/PVDisplayViewScatter.h>
+
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvkernel/widgets/PVFilterableMenu.h>
 
+#include <pvparallelview/PVDisplayViewScatter.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVScatterView.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewScatter::PVDisplayViewScatter()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu | PVDisplayIf::HasHelpPage,
                       "Scatter view",
-                      QIcon(":/view-scatter"),
+                      PVModdedIcon("scatter"),
                       "New scatter view with axis...")
 {
 }
@@ -45,8 +48,15 @@ QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Squey::PVView* view,
                                                          Params const& params) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	QWidget* widget = lib_view->create_scatter_view(col_param(view, params, 0),
+	auto widget = lib_view->create_scatter_view(col_param(view, params, 0),
 	                                                col_param(view, params, 1), parent);
+
+	QObject::connect(widget, &PVParallelView::PVScatterView::set_status_bar_mouse_legend, [this,widget](PVWidgets::PVMouseButtonsLegend legend){
+		_set_status_bar_mouse_legend.emit(widget, legend);
+	});
+	QObject::connect(widget, &PVParallelView::PVScatterView::clear_status_bar_mouse_legend, [this,widget](){
+		_clear_status_bar_mouse_legend.emit(widget);
+	});
 
 	return widget;
 }
@@ -68,6 +78,7 @@ void PVDisplays::PVDisplayViewScatter::add_to_axis_menu(QMenu& menu,
 
 	auto* axes_menu =
 	    new PVWidgets::PVFilterableMenu(axis_menu_name(), &menu);
+	axes_menu->setAttribute(Qt::WA_TranslucentBackground);
 	QList<QAction*> actions;
 	QAction* next_axis = nullptr;
 

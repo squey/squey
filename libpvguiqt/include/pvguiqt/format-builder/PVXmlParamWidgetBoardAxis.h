@@ -51,12 +51,12 @@
 // Widget helpers
 #include <squey/widgets/PVAxisTypeWidget.h>
 #include <squey/widgets/PVMappingModeWidget.h>
-#include <squey/widgets/PVPlottingModeWidget.h>
+#include <squey/widgets/PVScalingModeWidget.h>
 
 #include <squey/plugins.h>
 #include <squey/PVLayerFilter.h>
 #include <squey/PVMappingFilter.h>
-#include <squey/PVPlottingFilter.h>
+#include <squey/PVScalingFilter.h>
 
 namespace PVWidgets
 {
@@ -82,7 +82,7 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void initConnexion();
 	void initValue();
 	Squey::PVMappingFilter::p_type get_mapping_lib_filter();
-	Squey::PVPlottingFilter::p_type get_plotting_lib_filter();
+	Squey::PVScalingFilter::p_type get_scaling_lib_filter();
 
 	/***************************  board items **********************/
 	//***** tab general *****
@@ -93,7 +93,7 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 
 	PVWidgets::PVAxisTypeWidget* mapPlotType;
 	PVWidgets::PVMappingModeWidget* comboMapping;
-	PVWidgets::PVPlottingModeWidget* comboPlotting;
+	PVWidgets::PVScalingModeWidget* comboScaling;
 
 	//***** tab time format *****
 	QCheckBox* useParentRegExpValue;
@@ -105,16 +105,16 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	//***** view values from parent regexp *****
 	QTextEdit* tableValueFromParentRegExp;
 
-	// Mapping/plotting parameters widgets
+	// Mapping/scaling parameters widgets
 	QHBoxLayout* _layout_params_mp;
 	std::map<Squey::PVMappingFilter::base_registrable, PVCore::PVArgumentList> _args_map_mode;
-	std::map<Squey::PVPlottingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
+	std::map<Squey::PVScalingFilter::base_registrable, PVCore::PVArgumentList> _args_plot_mode;
 	PVCore::PVArgumentList _args_mapping;
-	PVCore::PVArgumentList _args_plotting;
+	PVCore::PVArgumentList _args_scaling;
 	PVWidgets::PVArgumentListWidget* _params_mapping;
-	PVWidgets::PVArgumentListWidget* _params_plotting;
+	PVWidgets::PVArgumentListWidget* _params_scaling;
 	QGroupBox* _grp_mapping;
-	QGroupBox* _grp_plotting;
+	QGroupBox* _grp_scaling;
 
 	QPushButton* buttonNextAxis;
 	/***************************  board items **********************/
@@ -130,9 +130,9 @@ class PVXmlParamWidgetBoardAxis : public QWidget
 	void updatePlotMapping();
 	void slotShowTypeFormatHelp();
 	void updateMappingParams();
-	void updatePlottingParams();
+	void updateScalingParams();
 	void slotSetParamsMapping();
-	void slotSetParamsPlotting();
+	void slotSetParamsScaling();
 
   Q_SIGNALS:
 	void signalRefreshView();

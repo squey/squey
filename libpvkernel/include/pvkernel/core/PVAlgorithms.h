@@ -120,20 +120,20 @@ inline bool is_power_of_two(uint32_t v)
 
 /**
  * revert effect from commit 7be751d2d63ae3c52ca16041ee3e46146cd18d62 "Inverse
- * plotting values (because we all fail during demonstrations...)".
+ * scaling values (because we all fail during demonstrations...)".
  *
  * @param value the value to revert
  *
  * @return the inverted vale
  */
-inline uint32_t invert_plotting_value(uint32_t value)
+inline uint32_t invert_scaling_value(uint32_t value)
 {
 	return ~(value);
 }
 
 /**
  * revert effect from commit 7be751d2d63ae3c52ca16041ee3e46146cd18d62 "Inverse
- * plotting values (because we all fail during demonstrations...)".
+ * scaling values (because we all fail during demonstrations...)".
  *
  * qreal version.
  *
@@ -141,7 +141,7 @@ inline uint32_t invert_plotting_value(uint32_t value)
  *
  * @return the inverted vale
  */
-inline uint32_t invert_plotting_value(qreal value)
+inline uint32_t invert_scaling_value(qreal value)
 {
 	return ~((uint32_t)clamp(value, 0., (qreal)std::numeric_limits<uint32_t>::max()));
 }

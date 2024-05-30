@@ -114,6 +114,7 @@ SET(MOC_HEADERS
 ../include/pvparallelview/PVSelectionRectangle.h
 ../include/pvparallelview/PVZoomedParallelViewSelectionLine.h
 ../include/pvparallelview/PVZoomedParallelScene.h
+../include/pvparallelview/PVZoomedParallelView.h
 ../include/pvparallelview/PVSlidersGroup.h
 ../include/pvparallelview/PVAxisGraphicsItem.h
 ../include/pvparallelview/PVAxisLabel.h

@@ -44,7 +44,7 @@ public:
     };
 
 public:
-    PVPythonCodeEditor(EThemeType theme_type, QWidget* parent = nullptr);
+    PVPythonCodeEditor(QWidget* parent = nullptr);
 
 protected:
     void insertFromMimeData(const QMimeData * source) override;

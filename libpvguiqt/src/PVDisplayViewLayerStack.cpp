@@ -28,11 +28,13 @@
 
 #include <squey/PVView.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewLayerStack::PVDisplayViewLayerStack()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
-                          PVDisplayIf::DefaultPresenceInSourceWorkspace,
+                      PVDisplayIf::DefaultPresenceInSourceWorkspace,
                       "Layer stack",
-                      QIcon(":/view-layerstack"),
+                      PVModdedIcon("layer-group"),
                       Qt::RightDockWidgetArea)
 {
 }
@@ -42,5 +44,6 @@ QWidget* PVDisplays::PVDisplayViewLayerStack::create_widget(Squey::PVView* view,
                                                             Params const&) const
 {
 	auto* widget = new PVGuiQt::PVLayerStackWidget(*view, parent);
+    widget->setWindowTitle(default_window_title(*view));
 	return widget;
 }

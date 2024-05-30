@@ -26,6 +26,7 @@
 #define PVWIDGETS_PVTEXTPOPUPWIDGET_H
 
 #include <pvkernel/widgets/PVPopupWidget.h>
+#include <pvkernel/core/PVTheme.h>
 
 #include <QString>
 
@@ -43,7 +44,7 @@ namespace PVWidgets
  * A sample is worth a thousand words:
  *
  * \code
- * help->initTextFromFile("view help", ":style.css");
+ * help->initTextFromFile("view help");
  * help->addTextFromFile(":help-table1-col1-ele1");
  * help->addTextFromFile(":help-table1-col1-ele2");
  * help->addTextFromFile(":help-table1-col1-ele3");
@@ -117,13 +118,9 @@ class PVTextPopupWidget : public PVPopupWidget
 	 *
 	 * the columns use div html tags
 	 *
-	 * the css_filename's content is what come after <style type="text/css">
-	 * and before </style>.
-	 *
 	 * @param title the page's title
-	 * @param css_filename the filename or resource id of the css content
 	 */
-	void initTextFromFile(const QString& title, const QString& css_filename);
+	void initTextFromFile(const QString& title);
 
 	/**
 	 * add a new entry in the current column
@@ -179,6 +176,17 @@ class PVTextPopupWidget : public PVPopupWidget
 	 * geometry has changed.
 	 */
 	bool eventFilter(QObject* obj, QEvent* event) override;
+
+  private:
+	/**
+	 * slot called when the app color scheme has changed
+	 */
+	void refresh_theme(PVCore::PVTheme::EColorScheme cs);
+
+	/**
+	 * return the content of the CSS "style" tag based on the current theme color scheme
+	 */
+	QString get_style();
 
   private:
 	QWebEngineView* _webview;

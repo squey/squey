@@ -37,8 +37,8 @@ namespace PVParallelView
  *
  * * Line is:
  *     * position (listing position)
- *     * left plotting value
- *     * right plotting value
+ *     * left scaling value
+ *     * right scaling value
  *     * color
  *     * direction (use?)
  */

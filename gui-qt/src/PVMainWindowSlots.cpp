@@ -39,7 +39,6 @@
 #include <pvparallelview/PVLibView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
@@ -68,8 +67,6 @@
  * App::PVMainWindow::about_Slot()
  *
  *****************************************************************************/
-
-int App::PVMainWindow::sequence_n = 1;
 
 void App::PVMainWindow::about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab)
 {
@@ -122,34 +119,6 @@ void App::PVMainWindow::move_selection_to_new_layer_Slot()
 
 /******************************************************************************
  *
- * App::PVMainWindow::events_display_unselected_listing_Slot()
- *
- *****************************************************************************/
-void App::PVMainWindow::events_display_unselected_listing_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	current_view()->toggle_listing_unselected_visibility();
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::events_display_zombies_listing_Slot()
- *
- *****************************************************************************/
-void App::PVMainWindow::events_display_zombies_listing_Slot()
-{
-	if (!current_view()) {
-		return;
-	}
-
-	current_view()->toggle_listing_zombie_visibility();
-}
-
-/******************************************************************************
- *
  * App::PVMainWindow::events_display_unselected_zombies_parallelview_Slot()
  *
  *****************************************************************************/
@@ -178,65 +147,6 @@ void App::PVMainWindow::export_selection_Slot()
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel, this);
 }
 
-/******************************************************************************
- *
- * App::PVMainWindow::filter_Slot
- *
- *****************************************************************************/
-void App::PVMainWindow::filter_Slot(void)
-{
-	if (current_view()) {
-		QObject* s = sender();
-		Squey::PVView* lib_view = current_view();
-		QString filter_name = s->objectName();
-
-		Squey::PVLayerFilter::p_type filter_org =
-		    LIB_CLASS(Squey::PVLayerFilter)::get().get_class_by_name(filter_name);
-		Squey::PVLayerFilter::p_type fclone = filter_org->clone<Squey::PVLayerFilter>();
-		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
-		auto* filter_widget =
-		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
-		filter_widget->show();
-	}
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::filter_reprocess_last_Slot
- *
- *****************************************************************************/
-void App::PVMainWindow::filter_reprocess_last_Slot()
-{
-	if (current_view()) {
-		Squey::PVView* lib_view = current_view();
-		if (!lib_view->is_last_filter_used_valid()) {
-			return;
-		}
-		QString const& filter_name = lib_view->get_last_used_filter();
-		Squey::PVLayerFilter::p_type filter_org =
-		    LIB_CLASS(Squey::PVLayerFilter)::get().get_class_by_name(filter_name);
-		Squey::PVLayerFilter::p_type fclone = filter_org->clone<Squey::PVLayerFilter>();
-		PVCore::PVArgumentList& args = lib_view->get_last_args_filter(filter_name);
-		auto* filter_widget =
-		    new PVGuiQt::PVLayerFilterProcessWidget(current_view(), args, fclone, this);
-		filter_widget->show();
-		filter_widget->preview_Slot();
-	}
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::project_new_Slot
- *
- *****************************************************************************/
-Squey::PVScene& App::PVMainWindow::project_new_Slot()
-{
-	Squey::PVScene& scene_p = get_root().emplace_add_child(get_next_scene_name());
-	_projects_tab_widget->add_project(scene_p);
-
-	return scene_p;
-}
-
 bool App::PVMainWindow::load_source_from_description_Slot(
     PVRush::PVSourceDescription src_desc)
 {
@@ -262,7 +172,7 @@ bool App::PVMainWindow::load_source_from_description_Slot(
 	bool new_scene = false;
 	if (scenes.size() == 0) {
 		// No loaded project: create a new one and load the source
-		scene_p = &project_new_Slot();
+		scene_p = &_projects_tab_widget->project_new();
 		new_scene = true;
 	} else if (scenes.size() == 1) {
 		// Only one project loaded: use it to load the source
@@ -532,7 +442,7 @@ bool App::PVMainWindow::load_solution(QString const& file)
 	// eg : We load "Data collection 1" and "Data collection 2", next imported scene
 	// will be "Data collection 3". We don't care about imported invevtigation then
 	// imported scene as the create a new MainWindows
-	sequence_n += get_root().size();
+	_projects_tab_widget->increase_sequence(get_root().size());
 
 	// Update GUI on loaded sources.
 	for (Squey::PVSource* src : get_root().get_children<Squey::PVSource>()) {
@@ -753,8 +663,8 @@ void App::PVMainWindow::get_screenshot_widget()
 			 * page or on a data collection page
 			 */
 			int current_tab_index =
-			    _projects_tab_widget->current_workspace_tab_widget()->currentIndex();
-			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tabText(
+			    _projects_tab_widget->current_workspace_tab_widget()->current_index();
+			name = QFileInfo(_projects_tab_widget->current_workspace_tab_widget()->tab_text(
 			                     current_tab_index))
 			           .baseName();
 		} else {
@@ -848,24 +758,13 @@ void App::PVMainWindow::edit_format_Slot(const QString& format)
 
 void App::PVMainWindow::open_format_Slot()
 {
-	auto* editorWidget = new PVFormatBuilderWidget(this);
+	auto* editorWidget = new PVFormatBuilderWidget(_projects_tab_widget->current_workspace());
 	QString url = editorWidget->slotOpen();
 
 	if (!url.isEmpty()) {
 		editorWidget->show();
 		PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(url);
 	}
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::enable_menu_filter_Slot()
- *
- *****************************************************************************/
-void App::PVMainWindow::enable_menu_filter_Slot(bool f)
-{
-	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
-	filter_Menu->setEnabled(f);
 }
 
 void App::PVMainWindow::edit_format_Slot(QString const& path, QWidget* parent)

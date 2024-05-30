@@ -33,11 +33,14 @@
 
 #include <pvparallelview/PVDisplayViewFullParallel.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
+
 PVDisplays::PVDisplayViewFullParallel::PVDisplayViewFullParallel()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
-                          PVDisplayIf::DefaultPresenceInSourceWorkspace,
-                      "Full parallel view",
-                      QIcon(":/view-parallel-full"),
+                      PVDisplayIf::DefaultPresenceInSourceWorkspace | PVDisplayIf::HasHelpPage, 
+                      "Parallel coordinates",
+                      PVModdedIcon("parallel-coordinates"),
                       Qt::TopDockWidgetArea)
 {
 }
@@ -46,15 +49,22 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Squey::PVView* vie
                                                               QWidget* parent,
                                                               Params const&) const
 {
-	PVParallelView::PVLibView* lib_view;
+	PVParallelView::PVLibView* lib_view = nullptr;
 
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(false);
 		    lib_view = PVParallelView::common::get_lib_view(*view);
 		},
-	    "Initializing full parallel view...", parent);
+	    "Initializing parallel coordinates view...", parent);
 
-	return lib_view->create_view(parent);
-	;
+	auto w = lib_view->create_view(parent);
+	QObject::connect(w, &PVParallelView::PVFullParallelView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
+		_set_status_bar_mouse_legend.emit(w, legend);
+	});
+	QObject::connect(w, &PVParallelView::PVFullParallelView::clear_status_bar_mouse_legend, [this,w](){
+		_clear_status_bar_mouse_legend.emit(w);
+	});
+	w->setWindowTitle(default_window_title(*view));
+	return w;
 }

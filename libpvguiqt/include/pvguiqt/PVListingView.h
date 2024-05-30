@@ -31,6 +31,7 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVAbstractTableView.h>
@@ -51,6 +52,17 @@ namespace PVGuiQt
 
 class PVLayerFilterProcessWidget;
 class PVListingModel;
+
+class PVCornerWidgetEventFilter : public QObject
+{
+    Q_OBJECT;
+
+  public:
+	PVCornerWidgetEventFilter(QObject* parent = nullptr) : QObject(parent) {}
+
+  protected:
+    bool eventFilter(QObject *obj, QEvent *event) override;
+};
 
 /**
  * \class PVListingView
@@ -126,6 +138,9 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 */
 	void resized();
 
+	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend);
+	void clear_status_bar_mouse_legend();
+
   private:
 	/**
 	 * Save the QSelection in the current PVSelection and reset the QSelection
@@ -174,6 +189,12 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 */
 	void sort(int col, Qt::SortOrder order);
 
+
+	/**
+	 * Refresh the corner widget sort indicator
+	 */
+	void corner_widget_refresh_sort_indicator();
+
 	/**
 	 * Set the given column visible in listing
 	 * Used when clicking on an axis to show the corresponding column in listing
@@ -186,7 +207,6 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	/// Getters
 	Squey::PVView const& lib_view() const { return _view; }
 	Squey::PVView& lib_view() { return _view; }
-	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
 
   private Q_SLOTS:
 	/**
@@ -205,8 +225,6 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 * Show horizontal header context menu and process its actions
 	 */
 	void show_hhead_ctxt_menu(const QPoint& pos);
-
-	void show_hhead_ctxt_menu_correlation(PVCombCol col);
 
 	/**
 	 * Show vertical header context menu and process its actions
@@ -245,6 +263,9 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	 */
 	void section_hovered_enter(PVCombCol col, bool enter);
 
+	void toggle_unselected_events_visibility();
+	void toggle_zombies_events_visibility();
+
   private:
 	Squey::PVView& _view;
 
@@ -253,26 +274,9 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 	QAction* _act_copy;      //!< Copy cell content action for context menu
 	QAction* _act_set_color; //!< Set a color for clicked row action for context menu
 
-	// Header context menu
-	QMenu _hhead_ctxt_menu; //!< Context menu for right click on horizontal header
-	PVWidgets::PVFilterableMenu*
-	    _menu_col_count_by;                        //!< Count by action for horizontal context menu
-	PVWidgets::PVFilterableMenu* _menu_col_sum_by; //!< Sum by action for horizontal context menu
-	PVWidgets::PVFilterableMenu* _menu_col_min_by; //!< Min by action for horizontal context menu
-	PVWidgets::PVFilterableMenu* _menu_col_max_by; //!< Max by action for horizontal context menu
-	PVWidgets::PVFilterableMenu*
-	    _menu_col_avg_by;         //!< Average by action for horizontal context menu
-	QAction* _action_col_copy;    //!< Copy column name to clipboard
-	QAction* _action_col_sort;    //!< Sort a column action for horizontal context menu
-	QAction* _action_col_unique;  //!< Count distinct values action for horizontal context menu
-	QMenu* _menu_add_correlation; //!< Correlation : bind this axis with the axis of another source
-
 	// Vertical context menu
 	QMenu _vhead_ctxt_menu;          //!< Context menu for right click on vertival header
 	QAction* _action_copy_row_value; //!< Copy clicked row action for vertical header action
-
-	// Help menu
-	PVWidgets::PVHelpWidget _help_widget; //!< Help menu for listing view
 
 	// FIXME : This should be in a "context menu" context
 	PVRow _ctxt_row;                                    //!< Clicked row for context menu actions
@@ -301,6 +305,10 @@ class PVHorizontalHeaderView : public QHeaderView
 
   protected:
 	bool event(QEvent* ev) override;
+	void enterEvent(QEnterEvent* event) override;
+	void leaveEvent(QEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent* event) override;
 	void paintSection(QPainter* painter, const QRect& rect, int logicalIndex) const override;
 
   private:

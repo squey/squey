@@ -25,14 +25,14 @@
 #ifndef PVPARALLELVIEW_PVHITCOUNTVIEWBACKEND_H
 #define PVPARALLELVIEW_PVHITCOUNTVIEWBACKEND_H
 
-#include <squey/PVPlottedNrawCache.h>
+#include <squey/PVScaledNrawCache.h>
 
 #include <pvparallelview/PVHitGraphBlocksManager.h>
 
 namespace Squey
 {
 class PVView;
-class PVPlottedNrawCache;
+class PVScaledNrawCache;
 } // namespace Squey
 
 namespace PVParallelView
@@ -43,11 +43,11 @@ class PVHitCountViewBackend
   public:
 	PVHitCountViewBackend(const Squey::PVView& view, const PVCol axis);
 
-	Squey::PVPlottedNrawCache& get_y_labels_cache() { return _y_labels_cache; }
+	Squey::PVScaledNrawCache& get_y_labels_cache() { return _y_labels_cache; }
 	PVHitGraphBlocksManager& get_hit_graph_manager() { return _hit_graph_manager; }
 
   private:
-	Squey::PVPlottedNrawCache _y_labels_cache;
+	Squey::PVScaledNrawCache _y_labels_cache;
 	PVHitGraphBlocksManager _hit_graph_manager;
 };
 

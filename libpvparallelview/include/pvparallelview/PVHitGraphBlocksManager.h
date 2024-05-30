@@ -44,7 +44,7 @@ class PVHitGraphBlocksManager : boost::noncopyable
 	typedef PVHitGraphData::ProcessParams DataProcessParams;
 
   public:
-	PVHitGraphBlocksManager(const uint32_t* col_plotted,
+	PVHitGraphBlocksManager(const uint32_t* col_scaled,
 	                        const PVRow nrows,
 	                        uint32_t nblocks,
 	                        Squey::PVSelection const& layer_sel,
@@ -67,7 +67,7 @@ class PVHitGraphBlocksManager : boost::noncopyable
 
 	inline uint32_t size_int() const { return hgdata().size_int(); }
 
-	inline const uint32_t* get_plotted() const { return _data_params.col_plotted; }
+	inline const uint32_t* get_scaled() const { return _data_params.col_scaled; }
 	inline PVRow get_nrows() const { return _data_params.nrows; }
 
 	uint32_t get_count_for(const uint32_t value) const;

@@ -68,6 +68,17 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
 	update_filter();
 }
 
+static QBrush black_or_white_best_contrast(const QBrush& brush) // https://stackoverflow.com/a/1855903/340754
+{
+	const QColor& color = brush.color();
+
+	double luminance = (0.299 * color.red() + 0.587 * color.green() + 0.114 * color.blue()) / 255;
+
+	int c = (luminance > 0.5) ? 0 : 255;
+
+	return QBrush(QColor(c, c, c));
+}
+
 /******************************************************************************
  *
  * PVGuiQt::PVListingModel::data
@@ -88,6 +99,30 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 		return {};
 	}
 
+	auto get_background_brush = [&](const QModelIndex& index) {
+		if (is_selected(index)) {
+			// Visual selected lines from current selection
+			// and "in progress" selection
+			return _selection_brush;
+		} else if (_view.get_real_output_selection().get_line(r)) {
+			// Selected elements, use output layer color
+			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
+			if (color == HSV_COLOR_WHITE or color == HSV_COLOR_BLACK) {
+				return QBrush();
+			}
+			else {
+				return QBrush(color.toQColor());
+			}
+		} else if (_view.get_line_state_in_layer_stack_output_layer(r)) {
+			/* The event is unselected use darker output layer color */
+			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
+			return QBrush(color.toQColor().darker(200));
+		} else {
+			/* The event is a ZOMBIE */
+			return _zombie_brush;
+		}
+	};
+
 	switch (role) {
 
 	// Set content and tooltip
@@ -107,33 +142,16 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 
 	// Set cell color
 	case Qt::BackgroundRole: {
-
-		if (is_selected(index)) {
-			// Visual selected lines from current selection
-			// and "in progress" selection
-			return _selection_brush;
-		} else if (_view.get_real_output_selection().get_line(r)) {
-			// Selected elements, use output layer color
-			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
-			return QBrush(color.toQColor());
-		} else if (_view.get_line_state_in_layer_stack_output_layer(r)) {
-			/* The event is unselected use darker output layer color */
-			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
-			return QBrush(color.toQColor().darker(200));
-		} else {
-			/* The event is a ZOMBIE */
-			return _zombie_brush;
-		}
+		return get_background_brush(index);
 	}
 
 	// Set font color
 	case (Qt::ForegroundRole): {
-		// Show text in white if this is a zombie event
-		if (!_view.get_real_output_selection().get_line(r) &&
-		    !_view.get_line_state_in_layer_stack_output_layer(r)) {
-			return QBrush(Qt::white);
+		const QBrush& bg_brush = get_background_brush(index);
+		if (bg_brush == QBrush()) {
+			return PVCore::PVTheme::is_color_scheme_light() ? QBrush(Qt::black) : QBrush(Qt::white);
 		}
-		return {};
+		return black_or_white_best_contrast(bg_brush);
 	}
 
 	// Set value in italic if conversion during import has failed
@@ -212,12 +230,12 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 
 			if (correlation and correlation->col1 == col) {
 
-				const QString& orig_source =
+				QString orig_source =
 				    QString::fromStdString(_view.get_parent<Squey::PVSource>().get_name());
-				const QString& orig_axis = _view.get_axis_name(comb_col);
-				const QString& dest_source = QString::fromStdString(
+				QString orig_axis = _view.get_axis_name(comb_col);
+				QString dest_source = QString::fromStdString(
 				    correlation->view2->get_parent<Squey::PVSource>().get_name());
-				const QString& dest_axis =
+				QString dest_axis =
 				    correlation->view2->get_nraw_axis_name(correlation->col2);
 
 				return QString("Active correlation :\n%1 (%2) -> %3 (%4)")
@@ -274,8 +292,15 @@ void PVGuiQt::PVListingModel::sort_on_col(PVCombCol comb_col,
                                           Qt::SortOrder order,
                                           tbb::task_group_context& ctxt)
 {
-	PVCol orig_col = _view.get_axes_combination().get_nraw_axis(comb_col);
-	_view.sort_indexes(orig_col, _display.sorting(), &ctxt);
+	if (comb_col == -1) { // sort "index" virtual column
+		auto& indexes = _display.sorting().to_core_array();
+		std::iota(indexes.begin(), indexes.end(), 0);
+	}
+	else {
+		PVCol orig_col = _view.get_axes_combination().get_nraw_axis(comb_col);
+		_view.sort_indexes(orig_col, _display.sorting(), &ctxt);
+	}
+
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(comb_col, order); // set Qt sort indicator
 		update_filter();

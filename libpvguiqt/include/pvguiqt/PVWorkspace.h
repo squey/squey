@@ -37,6 +37,7 @@ class QWidget;
 #include <pvguiqt/PVListDisplayDlg.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
+#include <pvdisplays/PVDisplayIf.h>
 
 #include <squey/PVView.h>
 
@@ -106,7 +107,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] view The underlying PVView.
 	 *  \param[in] view_widget The widget displayed by the dock widget.
-	 *  \param[in] name The function returning the name of the display based on its type.
 	 *  \param[in] can_be_central_widget Specifies if the display can be set as central display.
 	 *  \param[in] delete_on_close Specifies if the display is deleted when closed.
 	 *  \param[in] area The area of the QDockWidget on the QMainWindow.
@@ -115,8 +115,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 */
 	PVViewDisplay* add_view_display(Squey::PVView* view,
 	                                QWidget* view_display,
-	                                QString name,
-	                                bool can_be_central_display = true,
+	                                PVDisplays::PVDisplayIf& display_if,
 	                                bool delete_on_close = true,
 	                                Qt::DockWidgetArea area = Qt::TopDockWidgetArea);
 
@@ -124,14 +123,13 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] view The underlying PVView.
 	 *  \param[in] view_widget The widget displayed by the dock widget.
-	 *  \param[in] name The function returning the name of the display based on its type.
 	 *  \param[in] delete_on_close Specifies if the display is deleted when closed.
 	 *
 	 *  \return A pointer to the view display.
 	 */
 	PVViewDisplay* set_central_display(Squey::PVView* view,
 	                                   QWidget* view_widget,
-	                                   QString name,
+	                                   bool has_help_page,
 	                                   bool delete_on_close);
 
 	/*! \brief Create or display the widget used by the view display.
@@ -156,6 +154,11 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *  \note Used by workspace_under_mouse to disambiguate overlapping workspaces.
 	 */
 	void changeEvent(QEvent* event) override;
+
+  protected:
+  	/*! \brief Forward mouse buttons legend changed signals to the status bar
+	 */
+  	void track_mouse_buttons_legend_changed(PVDisplays::PVDisplayIf& display_if, QWidget* widget);
 
   public Q_SLOTS:
 	/*! \brief Create the widget used by the view display.
@@ -217,6 +220,9 @@ class PVSourceWorkspace : public PVWorkspaceBase
   public:
 	inline Squey::PVSource* get_source() const { return _source; }
 
+	bool has_errors_or_warnings() const;
+	QString source_type() const;
+
 	/**
 	 * Get the Dialog widget that show invalid elements.
 	 */
@@ -230,7 +236,7 @@ class PVSourceWorkspace : public PVWorkspaceBase
 	QToolBar* _toolbar = nullptr;
 	QComboBox* _toolbar_combo_views = nullptr;
 
-	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg; //<! Dialog with listing of invalid elements.
+	PVGuiQt::PVListDisplayDlg* _inv_evts_dlg = nullptr; //<! Dialog with listing of invalid elements.
 };
 } // namespace PVGuiQt
 

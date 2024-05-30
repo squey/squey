@@ -24,6 +24,7 @@
 //
 
 #include <pvkernel/widgets/PVPresetsWidget.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title,
                                             QWidget* parent)
@@ -48,10 +49,10 @@ PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title,
 	_list->setUniformItemSizes(true);
 
 	// QAction toolbar/menu binding
-	_loadAct = new QAction(QIcon(":/Presets_Load_Action_Icon"), tr("Load"), this);
+	_loadAct = new QAction(PVModdedIcon("file-import"), tr("Load"), this);
 	_toolbar->addAction(_loadAct);
 	_list->addAction(_loadAct);
-	_saveAct = new QAction(QIcon(":/Presets_Save_Action_Icon"), tr("Save"), this);
+	_saveAct = new QAction(PVModdedIcon("file-export"), tr("Save"), this);
 	_toolbar->addAction(_saveAct);
 	_list->addAction(_saveAct);
 	_renameAct = new QAction(QIcon(), tr("Rename"), this);

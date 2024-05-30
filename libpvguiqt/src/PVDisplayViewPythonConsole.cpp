@@ -50,10 +50,12 @@
 
 #include <boost/thread.hpp>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewPythonConsole::PVDisplayViewPythonConsole()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget,
                       "Python console",
-                      QIcon(":/python"),
+                      PVModdedIcon("python"),
                       Qt::NoDockWidgetArea)
 {
 }
@@ -105,7 +107,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* vi
 
 	auto* console_widget = new QWidget(parent);
 
-	auto* console_input = new PVGuiQt::PVPythonCodeEditor(PVGuiQt::PVPythonCodeEditor::EThemeType::DARK, parent);
+	auto* console_input = new PVGuiQt::PVPythonCodeEditor(parent);
 
 	auto* console_output = new QTextEdit(parent);
 	console_output->setStyleSheet("QTextEdit { background-color : black; color : #00ccff; }");
@@ -160,6 +162,6 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* vi
 	layout->addWidget(help_button, 3, 0, -1, -1);
 
 	console_widget->setLayout(layout);
-
+	console_widget->setWindowTitle(default_window_title(*view));
 	return console_widget;
 }

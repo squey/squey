@@ -24,7 +24,7 @@
 //
 
 #include <squey/PVMappingFilter.h>
-#include <squey/PVPlottingFilter.h>
+#include <squey/PVScalingFilter.h>
 
 #include <PVXmlParamWidgetBoardAxis.h>
 #include <PVFormatBuilderWidget.h>
@@ -74,7 +74,7 @@ void App::PVXmlParamWidgetBoardAxis::allocBoardFields()
 	mapPlotType = new PVWidgets::PVAxisTypeWidget(this);
 	// FIXME : We should populate *ModeWidget here.
 	comboMapping = new PVWidgets::PVMappingModeWidget(this);
-	comboPlotting = new PVWidgets::PVPlottingModeWidget(this);
+	comboScaling = new PVWidgets::PVScalingModeWidget(this);
 
 	// tab parameter
 	buttonColor = new PVXmlParamColorDialog("color", PVFORMAT_AXIS_COLOR_DEFAULT, this);
@@ -83,25 +83,25 @@ void App::PVXmlParamWidgetBoardAxis::allocBoardFields()
 
 	_layout_params_mp = new QHBoxLayout();
 	_params_mapping = new PVWidgets::PVArgumentListWidget(
-	    PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), this);
-	_params_plotting = new PVWidgets::PVArgumentListWidget(
-	    PVWidgets::PVArgumentListWidgetFactory::create_mapping_plotting_widget_factory(), this);
+	    PVWidgets::PVArgumentListWidgetFactory::create_mapping_scaling_widget_factory(), this);
+	_params_scaling = new PVWidgets::PVArgumentListWidget(
+	    PVWidgets::PVArgumentListWidgetFactory::create_mapping_scaling_widget_factory(), this);
 
 	QSizePolicy grp_params_policy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	grp_params_policy.setHorizontalStretch(1);
 	_grp_mapping = new QGroupBox(tr("Mapping properties"));
 	_grp_mapping->setVisible(false);
-	_grp_plotting = new QGroupBox(tr("Plotting properties"));
-	_grp_plotting->setVisible(false);
+	_grp_scaling = new QGroupBox(tr("Scaling properties"));
+	_grp_scaling->setVisible(false);
 	_params_mapping->setSizePolicy(grp_params_policy);
 	_params_mapping->setSizePolicy(grp_params_policy);
-	_params_plotting->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
+	_params_scaling->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 	auto tmp_layout = new QVBoxLayout();
 	tmp_layout->addWidget(_params_mapping);
 	_grp_mapping->setLayout(tmp_layout);
 	tmp_layout = new QVBoxLayout();
-	tmp_layout->addWidget(_params_plotting);
-	_grp_plotting->setLayout(tmp_layout);
+	tmp_layout->addWidget(_params_scaling);
+	_grp_scaling->setLayout(tmp_layout);
 
 	// button next
 	buttonNextAxis = new QPushButton(tr("Next"));
@@ -133,7 +133,7 @@ void App::PVXmlParamWidgetBoardAxis::draw()
 
 	form_layout->addRow(tr("Type Format:"), tf_widget);
 	form_layout->addRow(tr("Mapping :"), comboMapping);
-	form_layout->addRow(tr("Plotting :"), comboPlotting);
+	form_layout->addRow(tr("Scaling :"), comboScaling);
 
 	form_layout->addRow(tr("Color of the axis line :"), buttonColor);
 	form_layout->addRow(tr("Color of the axis title :"), buttonTitleColor);
@@ -141,10 +141,10 @@ void App::PVXmlParamWidgetBoardAxis::draw()
 	general->setLayout(form_layout);
 	layoutRoot->addWidget(general);
 
-	// Mapping/plotting properties
+	// Mapping/scaling properties
 	auto prop_widget = new QWidget();
 	_layout_params_mp->addWidget(_grp_mapping);
-	_layout_params_mp->addWidget(_grp_plotting);
+	_layout_params_mp->addWidget(_grp_scaling);
 	prop_widget->setLayout(_layout_params_mp);
 	layoutRoot->addWidget(prop_widget);
 
@@ -191,11 +191,11 @@ void App::PVXmlParamWidgetBoardAxis::initConnexion()
 	connect(_params_mapping, &PVWidgets::PVArgumentListWidget::args_changed_Signal, this,
 	        &App::PVXmlParamWidgetBoardAxis::slotSetParamsMapping);
 
-	connect(comboPlotting->get_combo_box(),
+	connect(comboScaling->get_combo_box(),
 	        static_cast<void (QComboBox::*)(int)>(&QComboBox::currentIndexChanged), this,
-	        &App::PVXmlParamWidgetBoardAxis::updatePlottingParams);
-	connect(_params_plotting, &PVWidgets::PVArgumentListWidget::args_changed_Signal, this,
-	        &App::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting);
+	        &App::PVXmlParamWidgetBoardAxis::updateScalingParams);
+	connect(_params_scaling, &PVWidgets::PVArgumentListWidget::args_changed_Signal, this,
+	        &App::PVXmlParamWidgetBoardAxis::slotSetParamsScaling);
 
 	connect(btnTypeFormatHelp, &QAbstractButton::clicked, this,
 	        &App::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp);
@@ -253,18 +253,18 @@ void App::PVXmlParamWidgetBoardAxis::initValue()
 	updateMappingParams();
 
 	// Select value from Xml. If Xml is invalid, it will keep default arguments
-	_args_plotting.clear();
-	Squey::PVPlottingFilter::p_type plot_lib = get_plotting_lib_filter();
-	QString node_plotting =
-	    node->getPlottingProperties(plot_lib->get_default_args(), _args_plotting);
-	if (node_plotting.isEmpty()) {
-		comboPlotting->select_default();
+	_args_scaling.clear();
+	Squey::PVScalingFilter::p_type plot_lib = get_scaling_lib_filter();
+	QString node_scaling =
+	    node->getScalingProperties(plot_lib->get_default_args(), _args_scaling);
+	if (node_scaling.isEmpty()) {
+		comboScaling->select_default();
 	} else {
-		comboPlotting->set_mode(node_plotting);
+		comboScaling->set_mode(node_scaling);
 	}
-	_args_plot_mode[*plot_lib] = _args_plotting;
-	_params_plotting->set_args(_args_plotting);
-	updatePlottingParams();
+	_args_plot_mode[*plot_lib] = _args_scaling;
+	_params_scaling->set_args(_args_scaling);
+	updateScalingParams();
 
 	// extra
 	QString node_color = node->attribute(PVFORMAT_AXIS_COLOR_STR);
@@ -310,12 +310,12 @@ void App::PVXmlParamWidgetBoardAxis::slotSetParamsMapping()
 	node->setMappingProperties(mode, lib_filter->get_default_args(), _args_mapping);
 }
 
-void App::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
+void App::PVXmlParamWidgetBoardAxis::slotSetParamsScaling()
 {
-	QString mode = comboPlotting->get_mode();
-	Squey::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
-	_args_plot_mode[*lib_filter] = _args_plotting;
-	node->setPlottingProperties(mode, lib_filter->get_default_args(), _args_plotting);
+	QString mode = comboScaling->get_mode();
+	Squey::PVScalingFilter::p_type lib_filter = get_scaling_lib_filter();
+	_args_plot_mode[*lib_filter] = _args_scaling;
+	node->setScalingProperties(mode, lib_filter->get_default_args(), _args_scaling);
 }
 
 /******************************************************************************
@@ -325,7 +325,7 @@ void App::PVXmlParamWidgetBoardAxis::slotSetParamsPlotting()
  *****************************************************************************/
 void App::PVXmlParamWidgetBoardAxis::updatePlotMapping()
 {
-	// Reset mapping/plotting (use on type change)
+	// Reset mapping/scaling (use on type change)
 	QString type = mapPlotType->get_sel_type();
 	comboMapping->clear();
 	comboMapping->populate_from_type(type);
@@ -344,16 +344,16 @@ Squey::PVMappingFilter::p_type App::PVXmlParamWidgetBoardAxis::get_mapping_lib_f
 	return LIB_CLASS(Squey::PVMappingFilter)::get().get_class_by_name(mode);
 }
 
-Squey::PVPlottingFilter::p_type App::PVXmlParamWidgetBoardAxis::get_plotting_lib_filter()
+Squey::PVScalingFilter::p_type App::PVXmlParamWidgetBoardAxis::get_scaling_lib_filter()
 {
-	QString mode = comboPlotting->get_mode();
+	QString mode = comboScaling->get_mode();
 	if (mode.isNull()) {
-		// We update plotting on plotting widget change but when we change mapping,
-		// plottingBox is cleared before we set new mapping possibilities and
+		// We update scaling on scaling widget change but when we change mapping,
+		// scalingBox is cleared before we set new mapping possibilities and
 		// mode becore empty.
-		mode = PVFORMAT_AXIS_PLOTTING_DEFAULT;
+		mode = PVFORMAT_AXIS_SCALING_DEFAULT;
 	}
-	return LIB_CLASS(Squey::PVPlottingFilter)::get().get_class_by_name(mode);
+	return LIB_CLASS(Squey::PVScalingFilter)::get().get_class_by_name(mode);
 }
 
 void App::PVXmlParamWidgetBoardAxis::updateMappingParams()
@@ -370,24 +370,24 @@ void App::PVXmlParamWidgetBoardAxis::updateMappingParams()
 
 	slotSetParamsMapping();
 
-	comboPlotting->clear();
-	comboPlotting->populate_from_type(mapPlotType->get_sel_type(), comboMapping->get_mode());
-	comboPlotting->select_default();
+	comboScaling->clear();
+	comboScaling->populate_from_type(mapPlotType->get_sel_type(), comboMapping->get_mode());
+	comboScaling->select_default();
 }
 
-void App::PVXmlParamWidgetBoardAxis::updatePlottingParams()
+void App::PVXmlParamWidgetBoardAxis::updateScalingParams()
 {
-	_args_plotting.clear();
-	Squey::PVPlottingFilter::p_type lib_filter = get_plotting_lib_filter();
+	_args_scaling.clear();
+	Squey::PVScalingFilter::p_type lib_filter = get_scaling_lib_filter();
 	auto it = _args_plot_mode.find(*lib_filter);
 	if (it != _args_plot_mode.end()) {
-		_args_plotting = it->second;
+		_args_scaling = it->second;
 	} else {
-		_args_plotting = lib_filter->get_default_args();
+		_args_scaling = lib_filter->get_default_args();
 	}
-	_params_plotting->set_args(_args_plotting);
+	_params_scaling->set_args(_args_scaling);
 
-	slotSetParamsPlotting();
+	slotSetParamsScaling();
 }
 
 void App::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp()

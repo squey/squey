@@ -36,7 +36,7 @@ constexpr const char* fileformat = TEST_FOLDER "/picviz/honeypot.csv.format";
 constexpr const char* ref_out = TEST_FOLDER "/picviz/honeypot.csv.ref";
 
 /**
- * Check format is correctly loaded and mapping/plotting can be computed.
+ * Check format is correctly loaded and mapping/scaling can be computed.
  *
  * @todo : Once mapping is computed after export, we should check it explecitly.
  */

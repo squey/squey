@@ -34,7 +34,7 @@ class PVDataTreeObject;
 
 namespace Squey
 {
-class PVPlotted;
+class PVScaled;
 class PVMapped;
 class PVView;
 } // namespace Squey
@@ -61,7 +61,7 @@ class PVRootTreeView : public QTreeView
 	// Actions slots
 	void create_new_view();
 	void edit_mapping();
-	void edit_plotting();
+	void edit_scaling();
 
   protected:
 	PVCore::PVDataTreeObject* get_selected_obj();
@@ -78,10 +78,10 @@ class PVRootTreeView : public QTreeView
 
   private:
 	QAction* _act_new_view;
-	QAction* _act_new_plotted;
+	QAction* _act_new_scaled;
 	QAction* _act_new_mapped;
 	QAction* _act_edit_mapping;
-	QAction* _act_edit_plotting;
+	QAction* _act_edit_scaling;
 };
 } // namespace PVGuiQt
 

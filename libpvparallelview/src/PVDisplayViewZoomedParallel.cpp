@@ -29,10 +29,13 @@
 
 #include <pvparallelview/PVDisplayViewZoomedParallel.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
+
 PVDisplays::PVDisplayViewZoomedParallel::PVDisplayViewZoomedParallel()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu | PVDisplayIf::HasHelpPage,
                       "Zoomed parallel view",
-                      QIcon(":/view-parallel-zoomed"),
+                      PVModdedIcon("zoomed-parallel-coordinates"),
                       "New zoomed parallel view")
 {
 }
@@ -43,9 +46,15 @@ QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Squey::PVView* v
 {
 	auto axis_comb = data.size() > 0 ? std::any_cast<PVCombCol>(data.at(0)) : PVCombCol();
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	QWidget* widget = lib_view->create_zoomed_view(axis_comb, parent);
+	auto w = lib_view->create_zoomed_view(axis_comb, parent);
+	QObject::connect(w, &PVParallelView::PVZoomedParallelView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
+		_set_status_bar_mouse_legend.emit(w, legend);
+	});
+	QObject::connect(w, &PVParallelView::PVZoomedParallelView::clear_status_bar_mouse_legend, [this,w](){
+		_clear_status_bar_mouse_legend.emit(w);
+	});
 
-	return widget;
+	return w;
 }
 
 void PVDisplays::PVDisplayViewZoomedParallel::add_to_axis_menu(

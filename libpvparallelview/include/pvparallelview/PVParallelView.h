@@ -25,7 +25,7 @@
 #ifndef PVPARALLELVIEW_PVPARALLELVIEW_H
 #define PVPARALLELVIEW_PVPARALLELVIEW_H
 
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
@@ -62,7 +62,7 @@ class PVParallelViewImpl
 
 	PVLibView* get_lib_view(Squey::PVView& view);
 	PVLibView* get_lib_view(Squey::PVView& view,
-	                        Squey::PVPlotted::plotteds_t const& plotteds,
+	                        Squey::PVScaled::scaleds_t const& scaleds,
 	                        PVRow nrows,
 	                        PVCol ncols);
 
@@ -78,8 +78,6 @@ class PVParallelViewImpl
 		assert(_pipeline);
 		return *_pipeline;
 	}
-
-	QColor const& color_view_bg() const { return _color_view_bg; }
 
 #ifdef SQUEY_DEVELOPER_MODE
 	bool show_bboxes() const { return _show_bboxes; }
@@ -98,8 +96,6 @@ class PVParallelViewImpl
 
 	map_lib_views _lib_views;
 	tbb::mutex _mutex;
-
-	QColor _color_view_bg;
 
 	// This is used in developer mode to tell whether bounding boxes should be visible
 	// This is let even if non developer mode not to change the size of this structure...
@@ -140,11 +136,11 @@ inline PVLibView* get_lib_view(Squey::PVView& view)
 	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view);
 }
 inline PVLibView* get_lib_view(Squey::PVView& view,
-                               Squey::PVPlotted::plotteds_t const& plotteds,
+                               Squey::PVScaled::scaleds_t const& scaleds,
                                PVRow nrows,
                                PVCol ncols)
 {
-	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, plotteds, nrows, ncols);
+	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, scaleds, nrows, ncols);
 }
 inline PVBCIDrawingBackend& backend()
 {
@@ -153,10 +149,6 @@ inline PVBCIDrawingBackend& backend()
 inline PVRenderingPipeline& pipeline()
 {
 	return PVParallelView::PVParallelViewImpl::get().pipeline();
-}
-inline QColor const& color_view_bg()
-{
-	return PVParallelView::PVParallelViewImpl::get().color_view_bg();
 }
 
 inline bool is_gpu_accelerated()

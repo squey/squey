@@ -156,6 +156,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	bool save_modified_projects();
 	bool is_current_project_untitled() { return current_project() != nullptr; }
 	void collapse_tabs(bool collapse = true);
+	void show_errors_and_warnings();
 
 	inline Squey::PVScene* current_scene() const { return _root->current_scene(); }
 	PVSceneWorkspacesTabWidget* current_workspace_tab_widget() const;
@@ -170,7 +171,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	inline void select_tab_from_scene(Squey::PVScene* scene);
 	inline PVWorkspaceBase* current_workspace() const
 	{
-		return current_project() ? (PVWorkspaceBase*)current_project()->currentWidget() : nullptr;
+		return current_project() ? (PVWorkspaceBase*)current_project()->current_widget() : nullptr;
 	}
 	inline Squey::PVView* current_view() const { return _root->current_view(); }
 	inline int projects_count() { return _tab_widget->count() - FIRST_PROJECT_INDEX; }
@@ -189,6 +190,10 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	Squey::PVScene* get_scene_from_path(const QString& path);
 	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Squey::PVScene* scene);
 
+	Squey::PVScene& project_new();
+
+	void increase_sequence(size_t inc) { sequence_n += inc; }
+
   private Q_SLOTS:
 	void current_tab_changed(int index);
 	void emit_workspace_dragged_outside(QWidget* workspace)
@@ -199,6 +204,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	void close_project();
 	void project_modified();
 	void select_tab_from_current_scene();
+	void project_new_Slot();
 
   Q_SIGNALS:
 	void is_empty();
@@ -219,6 +225,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	bool maybe_save_project(int index);
 	void create_unclosable_tabs();
 	void remove_project(int index);
+	QString get_next_scene_name();
 
   private:
 	__impl::PVSplitter* _splitter = nullptr;
@@ -229,6 +236,7 @@ class PVProjectsTabWidget : public QWidget, public sigc::trackable
 	PVStartScreenWidget* _start_screen_widget;
 	int _current_workspace_tab_widget_index;
 	Squey::PVRoot* _root;
+	static int sequence_n;
 };
 } // namespace PVGuiQt
 

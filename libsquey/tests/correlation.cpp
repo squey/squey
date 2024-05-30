@@ -73,7 +73,7 @@ int main()
 	env.add_source(csv_file2, csv_file_format, dupl);
 
 	env.compute_mappings();
-	env.compute_plottings();
+	env.compute_scalings();
 	env.compute_views();
 
 	auto views = env.root.get_children<Squey::PVView>();

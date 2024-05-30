@@ -26,16 +26,28 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvguiqt/common.h>
 
-#include <pvguiqt/PVDisplaySourceDataTree.h>
 #include <pvguiqt/PVDisplayViewAxesCombination.h>
+#include <pvguiqt/PVDisplayViewCorrelation.h>
+#include <pvguiqt/PVDisplayViewMappingScaling.h>
+#include <pvguiqt/PVDisplayViewDistinctValues.h>
+#include <pvguiqt/PVDisplayViewGroupBy.h>
 #include <pvguiqt/PVDisplayViewListing.h>
 #include <pvguiqt/PVDisplayViewLayerStack.h>
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
+#include <pvguiqt/PVDisplayViewFilters.h>
 
 void PVGuiQt::common::register_displays()
 {
 	REGISTER_CLASS("guiqt_axes-combination", PVDisplays::PVDisplayViewAxesCombination);
-	REGISTER_CLASS("guiqt_datatree", PVDisplays::PVDisplaySourceDataTree);
+	REGISTER_CLASS("guiqt_correlation", PVDisplays::PVDisplayViewCorrelation);
+	REGISTER_CLASS("guiqt_mapping-scaling", PVDisplays::PVDisplayViewMappingScaling);
+	REGISTER_CLASS("guiqt_filters", PVDisplays::PVDisplayViewFilters);
+	REGISTER_CLASS("guiqt_distinct-values", PVDisplays::PVDisplayViewDistinctValues);
+	REGISTER_CLASS("guiqt_count-by", PVDisplays::PVDisplayViewCountBy);
+	REGISTER_CLASS("guiqt_sum-by", PVDisplays::PVDisplayViewSumBy);
+	REGISTER_CLASS("guiqt_min-by", PVDisplays::PVDisplayViewMinBy);
+	REGISTER_CLASS("guiqt_max-by", PVDisplays::PVDisplayViewMaxBy);
+	REGISTER_CLASS("guiqt_average-by", PVDisplays::PVDisplayViewAverageBy);
 	REGISTER_CLASS("guiqt_layer-stack", PVDisplays::PVDisplayViewLayerStack);
 	REGISTER_CLASS("guiqt_listing", PVDisplays::PVDisplayViewListing);
 	REGISTER_CLASS("guiqt_pythonconsole", PVDisplays::PVDisplayViewPythonConsole);

@@ -31,11 +31,12 @@
 #include <pvdisplays/PVDisplaysContainer.h>
 
 #include <squey/PVView.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVMapped.h>
 
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVAlgorithms.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QActionGroup>
 #include <QApplication>
@@ -75,6 +76,7 @@ PVParallelView::PVAxisHeader::PVAxisHeader(const Squey::PVView& view,
 void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEvent* event)
 {
 	QMenu menu;
+	menu.setAttribute(Qt::WA_TranslucentBackground);
 
 	if (auto* container =
 	        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(event->widget())) {
@@ -83,52 +85,8 @@ void PVParallelView::PVAxisHeader::contextMenuEvent(QGraphicsSceneContextMenuEve
 		menu.addSeparator();
 	}
 	QAction* ars = menu.addAction("New selection cursors");
+	ars->setIcon(PVModdedIcon("vertical-selection-cursors"));
 	connect(ars, &QAction::triggered, this, &PVAxisHeader::new_selection_slider);
-
-	std::string axis_type = axis()->get_axis_type().toStdString();
-
-	auto const& mapped = _view.get_parent<Squey::PVMapped>();
-	Squey::PVMappingProperties const& mpp =
-	    mapped.get_properties_for_col(axis()->get_original_axis_column());
-
-	QMenu* chm = menu.addMenu("Change mapping to...");
-	auto* chm_group = new QActionGroup(chm);
-
-	for (auto& kvnode : LIB_CLASS(Squey::PVMappingFilter)::get().get_list()) {
-		auto usable_list = kvnode.value()->list_usable_type();
-		if (usable_list.empty() or usable_list.count(axis_type)) {
-			QAction* chm_filter = chm->addAction(kvnode.value()->get_human_name());
-			chm_group->addAction(chm_filter);
-			chm_filter->setCheckable(true);
-			chm_filter->setChecked(mpp.get_mode() == kvnode.key().toStdString());
-			connect(chm_filter, &QAction::triggered, this,
-			        [ this, key = kvnode.key() ]() { change_mapping(key); });
-		}
-	}
-
-	auto const& plotted = _view.get_parent<Squey::PVPlotted>();
-	Squey::PVPlottingProperties const& plp =
-	    plotted.get_properties_for_col(axis()->get_original_axis_column());
-
-	QMenu* chp = menu.addMenu("Change plotting to...");
-	auto* chp_group = new QActionGroup(chp);
-
-	for (auto& kvnode : LIB_CLASS(Squey::PVPlottingFilter)::get().get_list()) {
-		auto usable_list = kvnode.value()->list_usable_type();
-		if (usable_list.empty() or usable_list.count(std::make_pair(axis_type, mpp.get_mode()))) {
-			QAction* chp_filter = chp->addAction(kvnode.value()->get_human_name());
-			chp_group->addAction(chp_filter);
-			chp_filter->setCheckable(true);
-			chp_filter->setChecked(plp.get_mode() == kvnode.key().toStdString());
-			connect(chp_filter, &QAction::triggered, this,
-			        [ this, key = kvnode.key() ]() { change_plotting(key); });
-		}
-	}
-
-	QAction* copy = menu.addAction("Copy axis name to clipboad");
-	copy->setIcon(QIcon(":/edit-paste.png"));
-	connect(copy, &QAction::triggered, this,
-	        [&]() { QApplication::clipboard()->setText(_view.get_axis_name(_comb_col)); });
 
 	if (menu.exec(event->screenPos()) != nullptr) {
 		event->accept();

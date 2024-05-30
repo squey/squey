@@ -36,8 +36,8 @@
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVSimpleStringListModel.h>
-
-#include <pvdisplays/PVDisplayIf.h>
+#include <pvguiqt/PVStatusBar.h>
+#include <pvguiqt/PVErrorsAndWarnings.h>
 
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
 #include <squey/widgets/PVViewArgumentEditorCreator.h>
@@ -46,6 +46,9 @@
 #include <pvkernel/core/PVZoneIndexType.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <pvkernel/widgets/PVArgumentListWidgetFactory.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
+
+#include <pvkernel/core/qobject_helpers.h>
 
 /******************************************************************************
  *
@@ -69,7 +72,7 @@ PVGuiQt::PVWorkspaceBase* PVGuiQt::PVWorkspaceBase::workspace_under_mouse()
 				    project_tab_widget->current_workspace_tab_widget();
 				if (workspace_tab_widget) {
 					auto* workspace =
-					    qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->currentWidget());
+					    qobject_cast<PVWorkspaceBase*>(workspace_tab_widget->current_widget());
 					if (workspace) {
 						active_workspaces.append(workspace);
 					}
@@ -106,37 +109,71 @@ void PVGuiQt::PVWorkspaceBase::changeEvent(QEvent* event)
 	}
 }
 
+void PVGuiQt::PVWorkspaceBase::track_mouse_buttons_legend_changed(PVDisplays::PVDisplayIf& display_if, QWidget* widget)
+{
+	display_if._set_status_bar_mouse_legend.connect(
+	[widget](QWidget* w, const PVWidgets::PVMouseButtonsLegend& legend){
+		if (widget != w) return;
+		QMainWindow* mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(w);
+		mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(mw);
+		PVGuiQt::PVStatusBar* status_bar = qobject_cast<PVGuiQt::PVStatusBar*>(mw->statusBar());
+
+		status_bar->set_mouse_buttons_legend(legend);
+	});
+
+	display_if._clear_status_bar_mouse_legend.connect(
+	[widget](QWidget* w){
+		if (widget != w) return;
+		QMainWindow* mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(w);
+		mw = PVCore::get_qobject_parent_of_type<QMainWindow*>(mw);
+		PVGuiQt::PVStatusBar* status_bar = qobject_cast<PVGuiQt::PVStatusBar*>(mw->statusBar());
+
+		status_bar->clear_mouse_buttons_legend();
+	});
+}
+
 PVGuiQt::PVViewDisplay*
 PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
                                            QWidget* view_widget,
-                                           QString name,
-                                           bool can_be_central_display /*= true*/,
+                                           PVDisplays::PVDisplayIf& display_if,
                                            bool delete_on_close /* = true*/,
                                            Qt::DockWidgetArea area /*= Qt::TopDockWidgetArea*/
 )
 {
+	bool has_help_page = display_if.match_flags(PVDisplays::PVDisplayIf::HasHelpPage);
+	bool can_be_central_display = display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget);
 	auto* view_display =
-	    new PVViewDisplay(view, view_widget, name, can_be_central_display, delete_on_close, this);
+	    new PVViewDisplay(view, view_widget, can_be_central_display, has_help_page, delete_on_close, this);
 
 	// note : new connect syntax is causing a crash (Qt bug ?)
 	connect(view_display, SIGNAL(destroyed(QObject*)), this, SLOT(display_destroyed(QObject*)));
 
-	addDockWidget(area, view_display);
+	auto all_dock_widgets = findChildren<QDockWidget*>();
+	auto other_in_same_area_it = std::ranges::find_if(all_dock_widgets, [this, area](auto* dw){ return dockWidgetArea(dw) == area; });
+	if ((area & (Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea)) && other_in_same_area_it != all_dock_widgets.end()) {
+		tabifyDockWidget(*other_in_same_area_it, view_display);
+		view_display->show();
+		view_display->raise();
+	} else {
+		addDockWidget(area, view_display, Qt::Horizontal);
+	}
 	resizeDocks({view_display}, {500}, Qt::Horizontal); // Hack to fix children widgets sizes
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
 	        &PVWorkspaceBase::try_automatic_tab_switch);
 	_displays.append(view_display);
+
+	track_mouse_buttons_legend_changed(display_if, view_widget);
 
 	return view_display;
 }
 
 PVGuiQt::PVViewDisplay* PVGuiQt::PVWorkspaceBase::set_central_display(Squey::PVView* view,
                                                                       QWidget* view_widget,
-                                                                      QString name,
+																	  bool has_help_page,
                                                                       bool delete_on_close)
 {
 	auto* view_display =
-	    new PVViewDisplay(view, view_widget, name, true, delete_on_close, this);
+	    new PVViewDisplay(view, view_widget, true, has_help_page, delete_on_close, this);
 	view_display->setStyleSheet("QDockWidget { font: bold }");
 	view_display->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	view_display->setSizePolicy(
@@ -181,24 +218,20 @@ void PVGuiQt::PVWorkspaceBase::switch_with_central_widget(
 		Squey::PVView* central_view = central_dock->get_view();
 		Squey::PVView* display_view = display_dock->get_view();
 		central_dock->set_view(display_view);
-		central_dock->register_view(display_view);
 		display_dock->set_view(central_view);
-		display_dock->register_view(central_view);
 
-		// Exchange colors
-		QColor col1 = central_dock->get_view()->get_color();
-		QColor col2 = display_dock->get_view()->get_color();
-		QPalette Pal1(display_dock->palette());
-		Pal1.setColor(QPalette::Window, col2);
-		display_dock->setAutoFillBackground(true);
-		display_dock->setPalette(Pal1);
-		QPalette Pal2(central_dock->palette());
-		Pal2.setColor(QPalette::Window, col1);
-		central_dock->setAutoFillBackground(true);
-		central_dock->setPalette(Pal2);
+		// Exchange help button visibility
+		bool central_help = central_dock->has_help_page();
+		bool display_help = display_dock->has_help_page();
+		central_dock->set_help_page_visible(display_help);
+		display_dock->set_help_page_visible(central_help);
 	} else {
-		set_central_display(display_dock->get_view(), display_dock->widget(), display_dock->_name,
-		                    display_dock->testAttribute(Qt::WA_DeleteOnClose));
+		set_central_display(
+			display_dock->get_view(),
+			display_dock->widget(),
+			central_dock->has_help_page(),
+			display_dock->testAttribute(Qt::WA_DeleteOnClose)
+		);
 		removeDockWidget(display_dock);
 	}
 }
@@ -235,8 +268,8 @@ void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
 		view_d->setVisible(!view_d->isVisible());
 	} else {
 		view_d = add_view_display(
-		    nullptr, w, display_if.widget_title(src),
-		    display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget), false);
+		    nullptr, w, display_if,
+		    false);
 		/* when the dock widget's "close" button is pressed, the
 		 * associated QAction has to be unchecked
 		 */
@@ -253,9 +286,10 @@ void PVGuiQt::PVWorkspaceBase::create_view_widget(PVDisplays::PVDisplayViewIf& d
 	}
 
 	QWidget* w = PVDisplays::get_widget(display_if, view, nullptr, params);
-	add_view_display(view, w, display_if.widget_title(view),
-	                 display_if.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
-	                 true);
+	auto area = display_if.default_position_hint();
+	add_view_display(view, w,
+	                 display_if, true,
+	                 area ? area : Qt::TopDockWidgetArea);
 }
 
 /******************************************************************************
@@ -304,16 +338,32 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 		PVToolbarComboViews(decltype(_source) source) : QComboBox(), _source(source)
 		{
 			fill_views();
+			setToolTip("Current coherent viewset for this source");
+			connect(this, &QComboBox::activated, [this](int index){
+				if (index == count() - 1) {
+					if (auto scaleds = _source->get_children<Squey::PVScaled>(); scaleds.size() > 0) {
+						// At time of writing, there is only one mapping/scaling per source
+						scaleds.back()->emplace_add_child();
+						fill_views();
+						setCurrentIndex(count() - 2);
+					}
+				}
+			});
 		}
 		void fill_views()
 		{
 			clear();
 			QPixmap pm(24, 24);
 			for (Squey::PVView* view : _source->get_children<Squey::PVView>()) {
-				pm.fill(view->get_color());
-				addItem(QIcon(pm), QString::fromStdString(view->get_name()),
-				        QVariant::fromValue(view));
+				add_view_item(view, pm);
 			}
+			addItem(QIcon(":/more.png"), "Create new coherent viewset");
+		}
+		void add_view_item(Squey::PVView* view, QPixmap& pm)
+		{
+			pm.fill(view->get_color());
+			addItem(QIcon(pm), QString::fromStdString(view->get_name()),
+					QVariant::fromValue(view));
 		}
 
 	  protected:
@@ -325,13 +375,8 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 	};
 
 	_toolbar_combo_views = new PVToolbarComboViews(_source);
-	_toolbar->addWidget(_toolbar_combo_views);
-
-	_toolbar->addSeparator();
 
 	populate_display<PVDisplays::PVDisplayViewIf>();
-
-	_toolbar->addSeparator();
 
 	bool already_center = false;
 	// Only one central widget is possible for QDockWidget.
@@ -341,27 +386,38 @@ PVGuiQt::PVSourceWorkspace::PVSourceWorkspace(Squey::PVSource* source, QWidget* 
 		    [&](PVDisplays::PVDisplayViewIf& obj) {
 			    QWidget* w = PVDisplays::get_widget(obj, view);
 
-			    QString name = obj.widget_title(view);
 			    const bool as_central = obj.default_position_as_central_hint();
 
 			    const bool delete_on_close =
 			        !obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
 			    if (as_central && !already_center) {
 				    already_center = true;
-				    set_central_display(view, w, name, delete_on_close);
+					bool has_help_page = obj.match_flags(PVDisplays::PVDisplayIf::HasHelpPage);
+				    set_central_display(view, w, has_help_page, delete_on_close);
+					track_mouse_buttons_legend_changed(obj, w);
 			    } else {
 				    Qt::DockWidgetArea pos = obj.default_position_hint();
 				    if (as_central && already_center) {
 					    pos = Qt::TopDockWidgetArea;
 				    }
 				    add_view_display(
-				        view, w, name,
-				        obj.match_flags(PVDisplays::PVDisplayIf::ShowInCentralDockWidget),
+				        view, w,
+				        obj,
 				        delete_on_close, pos);
 			    }
 		    },
 		    PVDisplays::PVDisplayIf::DefaultPresenceInSourceWorkspace);
 	}
+}
+
+bool PVGuiQt::PVSourceWorkspace::has_errors_or_warnings() const
+{
+	return get_source_invalid_evts_dlg() != nullptr or PVErrorsAndWarnings::invalid_columns_count(get_source()) > 0;
+}
+
+QString PVGuiQt::PVSourceWorkspace::source_type() const
+{
+	return _source->get_source_creator()->name();
 }
 
 const PVGuiQt::PVWorkspaceBase::PVViewWidgets&

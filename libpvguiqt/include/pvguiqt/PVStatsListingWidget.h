@@ -43,6 +43,7 @@ class QEvent;
 class QMenu;
 class QPixmap;
 class QPushButton;
+class QToolButton;
 class QTableWidgetItem;
 class QDialog;
 
@@ -56,12 +57,14 @@ namespace __impl
 class PVCellWidgetBase;
 class PVUniqueValuesCellWidget;
 class PVSumCellWidget;
+class PVVerticalHeaderView;
 } // namespace __impl
 
 class PVStatsListingWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 	friend class __impl::PVCellWidgetBase;
+	friend class __impl::PVVerticalHeaderView;
 
   public:
 	struct PVParams {
@@ -72,8 +75,13 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
   public:
 	typedef std::unordered_map<uint32_t, std::unordered_map<uint32_t, PVParams>> param_t;
 
+	PVWidgets::PVHelpWidget* help_widget() { return &_help_widget; }
+
   public:
 	explicit PVStatsListingWidget(PVListingView* listing_view);
+
+  protected:
+  	void keyPressEvent(QKeyEvent* event) override;
 
   private:
 	param_t& get_params() { return _params; }
@@ -87,7 +95,7 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 	void init_plugins();
 
 	template <typename T>
-	int init_plugin(QString header_text, bool visible = false)
+	int init_plugin(QString header_text, QIcon icon, bool visible = false)
 	{
 		int row = _stats_panel->rowCount();
 		_stats_panel->insertRow(row);
@@ -96,7 +104,10 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 		}
 
 		QStringList vertical_headers;
-		_stats_panel->setVerticalHeaderItem(row, new QTableWidgetItem(header_text));
+		QTableWidgetItem* item = new QTableWidgetItem();
+		item->setToolTip(header_text);
+		item->setIcon(icon);
+		_stats_panel->setVerticalHeaderItem(row, item);
 		if (!visible) {
 			_stats_panel->hideRow(row);
 		}
@@ -142,13 +153,16 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
 
 	int _old_maximum_width;
 	bool _maxed = false;
-	QMenu* _vhead_ctxt_menu;
+	QMenu* _vhead_ctxt_menu = nullptr;
 
 	int _row_distinct;
 	int _row_sum;
 	int _row_min;
 	int _row_max;
 	int _row_avg;
+
+	// Help menu
+	PVWidgets::PVHelpWidget _help_widget; //!< Help menu for listing view
 };
 
 namespace __impl
@@ -160,6 +174,10 @@ class PVVerticalHeaderView : public QHeaderView
 
   public:
 	explicit PVVerticalHeaderView(PVStatsListingWidget* parent);
+	void mousePressEvent(QMouseEvent* event) override;
+
+  private:
+	PVStatsListingWidget* _stats_listing_widget = nullptr;
 };
 
 class PVLoadingLabel : public QLabel
@@ -241,7 +259,7 @@ class PVCellWidgetBase : public QWidget
 
 	QHBoxLayout* _main_layout;
 	QHBoxLayout* _customizable_layout;
-	QPushButton* _refresh_icon;
+	QToolButton* _refresh_icon;
 	QPushButton* _autorefresh_icon;
 	PVLoadingLabel* _loading_label;
 	static QMovie* _loading_movie;
@@ -274,10 +292,6 @@ class PVUniqueValuesCellWidget : public PVCellWidgetBase
 
   private Q_SLOTS:
 	void show_unique_values_dlg();
-	void unique_values_dlg_closed();
-
-  private:
-	QDialog* _dialog = nullptr;
 };
 
 class PVSumCellWidget : public PVCellWidgetBase

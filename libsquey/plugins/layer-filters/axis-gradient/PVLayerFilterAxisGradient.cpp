@@ -25,7 +25,7 @@
 
 #include "PVLayerFilterAxisGradient.h"
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #define ARG_NAME_AXIS "axis"
 #define ARG_DESC_AXIS "Axis"
@@ -65,23 +65,23 @@ void Squey::PVLayerFilterAxisGradient::operator()(PVLayer const& in, PVLayer& ou
 
 	PVCore::PVHSVColor color;
 
-	const PVPlotted& plotted = _view->get_parent<PVPlotted>();
+	const PVScaled& scaled = _view->get_parent<PVScaled>();
 	axis_id = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>().get_original_index();
 
 	PVRow r_max, r_min;
-	plotted.get_col_minmax(r_min, r_max, in.get_selection(), axis_id);
-	const uint32_t min_plotted = (plotted.get_value(r_min, axis_id));
-	const uint32_t max_plotted = (plotted.get_value(r_max, axis_id));
-	PVLOG_INFO("PVLayerFilterAxisGradient: min/max = %u/%u\n", min_plotted, max_plotted);
-	const double diff = max_plotted - min_plotted;
+	scaled.get_col_minmax(r_min, r_max, in.get_selection(), axis_id);
+	const uint32_t min_scaled = (scaled.get_value(r_min, axis_id));
+	const uint32_t max_scaled = (scaled.get_value(r_max, axis_id));
+	PVLOG_INFO("PVLayerFilterAxisGradient: min/max = %u/%u\n", min_scaled, max_scaled);
+	const double diff = max_scaled - min_scaled;
 	in.get_selection().visit_selected_lines(
 	    [&](PVRow const r) {
-		    const uint32_t plotted_value = (plotted.get_value(r, axis_id));
+		    const uint32_t scaled_value = (scaled.get_value(r, axis_id));
 
 		    PVCore::PVHSVColor color;
 		    // From green to red.. !
 		    color = PVCore::PVHSVColor(
-		        HSV_COLOR_RED.h() - ((uint8_t)(((double)(plotted_value - min_plotted) / diff) *
+		        HSV_COLOR_RED.h() - ((uint8_t)(((double)(scaled_value - min_scaled) / diff) *
 		                                       (double)(HSV_COLOR_RED.h() - HSV_COLOR_BLUE.h()))));
 		    out.get_lines_properties().set_line_properties(r, color);
 	    },

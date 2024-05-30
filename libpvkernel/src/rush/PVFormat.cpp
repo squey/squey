@@ -440,7 +440,7 @@ char* fill_spaces(QString str, int max_spaces)
 void PVRush::PVFormat::debug() const
 {
 	PVLOG_PLAIN("\n"
-	            "id     |      type      |      mapping     |     plotting     |  color  |name \n");
+	            "id     |      type      |      mapping     |     scaling     |  color  |name \n");
 	PVLOG_PLAIN(
 	    "-------+----------------+------------------+------------------+---------+------...\n");
 
@@ -456,8 +456,8 @@ void PVRush::PVFormat::debug() const
 		fill = fill_spaces(axis.get_mapping(), 17);
 		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_mapping()), fill);
 		free(fill);
-		fill = fill_spaces(axis.get_plotting(), 17);
-		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_plotting()), fill);
+		fill = fill_spaces(axis.get_scaling(), 17);
+		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_scaling()), fill);
 		free(fill);
 		fill = fill_spaces(axis.get_color_str(), 8);
 		PVLOG_PLAIN("| %s%s", qPrintable(axis.get_color_str()), fill);

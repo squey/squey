@@ -46,7 +46,7 @@ std::string squey_plugins_get_mapping_filters_dir()
 	return get_squey_plugins_path() + "/mapping-filters";
 }
 
-std::string squey_plugins_get_plotting_filters_dir()
+std::string squey_plugins_get_scaling_filters_dir()
 {
-	return get_squey_plugins_path() + "/plotting-filters";
+	return get_squey_plugins_path() + "/scaling-filters";
 }

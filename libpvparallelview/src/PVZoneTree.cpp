@@ -26,7 +26,7 @@
 #include <pvkernel/core/squey_intrin.h>
 
 #include <squey/PVSelection.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCode.h>
@@ -64,8 +64,8 @@ class TBBCreateTreeTask
 	{
 		PVParallelView::PVZoneProcessing const& zp = _params.zp();
 
-		const uint32_t* pcol_a = zp.plotted_a;
-		const uint32_t* pcol_b = zp.plotted_b;
+		const uint32_t* pcol_a = zp.scaled_a;
+		const uint32_t* pcol_b = zp.scaled_b;
 
 		PVRow r = _params.range(_task_num).begin;
 		PVRow nrows = _params.range(_task_num).end;

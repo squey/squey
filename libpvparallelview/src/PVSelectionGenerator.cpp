@@ -212,23 +212,23 @@ uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_v
 	return nb_selected;
 }
 
-uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotted_range(
-    const uint32_t* plotted,
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scaled_range(
+    const uint32_t* scaled,
     PVRow nrows,
     uint64_t y_min,
     uint64_t y_max,
     Squey::PVSelection& sel,
     Squey::PVSelection const& layers_sel)
 {
-	return __impl::compute_selection_from_plotted_range_sse(plotted, nrows, y_min, y_max, sel,
+	return __impl::compute_selection_from_scaled_range_sse(scaled, nrows, y_min, y_max, sel,
 	                                                        layers_sel);
 }
 
 /*****************************************************************************
- * PVParallelView::__impl::compute_selection_from_plotted_range_sse
+ * PVParallelView::__impl::compute_selection_from_scaled_range_sse
  *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
-    const uint32_t* plotted,
+uint32_t PVParallelView::__impl::compute_selection_from_scaled_range_sse(
+    const uint32_t* scaled,
     PVRow nrows,
     uint64_t y_min,
     uint64_t y_max,
@@ -246,14 +246,14 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 
 	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
 
-	BENCH_START(compute_selection_from_plotted_range_sse);
+	BENCH_START(compute_selection_from_scaled_range_sse);
 
 #pragma omp parallel for num_threads(pvhwloc::core_count())    \
     schedule(guided, 16)
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
 		uint64_t chunk = 0;
 		for (int j = 0; j < 64; j += 4) {
-			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
+			const __m128i y_sse = _mm_load_si128((__m128i const*)&scaled[i + j]);
 
 			const __m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
 
@@ -266,7 +266,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
 	}
 	for (PVRow i = nrows_sse; i < nrows; i++) {
-		const uint32_t y = plotted[i];
+		const uint32_t y = scaled[i];
 
 		if ((y >= y_min) && (y <= y_max)) {
 			if (layers_sel.get_line_fast(i)) {
@@ -278,7 +278,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotted_range_sse(
 		sel.clear_bit_fast(i);
 	}
 
-	BENCH_END(compute_selection_from_plotted_range_sse, "compute_selection_from_plotted_range_sse",
+	BENCH_END(compute_selection_from_scaled_range_sse, "compute_selection_from_scaled_range_sse",
 	          nrows, sizeof(uint32_t), Squey::PVSelection::line_index_to_chunk(nrows),
 	          sizeof(uint64_t));
 
@@ -344,7 +344,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 
 	uint32_t nb_selected = 0;
 
-	const uint32_t* plotted = manager.get_plotted();
+	const uint32_t* scaled = manager.get_scaled();
 	const uint32_t nrows = manager.get_nrows();
 	const uint32_t nrows_sse = nrows & ~31U;
 
@@ -358,7 +358,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 		// Compute one chunk of the selection
 		int32_t chunk = 0;
 		for (int j = 0; j < 32; j += 4) {
-			const __m128i y_sse = _mm_load_si128((__m128i const*)&plotted[i + j]);
+			const __m128i y_sse = _mm_load_si128((__m128i const*)&scaled[i + j]);
 			const __m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
 
 			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
@@ -408,7 +408,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 		sel.set_chunk32_fast_stream(Squey::PVSelection::line_index_to_chunk32(i), chunk);
 	}
 	for (i = nrows_sse; i < nrows; i++) {
-		const uint32_t v = plotted[i];
+		const uint32_t v = scaled[i];
 		if ((v >= v_min) && (v < v_max)) {
 			const uint32_t c = manager.get_count_for(v);
 			if ((c >= c_min) && (c <= c_max)) {
@@ -426,26 +426,26 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 }
 
 /*****************************************************************************
- * PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_ranges
+ * PVParallelView::PVSelectionGenerator::compute_selection_from_scaleds_ranges
  *****************************************************************************/
-uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_plotteds_ranges(
-    const uint32_t* y1_plotted,
-    const uint32_t* y2_plotted,
+uint32_t PVParallelView::PVSelectionGenerator::compute_selection_from_scaleds_ranges(
+    const uint32_t* y1_scaled,
+    const uint32_t* y2_scaled,
     const PVRow nrows,
     const QRectF& rect,
     Squey::PVSelection& sel,
     Squey::PVSelection const& layers_sel)
 {
-	return __impl::compute_selection_from_plotteds_ranges_sse(y1_plotted, y2_plotted, nrows, rect,
+	return __impl::compute_selection_from_scaleds_ranges_sse(y1_scaled, y2_scaled, nrows, rect,
 	                                                          sel, layers_sel);
 }
 
 /*****************************************************************************
- * PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse
+ * PVParallelView::__impl::compute_selection_from_scaleds_ranges_sse
  *****************************************************************************/
-uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
-    const uint32_t* y1_plotted,
-    const uint32_t* y2_plotted,
+uint32_t PVParallelView::__impl::compute_selection_from_scaleds_ranges_sse(
+    const uint32_t* y1_scaled,
+    const uint32_t* y2_scaled,
     const PVRow nrows,
     const QRectF& rect,
     Squey::PVSelection& sel,
@@ -471,19 +471,19 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 
 	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
 
-	BENCH_START(compute_selection_from_plotteds_ranges_sse);
+	BENCH_START(compute_selection_from_scaleds_ranges_sse);
 
 #pragma omp parallel for num_threads(pvhwloc::core_count())    \
     schedule(guided, 16)
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
 		uint64_t chunk = 0;
 		for (int j = 0; j < 64; j += 4) {
-			const __m128i y1_sse = _mm_load_si128((__m128i const*)&y1_plotted[i + j]);
+			const __m128i y1_sse = _mm_load_si128((__m128i const*)&y1_scaled[i + j]);
 
 			const __m128i mask_y1 = squey_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
 			if (!(_mm_test_all_zeros(mask_y1, sse_ff))) {
-				const __m128i y2_sse = _mm_load_si128((__m128i const*)&y2_plotted[i + j]);
+				const __m128i y2_sse = _mm_load_si128((__m128i const*)&y2_scaled[i + j]);
 
 				const __m128i mask_y2 = squey_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
 				const __m128i mask_y1_y2 = _mm_and_si128(mask_y1, mask_y2);
@@ -496,8 +496,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 		sel.set_chunk_fast(chunk_idx, chunk & layers_sel.get_chunk_fast(chunk_idx));
 	}
 	for (PVRow i = nrows_sse; i < nrows; i++) {
-		const uint32_t y1 = y1_plotted[i];
-		const uint32_t y2 = y2_plotted[i];
+		const uint32_t y1 = y1_scaled[i];
+		const uint32_t y2 = y2_scaled[i];
 
 		if ((y1 >= y1_min) && (y1 <= y1_max) && (y2 >= y2_min) && (y2 <= y2_max)) {
 			if (layers_sel.get_line_fast(i)) {
@@ -509,8 +509,8 @@ uint32_t PVParallelView::__impl::compute_selection_from_plotteds_ranges_sse(
 		sel.clear_bit_fast(i);
 	}
 
-	BENCH_END(compute_selection_from_plotteds_ranges_sse,
-	          "compute_selection_from_plotteds_ranges_sse", 2 * nrows, sizeof(uint32_t),
+	BENCH_END(compute_selection_from_scaleds_ranges_sse,
+	          "compute_selection_from_scaleds_ranges_sse", 2 * nrows, sizeof(uint32_t),
 	          Squey::PVSelection::line_index_to_chunk(nrows), sizeof(uint64_t));
 
 	return 0;

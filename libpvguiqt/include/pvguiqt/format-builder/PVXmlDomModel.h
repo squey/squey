@@ -182,10 +182,10 @@ class PVXmlDomModel : public QAbstractItemModel
 
   private:
 	static void setDefaultAttributesForAxis(QDomElement& elt);
-	void setEltMappingPlotting(QDomElement& elt,
+	void setEltMappingScaling(QDomElement& elt,
 	                           QString const& type,
 	                           QString const& mode_mapping,
-	                           QString const& mode_plotting);
+	                           QString const& mode_scaling);
 
   private:
 	std::unique_ptr<PVRush::PVXmlTreeNodeDom> rootNode;

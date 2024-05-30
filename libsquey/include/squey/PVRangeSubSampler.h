@@ -28,7 +28,7 @@
 #include <pvcop/db/array.h>
 #include <pvcop/types/datetime_us.h>
 #include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <numeric>
@@ -78,7 +78,7 @@ class PVRangeSubSampler
 
   private:
 	static constexpr const size_t reserved_bits = 2;
-	using value_type = Squey::PVPlotted::value_type;
+	using value_type = Squey::PVScaled::value_type;
 
   public:
 	using display_type = uint16_t;

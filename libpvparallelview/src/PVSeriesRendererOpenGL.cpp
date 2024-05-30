@@ -162,8 +162,8 @@ void PVSeriesRendererOpenGL::set_draw_mode(PVSeriesView::DrawMode mode)
 
 void PVSeriesRendererOpenGL::initializeGL()
 {
-	connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
-	        &PVSeriesRendererOpenGL::cleanupGL);
+	// connect(context(), &QOpenGLContext::aboutToBeDestroyed, this,
+	//         &PVSeriesRendererOpenGL::cleanupGL);
 
 	initializeOpenGLFunctions();
 	LOAD_GL_FUNC(glMultiDrawArraysIndirect);
@@ -178,8 +178,6 @@ void PVSeriesRendererOpenGL::initializeGL()
 	         << context()->surface()->size();
 
 	auto start = std::chrono::system_clock::now();
-
-	glClear(GL_COLOR_BUFFER_BIT);
 
 	setup_shaders_GL();
 

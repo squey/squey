@@ -54,7 +54,7 @@ class PVListUniqStringsDlg : public PVAbstractListStatsDlg
 	{
 		QString col1_name =
 		    view.get_parent<Squey::PVSource>().get_format().get_axes().at(c).get_name();
-		setWindowTitle("Distinct values of axe '" + col1_name + "'");
+		setWindowTitle("Distinct values (" + col1_name + ")");
 	}
 };
 

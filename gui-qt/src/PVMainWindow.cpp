@@ -28,8 +28,11 @@
 #include <QFile>
 #include <QLabel>
 #include <QMessageBox>
+#include <QShortcut>
 #include <QStatusBar>
 #include <QVBoxLayout>
+#include <QStyleHints>
+#include <QStyleFactory>
 
 #include <PVMainWindow.h>
 #include <PVStringListChooserWidget.h>
@@ -45,7 +48,6 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVProgressBox.h>
-#include <pvkernel/core/PVWSLHelper.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -63,6 +65,7 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVProgressBoxPython.h>
+#include <pvguiqt/PVStatusBar.h>
 
 #include <pvparallelview/PVZoneTree.h>
 
@@ -101,6 +104,7 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	QFontDatabase::addApplicationFont(QString(":/OSP-DIN.ttf"));
 	QFontDatabase::addApplicationFont(QString(":/PT_Sans-Narrow-Web-Bold.ttf"));
 	QFontDatabase::addApplicationFont(QString(":/PT_Sans-Narrow-Web-Regular.ttf"));
+	QFontDatabase::addApplicationFont(QString(":/BlackHanSans-Regular.ttf"));
 
 	// import_source = nullptr;
 	report_started = false;
@@ -149,29 +153,12 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setContentsMargins(0, 0, 0, 0);
-
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
-	/**
-	 * Show warning message when no GPU accelerated device has been found
-	 * Except under WSL where GPU is not supported yet
-	 * (https://wpdev.uservoice.com/forums/266908-command-prompt-console-windows-subsystem-for-l/suggestions/16108045-opencl-cuda-gpu-support)
-	 */
-	if (not PVParallelView::common::is_gpu_accelerated() and
-	    not PVCore::PVWSLHelper::is_microsoft_wsl()) {
-		/* the warning icon
-		 */
-		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
-		auto* warning_label_icon = new QLabel;
-		warning_label_icon->setPixmap(warning_icon.pixmap(QSize(16, 16)));
-		statusBar()->addPermanentWidget(warning_label_icon, 0);
-
-		/* and the message
-		 */
-		auto* warning_msg = new QLabel("<font color=\"orange\"><b>You are running in degraded "
-		                                 "mode without GPU acceleration. </b></font>");
-		statusBar()->addPermanentWidget(warning_msg, 0);
-	}
+	// Set status bar
+	PVGuiQt::PVStatusBar* status_bar = new PVGuiQt::PVStatusBar(this);
+	setStatusBar(status_bar);
+	statusBar()->showMessage(tr("Ready"));
 
 	pv_centralMainWidget->setLayout(pv_mainLayout);
 
@@ -193,16 +180,32 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	QRect r = geometry();
 	r.moveCenter(QGuiApplication::primaryScreen()->availableGeometry().center());
 	setGeometry(r);
-
-	// Set stylesheet
-	QFile css_file(":/gui.css");
-	css_file.open(QFile::ReadOnly);
-	QTextStream css_stream(&css_file);
-	QString css_string(css_stream.readAll());
-	css_file.close();
-	setStyleSheet(css_string);
-
+	PVCore::PVTheme::init();
 	showMaximized();
+
+	// CSS stylesheet hot reloading
+	QShortcut* refresh_theme = new QShortcut(QKeySequence(Qt::Key_Dollar), this);
+	QShortcut* switch_theme = new QShortcut(QKeySequence("Shift+$"), this);
+	refresh_theme->setContext(Qt::ApplicationShortcut);
+	switch_theme->setContext(Qt::ApplicationShortcut);
+	auto refresh_f = [&](bool switch_theme) {
+		PVLOG_INFO("Reloading CSS\n");
+		if (switch_theme) {
+			PVCore::PVTheme::set_color_scheme((PVCore::PVTheme::EColorScheme)(not (bool)PVCore::PVTheme::color_scheme()));
+		}
+		else { // force refresh
+			PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::color_scheme());
+		}
+	};
+	connect(refresh_theme, &QShortcut::activated, [refresh_f](){
+		refresh_f(false);
+	});
+	connect(switch_theme, &QShortcut::activated, [refresh_f](){
+		refresh_f(true);
+	});
+
+	QShortcut* toggle_zombies_shortcut = new QShortcut(QKeySequence(Qt::Key_U), this);
+	QObject::connect(toggle_zombies_shortcut, &QShortcut::activated, this, &App::PVMainWindow::events_display_unselected_zombies_parallelview_Slot);
 }
 
 bool App::PVMainWindow::event(QEvent* event)
@@ -320,101 +323,6 @@ void App::PVMainWindow::move_selection_to_new_layer(Squey::PVView* squey_view)
 		squey_view->compute_selectable_count(current_layer);
 
 		squey_view->process_layer_stack();
-	}
-}
-
-// Check if we have already a menu with this name at this level
-static QMenu* create_filters_menu_exists(QHash<QMenu*, int> actions_list, QString name, int level)
-{
-	QHashIterator<QMenu*, int> iter(actions_list);
-	while (iter.hasNext()) {
-		iter.next();
-		QString menu_title = iter.key()->title();
-		int menu_level = iter.value();
-
-		if ((!menu_title.compare(name)) && (menu_level == level)) {
-			return iter.key();
-		}
-	}
-
-	return nullptr;
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::create_filters_menu_and_actions
- *
- *****************************************************************************/
-void App::PVMainWindow::create_filters_menu_and_actions()
-{
-	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
-
-	QMenu* menu = filter_Menu;
-	QHash<QMenu*, int> actions_list; // key = action name; value = menu level;
-	                                 // Foo/Bar/Camp makes Foo at level 0, Bar at
-	                                 // level 1, etc.
-
-	LIB_CLASS(Squey::PVLayerFilter)& filters_layer = LIB_CLASS(Squey::PVLayerFilter)::get();
-	LIB_CLASS(Squey::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
-	LIB_CLASS(Squey::PVLayerFilter)::list_classes::const_iterator it;
-
-	for (it = lf.begin(); it != lf.end(); it++) {
-		//(*it).get_args()["Menu_name"]
-		QString filter_name = it->key();
-		QString action_name = it->value()->menu_name();
-		QString status_tip = it->value()->status_bar_description();
-
-		QStringList actions_name = action_name.split(QString("/"));
-		if (actions_name.count() > 1) {
-			// // qDebug("actions_name[0]=%s\n", qPrintable(actions_name[0]));
-			// // We add the various submenus
-			for (int i = 0; i < actions_name.count(); i++) {
-				bool is_last = i == actions_name.count() - 1 ? true : false;
-
-				// Step 1: we add the different menus into the hash
-				QMenu* menu_exists = create_filters_menu_exists(actions_list, actions_name[i], i);
-				if (!menu_exists) {
-					auto* filter_element_menu = new QMenu(actions_name[i]);
-					actions_list[filter_element_menu] = i;
-				}
-
-				// Step 2: we connect the menus with each other and connect the actions
-				QMenu* menu_to_add = create_filters_menu_exists(actions_list, actions_name[i], i);
-				if (!menu_to_add) {
-					PVLOG_ERROR("The menu named '%s' at position level %d cannot be "
-					            "added since it was not append previously!\n",
-					            qPrintable(actions_name[i]), i);
-				}
-				if (i == 0) { // We are at root level
-					menu->addMenu(menu_to_add);
-				} else {
-					if (is_last) {
-						QMenu* previous_menu =
-						    create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
-
-						auto* action = new QAction(actions_name[i] + "...", previous_menu);
-						action->setObjectName(filter_name);
-						action->setStatusTip(status_tip);
-						connect(action, &QAction::triggered, this, &PVMainWindow::filter_Slot);
-						previous_menu->addAction(action);
-					} else {
-						// we add a menu to the previous menu
-						QMenu* previous_menu =
-						    create_filters_menu_exists(actions_list, actions_name[i - 1], i - 1);
-						QMenu* current_menu =
-						    create_filters_menu_exists(actions_list, actions_name[i], i);
-						previous_menu->addMenu(current_menu);
-					}
-				}
-			}
-		} else { // Nothing to split, so there is only a direct action
-			auto* action = new QAction(action_name + "...", menu);
-			action->setObjectName(filter_name);
-			action->setStatusTip(status_tip);
-			connect(action, &QAction::triggered, this, &PVMainWindow::filter_Slot);
-
-			menu->addAction(action);
-		}
 	}
 }
 
@@ -647,7 +555,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 				if (load_source_from_description_Slot(src_desc)) {
 					one_extraction_successful = true;
 				}
-			} catch (Squey::InvalidPlottingMapping const& e) {
+			} catch (Squey::InvalidScalingMapping const& e) {
 				invalid_formats.append(it.key() + ": " + e.what());
 			} catch (PVRush::PVInvalidFile const& e) {
 				invalid_formats.append(it.key() + ": " + e.what());
@@ -661,7 +569,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
 		if (not invalid_formats.isEmpty()) {
 			QMessageBox error_message(
 			    QMessageBox::Warning, "Invalid format",
-			    "Some format can't be use as types, mapping and plotting are not compatible.",
+			    "Some format can't be use as types, mapping and scaling are not compatible.",
 			    QMessageBox::Ok, this);
 			error_message.setDetailedText(invalid_formats.join("\n"));
 			error_message.exec();
@@ -702,38 +610,6 @@ void App::PVMainWindow::import_type_Slot(const QString& itype)
 {
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
 	import_type(in_t);
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::keyPressEvent()
- *
- *****************************************************************************/
-void App::PVMainWindow::keyPressEvent(QKeyEvent* event)
-{
-	QMainWindow::keyPressEvent(event);
-#ifdef SQUEY_DEVELOPER_MODE
-	switch (event->key()) {
-
-	case Qt::Key_Dollar: {
-		/*if (pv_WorkspacesTabWidget->currentIndex() == -1) {
-		        break;
-		}*/
-		PVLOG_INFO("Reloading CSS\n");
-
-		QFile css_file(SQUEY_SOURCE_DIRECTORY "/gui-qt/src/resources/gui.css");
-		if (css_file.open(QFile::ReadOnly)) {
-			QTextStream css_stream(&css_file);
-			QString css_string(css_stream.readAll());
-			css_file.close();
-
-			setStyleSheet(css_string);
-			setStyle(QApplication::style());
-		}
-		break;
-	}
-	}
-#endif
 }
 
 /******************************************************************************
@@ -935,14 +811,14 @@ static size_t forecasted_memory_consumption_increase(Squey::PVSource* src)
 	size_t mapped_size = 0;
 	for (size_t i = 0; i < column_count; i++) {
 		const Squey::PVMappingProperties& mapping_properties = Squey::PVMappingProperties(format, PVCol(i));
-		mapped_size += mapping_properties.get_mapping_filter()->is_computed() * sizeof(Squey::PVPlottingFilter::value_type) * row_count;
+		mapped_size += mapping_properties.get_mapping_filter()->is_computed() * sizeof(Squey::PVScalingFilter::value_type) * row_count;
 	}
 
-	size_t plotted_size = sizeof(Squey::PVPlotted::value_type) * row_count * column_count;
+	size_t scaled_size = sizeof(Squey::PVScaled::value_type) * row_count * column_count;
 
 	size_t zones_size = 2 * column_count * (sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS + sizeof(PVRow) * row_count);
 
-	return mapped_size + plotted_size + zones_size;
+	return mapped_size + scaled_size + zones_size;
 }
 
 /******************************************************************************
@@ -1077,22 +953,6 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 		}
 		QMessageBox::critical(this, "Cannot load sources", msg);
 		return false;
-	} else {
-		size_t inv_col_count = invalid_columns_count(src);
-		const QString& details = bad_conversions_as_string(src);
-		if (inv_col_count > 0 and not details.isEmpty()) {
-			// We can continue with it but user have to know that some values are
-			// incorrect.
-			QMessageBox warning_message(
-			    QMessageBox::Warning, "Failed conversion(s)",
-			    "\n" + QString::number(inv_col_count) + "/" +
-			        QString::number(src->get_nraw_column_count()) +
-			        " column(s) have some values that failed to be properly "
-			        "converted from text to binary during import...",
-			    QMessageBox::Ok, this);
-			warning_message.setDetailedText(details);
-			warning_message.exec();
-		}
 	}
 
 	BENCH_STOP(lff);
@@ -1109,12 +969,12 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 		        auto& mapped = src->emplace_add_child();
 
 		        pbox.set_value(1);
-		        pbox.set_extended_status("Computing plotting...");
-		        auto& plotted = mapped.emplace_add_child();
+		        pbox.set_extended_status("Computing scaling...");
+		        auto& scaled = mapped.emplace_add_child();
 
 		        pbox.set_value(2);
 		        pbox.set_extended_status("Creating views...");
-		        plotted.emplace_add_child();
+		        scaled.emplace_add_child();
 
 		        pbox.set_value(3);
 	        },
@@ -1123,6 +983,8 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 	}
 
 	source_loaded(*src, update_recent_items);
+
+	_projects_tab_widget->show_errors_and_warnings();
 
 	return true;
 }
@@ -1300,11 +1162,6 @@ void App::PVMainWindow::close_solution()
 		return;
 	}
 	close_solution_Slot();
-}
-
-std::string App::PVMainWindow::get_next_scene_name()
-{
-	return tr("Data collection %1").arg(sequence_n++).toStdString();
 }
 
 // Mainly from Qt's SDI example

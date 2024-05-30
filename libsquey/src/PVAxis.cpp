@@ -25,7 +25,7 @@
 
 #include <squey/PVAxis.h>
 #include <squey/PVMappingFilter.h>  // for PVMappingFilter, etc
-#include <squey/PVPlottingFilter.h> // for PVPlottingFilter, etc
+#include <squey/PVScalingFilter.h> // for PVScalingFilter, etc
 
 #include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat::node_args_t, etc
 
@@ -60,7 +60,7 @@ Squey::PVAxis::PVAxis(PVRush::PVAxisFormat axis_format)
 		    LIB_CLASS(Squey::PVMappingFilter)::get().get_class_by_name(get_mapping());
 		auto usable_type = lib_filter->list_usable_type();
 		if (usable_type.find(get_type().toStdString()) == usable_type.end()) {
-			throw Squey::InvalidPlottingMapping("You can't use mapping :" +
+			throw Squey::InvalidScalingMapping("You can't use mapping :" +
 			                                     get_mapping().toStdString() + " with type :" +
 			                                     get_type().toStdString());
 		}
@@ -68,20 +68,20 @@ Squey::PVAxis::PVAxis(PVRush::PVAxisFormat axis_format)
 		_args_mapping = args_from_node(get_args_mapping_string(), def_args);
 	}
 
-	// Same for the plotting filter
+	// Same for the scaling filter
 	{
-		Squey::PVPlottingFilter::p_type lib_filter =
-		    LIB_CLASS(Squey::PVPlottingFilter)::get().get_class_by_name(get_plotting());
+		Squey::PVScalingFilter::p_type lib_filter =
+		    LIB_CLASS(Squey::PVScalingFilter)::get().get_class_by_name(get_scaling());
 		auto usable_type = lib_filter->list_usable_type();
 		if (not usable_type.empty() and
 		    usable_type.find(std::make_pair(get_type().toStdString(),
 		                                    get_mapping().toStdString())) == usable_type.end()) {
-			throw Squey::InvalidPlottingMapping(
-			    "You can't use plotting :" + get_plotting().toStdString() + " with mapping :" +
+			throw Squey::InvalidScalingMapping(
+			    "You can't use scaling :" + get_scaling().toStdString() + " with mapping :" +
 			    get_mapping().toStdString() + " and type :" + get_type().toStdString());
 		}
 		PVCore::PVArgumentList def_args = lib_filter->get_default_args();
-		_args_plotting = args_from_node(get_args_plotting_string(), def_args);
+		_args_scaling = args_from_node(get_args_scaling_string(), def_args);
 	}
 }
 

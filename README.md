@@ -2,36 +2,51 @@
 
 ![](https://gitlab.com/squey/squey/-/raw/main/squey_screenshot.png)
 
-## What is Squey?
+## Project description
 
-[Squey](https://squey.org) (formerly INENDI Inspector) allows any user to perform interactive explorations over very large amounts of data.
+<!-- project_description_start -->
 
-Thanks to its innovative set of visualisations, the user is freed from the classical burden of query-based interactions and can then use all his logical and deductive power to discover valuable insights from the data.
+<a href="https://squey.org">Squey</a> is designed from the ground up to take advantage of GPUs and CPUs to perform interactive explorations of massive amounts of data.
 
-It can be used for different purposes:
-- Initial understanding of large and complex datasets
-- Isolating weak signals very efficiently
-- Controlling and improving Machine Learning algorithms
+It gives users an exhaustive yet intuitive multi-view representation of columnar data and can ingest from:
+<ol>
+    <li>Structured text files (CSV, logs, ...)</li>
+    <li>Apache Parquet files</li>
+    <li>Pcap files</li>
+    <li>SQL databases</li>
+    <li>Elasticsearch databases</li>
+</ol>
 
-The ability to correlate several datasets with different structures permits to intuitively understand causal chains.
+Squey strives to deliver value through its <b>V.I.SU</b> approach:
+
+<ul>
+  <li><b>Visualize</b>: Leverage various visual representations of raw data in combination with statistics</li>
+  <li><b>Investigate</b>: Use filters to build an accurate understanding of millions of rows while switching instantly between capturing the big picture and focusing on the details</li>
+  <li><b>Spot the Unknown</b>: As a structured understanding of the data emerges, identify unknowns and anomalies</li>
+</ul>
+
+Squey can be used for many different purposes, such as:
+<ul>
+    <li><b>BI and Big Data</b>: Bootstrap initial understanding of complex datasets and deep dive where necessary to design accurate data processing</li>
+    <li><b>Cybersecurity</b>: Detect weak signals such as attacks and data leaks</li>
+    <li><b>IT troubleshooting</b>: Resolve network issues and improve application performance</li>
+    <li><b>Machine Learning</b>: Design training dataset to fulfill targeted improvements of Machine Learning models</li>
+</ul>
+
+<br>
+Give yourself a chance to <b>see</b> your data and have fun exploring!
+
+<!-- project_description_end -->
 
 ## Installation
 
 ### Linux
 
-Installing the software (as a user):
-
 <a href='https://flathub.org/apps/details/org.squey.Squey'><img width='190px' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
-
 
 ```
 flatpak install --user -y https://dl.flathub.org/repo/appstream/org.squey.Squey.flatpakref
 ```
-
-Running the software :
-* from the desktop environment : Simply click on the "Squey" shortcut
-* from CLI locally : ```flatpak run org.squey.Squey```
-* from CLI on a remote machine with SSH export display : ```flatpak run --command=bash org.squey.Squey -c "DISPLAY=$DISPLAY squey_launcher.sh"```
 
 ### Windows
 

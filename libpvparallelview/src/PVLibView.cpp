@@ -27,7 +27,7 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
 
 #include <pvparallelview/common.h>
@@ -55,8 +55,8 @@ PVParallelView::PVLibView::PVLibView(Squey::PVView& view_sp)
           _colors,
           view_sp.get_layer_stack_output_layer().get_selection()))
 {
-	view_sp.get_parent<Squey::PVPlotted>()._plotted_updated.connect(
-	    sigc::mem_fun(*this, &PVParallelView::PVLibView::plotting_updated));
+	view_sp.get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVLibView::scaling_updated));
 
 	view_sp._update_output_selection.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVLibView::selection_updated));
@@ -252,7 +252,7 @@ void PVParallelView::PVLibView::output_layer_updated()
 	}
 }
 
-void PVParallelView::PVLibView::plotting_updated(QList<PVCol> const& cols_updated)
+void PVParallelView::PVLibView::scaling_updated(QList<PVCol> const& cols_updated)
 {
 	if (cols_updated.size() == 0) {
 		return;

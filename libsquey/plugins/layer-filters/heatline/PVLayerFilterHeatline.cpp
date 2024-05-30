@@ -28,7 +28,7 @@
 #include <squey/PVView.h>
 
 #include <pvkernel/core/squey_bench.h>
-#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVPercentRangeType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/rush/PVUtils.h>
@@ -39,8 +39,8 @@
 #include <cmath>
 #include <unordered_map>
 
-#define ARG_NAME_AXES "axes"
-#define ARG_DESC_AXES "Axis"
+#define ARG_NAME_AXIS "axis"
+#define ARG_DESC_AXIS "Axis"
 #define ARG_NAME_SCALE "scale"
 #define ARG_DESC_SCALE "Scale factor"
 #define ARG_NAME_COLORS "colors"
@@ -65,7 +65,7 @@ Squey::PVLayerFilterHeatline::PVLayerFilterHeatline(PVCore::PVArgumentList const
 PVCore::PVArgumentList Squey::PVLayerFilterHeatline::get_default_args_for_view(PVView const&)
 {
 	PVCore::PVArgumentList args = get_default_args();
-	args[ARG_NAME_AXES].setValue(PVCore::PVAxisIndexType(PVCol(0)));
+	args[ARG_NAME_AXIS].setValue(PVCore::PVOriginalAxisIndexType(PVCol(0)));
 	return args;
 }
 
@@ -85,8 +85,10 @@ void Squey::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 	PVRush::PVNraw const& nraw = _view->get_rushnraw_parent();
 
 	// Extract axis where we apply heatline computation
-	auto axis = _args[ARG_NAME_AXES].value<PVCore::PVAxisIndexType>();
+	auto axis = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>();
 	const PVCol axis_id = axis.get_original_index();
+
+	pvlogger::info() << "axis_id=" << axis_id << std::endl;
 
 	// Extract ratio information
 	auto ratios = _args[ARG_NAME_COLORS].value<PVCore::PVPercentRangeType>();
@@ -157,7 +159,7 @@ PVCore::PVArgumentKeyList Squey::PVLayerFilterHeatline::get_args_keys_for_preset
 {
 	// Sve everything but axis in the preset.
 	PVCore::PVArgumentKeyList keys = get_default_args().keys();
-	keys.erase(std::find(keys.begin(), keys.end(), ARG_NAME_AXES));
+	keys.erase(std::find(keys.begin(), keys.end(), ARG_NAME_AXIS));
 	return keys;
 }
 
@@ -170,7 +172,7 @@ DEFAULT_ARGS_FILTER(Squey::PVLayerFilterHeatline)
 	                         0);
 
 	args[PVCore::PVArgumentKey(ARG_NAME_SCALE, ARG_DESC_SCALE)].setValue(scale);
-	args[PVCore::PVArgumentKey(ARG_NAME_AXES, ARG_DESC_AXES)].setValue(PVCore::PVAxisIndexType());
+	args[PVCore::PVArgumentKey(ARG_NAME_AXIS, ARG_DESC_AXIS)].setValue(PVCore::PVOriginalAxisIndexType());
 	args[PVCore::PVArgumentKey(ARG_NAME_COLORS, ARG_DESC_COLORS)].setValue(
 	    PVCore::PVPercentRangeType());
 	return args;

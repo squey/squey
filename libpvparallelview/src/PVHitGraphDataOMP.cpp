@@ -437,10 +437,10 @@ void PVParallelView::PVHitGraphDataOMP::process_all(ProcessParams const& p,
 
 	uint32_t* const buf_block = buf.zoomed_buffer_block(p.block_start, p.alpha);
 	if (nblocks_ == 1) {
-		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, p.alpha, buf_block, _omp_ctx,
+		count_y1_omp_sse_v4(p.nrows, p.col_scaled, p.y_min, p.zoom, p.alpha, buf_block, _omp_ctx,
 		                    nbits(), size_block());
 	} else {
-		count_y1_omp_sse_v4(p.nrows, p.col_plotted, p.y_min, p.zoom, p.alpha, buf_block, nblocks_,
+		count_y1_omp_sse_v4(p.nrows, p.col_scaled, p.y_min, p.zoom, p.alpha, buf_block, nblocks_,
 		                    _omp_ctx, nbits(), size_block());
 	}
 }
@@ -457,6 +457,6 @@ void PVParallelView::PVHitGraphDataOMP::process_sel(ProcessParams const& p,
 	_omp_ctx.clear();
 
 	uint32_t* const buf_block = buf.zoomed_buffer_block(p.block_start, p.alpha);
-	count_y1_sel_omp_sse_v4(p.nrows, p.col_plotted, sel, p.y_min, p.zoom, p.alpha, buf_block,
+	count_y1_sel_omp_sse_v4(p.nrows, p.col_scaled, sel, p.y_min, p.zoom, p.alpha, buf_block,
 	                        nblocks_, _omp_ctx, nbits(), size_block());
 }

@@ -49,15 +49,15 @@ void test(const testcase& test)
 {
 	pvtest::TestEnv env(test.file_path, test.format_path, 1, pvtest::ProcessUntil::View);
 
-	auto plotteds = env.root.get_children<Squey::PVPlotted>();
+	auto scaleds = env.root.get_children<Squey::PVScaled>();
 
-	const auto& plotteds_vector = plotteds.front()->get_plotteds();
+	const auto& scaleds_vector = scaleds.front()->get_scaleds();
 
 	Squey::PVView* view = env.root.get_children<Squey::PVView>().front();
 	PVRush::PVNraw const& nraw = view->get_rushnraw_parent();
 
 	std::vector<pvcop::core::array<uint32_t>> timeseries;
-	for (const auto & i : plotteds_vector) {
+	for (const auto & i : scaleds_vector) {
 		timeseries.emplace_back(i.to_core_array<uint32_t>());
 	}
 

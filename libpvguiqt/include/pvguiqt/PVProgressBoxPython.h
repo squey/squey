@@ -26,7 +26,7 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <squey/PVView.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 class QString;
 class QWidget;
@@ -49,11 +49,11 @@ public:
         QWidget* parent);
 
 public Q_SLOTS:
-    void do_emit_plotting_updated(Squey::PVView* view);
+    void do_emit_scaling_updated(Squey::PVView* view);
     void do_emit_layer_updated(Squey::PVView* view);
 
 Q_SIGNALS:
-    void emit_plotting_updated(Squey::PVView* view);
+    void emit_scaling_updated(Squey::PVView* view);
     void emit_layer_updated(Squey::PVView* view);
 };
 

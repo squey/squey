@@ -62,7 +62,7 @@ Unicode true
     VIAddVersionKey ProductName "${INTERNAL_NAME}"
     VIAddVersionKey FileVersion "${FILE_VERSION}"
     VIAddVersionKey ProductVersion "${PRODUCT_VERSION}"
-    VIAddVersionKey LegalCopyright "(C) Jean-Baptiste Leonesio <jean-baptiste+squey@leonesio.fr> ${YEAR}"
+    VIAddVersionKey LegalCopyright "(C) Squey <contact@squey.org> ${YEAR}"
 
 !macro StrRep output string old new
     Push `${string}`

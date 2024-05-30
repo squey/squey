@@ -148,8 +148,6 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVRush::PVFormat const& get_format() const { return _format; }
 	PVRush::PVFormat const& get_original_format() const { return _original_format; }
 
-	std::string get_serialize_description() const override { return "Source: " + get_name(); }
-
 	/**
 	 * Return the cumulate total size of all inputs.
 	 *

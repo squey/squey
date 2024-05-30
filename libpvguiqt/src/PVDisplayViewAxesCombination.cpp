@@ -28,11 +28,12 @@
 #include <pvguiqt/PVDisplayViewAxesCombination.h>
 
 #include <squey/PVView.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 PVDisplays::PVDisplayViewAxesCombination::PVDisplayViewAxesCombination()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | UniquePerParameters,
                       "Axes combination",
-                      QIcon(":/view-axes-combination"))
+                      PVModdedIcon("shuffle"))
 {
 }
 

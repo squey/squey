@@ -39,181 +39,50 @@
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
+#include <pvguiqt/PVDockWidgetTitleBar.h>
 
 #include <squey/PVView.h>
 #include <squey/PVRoot.h>
-#include <squey/PVPlotted.h>
+#include <squey/PVScaled.h>
 
 PVGuiQt::PVViewDisplay::PVViewDisplay(Squey::PVView* view,
                                       QWidget* view_widget,
-                                      QString name,
                                       bool can_be_central_widget,
+                                      bool has_help_page,
                                       bool delete_on_close,
                                       PVWorkspaceBase* workspace)
     : QDockWidget((QWidget*)workspace)
     , _view(view)
-    , _name(name)
     , _workspace(workspace)
     , _can_be_central_widget(can_be_central_widget)
+    , _has_help_page(has_help_page)
 {
 	setWidget(view_widget);
-	setWindowTitle(_name);
 
 	setFocusPolicy(Qt::StrongFocus);
 	view_widget->setFocusPolicy(Qt::StrongFocus);
 
-	auto* scroll_area = dynamic_cast<QAbstractScrollArea*>(view_widget);
-	if (scroll_area) {
-		scroll_area->verticalScrollBar()->setObjectName("verticalScrollBar_of_PVListingView");
-		scroll_area->horizontalScrollBar()->setObjectName("horizontalScrollBar_of_PVListingView");
-	}
+	setTitleBarWidget(new PVDockWidgetTitleBar(view, view_widget, has_help_page, this));
+	setWindowTitle(view_widget->windowTitle());
 
 	if (view) {
 		// Set view color
+		// Workaround for setting color only to the title bar
 		QColor view_color = view->get_color();
-		QPalette Pal(palette());
-		Pal.setColor(QPalette::Window, view_color);
+		QPalette child_widget_palette = palette();
+		QPalette title_bar_palette = palette();
+		title_bar_palette.setColor(QPalette::Window, view_color);
 		setAutoFillBackground(true);
-		setPalette(Pal);
+		setPalette(title_bar_palette);
+		view_widget->setAutoFillBackground(true);
+		view_widget->setPalette(child_widget_palette);
 	}
 
 	if (delete_on_close) {
 		setAttribute(Qt::WA_DeleteOnClose, true);
 	}
 
-	connect(this, &QDockWidget::topLevelChanged, this, &PVViewDisplay::drag_started);
-	connect(this, &QDockWidget::dockLocationChanged, this, &PVViewDisplay::drag_ended);
 	connect(view_widget, &QObject::destroyed, this, &QWidget::close);
-
-	register_view(view);
-}
-
-void PVGuiQt::PVViewDisplay::register_view(Squey::PVView* view)
-{
-	if (view) {
-
-		view->get_parent<Squey::PVPlotted>()._plotted_updated.connect(
-		    sigc::mem_fun(*this, &PVGuiQt::PVViewDisplay::plotting_updated));
-	}
-}
-
-bool PVGuiQt::PVViewDisplay::event(QEvent* event)
-{
-	//                ,
-	//          ._  \/, ,|_
-	//          -\| \|;|,'_
-	//          `_\|\|;/-.
-	//           `_\\|/._
-	//          ,'__   __`.
-	//         / /_ | | _\ \  ┌─────────────────────────────
-	//        / ((o)| |(o)) \ | Voodoo magic begins here...
-	//        |  `--/ \--'  | └─────────────────────────────
-	//  ,--.   `.   '-'   ,'  /
-	// (O..O)    `.uuuuu,'   y
-	//  \==/     _|nnnnn|_
-	// .'||`. ,-' \_____/ `-.
-	//  _||,-'      | |      `.
-	// (__)  _,-.   ; |   .'.  `.
-	// (___)'   |__/___\__|  \(__)
-	// (__)     :::::::::::  (___)
-	//   ||    :::::::::::::  (__)
-	//   ||    :::::::::::::
-	//        __|   | | _ |__
-	//       (_(_(_,' '._)_)_)
-	//
-	switch (event->type()) {
-	case QEvent::MouseMove: {
-		if (PVGuiQt::PVSourceWorkspace::_drag_started) {
-			Q_EMIT try_automatic_tab_switch();
-
-			auto* mouse_event = (QMouseEvent*)event;
-			PVWorkspaceBase* workspace = PVGuiQt::PVSourceWorkspace::workspace_under_mouse();
-
-			// If we are over a new workspace...
-			if (workspace && workspace != parent()) {
-
-				auto* fake_mouse_release =
-				    new QMouseEvent(QEvent::MouseButtonRelease, mapFromGlobal(mouse_event->pos()), mouse_event->pos(), Qt::LeftButton,
-				                    Qt::LeftButton, Qt::NoModifier);
-				QApplication::postEvent(this, fake_mouse_release);
-				QApplication::processEvents(QEventLoop::AllEvents);
-
-				qobject_cast<PVWorkspaceBase*>(parent())->removeDockWidget(this);
-				show();
-
-				workspace->activateWindow();
-				workspace->addDockWidget(Qt::RightDockWidgetArea,
-				                         this); // Qt::NoDockWidgetArea yields
-				                                // "QMainWindow::addDockWidget: invalid
-				                                // 'area' argument"
-				if (!isFloating()) {
-					setFloating(true); // We don't want the dock widget to be docked right now
-				}
-
-				_workspace = workspace;
-
-				disconnect(this, SIGNAL(try_automatic_tab_switch()), nullptr, nullptr);
-				connect(this, &PVViewDisplay::try_automatic_tab_switch, workspace,
-				        &PVWorkspaceBase::try_automatic_tab_switch);
-
-				QCursor::setPos(mapToGlobal(_press_pt));
-				move(mapToGlobal(_press_pt));
-
-				auto* fake_mouse_press =
-				    new QMouseEvent(QEvent::MouseButtonPress, mapToGlobal(_press_pt), _press_pt, Qt::LeftButton,
-				                    Qt::LeftButton, Qt::NoModifier);
-				QApplication::postEvent(this, fake_mouse_press);
-
-				QApplication::processEvents(QEventLoop::AllEvents);
-
-				QCursor::setPos(mapToGlobal(_press_pt));
-
-				grabMouse();
-
-				return true;
-			}
-		}
-		break;
-	}
-	case QEvent::MouseButtonPress: {
-		auto* mouse_event = (QMouseEvent*)event;
-		if (mouse_event->button() == Qt::LeftButton) {
-			_press_pt = mouse_event->pos();
-			drag_started(true);
-		}
-		break;
-	}
-	case QEvent::MouseButtonRelease: {
-		auto* mouse_event = (QMouseEvent*)event;
-		if (mouse_event->button() == Qt::LeftButton) {
-			drag_started(false);
-		}
-		break;
-	}
-	case QEvent::Move: {
-		break;
-	}
-	default: {
-		break;
-	}
-	}
-	return QDockWidget::event(event);
-}
-
-void PVGuiQt::PVViewDisplay::drag_started(bool started)
-{
-	if (started) {
-		if (qobject_cast<PVViewDisplay*>(sender())) {
-			PVGuiQt::PVWorkspaceBase::_drag_started = true;
-		}
-	}
-	_state = EState::CAN_MAXIMIZE;
-}
-
-void PVGuiQt::PVViewDisplay::drag_ended()
-{
-	PVGuiQt::PVWorkspaceBase::_drag_started = false;
-	_state = EState::HIDDEN;
 }
 
 void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
@@ -226,6 +95,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 
 	if (add_menu) {
 		auto* ctxt_menu = new QMenu(this);
+		ctxt_menu->setAttribute(Qt::WA_TranslucentBackground);
 
 		if (_can_be_central_widget) {
 			// Set as central display
@@ -238,7 +108,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		// Maximize & Restore
 		if (isFloating()) {
 			auto* restore_action = new QAction(tr("Restore docking"), this);
-			connect(restore_action, &QAction::triggered, [this]{ setFloating(false); });
+			connect(restore_action, &QAction::triggered, [this] { setFloating(false); });
 			ctxt_menu->addAction(restore_action);
 		}
 		if (_state == EState::CAN_RESTORE) {
@@ -247,30 +117,35 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 			ctxt_menu->addAction(restore_action);
 		}
 
+#if 0 // Moving windows is not supported under Wayland
 		/*
-			Extract from https://doc.qt.io/qt-6/qscreen.html#availableGeometry-prop Qt6.4
-				Note, on X11 this will return the true available geometry only on systems with one monitor and if window manager has set _NET_WORKAREA atom.
-				In all other cases this is equal to geometry(). This is a limitation in X11 window manager specification.
+		    Extract from https://doc.qt.io/qt-6/qscreen.html#availableGeometry-prop Qt6.4
+		        Note, on X11 this will return the true available geometry only on systems with one
+		   monitor and if window manager has set _NET_WORKAREA atom. In all other cases this is
+		   equal to geometry(). This is a limitation in X11 window manager specification.
 		*/
-		const bool X11_bug = QGuiApplication::primaryScreen()->availableGeometry() == QGuiApplication::primaryScreen()->geometry();
+		const bool X11_bug = QGuiApplication::primaryScreen()->availableGeometry() ==
+		                     QGuiApplication::primaryScreen()->geometry();
 
-		for (int i = 0; i < QGuiApplication::screens().size(); ++i) {
-			auto* screen_i = QGuiApplication::screens()[i];
-			char const* action_text = (screen() == screen_i) ? "Maximize on screen %n (current)" : "Maximize on screen %n";
-			auto* maximize_action = new QAction(tr(action_text, "", i), this);
-			if (_workspace->screen() == screen_i
-			|| (screen() == screen_i && _state != EState::CAN_MAXIMIZE)
-			|| (X11_bug && screen_i == QGuiApplication::primaryScreen())) {
-				maximize_action->setEnabled(false);
-			} else {
-				connect(maximize_action, &QAction::triggered, [this, i]{
-					if (QGuiApplication::screens().size() > i) {
-						maximize_on_screen(QGuiApplication::screens()[i]);
-					}
-				});
+			for (int i = 0; i < QGuiApplication::screens().size(); ++i) {
+				auto* screen_i = QGuiApplication::screens()[i];
+				char const* action_text = (screen() == screen_i) ? "Maximize on screen %n (current)"
+																: "Maximize on screen %n";
+				auto* maximize_action = new QAction(tr(action_text, "", i), this);
+				if (_workspace->screen() == screen_i ||
+					(screen() == screen_i && _state != EState::CAN_MAXIMIZE) ||
+					(X11_bug && screen_i == QGuiApplication::primaryScreen())) {
+					maximize_action->setEnabled(false);
+				} else {
+					connect(maximize_action, &QAction::triggered, [this, i] {
+						if (QGuiApplication::screens().size() > i) {
+							maximize_on_screen(QGuiApplication::screens()[i]);
+						}
+					});
+				}
+				ctxt_menu->addAction(maximize_action);
 			}
-			ctxt_menu->addAction(maximize_action);
-		}
+ #endif
 
 		ctxt_menu->popup(QCursor::pos());
 	}
@@ -319,7 +194,19 @@ void PVGuiQt::PVViewDisplay::set_current_view()
 	}
 }
 
-void PVGuiQt::PVViewDisplay::plotting_updated(QList<PVCol> const& /*cols_updated*/)
+PVGuiQt::PVDockWidgetTitleBar* PVGuiQt::PVViewDisplay::titlebar_widget()
 {
-	setWindowTitle(_name);
+	return static_cast<PVDockWidgetTitleBar*>(titleBarWidget());
+}
+
+void PVGuiQt::PVViewDisplay::set_help_page_visible(bool visible)
+{
+	_has_help_page = visible;
+	titlebar_widget()->set_help_page_visible(_has_help_page);
+}
+
+void PVGuiQt::PVViewDisplay::setWindowTitle(const QString& window_title)
+{
+	titlebar_widget()->set_window_title(window_title);
+	QDockWidget::setWindowTitle(window_title); // ?
 }

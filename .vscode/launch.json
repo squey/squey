@@ -13,6 +13,7 @@
             "environment": [
                 { "name": "QT_QPA_PLATFORM", "value": "wayland" },
                 { "name": "QT_QUICK_BACKEND", "value": "software" },
+                { "name": "FORCE_CPU", "value": "1" },
                 { "name": "PVKERNEL_PLUGIN_PATH", "value": "${workspaceFolder}/builds/GCC/Debug/libpvkernel/plugins" },
                 { "name": "SQUEY_PLUGIN_PATH", "value": "${workspaceFolder}/builds/GCC/Debug/libsquey/plugins" },
                 { "name": "QUERY_BUILDER_PATH", "value": "${workspaceFolder}/libpvkernel/src/widgets/querybuilder" },
@@ -38,7 +39,7 @@
             "env": {
                 "QT_QPA_PLATFORM": "wayland",
                 "QT_QUICK_BACKEND": "software",
-
+                "FORCE_CPU": "1",
                 "PVKERNEL_PLUGIN_PATH": "${workspaceFolder}/builds/Clang/Debug/libpvkernel/plugins",
                 "SQUEY_PLUGIN_PATH": "${workspaceFolder}/builds/Clang/Debug/libsquey/plugins",
                 "QUERY_BUILDER_PATH": "${workspaceFolder}/libpvkernel/src/widgets/querybuilder",

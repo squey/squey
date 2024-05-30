@@ -28,6 +28,7 @@
 #include <pvkernel/core/qmetaobject_helper.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <squey/PVStateMachine.h>
 #include <squey/PVView.h>
@@ -104,7 +105,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	view_sp._update_current_min_max.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
 
-	setBackgroundBrush(QBrush(common::color_view_bg()));
+	setBackgroundBrush(QBrush(color_view_bg));
 
 	// this scrollbar is totally useless
 	//_full_parallel_view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -202,26 +203,6 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 	        &PVFullParallelScene::emit_new_zoomed_parallel_view);
 	connect(axisw, &PVAxisGraphicsItem::mouse_hover_entered, this,
 	        &PVFullParallelScene::axis_hover_entered);
-	connect(axisw, &PVAxisGraphicsItem::change_mapping, [this, axisw](QString mode) {
-		auto& mapped = _lib_view.get_parent<Squey::PVMapped>();
-		Squey::PVMappingProperties& plp =
-		    mapped.get_properties_for_col(axisw->get_original_axis_column());
-		plp.set_mode(mode.toStdString());
-		PVCore::PVProgressBox::progress(
-		    [&mapped](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
-		    QObject::tr("Updating mapping..."), nullptr);
-		axisw->refresh_density();
-	});
-	connect(axisw, &PVAxisGraphicsItem::change_plotting, [this, axisw](QString mode) {
-		auto& plotted = _lib_view.get_parent<Squey::PVPlotted>();
-		Squey::PVPlottingProperties& plp =
-		    plotted.get_properties_for_col(axisw->get_original_axis_column());
-		plp.set_mode(mode.toStdString());
-		PVCore::PVProgressBox::progress(
-		    [&plotted](PVCore::PVProgressBox& /*pbox*/) { plotted.update_plotting(); },
-		    QObject::tr("Updating plotting..."), nullptr);
-		axisw->refresh_density();
-	});
 
 	addItem(axisw);
 
@@ -235,6 +216,9 @@ void PVParallelView::PVFullParallelScene::add_axis(size_t const zone_id, int ind
 
 void PVParallelView::PVFullParallelScene::axis_hover_entered(PVCombCol col, bool entered)
 {
+	PVWidgets::PVMouseButtonsLegend legend = _full_parallel_view->_mouse_buttons_current_legend;
+	legend.set_right_button_legend(entered ? "Context menu" : legend.right_button_legend());
+	Q_EMIT _full_parallel_view->set_status_bar_mouse_legend(legend);
 	_lib_view.set_axis_hovered(col, entered);
 }
 

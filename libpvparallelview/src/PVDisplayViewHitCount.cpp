@@ -29,10 +29,12 @@
 
 #include <pvparallelview/PVDisplayViewHitCount.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 PVDisplays::PVDisplayViewHitCount::PVDisplayViewHitCount()
-    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu,
+    : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCtxtMenu | PVDisplayIf::HasHelpPage,
                       "Hit count view",
-                      QIcon(":/view-hit-count"),
+                      PVModdedIcon("hitcount"),
                       "New hit count view")
 {
 }
@@ -42,7 +44,14 @@ QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Squey::PVView* view,
                                                           Params const& params) const
 {
 	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	QWidget* widget = lib_view->create_hit_count_view(col_param(view, params, 0), parent);
+	auto w = lib_view->create_hit_count_view(col_param(view, params, 0), parent);
 
-	return widget;
+	QObject::connect(w, &PVParallelView::PVHitCountView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
+		_set_status_bar_mouse_legend.emit(w, legend);
+	});
+	QObject::connect(w, &PVParallelView::PVHitCountView::clear_status_bar_mouse_legend, [this,w](){
+		_clear_status_bar_mouse_legend.emit(w);
+	});
+
+	return w;
 }

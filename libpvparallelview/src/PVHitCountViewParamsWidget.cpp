@@ -27,6 +27,8 @@
 #include <pvparallelview/PVHitCountViewSelectionRectangle.h>
 #include <pvparallelview/PVHitCountView.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 #include <QVBoxLayout>
 #include <QToolBar>
 #include <QCheckBox>
@@ -51,7 +53,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	addSeparator();
 
 	_autofit = new QAction(this);
-	_autofit->setIcon(QIcon(":/zoom-autofit-horizontal"));
+	_autofit->setIcon(PVModdedIcon("horizontal-auto-fit"));
 	_autofit->setCheckable(true);
 	_autofit->setChecked(false);
 	_autofit->setShortcut(Qt::Key_F);
@@ -78,7 +80,7 @@ PVParallelView::PVHitCountViewParamsWidget::PVHitCountViewParamsWidget(PVHitCoun
 	connect(_use_log_color, &QAction::toggled, parent_hcv(), &PVHitCountView::toggle_log_color);
 
 	_show_labels = new QAction(this);
-	_show_labels->setIcon(QIcon(":/labeled-axis"));
+	_show_labels->setIcon(PVModdedIcon("labels"));
 	_show_labels->setCheckable(true);
 	_show_labels->setChecked(false);
 	_show_labels->setShortcut(Qt::Key_T);

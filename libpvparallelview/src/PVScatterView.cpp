@@ -174,7 +174,7 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 	        &PVScatterView::do_pan_change);
 
 	_params_widget = new PVScatterViewParamsWidget(this);
-	_params_widget->setStyleSheet("QToolBar {" + frame_qss_bg_color + "}");
+
 	_params_widget->setAutoFillBackground(true);
 	_params_widget->adjustSize();
 	set_params_widget_position();
@@ -182,7 +182,7 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 	_help_widget = new PVWidgets::PVHelpWidget(this);
 	_help_widget->hide();
 
-	_help_widget->initTextFromFile("scatter view's help", ":help-style");
+	_help_widget->initTextFromFile("scatter view's help");
 	_help_widget->addTextFromFile(":help-selection");
 	_help_widget->addTextFromFile(":help-layers");
 	_help_widget->newColumn();
@@ -206,10 +206,13 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);
-	set_background_color(common::color_view_bg());
+	set_background_color(color_view_bg);
 
 	_sel_rect->set_x_range(0, UINT32_MAX);
 	_sel_rect->set_y_range(0, UINT32_MAX);
+
+	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Select", "Pan view", "Resize");
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
 
 /*****************************************************************************
@@ -269,6 +272,37 @@ void PVParallelView::PVScatterView::update_all_async()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVScatterView::enterEvent
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::enterEvent(QEnterEvent* /*event*/)
+{
+	if (QGuiApplication::keyboardModifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Resize (local)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	setFocus(Qt::MouseFocusReason);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::leaveEvent
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::leaveEvent(QEvent*)
+{
+	Q_EMIT clear_status_bar_mouse_legend();
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
+	clearFocus();
+}
+
+/*****************************************************************************
  * PVParallelView::PVScatterView::keyPressEvent
  *****************************************************************************/
 void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
@@ -280,6 +314,39 @@ void PVParallelView::PVScatterView::keyPressEvent(QKeyEvent* event)
 	}
 	get_viewport()->update();
 #endif
+
+	if (event->modifiers() == (Qt::ControlModifier | Qt::ShiftModifier)) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (intersection)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	if (event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView::keyReleaseEvent
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::keyReleaseEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_Control and event->modifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (union)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Shift and event->modifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select (substraction)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	else if (event->key() == Qt::Key_Control or event->key() == Qt::Key_Shift) {
+		_mouse_buttons_current_legend.set_left_button_legend("Select");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
 }
 
 /*****************************************************************************
@@ -409,9 +476,9 @@ void PVParallelView::PVScatterView::do_update_all()
 		return;
 	}
 
-	// Hack to revert plotting inversion
-	y1_min = PVCore::invert_plotting_value(view_rect.x() + view_rect.width());
-	y1_max = PVCore::invert_plotting_value(view_rect.x());
+	// Hack to revert scaling inversion
+	y1_min = PVCore::invert_scaling_value(view_rect.x() + view_rect.width());
+	y1_max = PVCore::invert_scaling_value(view_rect.x());
 	y2_min = view_rect.y();
 	y2_max = view_rect.y() + view_rect.height();
 
@@ -446,7 +513,7 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 		img_manager.set_zone(zid);
 
 		PVZoneProcessing zp = _backend->get_images_manager().get_zones_manager().get_zone_processing(zid);
-		_sel_rect->set_plotteds(zp.plotted_a, zp.plotted_b, zp.size);
+		_sel_rect->set_scaleds(zp.scaled_a, zp.scaled_b, zp.size);
 
 		set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
 		               zoom_min);
@@ -455,6 +522,7 @@ void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 	recompute_decorations();
 	reconfigure_view();
 	do_update_all();
+	update_window_title();
 }
 
 /*****************************************************************************
@@ -525,7 +593,7 @@ QString PVParallelView::PVScatterView::get_x_value_at(const qint64 value)
 {
 	if (_show_labels and _backend) {
 		return get_elided_text(_backend->get_x_labels_cache().get(
-		    std::numeric_limits<Squey::PVPlotted::value_type>::max() - value));
+		    std::numeric_limits<Squey::PVScaled::value_type>::max() - value));
 	} else {
 		return {};
 	}
@@ -538,6 +606,14 @@ QString PVParallelView::PVScatterView::get_y_value_at(const qint64 value)
 	} else {
 		return {};
 	}
+}
+
+void PVParallelView::PVScatterView::update_window_title()
+{
+	setWindowTitle(QString("%1 (x:%2 | y:%3)").arg(
+		QObject::tr("Scatter"),
+		_view.get_nraw_axis_name(_zone_id.first),
+		_view.get_nraw_axis_name(_zone_id.second)));
 }
 
 ////

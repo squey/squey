@@ -313,7 +313,7 @@ void PVRush::PVXmlTreeNodeDom::explore()
 
 	while (!childItem.isNull()) {
 		QString tag_name(childItem.tagName());
-		if (tag_name != PVFORMAT_XML_TAG_MAPPING && tag_name != PVFORMAT_XML_TAG_PLOTTING) {
+		if (tag_name != PVFORMAT_XML_TAG_MAPPING && tag_name != PVFORMAT_XML_TAG_SCALING) {
 			addChild(new PVXmlTreeNodeDom(childItem));
 		}
 		childItem = childItem.nextSiblingElement();
@@ -995,15 +995,15 @@ QDomElement PVRush::PVXmlTreeNodeDom::getMappingElement()
 	return elts_mapping.at(0).toElement();
 }
 
-QDomElement PVRush::PVXmlTreeNodeDom::getPlottingElement()
+QDomElement PVRush::PVXmlTreeNodeDom::getScalingElement()
 {
 	if (type != Type::axis) {
 		return {};
 	}
 
-	QDomNodeList elts_mapping = getDom().elementsByTagName(PVFORMAT_XML_TAG_PLOTTING);
+	QDomNodeList elts_mapping = getDom().elementsByTagName(PVFORMAT_XML_TAG_SCALING);
 	if (elts_mapping.size() < 1) {
-		QDomElement el_map = getDom().ownerDocument().createElement(PVFORMAT_XML_TAG_PLOTTING);
+		QDomElement el_map = getDom().ownerDocument().createElement(PVFORMAT_XML_TAG_SCALING);
 		getDom().appendChild(el_map);
 		return el_map;
 	}
@@ -1024,10 +1024,10 @@ QString PVRush::PVXmlTreeNodeDom::getMappingProperties(PVCore::PVArgumentList co
 	return elt.attribute(PVFORMAT_MAP_PLOT_MODE_STR);
 }
 
-QString PVRush::PVXmlTreeNodeDom::getPlottingProperties(PVCore::PVArgumentList const& def_args,
+QString PVRush::PVXmlTreeNodeDom::getScalingProperties(PVCore::PVArgumentList const& def_args,
                                                         PVCore::PVArgumentList& args)
 {
-	QDomElement elt = getPlottingElement();
+	QDomElement elt = getScalingElement();
 	if (elt.isNull()) {
 		return {};
 	}
@@ -1061,18 +1061,18 @@ void PVRush::PVXmlTreeNodeDom::setMappingProperties(QString const& mode,
 	elt_mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mode);
 }
 
-void PVRush::PVXmlTreeNodeDom::setPlottingProperties(QString const& mode,
+void PVRush::PVXmlTreeNodeDom::setScalingProperties(QString const& mode,
                                                      PVCore::PVArgumentList const& def_args,
                                                      PVCore::PVArgumentList const& args)
 {
 	if (type != Type::axis) {
 		return;
 	}
-	QDomElement elt_plotting = getPlottingElement();
-	if (elt_plotting.isNull()) {
+	QDomElement elt_scaling = getScalingElement();
+	if (elt_scaling.isNull()) {
 		return;
 	}
-	deleteAllAttributes(elt_plotting);
-	setFromArgumentList(elt_plotting, def_args, args);
-	elt_plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mode);
+	deleteAllAttributes(elt_scaling);
+	setFromArgumentList(elt_scaling, def_args, args);
+	elt_scaling.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, mode);
 }

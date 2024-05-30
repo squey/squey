@@ -33,6 +33,7 @@
 #include <QAction>
 
 const QString star = "*";
+int PVGuiQt::PVProjectsTabWidget::sequence_n = 1;
 
 /******************************************************************************
  *
@@ -54,6 +55,7 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 		int index = tabAt(event->pos());
 		if (index >= PVProjectsTabWidget::FIRST_PROJECT_INDEX) {
 			auto* menu = new QMenu(this);
+			menu->setAttribute(Qt::WA_TranslucentBackground);
 			QAction* rename_action = menu->addAction("&Rename...");
 			rename_action->setData(QVariant::fromValue(index));
 			connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));
@@ -112,9 +114,22 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 	setObjectName("PVProjectsTabWidget");
 
 	auto* main_layout = new QHBoxLayout();
+	main_layout->setContentsMargins (0, 0, 0, 0);
 
 	_tab_widget = new __impl::PVTabWidget(*root);
+	_tab_widget->setSizePolicy(QSizePolicy(QSizePolicy::Maximum, QSizePolicy::Preferred));
 	_tab_widget->setTabsClosable(true);
+
+	QWidget* tab_layout_widget = new QWidget;
+	QVBoxLayout* tab_layout = new QVBoxLayout;
+	tab_layout_widget->setLayout(tab_layout);
+	tab_layout->addWidget(_tab_widget);
+	QPushButton* new_data_collection = new QPushButton("+");
+	new_data_collection->setToolTip("New data collection");
+	new_data_collection->setFixedSize(QSize(16, 16));
+	tab_layout->addWidget(new_data_collection);
+
+	connect(new_data_collection, &QPushButton::clicked, this, &PVGuiQt::PVProjectsTabWidget::project_new_Slot);
 
 	_stacked_widget = new QStackedWidget();
 
@@ -122,7 +137,7 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 
 	_splitter = new __impl::PVSplitter(Qt::Horizontal);
 	_splitter->setChildrenCollapsible(true);
-	_splitter->addWidget(_tab_widget);
+	_splitter->addWidget(tab_layout_widget);
 	_splitter->addWidget(_stacked_widget);
 	_splitter->setStretchFactor(0, 0);
 	_splitter->setStretchFactor(1, 1);
@@ -185,10 +200,17 @@ void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
 	_splitter->setSizes(sizes);
 }
 
+void PVGuiQt::PVProjectsTabWidget::show_errors_and_warnings()
+{
+	auto* workspace_tab_widget = qobject_cast<PVSceneWorkspacesTabWidget*>(_stacked_widget->widget(_tab_widget->count()-1));
+	workspace_tab_widget->show_errors_and_warnings();
+}
+
 PVGuiQt::PVSceneWorkspacesTabWidget*
 PVGuiQt::PVProjectsTabWidget::add_project(Squey::PVScene& scene_p)
 {
 	auto* workspace_tab_widget = new PVSceneWorkspacesTabWidget(scene_p);
+	workspace_tab_widget->setObjectName("workspace_tab_widget");
 	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::workspace_dragged_outside, this,
 	        &PVProjectsTabWidget::emit_workspace_dragged_outside);
 	connect(workspace_tab_widget, &PVSceneWorkspacesTabWidget::is_empty, this,
@@ -198,7 +220,10 @@ PVGuiQt::PVProjectsTabWidget::add_project(Squey::PVScene& scene_p)
 
 	int index = _tab_widget->count();
 	_tab_widget->insertTab(index, new QWidget(), QString::fromStdString(scene_p.get_name()));
+
 	_stacked_widget->insertWidget(index, workspace_tab_widget);
+
+
 	_tab_widget->setTabToolTip(index, QString::fromStdString(scene_p.get_name()));
 	_tab_widget->setCurrentIndex(index);
 
@@ -278,9 +303,9 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 	}
 	workspace_tab_widget->add_workspace(workspace, QString::fromStdString(tab_name));
 
-	int index = workspace_tab_widget->indexOf(workspace);
-	workspace_tab_widget->setTabToolTip(index, src->get_tooltip());
-	workspace_tab_widget->setCurrentIndex(index);
+	int index = workspace_tab_widget->index_of(workspace);
+	//workspace_tab_widget->setTabToolTip(index, src->get_tooltip());
+	workspace_tab_widget->set_current_tab(index);
 
 	_tab_widget->setCurrentIndex(_stacked_widget->indexOf(workspace_tab_widget));
 }
@@ -289,7 +314,7 @@ void PVGuiQt::PVProjectsTabWidget::remove_workspace(PVSourceWorkspace* workspace
 {
 	auto& scene = workspace->get_source()->get_parent<Squey::PVScene>();
 	PVSceneWorkspacesTabWidget* workspace_tab_widget = get_workspace_tab_widget_from_scene(&scene);
-	workspace_tab_widget->remove_workspace(workspace_tab_widget->indexOf(workspace));
+	workspace_tab_widget->remove_workspace(workspace_tab_widget->index_of(workspace));
 }
 
 void PVGuiQt::PVProjectsTabWidget::remove_project(PVSceneWorkspacesTabWidget* workspace_tab_widget)
@@ -378,4 +403,22 @@ void PVGuiQt::PVProjectsTabWidget::select_tab_from_current_scene()
 	}
 
 	select_tab_from_scene(cur_scene);
+}
+
+QString PVGuiQt::PVProjectsTabWidget::get_next_scene_name()
+{
+	return tr("Data collection %1").arg(sequence_n++);
+}
+
+void PVGuiQt::PVProjectsTabWidget::project_new_Slot()
+{
+	project_new();
+}
+
+Squey::PVScene& PVGuiQt::PVProjectsTabWidget::project_new()
+{
+	Squey::PVScene& scene_p = _root->emplace_add_child(get_next_scene_name().toStdString());
+	add_project(scene_p);
+
+	return scene_p;
 }

@@ -29,6 +29,8 @@
 #include <pvguiqt/PVCustomQtRoles.h>
 #include <pvguiqt/PVLayerStackModel.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 /******************************************************************************
  *
  * PVGuiQt::PVLayerStackModel::PVLayerStackModel
@@ -80,17 +82,11 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 		switch (index.column()) {
 		case 0:
 			if (lib_layer_stack().get_layer_n(lib_index).get_visible()) {
-				return QPixmap(":/layer-active.png");
+				return PVModdedIcon("eye");
 			} else {
-				return QPixmap(":/layer-inactive.png");
+				return PVModdedIcon("eye_disabled");
 			}
 			break;
-		}
-		break;
-
-	case (Qt::BackgroundRole):
-		if (lib_layer_stack().get_selected_layer_index() == lib_index) {
-			return QBrush(QColor(205, 139, 204));
 		}
 		break;
 
@@ -114,7 +110,7 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 	case (Qt::TextAlignmentRole):
 		switch (index.column()) {
 		case 0:
-			return {Qt::AlignCenter | Qt::AlignVCenter};
+			return {Qt::AlignHCenter | Qt::AlignVCenter};
 
 		case 2:
 			return {Qt::AlignRight | Qt::AlignVCenter};
@@ -156,25 +152,6 @@ Qt::ItemFlags PVGuiQt::PVLayerStackModel::flags(const QModelIndex& index) const
 	default:
 		return (Qt::ItemIsEditable | Qt::ItemIsEnabled);
 	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVLayerStackModel::headerData
- *
- *****************************************************************************/
-QVariant PVGuiQt::PVLayerStackModel::headerData(int /*section*/,
-                                                Qt::Orientation /*orientation*/,
-                                                int role) const
-{
-	// FIXME : this should not be used : delegate...
-	switch (role) {
-	case (Qt::SizeHintRole):
-		return QSize(37, 37);
-		break;
-	}
-
-	return {};
 }
 
 /******************************************************************************

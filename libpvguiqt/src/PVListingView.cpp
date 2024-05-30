@@ -30,6 +30,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVColorDialog.h>
 #include <pvkernel/widgets/PVFilterableMenu.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <squey/PVLayerFilter.h>
 #include <squey/PVView.h>
@@ -38,11 +39,12 @@
 
 #include <pvguiqt/PVListingView.h>
 #include <pvguiqt/PVListingModel.h>
-#include <pvguiqt/PVQNraw.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
+#include <pvguiqt/PVDisplayViewDistinctValues.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 #include <pvdisplays/PVDisplayIf.h>
+
 
 #include <QApplication>
 #include <QClipboard>
@@ -56,6 +58,8 @@
 #include <QWheelEvent>
 #include <QToolTip>
 #include <QScrollBar>
+#include <QShortcut>
+#include <QStylePainter>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/task_scheduler_init.h>
@@ -72,12 +76,12 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
     : PVAbstractTableView(parent)
     , _view(view)
     , _ctxt_menu(this)
-    , _hhead_ctxt_menu(this)
     , _vhead_ctxt_menu(this)
-    , _help_widget(this)
     , _ctxt_process(nullptr)
     , _headers_width(view.get_column_count(), horizontalHeader()->defaultSectionSize())
 {
+    _ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
+	_vhead_ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
 
 	view._axis_hovered.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::highlight_column));
 	view._axis_clicked.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::set_section_visible));
@@ -126,51 +130,12 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 		_ctxt_menu.addSeparator();
 	}
 	_act_copy = new QAction(tr("Copy this value to the clipboard"), &_ctxt_menu);
+	_act_copy->setIcon(PVModdedIcon("copy"));
 	_act_set_color = new QAction(tr("Set color"), &_ctxt_menu);
+	_act_set_color->setIcon(PVModdedIcon("palette"));
 	_ctxt_menu.addAction(_act_copy);
 	_ctxt_menu.addSeparator();
 	_ctxt_menu.addAction(_act_set_color);
-
-	// Horizontal header context menu
-	// Actions are added later as there depend on clicked column but we have to
-	// add them here to to avoid memory leak if the widgets is remove before any
-	// header context creation
-	_action_col_unique = new QAction(tr("Distinct values"), this);
-	_action_col_unique->setIcon(QIcon(":/fileslist_black"));
-	_hhead_ctxt_menu.addAction(_action_col_unique);
-
-	_menu_col_count_by = new PVWidgets::PVFilterableMenu(tr("Count by"), this);
-	_menu_col_count_by->setIcon(QIcon(":/count_by"));
-	_hhead_ctxt_menu.addMenu(_menu_col_count_by);
-
-	_menu_col_sum_by = new PVWidgets::PVFilterableMenu(tr("Sum by"), this);
-	_menu_col_sum_by->setIcon(QIcon(":/sum_by"));
-	_hhead_ctxt_menu.addMenu(_menu_col_sum_by);
-
-	_menu_col_min_by = new PVWidgets::PVFilterableMenu(tr("Min by"), this);
-	_menu_col_min_by->setIcon(QIcon(":/min_by"));
-	_hhead_ctxt_menu.addMenu(_menu_col_min_by);
-
-	_menu_col_max_by = new PVWidgets::PVFilterableMenu(tr("Max by"), this);
-	_menu_col_max_by->setIcon(QIcon(":/max_by"));
-	_hhead_ctxt_menu.addMenu(_menu_col_max_by);
-
-	_menu_col_avg_by = new PVWidgets::PVFilterableMenu(tr("Average by"), this);
-	_menu_col_avg_by->setIcon(QIcon(":/avg_by"));
-	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
-
-	_action_col_copy = new QAction(tr("Copy column name to clipboad"), this);
-	_action_col_copy->setIcon(QIcon(":/edit-paste.png"));
-	_hhead_ctxt_menu.addAction(_action_col_copy);
-
-	_action_col_sort = new QAction(tr("Sort this axis"), this);
-	_action_col_sort->setIcon(QIcon(":/sort_desc"));
-	_hhead_ctxt_menu.addAction(_action_col_sort);
-
-	_hhead_ctxt_menu.addSeparator();
-	_menu_add_correlation = new QMenu(tr("Bind this axis with..."), this);
-	_menu_add_correlation->setIcon(QIcon(":/bind"));
-	_hhead_ctxt_menu.addMenu(_menu_add_correlation);
 
 	// A double click on the vertical header select the line in the lib view
 	connect(verticalHeader(), &QHeaderView::sectionDoubleClicked, this,
@@ -182,6 +147,7 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 
 	// Context menu on vertical header
 	_action_copy_row_value = new QAction(tr("Copy line index to clipbard"), this);
+	_action_copy_row_value->setIcon(PVModdedIcon("copy"));
 	_vhead_ctxt_menu.addAction(_action_copy_row_value);
 
 	verticalHeader()->setSectionsClickable(true);
@@ -193,33 +159,59 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
 
 	// enabling QSS for the horizontal headers
 	horizontalHeader()->setObjectName("horizontalHeader_of_PVAbstractTableView");
-
-	// Define help
-	_help_widget.hide();
-
-	_help_widget.initTextFromFile("listing view's help", ":help-style");
-	_help_widget.addTextFromFile(":help-selection");
-	_help_widget.addTextFromFile(":help-layers");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-lines");
-	_help_widget.addTextFromFile(":help-application");
-
-	_help_widget.newTable();
-	_help_widget.addTextFromFile(":help-mouse-listing-view");
-	_help_widget.newColumn();
-	_help_widget.addTextFromFile(":help-shortcuts-listing-view");
-	_help_widget.finalizeText();
+	horizontalHeader()->setSortIndicatorShown(false);
+	setSortingEnabled(false);
 
 	// We fix the vertical header size on bold max number of line to avoid
 	// resizing on scrolling
 	QFont font = verticalHeader()->font();
 	font.setBold(true);
 	_vhead_max_width = QFontMetrics(font).horizontalAdvance(QString().leftJustified(
-	    QString::number(view.get_rushnraw_parent().row_count() + 1).size(), '9'));
+	    QString::number((view.get_rushnraw_parent().row_count() + 1) * 10).size(), '9'));
 
 	// Handle selection modification signal.
 	connect(this, &PVAbstractTableView::validate_selection, this,
 	        &PVListingView::update_view_selection_from_listing_selection);
+
+	QShortcut* toggle_unselected_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_U), this);
+	QObject::connect(toggle_unselected_shortcut, &QShortcut::activated, this, &PVGuiQt::PVListingView::toggle_unselected_events_visibility);
+
+	QShortcut* toggle_zombies_shortcut = new QShortcut(QKeySequence(Qt::SHIFT | Qt::Key_Z), this);
+	QObject::connect(toggle_zombies_shortcut, &QShortcut::activated, this, &PVGuiQt::PVListingView::toggle_zombies_events_visibility);
+
+	connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this, &PVGuiQt::PVListingView::corner_widget_refresh_sort_indicator);
+	corner_widget_refresh_sort_indicator();
+
+	PVCornerWidgetEventFilter* corner_widget_event_filter = new PVCornerWidgetEventFilter(this);
+	if(auto button = findChild<QAbstractButton*>(QString(), Qt::FindDirectChildrenOnly)) {
+		button->setToolTip("Sort index column");
+		disconnect(button, Q_NULLPTR, this, Q_NULLPTR);
+		connect(button, &QAbstractButton::clicked, [&]() {
+			Qt::SortOrder sort_order = Qt::SortOrder::AscendingOrder;
+			if (table_model() and table_model()->sorted_col() == -1) {
+				sort_order = (Qt::SortOrder) (not (bool) table_model()->sort_order());
+			}
+			sort(-1, sort_order);
+		});
+		button->installEventFilter(corner_widget_event_filter);
+	}
+}
+
+void PVGuiQt::PVListingView::corner_widget_refresh_sort_indicator()
+{
+	const QString& theme_scheme = PVCore::PVTheme::color_scheme_name();
+	QString order = "down";
+	PVCombCol col(-1);
+	if (table_model()) {
+		order =  table_model()->sort_order() == Qt::SortOrder::AscendingOrder ? "down" : "up";
+		col = table_model()->sorted_col();
+	}
+	if (col == -1) {
+		setStyleSheet(QString("QTableView QTableCornerButton::section{ image: url(:/qss_icons/%1/rc.%1/arrow-%2.png); }").arg(theme_scheme).arg(order));
+	}
+	else {
+		setStyleSheet(""); // clear sort indicator
+	}
 }
 
 /******************************************************************************
@@ -310,14 +302,6 @@ void PVGuiQt::PVListingView::slotDoubleClickOnVHead(int /*idHeader*/)
  *****************************************************************************/
 void PVGuiQt::PVListingView::keyPressEvent(QKeyEvent* event)
 {
-	if (PVWidgets::PVHelpWidget::is_help_key(event->key())) {
-		if (help_widget()->isHidden()) {
-			help_widget()->popup(viewport(), PVWidgets::PVTextPopupWidget::AlignCenter,
-			                     PVWidgets::PVTextPopupWidget::ExpandAll);
-		}
-		return;
-	}
-
 	switch (event->key()) {
 	case Qt::Key_G:
 		goto_line();
@@ -426,263 +410,23 @@ void PVGuiQt::PVListingView::show_ctxt_menu(const QPoint& pos)
 void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 {
 	PVCombCol comb_col = (PVCombCol)horizontalHeader()->logicalIndexAt(pos);
-	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
 
 	// Disable hover picture
 	section_hovered_enter(comb_col, false);
 
-	// Create a new horizontal header context as it depend on the clicked column
-	_hhead_ctxt_menu.clear();
-
-	bool empty_sel = lib_view().get_output_layer().get_selection().is_empty();
+	QMenu menu(this);
+	menu.setAttribute(Qt::WA_TranslucentBackground);
 
 	// Add view creation based on an axis.
 	if (auto container =
 	        PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this)) {
 		// Add entries to the horizontal header context menu for new widgets
 		// creation.
-		PVDisplays::add_displays_view_axis_menu(_hhead_ctxt_menu, container,
-		                                        (Squey::PVView*)&lib_view(), col, comb_col);
-		_hhead_ctxt_menu.addSeparator();
-	}
-	_action_col_unique->setEnabled(not empty_sel);
-	_hhead_ctxt_menu.addAction(_action_col_unique);
-	_menu_col_count_by->clear();
-	_hhead_ctxt_menu.addMenu(_menu_col_count_by);
-	_menu_col_count_by->setEnabled(not empty_sel);
-	_menu_col_sum_by->clear();
-	_hhead_ctxt_menu.addMenu(_menu_col_sum_by);
-	_menu_col_sum_by->setEnabled(not empty_sel);
-	_menu_col_min_by->clear();
-	_hhead_ctxt_menu.addMenu(_menu_col_min_by);
-	_menu_col_min_by->setEnabled(not empty_sel);
-	_menu_col_max_by->clear();
-	_hhead_ctxt_menu.addMenu(_menu_col_max_by);
-	_menu_col_max_by->setEnabled(not empty_sel);
-	_menu_col_avg_by->clear();
-	_hhead_ctxt_menu.addMenu(_menu_col_avg_by);
-	_menu_col_avg_by->setEnabled(not empty_sel);
-
-	const QStringList axes = lib_view().get_axes_names_list();
-
-	QList<QAction*> count_by_actions;
-	QList<QAction*> min_by_actions;
-	QList<QAction*> max_by_actions;
-	QList<QAction*> sum_by_actions;
-	QList<QAction*> avg_by_actions;
-
-	QStringList summable_types = {"number_int64",  "number_uint64", "number_int32", "number_uint32",
-	                              "number_uint16", "number_int16",  "number_uint8", "number_int8",
-	                              "number_float",  "number_double", "duration"};
-
-	for (PVCombCol i(0); i < axes.size(); i++) {
-		if (i != comb_col) {
-			const QString& axis_type = lib_view().get_axes_combination().get_axis(i).get_type();
-
-			auto* action_col_count_by = new QAction(axes[i], _menu_col_count_by);
-			count_by_actions << action_col_count_by;
-			connect(action_col_count_by, &QAction::triggered, action_col_count_by, [=,this]() {
-				PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-				PVQNraw::show_count_by(lib_view(), col, col2,
-				                       lib_view().get_selection_visible_listing(), this);
-			});
-
-			if (summable_types.contains(axis_type)) {
-				auto* action_col_min_by = new QAction(axes[i], _menu_col_min_by);
-				min_by_actions << action_col_min_by;
-				connect(action_col_min_by, &QAction::triggered, action_col_min_by, [=,this]() {
-					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_min_by(lib_view(), col, col2,
-					                     lib_view().get_selection_visible_listing(), this);
-				});
-			}
-
-			if (summable_types.contains(axis_type)) {
-				auto* action_col_max_by = new QAction(axes[i], _menu_col_max_by);
-				max_by_actions << action_col_max_by;
-				connect(action_col_max_by, &QAction::triggered, action_col_max_by, [=,this]() {
-					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_max_by(lib_view(), col, col2,
-					                     lib_view().get_selection_visible_listing(), this);
-				});
-			}
-
-			if (summable_types.contains(axis_type)) {
-				auto* action_col_sum_by = new QAction(axes[i], _menu_col_sum_by);
-				sum_by_actions << action_col_sum_by;
-				connect(action_col_sum_by, &QAction::triggered, action_col_sum_by, [=,this]() {
-					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_sum_by(lib_view(), col, col2,
-					                     lib_view().get_selection_visible_listing(), this);
-				});
-
-				auto* action_col_avg_by = new QAction(axes[i], _menu_col_avg_by);
-				avg_by_actions << action_col_avg_by;
-				connect(action_col_avg_by, &QAction::triggered, action_col_avg_by, [=,this]() {
-					PVCol col2 = _view.get_axes_combination().get_nraw_axis(i);
-					PVQNraw::show_avg_by(lib_view(), col, col2,
-					                     lib_view().get_selection_visible_listing(), this);
-				});
-			}
-		}
-	}
-	_menu_col_count_by->addActions(count_by_actions);
-	_menu_col_min_by->addActions(min_by_actions);
-	_menu_col_max_by->addActions(max_by_actions);
-	_menu_col_sum_by->addActions(sum_by_actions);
-	_menu_col_avg_by->addActions(avg_by_actions);
-
-	_hhead_ctxt_menu.addSeparator();
-	_hhead_ctxt_menu.addAction(_action_col_copy);
-	_hhead_ctxt_menu.addAction(_action_col_sort);
-	_action_col_sort->setEnabled(not empty_sel);
-
-	/**
-	 * Correlation menu
-	 */
-	show_hhead_ctxt_menu_correlation(comb_col);
-
-	QAction* sel = _hhead_ctxt_menu.exec(QCursor::pos());
-
-	// Process actions
-	if (sel == _action_col_unique) {
-		PVQNraw::show_unique_values(lib_view(), col, this);
-	} else if (sel == _action_col_sort) {
-		auto order = (Qt::SortOrder) !((bool)horizontalHeader()->sortIndicatorOrder());
-		sort(comb_col, order);
-	} else if (sel == _action_col_copy) {
-		QApplication::clipboard()->setText(_view.get_axis_name(comb_col));
-	} else {
-		// No selected action
-	}
-}
-
-/******************************************************************************
- *
- * PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation
- *
- *****************************************************************************/
-void PVGuiQt::PVListingView::show_hhead_ctxt_menu_correlation(PVCombCol col)
-{
-	const QString& this_axis_type = lib_view().get_axes_combination().get_axis(col).get_type();
-	const QStringList& correlation_types_for_values = { "number_int8", "number_uint8", "number_int16", "number_uint16",
-												        "number_int32", "number_uint32", "number_int64", "number_uint64",
-												        "ipv4", "ipv6", "mac_address", "string" };
-	const QStringList& correlation_types_for_range =  { "number_int8", "number_uint8", "number_int16", "number_uint16",
-												        "number_int32", "number_uint32", "number_int64", "number_uint64",
-												        "ipv4", "ipv6", "mac_address", /*"strings"*/
-	                                                    "time", "duration", "number_float", "number_double" };
-
-	// Don't show correlation menu for unsupported axes types
-	if (not correlation_types_for_range.contains(this_axis_type) and
-	    not correlation_types_for_values.contains(this_axis_type)) {
-		return;
+		PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
+		PVDisplays::add_displays_view_axis_menu(menu, container, &_view, col, comb_col);
 	}
 
-	_menu_add_correlation->clear();
-
-	auto& root = lib_view().get_parent<Squey::PVRoot>();
-
-	size_t total_compatible_views_count = 0;
-
-	for (auto* source : root.get_children<Squey::PVSource>()) {
-
-		size_t compatible_views_count = 0;
-
-		// Don't allow correlation on same source
-		if (source == root.current_source()) {
-			continue;
-		}
-
-		auto* source_menu = new QMenu(QString::fromStdString(source->get_name()), this);
-
-		size_t compatible_axes_count = 0;
-
-		auto const views = source->get_children<Squey::PVView>();
-		bool need_view_menu = views.size() > 1;
-		for (Squey::PVView* view : views) {
-
-			QMenu* view_menu = source_menu;
-
-			// Don't create an intermediary view menu if there is only one view for this source
-			if (need_view_menu) {
-				view_menu = new QMenu(QString::fromStdString(view->get_name()), this);
-				source_menu->addMenu(view_menu);
-			}
-
-			const Squey::PVAxesCombination& ac = view->get_axes_combination();
-			std::set<PVCol> unique_comb_cols(ac.get_combination().begin(),
-			                                 ac.get_combination().end());
-			auto const& axes = view->get_parent<Squey::PVSource>().get_format().get_axes();
-			for (PVCol original_col2 : unique_comb_cols) {
-				const QString& axis_name = axes[original_col2].get_name();
-				const QString& axis_type = axes[original_col2].get_type();
-
-				// Don't show incompatible axes
-				if (axis_type != this_axis_type) {
-					continue;
-				}
-
-				auto* type_menu = new QMenu(axis_name, this);
-				view_menu->addMenu(type_menu);
-
-				// TODO : use QActionGroup for radio buttons
-
-				auto add_correlation_f = [&](const QString& correlation_type_name, Squey::PVCorrelationType type){
-					auto* action = new QAction(correlation_type_name, this);
-					action->setCheckable(true);
-
-					PVCol original_col1 = _view.get_axes_combination().get_nraw_axis(col);
-
-					Squey::PVCorrelation correlation{&lib_view(), original_col1, view, original_col2, type};
-					bool existing_correlation = root.correlations().exists(correlation);
-
-					action->setChecked(existing_correlation);
-
-					connect(action, &QAction::triggered, [=, this, &root]() {
-						if (not existing_correlation) {
-							root.correlations().add(correlation);
-						} else {
-							root.correlations().remove(correlation.view1);
-						}
-						// refresh headers to show correlation icon right now
-						horizontalHeader()->viewport()->update();
-					});
-
-					type_menu->addAction(action);
-				};
-
-				if (correlation_types_for_values.contains(axis_type)) {
-					add_correlation_f("distinct values", Squey::PVCorrelationType::VALUES);
-				}
-				if (correlation_types_for_range.contains(axis_type)) {
-					add_correlation_f("minmax range", Squey::PVCorrelationType::RANGE);
-				}
-
-				compatible_axes_count++;
-			}
-
-			// Don't show view menu if there is no compatible axes
-			if (compatible_axes_count > 0) {
-				_menu_add_correlation->addMenu(view_menu);
-				compatible_views_count++;
-			} else {
-				delete view_menu;
-			}
-		}
-
-		if (compatible_views_count == 0 && need_view_menu) {
-			delete source_menu;
-		}
-
-		total_compatible_views_count += compatible_views_count;
-	}
-
-	// Don't show correlation menu if there is no compatible views
-	if (total_compatible_views_count > 0) {
-		_hhead_ctxt_menu.addSeparator();
-		_hhead_ctxt_menu.addMenu(_menu_add_correlation);
-	}
+	menu.exec(QCursor::pos());
 }
 
 /******************************************************************************
@@ -833,9 +577,24 @@ void PVGuiQt::PVListingView::section_hovered_enter(PVCombCol col, bool entered)
  *****************************************************************************/
 void PVGuiQt::PVListingView::section_clicked(int col)
 {
-	int x = horizontalHeader()->sectionViewportPosition(col);
-	int width = horizontalHeader()->sectionSize(col);
-	lib_view().set_section_clicked((PVCombCol)col, verticalHeader()->width() + x + width / 2);
+	if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) { // TODO : close when ctrl+clicked again ?
+		bool empty_sel = _view.get_output_layer().get_selection().is_empty();
+		if (not empty_sel) {
+			auto container = PVCore::get_qobject_parent_of_type<PVDisplays::PVDisplaysContainer*>(this);
+			container->create_view_widget(
+				PVDisplays::display_view_if<PVDisplays::PVDisplayViewDistinctValues>(), &lib_view(),
+				{PVCol(col)});
+		}
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		int x = horizontalHeader()->sectionViewportPosition(col);
+		int width = horizontalHeader()->sectionSize(col);
+		lib_view().set_section_clicked((PVCombCol)col, verticalHeader()->width() + x + width / 2);
+	}
+	else {
+		auto order = (Qt::SortOrder) ((bool)horizontalHeader()->sortIndicatorOrder());
+		sort(col, order);
+	}
 }
 
 /******************************************************************************
@@ -988,9 +747,10 @@ void PVGuiQt::PVListingView::goto_line()
  *****************************************************************************/
 void PVGuiQt::PVListingView::sort(int column, Qt::SortOrder order)
 {
+	horizontalHeader()->setSortIndicatorShown(column != -1);
 	PVCombCol col(column);
 
-	assert(col >= 0 && col < listing_model()->columnCount());
+	assert(col >= -1 && col < listing_model()->columnCount());
 	auto changed = PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(false);
@@ -1004,9 +764,13 @@ void PVGuiQt::PVListingView::sort(int column, Qt::SortOrder order)
 		},
 	    tr("Sorting..."), this);
 	if (changed == PVCore::PVProgressBox::CancelState::CONTINUE) {
-		horizontalHeader()->setSortIndicator(col, order);
-		verticalHeader()->viewport()->update();
+		if (col != -1) {
+			horizontalHeader()->setSortIndicator(col, order);
+			verticalHeader()->viewport()->update();
+		}
 	}
+
+	corner_widget_refresh_sort_indicator();
 }
 
 /******************************************************************************
@@ -1026,6 +790,26 @@ void PVGuiQt::PVListingView::set_section_visible(PVCombCol col)
 	clearSelection();
 
 	setSelectionBehavior(old_sel_behavior);
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::toggle_unselected_events_visibility
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::toggle_unselected_events_visibility()
+{
+	_view.toggle_listing_unselected_visibility();
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVListingView::toggle_zombies_events_visibility
+ *
+ *****************************************************************************/
+void PVGuiQt::PVListingView::toggle_zombies_events_visibility()
+{
+	_view.toggle_listing_zombie_visibility();
 }
 
 /******************************************************************************
@@ -1106,9 +890,81 @@ void PVGuiQt::PVHorizontalHeaderView::paintSection(QPainter* painter,
 	bool existing_correlation = root.correlations().exists(&listing->lib_view(), original_col1);
 
 	if (existing_correlation) {
-		QPixmap p(":/bind");
+		QPixmap p(PVModdedIcon("link").pixmap(rect.height(),rect.width()));
 		p = p.scaledToWidth(rect.height(), Qt::SmoothTransformation);
 		QRect r(QPoint(rect.right() - p.width(), rect.top()), rect.bottomRight());
 		painter->drawPixmap(r, p);
 	}
+}
+
+
+void PVGuiQt::PVHorizontalHeaderView::enterEvent(QEnterEvent* event)
+{
+	setFocus(Qt::MouseFocusReason);
+	PVWidgets::PVMouseButtonsLegend legend;
+	if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		legend.set_left_button_legend("Distinct values");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		legend.set_left_button_legend("Align axis");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else {
+		legend.set_left_button_legend("Sort");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	QHeaderView::enterEvent(event);
+}
+
+void PVGuiQt::PVHorizontalHeaderView::leaveEvent(QEvent*)
+{
+	Q_EMIT qobject_cast<PVListingView*>(parentWidget())->clear_status_bar_mouse_legend();
+	clearFocus();
+}
+
+void PVGuiQt::PVHorizontalHeaderView::keyPressEvent(QKeyEvent* event)
+{
+	PVWidgets::PVMouseButtonsLegend legend;
+	if (event->modifiers() == Qt::ControlModifier) {
+		legend.set_left_button_legend("Distinct values");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (event->modifiers() == Qt::ShiftModifier) {
+		legend.set_left_button_legend("Align axis");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+
+	QHeaderView::keyPressEvent(event);
+}
+
+void PVGuiQt::PVHorizontalHeaderView::keyReleaseEvent(QKeyEvent* event)
+{
+	PVWidgets::PVMouseButtonsLegend legend;
+	if (event->key() == Qt::Key_Control and event->modifiers() == Qt::ShiftModifier) {
+		legend.set_left_button_legend("Align axis");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (event->key() == Qt::Key_Shift and event->modifiers() == Qt::ControlModifier) {
+		legend.set_left_button_legend("Distinct values");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+	else if (event->modifiers() == Qt::NoModifier) {
+		legend.set_left_button_legend("Sort");
+		Q_EMIT qobject_cast<PVListingView*>(parentWidget())->set_status_bar_mouse_legend(legend);
+	}
+
+	QHeaderView::keyReleaseEvent(event);
+}
+
+bool PVGuiQt::PVCornerWidgetEventFilter::eventFilter(QObject* object, QEvent* event)
+{
+	if (event->type() == QEvent::HoverEnter) {
+		QApplication::setOverrideCursor(Qt::PointingHandCursor);
+	}
+	else if (event->type() == QEvent::HoverLeave) {
+		QApplication::restoreOverrideCursor() ;
+	}
+
+    return QObject::eventFilter(object, event);
 }

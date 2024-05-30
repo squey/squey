@@ -53,7 +53,7 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 		return PVSeriesView::DrawMode::Lines;
 	}
 
-	void set_background_color(QColor const& bgcol) override { setPalette(QPalette(bgcol)); }
+	void set_background_color(QColor const& bgcol) override { _background_color = bgcol; }
 	void set_draw_mode(PVSeriesView::DrawMode mode) override { _draw_mode = capability(mode); }
 
 	void resize(QSize const& size) override { return QWidget::resize(size); }
@@ -66,6 +66,9 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 			return;
 		}
 		QPainter painter(this);
+
+		painter.fillRect(rect(), _background_color);
+
 		std::vector<QPoint> points;
 		auto draw_lines = [&painter, &points]() {
 			if (points.size() > 1) {
@@ -117,6 +120,7 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 
   private:
 	PVSeriesView::DrawMode _draw_mode = PVSeriesView::DrawMode::Lines;
+	QColor _background_color;
 };
 
 } // namespace PVParallelView

@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: qt:archive/qt/6.5/6.5.2/single/qt-everywhere-src-6.5.2.tar.xz
-  ref: cde57be663d0f875759797298bdc37a936d517c39f2013e4e6ece5e12edeed12
+  url: qt:archive/qt/6.7/6.7.1/single/qt-everywhere-src-6.7.1.tar.xz
+  ref: 38dbf2768776e875ed5cdea8cccf1a240512a29769768084430914c4a33bedc4
 
 - kind: patch
   path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
@@ -14,10 +14,6 @@ sources:
   
 - kind: patch
   path: buildstream/patches/qt6/Fix-rectangle-intersection-issue-because-of-floating.patch
-  strip-level: 1
-
-- kind: patch
-  path: buildstream/patches/qt6/ffmpeg-chromium-binutils-2.41.patch
   strip-level: 1
 
 variables:
@@ -49,7 +45,6 @@ variables:
     -system-proxies \
     -no-feature-renameat2 \
     -no-feature-getentropy \
-    -no-feature-statx \
     -xcb-xlib \
     -bundled-xcb-xinput \
     -skip qt3d \
@@ -70,6 +65,7 @@ variables:
     -skip qtserialport \
     -skip qtspeech \
     -skip qtvirtualkeyboard \
+    -skip qtgraphs \
     -gtk \
     -webengine-icu \
     -no-feature-webengine-geolocation \
@@ -100,7 +96,6 @@ config:
   install-commands:
     - |
       cmake --install . --prefix=%{install-root}%{prefix}
-      rm -f "%{install-root}%{libdir}"/*.a
 
 
 environment:

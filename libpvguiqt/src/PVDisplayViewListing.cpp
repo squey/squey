@@ -32,12 +32,13 @@
 #include <squey/PVView.h>
 
 #include <QObject>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 PVDisplays::PVDisplayViewListing::PVDisplayViewListing()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
-                          PVDisplayIf::DefaultPresenceInSourceWorkspace,
+                      PVDisplayIf::DefaultPresenceInSourceWorkspace | PVDisplayIf::HasHelpPage,
                       "Listing",
-                      QIcon(":/view-listing"),
+                      PVModdedIcon("table-list"),
                       Qt::NoDockWidgetArea)
 {
 }
@@ -55,6 +56,14 @@ QWidget* PVDisplays::PVDisplayViewListing::create_widget(Squey::PVView* view,
 	listing_view->setHorizontalHeader(hheaderview);
 
 	auto* stats_listing = new PVGuiQt::PVStatsListingWidget(listing_view);
+    stats_listing->setWindowTitle(default_window_title(*view));
+
+	QObject::connect(listing_view, &PVGuiQt::PVListingView::set_status_bar_mouse_legend, [this,stats_listing](PVWidgets::PVMouseButtonsLegend legend) {
+		_set_status_bar_mouse_legend.emit(stats_listing, legend);
+	});
+	QObject::connect(listing_view, &PVGuiQt::PVListingView::clear_status_bar_mouse_legend, [this,stats_listing](){
+		_clear_status_bar_mouse_legend.emit(stats_listing);
+	});
 
 	return stats_listing;
 }

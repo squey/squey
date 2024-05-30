@@ -41,6 +41,8 @@
 #include <pvparallelview/PVDisplayViewScatter.h>
 #include <pvparallelview/PVDisplayViewTimeseries.h>
 
+#include <pvkernel/core/PVTheme.h>
+
 #include <QSettings>
 
 PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nullptr;
@@ -48,15 +50,6 @@ PVParallelView::PVParallelViewImpl* PVParallelView::PVParallelViewImpl::_s = nul
 PVParallelView::PVParallelViewImpl::PVParallelViewImpl()
     : _backend(nullptr), _pipeline(nullptr), _show_bboxes(false)
 {
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	const float win_r = pvconfig.value("pvgl/window_r", 0.2f).toFloat();
-	const float win_g = pvconfig.value("pvgl/window_g", 0.2f).toFloat();
-	const float win_b = pvconfig.value("pvgl/window_b", 0.2f).toFloat();
-	const float win_a = pvconfig.value("pvgl/window_a", 1.0f).toFloat();
-
-	_color_view_bg.setRgbF(win_r, win_g, win_b, win_a);
-
 	qRegisterMetaType<PVParallelView::PVZoneRendering_p>();
 	qRegisterMetaType<PVParallelView::PVZoneRendering_p>("PVZoneRendering_p");
 }

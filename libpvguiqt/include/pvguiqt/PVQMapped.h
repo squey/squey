@@ -34,7 +34,7 @@ namespace PVGuiQt
 {
 
 struct PVQMapped {
-	static bool edit_mapped(Squey::PVMapped& plotted, QWidget* parent = nullptr);
+	static bool edit_mapped(Squey::PVMapped& scaled, QWidget* parent = nullptr);
 };
 } // namespace PVGuiQt
 

@@ -49,7 +49,7 @@ public:
     enum GuiUpdateType
     {
         NONE = 0,
-        PLOTTING = 1,
+        SCALING = 1,
         LAYER = 2
     };
 

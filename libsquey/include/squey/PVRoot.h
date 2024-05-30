@@ -100,9 +100,6 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	const QString& get_path() const { return _path; }
 
   public:
-	std::string get_serialize_description() const override { return "Investigation"; }
-
-  public:
 	PVCorrelationEngine& correlations() { return _correlations; }
 	const PVCorrelationEngine& correlations() const { return _correlations; }
 	Squey::PVView* process_correlation(Squey::PVView* view);

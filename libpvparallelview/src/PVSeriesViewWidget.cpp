@@ -25,6 +25,7 @@
 
 #include <pvparallelview/PVSeriesViewWidget.h>
 
+#include <pvparallelview/common.h>
 #include <pvparallelview/PVSeriesView.h>
 #include <pvparallelview/PVSeriesViewParamsWidget.h>
 #include <pvparallelview/PVSeriesViewZoomer.h>
@@ -56,7 +57,7 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 	setFocusPolicy(Qt::StrongFocus);
 	_help_widget.hide();
 
-	_help_widget.initTextFromFile("series view's help", ":help-style");
+	_help_widget.initTextFromFile("series view's help");
 	_help_widget.addTextFromFile(":help-series-view-navigation");
 	_help_widget.newColumn();
 	_help_widget.addTextFromFile(":help-series-view-selection");
@@ -75,12 +76,12 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 
 	set_abscissa(axis);
 
-	// Subscribe to plotting changes
-	_plotting_change_connection = _view->get_parent<Squey::PVPlotted>()._plotted_updated.connect(
-	    [this](const QList<PVCol>& plotteds_updated) {
+	// Subscribe to scaling changes
+	_scaling_change_connection = _view->get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	    [this](const QList<PVCol>& scaleds_updated) {
 		    if (_sampler) {
-			    std::unordered_set<size_t> updated_timeseries(plotteds_updated.begin(),
-			                                                  plotteds_updated.end());
+			    std::unordered_set<size_t> updated_timeseries(scaleds_updated.begin(),
+			                                                  scaleds_updated.end());
 			    PVCore::PVProgressBox::progress(
 			        [this, &updated_timeseries](PVCore::PVProgressBox& pbox) {
 				        pbox.set_enable_cancel(false);
@@ -100,6 +101,9 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 			    QObject::tr("Sampling..."), this);
 		}
 	});
+
+	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Zoom (horizontal)", "Pan view", "Zoom (horizontal)");
+	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
 
 void PVParallelView::PVSeriesViewWidget::minmax_changed(const pvcop::db::array& minmax)
@@ -142,12 +146,13 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 	layout->setContentsMargins(0, 0, 0, 0);
 
 	auto* series_widget = new QWidget;
-	auto* vlayout = new QVBoxLayout;
-	vlayout->setContentsMargins(0, 0, 0, 0);
+	auto* series_widget_layout = new QVBoxLayout;
+	series_widget_layout->setContentsMargins(0, 0, 0, 0);
 
-	vlayout->addWidget(replaceable(&_series_tree_widget, nullptr));
-	vlayout->addWidget(replaceable(&_selected_series_tree, nullptr));
-	series_widget->setLayout(vlayout);
+	series_widget_layout->addWidget(replaceable(&_series_tree_widget, nullptr));
+	series_widget_layout->addWidget(replaceable(&_selected_series_tree, nullptr));
+	series_widget->setLayout(series_widget_layout);
+	series_widget->setContentsMargins(0, 0, 0, 0);
 
 	auto* splitter = new QSplitter(Qt::Horizontal);
 	splitter->setSizePolicy(
@@ -159,12 +164,16 @@ void PVParallelView::PVSeriesViewWidget::setup_layout()
 	splitter->setStretchFactor(1, 0);
 
 	auto* bottom_layout = new QHBoxLayout;
+	bottom_layout->setContentsMargins(0, 0, 0, 0);
 	bottom_layout->addWidget(replaceable(&_range_edit, nullptr));
-	bottom_layout->addStretch();
 	bottom_layout->addWidget(_params_widget);
 
+	QWidget* bottom_widget = new QWidget;
+	bottom_widget->setContentsMargins(0, 0, 0, 0);
+	bottom_widget->setLayout(bottom_layout);
+
 	layout->addWidget(splitter);
-	layout->addLayout(bottom_layout);
+	layout->addWidget(bottom_widget);
 
 	setLayout(layout);
 }
@@ -182,6 +191,8 @@ void PVParallelView::PVSeriesViewWidget::update_layout()
 
 void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 {
+	update_window_title(abscissa);
+
 	if (abscissa == PVCol()) {
 		update_layout();
 		return;
@@ -200,12 +211,12 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 	const pvcop::db::array& time = nraw.column(abscissa);
 
 	{
-		auto plotteds = _view->get_parent<Squey::PVSource>().get_children<Squey::PVPlotted>();
-		const auto& plotteds_vector = plotteds.front()->get_plotteds();
+		auto scaleds = _view->get_parent<Squey::PVSource>().get_children<Squey::PVScaled>();
+		const auto& scaleds_vector = scaleds.front()->get_scaleds();
 
 		std::vector<pvcop::core::array<uint32_t>> timeseries;
 		for (PVCol col(0); col < nraw.column_count(); col++) {
-			timeseries.emplace_back(plotteds_vector[col].to_core_array<uint32_t>());
+			timeseries.emplace_back(scaleds_vector[col].to_core_array<uint32_t>());
 		}
 
 		_sampler = std::make_unique<Squey::PVRangeSubSampler>(
@@ -213,7 +224,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis));
 	}
 	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
-	_plot->set_background_color(QColor(10, 10, 10, 255));
+	_plot->set_background_color(color_view_bg);
 
 	_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 
@@ -502,11 +513,38 @@ void PVParallelView::PVSeriesViewWidget::keyPressEvent(QKeyEvent* event)
 		return;
 	}
 
+	if (event->key() == Qt::Key_Control) {
+		_mouse_buttons_current_legend.set_left_button_legend("Zoom (homothetic)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (homothetic)");
+	}
+	else if (event->key() == Qt::Key_Shift) {
+		_mouse_buttons_current_legend.set_left_button_legend("Selection (horizontal)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+
 	QWidget::keyPressEvent(event);
+}
+
+void PVParallelView::PVSeriesViewWidget::keyReleaseEvent(QKeyEvent* event)
+{
+	if ((event->key() == Qt::Key_Shift or event->key() == Qt::Key_Control) and event->modifiers() == Qt::NoModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Zoom (horizontal)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (horizontal)");
+		Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
+	}
+	QWidget::keyReleaseEvent(event);
 }
 
 void PVParallelView::PVSeriesViewWidget::enterEvent(QEnterEvent*)
 {
+	if (QGuiApplication::keyboardModifiers() == Qt::ControlModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Zoom (homothetic)");
+		_mouse_buttons_current_legend.set_scrollwheel_legend("Zoom (homothetic)");
+	}
+	else if (QGuiApplication::keyboardModifiers() == Qt::ShiftModifier) {
+		_mouse_buttons_current_legend.set_left_button_legend("Selection (horizontal)");
+	}
+	Q_EMIT set_status_bar_mouse_legend(_mouse_buttons_current_legend);
 	setFocus(Qt::MouseFocusReason);
 }
 
@@ -514,3 +552,13 @@ void PVParallelView::PVSeriesViewWidget::leaveEvent(QEvent*)
 {
 	clearFocus();
 }
+
+
+
+void PVParallelView::PVSeriesViewWidget::update_window_title(PVCol axis)
+{
+	setWindowTitle(QString("%1 (%2)").arg(
+		QObject::tr("Series"),
+		_view->get_nraw_axis_name(axis)));
+}
+

@@ -40,11 +40,11 @@
 #include <pvkernel/widgets/PVFileDialog.h>
 
 
-#include <squey/PVLayerFilter.h>
 #include <squey/PVSelection.h>
 
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
+
 
 #include <PVFilesTypesSelWidget.h>
 
@@ -89,7 +89,6 @@ class PVMainWindow : public QMainWindow
 	PVGuiQt::PVProjectsTabWidget* _projects_tab_widget;
 
 	QMenuBar* menubar;
-	QMenu* filter_Menu;
 
 	char* last_sendername;
 	bool report_started;
@@ -135,25 +134,19 @@ class PVMainWindow : public QMainWindow
 	void selection_set_from_layer_Slot();
 	void export_selection_Slot();
 
-	void filter_Slot();
 	void new_format_Slot();
 	void cur_format_Slot();
 	void edit_format_Slot(const QString& format);
 	void open_format_Slot();
-	void filter_reprocess_last_Slot();
 	void import_type_default_Slot();
 	void import_type_Slot();
 	void import_type_Slot(const QString& itype);
-	void events_display_unselected_listing_Slot();
-	void events_display_zombies_listing_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
-	Squey::PVScene& project_new_Slot();
 	void quit_Slot();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
 	void selection_none_Slot();
-	void enable_menu_filter_Slot(bool);
 	void set_color_Slot();
 	void view_display_inv_elts_Slot();
 	void get_screenshot_widget();
@@ -203,23 +196,16 @@ class PVMainWindow : public QMainWindow
 
   private:
 	QMenu* file_Menu;
-	QMenu* events_Menu;
 	QMenu* selection_Menu;
-	QMenu* tools_Menu;
-	QMenu* source_Menu;
-	QMenu* view_Menu;
+	QMenu* events_Menu;
+	QMenu* settings_Menu;
 	QMenu* help_Menu;
 
 	QAction* about_Action;
 	QAction* refman_Action;
-	QAction* axes_combination_editor_Action;
-	QAction* events_display_unselected_listing_Action;
-	QAction* events_display_zombies_listing_Action;
-	QAction* events_display_unselected_zombies_parallelview_Action;
 	QAction* commit_selection_to_new_layer_Action;
 	QAction* move_selection_to_new_layer_Action;
 	QAction* filter_reprocess_last_filter;
-	QAction* project_new_Action;
 	QAction* solution_new_Action;
 	QAction* solution_load_Action;
 	QAction* solution_save_Action;
@@ -240,6 +226,9 @@ class PVMainWindow : public QMainWindow
 	QAction* tools_cur_format_Action;
 	QAction* view_Action;
 	QAction* view_display_inv_elts_Action;
+	QAction* settings_dark_theme_Action;
+	QAction* settings_light_theme_Action;
+	QAction* settings_follow_system_theme_Action;
 
 	QSpacerItem* pv_mainSpacerTop;
 	QSpacerItem* pv_mainSpacerBottom;
@@ -252,7 +241,6 @@ class PVMainWindow : public QMainWindow
 	QString _current_save_root_folder;
 
   protected:
-	void keyPressEvent(QKeyEvent* event) override;
 	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 
   public:
@@ -266,8 +254,6 @@ class PVMainWindow : public QMainWindow
 	void reset_root();
 	void close_solution();
 
-	std::string get_next_scene_name();
-
   Q_SIGNALS:
 	void change_of_current_view_Signal();
 	void filter_applied_Signal();
@@ -275,7 +261,6 @@ class PVMainWindow : public QMainWindow
 
   private:
 	QString _cur_project_file;
-	static int sequence_n;
 	Squey::PVRoot _root;
 	bool _auto_detect_cancellation;
 	PVCore::PVDBusConnection _dbus_connection;

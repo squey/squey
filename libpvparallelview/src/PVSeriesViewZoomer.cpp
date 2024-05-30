@@ -367,7 +367,6 @@ void PVSeriesViewZoomer::keyPressEvent(QKeyEvent* event)
 	if (event->key() == Qt::Key_Control) {
 		_control_modifier = true;
 		update_selector_and_chronotips();
-		return;
 	} else if (event->key() == Qt::Key_X) {
 		if (_selector_mode == SelectorMode::CrossHairs) {
 			change_selector_mode(SelectorMode::Hunting);
@@ -398,7 +397,6 @@ void PVSeriesViewZoomer::keyReleaseEvent(QKeyEvent* event)
 	if (event->key() == Qt::Key_Control) {
 		_control_modifier = false;
 		update_selector_and_chronotips();
-		return;
 	}
 	QWidget::keyReleaseEvent(event);
 }

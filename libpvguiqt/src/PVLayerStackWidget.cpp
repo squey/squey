@@ -33,6 +33,7 @@
 #include <pvguiqt/PVLayerStackView.h>
 #include <pvguiqt/PVLayerStackWidget.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <squey/widgets/PVNewLayerDialog.h>
 
@@ -111,33 +112,15 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 
 	// The new_layer Action
 	new_layer_Action = new QAction(tr("New Layer"), this);
-	new_layer_Action->setIcon(QIcon(":/new_layer_icon"));
+	new_layer_Action->setIcon(PVModdedIcon("layer-plus"));
 	new_layer_Action->setStatusTip(tr("Create a new layer."));
 	new_layer_Action->setWhatsThis(tr("Use this to create a new layer."));
 	toolbar->addAction(new_layer_Action);
 	connect(new_layer_Action, &QAction::triggered, this, &PVLayerStackWidget::new_layer);
 
-	// The move_up Action
-	move_up_Action = new QAction(tr("Move up"), this);
-	move_up_Action->setIcon(QIcon(":/move_layer_up_icon"));
-	move_up_Action->setStatusTip(tr("Move selected layer up."));
-	move_up_Action->setToolTip(tr("Move selected layer up."));
-	move_up_Action->setWhatsThis(tr("Use this to move the selected layer up."));
-	toolbar->addAction(move_up_Action);
-	connect(move_up_Action, &QAction::triggered, this, &PVLayerStackWidget::move_up);
-
-	// The move_down Action
-	move_down_Action = new QAction(tr("Move down"), this);
-	move_down_Action->setIcon(QIcon(":/move_layer_down_icon"));
-	move_down_Action->setStatusTip(tr("Move selected layer down."));
-	move_down_Action->setToolTip(tr("Move selected layer down."));
-	move_down_Action->setWhatsThis(tr("Use this to move the selected layer down."));
-	toolbar->addAction(move_down_Action);
-	connect(move_down_Action, &QAction::triggered, this, &PVLayerStackWidget::move_down);
-
 	// The duplicate_layer Action
 	duplicate_layer_Action = new QAction(tr("Duplicate layer"), this);
-	duplicate_layer_Action->setIcon(QIcon(":/duplicate_layer_icon"));
+	duplicate_layer_Action->setIcon(PVModdedIcon("copy"));
 	duplicate_layer_Action->setStatusTip(tr("Duplicate selected layer."));
 	duplicate_layer_Action->setToolTip(tr("Duplicate selected layer."));
 	duplicate_layer_Action->setWhatsThis(tr("Use this to duplicate the selected layer."));
@@ -147,17 +130,35 @@ void PVGuiQt::PVLayerStackWidget::create_actions(QToolBar* toolbar)
 
 	// The delete_layer Action
 	delete_layer_Action = new QAction(tr("Delete layer"), this);
-	delete_layer_Action->setIcon(QIcon(":/delete_layer_icon"));
+	delete_layer_Action->setIcon(PVModdedIcon("trash-xmark"));
 	delete_layer_Action->setStatusTip(tr("Delete layer."));
 	delete_layer_Action->setToolTip(tr("Delete layer."));
 	delete_layer_Action->setWhatsThis(tr("Use this to delete the selected."));
 	toolbar->addAction(delete_layer_Action);
 	connect(delete_layer_Action, &QAction::triggered, this, &PVLayerStackWidget::delete_layer);
 
+	// The move_up Action
+	move_up_Action = new QAction(tr("Move up"), this);
+	move_up_Action->setIcon(PVModdedIcon("arrow-up-long"));
+	move_up_Action->setStatusTip(tr("Move selected layer up."));
+	move_up_Action->setToolTip(tr("Move selected layer up."));
+	move_up_Action->setWhatsThis(tr("Use this to move the selected layer up."));
+	toolbar->addAction(move_up_Action);
+	connect(move_up_Action, &QAction::triggered, this, &PVLayerStackWidget::move_up);
+
+	// The move_down Action
+	move_down_Action = new QAction(tr("Move down"), this);
+	move_down_Action->setIcon(PVModdedIcon("arrow-down-long"));
+	move_down_Action->setStatusTip(tr("Move selected layer down."));
+	move_down_Action->setToolTip(tr("Move selected layer down."));
+	move_down_Action->setWhatsThis(tr("Use this to move the selected layer down."));
+	toolbar->addAction(move_down_Action);
+	connect(move_down_Action, &QAction::triggered, this, &PVLayerStackWidget::move_down);
+
 	// Export all layers
 	const QString& export_all_layers_text = "Export all layers";
 	export_all_layers_Action = new QAction(export_all_layers_text, this);
-	export_all_layers_Action->setIcon(QIcon(":/export_all_layers_icon"));
+	export_all_layers_Action->setIcon(PVModdedIcon("file-export"));
 	export_all_layers_Action->setStatusTip(export_all_layers_text);
 	export_all_layers_Action->setToolTip(export_all_layers_text);
 	export_all_layers_Action->setWhatsThis(tr("Export each layer as a CSV file"));

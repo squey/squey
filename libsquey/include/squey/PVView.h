@@ -52,7 +52,7 @@
 
 namespace Squey
 {
-class PVPlotted;
+class PVScaled;
 } // namespace Squey
 namespace Squey
 {
@@ -92,19 +92,17 @@ namespace Squey
 /**
  * \class PVView
  */
-class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
+class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 {
   public:
 	typedef QHash<QString, PVCore::PVArgumentList> map_filter_arguments;
 	typedef int32_t id_t;
 
   public:
-	explicit PVView(PVPlotted& plotted);
+	explicit PVView(PVScaled& scaled);
 	virtual ~PVView();
 
   public:
-	std::string get_serialize_description() const override { return "View: " + get_name(); }
-
 	/* Functions */
 	/**
 	 * Gets the QStringList of all Axes names according to the current PVAxesCombination
@@ -123,7 +121,7 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 	 * @return The name of that axis
 	 *
 	 */
-	const QString& get_axis_name(PVCombCol index) const;
+	QString get_axis_name(PVCombCol index) const;
 	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const;
 	bool is_last_axis(PVCombCol const axis_comb) const
 	{
@@ -313,12 +311,12 @@ class PVView : public PVCore::PVDataTreeChild<PVPlotted, PVView>
 
 	PVCol get_nraw_axis_index(PVCombCol col) const;
 
-	PVRow get_plotted_col_min_row(PVCombCol const combined_col) const;
-	PVRow get_plotted_col_max_row(PVCombCol const combined_col) const;
+	PVRow get_scaled_col_min_row(PVCombCol const combined_col) const;
+	PVRow get_scaled_col_max_row(PVCombCol const combined_col) const;
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const;
-	static Squey::PVView& serialize_read(PVCore::PVSerializeObject& so, Squey::PVPlotted& parent);
+	static Squey::PVView& serialize_read(PVCore::PVSerializeObject& so, Squey::PVScaled& parent);
 
   public:
 	// axis <-> section synchronisation

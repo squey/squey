@@ -65,6 +65,6 @@ add_definitions(-DSQUEY_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 # Define email addresses
 ###############################################################################
 
-set(EMAIL_ADDRESS_CONTACT "jean-baptiste+squey@leonesio.fr")
+set(EMAIL_ADDRESS_CONTACT "contact@squey.org")
 
 add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")

@@ -1,5 +1,5 @@
 Makefile
-builds/
+builds
 squey.sh
 */tests/bin
 */tests/*/bin
@@ -34,4 +34,3 @@ buildstream/sshd/sshd.pid
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/.cmaketools.json
-

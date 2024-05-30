@@ -97,10 +97,10 @@ void PVRush::PVXmlParamParser::addInputNameColumn(QDomDocument& xml)
 
 	QDomElement mapping = xml.createElement(PVFORMAT_XML_TAG_MAPPING);
 	mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, PVFORMAT_AXIS_MAPPING_DEFAULT);
-	QDomElement plotting = xml.createElement(PVFORMAT_XML_TAG_PLOTTING);
-	plotting.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, PVFORMAT_AXIS_PLOTTING_DEFAULT);
+	QDomElement scaling = xml.createElement(PVFORMAT_XML_TAG_SCALING);
+	scaling.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, PVFORMAT_AXIS_SCALING_DEFAULT);
 	axis.appendChild(mapping);
-	axis.appendChild(plotting);
+	axis.appendChild(scaling);
 
 	axis.setAttribute(PVFORMAT_AXIS_NAME_STR, "file_name");
 	axis.setAttribute(PVFORMAT_AXIS_TYPE_STR, "string");
@@ -230,10 +230,10 @@ PVRush::PVAxisFormat::node_args_t
 PVRush::PVXmlParamParser::getMapPlotParameters(QDomElement& elt, QString const& tag, QString& mode)
 {
 	PVAxisFormat::node_args_t args;
-	// Get the first mapping/plotting elements (ignore other if there are multiples)
+	// Get the first mapping/scaling elements (ignore other if there are multiples)
 	QDomElement node = elt.firstChildElement(tag);
 	if (node.isNull()) {
-		// No mapping or plotting, use default mapping/plotting
+		// No mapping or scaling, use default mapping/scaling
 		mode = PVFORMAT_MAP_PLOT_MODE_DEFAULT;
 		return {};
 	}
@@ -322,15 +322,15 @@ int PVRush::PVXmlParamParser::setDom(QDomElement const& node, int id)
 			axis.set_titlecolor(
 			    child.attribute(PVFORMAT_AXIS_TITLECOLOR_STR, PVFORMAT_AXIS_TITLECOLOR_DEFAULT));
 
-			// Mapping and plotting parameters
+			// Mapping and scaling parameters
 			QString mode;
 			PVAxisFormat::node_args_t args =
 			    getMapPlotParameters(child, PVFORMAT_XML_TAG_MAPPING, mode);
 			axis.set_mapping(mode);
 			axis.set_args_mapping(args);
-			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_PLOTTING, mode);
-			axis.set_plotting(mode);
-			axis.set_args_plotting(args);
+			args = getMapPlotParameters(child, PVFORMAT_XML_TAG_SCALING, mode);
+			axis.set_scaling(mode);
+			axis.set_args_scaling(args);
 			_axes.push_back(axis);
 
 			newId++;

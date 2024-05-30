@@ -40,14 +40,14 @@ class PVScatterViewSelectionRectangle : public PVSelectionRectangle
 	explicit PVScatterViewSelectionRectangle(PVScatterView* sv);
 
   public:
-	void set_plotteds(const uint32_t* y1_plotted, const uint32_t* y2_plotted, const PVRow nrows);
+	void set_scaleds(const uint32_t* y1_scaled, const uint32_t* y2_scaled, const PVRow nrows);
 
   protected:
 	void commit(bool use_selection_modifiers) override;
 
   private:
-	const uint32_t* _y1_plotted;
-	const uint32_t* _y2_plotted;
+	const uint32_t* _y1_scaled;
+	const uint32_t* _y2_scaled;
 	PVRow _nrows;
 	PVScatterView* _sv;
 };

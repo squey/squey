@@ -40,6 +40,7 @@
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/core/squey_bench.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <tbb/blocked_range.h>
 #include <tbb/task_scheduler_init.h>
@@ -54,6 +55,10 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 	setupUi(this);
 
 	setAttribute(Qt::WA_DeleteOnClose);
+
+	_btn_copy_clipboard->setIcon(PVModdedIcon("copy"));
+	_btn_copy_file->setIcon(PVModdedIcon("file-export"));
+	_btn_append_file->setIcon(PVModdedIcon("file-export-append"));
 
 	// Define default field separator
 	_field_separator_button->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);

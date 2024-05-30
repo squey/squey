@@ -42,6 +42,7 @@
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 #include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <pvcop/db/algo.h>
 #include <pvcop/db/types.h>
@@ -357,16 +358,18 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 
 	auto* sync_button = new QPushButton;
 	connect(sync_button, &QPushButton::toggled,
-	        [&](bool checked) { _selection_change_connection.block(not checked); });
-	sync_button->setIcon(QIcon(":/refresh"));
+	        [&,sync_button](bool checked) {
+		_selection_change_connection.block(not checked);
+		sync_button->setIcon(PVModdedIcon(checked ? "arrows-rotate" : "arrows-no-rotate" ));
+	});
+	sync_button->setIcon(PVModdedIcon("arrows-rotate"));
+
 	sync_button->setToolTip("Keep in sync with selection");
 	sync_button->setCheckable(true);
 	sync_button->setChecked(true);
 	horizontalLayout_3->addWidget(sync_button);
 
 	// Enable values view sorting capability
-	_values_view->horizontalHeader()->setSortIndicatorShown(true);
-	_values_view->setSortingEnabled(true);
 	_values_view->sortByColumn(PVCol(1), Qt::DescendingOrder);
 
 	_values_view->horizontalHeader()->show();
@@ -473,6 +476,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 
 	// Copy values menu
 	_copy_values_menu = new QMenu();
+	_copy_values_menu->setAttribute(Qt::WA_TranslucentBackground);
 	_copy_values_act->setMenu(_copy_values_menu);
 	_copy_values_with_count_act = new QAction("with count", this);
 	_copy_values_with_count_act->setShortcut(

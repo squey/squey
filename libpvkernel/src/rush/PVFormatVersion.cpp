@@ -74,17 +74,17 @@ static QString const get_mapped_from_format(QString const& type_attr, QString co
 	return mapped_attr;
 }
 
-static QString const get_plotted_from_format(QString const& type_attr,
+static QString const get_scaled_from_format(QString const& type_attr,
                                              QString const& mapped_attr,
-                                             QString const& plotted_attr)
+                                             QString const& scaled_attr)
 {
 	if (type_attr == "enum")
 		return "enum";
 	else if (type_attr == "ipv4" and mapped_attr == "uniform")
 		return "enum";
-	else if (plotted_attr == "minmax")
+	else if (scaled_attr == "minmax")
 		return "default";
-	return plotted_attr;
+	return scaled_attr;
 }
 
 QString PVRush::PVFormatVersion::__impl::get_version(QDomDocument const& doc)
@@ -135,6 +135,10 @@ void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 		__impl::from9to10(doc);
 		version = "10";
 	}
+	if (version == "10") {
+		__impl::from10to11(doc);
+		version = "11";
+	}
 }
 
 void PVRush::PVFormatVersion::__impl::from0to1(QDomDocument& doc)
@@ -171,6 +175,53 @@ void PVRush::PVFormatVersion::__impl::from5to6(QDomDocument& doc)
 {
 	_rec_5to6(doc.documentElement());
 	doc.documentElement().setAttribute("version", "6");
+}
+
+void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
+{
+	QDomNodeList axis = doc.documentElement().elementsByTagName("axis");
+	for (int i = 0; i < axis.size(); i++) {
+		QDomElement ax = axis.at(i).toElement();
+		// Update type value
+		QString type = ax.attribute("type");
+		if (type.isNull()) {
+			type = "string";
+		}
+		// Update mapping value
+		QDomElement mapped = ax.namedItem("mapping").toElement();
+		QString mapping = mapped.attribute("mode");
+		if (mapping.isNull()) {
+			mapping = "default";
+		}
+		// Update plotting value
+		QDomElement scaled = ax.namedItem("plotting").toElement();
+		QString plotting = scaled.attribute("mode");
+		if (plotting.isNull()) {
+			plotting = "default";
+		}
+		scaled.toElement().setAttribute("mode", get_scaled_from_format(type, mapping, plotting));
+		mapped.toElement().setAttribute("mode", get_mapped_from_format(type, mapping));
+		ax.setAttribute("type", get_type_from_format(type, mapping));
+		// Update type_format
+		if (mapping == "hexadecimal") {
+			ax.toElement().setAttribute("type_format", "%#x");
+		} else if (mapping == "octal") {
+			ax.toElement().setAttribute("type_format", "%#o");
+		}
+		// Remove extra mapped node
+		auto mappings = ax.elementsByTagName("mapping");
+		for (int j = 1; j < mappings.count(); j++) {
+			ax.removeChild(mappings.at(j));
+		}
+		// Remove extra scaled node
+		auto plottings = ax.elementsByTagName("plotting");
+		for (int j = 1; j < plottings.count(); j++) {
+			ax.removeChild(plottings.at(j));
+		}
+		// Remove time-sample attribute
+		ax.removeAttribute("time-sample");
+	}
+	doc.documentElement().setAttribute("version", "7");
 }
 
 void PVRush::PVFormatVersion::__impl::from7to8(QDomDocument& doc)
@@ -278,51 +329,17 @@ void PVRush::PVFormatVersion::__impl::from9to10(QDomDocument& doc)
 	doc.documentElement().setAttribute("version", "10");
 }
 
-void PVRush::PVFormatVersion::__impl::from6to7(QDomDocument& doc)
+void PVRush::PVFormatVersion::__impl::from10to11(QDomDocument& doc)
 {
 	QDomNodeList axis = doc.documentElement().elementsByTagName("axis");
 	for (int i = 0; i < axis.size(); i++) {
 		QDomElement ax = axis.at(i).toElement();
-		// Update type value
-		QString type = ax.attribute("type");
-		if (type.isNull()) {
-			type = "string";
+		QDomElement plotting = ax.namedItem(PVFORMAT_XML_TAG_PLOTTING).toElement();
+		if (plotting != QDomElement()) {
+			plotting.setTagName(PVFORMAT_XML_TAG_SCALING);
 		}
-		// Update mapping value
-		QDomElement mapped = ax.namedItem("mapping").toElement();
-		QString mapping = mapped.attribute("mode");
-		if (mapping.isNull()) {
-			mapping = "default";
-		}
-		// Update plotting value
-		QDomElement plotted = ax.namedItem("plotting").toElement();
-		QString plotting = plotted.attribute("mode");
-		if (plotting.isNull()) {
-			plotting = "default";
-		}
-		plotted.toElement().setAttribute("mode", get_plotted_from_format(type, mapping, plotting));
-		mapped.toElement().setAttribute("mode", get_mapped_from_format(type, mapping));
-		ax.setAttribute("type", get_type_from_format(type, mapping));
-		// Update type_format
-		if (mapping == "hexadecimal") {
-			ax.toElement().setAttribute("type_format", "%#x");
-		} else if (mapping == "octal") {
-			ax.toElement().setAttribute("type_format", "%#o");
-		}
-		// Remove extra mapped node
-		auto mappings = ax.elementsByTagName("mapping");
-		for (int j = 1; j < mappings.count(); j++) {
-			ax.removeChild(mappings.at(j));
-		}
-		// Remove extra plotted node
-		auto plottings = ax.elementsByTagName("plotting");
-		for (int j = 1; j < plottings.count(); j++) {
-			ax.removeChild(plottings.at(j));
-		}
-		// Remove time-sample attribute
-		ax.removeAttribute("time-sample");
 	}
-	doc.documentElement().setAttribute("version", "7");
+	doc.documentElement().setAttribute("version", "11");
 }
 
 void PVRush::PVFormatVersion::__impl::_rec_0to1(QDomElement elt)

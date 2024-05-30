@@ -52,7 +52,7 @@ class PVInputTypeElasticsearch : public PVInputTypeDesc<PVElasticsearchQuery>
 	QKeySequence menu_shortcut() const override;
 	bool get_custom_formats(PVInputDescription_p in, hash_formats& formats) const override;
 
-	QIcon icon() const override { return QIcon(":/elasticsearch_icon"); }
+	PVModdedIcon icon() const override { return PVModdedIcon("elasticsearch"); }
 	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeElasticsearch)

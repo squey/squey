@@ -25,7 +25,7 @@
 #ifndef PVPARALLELVIEW_PVSCATTERVIEWBACKEND_H
 #define PVPARALLELVIEW_PVSCATTERVIEWBACKEND_H
 
-#include <squey/PVPlottedNrawCache.h>
+#include <squey/PVScaledNrawCache.h>
 
 #include <pvparallelview/PVScatterViewImagesManager.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -33,7 +33,7 @@
 namespace Squey
 {
 class PVView;
-class PVPlottedNrawCache;
+class PVScaledNrawCache;
 } // namespace Squey
 
 namespace PVParallelView
@@ -52,15 +52,15 @@ class PVScatterViewBackend
 	                     PVZonesProcessor& zp_bg,
 	                     PVZonesProcessor& zp_sel);
 
-	Squey::PVPlottedNrawCache& get_x_labels_cache() { return _x_labels_cache; }
-	Squey::PVPlottedNrawCache& get_y_labels_cache() { return _y_labels_cache; }
+	Squey::PVScaledNrawCache& get_x_labels_cache() { return _x_labels_cache; }
+	Squey::PVScaledNrawCache& get_y_labels_cache() { return _y_labels_cache; }
 
 	PVScatterViewImagesManager& get_images_manager() { return _images_manager; }
 
   private:
 	PVZonesManager::ZoneRetainer _zone_retainer;
-	Squey::PVPlottedNrawCache _x_labels_cache;
-	Squey::PVPlottedNrawCache _y_labels_cache;
+	Squey::PVScaledNrawCache _x_labels_cache;
+	Squey::PVScaledNrawCache _y_labels_cache;
 	PVScatterViewImagesManager _images_manager;
 };
 

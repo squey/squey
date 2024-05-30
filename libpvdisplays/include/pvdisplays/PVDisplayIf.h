@@ -29,6 +29,7 @@
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVRegistrableClass.h>
+#include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <pvdisplays/PVDisplaysContainer.h>
 
@@ -39,6 +40,8 @@
 #include <QWidget>
 #include <QString>
 #include <QDebug>
+
+#include <sigc++/sigc++.h>
 
 #include <unordered_map>
 #include <vector>
@@ -63,7 +66,8 @@ class PVDisplayIf
 		ShowInDockWidget = 4,
 		ShowInCentralDockWidget = 8,
 		ShowInCtxtMenu = 16,
-		DefaultPresenceInSourceWorkspace = 32
+		DefaultPresenceInSourceWorkspace = 32,
+		HasHelpPage = 64
 	} Flags;
 
   protected:
@@ -94,6 +98,11 @@ class PVDisplayIf
 
 	QIcon toolbar_icon() const { return _toolbar_icon; }
 
+
+  public:
+   sigc::signal<void(QWidget*, PVWidgets::PVMouseButtonsLegend)> _set_status_bar_mouse_legend;
+   sigc::signal<void(QWidget*)> _clear_status_bar_mouse_legend;
+
   private:
 	int _flags;
 	QString _tooltip_str;
@@ -113,8 +122,6 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 	using Params = std::vector<std::any>;
 
 	using PVDisplayIf::PVDisplayIf;
-
-	virtual QString widget_title(value_type* /*obj*/) const { return tooltip_str(); }
 
 	QWidget* get_unique_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {})
 	{
@@ -148,13 +155,12 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Squey::PVView>,
 	                QString tooltip_str = {},
 	                QIcon toolbar_icon = {},
 	                QString axis_menu_name = {},
-	                Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea)
+	                Qt::DockWidgetArea def_pos = Qt::NoDockWidgetArea
+					)
 	    : PVDisplayDataTreeIf(flags, tooltip_str, toolbar_icon, def_pos)
 	    , _axis_menu_name(axis_menu_name)
 	{
 	}
-
-	QString widget_title(Squey::PVView* view) const override;
 
 	virtual QString axis_menu_name() const { return _axis_menu_name; }
 	virtual void add_to_axis_menu(QMenu& menu,
@@ -163,6 +169,10 @@ class PVDisplayViewIf : public PVDisplayDataTreeIf<Squey::PVView>,
 	                              Squey::PVView* view,
 	                              PVDisplaysContainer* container);
 
+	/** @brief Can be used with QWidget::setWindowTitle() when no other info is needed */
+	QString default_window_title(Squey::PVView& view) const;
+
+  private:
 	QString _axis_menu_name;
 };
 

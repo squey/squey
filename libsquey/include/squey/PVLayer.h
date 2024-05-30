@@ -46,7 +46,7 @@ constexpr size_t SQUEY_LAYER_NAME_MAXLEN = 1000;
 namespace Squey
 {
 
-class PVPlotted;
+class PVScaled;
 
 /**
  * \class PVLayer
@@ -95,7 +95,7 @@ class PVLayer
 	void compute_selectable_count();
 	PVRow get_selectable_count() const { return selectable_count; }
 
-	void compute_min_max(PVPlotted const& plotted);
+	void compute_min_max(PVScaled const& scaled);
 	inline list_row_indexes_t get_mins() const { return _row_mins; }
 	inline list_row_indexes_t const& get_maxs() const { return _row_maxs; }
 

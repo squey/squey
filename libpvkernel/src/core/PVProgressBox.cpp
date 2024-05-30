@@ -24,6 +24,7 @@
 //
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QApplication>
 #include <QStyle>
@@ -75,9 +76,9 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	widgetCancel = new QWidget(this);
 	layoutCancel = new QHBoxLayout();
 	widgetCancel->setLayout(layoutCancel);
-	_btnCancel2 = new QPushButton(QApplication::style()->standardIcon(QStyle::SP_DialogOkButton),
+	_btnCancel2 = new QPushButton(PVModdedIcon("circle-check"),
 	                              QString(tr("")));
-	_btnCancel = new QPushButton(QApplication::style()->standardIcon(QStyle::SP_DialogCancelButton),
+	_btnCancel = new QPushButton(PVModdedIcon("circle-x"),
 	                             QString(tr("Cancel")));
 	_btnCancel2->setVisible(false);
 	layoutCancel->addSpacerItem(
