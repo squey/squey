@@ -63,7 +63,7 @@ Deploying the software as a service in a private cloud:
 
 Or building your own container image:
 
-https://squey.gitlab.io/squey/squey_docker.zip
+https://squey.gitlab.io/squey/squey_container.zip
 
 
 See ```README.md``` contained in archive file
