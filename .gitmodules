@@ -1,18 +1,18 @@
 [submodule "external/type_safe"]
-	path = external/type_safe
+	path = src/external/type_safe
 	url = https://github.com/foonathan/type_safe
 [submodule "libpvcop"]
-	path = libpvcop
+	path = src/libpvcop
 	url = ../libpvcop.git
 [submodule "squey-utils"]
-	path = squey-utils
+	path = src/squey-utils
 	url = ../utils.git
 [submodule "furl"]
-	path = furl
+	path = src/furl
 	url = ../furl.git
 [submodule "tests"]
-	path = tests
+	path = src/tests
 	url = ../squey-testsuite.git
 [submodule "external/breakpad"]
-	path = external/breakpad
+	path = src/external/breakpad
 	url = ../breakpad

@@ -29,7 +29,7 @@ add_definitions(-DSQUEY_CONFIG="${SQUEY_CONFIG}")
 
 install(FILES "pvconfig.ini" DESTINATION ${SQUEY_CONFIG})
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME squey.png)
-install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
+install(FILES "../CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 set(LINUX_QT6_PATH "/usr/lib/x86_64-linux-gnu")
 

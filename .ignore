@@ -1,3 +1,3 @@
-libpvkernel/src/third_party/*
-libpvkernel/src/widgets/querybuilder/*
+src/libpvkernel/src/third_party/*
+src/libpvkernel/src/widgets/querybuilder/*
 buildstream/patches/*

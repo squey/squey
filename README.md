@@ -1,6 +1,6 @@
 # About
 
-![](https://gitlab.com/squey/squey/-/raw/main/squey_screenshot.png)
+![](https://gitlab.com/squey/squey/-/raw/main/buildstream/files/screenshots/squey_screenshot.png)
 
 ## Project description
 

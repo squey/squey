@@ -5,7 +5,7 @@ description: |
   
 sources:
   - kind: local
-    path: external/breakpad
+    path: src/external/breakpad
     
 environment:
   CXXFLAGS: "-std=c++20"
