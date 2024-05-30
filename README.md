@@ -1,6 +1,6 @@
 # About
 
-![](https://gitlab.com/squey/squey/-/raw/main/squey_screenshot.png)
+![](https://gitlab.com/squey/squey/-/raw/main/buildstream/files/screenshots/squey_screenshot.png)
 
 ## Project description
 
@@ -63,7 +63,7 @@ Deploying the software as a service in a private cloud:
 
 Or building your own container image:
 
-https://squey.gitlab.io/squey/squey_docker.zip
+https://squey.gitlab.io/squey/squey_container.zip
 
 
 See ```README.md``` contained in archive file

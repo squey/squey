@@ -95,7 +95,7 @@ build container image:
     VERSION=$(curl -s -L https://flathub.org/api/v2/appstream/org.squey.Squey | jq -r .releases[0].version)
     VERSION_NOT_PUBLISHED=$([ $(curl -s -L -o /dev/null https://hub.docker.com/v2/repositories/squey/squey/tags/$VERSION -w "%{http_code}") -eq 404 ] && echo "true" || echo "false")
     PUBLISH_CONTAINER_IMAGE=$([ $PUBLISH_CONTAINER_IMAGE -o $VERSION_NOT_PUBLISHED ] && echo "true" || echo "false")
-    cd docker
+    cd container
   script: |
     PRODUCTION=1 ./build.sh
     if [ $PUBLISH_CONTAINER_IMAGE = "true" ] && [ $CI_COMMIT_REF_PROTECTED = "true" ]; then
@@ -108,7 +108,7 @@ build container image:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
-      - docker/**/*
+      - container/**/*
     - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
   interruptible: true
   environment:
@@ -137,7 +137,7 @@ build container image stop: # Retag merged branch container to $CI_DEFAULT_BRANC
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
-      - docker/**/*
+      - container/**/*
       when : manual
     - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
       when : manual
@@ -160,9 +160,9 @@ pages:
     rm -rf $CI_PROJECT_DIR/public/squey_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "Squey" -i "https://gitlab.com/squey/squey" -t "http://timestamp.comodoca.com/authenticode" -in nsis/squey_installer.exe -out "$CI_PROJECT_DIR/public/squey_installer.exe"
     cp "public/squey_installer.exe" "public/squey_installer_$(md5sum public/squey_installer.exe | awk '{ print $1 }').exe"
     cp buildstream/install.flatpakref public
-    cp -r docker squey_docker && 
-    zip -r public/squey_docker.zip squey_docker && 
-    rm -rf squey_docker
+    cp -r container squey_container && 
+    zip -r public/squey_container.zip squey_container && 
+    rm -rf squey_container
     if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi
     rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
@@ -245,5 +245,5 @@ semgrep-sast:
 container_scanning:
   variables:
     CS_IMAGE: $CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH
-    CS_DOCKERFILE_PATH: docker/resources/Dockerfile
+    CS_DOCKERFILE_PATH: container/resources/Dockerfile
     GIT_STRATEGY: fetch

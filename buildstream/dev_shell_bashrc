@@ -43,7 +43,7 @@ do
         BUILD_FOLDER="builds/$compiler/$build_type"
         if [ ! -d "$BUILD_FOLDER" ]
         then
-            cmake -B"$BUILD_FOLDER" -DCMAKE_CXX_COMPILER="${compilers[$compiler]}" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+            cmake -Ssrc -B"$BUILD_FOLDER" -DCMAKE_CXX_COMPILER="${compilers[$compiler]}" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
         fi
     done
 done
