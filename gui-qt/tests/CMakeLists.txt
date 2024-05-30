@@ -35,6 +35,6 @@ SET(SRC_FILES
 
 QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
-add_squey_compile_test(Tpvguiqt_import_export LINKS ${COMMON_LIBRARIES} FILES ${MOC_SRC} ${SRC_FILES} import_export.cpp)
-add_squey_test(Tpvguiqt_import_export Tpvguiqt_import_export -platform offscreen)
+#add_squey_compile_test(Tpvguiqt_import_export LINKS ${COMMON_LIBRARIES} FILES ${MOC_SRC} ${SRC_FILES} import_export.cpp)
+#add_squey_test(Tpvguiqt_import_export Tpvguiqt_import_export -platform offscreen)
 

@@ -34,6 +34,8 @@ namespace PVWidgets
 
 class PVFileDialog : public QFileDialog
 {
+	Q_OBJECT
+
   public:
 	PVFileDialog(QWidget* parent, Qt::WindowFlags flags);
 
