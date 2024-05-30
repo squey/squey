@@ -34,7 +34,7 @@ PVGuiQt::PVDockWidgetTitleBar::PVDockWidgetTitleBar(Squey::PVView* view, QWidget
 	layout->addStretch(1);
 
 	// Handle widget title changes
-	connect(view_widget, &QWidget::windowTitleChanged, [=] { _window_title->setText(view_widget->windowTitle()); });
+	connect(view_widget, &QWidget::windowTitleChanged, [&,view_widget] { _window_title->setText(view_widget->windowTitle()); });
 
 	// Help button
 	_help_button = new QPushButton();
