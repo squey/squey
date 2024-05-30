@@ -67,7 +67,7 @@ build release:
     - if [ "$UPDATE_INSTALLERS_ONLY" = "false" ]; then
       ./build.sh 
       --user-target=customer 
-      --cxx-compiler=g++ 
+      --cxx-compiler=clang++ 
       --branch="${CI_COMMIT_REF_NAME}" 
       --flatpak-export=true 
       --flatpak-repo="$CI_PROJECT_DIR/public/flatpak" 
