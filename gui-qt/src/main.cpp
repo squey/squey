@@ -242,6 +242,7 @@ int run_squey(QApplication& app, int argc, char* argv[])
 		pv_mw.set_window_title_with_filename();
 	}
 
+#if 1 // Taking screenshots is not supported under Wayland
 	/* set the screenshot shortcuts as global shortcuts
 	 */
 	QShortcut* sc;
@@ -259,6 +260,7 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	sc->setContext(Qt::ApplicationShortcut);
 	QObject::connect(sc, &QShortcut::activated, &pv_mw,
 	                 &App::PVMainWindow::get_screenshot_desktop);
+#endif
 
 	return app.exec();
 }

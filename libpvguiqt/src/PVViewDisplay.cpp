@@ -117,6 +117,7 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 			ctxt_menu->addAction(restore_action);
 		}
 
+#if 0 // Moving windows is not supported under Wayland
 		/*
 		    Extract from https://doc.qt.io/qt-6/qscreen.html#availableGeometry-prop Qt6.4
 		        Note, on X11 this will return the true available geometry only on systems with one
@@ -126,24 +127,25 @@ void PVGuiQt::PVViewDisplay::contextMenuEvent(QContextMenuEvent* event)
 		const bool X11_bug = QGuiApplication::primaryScreen()->availableGeometry() ==
 		                     QGuiApplication::primaryScreen()->geometry();
 
-		for (int i = 0; i < QGuiApplication::screens().size(); ++i) {
-			auto* screen_i = QGuiApplication::screens()[i];
-			char const* action_text = (screen() == screen_i) ? "Maximize on screen %n (current)"
-			                                                 : "Maximize on screen %n";
-			auto* maximize_action = new QAction(tr(action_text, "", i), this);
-			if (_workspace->screen() == screen_i ||
-			    (screen() == screen_i && _state != EState::CAN_MAXIMIZE) ||
-			    (X11_bug && screen_i == QGuiApplication::primaryScreen())) {
-				maximize_action->setEnabled(false);
-			} else {
-				connect(maximize_action, &QAction::triggered, [this, i] {
-					if (QGuiApplication::screens().size() > i) {
-						maximize_on_screen(QGuiApplication::screens()[i]);
-					}
-				});
+			for (int i = 0; i < QGuiApplication::screens().size(); ++i) {
+				auto* screen_i = QGuiApplication::screens()[i];
+				char const* action_text = (screen() == screen_i) ? "Maximize on screen %n (current)"
+																: "Maximize on screen %n";
+				auto* maximize_action = new QAction(tr(action_text, "", i), this);
+				if (_workspace->screen() == screen_i ||
+					(screen() == screen_i && _state != EState::CAN_MAXIMIZE) ||
+					(X11_bug && screen_i == QGuiApplication::primaryScreen())) {
+					maximize_action->setEnabled(false);
+				} else {
+					connect(maximize_action, &QAction::triggered, [this, i] {
+						if (QGuiApplication::screens().size() > i) {
+							maximize_on_screen(QGuiApplication::screens()[i]);
+						}
+					});
+				}
+				ctxt_menu->addAction(maximize_action);
 			}
-			ctxt_menu->addAction(maximize_action);
-		}
+ #endif
 
 		ctxt_menu->popup(QCursor::pos());
 	}
