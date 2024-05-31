@@ -91,7 +91,7 @@ fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
   pushd .
-  cd ../libpvcop/tests/files
+  cd ../src/libpvcop/tests/files
   git submodule update --checkout
   popd
 fi
