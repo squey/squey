@@ -40,6 +40,25 @@ workflow:
     cd buildstream
   interruptible: true
 
+builder appstream-linter:
+  image:
+    name: ghcr.io/flathub/flatpak-builder-lint:latest
+    entrypoint: [""]
+  stage: build
+  tags:
+    - privileged-docker
+  before_script:
+    - pip install jinja2-cli
+  script:
+    - cd buildstream
+    - APPSTREAM_LINTER=true ./generate_appstream_metadata.sh
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      changes:
+      - README.md
+      - buildstream/files/org.squey.Squey.metainfo.xml.j2
+  interruptible: true
+
 build testsuite:
   extends: .build
   script:
