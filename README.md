@@ -6,9 +6,9 @@
 
 <!-- project_description_start -->
 
-<a href="https://squey.org">Squey</a> is designed from the ground up to take advantage of GPUs and CPUs to perform interactive explorations of massive amounts of data.
+<p><a href="https://squey.org">Squey</a> is designed from the ground up to take advantage of GPUs and CPUs to perform interactive explorations of massive amounts of data.</p>
 
-It gives users an exhaustive yet intuitive multi-view representation of columnar data and can ingest from:
+<p>It gives users an exhaustive yet intuitive multi-view representation of columnar data and can ingest from:</p>
 <ol>
     <li>Structured text files (CSV, logs, ...)</li>
     <li>Apache Parquet files</li>
@@ -17,7 +17,7 @@ It gives users an exhaustive yet intuitive multi-view representation of columnar
     <li>Elasticsearch databases</li>
 </ol>
 
-Squey strives to deliver value through its <b>V.I.SU</b> approach:
+<p>Squey strives to deliver value through its <b>V.I.SU</b> approach:</p>
 
 <ul>
   <li><b>Visualize</b>: Leverage various visual representations of raw data in combination with statistics</li>
@@ -25,7 +25,7 @@ Squey strives to deliver value through its <b>V.I.SU</b> approach:
   <li><b>Spot the Unknown</b>: As a structured understanding of the data emerges, identify unknowns and anomalies</li>
 </ul>
 
-Squey can be used for many different purposes, such as:
+<p>Squey can be used for many different purposes, such as:</p>
 <ul>
     <li><b>BI and Big Data</b>: Bootstrap initial understanding of complex datasets and deep dive where necessary to design accurate data processing</li>
     <li><b>Cybersecurity</b>: Detect weak signals such as attacks and data leaks</li>
@@ -34,7 +34,7 @@ Squey can be used for many different purposes, such as:
 </ul>
 
 <br>
-Give yourself a chance to <b>see</b> your data and have fun exploring!
+<p>Give yourself a chance to <b>see</b> your data and have fun exploring!</p>
 
 <!-- project_description_end -->
 
