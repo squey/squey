@@ -98,9 +98,22 @@ variables:
     -DCMAKE_INSTALL_PREFIX=%{prefix} \
     -DARCH_TYPE=corei7 \
     -DUSER_TARGET=%{user_target} \
-    -DCMAKE_CXX_COMPILER=%{cxx_compiler} \
+    -DCMAKE_CXX_COMPILER="/usr/bin/%{cxx_compiler}" \
     -DCODE_COVERAGE=%{code_coverage}
   copy-launchers: "cp -r buildstream/files/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"
+  install-deps:
+    install -D /usr/lib/%{gcc_triplet}/crti.o -t %{install-root}%{libdir} && 
+    install -D /usr/lib/%{gcc_triplet}/crtn.o -t %{install-root}%{libdir} && 
+    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so -t %{install-root}%{libdir} && 
+    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so.1 -t %{install-root}%{libdir} && 
+    install -D /usr/lib/%{gcc_triplet}/libc.so -t %{install-root}%{libdir} && 
+    sed -i 's|/usr/lib/x86_64-linux-gnu/||g;s|/lib64/||' %{install-root}%{libdir}/libc.so &&
+    install -D /usr/lib/%{gcc_triplet}/libc_nonshared.a -t %{install-root}%{libdir} && 
+    cp /usr/lib/%{gcc_triplet}/libm.so.6 %{install-root}%{libdir}/libm.so &&
+    find /usr/lib/gcc/%{triplet} -name libgcc.a -exec install -D \{\} -t %{install-root}%{libdir} \; && 
+    find /usr/lib/gcc/%{triplet} -name crtbeginS.o -exec install -D \{\} -t %{install-root}%{libdir} \; && 
+    find /usr/lib/gcc/%{triplet} -name crtendS.o -exec install -D \{\} -t %{install-root}%{libdir} \;
+
     
 config:
   configure-commands:
@@ -129,6 +142,7 @@ config:
       install-commands:
       - |
         %{make-install}
+        %{install-deps}
         %{copy-launchers}
         if [ "%{keep_build_dir}" = "1" ]; then
           cp --preserve -r "%{build-dir}" "%{install-root}/compilation_build"
@@ -139,6 +153,7 @@ config:
         - cd "%{build-dir}" && ninja
       install-commands:
         - "%{make-install}"
+        - '%{install-deps}'
         - "%{copy-launchers}"
         
   strip-commands:

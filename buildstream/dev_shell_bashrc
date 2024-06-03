@@ -35,7 +35,7 @@ export __EGL_VENDOR_LIBRARY_DIRS="$__EGL_VENDOR_LIBRARY_DIRS:$(find /usr/lib/x86
 # Run ssh server to enable remote debugging into development sandbox
 buildstream/sshd/run_ssh_server.sh &
 
-declare -A compilers=(["GCC"]="g++" ["Clang"]="clang++")
+declare -A compilers=(["GCC"]="/usr/bin/g++" ["Clang"]="/usr/bin/clang++")
 for build_type in Debug RelWithDebInfo
 do
     for compiler in "${!compilers[@]}"

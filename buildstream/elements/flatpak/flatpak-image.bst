@@ -7,5 +7,5 @@ depends:
 config:
   include-orphans: True
   exclude:
-  - devel
+  #- devel
   - debug

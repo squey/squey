@@ -135,7 +135,6 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	}
 	else {
 		_is_gpu_accelerated = false;
-		return;
 	}
 
 	if (_context() == nullptr) {

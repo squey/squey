@@ -60,6 +60,7 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 
   public:
 	bool is_gpu_accelerated() const override { return _is_gpu_accelerated; }
+	size_t device_count() const { return _devices.size(); }
 
   public:
 	static PVBCIDrawingBackendOpenCL& get();
