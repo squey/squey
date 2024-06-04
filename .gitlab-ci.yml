@@ -230,7 +230,7 @@ sast:
   variables:
     SAST_EXCLUDED_PATHS: external, tests, doc
     SAST_EXCLUDED_ANALYZERS: bandit, brakeman, gosec, kubesec, nodejs-scan, phpcs-security-audit,
-      pmd-apex, security-code-scan, sobelow, spotbugs
+      pmd-apex, security-code-scan, sobelow, spotbugs, flawfinder
   stage: test
   tags:
     - privileged-docker
@@ -239,10 +239,6 @@ include:
 #- template: Code-Quality.gitlab-ci.yml
 #- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
 - template: Jobs/Container-Scanning.gitlab-ci.yml
-
-flawfinder-sast:
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "schedule"'
 
 semgrep-sast:
   rules:
