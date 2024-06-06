@@ -1,3 +1,9 @@
+5.0.2 (2024-06-06)
+-------------------
+
+This minor release fixes or improves:
+* Reenable OpenCL software backend
+
 5.0.1 (2024-06-03)
 -------------------
 
