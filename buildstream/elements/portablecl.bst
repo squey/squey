@@ -1,12 +1,12 @@
 kind: cmake
 description: |
 
-    The Open Standard for Parallel Programming of Heterogeneous Systems
+    PoCL is a portable open source (MIT-licensed) implementation of the OpenCL standard.
 
 sources:
 - kind: tar
-  url: github_codeload:pocl/pocl/tar.gz/refs/tags/v4.0
-  ref: 7f4e8ab608b3191c2b21e3f13c193f1344b40aba7738f78762f7b88f45e8ce03
+  url: github:pocl/pocl/archive/refs/tags/v6.0-RC2.tar.gz
+  ref: 7b7aea699c73dbfc6afa4013c651380859ba4526f1729809772486b7c35351b9
 
 variables:
   cmake-local: |
@@ -17,8 +17,9 @@ variables:
 
 depends:
 - base.bst
-- freedesktop-sdk.bst:components/llvm.bst
 - freedesktop-sdk.bst:components/opencl.bst
 - freedesktop-sdk.bst:components/patch.bst
 - freedesktop-sdk.bst:components/python3.bst
 - libhwloc.bst
+- clang.bst
+- binutils.bst

@@ -1,0 +1,48 @@
+kind: cmake
+description: |
+
+    The Clang project provides a language front-end and tooling infrastructure for languages in the C language family (C, C++, Objective C/C++, OpenCL, CUDA, and RenderScript) for the LLVM project.
+
+sources:
+- kind: tar
+  url: github:llvm/llvm-project/archive/refs/tags/llvmorg-17.0.6.tar.gz
+  ref: 81494d32e6f12ea6f73d6d25424dbd2364646011bb8f7e345ca870750aa27de1
+
+variables:
+  debug_flags: "-g1"
+  optimize-debug: "false"
+  cmake-local: >-
+    -DCMAKE_C_COMPILER=clang
+    -DCMAKE_CXX_COMPILER=clang++
+    -DLLVM_ENABLE_PROJECTS='clang;compiler-rt'
+    -DLLVM_ENABLE_ASSERTIONS:BOOL=OFF
+    -DBUILD_SHARED_LIBS:BOOL=OFF
+    -DLLVM_BUILD_LLVM_DYLIB:BOOL=ON
+    -DLLVM_LINK_LLVM_DYLIB:BOOL=ON
+    -DCMAKE_BUILD_TYPE=Release
+    -DCMAKE_INSTALL_RPATH="%{prefix}/lib"
+    -DLLVM_ENABLE_LIBCXX:BOOL=OFF
+    -DLLVM_ENABLE_ZLIB:BOOL=ON
+    -DLLVM_ENABLE_FFI:BOOL=ON
+    -DLLVM_ENABLE_RTTI:BOOL=ON
+    -DLLVM_INCLUDE_TESTS:BOOL=OFF
+    -DLLVM_INCLUDE_EXAMPLES:BOOL=OFF
+    -DLLVM_INCLUDE_UTILS:BOOL=ON
+    -DLLVM_INSTALL_UTILS:BOOL=ON
+    -DLLVM_INCLUDE_DOCS:BOOL=OFF
+    -DLLVM_ENABLE_DOXYGEN:BOOL=OFF
+    -DLLVM_BINUTILS_INCDIR=%{includedir}
+    -DCLANG_LINK_CLANG_DYLIB=ON,
+    -DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF
+    -DLLVM_DEFAULT_TARGET_TRIPLE=%{build-triplet}
+    -DLLVM_TARGETS_TO_BUILD="X86;AMDGPU;NVPTX"
+  cmake: |
+    cmake -B%{build-dir} -Hllvm -G"%{generator}" %{cmake-args}
+
+build-depends:
+- freedesktop-sdk.bst:components/python3.bst
+- freedesktop-sdk.bst:components/llvm.bst
+
+depends:
+- base.bst
+- freedesktop-sdk.bst:components/libffi.bst
