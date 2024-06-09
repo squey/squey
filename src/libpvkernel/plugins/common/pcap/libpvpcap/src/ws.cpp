@@ -23,20 +23,43 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <pwd.h>
+#include <assert.h>
+#include <libpvpcap/shell.h>
+#include <qchar.h>
+#include <qflags.h>
+#include <qlist.h>
+#include <qstring.h>
+#include <rapidjson/allocators.h>
+#include <rapidjson/encodings.h>
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/writer.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/constants.hpp>
+#include <boost/algorithm/string/detail/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/algorithm/string/trim.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <unordered_set>
+#include <QDir>
+#include <QFileInfo>
+#include <cstdlib>
+#include <fstream>
+#include <functional>
+#include <iterator>
+#include <string>
+#include <unordered_map>
+#include <vector>
+#include <algorithm>
+
 #include "../include/libpvpcap.h"
 #include "../include/libpvpcap/ws.h"
 #include "../include/libpvpcap/exception.h"
-
-#include <unordered_set>
-
 #include "rapidjson/document.h"
-#include "rapidjson/prettywriter.h"
 #include "rapidjson/stringbuffer.h"
-
-#include <QDir>
-#include <QFileInfo>
-
-#include <pwd.h>
 
 namespace pvpcap
 {

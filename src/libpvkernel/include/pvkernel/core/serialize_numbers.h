@@ -32,6 +32,7 @@
 #include <iterator>
 #include <cstddef>
 #include <algorithm>
+#include <utility>
 
 #define DECIMAL_DIGIT_ACCUMULATE(Accum, Digit_val, Type)                                           \
 	((void)((void*)&(Accum) == (Type*)NULL), /* The type matches.  */ /* The type is unsigned.  */        \

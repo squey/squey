@@ -24,6 +24,18 @@
 //
 
 #include <pvkernel/widgets/PVQueryBuilder.h>
+#include <QtCore/qobjectdefs.h>
+#include <qcolor.h>
+#include <qlayout.h>
+#include <qnamespace.h>
+#include <qpalette.h>
+#include <qurl.h>
+#include <qvariant.h>
+#include <qwebenginepage.h>
+#include <rapidjson/allocators.h>
+#include <rapidjson/encodings.h>
+#include <rapidjson/rapidjson.h>
+#include <stdlib.h>
 
 #ifdef QT_WEBKIT
 #include <QtWebKitWidgets/QWebView>
@@ -32,21 +44,14 @@
 #include <QtWebEngineWidgets/QWebEngineView>
 #endif
 
-#include <QDir>
-#include <QEventLoop>
-#include <QInputDialog>
-#include <QHBoxLayout>
-#include <QTextStream>
-#include <QMessageBox>
-#include <QCoreApplication>
-#include <QDir>
-
-#include <sstream>
-#include <iostream>
-
 #include <rapidjson/document.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+#include <QEventLoop>
+#include <QHBoxLayout>
+#include <sstream>
+#include <QApplication>
+#include <functional>
 
 PVWidgets::PVQueryBuilder::PVQueryBuilder(QWidget* parent /*= nullptr*/)
     : QWidget(parent), _view(new QWebEngineView)

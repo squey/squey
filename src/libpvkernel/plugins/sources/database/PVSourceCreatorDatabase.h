@@ -27,6 +27,10 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/rush/PVSourceCreator.h>
+#include <qstring.h>
+
+#include "pvkernel/core/PVRegistrableClass.h"
+#include "pvkernel/rush/PVInputDescription.h"
 
 namespace PVRush
 {

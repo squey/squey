@@ -24,7 +24,11 @@
 //
 
 #include <pvkernel/widgets/PVPopupWidget.h>
-
+#include <qcoreevent.h>
+#include <qguiapplication.h>
+#include <qnamespace.h>
+#include <qpoint.h>
+#include <qrect.h>
 #include <QApplication>
 #include <QMouseEvent>
 #include <QScreen>

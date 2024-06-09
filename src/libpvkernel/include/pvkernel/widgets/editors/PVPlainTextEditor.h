@@ -25,11 +25,15 @@
 #ifndef PVCORE_PVPLAINTEXTEDITOR_H
 #define PVCORE_PVPLAINTEXTEDITOR_H
 
+#include <pvkernel/core/PVPlainTextType.h>
+#include <pvkernel/widgets/PVFileDialog.h>
+#include <qtmetamacros.h>
 #include <QWidget>
 #include <QPlainTextEdit>
 
-#include <pvkernel/core/PVPlainTextType.h>
-#include <pvkernel/widgets/PVFileDialog.h>
+class QEvent;
+class QObject;
+class QPlainTextEdit;
 
 namespace PVWidgets
 {

@@ -26,15 +26,13 @@
 #define PVRAWSOURCEBASE_FILE_H
 
 #include <pvkernel/rush/PVRawSourceBase_types.h> // for PVRawSourceBase_p
-
 #include <pvkernel/filter/PVFilterFunction.h> // for PVFilterFunctionBase
-
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVBinaryChunk.h>
+#include <stddef.h>
+#include <QString> // for QString
 
 #include "pvbase/types.h" // for PVCol, chunk_index
-
-#include <QString> // for QString
 
 namespace PVCore
 {

@@ -29,29 +29,16 @@
 #include <pvkernel/widgets/editors/PVPercentRangeEditor.h>
 #include <pvkernel/widgets/editors/PVPlainTextEditor.h>
 #include <pvkernel/widgets/editors/PVRegexpEditor.h>
-
+#include <qtypeinfo.h>
 #include <QCheckBox> // for QCheckBox
 #include <QItemEditorFactory>
 #include <QLineEdit> // for QLineEdit
 #include <QMetaType> // for qMetaTypeId
-#include <QVariant>  // for QVariant, QMetaType::Type, etc
 
-namespace PVCore
-{
-class PVColorGradientDualSliderType;
-} // namespace PVCore
-namespace PVCore
-{
-class PVEnumType;
-} // namespace PVCore
-namespace PVCore
-{
-class PVPercentRangeType;
-} // namespace PVCore
-namespace PVCore
-{
-class PVPlainTextType;
-} // namespace PVCore
+#include "pvkernel/core/PVColorGradientDualSliderType.h"
+#include "pvkernel/core/PVEnumType.h"
+#include "pvkernel/core/PVPercentRangeType.h"
+#include "pvkernel/core/PVPlainTextType.h"
 
 QItemEditorFactory* PVWidgets::PVArgumentListWidgetFactory::create_core_widgets_factory()
 {

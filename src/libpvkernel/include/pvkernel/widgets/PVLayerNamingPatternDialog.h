@@ -25,10 +25,12 @@
 #ifndef PVWIDGETS_PVLAYERNAMINGPATTERNDIALOG_H
 #define PVWIDGETS_PVLAYERNAMINGPATTERNDIALOG_H
 
+#include <qstring.h>
 #include <QDialog>
 
 class QLineEdit;
 class QComboBox;
+class QWidget;
 
 namespace PVWidgets
 {

@@ -26,13 +26,16 @@
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
-
-#include <pvkernel/rush/PVFileDescription.h>
+#include <string.h>
+#include <string>
+#include <vector>
 
 #include "PVElasticsearchSource.h"
 #include "../../common/elasticsearch/PVElasticsearchQuery.h"
-
-#include <string>
+#include "elasticsearch/PVElasticsearchAPI.h"
+#include "elasticsearch/PVElasticsearchInfos.h"
+#include "pvkernel/core/PVLogger.h"
+#include "pvkernel/rush/PVInputDescription.h"
 
 static constexpr const size_t MEGA = 1024 * 1024;
 

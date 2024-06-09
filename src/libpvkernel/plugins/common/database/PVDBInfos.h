@@ -26,11 +26,15 @@
 #define PVDBINFOS_FILE_H
 
 #include <pvkernel/core/PVSerializeArchive.h>
-
+#include <stdint.h>
 #include <QSqlDatabase>
 #include <QString>
 
 #include "PVDBServ_types.h"
+
+namespace PVCore {
+class PVSerializeObject;
+}  // namespace PVCore
 
 namespace PVRush
 {

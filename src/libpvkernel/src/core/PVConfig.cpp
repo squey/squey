@@ -25,12 +25,12 @@
 
 #include <pvkernel/core/PVConfig.h> // for PVConfig, etc
 #include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR
-
 #include <pvbase/general.h> // for SQUEY_CONFDIR, etc
-
+#include <qbytearray.h>
+#include <qchar.h>
+#include <qtenvironmentvariables.h>
 #include <memory>    // for operator==, __shared_ptr, etc
 #include <stdexcept> // for runtime_error
-
 #include <QString>
 #include <QDir>
 #include <QFile>

@@ -24,6 +24,7 @@
 //
 
 #include <pvkernel/core/PVVersion.h>
+#include <ostream>
 
 namespace PVCore
 {

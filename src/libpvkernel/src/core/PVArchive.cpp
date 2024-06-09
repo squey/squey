@@ -26,30 +26,25 @@
 #include <pvkernel/core/PVArchive.h>   // for PVArchive
 #include <pvkernel/core/PVDirectory.h> // for PVDirectory
 #include <pvkernel/core/PVLogger.h>    // for PVLOG_ERROR, PVLOG_INFO, etc
-
 #include <pvbase/general.h> // for SQUEY_PATH_SEPARATOR_CHAR
-
 #include <archive.h>       // for archive_error_string, etc
 #include <archive_entry.h> // for archive_entry_set_pathname, etc
-
-#include <boost/thread/condition_variable.hpp>
-
+#include <sys/stat.h> // for stat, off_t, st_atime, etc
+#include <qbytearray.h>
+#include <qflags.h>
+#include <qiodevice.h>
+#include <qlist.h>
+#include <sys/types.h>
+#include <boost/thread/exceptions.hpp>
+#include <boost/thread/interruption.hpp>
 #include <array>      // for array
 #include <cstddef>    // for size_t
-#include <sys/stat.h> // for stat, off_t, st_atime, etc
-
 #include <QChar>
 #include <QDir>
 #include <QDirIterator>
 #include <QFile>
 #include <QFileInfo>
 #include <QString>
-#include <QStringList>
-
-namespace boost
-{
-class thread_interrupted;
-} // namespace boost
 
 static void squey_archive_read_support(struct archive* a)
 {

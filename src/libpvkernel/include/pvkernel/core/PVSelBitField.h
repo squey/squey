@@ -27,6 +27,10 @@
 
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBitVisitor.h>
+#include <assert.h>
+#include <emmintrin.h>
+#include <stdint.h>
+#include <sys/types.h>
 
 #ifndef NDEBUG
 #include <pvkernel/core/PVAlgorithms.h>
@@ -45,6 +49,11 @@ class array;
 } // namespace pvcop
 
 #include <vector>
+#include <utility>
+
+#include "pvbase/types.h"
+#include "pvcop/core/array.h"
+#include "pvcop/core/impl/bit.h"
 
 namespace PVCore
 {

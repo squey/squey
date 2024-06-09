@@ -24,14 +24,14 @@
 //
 
 #include <pvkernel/rush/PVRawSourceBase.h> // for PVRawSourceBase
-
-#include "pvkernel/core/PVElement.h" // for PVElement
 #include <pvkernel/core/PVTextChunk.h>
-
-#include "pvbase/types.h" // for PVCol, PVRow
-
 #include <cstddef> // for size_t
 #include <cstdint> // for uintptr_t
+#include <list>
+
+#include "pvkernel/core/PVElement.h" // for PVElement
+#include "pvbase/types.h" // for PVCol, PVRow
+#include "type_safe/strong_typedef.hpp"
 
 void PVCore::PVTextChunk::init_elements_fields()
 {

@@ -25,6 +25,9 @@
 #ifndef PVWIDGETS_PVABSTRACTRANGEPICKER_H
 #define PVWIDGETS_PVABSTRACTRANGEPICKER_H
 
+#include <qminmax.h>
+#include <qtmetamacros.h>
+#include <qtypes.h>
 #include <QBrush>   // for QLinearGradient
 #include <QLocale>  // for QLocale
 #include <QSize>    // for QSize

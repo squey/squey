@@ -27,11 +27,18 @@
 
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
+#include <furl/furl.h>
+#include <tbb/combinable.h>
+#include <tbb/scalable_allocator.h>
 #include <QChar>
 
-#include <furl/furl.h>
+#include "pvkernel/core/PVAllocators.h"
+#include "pvkernel/core/PVElement.h"
+#include "pvkernel/filter/PVFilterFunction.h"
 
-#include <tbb/combinable.h>
+namespace PVCore {
+class PVField;
+}  // namespace PVCore
 
 namespace PVFilter
 {

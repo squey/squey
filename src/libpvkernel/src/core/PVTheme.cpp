@@ -23,17 +23,19 @@
  */
 
 #include <pvkernel/core/PVTheme.h>
-
 #include <pvkernel/core/PVConfig.h>
-
+#include <qdbusextratypes.h>
+#include <qobjectdefs.h>
+#include <qtextstream.h>
+#include <qvariant.h>
+#include <stdint.h>
+#include <sys/types.h>
 #include <QApplication>
 #include <QDBusConnection>
 #include <QDBusInterface>
 #include <QDBusReply>
-#include <QGuiApplication>
-#include <QStyleHints>
 #include <QFile>
-#include <QSettings>
+#include <cstdlib>
 
 static constexpr const char* DBUS_NAME = "org.freedesktop.portal.Desktop";
 static constexpr const char* DBUS_PATH = "/org/freedesktop/portal/desktop";

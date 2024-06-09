@@ -25,13 +25,17 @@
 #ifndef __PVELASTICSEARCHJSONCONVERTER_H__
 #define __PVELASTICSEARCHJSONCONVERTER_H__
 
-#include <string>
-
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
-
 #include <pvkernel/core/PVQueryBuilderJsonConverter.h>
 #include <pvkernel/core/PVVersion.h>
+#include <rapidjson/allocators.h>
+#include <rapidjson/document.h>
+#include <rapidjson/rapidjson.h>
+#include <string>
+#include <cstddef>
+#include <unordered_map>
+#include <vector>
 
 /** Converter object from QueryBuilder json to ElasticSearch json
  */

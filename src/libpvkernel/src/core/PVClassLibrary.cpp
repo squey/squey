@@ -26,14 +26,14 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVConfig.h> // for PVConfig
 #include <pvkernel/core/PVLogger.h> // for PVLOG_INFO, PVLOG_ERROR
-
 #include <pvbase/general.h> // for PVCORE_DIRECTORY_SEP
-
+#include <qvariant.h>
 #include <QDir>
 #include <QLibrary>
 #include <QSettings>
 #include <QString>
 #include <QStringList>
+#include <QList>
 
 // Helper class to load external plugins
 

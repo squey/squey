@@ -24,10 +24,8 @@
 //
 
 #include <pvkernel/rush/PVRawSourceBase.h>
-
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsSplitter_p
-
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList
 #include <pvkernel/core/PVTextChunk.h>    // for list_elts, PVChunk
 #include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS
@@ -35,26 +33,23 @@
 #include <pvkernel/core/PVLogger.h>       // for PVLOG_INFO
 #include <pvkernel/core/PVOrderedMap.h>
 #include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
-
-#include "pvbase/types.h" // for PVCol
-
 #include <tbb/tick_count.h> // for tick_count
-
+#include <assert.h>
+#include <qtypeinfo.h>
 #include <cstddef>  // for size_t
 #include <iostream> // for operator<<, basic_ostream, etc
 #include <list>     // for _List_iterator
 #include <memory>   // for __shared_ptr, shared_ptr
 #include <utility>  // for pair
 #include <vector>   // for vector
-
 #include <QHash>    // for QHash<>::const_iterator, etc
 #include <QString>  // for QString, operator==, etc
 #include <QVariant> // for QVariant
 
-namespace PVCore
-{
-class PVField;
-} // namespace PVCore
+#include "pvbase/types.h" // for PVCol
+#include "pvkernel/core/PVChunk.h"
+#include "pvkernel/core/PVField.h"
+#include "pvkernel/rush/PVRawSourceBase_types.h"
 
 constexpr size_t GUESS_PVELEMENT_SAMPLE_NUMBER = 20000;
 

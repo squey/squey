@@ -24,10 +24,11 @@
 //
 
 #include <pvkernel/core/serialize_numbers.h>
-
+#include <stdint.h>
 #include <numeric>
-
-#include <pvlogger.h>
+#include <algorithm>
+#include <cctype>
+#include <stdexcept>
 
 size_t PVCore::get_count_from_ranges(const std::vector<std::pair<size_t, size_t>>& ranges)
 {

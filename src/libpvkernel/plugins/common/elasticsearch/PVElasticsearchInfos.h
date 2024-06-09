@@ -26,13 +26,15 @@
 #define PVELASTICSEARCHINFOS_H
 
 #include <pvkernel/core/PVSerializeArchive.h>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
-
+#include <pvlogger.h>
+#include <stdint.h>
 #include <QString>
 
-#include <pvlogger.h>
+namespace PVCore {
+class PVSerializeObject;
+}  // namespace PVCore
 
 namespace PVRush
 {

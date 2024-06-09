@@ -25,7 +25,12 @@
 
 #include "PVElasticsearchQuery.h"
 
+#include <qsettings.h>
+#include <qvariant.h>
 #include <memory>
+
+#include "pvkernel/core/PVSerializeObject.h"
+#include "pvkernel/rush/PVInputDescription.h"
 
 PVRush::PVElasticsearchQuery::PVElasticsearchQuery(PVElasticsearchInfos const& infos,
                                                    QString const& query,

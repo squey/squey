@@ -26,8 +26,15 @@
 #define PVFILTER_PVFIELDFILTERGREP_H
 
 #include <pvkernel/filter/PVFieldsFilter.h>
-
 #include <QString>
+
+#include "pvkernel/filter/PVFilterFunction.h"
+#include "pvkernel/core/PVField.h"
+
+namespace PVCore {
+class PVArgumentList;
+class PVField;
+}  // namespace PVCore
 
 namespace PVFilter
 {

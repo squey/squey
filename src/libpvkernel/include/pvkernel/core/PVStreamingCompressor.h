@@ -26,15 +26,19 @@
 #define _PVCORE_PVSTREAMINGCOMPRESSOR_H__
 
 #include <pvkernel/core/PVOrderedMap.h>
-
+#include <sys/types.h>
 #include <atomic>
 #include <mutex>
 #include <string>
 #include <thread>
 #include <vector>
+#include <stdexcept>
+#include <tuple>
+#include <utility>
 
 namespace PVCore
 {
+template <class Key, class Value> class PVOrderedMap;
 
 namespace __impl
 {

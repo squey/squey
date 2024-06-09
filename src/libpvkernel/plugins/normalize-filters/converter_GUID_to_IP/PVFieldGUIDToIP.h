@@ -28,6 +28,13 @@
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 
+#include "pvkernel/filter/PVFilterFunction.h"
+
+namespace PVCore {
+class PVArgumentList;
+class PVField;
+}  // namespace PVCore
+
 namespace PVFilter
 {
 

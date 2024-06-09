@@ -28,6 +28,8 @@
 #include <pvbase/export.h>
 #include <QItemEditorFactory>
 
+class QItemEditorFactory;
+
 namespace PVWidgets
 {
 

@@ -25,10 +25,11 @@
 #ifndef PVWIDGETS_PVGRAPHICSVIEWINTERACTOR_H
 #define PVWIDGETS_PVGRAPHICSVIEWINTERACTOR_H
 
+#include <qcoreevent.h>
+#include <qtmetamacros.h>
 #include <QObject>
 #include <QWheelEvent>
 #include <QKeyEvent>
-
 #include <type_traits>
 
 namespace PVWidgets

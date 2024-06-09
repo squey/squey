@@ -26,12 +26,20 @@
 #define __PVWIDGETS_PVMULTIPLEFILEDIALOG_H__
 
 #include <pvkernel/widgets/PVFileDialog.h>
-
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <qstring.h>
+#include <qurl.h>
 #include <QGroupBox>
 #include <QListWidget>
 #include <QLineEdit>
 #include <QGridLayout>
 #include <QPushButton>
+
+class QLineEdit;
+class QListWidget;
+class QPushButton;
+class QWidget;
 
 namespace PVWidgets
 {

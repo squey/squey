@@ -28,13 +28,23 @@
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
-
 #include <pvkernel/filter/PVFilterFunction.h>
-
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <stddef.h>
 #include <list>
-
 #include <QString>
 #include <QHash>
+#include <memory>
+#include <stdexcept>
+#include <utility>
+
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVLogger.h"
+
+namespace PVCore {
+class PVField;
+}  // namespace PVCore
 
 namespace PVFilter
 {

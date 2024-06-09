@@ -25,8 +25,11 @@
 #ifndef PVCORE_PVREGEXPEDITOR_H
 #define PVCORE_PVREGEXPEDITOR_H
 
+#include <qtmetamacros.h>
 #include <QLineEdit>
 #include <QRegExp>
+
+class QWidget;
 
 namespace PVWidgets
 {

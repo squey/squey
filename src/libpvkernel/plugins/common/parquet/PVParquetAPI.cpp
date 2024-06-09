@@ -25,13 +25,23 @@
 
 #include "PVParquetAPI.h"
 
-#include <arrow/io/api.h>
-#include <arrow/table.h>
 #include <parquet/arrow/reader.h>
-#include <arrow/filesystem/api.h>
 #include <parquet/schema.h>
+#include <arrow/result.h>
+#include <arrow/status.h>
+#include <parquet/properties.h>
+#include <stdint.h>
+#include <boost/date_time/posix_time/posix_time_config.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+#include <algorithm>
+#include <limits>
+#include <ostream>
+#include <string>
 
-#include "boost/date_time/posix_time/posix_time.hpp"
+#include "pvcop/db/types.h"
+#include "pvkernel/rush/PVFormat_types.h"
+#include "pvkernel/rush/PVXmlTreeNodeDom.h"
+#include "pvlogger.h"
 
 const std::unordered_map<arrow::Type::type, PVRush::PVParquetAPI::pvcop_type_infos>  PVRush::PVParquetAPI::pvcop_types_map = {
 	{ arrow::Type::type::BOOL,				{ sizeof(pvcop::db::index_t),	"string" }},

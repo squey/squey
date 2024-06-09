@@ -23,16 +23,17 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <QFile>
-#include <QString>
-#include <QStringList>
-
-#include <pvkernel/rush/PVNraw.h>
-
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/core/PVUtils.h>
-
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <QString>
 #include <fstream>
+#include <algorithm>
+#include <iterator>
+#include <string>
+#include <utility>
+#include <vector>
 
 bool PVRush::PVUtils::files_have_same_content(const std::string& path1, const std::string& path2)
 {

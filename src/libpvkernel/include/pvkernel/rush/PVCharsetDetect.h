@@ -25,10 +25,10 @@
 #ifndef PVCHARSETDETECT_FILE_H
 #define PVCHARSETDETECT_FILE_H
 
+#include <string>
+
 #include "nscore.h"
 #include "nsUniversalDetector.h"
-
-#include <string>
 
 namespace PVRush
 {

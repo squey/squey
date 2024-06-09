@@ -26,6 +26,11 @@
 #include "PVElasticsearchJsonConverter.h"
 
 #include <boost/algorithm/string/join.hpp>
+#include <assert.h>
+#include <utility>
+
+#include "pvkernel/core/PVQueryBuilderJsonConverter.h"
+#include "pvkernel/core/PVVersion.h"
 
 ///////////////////////////////////////////////////////////////////////////////
 // PVElasticSearchJsonConverter constructor

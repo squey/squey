@@ -23,17 +23,20 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include "PVDBInfos.h"
-#include "PVDBQuery.h"
+#include "PVDBQuery.h" // IWYU pragma: keep
 
+#include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <qsettings.h>
 #include <QSqlRecord>
 #include <QSqlField>
 #include <memory>
 
-#include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include "PVDBInfos.h"
+#include "PVDBQuery.h"
 #include "PVSQLTypeMap.h"
-
-#include <pvkernel/core/PVRecentItemsManager.h>
+#include "pvbase/types.h"
+#include "pvkernel/core/PVSerializeObject.h"
+#include "pvkernel/rush/PVInputDescription.h"
 
 PVRush::PVDBQuery::PVDBQuery()
 = default;

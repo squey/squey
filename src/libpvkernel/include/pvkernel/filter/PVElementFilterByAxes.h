@@ -26,11 +26,13 @@
 #define PVFILTER_PVELEMENTFILTERBYAXES_H
 
 #include <pvkernel/rush/PVFormat.h> // for PVFormat, etc
-
 #include <pvkernel/filter/PVFilterFunction.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
-
 #include <pvkernel/core/PVElement.h> // for PVElement
+
+namespace PVCore {
+class PVElement;
+}  // namespace PVCore
 
 namespace PVFilter
 {

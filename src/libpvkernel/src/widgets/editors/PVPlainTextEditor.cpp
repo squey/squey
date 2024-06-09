@@ -24,19 +24,40 @@
 //
 
 #include <pvkernel/widgets/editors/PVPlainTextEditor.h>
-
-#include <QPushButton>
-#include <QHBoxLayout>
-#include <QMessageBox>
-#include <QTextStream>
-#include <QTextCodec>
-
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/rush/PVUnicodeSource.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
+#include <QtCore/qobjectdefs.h>
+#include <qabstractbutton.h>
+#include <qchar.h>
+#include <qcoreevent.h>
+#include <qdir.h>
+#include <qfile.h>
+#include <qfontmetrics.h>
+#include <qiodevice.h>
+#include <qnamespace.h>
+#include <qsize.h>
+#include <qsizepolicy.h>
+#include <qstring.h>
+#include <qstringconverter_base.h>
+#include <stddef.h>
+#include <QPushButton>
+#include <QHBoxLayout>
+#include <QMessageBox>
+#include <QTextStream>
+#include <QPlainTextEdit>
+#include <list>
+#include <string>
+
+#include "pvkernel/core/PVPlainTextType.h"
+#include "pvkernel/rush/PVInput.h"
+#include "pvkernel/rush/PVInput_types.h"
+#include "pvkernel/widgets/PVFileDialog.h"
+
+class QObject;
 
 /******************************************************************************
  *

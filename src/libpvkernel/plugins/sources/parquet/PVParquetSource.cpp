@@ -25,9 +25,19 @@
 
 #include "PVParquetSource.h"
 
-#include <pvkernel/core/PVUtils.h>
-
+#include <arrow/api.h>
+#include <parquet/arrow/reader.h>
+#include <parquet/file_reader.h>
+#include <parquet/metadata.h>
+#include <qfileinfo.h>
 #include <algorithm>
+#include <numeric>
+#include <utility>
+
+#include "PVParquetBinaryChunk.h"
+#include "parquet/PVParquetAPI.h"
+#include "parquet/PVParquetFileDescription.h"
+#include "pvkernel/rush/PVInputDescription.h"
 
 PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
     : _input_desc(dynamic_cast<PVRush::PVParquetFileDescription*>(input.get()))

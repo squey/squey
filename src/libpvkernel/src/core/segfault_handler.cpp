@@ -25,14 +25,14 @@
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/segfault_handler.h>
-
 #include <unistd.h>
 #include <sys/stat.h>
-#include <sys/types.h>
-
-#include <pvbase/general.h>
-
 #include <client/linux/handler/exception_handler.h>
+#include <client/linux/handler/minidump_descriptor.h>
+#include <fcntl.h>
+#include <memory>
+
+#include <pvbase/general.h> // IWYU pragma: keep
 
 #define BREAKPAD_MINIDUMP_FOLDER "/tmp/squey_" SQUEY_CURRENT_VERSION_STR "_coredumps"
 

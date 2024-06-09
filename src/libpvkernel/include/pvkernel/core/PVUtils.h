@@ -25,12 +25,13 @@
 #ifndef PVCORE_PVUTILS_H
 #define PVCORE_PVUTILS_H
 
+#include <stddef.h>
 #include <string>
-
 #include <QByteArray>
 #include <QDataStream>
 #include <QString>
 #include <QIODevice>
+#include <vector>
 
 namespace PVCore
 {

@@ -25,10 +25,16 @@
 #ifndef __PVKERNEL_CORE_PVVERSION_H__
 #define __PVKERNEL_CORE_PVVERSION_H__
 
-#include <vector>
-
 #include <boost/algorithm/string.hpp>
 #include <boost/algorithm/string/classification.hpp>
+#include <assert.h>
+#include <stddef.h>
+#include <boost/algorithm/string/detail/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <vector>
+#include <iosfwd>
+#include <string>
 
 namespace PVCore
 {

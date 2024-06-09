@@ -23,10 +23,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <QApplication>
-
-#include <iostream>
 #include <pvguiqt/PVCrashReporterDialog.h>
+#include <stdlib.h>
+#include <QApplication>
+#include <iostream>
+#include <string>
 
 int main(int argc, char* argv[])
 {

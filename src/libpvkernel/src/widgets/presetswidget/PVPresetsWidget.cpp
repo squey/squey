@@ -25,6 +25,21 @@
 
 #include <pvkernel/widgets/PVPresetsWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
+#include <QtCore/qobjectdefs.h>
+#include <qabstractbutton.h>
+#include <qflags.h>
+#include <qicon.h>
+#include <qlist.h>
+#include <qsizepolicy.h>
+#include <qstyle.h>
+#include <QAction>
+#include <QComboBox>
+#include <QGroupBox>
+#include <QHBoxLayout>
+#include <QLabel>
+#include <QMessageBox>
+#include <QPushButton>
+#include <QToolBar>
 
 PVWidgets::PVPresetsWidget::PVPresetsWidget(const QString& title,
                                             QWidget* parent)

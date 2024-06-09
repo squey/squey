@@ -24,14 +24,17 @@
 //
 
 #include "../include/libpvpcap.h"
+
+#include <libpvpcap/shell.h>
+#include <rapidjson/encodings.h>
+#include <fstream>
+#include <iterator>
+
 #include "../include/libpvpcap/ws.h"
 #include "../include/libpvpcap/exception.h"
-
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
-
-#include <pvlogger.h>
 
 namespace pvpcap
 {

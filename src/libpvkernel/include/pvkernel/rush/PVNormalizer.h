@@ -25,6 +25,7 @@
 #ifndef PVRUSH_PVNORMALIZER_H
 #define PVRUSH_PVNORMALIZER_H
 
+#include <qcontainerfwd.h>
 #include <QString>
 #include <QStringList>
 

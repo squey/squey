@@ -24,27 +24,37 @@
 //
 
 #include "../include/libpvpcap/shell.h"
-#include "../include/libpvpcap/ws.h"
 
+#include <fcntl.h>
+#include <sys/stat.h>
+#include <sys/wait.h>
+#include <pwd.h>
+#include <pvkernel/core/PVConfig.h>
+#include <tbb/pipeline.h>
+#include <dirent.h>
+#include <libpvpcap/pcap_splitter.h>
+#include <qchar.h>
+#include <qstring.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 #include <atomic>
 #include <numeric>
 #include <thread>
 #include <unordered_set>
 #include <mutex>
-
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
 #include <csignal>
-#include <pwd.h>
-
-#include <pvkernel/core/PVConfig.h>
-#include <pvbase/general.h>
 #include <QDir>
-
-#include <tbb/pipeline.h>
-
 #include <string_view>
+#include <algorithm>
+#include <compare>
+#include <cstdio>
+#include <fstream>
+#include <iostream>
+#include <iterator>
+
+#include "../include/libpvpcap/ws.h"
+#include <pvbase/general.h> // IWYU pragma: keep
 
 extern char** environ;
 

@@ -24,32 +24,49 @@
 //
 
 #include "PVElasticsearchAPI.h"
-#include "PVElasticsearchInfos.h"
-#include "PVElasticsearchQuery.h"
-#include "PVElasticsearchJsonConverter.h"
-#include "PVElasticsearchSAXParser.h"
-
-#include <sstream>
-#include <thread>
-#include <cerrno>
-#include <unordered_set>
-#include <numeric>
 
 #include <curl/curl.h>
-
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
-
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
-
 #include <pvcop/db/array.h>
 #include <pvcop/types/factory.h>
 #include <pvcop/formatter_desc.h>
-
 #include <rapidjson/pointer.h>
+#include <qstring.h>
+#include <rapidjson/allocators.h>
+#include <rapidjson/encodings.h>
+#include <rapidjson/rapidjson.h>
+#include <rapidjson/reader.h>
+#include <rapidjson/stream.h>
+#include <stdint.h>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/detail/classification.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <sstream>
+#include <cerrno>
+#include <unordered_set>
+#include <numeric>
+#include <algorithm>
+#include <atomic>
+#include <cstdlib>
+#include <iterator>
+#include <limits>
+#include <map>
+#include <tuple>
+
+#include "PVElasticsearchInfos.h"
+#include "PVElasticsearchQuery.h"
+#include "PVElasticsearchJsonConverter.h"
+#include "PVElasticsearchSAXParser.h"
+#include "pvcop/types/formatter/formatter_interface.h"
+#include "pvkernel/core/PVVersion.h"
+#include "pvlogger.h"
 
 static constexpr const size_t DEFAULT_SCROLL_SIZE = 10000;
 static constexpr const char SCROLL_TIMEOUT[] = "1m";

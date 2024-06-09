@@ -28,23 +28,18 @@
 #include <pvkernel/rush/PVExtractor.h>     // for PVExtractor
 #include <pvkernel/rush/PVFormat.h>        // for PVFormat
 #include <pvkernel/rush/PVInputType.h>     // for PVInputType, etc
-#include <pvkernel/rush/PVNraw.h>          // for PVNraw
-#include <pvkernel/rush/PVNrawOutput.h>    // for PVNrawOutput
 #include <pvkernel/rush/PVSourceCreator.h> // for PVSourceCreator_p, etc
 #include <pvkernel/rush/PVRawSourceBase.h>
-
 #include <pvkernel/core/PVConfig.h> // for PVConfig
-
 #include <pvbase/types.h> // for chunk_index, PVCol
-
 #include <tbb/task_scheduler_init.h> // for task_scheduler_init
-
+#include <qlist.h>
+#include <qvariant.h>
 #include <QSettings> // for QSettings
-
 #include <algorithm> // for min
-#include <cstdint>   // for uint32_t
-#include <limits>    // for numeric_limits
 #include <memory>    // for __shared_ptr
+
+#include "pvkernel/rush/PVOutput.h"
 
 PVRush::PVExtractor::PVExtractor(const PVRush::PVFormat& format,
                                  PVRush::PVOutput& output,

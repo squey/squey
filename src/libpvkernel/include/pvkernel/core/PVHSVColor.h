@@ -25,8 +25,8 @@
 #ifndef PVCORE_HSVCOLOR_H
 #define PVCORE_HSVCOLOR_H
 
+#include <qrgb.h>
 #include <cstdint>
-
 #include <QColor>
 #include <QRect> // for QRect
 

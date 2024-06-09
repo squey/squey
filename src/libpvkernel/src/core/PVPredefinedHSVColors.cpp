@@ -26,10 +26,10 @@
 #include <pvkernel/core/PVPredefinedHSVColors.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVHSVColor.h> // for PVHSVColor, HSV_COLOR_BLACK, etc
-
 #include <QSettings>
 #include <QString>
 #include <QVariant>
+#include <algorithm>
 
 constexpr const char* COLORS_SETTINGS_ARRAY = "predefined_colors";
 

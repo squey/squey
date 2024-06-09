@@ -1,7 +1,14 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
-
+#include <QtCore/qobjectdefs.h>
+#include <qguiapplication.h>
+#include <qnamespace.h>
 #include <QScreen>
 #include <QWindow>
+
+#include "pvkernel/core/PVTheme.h"
+
+class QPainter;
+class QRect;
 
 PVModdedIconEngine::PVModdedIconEngine(QString icon_name) : QIconEngine()
 {

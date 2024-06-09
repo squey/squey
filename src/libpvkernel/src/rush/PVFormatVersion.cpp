@@ -25,13 +25,13 @@
 
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVFormat_types.h>
-
+#include <qcontainerfwd.h>
+#include <qlatin1stringview.h>
+#include <qlist.h>
 #include <cassert>
-
 #include <QChar>
-#include <QDomNode>
 #include <QString>
-#include <QStringList>
+#include <vector>
 
 // Utility function to convert pre 7 format to 7 format.for mapping/type/plotting
 static QString const get_type_from_format(QString const& type_attr, QString const& mapped_attr)

@@ -26,9 +26,15 @@
 #include <pvkernel/widgets/PVGraphicsView.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
 #include <pvkernel/widgets/PVGraphicsViewInteractorScene.h>
-
+#include <qflags.h>
+#include <qguiapplication.h>
+#include <qlogging.h>
+#include <qobject.h>
+#include <qobjectdefs.h>
+#include <qscreen.h>
+#include <qsizepolicy.h>
+#include <stdint.h>
 #include <QApplication>
-#include <QDebug>
 #include <QEvent>
 #include <QGraphicsItem>
 #include <QGraphicsScene>
@@ -41,9 +47,6 @@
 #ifndef QT_NO_OPENGL
 #include <QGLWidget>
 #endif
-
-// to mimic QGraphicsView::::sizeHint() :-D
-#include <QApplication>
 
 #include <iostream>
 #include <cassert>

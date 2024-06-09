@@ -24,11 +24,9 @@
 //
 
 #include <pvkernel/core/PVAllocators.h>
-
-#include <fstream>
-#include <iostream> // for basic_istream, ifstream, etc
-#include <string>   // for operator>>, string
 #include <unistd.h> // for sysconf, _SC_PAGE_SIZE
+#include <fstream>
+#include <string>   // for operator>>, string
 
 // Taken from http://stackoverflow.com/questions/669438/how-to-get-memory-usage-at-run-time-in-c
 // vm_usage and resident_set are in KB.

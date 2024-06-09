@@ -28,13 +28,19 @@
 #include <unicode/smpdtfmt.h>
 #include <unicode/locid.h>
 #include <unicode/unistr.h>
-
+#include <boost/pool/object_pool.hpp>
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <stddef.h>
+#include <unicode/utypes.h>
 #include <QStringList>
 #include <QString>
-
 #include <vector>
+#include <algorithm>
 
-#include <boost/pool/object_pool.hpp>
+namespace icu_73 {
+class Calendar;
+}  // namespace icu_73
 
 using namespace icu_73;
 

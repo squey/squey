@@ -25,6 +25,8 @@
 
 #include <pvkernel/core/PVOriginalAxisIndexType.h>
 
+#include "pvbase/types.h"
+
 PVCore::PVOriginalAxisIndexType::PVOriginalAxisIndexType()
     : _origin_axis_index(-1), _append_none_axis(false)
 {

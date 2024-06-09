@@ -24,8 +24,10 @@
 //
 
 #include <pvkernel/filter/PVElementFilterByFields.h>
-
 #include <pvkernel/core/PVElement.h> // for PVElement
+#include <memory>
+
+#include "pvkernel/filter/PVFieldsFilter.h"
 
 /******************************************************************************
  *

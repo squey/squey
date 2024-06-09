@@ -29,11 +29,12 @@
 #include <pvkernel/core/PVSerializeArchive.h> // for PVSerializeArchive, etc
 #include <pvkernel/core/PVSerializeArchiveExceptions.h>
 #include <pvkernel/core/PVSerializeArchiveZip.h>
-
+#include <qcontainerfwd.h>
+#include <qhash.h>
+#include <qlist.h>
+#include <qsettings.h>
 #include <string> // for allocator, operator+, etc
-
 #include <QString>
-#include <QStringList>
 
 PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v, bool save_log_file)
     : PVSerializeArchive(v, save_log_file)

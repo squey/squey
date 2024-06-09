@@ -25,17 +25,17 @@
 
 #include <pvbase/general.h>                // for SQUEY_SQUEY_CONFDIR
 #include <pvkernel/core/PVPluginPresets.h> // for PVPluginPresets
-#include <memory>                          // for __shared_ptr, operator==, etc
-
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList_to_QSettings, etc
 #include <pvkernel/core/PVFunctionArgs.h> // for PVFunctionArgsBase
-
+#include <qchar.h>
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <memory>                          // for __shared_ptr, operator==, etc
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
 #include <QSettings>
 #include <QString>
-#include <QStringList>
 
 constexpr const char* PRESETS_FILENAME = "presets.ini";
 

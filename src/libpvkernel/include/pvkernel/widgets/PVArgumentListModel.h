@@ -26,7 +26,7 @@
 #define PVARGUMENTLISTMODEL_H
 
 #include <pvkernel/core/PVArgument.h>
-
+#include <qnamespace.h>
 #include <QAbstractTableModel>
 #include <QVariant>
 

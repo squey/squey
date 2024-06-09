@@ -24,12 +24,13 @@
 //
 
 #include <pvkernel/filter/PVChunkFilterRemoveInvalidElts.h>
-
 #include <pvkernel/core/PVTextChunk.h>     // for PVChunk, list_elts
 #include <pvkernel/core/PVElement.h>       // for PVElement
 #include <pvkernel/filter/PVChunkFilter.h> // for PVChunkFilter
-
 #include <list> // for _List_iterator, list
+#include <iterator>
+
+#include "pvbase/types.h"
 
 /******************************************************************************
  *

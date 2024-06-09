@@ -25,9 +25,8 @@
 
 #include <pvkernel/widgets/editors/PVPercentRangeEditor.h>
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
-
 #include <pvkernel/core/PVPercentRangeType.h> // for PVPercentRangeType
-
+#include <qnamespace.h>
 #include <QBrush>   // for QLinearGradient
 #include <QSpinBox> // for QDoubleSpinBox
 

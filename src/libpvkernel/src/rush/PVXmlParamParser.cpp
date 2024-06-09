@@ -30,28 +30,25 @@
 #include <pvkernel/rush/PVXmlParamParserData.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h> // for PVXmlTreeNodeDom
 #include <pvkernel/rush/PVUnicodeSource.h>
-
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsFilterReg_p, etc
-
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList
 #include <pvkernel/core/PVClassLibrary.h> // for PVClassLibrary
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/PVLogger.h>       // for PVLOG_DEBUG, PVLOG_ERROR
-
 #include <pvbase/types.h> // for PVCol
-
+#include <qchar.h>
+#include <qcontainerfwd.h>
+#include <qtypeinfo.h>
 #include <QDomElement>
 #include <QFile> // for QFile
 #include <QIODevice>
 #include <QList>       // for QList, QList<>::iterator
 #include <QString>     // for QString, operator+, etc
-#include <QStringList> // for QStringList
 #include <QTextStream>
-
 #include <memory>    // for __shared_ptr
 #include <numeric>   // for iota
-#include <stdexcept> // for runtime_error
 #include <vector>    // for vector
+#include <string>
 
 // PVXmlParamParser class
 

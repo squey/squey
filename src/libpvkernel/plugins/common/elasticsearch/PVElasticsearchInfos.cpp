@@ -25,6 +25,13 @@
 
 #include "PVElasticsearchInfos.h"
 
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <memory>
+
+#include "pvkernel/core/PVSerializeArchiveFixError.h"
+#include "pvkernel/core/PVSerializeObject.h"
+
 void PVRush::PVElasticsearchInfos::serialize_write(PVCore::PVSerializeObject& so) const
 {
 	so.attribute_write("host", _host);

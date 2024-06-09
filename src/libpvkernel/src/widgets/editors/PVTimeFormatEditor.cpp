@@ -24,16 +24,36 @@
 //
 
 #include <pvkernel/core/PVDateTimeParser.h>
-
 #include <pvkernel/widgets/editors/PVTimeFormatEditor.h>
-
+#include <QtCore/qobjectdefs.h>
+#include <qabstractbutton.h>
+#include <qboxlayout.h>
+#include <qcolor.h>
+#include <qcontainerfwd.h>
+#include <qdialog.h>
+#include <qfontmetrics.h>
+#include <qlineedit.h>
+#include <qlist.h>
+#include <qnamespace.h>
+#include <qstring.h>
+#include <qsyntaxhighlighter.h>
+#include <qtextdocument.h>
+#include <qtextedit.h>
+#include <qtextformat.h>
+#include <qwidget.h>
+#include <unicode/calendar.h>
+#include <unicode/datefmt.h>
+#include <unicode/fieldpos.h>
+#include <unicode/unistr.h>
+#include <unicode/utypes.h>
 #include <QPushButton>
 #include <QCheckBox>
 #include <QGridLayout>
 #include <QLabel>
 #include <QGroupBox>
 #include <QDialogButtonBox>
-#include <QEvent>
+
+class QChar;
 
 //
 // PVTimeFormatHelpDlg implementation

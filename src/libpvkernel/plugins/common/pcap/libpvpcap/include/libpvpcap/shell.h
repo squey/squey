@@ -25,20 +25,19 @@
 #ifndef SHELL_H
 #define SHELL_H
 
-#include <iostream>
-#include <vector>
-
 #include <sys/types.h>
 #include <sys/stat.h>
-
 #include <dirent.h>
-
 #include <limits.h>
 #include <unistd.h>
-
 #include <boost/algorithm/string.hpp> // split
 #include <boost/property_tree/ptree.hpp>
 #include <boost/property_tree/ini_parser.hpp>
+#include <iostream>
+#include <vector>
+#include <functional>
+#include <string>
+
 #include "pcap_splitter.h"
 
 /*!

@@ -24,6 +24,16 @@
 //
 
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <qdialog.h>
+#include <qdir.h>
+#include <qstringliteral.h>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "pvkernel/core/PVWSLHelper.h"
+
+class QWidget;
 
 PVWidgets::PVFileDialog::PVFileDialog(QWidget* parent, Qt::WindowFlags flags)
     : QFileDialog(parent, flags)

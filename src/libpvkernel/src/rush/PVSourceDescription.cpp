@@ -23,19 +23,15 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/rush/PVInputDescription.h> // for PVInputDescription_p, etc
-#include <pvkernel/rush/PVInputType.h>        // for PVInputType::list_inputs
 #include <pvkernel/rush/PVSourceDescription.h>
-
 #include <boost/iterator/indirect_iterator.hpp> // for indirect_iterator, etc
 #include <boost/iterator/iterator_facade.hpp>   // for operator!=
-
-#include <QFile>
-#include <QList>
 #include <QString>
-
 #include <algorithm> // for equal
 #include <memory>    // for __shared_ptr
+
+#include "pvkernel/rush/PVFormat.h"
+#include "pvkernel/rush/PVSourceCreator.h"
 
 bool PVRush::PVSourceDescription::operator==(const PVSourceDescription& other) const
 {

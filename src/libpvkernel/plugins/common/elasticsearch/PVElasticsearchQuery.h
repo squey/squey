@@ -27,12 +27,20 @@
 
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVInputDescription.h>
-
 #include <QString>
 #include <QMetaType>
-
 #include <set>
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "PVElasticsearchInfos.h"
+
+class QSettings;
+
+namespace PVCore {
+class PVSerializeObject;
+}  // namespace PVCore
 
 namespace PVRush
 {
