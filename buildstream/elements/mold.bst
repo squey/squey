@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: github:rui314/mold/archive/refs/tags/v2.2.0.tar.gz
-  ref: 78ddddaaa004e50f8d92a13d8e792a46a1b37745fab48d39ad16aeb5a776e7c6
+  url: github:rui314/mold/archive/refs/tags/v2.32.0.tar.gz
+  ref: 4b7e4146ea0f52be9adae8b417399f3676a041e65b55e3f25f088120d30a320b
 
 config:
   install-commands:
