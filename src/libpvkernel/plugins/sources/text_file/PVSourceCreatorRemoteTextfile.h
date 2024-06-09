@@ -25,7 +25,10 @@
 #ifndef SQUEY_PVSOURCECREATORREMOTETEXTFILE_H
 #define SQUEY_PVSOURCECREATORREMOTETEXTFILE_H
 
+#include <qstring.h>
+
 #include "PVSourceCreatorTextfile.h"
+#include "pvkernel/core/PVRegistrableClass.h"
 
 namespace PVRush
 {

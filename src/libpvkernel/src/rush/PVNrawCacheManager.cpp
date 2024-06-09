@@ -25,13 +25,14 @@
 
 #include <pvkernel/rush/PVNraw.h>             // for PVNraw, etc
 #include <pvkernel/rush/PVNrawCacheManager.h> // for PVNrawCacheManager
-
 #include <pvkernel/core/PVConfig.h>     // for PVConfig
 #include <pvkernel/core/PVDirectory.h>  // for remove_rec
 #include <pvkernel/core/PVFileHelper.h> // for PVFileHelper
-
 #include <pvbase/general.h> // for SQUEY_PATH_SEPARATOR_CHAR
-
+#include <qchar.h>
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <qvariant.h>
 #include <QByteArray> // for QByteArray
 #include <QDir>       // for QDir, etc
 #include <QDirIterator>
@@ -39,8 +40,6 @@
 #include <QFileInfo>
 #include <QSettings> // for QSettings, etc
 #include <QString>
-#include <QStringList>
-
 #include <functional> // for function
 #include <memory>     // for unique_ptr
 

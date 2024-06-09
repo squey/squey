@@ -25,18 +25,20 @@
 #ifndef __PVELASTICSEARCHAPI_H__
 #define __PVELASTICSEARCHAPI_H__
 
+#include <pvkernel/core/PVVersion.h>
+#include <curl/curl.h>
+#include <rapidjson/document.h>
+#include <stddef.h>
 #include <QDomDocument>
-
 #include <vector>
 #include <string>
+#include <functional>
+#include <memory>
+#include <unordered_map>
+#include <utility>
+#include <algorithm>
 
 #include "PVElasticsearchInfos.h"
-
-#include <pvkernel/core/PVVersion.h>
-
-#include <curl/curl.h>
-
-#include <rapidjson/document.h>
 
 namespace PVRush
 {

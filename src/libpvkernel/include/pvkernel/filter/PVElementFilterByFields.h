@@ -27,8 +27,11 @@
 
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
-
 #include <vector>
+#include <algorithm>
+
+#include "pvkernel/core/PVElement.h"
+#include "pvkernel/filter/PVFilterFunction.h"
 
 namespace PVCore
 {

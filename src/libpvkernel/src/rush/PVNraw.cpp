@@ -23,7 +23,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvbase/general.h>
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVElement.h>
@@ -33,20 +32,41 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVUtils.h>
-
 #include <pvcop/collector.h>
 #include <pvcop/sink.h>
 #include <pvcop/db/write_dict.h>
-
 #include <pvcop/db/exceptions/invalid_collection.h>
-
-#include <fstream>
-#include <iterator>
+#include <pvkernel/rush/PVCSVExporter.h>
+#include <assert.h>
+#include <qchar.h>
+#include <qdir.h>
+#include <qstring.h>
+#include <stdint.h>
+#include <stdlib.h>
 #include <memory>
 #include <numeric>
-#include <unordered_set>
-#include <omp.h>
-#include <pvkernel/rush/PVCSVExporter.h>
+#include <algorithm>
+#include <list>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
+
+#include "pvbase/types.h"
+#include "pvcop/collection.h"
+#include "pvcop/db/array.h"
+#include "pvcop/db/sink.h"
+#include "pvcop/db/types.h"
+#include "pvkernel/core/PVBinaryChunk.h"
+#include "pvkernel/core/PVColumnIndexes.h"
+#include "pvkernel/rush/PVControllerJob.h"
+
+namespace pvcop {
+class formatter_desc_list;
+}  // namespace pvcop
+namespace pybind11 {
+class array;
+}  // namespace pybind11
 
 const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
 const std::string PVRush::PVNraw::default_tmp_path = "/tmp/squey";

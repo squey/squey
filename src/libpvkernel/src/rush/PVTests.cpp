@@ -27,13 +27,10 @@
 #include <pvkernel/rush/PVSourceCreator.h>        // for PVSourceCreator_p, etc
 #include <pvkernel/rush/PVSourceCreatorFactory.h> // for list_creators, etc
 #include <pvkernel/rush/PVTests.h>
-
 #include <pvkernel/core/PVClassLibrary.h> // for LIB_CLASS, etc
-#include <pvkernel/core/PVRegistrableClass.h>
-
 #include <iostream> // for operator<<, basic_ostream, etc
-#include <list>     // for _List_const_iterator, etc
-#include <memory>   // for __shared_ptr
+
+#include "pvkernel/rush/PVInputDescription.h"
 
 namespace PVRush
 {

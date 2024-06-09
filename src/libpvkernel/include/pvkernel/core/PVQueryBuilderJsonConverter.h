@@ -25,14 +25,16 @@
 #ifndef __PVQUERYBUILDERJSONCONVERTER_H__
 #define __PVQUERYBUILDERJSONCONVERTER_H__
 
+#include <rapidjson/document.h>
+#include <rapidjson/writer.h>
+#include <rapidjson/stringbuffer.h>
+#include <rapidjson/allocators.h>
+#include <rapidjson/rapidjson.h>
 #include <functional>
 #include <unordered_map>
 #include <string>
 #include <vector>
-
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
+#include <utility>
 
 namespace PVCore
 {

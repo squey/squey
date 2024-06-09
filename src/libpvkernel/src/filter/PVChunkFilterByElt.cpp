@@ -26,8 +26,10 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/core/PVTextChunk.h> // for PVChunk, list_elts
 #include <pvkernel/core/PVElement.h>   // for PVElement
-
 #include <cstddef> // for size_t
+#include <list>
+
+#include "pvkernel/filter/PVElementFilter.h"
 
 /******************************************************************************
  *

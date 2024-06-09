@@ -26,15 +26,16 @@
 #include <pvkernel/rush/PVNraw.h> // for PVNraw
 #include <pvkernel/rush/PVNrawOutput.h>
 #include <pvkernel/rush/PVFormat.h>
-
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVBinaryChunk.h>
-
 #include <pvbase/types.h> // for PVRow
-
+#include <assert.h>
 #include <cstddef> // for size_t
 #include <map>     // for map
 #include <string>  // for string
+#include <atomic>
+
+#include "pvkernel/core/PVChunk.h"
 
 PVRush::PVNrawOutput::PVNrawOutput(PVNraw& nraw) : _nraw_dest(&nraw) {}
 

@@ -25,6 +25,14 @@
 
 #include "PVFieldGUIDToIP.h"
 
+#include <qvariant.h>
+#include <stdio.h>
+
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVField.h"
+#include "pvkernel/core/PVOrderedMap.h"
+#include "pvkernel/filter/PVFieldsFilter.h"
+
 /******************************************************************************
  *
  * PVFilter::PVFieldGUIDToIP::PVFieldGUIDToIP

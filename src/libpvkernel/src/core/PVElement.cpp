@@ -26,15 +26,16 @@
 #include <pvkernel/core/PVBufferSlice.h> // for buf_list_t, PVBufferSlice
 #include <pvkernel/core/PVTextChunk.h>   // for PVChunk
 #include <pvkernel/core/PVElement.h>     // for PVElement, list_fields
-
 #include <pvbase/types.h> // for chunk_index
-
+#include <tbb/scalable_allocator.h> // for scalable_allocator
+#include <tbb/tbb_allocator.h>      // for tbb_allocator
 #include <cstddef> // for size_t
 #include <new>     // for operator new
 #include <utility> // for pair
+#include <list>
 
-#include <tbb/scalable_allocator.h> // for scalable_allocator
-#include <tbb/tbb_allocator.h>      // for tbb_allocator
+#include "pvkernel/core/PVAllocators.h"
+#include "pvkernel/core/PVField.h"
 
 tbb::scalable_allocator<PVCore::PVElement> PVCore::PVElement::_alloc;
 

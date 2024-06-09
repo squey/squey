@@ -24,13 +24,38 @@
 
 #include "PVParquetBinaryChunk.h"
 
+#include <arrow/api.h>
+#include <arrow/array/array_base.h>
+#include <arrow/array/array_binary.h>
+#include <arrow/array/array_dict.h>
+#include <arrow/array/array_primitive.h>
+#include <arrow/array/data.h>
+#include <qbytearray.h>
+#include <qbytearrayview.h>
+#include <qstring.h>
+#include <stdint.h>
+#include <time.h>
+#include <boost/date_time/posix_time/conversion.hpp>
+#include <boost/date_time/posix_time/posix_time_config.hpp>
+#include <boost/date_time/posix_time/posix_time_duration.hpp>
+#include <boost/date_time/posix_time/ptime.hpp>
+#include <boost/date_time/time.hpp>
 #include <algorithm>
-
 #include <QCryptographicHash>
+#include <bitset>
+#include <cstring>
+#include <iterator>
+#include <limits>
+#include <optional>
+#include <span>
+#include <string>
+#include <unordered_map>
+#include <utility>
 
-#include "boost/date_time/posix_time/posix_time.hpp"
-
-#include <omp.h>
+#include "parquet/PVParquetAPI.h"
+#include "pvbase/types.h"
+#include "pvcop/db/write_dict.h"
+#include "pvkernel/core/PVBinaryChunk.h"
 
 void* convert_bool(const std::shared_ptr<arrow::Array>& column_array, void* data, pvcop::db::write_dict* dict)
 {

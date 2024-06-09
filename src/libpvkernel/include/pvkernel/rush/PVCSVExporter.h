@@ -27,6 +27,16 @@
 
 #include <pvkernel/rush/PVExporter.h>
 #include <pvkernel/rush/PVUtils.h>
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <qstring.h>
+#include <stddef.h>
+#include <functional>
+#include <string>
+
+#include "pvbase/types.h"
+#include "pvkernel/core/PVColumnIndexes.h"
+#include "pvkernel/core/PVSelBitField.h"
 
 namespace PVRush
 {

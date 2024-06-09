@@ -25,8 +25,10 @@
 
 #include <pvbase/export.h>
 #include <pvkernel/core/PVClassLibrary.h>
+
 #include "PVFieldGUIDToIP.h"
 #include "PVFieldConverterGUIDToIPParamWidget.h"
+#include "pvkernel/filter/PVFieldsFilter.h"
 
 // This method will be called by libsquey
 LibCPPExport void register_class()

@@ -25,7 +25,12 @@
 #ifndef __PVWIDGETS_PVQUERYBUILDER_H__
 #define __PVWIDGETS_PVQUERYBUILDER_H__
 
+#include <qstring.h>
+#include <qtmetamacros.h>
 #include <QApplication>
+#include <string>
+#include <utility>
+#include <vector>
 #ifdef QT_WEBKIT
 class QWebView;
 #else
@@ -33,7 +38,6 @@ class QWebEngineView;
 #endif
 
 #include <QWidget>
-
 #include <atomic>
 #include <mutex>
 #include <condition_variable>

@@ -25,8 +25,17 @@
 
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeObject.h>
+#include <qstring.h>
+#include <qvariant.h>
+#include <stddef.h>
+#include <map>
+#include <string>
+#include <utility>
+#include <vector>
 
-#include <algorithm> // for move
+namespace PVCore {
+class PVArgumentList;
+}  // namespace PVCore
 
 PVCore::PVSerializeObject::PVSerializeObject(QString path, PVSerializeArchive* parent_ar)
     : _parent_ar(parent_ar), _logical_path(std::move(path))

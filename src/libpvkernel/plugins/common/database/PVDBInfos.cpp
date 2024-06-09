@@ -24,9 +24,10 @@
 //
 
 #include <pvkernel/core/PVLogger.h>
-#include <pvbase/general.h>
-#include "PVDBInfos.h"
 #include <QSqlError>
+
+#include "PVDBInfos.h"
+#include "pvkernel/core/PVSerializeObject.h"
 
 PVRush::PVDBInfos::PVDBInfos()
 = default;

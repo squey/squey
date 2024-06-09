@@ -32,6 +32,10 @@
 #include <map>
 #include <QHash>
 #include <QString>
+#include <utility>
+
+#include "pvkernel/rush/PVFormat.h"
+#include "pvkernel/rush/PVInputDescription.h"
 
 namespace PVRush
 {

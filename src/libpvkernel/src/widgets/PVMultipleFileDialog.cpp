@@ -24,6 +24,26 @@
 //
 
 #include <pvkernel/widgets/PVMultipleFileDialog.h>
+#include <QtCore/qobjectdefs.h>
+#include <qabstractitemview.h>
+#include <qchar.h>
+#include <qdialog.h>
+#include <qdir.h>
+#include <qfiledialog.h>
+#include <qfileinfo.h>
+#include <qnamespace.h>
+#include <qregularexpression.h>
+#include <qstringliteral.h>
+#include <qstyle.h>
+#include <qtypeinfo.h>
+#include <QGridLayout>
+#include <QLineEdit>
+#include <QListWidget>
+#include <QPushButton>
+
+#include "pvkernel/widgets/PVFileDialog.h"
+
+class QWidget;
 
 PVWidgets::PVMultipleFileDialog::PVMultipleFileDialog(QWidget* parent /*= nullptr*/,
                                                       const QString& caption /* = QString() */,

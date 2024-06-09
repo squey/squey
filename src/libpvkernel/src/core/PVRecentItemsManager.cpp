@@ -27,23 +27,16 @@
 #include <pvkernel/rush/PVInputDescription.h> // for PVInputDescription
 #include <pvkernel/rush/PVInputType.h>        // for PVInputType, etc
 #include <pvkernel/rush/PVSourceCreator.h>    // for PVSourceCreator, etc
-#include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVSourceDescription.h> // for PVSourceDescription
-
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
-#include "pvkernel/core/PVClassLibrary.h" // for LIB_CLASS, etc
-#include "pvkernel/core/PVOrderedMap.h"
-#include "pvkernel/core/PVRegistrableClass.h"
-
-#include <pvbase/general.h>
-
-#include <cassert>   // for assert
+#include <qchar.h>
+#include <qcontainerfwd.h>
+#include <qvariant.h>
+#include <sigc++/signal.h>
 #include <cstdint>   // for uint64_t
 #include <algorithm> // for min
 #include <memory>    // for __shared_ptr, shared_ptr
-#include <utility>   // for pair
-
 #include <QDateTime>
 #include <QDir>
 #include <QFile>
@@ -51,7 +44,15 @@
 #include <QList>
 #include <QSettings>
 #include <QString>
-#include <QStringList>
+#include <array>
+#include <functional>
+#include <string>
+#include <tuple>
+#include <vector>
+
+#include "pvkernel/core/PVClassLibrary.h" // for LIB_CLASS, etc
+#include "pvkernel/core/PVSerializedSource.h"
+#include "pvkernel/rush/PVXmlParamParser.h"
 
 #define RECENTS_FILENAME "recents.ini"
 

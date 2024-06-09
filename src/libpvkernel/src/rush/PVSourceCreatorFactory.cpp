@@ -25,12 +25,27 @@
 
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVConfig.h>
-
 #include <tbb/tick_count.h>
+#include <qlist.h>
+#include <qsettings.h>
+#include <qvariant.h>
+#include <stddef.h>
+#include <iterator>
+#include <memory>
+#include <vector>
+
+#include "pvbase/types.h"
+#include "pvkernel/core/PVChunk.h"
+#include "pvkernel/core/PVElement.h"
+#include "pvkernel/core/PVLogger.h"
+#include "pvkernel/core/PVOrderedMap.h"
+#include "pvkernel/filter/PVChunkFilterByEltCancellable.h"
+#include "pvkernel/filter/PVFieldsFilter.h"
+#include "pvkernel/rush/PVInputType.h"
+#include "pvkernel/rush/PVSourceCreator.h"
 
 static constexpr int SQUEY_DISCOVERY_NCHUNKS = 1;
 

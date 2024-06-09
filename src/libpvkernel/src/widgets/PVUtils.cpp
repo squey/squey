@@ -25,14 +25,17 @@
 
 #include <pvkernel/widgets/PVUtils.h>
 #include <pvbase/general.h>
-
-#include <QApplication>
+#include <qchar.h>
+#include <qcontainerfwd.h>
+#include <qguiapplication.h>
+#include <qlist.h>
+#include <qrect.h>
 #include <QFontMetrics>
-#include <QStringList>
 #include <QWidget>
 #include <QScreen>
-
 #include <cmath>
+
+class QFont;
 
 QString PVWidgets::PVUtils::shorten_path(const QString& s, const QFont& font, uint64_t nb_px)
 {

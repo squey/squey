@@ -23,24 +23,23 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include "pvkernel/widgets/PVPopupWidget.h"     // for PVPopupWidget
-#include "pvkernel/widgets/PVTextPopupWidget.h" // for PVTextPopupWidget, etc
 #include <pvkernel/core/PVTheme.h>
-
-#include <pvkernel/core/PVConfig.h> // for PVConfig
 #include <pvkernel/core/PVLogger.h> // for PVLOG_WARN
-
+#include <QtCore/qobjectdefs.h>
+#include <qcoreevent.h>
+#include <qiodevice.h>
+#include <qnamespace.h>
+#include <qobject.h>
+#include <qwidget.h>
 #include <QVBoxLayout>
 #include <QByteArray>
 #include <QKeyEvent>
 #include <QFile>
-#include <QResizeEvent>
-#include <QSettings>
 #include <QString>
-#include <QDomDocument>
-
 #include <QWebEngineView>
-#include <QWebEngineSettings>
+
+#include "pvkernel/widgets/PVPopupWidget.h"     // for PVPopupWidget
+#include "pvkernel/widgets/PVTextPopupWidget.h" // for PVTextPopupWidget, etc
 
 /**
  * RH: the code snipset from http://jsfiddle.net/r9yrM/1/ has been used as a template for the

@@ -25,18 +25,25 @@
 #ifndef PVWIDGETS_PVGRAPHICSVIEW_H
 #define PVWIDGETS_PVGRAPHICSVIEW_H
 
+#include <pvkernel/widgets/PVGraphicsViewInteractor.h>
+#include <qcolor.h>
+#include <qcursor.h>
+#include <qnamespace.h>
+#include <qpoint.h>
+#include <qrect.h>
+#include <qsize.h>
+#include <qtmetamacros.h>
+#include <qtypes.h>
 #include <QEvent>
 #include <QTransform>
 #include <QWidget>
-
 #include <vector>
 #include <list>
 #include <map>
-
-#include <pvkernel/widgets/PVGraphicsViewInteractor.h>
+#include <algorithm>
+#include <utility>
 
 class QScrollBar;
-
 class QGridLayout;
 class QGraphicsScene;
 class QPainter;
@@ -44,6 +51,12 @@ class QPaintEvent;
 class QResizeEvent;
 class QEvent;
 class QGLFormat;
+class QContextMenuEvent;
+class QEnterEvent;
+class QFocusEvent;
+class QKeyEvent;
+class QMouseEvent;
+class QWheelEvent;
 
 namespace PVWidgets
 {

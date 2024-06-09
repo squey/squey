@@ -24,6 +24,13 @@
 //
 
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
+#include <list>
+#include <tuple>
+#include <utility>
+
+#include "pvkernel/core/PVElement.h"
+#include "pvkernel/core/PVTextChunk.h"
+#include "pvkernel/filter/PVChunkFilter.h"
 
 /******************************************************************************
  *

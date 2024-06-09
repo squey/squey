@@ -27,6 +27,8 @@
 
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
+#include "pvkernel/core/PVRegistrableClass.h"
+
 class QWidget;
 class QAction;
 class QRadioButton;

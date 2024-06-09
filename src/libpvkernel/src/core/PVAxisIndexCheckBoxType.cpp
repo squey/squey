@@ -25,6 +25,8 @@
 
 #include <pvkernel/core/PVAxisIndexCheckBoxType.h>
 
+#include "pvbase/types.h"
+
 PVCore::PVAxisIndexCheckBoxType::PVAxisIndexCheckBoxType()
     : _origin_axis_index(PVCol(-1)), _is_checked(false)
 {

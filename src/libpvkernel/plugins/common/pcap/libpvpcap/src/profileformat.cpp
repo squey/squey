@@ -23,13 +23,32 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <pvkernel/core/PVUtils.h>
+#include <assert.h>
+#include <qcontainerfwd.h>
+#include <qdatastream.h>
+#include <qdom.h>
+#include <qlist.h>
+#include <qstring.h>
+#include <qvariant.h>
+#include <rapidjson/allocators.h>
+#include <rapidjson/document.h>
+#include <rapidjson/encodings.h>
+#include <rapidjson/rapidjson.h>
+#include <stddef.h>
+#include <memory>
+#include <string>
+#include <unordered_map>
+
 #include "../include/libpvpcap.h"
 #include "../include/libpvpcap/profileformat.h"
 #include "../include/libpvpcap/ws.h"
-
-#include <pvkernel/core/PVUtils.h>
-
-#include <iostream>
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVClassLibrary.h"
+#include "pvkernel/core/PVOrderedMap.h"
+#include "pvkernel/filter/PVFieldsFilterParamWidget.h"
+#include "pvkernel/rush/PVFormat_types.h"
+#include "pvkernel/rush/PVXmlTreeNodeDom.h"
 
 namespace pvpcap
 {

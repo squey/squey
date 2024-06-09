@@ -27,17 +27,12 @@
 #include <pvkernel/core/PVTextChunk.h>     // for list_elts, PVChunk
 #include <pvkernel/core/PVElement.h>       // for PVElement
 #include <pvkernel/filter/PVChunkFilter.h> // for PVChunkFilter
-
 #include <tbb/tick_count.h> // for tick_count, operator-, etc
-
-#include <algorithm> // for move
 #include <list>
 #include <cstddef> // for size_t
+#include <utility>
 
-namespace PVFilter
-{
-class PVElementFilter;
-} // namespace PVFilter
+#include "pvkernel/filter/PVElementFilter.h"
 
 /******************************************************************************
  *

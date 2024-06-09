@@ -1,9 +1,15 @@
+#include <pvkernel/core/PVTheme.h>
+#include <qcontainerfwd.h>
+#include <qpixmap.h>
+#include <qsize.h>
+#include <qtmetamacros.h>
 #include <QApplication>
 #include <QIcon>
 #include <QString>
 #include <QStyleHints>
 
-#include <pvkernel/core/PVTheme.h>
+class QPainter;
+class QRect;
 
 #ifndef __PVMODDEDICON_H__
 #define __PVMODDEDICON_H__

@@ -28,11 +28,15 @@
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
-#include "PVTextFileSource.h"
+#include <assert.h>
+#include <qbytearray.h>
+#include <qsettings.h>
+#include <qvariant.h>
+#include <memory>
 
-#include <QDir>
-#include <QStringList>
-#include <QFileInfo>
+#include "PVTextFileSource.h"
+#include "pvkernel/core/PVLogger.h"
+#include "pvkernel/rush/PVInput_types.h"
 
 PVRush::PVSourceCreatorTextfile::source_p
 PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p input) const

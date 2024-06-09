@@ -26,6 +26,14 @@
 #define PVWIDGETS_PVGRAPHICSVIEWINTERACTORSCENE_H
 
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
+#include <qobject.h>
+
+#include "pvkernel/widgets/PVGraphicsView.h"
+
+class QContextMenuEvent;
+class QKeyEvent;
+class QMouseEvent;
+class QWheelEvent;
 
 namespace PVWidgets
 {

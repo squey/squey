@@ -25,8 +25,13 @@
 #ifndef __PVWIDGETS_PVUTILS_H__
 #define __PVWIDGETS_PVUTILS_H__
 
+#include <stddef.h>
+#include <stdint.h>
 #include <QFont>
 #include <QString>
+
+class QFont;
+class QWidget;
 
 #define SQUEY_TOOLTIP_MAX_WIDTH 800
 

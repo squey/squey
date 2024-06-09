@@ -24,8 +24,12 @@
 //
 
 #include <pvkernel/widgets/PVHelpWidget.h>
+#include <qnamespace.h>
 
-#include <QtCore> // for Qt::Key_*
+#include "pvkernel/widgets/PVPopupWidget.h"
+#include "pvkernel/widgets/PVTextPopupWidget.h"
+
+class QWidget;
 
 /*****************************************************************************
  * PVWidgets::PVHelpWidget::PVHelpWidget

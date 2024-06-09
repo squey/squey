@@ -24,10 +24,16 @@
 //
 
 #include "PVFieldSplitterURL.h"
-#include <pvkernel/core/PVBufferSlice.h>
-#include <pvkernel/rush/PVRawSourceBase.h>
 
 #include <furl/decode.h>
+#include <stddef.h>
+#include <list>
+#include <string>
+
+#include "furl/features.h"
+#include "furl/furl.h"
+#include "pvkernel/core/PVField.h"
+#include "pvkernel/filter/PVFieldsFilter.h"
 
 static char empty_str = 0;
 static constexpr const char* str_http = "http";

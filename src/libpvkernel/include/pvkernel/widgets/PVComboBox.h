@@ -25,9 +25,18 @@
 #ifndef PVWIDGETS_PVCOMBOBOX_H
 #define PVWIDGETS_PVCOMBOBOX_H
 
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <qnamespace.h>
+#include <qstring.h>
+#include <qvariant.h>
 #include <QComboBox>
 #include <QStandardItemModel>
 #include <QWidget>
+
+class QModelIndex;
+class QObject;
+class QWidget;
 
 namespace PVWidgets
 {

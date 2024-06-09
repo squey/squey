@@ -25,9 +25,11 @@
 #ifndef PVCORE_PVARCHIVE_H
 #define PVCORE_PVARCHIVE_H
 
+#include <qcontainerfwd.h>
 #include <stdexcept>
-
 #include <QStringList>
+#include <string>
+
 class QString;
 
 namespace PVCore

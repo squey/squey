@@ -25,15 +25,12 @@
 
 #include <pvkernel/core/PVMemory2D.h>
 #include <pvkernel/core/squey_bench.h> // for BENCH_END, BENCH_START
-
 #include <tbb/tick_count.h> // for tick_count
-
+#include <bits/std_abs.h>
 #include <QRect> // for QRect
-
 #include <algorithm> // for max, min
 #include <cassert>   // for assert
 #include <cstdint>   // for uint32_t
-#include <cstdlib>   // for abs
 #include <cstring>   // for memcpy, memset
 
 void PVCore::memcpy2d(void* dst,

@@ -25,10 +25,17 @@
 
 #include <pvkernel/core/PVDateTimeParser.h>
 #include <pvkernel/core/PVLogger.h>
-#include <QDate>
-
-#include <tbb/tick_count.h>
 #include <tbb/scalable_allocator.h>
+#include <qchar.h>
+#include <stdint.h>
+#include <unicode/calendar.h>
+#include <unicode/char16ptr.h>
+#include <unicode/locid.h>
+#include <unicode/parsepos.h>
+#include <unicode/timezone.h>
+#include <unicode/umachine.h>
+#include <QDate>
+#include <new>
 
 // No copy is made. The QString must remain valid as long as the UnicodeString object is !
 UnicodeString PVCore::PVDateTimeParser::icuFromQStringAlias(const QString& src)

@@ -24,13 +24,14 @@
 //
 
 #include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
-
+#include <QtCore/qobjectdefs.h>
 #include <QLineEdit>
 #include <QComboBox>
 #include <QDialogButtonBox>
 #include <QLabel>
 #include <QVBoxLayout>
-#include <QHBoxLayout>
+
+class QWidget;
 
 /******************************************************************************
  * PVWidgets::PVLayerNamingPatternDialog::PVLayerNamingPatternDialog

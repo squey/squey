@@ -25,10 +25,17 @@
 
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsBaseFilter_p
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
-
 #include <algorithm> // for move
 #include <cassert>   // for assert
 #include <cstddef>   // for size_t
+#include <iterator>
+#include <list>
+#include <memory>
+#include <utility>
+
+#include "pvkernel/core/PVElement.h"
+#include "pvkernel/core/PVField.h"
+#include "pvkernel/filter/PVFilterFunction.h"
 
 /******************************************************************************
  *

@@ -26,11 +26,24 @@
 #define __PVCORE_PVPARQUETBINARYCHUNK__
 
 #include <pvkernel/core/PVBinaryChunk.h>
-#include "../../common/parquet/PVParquetAPI.h"
-
 #include <arrow/record_batch.h>
 #include <arrow/api.h>
 #include <arrow/util/type_fwd.h>
+#include <stddef.h>
+#include <memory>
+#include <vector>
+
+#include "../../common/parquet/PVParquetAPI.h"
+#include "pvcop/db/types.h"
+
+namespace arrow {
+class Table;
+}  // namespace arrow
+namespace pvcop {
+namespace db {
+class write_dict;
+}  // namespace db
+}  // namespace pvcop
 
 namespace PVRush
 {

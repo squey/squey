@@ -25,9 +25,33 @@
 
 #include <pvkernel/core/PVPredefinedHSVColors.h>
 #include <pvkernel/widgets/PVColorDialog.h>
-
+#include <QtCore/qobjectdefs.h>
+#include <assert.h>
+#include <qcolor.h>
+#include <qcoreevent.h>
+#include <qdialog.h>
+#include <qflags.h>
+#include <qframe.h>
+#include <qgridlayout.h>
+#include <qlabel.h>
+#include <qlayoutitem.h>
+#include <qnamespace.h>
+#include <qobject.h>
+#include <qpixmap.h>
+#include <qrect.h>
+#include <qsize.h>
+#include <qsizepolicy.h>
+#include <qtmetamacros.h>
+#include <qvariant.h>
+#include <stddef.h>
 #include <QMouseEvent>
 #include <QAction>
+#include <vector>
+
+#include "pvkernel/core/PVHSVColor.h"
+#include "pvkernel/widgets/PVColorPicker.h"
+
+class QWidget;
 
 // static PVCore::PVHSVColor g_predefined_colors[] = {HSV_COLOR_WHITE, HSV_COLOR_RED,
 // HSV_COLOR_GREEN, HSV_COLOR_BLUE};

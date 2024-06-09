@@ -26,10 +26,14 @@
 #define PVFILTER_PVCHUNKFILTERDUMPELTS_H
 
 #include <pvkernel/core/PVTextChunk.h>
-
 #include <pvkernel/filter/PVChunkFilter.h>
-
+#include <stddef.h>
 #include <map>
+#include <string>
+
+namespace PVCore {
+class PVTextChunk;
+}  // namespace PVCore
 
 namespace PVFilter
 {

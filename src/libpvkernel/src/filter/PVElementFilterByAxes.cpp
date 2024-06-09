@@ -25,11 +25,11 @@
 
 #include <pvkernel/filter/PVElementFilterByAxes.h>
 #include <pvkernel/filter/PVElementFilterByFields.h>
-
-#include <pvkernel/core/PVArgument.h> // for PVArgumentList
-
 #include <cstddef> // for size_t
 #include <list>    // for _List_iterator, list
+
+#include "pvkernel/core/PVElement.h"
+#include "pvkernel/filter/PVFilterFunction.h"
 
 /******************************************************************************
  * PVFilter::PVElementFilterByAxes::PVElementFilterByAxes

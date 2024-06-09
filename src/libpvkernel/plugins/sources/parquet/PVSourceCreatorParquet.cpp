@@ -24,14 +24,8 @@
 //
 
 #include "PVSourceCreatorParquet.h"
+
 #include "PVParquetSource.h"
-#include "../../common/parquet/PVParquetFileDescription.h"
-
-#include <pvkernel/core/PVConfig.h>
-
-#include <QDir>
-#include <QStringList>
-#include <QFileInfo>
 
 PVRush::PVSourceCreatorParquet::source_p
 PVRush::PVSourceCreatorParquet::create_source_from_input(PVRush::PVInputDescription_p input) const

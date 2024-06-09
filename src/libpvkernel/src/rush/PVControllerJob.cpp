@@ -23,11 +23,28 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvbase/general.h>
 #include <pvkernel/rush/PVControllerJob.h>
-#include <pvkernel/core/PVBinaryChunk.h>
 #include <pvkernel/core/PVTextChunk.h>
-#include <cassert>
+#include <bits/chrono.h>
+#include <qtmetamacros.h>
+#include <stddef.h>
+#include <tbb/pipeline.h>
+#include <tbb/task.h>
+#include <future>
+#include <mutex>
+
+#include "pvbase/types.h"
+#include "pvkernel/filter/PVChunkFilterByElt.h"
+#include "pvkernel/filter/PVChunkFilterDumpElts.h"
+#include "pvkernel/filter/PVChunkFilterRemoveInvalidElts.h"
+#include "pvkernel/rush/PVAggregator.h"
+#include "pvkernel/rush/PVOutput.h"
+#include "pvkernel/rush/PVPipelineTask.h"
+#include "pvkernel/rush/PVRawSourceBase_types.h"
+
+namespace PVCore {
+class PVChunk;
+}  // namespace PVCore
 
 PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
                                          chunk_index end,

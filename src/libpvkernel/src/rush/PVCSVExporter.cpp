@@ -26,29 +26,18 @@
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/core/PVColumnIndexes.h> // for PVColumnIndexes
 #include <pvkernel/core/PVSelBitField.h>   // for PVSelBitField
-#include <pvkernel/rush/PVNraw.h>
-
 #include <pvbase/types.h> // for PVRow
-
-#include <cassert>    // for assert
-#include <cstddef>    // for size_t
-#include <functional> // for function
-#include <omp.h>      // for omp_get_thread_num
-#include <ostream>    // for flush, ostream
-#include <string>     // for allocator, string, etc
-#include <sys/stat.h> // for mkfifo
-#include <cstring>    // for std::strerror
-#include <atomic>
-
-#include <fcntl.h>
-#include <sys/wait.h>
-
 #include <tbb/pipeline.h>
+#include <cassert>    // for assert
+#include <functional> // for function
+#include <string>     // for allocator, string, etc
+#include <algorithm>
+#include <cstdio>
+#include <thread>
+#include <utility>
 
-#include <QLayout>
-#include <QFormLayout>
-#include <QCheckBox>
-#include <QRadioButton>
+#include "pvkernel/core/PVStreamingCompressor.h"
+#include "pvkernel/rush/PVExporter.h"
 
 const size_t PVRush::PVCSVExporter::STEP_COUNT = 2000;
 const std::string PVRush::PVCSVExporter::default_sep_char = ",";

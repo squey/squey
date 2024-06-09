@@ -26,8 +26,8 @@
 #define PVWIDGETS_PVPERCENTRANGEEDITOR_H
 
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
-
 #include <pvkernel/core/PVPercentRangeType.h>
+#include <qtmetamacros.h>
 
 class QWidget;
 

@@ -25,9 +25,16 @@
 #ifndef __PVGUIQT_PVFILEDIALOG_H__
 #define __PVGUIQT_PVFILEDIALOG_H__
 
+#include <pvkernel/core/PVWSLHelper.h>
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <qnamespace.h>
+#include <qstring.h>
+#include <qtmetamacros.h>
+#include <qurl.h>
 #include <QFileDialog>
 
-#include <pvkernel/core/PVWSLHelper.h>
+class QWidget;
 
 namespace PVWidgets
 {

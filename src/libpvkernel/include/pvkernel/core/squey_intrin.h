@@ -25,8 +25,12 @@
 #ifndef PVKERNEL_CORE_SQUEY_INTRIN_H
 #define PVKERNEL_CORE_SQUEY_INTRIN_H
 
-#include <cstdint>
 #include <immintrin.h>
+#include <emmintrin.h>
+#include <popcntintrin.h>
+#include <smmintrin.h>
+#include <xmmintrin.h>
+#include <cstdint>
 
 namespace PVCore
 {

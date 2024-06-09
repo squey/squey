@@ -27,6 +27,8 @@
 
 #include <pvkernel/widgets/PVTextPopupWidget.h>
 
+class QWidget;
+
 namespace PVWidgets
 {
 

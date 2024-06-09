@@ -27,6 +27,23 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/core/PVSerializeObject.h>
+#include <qchar.h>
+#include <qdir.h>
+#include <qfile.h>
+#include <qhash.h>
+#include <qiodevice.h>
+#include <qsettings.h>
+#include <qstring.h>
+#include <qtypeinfo.h>
+#include <qtypes.h>
+#include <qvariant.h>
+#include <stddef.h>
+#include <algorithm>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "pvkernel/core/PVSerializeArchiveExceptions.h"
 
 PVCore::PVSerializeArchive::PVSerializeArchive(version_t version, bool save_log_file)
     : _version(version), _is_opened(false), _save_log_files(save_log_file)

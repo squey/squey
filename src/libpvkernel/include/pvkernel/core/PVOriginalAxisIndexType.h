@@ -27,7 +27,11 @@
 
 #include <pvkernel/core/PVArgument.h>
 #include <pvbase/types.h>
-
+#include <qbytearray.h>
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <qnamespace.h>
+#include <qtypeinfo.h>
 #include <QMetaType>
 #include <QString>
 #include <QStringList>

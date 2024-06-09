@@ -25,15 +25,13 @@
 
 #include <pvkernel/rush/PVInput.h> // for IMPL_INPUT
 #include <pvkernel/rush/PVInputFile.h>
-
-#include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR
-#include <pvkernel/core/PVArchive.h>
-
-#include <cerrno>
+#include <qstring.h>
+#include <stddef.h>
+#include <stdint.h>
 #include <fstream>
-#include <fcntl.h>
-#include <sys/stat.h>
-#include <sys/wait.h>
+#include <memory>
+
+#include "pvkernel/core/PVStreamingCompressor.h"
 
 PVRush::PVInputFile::PVInputFile(const char* path) : _path(path), _decompressor(_path)
 {

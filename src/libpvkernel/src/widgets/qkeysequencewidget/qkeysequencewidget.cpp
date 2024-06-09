@@ -23,13 +23,31 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <pvkernel/widgets/qkeysequencewidget_p.h>
+#include <pvkernel/widgets/qkeysequencewidget.h>
+#include <qabstractbutton.h>
+#include <qboxlayout.h>
+#include <qflags.h>
+#include <qkeysequence.h>
+#include <qlatin1stringview.h>
+#include <qlogging.h>
+#include <qnamespace.h>
+#include <qobjectdefs.h>
+#include <qpushbutton.h>
+#include <qsize.h>
+#include <qstring.h>
+#include <qtclasshelpermacros.h>
+#include <qtimer.h>
+#include <qtmetamacros.h>
+#include <qtoolbutton.h>
+#include <qtpreprocessorsupport.h>
+#include <qtypes.h>
+#include <qwidget.h>
+#include <sys/types.h>
 #include <QDebug>
 #include <QEvent>
 #include <QKeyEvent>
 #include <QIcon>
-
-#include <pvkernel/widgets/qkeysequencewidget_p.h>
-#include <pvkernel/widgets/qkeysequencewidget.h>
 
 char PVWidgets::QKeySequenceWidget::get_ascii_from_sequence(QKeySequence key)
 {

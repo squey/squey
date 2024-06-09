@@ -24,11 +24,10 @@
 //
 
 #include <pvkernel/core/PVLogger.h> // for PVLogger, etc
-
+#include <qtenvironmentvariables.h>
 #include <QDateTime>
 #include <QString>
 #include <QByteArray>
-
 #include <cstdarg> // for va_end, va_list, va_start
 #include <cstdio>  // for fprintf, fclose, fopen
 #include <iostream>

@@ -23,28 +23,53 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <QXmlStreamReader>
-#include <QFile>
-#include <QDir>
-#include <QHashIterator>
-#include <QDateTime>
-#include <QFileInfo>
-#include <QTextStream>
-
-#include <pvkernel/core/PVCompList.h>
 #include <pvkernel/core/PVUtils.h>
-
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVNormalizer.h>
-
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
 #include <pvkernel/filter/PVElementFilterByAxes.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
+#include <assert.h>
+#include <qbytearray.h>
+#include <qcontainerfwd.h>
+#include <qdom.h>
+#include <qiodevice.h>
+#include <qlist.h>
+#include <qstring.h>
+#include <qstringlist.h>
+#include <qtypeinfo.h>
+#include <stdlib.h>
+#include <QFile>
+#include <QDir>
+#include <QHashIterator>
+#include <QFileInfo>
+#include <QTextStream>
+#include <algorithm>
+#include <cstdio>
+#include <memory>
+#include <stdexcept>
+#include <string>
+#include <unordered_set>
+#include <utility>
+#include <vector>
+
+#include "pvbase/types.h"
+#include "pvcop/formatter_desc.h"
+#include "pvcop/formatter_desc_list.h"
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVLogger.h"
+#include "pvkernel/core/PVOrderedMap.h"
+#include "pvkernel/core/PVSerializeObject.h"
+#include "pvkernel/filter/PVElementFilter.h"
+#include "pvkernel/filter/PVFieldsFilter.h"
+#include "pvkernel/rush/PVFormat_types.h"
+#include "pvkernel/rush/PVXmlParamParserData.h"
+#include "type_safe/strong_typedef.hpp"
 
 static const std::unordered_set<std::string> SUPPORTED_TYPES = {
     "string",       "number_uint32", "number_int32",  "number_uint64",

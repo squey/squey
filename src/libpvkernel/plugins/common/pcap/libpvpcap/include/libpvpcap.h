@@ -25,9 +25,12 @@
 #ifndef LIBPVPCAP_H
 #define LIBPVPCAP_H
 
-#include "rapidjson/document.h"
-
+#include <rapidjson/allocators.h>
+#include <rapidjson/rapidjson.h>
 #include <vector>
+#include <string>
+
+#include "rapidjson/document.h"
 
 /*!
  * Namespace that groups together the components of managing

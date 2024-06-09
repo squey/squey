@@ -27,14 +27,23 @@
 
 #include <pvkernel/rush/PVControllerJob.h> // for PVControllerJob, etc
 #include <pvkernel/rush/PVOutput.h>        // for PVOutput
-
 #include <pvkernel/filter/PVFilterFunction.h> // for CLASS_FILTER_NONREG
-
 #include <pvbase/types.h> // for PVRow
 #include <pvbase/general.h>
-
+#include <stddef.h>
 #include <unordered_set>
 #include <memory>
+#include <algorithm>
+#include <string>
+#include <tuple>
+#include <utility>
+#include <vector>
+
+#include "pvcop/types/formatter/formatter_interface.h"
+
+namespace PVCore {
+class PVChunk;
+}  // namespace PVCore
 
 namespace pvcop
 {
@@ -46,6 +55,7 @@ class formatter_interface;
 
 namespace PVRush
 {
+class PVFormat;
 
 class PVTypesDiscoveryOutput : public PVRush::PVOutput
 {

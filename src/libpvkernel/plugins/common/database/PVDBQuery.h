@@ -25,16 +25,25 @@
 #ifndef PVDBQUERY_FILE_H
 #define PVDBQUERY_FILE_H
 
-#include "PVDBServ_types.h"
-
 #include <pvbase/types.h>
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/rush/PVInputDescription.h>
-
+#include <qlist.h>
 #include <QString>
 #include <QSqlQuery>
 #include <QMetaType>
 #include <QDomDocument>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "PVDBServ_types.h"
+
+class QSettings;
+
+namespace PVCore {
+class PVSerializeObject;
+}  // namespace PVCore
 
 namespace PVRush
 {

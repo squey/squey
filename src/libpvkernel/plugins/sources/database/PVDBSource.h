@@ -27,12 +27,14 @@
 
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVInput_types.h>
-
 #include <pvkernel/core/PVTextChunk.h>
+#include <qsqlquery.h>
+#include <qstring.h>
+#include <stddef.h>
+#include <QSqlDatabase>
 
 #include "../../common/database/PVDBQuery.h"
-
-#include <QSqlDatabase>
+#include "pvbase/types.h"
 
 namespace PVRush
 {

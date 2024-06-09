@@ -24,10 +24,13 @@
 //
 
 #include <pvkernel/widgets/PVLongLongSpinBox.h>
+#include <qminmax.h>
+#include <qnamespace.h>
 #include <QLineEdit>
 #include <limits>
-#include <QEvent>
 #include <QKeyEvent>
+
+class QWidget;
 
 PVWidgets::PVLongLongSpinBox::PVLongLongSpinBox(QWidget* parent) : QAbstractSpinBox(parent)
 {

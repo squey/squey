@@ -24,6 +24,12 @@
 //
 
 #include <pvkernel/widgets/PVComboBox.h>
+#include <qabstractitemmodel.h>
+#include <qbrush.h>
+#include <qcolor.h>
+
+class QObject;
+class QWidget;
 
 /******************************************************************************
  *

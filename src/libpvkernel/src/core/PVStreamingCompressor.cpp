@@ -24,21 +24,24 @@
 //
 
 #include <pvkernel/core/PVStreamingCompressor.h>
-
-#include <cerrno>
-#include <fstream>
-#include <iostream>
-#include <cstring> // for std::strerror
-
-#include <cassert>
 #include <fcntl.h>
-#include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
-#include <boost/algorithm/string.hpp>
-
 #include <pvlogger.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/detail/classification.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/iterator/iterator_facade.hpp>
+#include <cerrno>
+#include <iostream>
+#include <cstring> // for std::strerror
+#include <cassert>
+#include <algorithm>
+#include <memory>
+
+#include "pvkernel/core/PVOrderedMap.h"
 
 const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
     PVCore::__impl::PVStreamingBase::_supported_compressors = {

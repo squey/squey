@@ -24,14 +24,19 @@
 //
 
 #include "PVSourceCreatorPcap.h"
-#include "PVPcapSource.h"
-#include "../../common/pcap/PVPcapDescription.h"
 
 #include <pvkernel/core/PVConfig.h>
+#include <assert.h>
+#include <qbytearray.h>
+#include <qsettings.h>
+#include <qvariant.h>
+#include <memory>
 
-#include <QDir>
-#include <QStringList>
-#include <QFileInfo>
+#include "PVPcapSource.h"
+#include "../../common/pcap/PVPcapDescription.h"
+#include "pvkernel/core/PVLogger.h"
+#include "pvkernel/rush/PVInputFile.h"
+#include "pvkernel/rush/PVInput_types.h"
 
 PVPcapsicum::PVSourceCreatorPcap::source_p
 PVPcapsicum::PVSourceCreatorPcap::create_source_from_input(PVRush::PVInputDescription_p input) const

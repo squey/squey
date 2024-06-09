@@ -25,10 +25,23 @@
 
 #include <pvkernel/core/PVAlgorithms.h>
 #include <pvkernel/widgets/PVColorPicker.h>
-
+#include <qbrush.h>
+#include <qcolor.h>
+#include <qflags.h>
+#include <qlist.h>
+#include <qnamespace.h>
+#include <qpoint.h>
+#include <qpolygon.h>
+#include <qrect.h>
+#include <qsize.h>
+#include <qtmetamacros.h>
+#include <qwidget.h>
+#include <stdint.h>
 #include <QMouseEvent>
 #include <QPainter>
-#include <QPaintEvent>
+#include <utility>
+
+#include "pvkernel/core/PVHSVColor.h"
 
 #define CROSS_HEIGHT 20
 #define CROSS_WIDTH 20

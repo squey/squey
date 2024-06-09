@@ -30,13 +30,13 @@
 #include <pvkernel/core/PVField.h>          // for PVField
 #include <pvkernel/core/PVLogger.h>         // for PVLOG_DEBUG
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsBaseFilter, etc
-
 #include <pvbase/types.h> // for PVCol
-
+#include <sys/types.h> // for ssize_t
+#include <qcontainerfwd.h>
+#include <qobjectdefs.h>
+#include <qtmetamacros.h>
 #include <cassert>     // for assert
 #include <memory>      // for __shared_ptr
-#include <sys/types.h> // for ssize_t
-
 #include <QDomElement> // for QDomElement, QDomDocument
 #include <QHash>       // for QHash
 #include <QList>       // for QList
@@ -45,6 +45,10 @@
 #include <QStringList> // for QStringList
 
 class QWidget;
+
+namespace PVCore {
+class PVField;
+}  // namespace PVCore
 
 #define PVXmlTreeNodeDom_initXml                                                                   \
 	"<?xml version=\"1.0\" encoding=\"UTF-8\" ?>\n<!DOCTYPE PVParamXml>\n<param></param>\n"

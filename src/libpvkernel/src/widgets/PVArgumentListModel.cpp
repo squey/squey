@@ -24,7 +24,12 @@
 //
 
 #include <pvkernel/widgets/PVArgumentListModel.h>
-#include <QStandardItemModel>
+#include <qtmetamacros.h>
+#include <iterator>
+#include <vector>
+
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVOrderedMap.h"
 
 /******************************************************************************
  *

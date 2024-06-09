@@ -25,9 +25,18 @@
 
 #include <libpvpcap/pcap_splitter.h>
 #include <libpvpcap/sniff_def.h>
-
-#include <cstdlib>
-#include <iostream>
+#include <tbb/parallel_sort.h>
+#include <pvhwloc.h>
+#include <pvlogger.h>
+#include <arpa/inet.h>
+#include <linux/if_ether.h>
+#include <netinet/in.h>
+#include <netinet/ip6.h>
+#include <pcap/pcap.h>
+#include <stdio.h>
+#include <sys/time.h>
+#include <sys/types.h>
+#include <boost/filesystem/path.hpp>
 #include <fstream>
 #include <memory>
 #include <sstream>
@@ -38,17 +47,13 @@
 #include <bitset>
 #include <unordered_map>
 #include <numeric>
-
 #include <QDir>
 #include <QFileInfo>
 #include <QString>
-
-#include <boost/filesystem.hpp>
-
-#include <tbb/parallel_sort.h>
-
-#include <pvhwloc.h>
-#include <pvlogger.h>
+#include <iterator>
+#include <list>
+#include <tuple>
+#include <utility>
 
 static std::pair<in6_addr, in6_addr> srcip_dstip(const sniff_ip* ip, bool ipv4)
 {

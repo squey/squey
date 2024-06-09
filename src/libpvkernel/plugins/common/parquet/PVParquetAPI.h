@@ -25,16 +25,24 @@
 #ifndef __RUSH_PVPARQUETAPI_H__
 #define __RUSH_PVPARQUETAPI_H__
 
-#include <QDomDocument>
-#include <QTextStream>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/core/serialize_numbers.h>
-#include "PVParquetFileDescription.h"
-
 #include <parquet/arrow/reader.h>
-
+#include <arrow/type.h>
+#include <parquet/file_reader.h>
+#include <parquet/metadata.h>
+#include <qlist.h>
+#include <qstring.h>
+#include <stddef.h>
+#include <QDomDocument>
+#include <QTextStream>
 #include <unordered_map>
+#include <functional>
+#include <memory>
+#include <vector>
+
+#include "PVParquetFileDescription.h"
 
 namespace PVRush
 {

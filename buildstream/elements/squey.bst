@@ -78,6 +78,7 @@ build-depends:
 - waypipe.bst
 - llvm.bst
 - mold.bst
+- iwyu.bst
 
 sources:
 - kind: local

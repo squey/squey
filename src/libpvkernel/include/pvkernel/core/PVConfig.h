@@ -27,8 +27,8 @@
 
 #include <QString>
 #include <QVariant>
-
 #include <memory>
+#include <string>
 
 class QSettings;
 

@@ -26,13 +26,15 @@
 #define PVCORE_PVARGUMENT_H
 
 #include <pvkernel/core/PVOrderedMap.h>
-
+#include <qdatastream.h>
+#include <qhashfunctions.h>
+#include <qlist.h>
+#include <qmetatype.h>
+#include <qstringfwd.h>
 #include <vector>
-
 #include <QHash>
 #include <QString>
 #include <QVariant>
-
 
 class QDataStream;
 class QDomElement;

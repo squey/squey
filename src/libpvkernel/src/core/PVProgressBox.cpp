@@ -36,9 +36,7 @@
 #include <QWidget>
 #include <QMessageBox>
 
-#include <boost/thread.hpp>
-
-#include <pvlogger.h>
+#include <boost/thread.hpp>  // IWYU pragma: keep
 
 /******************************************************************************
  *

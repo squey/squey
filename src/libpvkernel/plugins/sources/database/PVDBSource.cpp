@@ -24,12 +24,18 @@
 //
 
 #include "PVDBSource.h"
+
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
-
+#include <qvariant.h>
+#include <string.h>
 #include <QSqlError>
 #include <QSqlRecord>
+#include <string>
+
+#include "database/PVDBQuery.h"
+#include "pvkernel/core/PVLogger.h"
 
 #define NCHUNKS 100
 

@@ -26,12 +26,11 @@
 #define PVCORE_PVCLASSLIBRARY_H
 
 #include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMap
-
+#include <qcontainerfwd.h>
 #include <cassert>   // for assert
 #include <stdexcept> // for runtime_error
 #include <string>    // for operator+, basic_string
 #include <typeinfo>  // for type_info
-
 #include <QString>
 #include <QStringList>
 #include <QList>

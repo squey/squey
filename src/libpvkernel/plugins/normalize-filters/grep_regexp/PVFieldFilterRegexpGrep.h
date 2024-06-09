@@ -28,6 +28,15 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
 #include <regex>
+#include <vector>
+
+#include "pvkernel/filter/PVFilterFunction.h"
+#include "pvkernel/core/PVField.h"
+
+namespace PVCore {
+class PVArgumentList;
+class PVField;
+}  // namespace PVCore
 
 namespace PVFilter
 {

@@ -26,12 +26,14 @@
 #define PVKERNEL_OPENCL_COMMON_H
 
 #include <CL/cl.hpp> // for Buffer (ptr only), etc
-
+#include <CL/cl.h>
+#include <CL/cl_platform.h>
 #include <cstddef>    // for size_t
 #include <cstdio>     // for fprintf, stderr
 #include <cstdlib>    // for abort
 #include <functional> // for function
 #include <stdexcept>  // for runtime_error
+#include <string>
 
 #define __squey_verify_opencl(E, F, L)                                                            \
 	{                                                                                              \

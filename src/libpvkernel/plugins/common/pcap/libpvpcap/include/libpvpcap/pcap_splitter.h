@@ -25,6 +25,8 @@
 #ifndef __LIBPVPCAP_PCPP_H__
 #define __LIBPVPCAP_PCPP_H__
 
+#include <stddef.h>
+#include <stdint.h>
 #include <functional>
 #include <vector>
 #include <memory>

@@ -24,17 +24,19 @@
 //
 
 #include <pvkernel/core/PVUtils.h>
-
-#include <cstddef>
+#include <stdio.h>
+#include <boost/algorithm/string/classification.hpp>
+#include <boost/algorithm/string/detail/classification.hpp>
+#include <boost/algorithm/string/join.hpp>
+#include <boost/algorithm/string/split.hpp>
+#include <boost/iterator/iterator_facade.hpp>
 #include <fstream>
 #include <memory>
-
-#include <boost/algorithm/string.hpp>
-
-#include <QFile>
-#include <QTextStream>
-
-#include <pvlogger.h>
+#include <algorithm>
+#include <array>
+#include <iterator>
+#include <limits>
+#include <stdexcept>
 
 std::string& PVCore::replace(std::string& str,
                              const std::string& from,

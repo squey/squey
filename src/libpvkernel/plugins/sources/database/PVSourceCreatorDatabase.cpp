@@ -23,10 +23,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/rush/PVInput_types.h>
+#include <assert.h>
 
 #include "../../common/database/PVDBQuery.h"
-
 #include "PVSourceCreatorDatabase.h"
 #include "PVDBSource.h"
 

@@ -32,17 +32,27 @@
 #include <pvkernel/filter/PVChunkFilterRemoveInvalidElts.h>
 #include <pvkernel/rush/PVOutput.h>
 #include <pvkernel/rush/PVPipelineTask.h>
-
 #include <tbb/pipeline.h>
-
+#include <qtmetamacros.h>
+#include <stddef.h>
 #include <memory>
 #include <future>
-
 #include <QObject>
 #include <QStringList>
+#include <map>
+#include <mutex>
+#include <string>
+
+#include "pvbase/types.h"
+
+namespace PVFilter {
+class PVChunkFilterByElt;
+}  // namespace PVFilter
 
 namespace PVRush
 {
+class PVAggregator;
+class PVPipelineTask;
 
 /*! \brief Defines a job to import data.
  *

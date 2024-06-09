@@ -24,18 +24,25 @@
 //
 
 #include <pvkernel/rush/PVTypesDiscoveryOutput.h>
-
-#include <pvkernel/rush/PVNraw.h> // for PVNraw
 #include <pvkernel/rush/PVFormat.h>
-
 #include <pvkernel/core/PVTextChunk.h> // for PVChunk
 #include <pvkernel/core/PVConfig.h>
-
 #include <pvbase/types.h> // for PVRow
-
 #include <pvcop/types/factory.h>
-
 #include <cassert> // for assert
+#include <atomic>
+#include <fstream>
+#include <list>
+#include <mutex>
+
+#include "pvcop/db/128bits_support.h"
+#include "pvcop/formatter_desc.h"
+#include "pvcop/formatter_desc_list.h"
+#include "pvkernel/core/PVChunk.h"
+#include "pvkernel/core/PVElement.h"
+#include "pvkernel/core/PVField.h"
+#include "pvkernel/rush/PVControllerJob.h"
+#include "type_safe/strong_typedef.hpp"
 
 static constexpr const char* USER_TIME_FORMATS_FILENAME = "user_time_formats.ini";
 

@@ -25,6 +25,8 @@
 
 #include <pvkernel/widgets/editors/PVRegexpEditor.h>
 
+class QWidget;
+
 /******************************************************************************
  *
  * PVCore::PVRegexpEditor::PVRegexpEditor

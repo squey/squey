@@ -26,7 +26,13 @@
 #define PVPRESETSWIDGET_H_
 
 #include <pvkernel/core/PVLogger.h>
-
+#include <qcontainerfwd.h>
+#include <qnamespace.h>
+#include <qsize.h>
+#include <qstring.h>
+#include <qtmetamacros.h>
+#include <qvariant.h>
+#include <qwidget.h>
 #include <QGroupBox>
 #include <QDialog>
 #include <QComboBox>
@@ -38,6 +44,12 @@
 #include <QKeyEvent>
 #include <QToolBar>
 #include <QListWidget>
+
+class QAction;
+class QComboBox;
+class QGroupBox;
+class QPushButton;
+class QToolBar;
 
 namespace PVWidgets
 {

@@ -25,28 +25,35 @@
 #ifndef __PVParquetSOURCE_FILE_H__
 #define __PVParquetSOURCE_FILE_H__
 
-#include <iterator>
+#include "PVParquetSource.h"
+
 #include <fcntl.h>
-#include <memory>
-
-#include <QString>
-
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/core/serialize_numbers.h>
+#include <arrow/record_batch.h>
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <stddef.h>
+#include <iterator>
+#include <memory>
+#include <QString>
+#include <vector>
 
 #include "../../common/parquet/PVParquetFileDescription.h"
 #include "../../common/parquet/PVParquetAPI.h"
 #include "PVParquetSource.h"
 #include "PVParquetBinaryChunk.h"
-
-#include <arrow/record_batch.h>
+#include "pvbase/types.h"
+#include "pvcop/db/write_dict.h"
+#include "pvkernel/core/PVBinaryChunk.h"
 
 namespace PVRush
 {
+class PVParquetFileDescription;
 
 class PVParquetSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 {

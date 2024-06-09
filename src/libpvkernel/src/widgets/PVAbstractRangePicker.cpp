@@ -24,12 +24,14 @@
 //
 
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
-
+#include <qflags.h>
+#include <qlist.h>
+#include <qnamespace.h>
+#include <qobjectdefs.h>
+#include <qsizepolicy.h>
 #include <cmath> // for round
-
 #include <QBrush>   // for QLinearGradient, QBrush
 #include <QColor>   // for QColor
-#include <QEvent>   // for QMouseEvent, QPaintEvent, etc
 #include <QPainter> // for QPainter
 #include <QPoint>   // for QPoint, QPointF
 #include <QPolygon> // for QPolygon, QPolygonF

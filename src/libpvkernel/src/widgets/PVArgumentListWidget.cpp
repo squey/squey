@@ -23,22 +23,34 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <QVBoxLayout>
-#include <QDialog>
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QListWidget>
-#include <QFrame>
-#include <QMouseEvent>
-#include <QStandardItemEditorCreator>
-#include <QTextEdit>
-#include <QItemDelegate>
-#include <QDialogButtonBox>
-
-#include <cassert>
-
 #include <pvkernel/widgets/PVArgumentListModel.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <QtCore/qobjectdefs.h>
+#include <qabstractitemmodel.h>
+#include <qdatawidgetmapper.h>
+#include <qgridlayout.h>
+#include <qlatin1stringview.h>
+#include <qlayout.h>
+#include <qlayoutitem.h>
+#include <qmetatype.h>
+#include <qnamespace.h>
+#include <qstring.h>
+#include <qtmetamacros.h>
+#include <qtypeinfo.h>
+#include <qvariant.h>
+#include <qwidget.h>
+#include <stdint.h>
+#include <QVBoxLayout>
+#include <QDialog>
+#include <QLabel>
+#include <QStandardItemEditorCreator>
+#include <QItemDelegate>
+#include <QDialogButtonBox>
+#include <cassert>
+#include <vector>
+
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVOrderedMap.h"
 
 /******************************************************************************
  *

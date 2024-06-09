@@ -23,20 +23,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <QFormLayout>
-#include <QGroupBox>
-#include <QHBoxLayout>
-#include <QLabel>
-#include <QMessageBox>
-#include <QSpacerItem>
-#include <QStackedLayout>
-
 #include <pvkernel/widgets/PVExportDlg.h>
 #include <pvkernel/widgets/PVCSVExporterWidget.h>
-
-#include <pvkernel/core/PVProgressBox.h>
-
+#include <QtCore/qobjectdefs.h>
+#include <assert.h>
+#include <qfiledialog.h>
+#include <qgridlayout.h>
+#include <qlist.h>
+#include <qobject.h>
+#include <qstring.h>
+#include <QGroupBox>
+#include <QStackedLayout>
 #include <regex>
+#include <functional>
+#include <string>
+#include <vector>
+
+#include "pvkernel/core/PVStreamingCompressor.h"
+#include "pvkernel/widgets/PVExporterWidgetInterface.h"
+#include "pvkernel/widgets/PVFileDialog.h"
+
+class QWidget;
 
 PVWidgets::PVExportDlg::PVExportDlg(
 	QWidget* parent /* = 0 */,

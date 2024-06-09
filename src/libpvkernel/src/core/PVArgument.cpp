@@ -26,17 +26,14 @@
 #include <pvkernel/core/PVArgument.h> // for PVArgumentList, PVArgument, etc
 #include <pvkernel/core/PVLogger.h>   // for PVLOG_INFO, PVLOG_WARN
 #include <pvkernel/core/PVOrderedMap.h>
-
+#include <qcontainerfwd.h>
+#include <qnamespace.h>
 #include <QChar>
 #include <QDomElement>
 #include <QHash>
-#include <QMetaType>
 #include <QSettings>
 #include <QString>
-#include <QStringList>
 #include <QVariant>
-#include <QDataStream>
-
 #include <vector> // for vector
 
 QHash<QString, QString> PVCore::PVArgumentKey::_key_desc;

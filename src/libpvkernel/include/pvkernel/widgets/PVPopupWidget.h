@@ -27,6 +27,9 @@
 
 #include <QWidget>
 
+class QMouseEvent;
+class QPoint;
+
 namespace PVWidgets
 {
 

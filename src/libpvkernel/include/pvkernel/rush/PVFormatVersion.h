@@ -26,7 +26,6 @@
 #define PVFORMAT_VERSION_H
 
 #include <vector>
-
 #include <QDomDocument>
 #include <QString>
 

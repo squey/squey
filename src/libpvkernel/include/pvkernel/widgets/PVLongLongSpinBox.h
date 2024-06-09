@@ -25,8 +25,17 @@
 #ifndef __PVWIDGETS_PVLONGLONGSPINBOX_H__
 #define __PVWIDGETS_PVLONGLONGSPINBOX_H__
 
+#include <qstring.h>
+#include <qtclasshelpermacros.h>
+#include <qtmetamacros.h>
+#include <qtypes.h>
+#include <qvalidator.h>
 #include <QAbstractSpinBox>
 #include <QtGlobal>
+
+class QFocusEvent;
+class QKeyEvent;
+class QWidget;
 
 namespace PVWidgets
 {

@@ -27,6 +27,7 @@
 
 #include <algorithm> // for forward
 #include <cstdio>    // for FILE
+#include <utility>
 #ifndef NDEBUG
 #include <tuple>
 #endif

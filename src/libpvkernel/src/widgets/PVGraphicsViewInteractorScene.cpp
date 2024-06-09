@@ -24,12 +24,14 @@
 //
 
 #include <pvkernel/widgets/PVGraphicsViewInteractorScene.h>
-
 #include <pvkernel/widgets/PVGraphicsView.h>
-
+#include <qcoreevent.h>
+#include <qevent.h>
+#include <qpoint.h>
 #include <QGraphicsSceneWheelEvent>
 #include <QApplication>
-#include <QGraphicsScene>
+
+#include <QGraphicsScene> // IWYU pragma: keep
 
 template <typename E>
 static inline void propagate_event_to_scene(PVWidgets::PVGraphicsView* obj, E* event)

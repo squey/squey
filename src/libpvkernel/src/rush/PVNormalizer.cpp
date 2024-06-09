@@ -24,14 +24,12 @@
 //
 
 #include <pvkernel/rush/PVNormalizer.h>
-
 #include <pvbase/general.h> // for PVCORE_DIRECTORY_SEP
-
+#include <qchar.h>
+#include <qlist.h>
 #include <cstdlib> // for getenv
-
 #include <QDir>
 #include <QString>
-#include <QStringList>
 
 /******************************************************************************
  *

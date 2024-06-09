@@ -25,6 +25,18 @@
 
 #include "PVFieldFilterRegexpGrep.h"
 
+#include <qcontainerfwd.h>
+#include <qlist.h>
+#include <qnamespace.h>
+#include <qstring.h>
+#include <qvariant.h>
+#include <algorithm>
+
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVField.h"
+#include "pvkernel/core/PVOrderedMap.h"
+#include "pvkernel/filter/PVFieldFilterGrep.h"
+
 /******************************************************************************
  *
  * PVFilter::PVFieldFilterRegexpGrepg::PVFieldFilterGrep

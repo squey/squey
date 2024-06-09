@@ -25,6 +25,8 @@
 
 #include <pvkernel/core/PVAxisIndexType.h>
 
+#include "pvbase/types.h"
+
 PVCore::PVAxisIndexType::PVAxisIndexType()
 {
 	_origin_axis_index = PVCol(-1);

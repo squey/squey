@@ -24,16 +24,25 @@
 //
 
 #include "PVFieldConverterGUIDToIPParamWidget.h"
-#include "PVFieldGUIDToIP.h"
 
 #include <pvkernel/filter/PVFieldsFilter.h>
-#include <pvkernel/widgets/qkeysequencewidget.h>
-
+#include <QtCore/qobjectdefs.h>
+#include <qstring.h>
+#include <qtmetamacros.h>
+#include <qvariant.h>
+#include <qwidget.h>
 #include <QAction>
 #include <QRadioButton>
 #include <QGroupBox>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <memory>
+
+#include "PVFieldGUIDToIP.h"
+#include "pvkernel/core/PVArgument.h"
+#include "pvkernel/core/PVLogger.h"
+#include "pvkernel/core/PVOrderedMap.h"
+#include "pvkernel/filter/PVFieldsFilterParamWidget.h"
 
 /******************************************************************************
  *

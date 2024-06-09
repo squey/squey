@@ -25,7 +25,9 @@
 #define __PVTHEME_H__
 
 #include <pvbase/general.h>
-
+#include <qcolor.h>
+#include <qstring.h>
+#include <qtmetamacros.h>
 #include <QObject>
 
 class QDBusVariant;

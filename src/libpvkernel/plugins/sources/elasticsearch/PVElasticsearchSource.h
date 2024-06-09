@@ -25,18 +25,21 @@
 #ifndef PVELASTICSEARCHSOURCE_FILE_H
 #define PVELASTICSEARCHSOURCE_FILE_H
 
-#include <QString>
-
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
+#include <stddef.h>
+#include <QString>
+#include <string>
 
 #include "../../common/elasticsearch/PVElasticsearchAPI.h"
+#include "pvbase/types.h"
 
 namespace PVRush
 {
+class PVElasticsearchQuery;
 
 class PVElasticsearchSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
