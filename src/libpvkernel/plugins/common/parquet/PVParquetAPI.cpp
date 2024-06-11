@@ -110,11 +110,19 @@ bool PVRush::PVParquetAPI::next_file()
 	parquet::arrow::FileReaderBuilder reader_builder;
 	const std::string& parquet_file_path = _input_desc->paths()[_next_input_file].toStdString();
 	status = reader_builder.OpenFile(parquet_file_path, /*memory_map=*/false, reader_properties);
+	if (not status.ok()) {
+		pvlogger::error() << status.ToString() << std::endl;
+		return false;
+	}
 
 	{
 		// expose string column dictionnaries
 		std::unique_ptr<parquet::arrow::FileReader> reader;
 		status = parquet::arrow::FileReader::Make(arrow::default_memory_pool(), parquet::ParquetFileReader::OpenFile(parquet_file_path), &reader);
+		if (not status.ok()) {
+			pvlogger::error() << status.ToString() << std::endl;
+			return false;
+		}
 		std::shared_ptr<arrow::Schema> schema;
 		status = reader->GetSchema(&schema);
 		std::shared_ptr<arrow::Schema> flattened_schema = flatten_schema(schema);
@@ -127,6 +135,10 @@ bool PVRush::PVParquetAPI::next_file()
 
 	reader_builder.properties(arrow_reader_props);
 	status = reader_builder.Build(&_arrow_reader);
+	if (not status.ok()) {
+		pvlogger::error() << status.ToString() << std::endl;
+		return false;
+	}
 
 	_next_input_file++;
 
