@@ -20,6 +20,7 @@ variables:
     -DARROW_WITH_BROTLI=ON \
     -DARROW_WITH_BZ2=ON \
     -DARROW_WITH_ZSTD=ON \
+    -DARROW_WITH_ZLIB=ON \
     -DARROW_WITH_LZ4=ON \
     -DARROW_JEMALLOC=OFF \
     -DARROW_COMPUTE=ON \
@@ -44,8 +45,8 @@ depends:
 - base.bst
 - freedesktop-sdk.bst:components/lz4.bst
 - freedesktop-sdk.bst:components/zstd.bst
-- freedesktop-sdk.bst:components/gzip.bst
 - freedesktop-sdk.bst:components/brotli.bst
+- freedesktop-sdk.bst:bootstrap/zlib.bst
 - freedesktop-sdk.bst:bootstrap/bzip2.bst
 - google-snappy.bst
 - apache-thrift.bst
