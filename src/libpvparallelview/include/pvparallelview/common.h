@@ -72,6 +72,8 @@ static constexpr const int PARALLELVIEW_ZONE_DEFAULT_WIDTH = 256;
 static constexpr const int PARALLELVIEW_ZONE_MAX_WIDTH = 1024;
 static constexpr const int PARALLELVIEW_MAX_DRAWN_ZONES = 30;
 
+static constexpr const int PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE = PARALLELVIEW_ZONE_MAX_WIDTH * PARALLELVIEW_ZONE_MAX_WIDTH * 5;
+
 static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) ==
                PARALLELVIEW_ZONE_MIN_WIDTH),
               "Must be a power of two");
