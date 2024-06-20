@@ -36,7 +36,7 @@
 #include <pvparallelview/PVBCICode.h>
 
 #include <cassert>
-
+#include <stdlib.h>
 #include <iostream>
 #include <sstream>
 
@@ -100,6 +100,8 @@ struct opencl_kernel {
 PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
     : _context(nullptr), _is_gpu_accelerated(true)
 {
+	setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
+
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
 	cl_int err;

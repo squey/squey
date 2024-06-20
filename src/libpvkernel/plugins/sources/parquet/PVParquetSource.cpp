@@ -67,6 +67,10 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 
 	if (_recordbatch_reader == nullptr) {
 		arrow::Status status = _api.arrow_reader()->GetRecordBatchReader(&_recordbatch_reader);
+		if (not status.ok()) {
+			pvlogger::error() << status.ToString() << std::endl;
+			return nullptr;
+		}
 	}
 
 	if (_source_start_row >= _api.row_count()) {
@@ -75,6 +79,10 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 		} else { // load next file
 			_api.next_file();
 			arrow::Status status = _api.arrow_reader()->GetRecordBatchReader(&_recordbatch_reader);
+			if (not status.ok()) {
+				pvlogger::error() << status.ToString() << std::endl;
+				return nullptr;
+			}
 			_source_start_row = 0;
 			_current_file_index++;
 		}

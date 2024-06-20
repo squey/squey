@@ -18,7 +18,8 @@
                 { "name": "SQUEY_PLUGIN_PATH", "value": "${workspaceFolder}/builds/GCC/Debug/libsquey/plugins" },
                 { "name": "QUERY_BUILDER_PATH", "value": "${workspaceFolder}/libpvkernel/src/widgets/querybuilder" },
                 { "name": "COPYING_DIR", "value": "${workspaceFolder}/COPYING" },
-                { "name": "PVFORMAT_HELPER", "value": "${workspaceFolder}/libpvkernel/plugins" }
+                { "name": "PVFORMAT_HELPER", "value": "${workspaceFolder}/libpvkernel/plugins" },
+                { "name": "LD_LIBRARY_PATH", "value": "/app/lib" }
             ],
             "MIMode": "gdb",
             "setupCommands": [
@@ -44,7 +45,8 @@
                 "SQUEY_PLUGIN_PATH": "${workspaceFolder}/builds/Clang/Debug/libsquey/plugins",
                 "QUERY_BUILDER_PATH": "${workspaceFolder}/libpvkernel/src/widgets/querybuilder",
                 "COPYING_DIR": "${workspaceFolder}/COPYING",
-                "PVFORMAT_HELPER": "${workspaceFolder}/libpvkernel/plugins"
+                "PVFORMAT_HELPER": "${workspaceFolder}/libpvkernel/plugins",
+                "LD_LIBRARY_PATH": "/app/lib"
             },
             "preLaunchTask": "CMake: build (clang++)",
         }

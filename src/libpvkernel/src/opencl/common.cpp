@@ -153,8 +153,12 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 				std::string dprofile = device.getInfo<CL_DEVICE_PROFILE>(&err);
 				squey_verify_opencl_var(err);
 
-				PVLOG_INFO("OpenCL device found: %s, Version: %s, Vendor: %s, Profil, %s\n",
-				           dname.c_str(), dversion.c_str(), dvendor.c_str(), dprofile.c_str());
+				size_t local_mem_size = device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>(&err);
+
+				PVLOG_INFO("OpenCL device found: %s, Version: %s, Vendor: %s, Profil, %s LocalMemSize: %d\n",
+				           dname.c_str(), dversion.c_str(), dvendor.c_str(), dprofile.c_str(), local_mem_size);
+
+
 			}
 
 			return ctx;
