@@ -1,3 +1,11 @@
+5.0.3 (2024-06-20)
+-------------------
+
+This minor release fixes or improves:
+* Increase default allocated memory size in OpenCL software backend to avoid crashes
+* Enable "gzip" compression codec for Parquet plugin
+* Fix a timeout in the container image
+
 5.0.2 (2024-06-06)
 -------------------
 
