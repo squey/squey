@@ -92,3 +92,9 @@ flatpak install --user squey_dev org.squey.Squey//<dev_branch_name>
 ### Roadmap
 
 https://gitlab.com/groups/squey/-/roadmap
+
+### Support the project
+
+Help the contributors to develop and maintain the software
+
+[![LiberaPay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Squey/)
