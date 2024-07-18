@@ -4,9 +4,9 @@ description: |
     PoCL is a portable open source (MIT-licensed) implementation of the OpenCL standard.
 
 sources:
-- kind: git
-  url: github:pocl/pocl
-  ref: 8d1da35342914abbd2b5352e975125399e9c8ea3
+- kind: tar
+  url: github:pocl/pocl/archive/refs/tags/v6.0.tar.gz
+  ref: de9710223fc1855f833dbbf42ea2681e06aa8ec0464f0201104dc80a74dfd1f2
 
 - kind: patch
   path: buildstream/patches/portablecl/FindTBB.cmake.patch
