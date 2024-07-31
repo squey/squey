@@ -226,4 +226,6 @@ set(PARQUET_SRC_FILES
 ../../plugins/input-types/parquet/PVParquetExporter.cpp
 )
 add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
-add_squey_test(Trush_apache_parquet Trush_apache_parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multi.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multi_optim.csv)
+add_squey_test(Trush_apache_parquet Trush_apache_parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs_optim.csv)
+add_squey_compile_test(Trush_apache_parquet_multichunks LINKS ${LINK_LIBRARIES} FILES apache_parquet_multichunks.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet_multichunks Trush_apache_parquet_multichunks ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multichunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multichunks.csv)
