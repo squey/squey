@@ -77,6 +77,7 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
     size_t exported_rows_count = 0;
     const size_t rows_count_to_export = sel.bit_count();
     PVRush::PVParquetAPI api(input_desc);
+    size_t selection_current_index = 0;
     api.visit_files([&](){
         if (writer == nullptr) {
             std::shared_ptr<arrow::Schema> schema;
@@ -88,21 +89,24 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
         arrow::Status status = api.arrow_reader()->GetRecordBatchReader(&recordbatch_reader);
 
         size_t total_rows = api.arrow_reader()->parquet_reader()->metadata()->num_rows();
-        size_t current_row = 0;
-        while (current_row < total_rows and exported_rows_count < rows_count_to_export) {
+        size_t batch_current_index = 0;
+        while (batch_current_index < total_rows and exported_rows_count < rows_count_to_export) {
             std::shared_ptr<arrow::RecordBatch> batch = recordbatch_reader->Next().ValueOrDie();
-            
-            // compute record batch row indexes to export
-            pvcop::db::array input_record_batch_indexes("number_uint64", batch->num_rows());
-            auto& input_record_batch_indexes_core = input_record_batch_indexes.to_core_array<size_t>();
-            std::iota(input_record_batch_indexes_core.begin(), input_record_batch_indexes_core.end(), 0);
-            pvcop::db::array ouput_record_batch_indexes = input_record_batch_indexes.join(selected_rows.slice(current_row, batch->num_rows()));
-            auto& output_record_batch_indexes_core = ouput_record_batch_indexes.to_core_array<size_t>();
 
-            if (output_record_batch_indexes_core.size() > 0) {
+            size_t selected_record_batch_indexes_size = pvcop::core::algo::bit_count(selected_rows, selection_current_index + batch_current_index, selection_current_index + batch_current_index + batch->num_rows() -1);
+
+            pvcop::db::array selected_record_batch_indexes("number_uint64", selected_record_batch_indexes_size);
+            auto& selected_record_batch_indexes_core = selected_record_batch_indexes.to_core_array<size_t>();
+            size_t index = 0;
+            sel.visit_selected_lines([&](int row_id) {
+                selected_record_batch_indexes_core[index++] = row_id - (selection_current_index + batch_current_index);
+
+            }, selection_current_index + batch_current_index + batch->num_rows(), selection_current_index + batch_current_index);
+
+            if (selected_record_batch_indexes_core.size() > 0) {
 
                 // filter record batch
-                std::shared_ptr<arrow::Array> indexes = array_from_indexes<arrow::Int32Type>(arrow::int32(), output_record_batch_indexes_core);
+                std::shared_ptr<arrow::Array> indexes = array_from_indexes<arrow::Int32Type>(arrow::int32(), selected_record_batch_indexes_core);
                 arrow::Datum result = arrow::compute::Take(batch, indexes).ValueOrDie();
                 auto status = writer->WriteRecordBatch(*result.record_batch());
 
@@ -117,8 +121,9 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
                 }
             }
 
-        current_row += batch->num_rows();
+            batch_current_index += batch->num_rows();
         }
+        selection_current_index += batch_current_index;
     });
 
     PARQUET_THROW_NOT_OK(writer->Close());
