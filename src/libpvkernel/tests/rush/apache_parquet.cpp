@@ -316,10 +316,10 @@ void import_files(
 
 int main(int argc, char** argv)
 {
-	if (argc <= 2) {
+	if (argc <= 4) {
 		std::cerr
 		    << "Usage: " << argv[0]
-		    << " <csv_ref1 csv_ref2>"
+		    << " <csv_ref1 csv_ref2 parquet_file csv_ref3>"
 		    << std::endl;
 		return 1;
 	}
@@ -385,6 +385,51 @@ int main(int argc, char** argv)
         std::remove(output_csv_file2.c_str());
         std::remove(output_parquet_file.c_str());
     }
+
+    std::string parquet_test_file = argv[3];
+    std::string csv_ref_file = argv[4];
+
+    // Import multiple parquet files
+    QStringList files;
+    files << QString::fromStdString(parquet_test_file);
+    files << QString::fromStdString(parquet_test_file);
+    QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
+    PVRush::PVFormat format;
+    PVRush::PVNraw nraw;
+
+    PVRush::PVSourceCreator_p sc =
+        LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("parquet");
+    PVRush::PVNrawOutput output(nraw);
+    PVRush::PVParquetFileDescription* input_desc = new PVRush::PVParquetFileDescription(files);
+    list_inputs << PVRush::PVInputDescription_p(input_desc);
+    input_desc->disable_multi_inputs(true);
+    PVRush::PVParquetAPI parquet_api(input_desc);
+    format = PVRush::PVFormat(parquet_api.get_format().documentElement());
+    PVRush::PVExtractor extractor(format, output, sc, list_inputs);
+
+    // Import data
+    auto start = std::chrono::system_clock::now();
+    PVRush::PVControllerJob_p job =
+        extractor.process_from_agg_idxes(0, IMPORT_PIPELINE_ROW_COUNT_LIMIT);
+    job->wait_end();
+    auto end = std::chrono::system_clock::now();
+    std::chrono::duration<double> diff = end - start;
+    std::cout << diff.count();
+
+    // Export selected lines as CSV file and check if content is same as a csv reference file
+    PVCore::PVSelBitField sel(nraw.row_count());
+    sel.select_none();
+    for (size_t i : {0, 2, 4, 6, 8, 11, 13, 15, 17, 19}) {
+        sel.set_line(i, true);
+    }
+    const std::string& output_csv_file = pvtest::get_tmp_filename() + ".parquet.csv";
+    PVRush::PVCSVExporter::export_func_f export_func =
+        [&](PVRow row, const PVCore::PVColumnIndexes& cols, const std::string& sep,
+            const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
+    PVRush::PVCSVExporter exp_csv(format.get_axes_comb(), nraw.row_count(), export_func);
+    exp_csv.export_rows(output_csv_file, sel);
+    std::cout << std::endl << output_csv_file << " - " << csv_ref_file << std::endl;
+    PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_csv_file, csv_ref_file));
 
 	return 0;
 }
