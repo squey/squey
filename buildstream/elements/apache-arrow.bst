@@ -5,8 +5,8 @@ description: |
     
 sources:
 - kind: tar
-  url: github:apache/arrow/archive/refs/tags/apache-arrow-15.0.1.tar.gz
-  ref: a8b154a2870aa998019baeb22a6514477918a5831d4760a85b516cb4c9a3402a
+  url: github:apache/arrow/archive/refs/tags/apache-arrow-17.0.0.tar.gz
+  ref: 8379554d89f19f2c8db63620721cabade62541f47a4e706dfb0a401f05a713ef
 
 variables:
   cmake-local: |
