@@ -172,7 +172,6 @@ class PVRangeSubSampler
 	pvcop::db::groups _split_groups;
 	pvcop::db::extents _split_extents;
 	size_t _split_count = 1;
-	pvcop::db::array _shifted_time;
 
 	pvcop::db::indexes _sorted_indexes;
 	pvcop::core::array<uint32_t> _sort;
