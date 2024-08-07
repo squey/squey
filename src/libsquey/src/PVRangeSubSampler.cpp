@@ -190,11 +190,6 @@ void Squey::PVRangeSubSampler::set_split_column(const pvcop::db::array* split)
 		new (&_split_extents) pvcop::db::extents();
 		_split->group(_split_groups, _split_extents);
 		_split_count = _split_extents.size();
-
-		const pvcop::db::array& min_times = _time.get().group_min(_split_groups, _split_extents);
-		_shifted_time = _time.get().subtract(min_times, _split_groups);
-		_time = std::cref(_shifted_time);
-
 	} else {
 		_time = std::cref(_original_time);
 	}
