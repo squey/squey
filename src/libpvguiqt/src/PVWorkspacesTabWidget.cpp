@@ -258,8 +258,6 @@ int PVGuiQt::PVSceneWorkspacesTabWidget::index_of(QWidget* workspace)
 	return _stacked_widget_workspace->indexOf(workspace);
 }
 
-
-
 void PVGuiQt::PVSceneWorkspacesTabWidget::add_workspace(PVWorkspaceBase* workspace,
                                                         const QString& tab_name)
 {
@@ -271,7 +269,9 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::add_workspace(PVWorkspaceBase* workspa
 
 	// Add the new workspace and select it
 	int index = _workspace_tab_bar->addTab(elipsed_tab_name);
-	_workspace_tab_bar->setTabToolTip(index, tab_name);
+	if (elipsed_tab_name != tab_name) {
+		_workspace_tab_bar->setTabToolTip(index, tab_name);
+	}
 
 	auto views = _scene.get_children<Squey::PVView>();
 	Squey::PVView* view = *std::next(views.begin(), index);
