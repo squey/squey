@@ -294,13 +294,8 @@ void PVGuiQt::PVProjectsTabWidget::add_workspace(PVSourceWorkspace* workspace)
 		workspace_tab_widget = add_project(scene);
 	}
 
-	static constexpr const size_t MAX_LEN = 30;
-
 	const Squey::PVSource* src = workspace->get_source();
 	std::string tab_name = src->get_name();
-	if (tab_name.size() > MAX_LEN) {
-		tab_name = tab_name.substr(0, MAX_LEN) + "...";
-	}
 	workspace_tab_widget->add_workspace(workspace, QString::fromStdString(tab_name));
 
 	int index = workspace_tab_widget->index_of(workspace);
