@@ -1,5 +1,14 @@
+5.0.4 (2024-08-13)
+------------------
+
+This minor release fixes or improves:
+* fix Apache Parquet integer columns import with multi-chunks
+* fix Apache Parquet export with multi-inputs
+* fix series range splitting unit
+* add tooltip on ellipsed sources
+
 5.0.3 (2024-06-20)
--------------------
+------------------
 
 This minor release fixes or improves:
 * Increase default allocated memory size in OpenCL software backend to avoid crashes
@@ -7,13 +16,13 @@ This minor release fixes or improves:
 * Fix a timeout in the container image
 
 5.0.2 (2024-06-06)
--------------------
+------------------
 
 This minor release fixes or improves:
 * Reenable OpenCL software backend
 
 5.0.1 (2024-06-03)
--------------------
+------------------
 
 This minor release fixes or improves:
 * Improve invalid values search reliability
