@@ -10,4 +10,4 @@ apk add -U flatpak
 addgroup -S squey && adduser -D squey -G squey
 mkdir -p /srv/tmp-squey
 chown squey: -R /srv/tmp-squey
-su - squey -s "/bin/ash" -c "flatpak install --user -y --no-related $1"
+su - squey -s "/bin/ash" -c "flatpak install --user -y $1"
