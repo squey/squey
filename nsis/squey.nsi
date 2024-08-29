@@ -253,7 +253,6 @@ Function InstallSquey
 	File "resources\setup_config_dir.sh"
 	File "resources\run_squey.cmd"
 	File "resources\update.sh"
-	File "resources\hideexec.exe" ; http://code.kliu.org/misc/hideexec/
 
     ; Download Alpine Linux for WSL
 	var /GLOBAL ALPINE_LINUX_FILENAME
@@ -301,13 +300,13 @@ SectionEnd
 Section "Start Menu Shortcut" SecStartMenuShortcut
 	; Create start menu shortcut
 	SetShellVarContext current
-	CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_squey.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
+	CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "powershell.exe" '-WindowStyle Hidden -Command "$INSTDIR\run_squey.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico" 0 SW_SHOWMINIMIZED
 SectionEnd
 
 Section "Desktop Shortcut" SecDesktopShortcut
     ; Create desktop shortcut
 	SetShellVarContext current
-	CreateShortCut "$DESKTOP\${DISPLAY_NAME}.lnk" "$INSTDIR\hideexec.exe" '"$INSTDIR\run_squey.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico"
+	CreateShortCut "$DESKTOP\${DISPLAY_NAME}.lnk" "powershell.exe" '-WindowStyle Hidden -Command "$INSTDIR\run_squey.cmd" "${FLATPAK_PACKAGE_NAME}"' "$INSTDIR\${PRODUCT_NAME}.ico" 0 SW_SHOWMINIMIZED
 SectionEnd
 
 ;--------------------------------
