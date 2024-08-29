@@ -357,7 +357,7 @@ Function .onInit
 
 	; Check if WSLg is available
 	var /GLOBAL WSLG_VERSION
-	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "[Console]::OutputEncoding = [System.Text.Encoding]::Unicode;  wsl -v | Select-String 'WSLg : (.*)' | % { $$($$_.matches.groups[1].value) }"`
+	nsExec::ExecToStack `$WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe -Command "[Console]::OutputEncoding = [System.Text.Encoding]::Unicode;  wsl -v | Select-String 'WSLg' | ForEach-Object { $_.Line } | Select-String ': (.*)' | % { $$($$_.matches.groups[1].value) }"`
 	Pop $0
 	Pop $WSLG_VERSION
 	Strcpy $WSLG_VERSION $WSLG_VERSION -2 ; Remove CRLF
