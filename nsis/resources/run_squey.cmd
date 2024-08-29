@@ -124,7 +124,7 @@ If ["%APPS_USE_LIGHT_THEME%"]==[" 0x0"] (
 )
 
 @REM Run Squey
-wsl -d squey_linux --user squey --exec sh -c "%squey_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --user --device=shm --allow=devel --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --env='QT_SCREEN_SCALE_FACTORS=%QT_SCREEN_SCALE_FACTORS%' --env='DARK_THEME=%DARK_THEME%' --env='DISABLE_FOLLOW_SYSTEM_THEME=true' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/squey'"
+wsl -d squey_linux --user squey --exec sh -c "%squey_path_linux%/setup_config_dir.sh %appdata_path_linux%; flatpak run --user --nosocket=wayland --device=shm --allow=devel --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --env='QT_SCREEN_SCALE_FACTORS=%QT_SCREEN_SCALE_FACTORS%' --env='DARK_THEME=%DARK_THEME%' --env='DISABLE_FOLLOW_SYSTEM_THEME=true' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/squey'"
 
 @REM Stop VcXsrv if needed
 set instance_count_cmd="tasklist /FI "imagename eq squey" 2>nul | find /I /C "squey""
