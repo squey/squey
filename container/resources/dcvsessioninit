@@ -1,7 +1,0 @@
-#!/bin/bash
-
-/opt/squey/squey/cuda-devices
-xsetroot -solid "#0b2f40"
-bash -c "XDG_CONFIG_HOME=/etc/kde5 /usr/bin/kwin" &
-
-/opt/squey/squey/squey_loop.sh

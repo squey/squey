@@ -50,23 +50,17 @@ flatpak install --user -y https://dl.flathub.org/repo/appstream/org.squey.Squey.
 
 ### Windows
 
-Windows support is available through the use of WSL2:
+Windows support is available through the use of [WSL2](https://apps.microsoft.com/store/detail/windows-subsystem-for-linux/9P9TQF7MRM4R):
 
-https://squey.gitlab.io/squey/squey_installer.exe
-
-### Container
-
-Deploying the software as a service in a private cloud:
-
-[![dockeri.co](https://dockerico.blankenship.io/image/squey/squey)](https://hub.docker.com/r/squey/squey)
+[<img src="https://squey.org/images/logos/windows-logo.png" width="250"/>](https://squey.gitlab.io/squey/squey_installer.exe)
 
 
-Or building your own container image:
+### AWS
 
-https://squey.gitlab.io/squey/squey_container.zip
+Deploying the software as a service on an AWS EC2 instance :
 
+[![](https://squey.org/images/logos/aws_marketplace.png)](https://squey.org/images/logos/aws_marketplace.png)
 
-See ```README.md``` contained in archive file
 
 ## Reference manual
 

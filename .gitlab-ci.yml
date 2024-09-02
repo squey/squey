@@ -11,9 +11,6 @@ variables:
   CODE_COVERAGE:
     value: "false"
     description: "Only update the code coverage report"
-  PUBLISH_CONTAINER_IMAGE:
-    value: "false"
-    description: "Publish container image to registry"
 
 stages:
   - test
@@ -104,64 +101,6 @@ build release:
     - if: '$UPDATE_INSTALLERS_ONLY == "true"'
   allow_failure: false
 
-build container image:
-  image: quay.io/buildah/stable:latest
-  stage: build
-  tags:
-    - privileged-docker
-  before_script: |
-    dnf install -y jq
-    VERSION=$(curl -s -L https://flathub.org/api/v2/appstream/org.squey.Squey | jq -r .releases[0].version)
-    VERSION_NOT_PUBLISHED=$([ $(curl -s -L -o /dev/null https://hub.docker.com/v2/repositories/squey/squey/tags/$VERSION -w "%{http_code}") -eq 404 ] && echo "true" || echo "false")
-    PUBLISH_CONTAINER_IMAGE=$([ $PUBLISH_CONTAINER_IMAGE -o $VERSION_NOT_PUBLISHED ] && echo "true" || echo "false")
-    cd container
-  script: |
-    PRODUCTION=1 ./build.sh
-    if [ $PUBLISH_CONTAINER_IMAGE = "true" ] && [ $CI_COMMIT_REF_PROTECTED = "true" ]; then
-        echo $DOCKERHUB_TOKEN | buildah login -u squey --password-stdin registry-1.docker.io &&
-        buildah push localhost/squey/squey registry-1.docker.io/squey/squey:latest
-        buildah push localhost/squey/squey registry-1.docker.io/squey/squey:$VERSION
-    fi
-    echo $CI_REGISTRY_PASSWORD | buildah login -u $CI_REGISTRY_USER --password-stdin $CI_REGISTRY_IMAGE &&
-    buildah push localhost/squey/squey $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-      - container/**/*
-    - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
-  interruptible: true
-  environment:
-    on_stop: build container image stop
-    name: review/$CI_COMMIT_REF_SLUG
-    url: $CI_PROJECT_URL
-
-build container image stop: # Retag merged branch container to $CI_DEFAULT_BRANCH
-  image: 
-    name: gcr.io/go-containerregistry/crane:debug
-    entrypoint: [""]
-  stage: stop
-  tags:
-   - privileged-docker
-  script: |
-    if [ "$PUBLISH_CONTAINER_IMAGE" = "false" ]; then
-      crane auth login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-      crane tag $CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME $CI_DEFAULT_BRANCH
-      wget "https://github.com/genuinetools/reg/releases/download/v0.16.1/reg-linux-amd64" -O ./reg
-      chmod a+x ./reg
-      ./reg rm -d --auth-url $CI_REGISTRY -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_COMMIT_REF_NAME
-    fi
-  environment:
-    name: review/$CI_COMMIT_REF_SLUG
-    action: stop
-  rules:
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      changes:
-      - container/**/*
-      when : manual
-    - if: '$PUBLISH_CONTAINER_IMAGE == "true" && $CI_COMMIT_REF_PROTECTED == "true"'
-      when : manual
-  allow_failure: true
-
 pages:
   stage: pages
   tags:
@@ -179,9 +118,6 @@ pages:
     rm -rf $CI_PROJECT_DIR/public/squey_installer*.exe && osslsigncode sign -certs "$CODE_SIGNING_CERT" -key "$CODE_SIGNING_KEY" -n "Squey" -i "https://gitlab.com/squey/squey" -t "http://timestamp.comodoca.com/authenticode" -in nsis/squey_installer.exe -out "$CI_PROJECT_DIR/public/squey_installer.exe"
     cp "public/squey_installer.exe" "public/squey_installer_$(md5sum public/squey_installer.exe | awk '{ print $1 }').exe"
     cp buildstream/install.flatpakref public
-    cp -r container squey_container && 
-    zip -r public/squey_container.zip squey_container && 
-    rm -rf squey_container
     if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi
     rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
@@ -256,9 +192,3 @@ semgrep-sast:
 #    REPORT_FORMAT: html
 #  artifacts:
 #    paths: [gl-code-quality-report.html]
-
-container_scanning:
-  variables:
-    CS_IMAGE: $CI_REGISTRY_IMAGE:$CI_DEFAULT_BRANCH
-    CS_DOCKERFILE_PATH: container/resources/Dockerfile
-    GIT_STRATEGY: fetch

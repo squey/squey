@@ -1,8 +1,0 @@
-[Compositing]
-OpenGLIsUnsafe=true
-
-[Desktops]
-Number=1
-
-[Windows]
-Placement=Centered
