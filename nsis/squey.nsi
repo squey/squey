@@ -217,7 +217,7 @@ Function .onInit
 		CopyFiles "$ExePath" "$InstDir\"
 
 		; Create shortcut to installer
-		CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$InstDir\$ExeFile" "$INSTDIR\${PRODUCT_NAME}.ico"
+		CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$InstDir\$ExeFile"
 		Quit
 	${EndIf}
 	
