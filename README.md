@@ -42,7 +42,7 @@
 
 ### Linux
 
-<a href='https://flathub.org/apps/details/org.squey.Squey'><img width='190px' alt='Download on Flathub' src='https://flathub.org/assets/badges/flathub-badge-en.png'/></a>
+[<img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="200"/>](https://flathub.org/apps/details/org.squey.Squey)
 
 ```
 flatpak install --user -y https://dl.flathub.org/repo/appstream/org.squey.Squey.flatpakref
@@ -52,14 +52,14 @@ flatpak install --user -y https://dl.flathub.org/repo/appstream/org.squey.Squey.
 
 Windows support is available through the use of [WSL2](https://apps.microsoft.com/store/detail/windows-subsystem-for-linux/9P9TQF7MRM4R):
 
-[<img src="https://squey.org/images/logos/windows-logo.png" width="250"/>](https://squey.gitlab.io/squey/squey_installer.exe)
+[<img src="https://squey.org/images/logos/windows-logo.png" width="200"/>](https://squey.gitlab.io/squey/squey_installer.exe)
 
 
 ### AWS
 
 Deploying the software as a service on an AWS EC2 instance :
 
-[![](https://squey.org/images/logos/aws_marketplace.png)](https://squey.org/images/logos/aws_marketplace.png)
+[<img src="https://squey.org/images/logos/aws_marketplace.png" width="200"/>](https://squey.org/images/logos/aws_marketplace.png)
 
 
 ## Reference manual
