@@ -59,7 +59,7 @@ Windows support is available through the use of [WSL2](https://apps.microsoft.co
 
 Deploying the software as a service on an AWS EC2 instance :
 
-[<img src="https://squey.org/images/logos/aws_marketplace.png" width="200"/>](https://squey.org/images/logos/aws_marketplace.png)
+[<img src="https://squey.org/images/logos/aws_marketplace.png" width="200"/>](https://aws.amazon.com/marketplace/search/results?searchTerms=Squey)
 
 
 ## Reference manual
