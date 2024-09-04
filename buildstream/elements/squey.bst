@@ -96,7 +96,6 @@ variables:
   source-dir: "src"
   cmake-local: |
     -DCMAKE_INSTALL_PREFIX=%{prefix} \
-    -DARCH_TYPE=corei7 \
     -DUSER_TARGET=%{user_target} \
     -DCMAKE_CXX_COMPILER="/usr/bin/%{cxx_compiler}" \
     -DCODE_COVERAGE=%{code_coverage}

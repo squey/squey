@@ -4,8 +4,10 @@
 
 set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace distrib)
 
-if (NOT DEFINED ARCH_TYPE)
-	set(ARCH_TYPE "native")
+if (USER_TARGET STREQUAL "developer")
+    set(ARCH_TYPE "native")
+else ()
+    set(ARCH_TYPE "x86-64-v3")
 endif()
 
 set(CMAKE_CXX_STANDARD 20)
