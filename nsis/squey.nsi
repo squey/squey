@@ -209,17 +209,6 @@ Function .onInit
 	SetRegView 64
 	
 	SetOutPath "$INSTDIR"
-
-	; Copy installer and exit if installing from Microsoft Store
-   	${GetParameters} $R0
-	${If} $R0 == "/S /N"
-		; Copy installer
-		CopyFiles "$ExePath" "$InstDir\"
-
-		; Create shortcut to installer
-		CreateShortCut "$SMPROGRAMS\${DISPLAY_NAME}.lnk" "$InstDir\$ExeFile"
-		Quit
-	${EndIf}
 	
 	; Check if program is already installed
 	ReadRegStr $0 HKCU "${UNINSTALL_KEY}" "UninstallString"
