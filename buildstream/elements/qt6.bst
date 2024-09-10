@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: qt:archive/qt/6.7/6.7.1/single/qt-everywhere-src-6.7.1.tar.xz
-  ref: 38dbf2768776e875ed5cdea8cccf1a240512a29769768084430914c4a33bedc4
+  url: qt:archive/qt/6.7/6.7.2/single/qt-everywhere-src-6.7.2.tar.xz
+  ref: 0aaea247db870193c260e8453ae692ca12abc1bd841faa1a6e6c99459968ca8a
 
 - kind: patch
   path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
@@ -58,6 +58,7 @@ variables:
     -skip qtlocation \
     -skip qtmacextras \
     -skip qtmultimedia \
+    -skip qtopcua \
     -skip qtgamepad \
     -skip qtpurchasing \
     -skip qtsensors \
@@ -89,6 +90,7 @@ config:
 
   configure-commands:
     - ./configure %{conf-local}
+    - sed -i '18d;19d;21d;' qtwebengine/src/3rdparty/chromium/third_party/minigbm/src/drv.c
       
   build-commands:
     - cmake --build . --parallel
@@ -100,7 +102,7 @@ config:
 
 environment:
   OPENSSL_LIBS: "-L/%{prefix}/lib -lssl -lcrypto"
-  PYTHONPATH: "/usr/lib/python3.11/site-packages:/%{prefix}/lib/python3.11/site-packages"
+  PYTHONPATH: "/usr/lib/python3.12/site-packages:/%{prefix}/lib/python3.12/site-packages"
 
 depends:
 - base.bst

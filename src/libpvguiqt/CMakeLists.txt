@@ -27,6 +27,11 @@ include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
 find_package(Qt6OpenGL REQUIRED)
 include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
 
+# For KSyntaxHighlighting
+find_package(KF6SyntaxHighlighting REQUIRED)
+get_target_property(INCLUDE_DIRS KF6::SyntaxHighlighting KF6_SYNTAXHIGHLIGHTING_INCLUDE_DIRECTORIES)
+include_directories(AFTER ${KF6_SYNTAXHIGHLIGHTING_INCLUDE_DIRECTORIES})
+
 #################################################
 # Add include directories for squey's libs
 #################################################

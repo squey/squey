@@ -1,4 +1,4 @@
-kind: autotools
+kind: meson
 description: |
 
     The mm-common module provides the build infrastructure and utilities
@@ -9,12 +9,11 @@ description: |
 
 sources:
 - kind: tar
-  url: gnome:sources/mm-common/0.9/mm-common-0.9.10.tar.xz
-  ref: 16c0e2bc196b67fbc145edaecb5dbe5818386504fe5703de27002d77140fa217
-
-config:
-  configure-commands:
-  - "%{configure} --disable-documentation"
+  url: gnome:sources/mm-common/1.0/mm-common-1.0.6.tar.xz
+  ref: b55c46037dbcdabc5cee3b389ea11cc3910adb68ebe883e9477847aa660862e7
 
 depends:
 - base.bst
+
+build-depends:
+- freedesktop-sdk.bst:components/meson.bst

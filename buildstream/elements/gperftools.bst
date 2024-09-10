@@ -8,8 +8,8 @@ description: |
 sources:
 - kind: tar
 
-  url: github:gperftools/gperftools/archive/gperftools-2.8.tar.gz
-  ref: b09193adedcc679df2387042324d0d54b93d35d062ea9bff0340f342a709e860
+  url: github:gperftools/gperftools/archive/refs/tags/gperftools-2.15.tar.gz
+  ref: 3918ff2e21bb3dbb5a801e1daf55fb20421906f7c42fbb482bede7bdc15dfd2e
 
 config:
 
@@ -21,3 +21,6 @@ config:
 
 depends:
 - base.bst
+
+build-depends:
+- freedesktop-sdk.bst:components/patch.bst

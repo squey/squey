@@ -5,9 +5,8 @@ description: |
 
 sources:
 - kind: tar
-
-  url: tcpdump:release/libpcap-1.9.0.tar.gz
-  ref: 2edb88808e5913fdaa8e9c1fcaf272e19b2485338742b5074b9fe44d68f37019
+  url: tcpdump:release/libpcap-1.10.5.tar.xz
+  ref: 84fa89ac6d303028c1c5b754abff77224f45eca0a94eb1a34ff0aa9ceece3925
 
 depends:
 - base.bst

@@ -267,6 +267,7 @@ int run_squey(QApplication& app, int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+	setenv("OMP_TOOL", "disabled", 1); // Disable OMP_TOOL to avoid "Unable to find TSan function" errors
 	setlocale(LC_ALL, "C.UTF-8");
 	setenv("LANG", "C.UTF-8", 1);
 	setenv("TZ", "GMT", 1);

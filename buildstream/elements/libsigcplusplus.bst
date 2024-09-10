@@ -7,9 +7,8 @@ description: |
 
 sources:
 - kind: tar
-
-  url: gnome:sources/libsigc++/3.4/libsigc%2B%2B-3.4.0.tar.xz
-  ref: 02e2630ffb5ce93cd52c38423521dfe7063328863a6e96d41d765a6116b8707e
+  url: github:libsigcplusplus/libsigcplusplus/archive/refs/tags/3.6.0.tar.gz
+  ref: bbe81e4f6d8acb41a9795525a38c0782751dbc4af3d78a9339f4a282e8a16c38
 
 depends:
 - base.bst

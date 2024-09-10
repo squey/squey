@@ -645,8 +645,6 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 	QDir().mkdir(QFileInfo(geoip_db_paths_filename).dir().path());
 	std::ofstream geoip_db_paths_file(geoip_db_paths_filename.toStdString(), std::ios_base::trunc);
 	geoip_db_paths_file << "\"" << geoip_db_paths << "\"" << std::endl;
-	opts.emplace_back("-oip.use_geoip:TRUE");
-	opts.emplace_back("-oipv6.use_geoip:TRUE");
 	if (not name_resolving_flags.empty()) {
 		opts.emplace_back("-N" + name_resolving_flags);
 	}

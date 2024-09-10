@@ -10,5 +10,5 @@ config:
 sources:
     - kind: ostree
       url: flathub:repo/
-      track: org.freedesktop.Sdk.Extension.llvm17/x86_64/23.08
-      ref: e929c16f4d7c12d6535aba0b72b3197097861a04e817b8c3d686ef6bf79ef2e4
+      track: org.freedesktop.Sdk.Extension.llvm18/x86_64/24.08
+      ref: b4df7e54e59a4121693c0b2bbdf01f1baff078eaa4f53410124f6fdad69596f7

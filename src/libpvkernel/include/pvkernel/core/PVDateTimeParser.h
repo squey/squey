@@ -38,11 +38,11 @@
 #include <vector>
 #include <algorithm>
 
-namespace icu_73 {
+namespace icu_75 {
 class Calendar;
-}  // namespace icu_73
+}  // namespace icu_75
 
-using namespace icu_73;
+using namespace icu_75;
 
 namespace PVCore
 {

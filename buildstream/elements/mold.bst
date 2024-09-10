@@ -5,7 +5,6 @@ description: |
 
 sources:
 - kind: tar
-
   url: github:rui314/mold/archive/refs/tags/v2.33.0.tar.gz
   ref: 37b3aacbd9b6accf581b92ba1a98ca418672ae330b78fe56ae542c2dcb10a155
 

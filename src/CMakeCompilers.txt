@@ -4,18 +4,14 @@
 
 set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace distrib)
 
-if (USER_TARGET STREQUAL "developer")
-    set(ARCH_TYPE "native")
-else ()
-    set(ARCH_TYPE "x86-64-v3")
-endif()
+set(ARCH_TYPE "x86-64-v3")
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_CXX_ARCH_FLAGS "-march=${ARCH_TYPE}")
 
-set(CMAKE_CXX_COMMON_FLAGS "-Wall -Wextra ${CMAKE_CXX_ARCH_FLAGS} -fPIC")
+set(CMAKE_CXX_COMMON_FLAGS "-Wall -Wextra -Wno-system-headers -Wno-vla-cxx-extension ${CMAKE_CXX_ARCH_FLAGS} -fPIC")
 
 if (CODE_COVERAGE)
 	set(CODE_COVERAGE_FLAGS "-O0 --coverage")

@@ -5,9 +5,8 @@ description: |
 
 sources:
 - kind: tar
-
-  url: github:KDE/syntax-highlighting/archive/refs/tags/v5.97.0.tar.gz 
-  ref: 2476a85ab680c5a970cbaf8b9af9f1c82f3d2e45315193110bda2dfda3d53ba4
+  url: github:KDE/syntax-highlighting/archive/refs/tags/v6.5.0.tar.gz
+  ref: 2c754abe5c226a627f6064096b7d187552e4055a593d689f3fc68a3b5903e2fd
 
 variables:
   cmake-local: |

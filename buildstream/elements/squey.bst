@@ -71,7 +71,7 @@ build-depends:
 - freedesktop-sdk.bst:components/git.bst
 - freedesktop-sdk.bst:components/flatpak-xdg-utils.bst 
 #- clang-tools-extra.bst
-- recc.bst
+- freedesktop-sdk.bst:components/buildbox.bst
 - openssh-portable.bst
 - procps.bst
 - waypipe.bst

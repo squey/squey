@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:llvm/llvm-project/releases/download/llvmorg-16.0.6/openmp-16.0.6.src.tar.xz
-  ref: a2536f06373774f2829d892b72eea5f97bab20e69b26b03042d947f992eb8e38
+  url: github:llvm/llvm-project/releases/download/llvmorg-18.1.8/openmp-18.1.8.src.tar.xz
+  ref: 60ed57245e73894e4a2a89b15889f367bd906abfe6d3f92e1718223d4b496150
 
 - kind: patch
   path: buildstream/patches/libomp/ExtendPath.cmake.patch
@@ -16,6 +16,13 @@ variables:
   cmake-local: |
     -DCMAKE_BUILD_TYPE=Release
 
+config:
+  configure-commands:
+  - |
+    sed -i '20d;133,137d;148d;149d;' runtime/cmake/config-ix.cmake
+    %{cmake}
+
 depends:
 - base.bst
 - freedesktop-sdk.bst:components/llvm.bst
+- freedesktop-sdk.bst:components/python3.bst

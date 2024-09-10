@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: c-ares:download/c-ares-1.23.0.tar.gz
-  ref: cb614ecf78b477d35963ebffcf486fc9d55cc3d3216f00700e71b7d4868f79f5
+  url: github:c-ares/c-ares/archive/refs/tags/v1.33.1.tar.gz
+  ref: b3d127d8357863eb465053ce9308b79d9b00314f92ec09df056221a1a45c2fef
 
 depends:
 - base.bst
