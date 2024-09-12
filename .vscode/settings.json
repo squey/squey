@@ -101,7 +101,8 @@
         "enum_set": "cpp",
         "*.inc": "cpp",
         "*.tbl": "cpp",
-        "strstream": "cpp"
+        "strstream": "cpp",
+        "text_encoding": "cpp"
     },
     "gotoSymbolStack.currentStackPosition": 0,
     "gotoSymbolStack.maxStackPosition": 0,

@@ -27,7 +27,10 @@
 
 #include <pvkernel/rush/PVNraw.h>
 
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #include <tbb/concurrent_unordered_map.h>
+#pragma GCC diagnostic pop
 #include <tbb/parallel_sort.h>
 #include <tbb/parallel_for.h>
 

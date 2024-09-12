@@ -2,7 +2,7 @@
 # @file
 #
 
-include_directories(SYSTEM AFTER ${OPENGL_INCLUDE_DIR})
+include_directories(AFTER SYSTEM ${OPENGL_INCLUDE_DIR})
 
 ################################################
 # Ressource declaration

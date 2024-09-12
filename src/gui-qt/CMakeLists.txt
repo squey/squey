@@ -36,7 +36,7 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS}/pvguiqt/format-builder)
 include_directories(AFTER ${PVLICENSE_INCLUDE_DIR})
-include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 
 include_directories(AFTER include)
 

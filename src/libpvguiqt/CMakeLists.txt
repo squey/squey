@@ -42,7 +42,7 @@ include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 include_directories(AFTER ${PVGUIQT_INCLUDE_DIRS})
 include_directories(AFTER ${PVLICENSE_INCLUDE_DIR})
-include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(tests)

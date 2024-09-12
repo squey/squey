@@ -113,7 +113,7 @@ extract_csv(splitted_files_t files,
 	std::unordered_set<pid_t> pids;
 	std::mutex pids_mutex;
 
-	char* cmd_opts[cmd.size() + 2];
+	std::vector<char*> cmd_opts(cmd.size() + 2);
 	for (size_t i = 0; i < cmd.size(); i++) {
 		cmd_opts[i] = const_cast<char*>(cmd.at(i).c_str());
 	}
@@ -182,7 +182,7 @@ extract_csv(splitted_files_t files,
 				                              O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
 				            dup2(fd_out, STDOUT_FILENO);
 				            dup2(fd_in, STDIN_FILENO);
-				            if (execvpe(cmd_opts[0], cmd_opts, env_vars.data()) == -1) {
+				            if (execvpe(cmd_opts[0], cmd_opts.data(), env_vars.data()) == -1) {
 					            _exit(-1);
 				            }
 			            } else {
