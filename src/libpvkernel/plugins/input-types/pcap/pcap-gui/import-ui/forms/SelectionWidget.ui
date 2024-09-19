@@ -89,12 +89,6 @@
             <height>36</height>
            </size>
           </property>
-          <property name="autoFillBackground">
-           <bool>false</bool>
-          </property>
-          <property name="styleSheet">
-           <string notr="true">QPushButton {background-color: rgb(255, 213, 218);}</string>
-          </property>
           <property name="text">
            <string>&amp;Manage profiles</string>
           </property>
