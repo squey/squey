@@ -52,7 +52,7 @@ flatpak install --user -y https://dl.flathub.org/repo/appstream/org.squey.Squey.
 
 Windows support is available through the use of [WSL2](https://apps.microsoft.com/store/detail/windows-subsystem-for-linux/9P9TQF7MRM4R):
 
-[<img src="https://squey.org/images/logos/windows-logo.png" width="200"/>](https://squey.gitlab.io/squey/squey_installer.exe)
+[<img src="https://upload.wikimedia.org/wikipedia/commons/thumb/e/e2/Windows_logo_and_wordmark_-_2021.svg/320px-Windows_logo_and_wordmark_-_2021.svg.png" width="200"/>](https://squey.gitlab.io/squey/squey_installer.exe)
 
 
 ### AWS
