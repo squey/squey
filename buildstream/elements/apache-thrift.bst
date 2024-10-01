@@ -5,8 +5,8 @@ description: |
     
 sources:
 - kind: tar
-  url: github:apache/thrift/archive/refs/tags/v0.19.0.tar.gz
-  ref: 6428911db505702c51f7d993155a4a4c8afee83fdd021b52f2eccd8d34780629
+  url: github:apache/thrift/archive/refs/tags/v0.20.0.tar.gz
+  ref: cd7b829d3d9d87f9f7d708e004eef7629789591ee1d416f4741913bc33e5c27d
 
 variables:
   cmake-local: |

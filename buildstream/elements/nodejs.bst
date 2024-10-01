@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: nodejs:dist/v20.4.0/node-v20.4.0.tar.xz
-  ref: 09bd0b73c526b63c029d5ddfd885d10962e7ad87c975b94583c1f8ce90ee5348
+  url: github:nodejs/node/archive/refs/tags/v22.8.0.tar.gz
+  ref: cce84db6209366d35a9bffddd25294d97a3432c04f14e06ade7617d585073c7f
 
 config:
   configure-commands:

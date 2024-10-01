@@ -107,7 +107,7 @@ popd
 @REM Run Squey
 pushd %cd%
 cd "%userprofile%"
-wsl -d squey_linux --user squey --exec sh -c "flatpak run --user --nosocket=wayland --device=shm --allow=devel --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --env='QT_SCREEN_SCALE_FACTORS=%QT_SCREEN_SCALE_FACTORS%' --env='DARK_THEME=%DARK_THEME%' --env='DISABLE_FOLLOW_SYSTEM_THEME=true' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/squey'"
+wsl -d squey_linux --user squey --exec sh -c "flatpak run --user --device=shm --allow=devel --env='WSL_USERPROFILE=%userprofile_path%' --env='QTWEBENGINE_CHROMIUM_FLAGS=--disable-dev-shm-usage' --env='QT_SCREEN_SCALE_FACTORS=%QT_SCREEN_SCALE_FACTORS%' --env='DARK_THEME=%DARK_THEME%' --env='DISABLE_FOLLOW_SYSTEM_THEME=true' --command=bash %1 -c '%DISPLAY_CONFIG% /app/bin/run_cmd.sh /app/bin/squey'"
 
 @REM Update WSL and Squey
 popd

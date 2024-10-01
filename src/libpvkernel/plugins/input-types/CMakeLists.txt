@@ -10,10 +10,6 @@
 find_package(Qt6Sql REQUIRED)
 include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
 
-# For QOpcUaClient
-find_package(Qt6OpcUa REQUIRED)
-include_directories(SYSTEM ${Qt6OpcUa_INCLUDE_DIRS})
-
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
 ################################################

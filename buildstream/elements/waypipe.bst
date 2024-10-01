@@ -7,8 +7,8 @@ description: |
 
 sources:
 - kind: tar  
-  url: freedesktop:mstoeckl/waypipe/-/archive/v0.8.6/waypipe-v0.8.6.tar.bz2
-  ref: da40de2e02d60c2c34d549e791a9019c1ddf9d79f42bfad0c6cb74f3f6af9b16
+  url: freedesktop:mstoeckl/waypipe/-/archive/v0.9.1/waypipe-v0.9.1.tar.bz2
+  ref: d60d94a19038d2e231e3f1bf8122ae0894bc78fa753190f6e831c7931f8caaab
 
 depends:
 - base.bst

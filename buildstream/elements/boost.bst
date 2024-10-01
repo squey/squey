@@ -9,9 +9,8 @@ description: |
 
 sources:
 - kind: tar
-
-  url: boost:artifactory/main/release/1.77.0/source/boost_1_77_0.tar.bz2
-  ref: fc9f85fc030e233142908241af7a846e60630aa7388de9a5fafb1f3a26840854
+  url: boost:release/1.85.0/source/boost_1_85_0.tar.bz2
+  ref: 7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617
   
 config:
   configure-commands:

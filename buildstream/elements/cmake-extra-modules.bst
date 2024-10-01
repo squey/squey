@@ -7,7 +7,7 @@ sources:
 - kind: git
 
   url: kde:extra-cmake-modules.git
-  ref: 07e04d248b0639fe039f45769188dbd8c835d91c
+  ref: 54646d3b5dd8d1112d8be370bd34a3fc63ab067a
 
 depends:
 - base.bst

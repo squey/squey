@@ -156,7 +156,7 @@ set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6OpenGL)
 
 set(PVGUIQT_LINK_LIBRARIES pvdisplays pvsquey pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT6_LIBS} /app/lib/libKF5SyntaxHighlighting.so)
+	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT6_LIBS} KF6::SyntaxHighlighting)
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 

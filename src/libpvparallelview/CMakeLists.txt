@@ -28,10 +28,8 @@ include_directories(SYSTEM ${Qt6OpenGLWidgets_INCLUDE_DIRS})
 
 # For KItemModels
 find_package(KF6ItemModels REQUIRED)
-include_directories(AFTER /app/include/KF6/KItemModels/)
-
-# For KSyntaxHighlighting
-find_package(KF5SyntaxHighlighting REQUIRED)
+get_target_property(INCLUDE_DIRS KF6::ItemModels KF6_ITEMMODELS_INCLUDE_DIRECTORIES)
+include_directories(AFTER ${KF6_ITEMMODELS_INCLUDE_DIRECTORIES})
 
 #################################################
 # Add include directories for squey's libs
@@ -41,7 +39,7 @@ include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
 include_directories(AFTER ${PVDISPLAYS_INCLUDE_DIRS})
 include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
-include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(tests)

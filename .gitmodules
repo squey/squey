@@ -13,6 +13,3 @@
 [submodule "tests"]
 	path = src/tests
 	url = ../squey-testsuite.git
-[submodule "external/breakpad"]
-	path = src/external/breakpad
-	url = ../breakpad

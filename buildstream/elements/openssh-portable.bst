@@ -11,8 +11,8 @@ description: |
 
 sources:
 - kind: tar  
-  url: github:openssh/openssh-portable/archive/refs/tags/V_9_5_P1.tar.gz
-  ref: 41760d6bfea3e6e35c6acc40d24f14863cfdc92c6e56ae9401db9c658cbd93b5
+  url: github:openssh/openssh-portable/archive/refs/tags/V_9_8_P1.tar.gz
+  ref: d8f6802914e4c344dc74599c29915651554bb318102d71cb4063e1f4a0d8286f
 
 depends:
 - base.bst

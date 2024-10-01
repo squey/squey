@@ -9,7 +9,7 @@ description: |
 sources:
 - kind: git
   url: github:rvelea/LightPcapNg.git
-  ref: ff286c2b89a6541ef1793a7f931fa0f94206d26f
+  ref: 33296580096f83a9f17ebe7ea3d2c79977a24471
   
 config:
   install-commands:

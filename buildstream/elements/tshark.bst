@@ -5,14 +5,15 @@ description: |
     when an interactive user interface isn’t necessary or available
 
 sources:
-- kind: git
-
-  url: gitlab:wireshark/wireshark
-  ref: 4a304d7ec2224a766b7c32b37bbff295f51b9e77
+- kind: tar
+  url: wireshark:src/wireshark-4.4.0.tar.xz
+  ref: ead5cdcc08529a2e7ce291e01defc3b0f8831ba24c938db0762b1ebc59c71269
 
 variables:
   cmake-local: |
-    -DBUILD_wireshark=0
+    -DBUILD_wireshark=OFF \
+    -DBUILD_sharkd=OFF \
+    -DBUILD_logray=OFF
 
 depends:
 - base.bst

@@ -6,8 +6,8 @@ description: |
     
 sources:
 - kind: tar
-  url: github:jemalloc/jemalloc/releases/download/5.3.0/jemalloc-5.3.0.tar.bz2
-  ref: 2db82d1e7119df3e71b7640219b6dfe84789bc0537983c3b7ac4f7189aecfeaa
+  url: github:jemalloc/jemalloc/archive/refs/tags/5.3.0.tar.gz
+  ref: ef6f74fd45e95ee4ef7f9e19ebe5b075ca6b7fbe0140612b2a161abafb7ee179
 
 depends:
 - base.bst

@@ -5,9 +5,8 @@ description: |
 
 sources:
 - kind: git
-
   url: kde:kitemmodels.git
-  ref: 18441664cc52050477b16a06b87bfebb4b3fc5c0
+  ref: fa926680500bac596b2fce92f82ca19545c3085e
 
 variables:
   cmake-local: |

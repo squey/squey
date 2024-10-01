@@ -9,16 +9,6 @@ endif()
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
-# Arch flag
-if (NOT DEFINED CMAKE_CXX_ARCH_FLAGS)
-
-	# This value may already be defined from command line when we compile for 
-	# a client architecture
-
-	set(CMAKE_CXX_ARCH_FLAGS "-march=native")
-	message(STATUS "CMAKE_CXX_ARCH_FLAGS isn't set. Flag has been guessed to ${CMAKE_CXX_ARCH_FLAGS}")
-endif()
-
 # Set default values for capabilities
 if (NOT DEFINED USER_TARGET)
 	set(USER_TARGET "developer")

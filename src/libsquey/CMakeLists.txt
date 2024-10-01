@@ -35,8 +35,8 @@ add_definitions(-DSQUEY_PLUGIN_PATH="${SQUEY_PLUGIN}")
 
 include_directories(AFTER ${PVKERNEL_INCLUDE_DIRS})
 include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
-include_directories(SYSTEM AFTER ${ICU_INCLUDE})
-include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${ICU_INCLUDE})
+include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 
 ###############################################################################
 # Configure subdirectories

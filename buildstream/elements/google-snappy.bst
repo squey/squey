@@ -5,8 +5,8 @@ description: |
     
 sources:
 - kind: tar
-  url: github:google/snappy/archive/refs/tags/1.1.10.tar.gz
-  ref: 49d831bffcc5f3d01482340fe5af59852ca2fe76c3e05df0e67203ebbe0f1d90
+  url: github:google/snappy/archive/refs/tags/1.2.1.tar.gz
+  ref: 736aeb64d86566d2236ddffa2865ee5d7a82d26c9016b36218fcc27ea4f09f86
 
 variables:
   cmake-local: |

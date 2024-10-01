@@ -5,8 +5,8 @@ description: |
     
 sources:
 - kind: tar
-  url: github:xtensor-stack/xsimd/archive/refs/tags/12.1.1.tar.gz
-  ref: 73f94a051278ef3da4533b691d31244d12074d5d71107473a9fd8d7be15f0110
+  url: github:xtensor-stack/xsimd/archive/refs/tags/13.0.0.tar.gz
+  ref: 8bdbbad0c3e7afa38d88d0d484d70a1671a1d8aefff03f4223ab2eb6a41110a3
 
 depends:
 - base.bst

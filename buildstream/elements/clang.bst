@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:llvm/llvm-project/archive/refs/tags/llvmorg-17.0.6.tar.gz
-  ref: 81494d32e6f12ea6f73d6d25424dbd2364646011bb8f7e345ca870750aa27de1
+  url: github:llvm/llvm-project/archive/refs/tags/llvmorg-18.1.8.tar.gz
+  ref: 09c08693a9afd6236f27a2ebae62cda656eba19021ef3f94d59e931d662d4856
 
 variables:
   debug_flags: "-g1"

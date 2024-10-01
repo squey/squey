@@ -24,7 +24,7 @@ include_directories("/usr/include/qt5/QtCore")
 ###############################################################################
 set(TBB_BUILD_DIR /app/lib)
 set(TBB_INCLUDE_DIRS /app/include)
-include_directories(SYSTEM AFTER ${TBB_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${TBB_INCLUDE_DIRS})
 set(TBB_LIBRARIES ${TBB_BUILD_DIR}/libtbb.so;${TBB_BUILD_DIR}/libtbbmalloc.so)
 add_definitions(-DTBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 
@@ -60,7 +60,7 @@ add_definitions(-DBOOST_ALL_DYN_LINK)
 message(STATUS "Boost found: " ${Boost_FOUND})
 message(STATUS "Boost include dirs: " ${Boost_INCLUDEDIR})
 message(STATUS "Boost libraries: " ${Boost_LIBRARIES})
-include_directories(SYSTEM AFTER ${BOOST_INCLUDEDIR})
+include_directories(AFTER SYSTEM ${BOOST_INCLUDEDIR})
 
 ###############################################################################
 # Check for OpenMP
@@ -155,4 +155,4 @@ include_directories(AFTER external/type_safe/include)
 # Python3
 ###############################################################################
 find_package(Python 3.8 REQUIRED COMPONENTS Development.Embed)
-include_directories(SYSTEM AFTER ${Python_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${Python_INCLUDE_DIRS})

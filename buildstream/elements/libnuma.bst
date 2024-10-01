@@ -8,9 +8,8 @@ description: |
 
 sources:
 - kind: tar
-
-  url: github:numactl/numactl/releases/download/v2.0.13/numactl-2.0.13.tar.gz
-  ref: 991e254b867eb5951a44d2ae0bf1996a8ef0209e026911ef6c3ef4caf6f58c9a
+  url: github:numactl/numactl/releases/download/v2.0.17/numactl-2.0.17.tar.gz
+  ref: 8824ddd529a6f935dc2670bba6f52fb0f605f9f48e1176f69d6b7e48aad8cb27
 
 depends:
 - base.bst

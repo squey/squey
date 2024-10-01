@@ -2,5 +2,5 @@ kind: junction
 
 sources:
 - kind: tar
-  url: github:apache/buildstream-plugins/archive/refs/tags/2.0.1.tar.gz
-  ref: a381c51d286a83f8ce5c5356b0426951750eee1f54422bc414c76beadf5f96a5
+  url: github:apache/buildstream-plugins/archive/refs/tags/2.3.0.tar.gz
+  ref: 2674754ae7ed2fa5d374adc26cb5f281bf2398bd34f71f2363e26dab062289d4

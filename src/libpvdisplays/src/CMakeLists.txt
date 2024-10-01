@@ -27,7 +27,7 @@ QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 # Declare the new library and linkage options
 ################################################
 
-include_directories(SYSTEM AFTER ${SIGCPP_INCLUDE_DIRS})
+include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 
 add_library(pvdisplays SHARED ${SRC_FILES} ${MOC_SRC})
 

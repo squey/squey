@@ -2,7 +2,7 @@
 # @file
 #
 
-include_directories(SYSTEM AFTER ${ICU_INCLUDE})
+include_directories(AFTER SYSTEM ${ICU_INCLUDE})
 
 ################################################
 # Ressource declaration

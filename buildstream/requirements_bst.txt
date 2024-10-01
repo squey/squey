@@ -1,4 +1,5 @@
 BuildStream==2.3.0
-dulwich==0.21.6
+dulwich==0.21.7
 requests==2.31.0
 packaging==23.1
+protobuf==4.25.4

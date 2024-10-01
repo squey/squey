@@ -3,8 +3,8 @@ description: GNU Binutils
 
 sources:
 - kind: tar
-  url: sourceware:pub/binutils/releases/binutils-2.42.tar.xz
-  ref: f6e4d41fd5fc778b06b7891457b3620da5ecea1006c6a4a41ae998109f85a800
+  url: sourceware:pub/binutils/releases/binutils-2.43.tar.xz
+  ref: b53606f443ac8f01d1d5fc9c39497f2af322d99e14cea5c0b4b124d630379365
 
 variables:
   target_flags_exceptions: ''
