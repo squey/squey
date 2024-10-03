@@ -216,10 +216,9 @@ Function .onInit
 installed:
     MessageBox MB_OKCANCEL|MB_ICONINFORMATION "${DISPLAY_NAME} is already installed and should be uninstalled first." IDOK uninst_prog
     Abort
-not_installed:
-    Return
 uninst_prog:
     ExecWait '$0 _?=$INSTDIR'
+not_installed:
 
 	; Check windows version
 	${WinVerGetBuild} $0
