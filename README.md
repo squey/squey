@@ -1,6 +1,8 @@
 # About
 
-![](https://gitlab.com/squey/squey/-/raw/main/buildstream/files/screenshots/squey_screenshot.png)
+[![Squey presentation video](https://gitlab.com/squey/squey/-/raw/main/buildstream/files/screenshots/squey_screenshot.png)](https://www.youtube.com/watch?v=M9I8Vt5mmAc)
+
+See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 
 ## Project description
 
