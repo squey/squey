@@ -91,6 +91,10 @@ https://gitlab.com/groups/squey/-/roadmap
 
 ### Support the project
 
+Use this DOI to make citations
+
+[![Zenodo](https://zenodo.org/badge/648945293.svg)](https://doi.org/10.5281/zenodo.13927905)
+
 Help the contributors to develop and maintain the software
 
 [![LiberaPay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Squey/)
