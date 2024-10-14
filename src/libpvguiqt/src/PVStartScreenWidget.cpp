@@ -624,7 +624,7 @@ PVGuiQt::__impl::PVDeleteInvestigationDialog::PVDeleteInvestigationDialog(
 	_clear_history_cb = new QCheckBox("Clear from history");
 	_remove_cache_cb = new QCheckBox("Clear import cache");
 	_delete_investigation_cb = new QCheckBox("Delete investigation");
-	connect(_delete_investigation_cb, &QCheckBox::stateChanged, this,
+	connect(_delete_investigation_cb, &QCheckBox::checkStateChanged, this,
 	        &PVDeleteInvestigationDialog::delete_investigation_checked);
 
 	auto button_box = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel);

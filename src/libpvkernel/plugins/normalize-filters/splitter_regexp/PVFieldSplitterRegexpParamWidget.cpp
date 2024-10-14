@@ -109,7 +109,7 @@ QWidget* PVFilter::PVFieldSplitterRegexpParamWidget::get_param_widget()
 
 	connect(expression_lineEdit, &QLineEdit::textChanged, this,
 	        &PVFieldSplitterRegexpParamWidget::slotExpressionChanged);
-	connect(fullline_checkBox, &QCheckBox::stateChanged, this,
+	connect(fullline_checkBox, &QCheckBox::checkStateChanged, this,
 	        &PVFieldSplitterRegexpParamWidget::slotFullineChanged);
 	connect(validator_textEdit, &QTextEdit::textChanged, this,
 	        &PVFieldSplitterRegexpParamWidget::slotUpdateTableValidator);

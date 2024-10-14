@@ -105,7 +105,7 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 
 	for (int i = 0; i < 6; ++i) {
 		QWidget* w = _split_cb[i];
-		connect(w, SIGNAL(stateChanged(int)), this, SLOT(split_cb_changed(int)));
+		connect(w, SIGNAL(checkStateChanged(int)), this, SLOT(split_cb_changed(int)));
 		layout->addWidget(w, i, 0);
 	}
 
@@ -119,7 +119,7 @@ QWidget* PVFilter::PVFieldSplitterDnsFqdnParamWidget::get_param_widget()
 	for (int i = 0; i < 3; ++i) {
 		QWidget* w = _rev_cb[i];
 		w->setEnabled(_split_cb[i + 3]->isChecked());
-		connect(w, SIGNAL(stateChanged(int)), this, SLOT(rev_cb_changed(int)));
+		connect(w, SIGNAL(checkStateChanged(int)), this, SLOT(rev_cb_changed(int)));
 		layout->addWidget(w, i + 3, 1);
 	}
 

@@ -91,9 +91,8 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::new_format(QDomDocument& fil
 {
 	file.createProcessingInstruction("xml", R"(version="1.0" encoding="utf-8")");
 	QString header(PVXmlTreeNodeDom_initXml);
-	QString err;
 
-	file.setContent(header, true, &err);
+	file.setContent(header);
 	QDomElement xmlRootDom = file.documentElement();
 	xmlRootDom.setAttribute("version", PVFORMAT_CURRENT_VERSION);
 

@@ -57,7 +57,7 @@ class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 		// Export column name
 		QCheckBox* export_header = new QCheckBox("Export column names as header");
 		export_header->setChecked(_exporter.get_export_header());
-		QObject::connect(export_header, &QCheckBox::stateChanged,
+		QObject::connect(export_header, &QCheckBox::checkStateChanged,
 		                 [&](int state) { _exporter.set_export_header(state); });
 
 		export_header->setCheckState(Qt::CheckState::Checked);

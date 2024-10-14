@@ -179,7 +179,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientation, int role) const
 {
 	// Sometimes Qt is using an invalid row value...
-	if (row >= (int)_view.get_row_count()) {
+	if (role == Qt::DisplayRole and orientation == Qt::Vertical and row>= (int)_view.get_row_count()) {
 		return {};
 	}
 

@@ -55,7 +55,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 
 		// left_layout
 		QCheckBox* export_rows_index = new QCheckBox("Export rows index");
-		QObject::connect(export_rows_index, &QCheckBox::stateChanged, [&](int state) {
+		QObject::connect(export_rows_index, &QCheckBox::checkStateChanged, [&](int state) {
 			_exporter.set_export_rows_index(state);
 			if (_selected_radio_button) { // force header regeneration
 				Q_EMIT _selected_radio_button->toggled(_selected_radio_button->isChecked());
@@ -113,7 +113,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		QCheckBox* export_internal_values =
 		    new QCheckBox("Export internal values instead of displayed values");
 		export_internal_values->setChecked(_exporter.get_export_internal_values());
-		QObject::connect(export_internal_values, &QCheckBox::stateChanged,
+		QObject::connect(export_internal_values, &QCheckBox::checkStateChanged,
 		                 [&](int state) { _exporter.set_export_internal_values((bool)state); });
 		right_layout->addWidget(export_internal_values);
 

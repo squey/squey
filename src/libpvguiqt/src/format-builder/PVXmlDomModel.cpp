@@ -782,16 +782,14 @@ bool App::PVXmlDomModel::openXml(QString url)
 	}
 	QTextStream tmpTextXml(&fichier);
 	tmpTextXml.setEncoding(QStringConverter::Utf8); // by default anyway
-	QString err_msg;
-	int err_line, err_col;
 	QDomDocument doc;
 
-	if (!doc.setContent(tmpTextXml.readAll(), false, &err_msg, &err_line, &err_col)) {
+	QDomDocument::ParseResult res = doc.setContent(tmpTextXml.readAll());
+	if (not res) {
 		QMessageBox msg(QMessageBox::Critical, tr("Unable to open format"),
 		                tr("Unable to open format '%1'").arg(url), QMessageBox::Ok);
 		msg.setInformativeText(
-		    QString("XML parsing error at line %1 and column %2: ").arg(err_line).arg(err_col) +
-		    err_msg);
+		    QString("XML parsing error at line %1 and column %2: %3").arg(res.errorLine).arg(res.errorColumn).arg(res.errorMessage));
 		msg.exec();
 		return false;
 	}

@@ -87,7 +87,7 @@ App::PVOptionsWidget::PVOptionsWidget(QWidget* parent /* = nullptr */) : QWidget
 	connect(_ignore_first_lines_spinbox,
 	        static_cast<void (QSpinBox::*)(int)>(&QSpinBox::valueChanged), this,
 	        &PVOptionsWidget::first_line_changed);
-	connect(_line_count_checkbox, &QCheckBox::stateChanged, this,
+	connect(_line_count_checkbox, &QCheckBox::checkStateChanged, this,
 	        &PVOptionsWidget::disable_specify_line_count);
 }
 
