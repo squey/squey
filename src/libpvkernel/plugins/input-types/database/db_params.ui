@@ -438,7 +438,7 @@
                  <string>Use a format based on this query using these fields :</string>
                 </property>
                 <property name="checked">
-                 <bool>false</bool>
+                 <bool>true</bool>
                 </property>
                </widget>
               </item>

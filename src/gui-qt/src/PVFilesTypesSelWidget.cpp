@@ -272,7 +272,7 @@ App::PVFilesTypesSelWidget::PVFilesTypesSelWidget(App::PVMainWindow* parent,
 	connect(cancel_btn, &QAbstractButton::pressed, this, &QDialog::reject);
 	connect(_all_types_list, &QListWidget::itemSelectionChanged, this,
 	        &PVFilesTypesSelWidget::apply_all);
-	connect(_all_types_check, &QCheckBox::stateChanged, this,
+	connect(_all_types_check, &QCheckBox::checkStateChanged, this,
 	        &PVFilesTypesSelWidget::all_types_check_Slot);
 
 	// Set the layouts

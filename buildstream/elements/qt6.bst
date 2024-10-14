@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: qt:archive/qt/6.7/6.7.2/single/qt-everywhere-src-6.7.2.tar.xz
-  ref: 0aaea247db870193c260e8453ae692ca12abc1bd841faa1a6e6c99459968ca8a
+  url: qt:archive/qt/6.8/6.8.0/single/qt-everywhere-src-6.8.0.tar.xz
+  ref: 70f1a87c6ecc6c108dec6e9389e564f8798bd48bec4c596f28d0564c1dbbc2c6
 
 - kind: patch
   path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
@@ -89,8 +89,9 @@ config:
   #create-dev-shm: true
 
   configure-commands:
-    - ./configure %{conf-local}
-    - sed -i '18d;19d;21d;' qtwebengine/src/3rdparty/chromium/third_party/minigbm/src/drv.c
+  - |
+    "%{conf-cmd}" %{conf-local}
+    sed -i '18d;19d;21d;' qtwebengine/src/3rdparty/chromium/third_party/minigbm/src/drv.c
       
   build-commands:
     - cmake --build . --parallel

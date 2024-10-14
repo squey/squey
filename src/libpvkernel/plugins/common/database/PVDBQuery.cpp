@@ -29,6 +29,7 @@
 #include <qsettings.h>
 #include <QSqlRecord>
 #include <QSqlField>
+#include <QMetaType>
 #include <memory>
 
 #include "PVDBInfos.h"
@@ -37,6 +38,8 @@
 #include "pvbase/types.h"
 #include "pvkernel/core/PVSerializeObject.h"
 #include "pvkernel/rush/PVInputDescription.h"
+#include "pvkernel/rush/PVFormat_types.h"
+#include "pvkernel/rush/PVXmlTreeNodeDom.h"
 
 PVRush::PVDBQuery::PVDBQuery()
 = default;
@@ -92,8 +95,14 @@ QDomDocument PVRush::PVDBQuery::get_format_from_db_schema() const
 	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(_infos->get_type());
 	for (int i = 0; i < record.count(); i++) {
 		QSqlField field = record.field(i);
-		QString type = type_map->map_squey(field.typeID());
-		format_root->addOneField(field.name(), type);
+		auto [type, format] = type_map->map_squey(field.metaType().id());
+		PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(field.name(), type);
+		if (type == "time") {
+			node->setAttribute(
+				PVFORMAT_AXIS_TYPE_FORMAT_STR,
+				format
+			);
+		}
 	}
 
 	return format_doc;
@@ -109,7 +118,7 @@ QList<QString> PVRush::PVDBQuery::get_db_types() const
 
 	PVSQLTypeMap_p type_map = PVSQLTypeMap::get_map(_infos->get_type());
 	for (int i = 0; i < record.count(); i++) {
-		types.append(type_map->map(record.field(i).typeID()));
+		types.append(type_map->map(record.field(i).metaType().id()));
 	}
 
 	return types;

@@ -42,13 +42,13 @@ class PVPcapExporterWidget : public PVWidgets::PVExporterWidgetInterface
 
 		QCheckBox* complete_streams = new QCheckBox("Export complete TCP streams");
 		complete_streams->setChecked(_exporter.get_export_complete_stream());
-		QObject::connect(complete_streams, &QCheckBox::stateChanged,
+		QObject::connect(complete_streams, &QCheckBox::checkStateChanged,
 		                 [&](int state) { _exporter.set_export_complete_stream((bool)state); });
 		complete_streams->setChecked(_exporter.get_export_complete_stream());
 
 		QCheckBox* open_pcap = new QCheckBox("Open PCAP after export");
 		open_pcap->setObjectName("open_pcap_checkbox");
-		QObject::connect(open_pcap, &QCheckBox::stateChanged,
+		QObject::connect(open_pcap, &QCheckBox::checkStateChanged,
 		                 [&](int state) { _exporter.set_open_pcap_after_export((bool)state); });
 		open_pcap->setChecked(_exporter.get_open_pcap_after_export());
 

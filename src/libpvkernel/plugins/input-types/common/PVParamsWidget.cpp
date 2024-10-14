@@ -69,7 +69,7 @@ PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
 	        &PVParamsWidgetBase::preset_new_slot);
 	connect(_presets_widget, &PVWidgets::PVPresetsWidget::btn_save_clicked_Signal, this,
 	        &PVParamsWidgetBase::preset_save_slot);
-	connect(_auth_enabled_cb, &QCheckBox::stateChanged,
+	connect(_auth_enabled_cb, &QCheckBox::checkStateChanged,
 	        [&] { _auth_grp->setEnabled(_auth_enabled_cb->isChecked()); });
 	connect(_count_btn, &QPushButton::clicked, this, &PVParamsWidgetBase::query_result_count_slot);
 	connect(_query_type_cb, SIGNAL(currentIndexChanged(const QString&)), this,

@@ -86,7 +86,7 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 	    new QCheckBox(tr("Auto-validate when time format is changed"));
 	connect(_validate_btn, &QAbstractButton::clicked, this,
 	        &PVTimeFormatHelpDlg::validate_time_strings);
-	connect(auto_validate_chkbox, &QCheckBox::stateChanged, this,
+	connect(auto_validate_chkbox, &QCheckBox::checkStateChanged, this,
 	        &PVTimeFormatHelpDlg::activate_auto_validation);
 
 	connect(_tfs_edit, &QTextEdit::textChanged, this, &PVTimeFormatHelpDlg::time_formats_changed);

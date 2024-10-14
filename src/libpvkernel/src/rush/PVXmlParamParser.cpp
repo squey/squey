@@ -63,11 +63,10 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile,
 	}
 	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
-	QString error;
-	int line, col;
-	if (!docXml.setContent(tmpTextXml.readAll(), &error, &line, &col)) {
-		throw PVInvalidFile((error + " at line : " + QString::number(line) + " col:" +
-		                     QString::number(col) + " in file : " + nameFile)
+	QDomDocument::ParseResult res = docXml.setContent(tmpTextXml.readAll());
+	if (not res) {
+		throw PVInvalidFile((res.errorMessage + " at line : " + QString::number(res.errorLine) + " col:" +
+		                     QString::number(res.errorColumn) + " in file : " + nameFile)
 		                        .toStdString());
 	}
 	PVRush::PVFormatVersion::to_current(docXml);

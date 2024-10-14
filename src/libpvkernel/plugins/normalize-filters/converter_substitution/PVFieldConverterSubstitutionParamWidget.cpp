@@ -150,7 +150,7 @@ QWidget* PVFilter::PVFieldConverterSubstitutionParamWidget::get_param_widget()
 	        &PVFieldConverterSubstitutionParamWidget::browse_conversion_file);
 	connect(_default_value_line_edit, &QLineEdit::textChanged, this,
 	        &PVFieldConverterSubstitutionParamWidget::update_params);
-	connect(_use_default_value_checkbox, &QCheckBox::stateChanged, this,
+	connect(_use_default_value_checkbox, &QCheckBox::checkStateChanged, this,
 	        &PVFieldConverterSubstitutionParamWidget::use_default_value_checkbox_changed);
 	connect(_separator_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged, this,
 	        &PVFieldConverterSubstitutionParamWidget::update_params);

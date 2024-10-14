@@ -104,7 +104,7 @@ QWidget* PVFilter::PVFieldSplitterIPParamWidget::get_param_widget()
 			    "QCheckBox::indicator:checked{ image: url(:/scissors_on); }"
 			    "QCheckBox::indicator:unchecked{ image: url(:/scissors_off); }");
 			checkbox->setCursor(QCursor(Qt::PointingHandCursor));
-			connect(checkbox, &QCheckBox::stateChanged, this,
+			connect(checkbox, &QCheckBox::checkStateChanged, this,
 			        &PVFieldSplitterIPParamWidget::update_child_count);
 			_cb_list.append(checkbox);
 			groups_layout->addWidget(_cb_list[i], 0, Qt::AlignHCenter);

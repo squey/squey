@@ -90,12 +90,6 @@ PVCore::PVTextChunk* PVRush::PVDBSource::operator()()
 	chunk->set_index(_next_index);
 	PVLOG_INFO("_nelts_chunk=%d; _next_index=%d\n", _nelts_chunk, _next_index);
 	for (chunk_index n = 0; n < _nelts_chunk; n++) {
-		if (!_sql_query.next()) {
-			if (n == 0) {
-				return nullptr;
-			}
-			break;
-		}
 		QSqlRecord rec = _sql_query.record();
 		PVCore::PVElement* elt = chunk->add_element();
 		elt->fields().clear();
@@ -106,6 +100,12 @@ PVCore::PVTextChunk* PVRush::PVDBSource::operator()()
 			chunk_size += value.size();
 			memcpy(f.begin(), value.c_str(), value.size());
 			elt->fields().push_back(f);
+		}
+		if (!_sql_query.next()) {
+			if (n == 0) {
+				return nullptr;
+			}
+			break;
 		}
 	}
 	chunk->set_init_size(chunk_size);
