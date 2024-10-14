@@ -98,3 +98,5 @@ Use this DOI to make citations
 Help the contributors to develop and maintain the software
 
 [![LiberaPay](https://liberapay.com/assets/widgets/donate.svg)](https://liberapay.com/Squey/)
+
+[![Stargazers repo roster for @squey/squey](https://reporoster.com/stars/dark/squey/squey)](https://github.com/squey/squey/stargazers)
