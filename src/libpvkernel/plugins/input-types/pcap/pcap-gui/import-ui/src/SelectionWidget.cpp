@@ -81,7 +81,10 @@ SelectionWidget::SelectionWidget(QWidget* parent) : QWidget(parent), _ui(new Ui:
 	{
 		load_select_profile_combobox_list();
 		if (not selected_profile.isEmpty()) {
-			_ui->select_profile_combobox->setCurrentText(selected_profile);
+			int index = _ui->select_profile_combobox->findText(selected_profile);
+			if (index != -1) {
+				_ui->select_profile_combobox->setCurrentIndex(index);
+			}
 		}
 		_profile_dialog->close();
 	});
