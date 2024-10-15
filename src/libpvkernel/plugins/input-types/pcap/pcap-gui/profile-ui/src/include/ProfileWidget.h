@@ -57,7 +57,7 @@ class ProfileWidget : public QWidget
 	QString selected_profile();
 
   Q_SIGNALS:
-	void closed();
+	void closed(QString);
 	void propagate_update_profile();
 
   public Q_SLOTS:

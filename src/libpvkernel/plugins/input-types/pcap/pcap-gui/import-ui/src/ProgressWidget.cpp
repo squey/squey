@@ -83,7 +83,7 @@ void PcapPreprocessingThread::run()
 {
 	std::vector<std::string> pcap_files(_filenames.size());
 	std::transform(_filenames.begin(), _filenames.end(), pcap_files.begin(),
-	               [](const QString& v) { return v.toStdString(); });
+	               [](QString v) { return v.toStdString(); });
 
 	_csv_paths = pvpcap::extract_csv(
 	    pvpcap::split_pcaps(pcap_files, PVRush::PVNrawCacheManager::nraw_dir().toStdString(),
