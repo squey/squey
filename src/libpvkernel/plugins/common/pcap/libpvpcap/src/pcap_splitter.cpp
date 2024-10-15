@@ -618,7 +618,7 @@ split_pcap(const std::string& input_pcap_filename,
 	char error_buffer[PCAP_ERRBUF_SIZE];
 	pcap_t* input_pcap_handle = pcap_open_offline(input_pcap_filename.c_str(), error_buffer);
 	if (not input_pcap_handle) {
-		pvlogger::error() << "Error opening input pcap file :" << input_pcap_filename << std::endl;
+		pvlogger::error() << "Error opening input pcap file '" << input_pcap_filename << "': " << error_buffer << std::endl;
 		return {};
 	}
 

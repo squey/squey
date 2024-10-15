@@ -113,13 +113,14 @@ QString ProfileWidget::selected_profile()
 void ProfileWidget::on_cancel_button_clicked()
 {
 	close();
-	Q_EMIT closed();
+	Q_EMIT closed("");
 }
 
 void ProfileWidget::on_close_button_clicked()
 {
+	QString profile = selected_profile();
 	close();
-	Q_EMIT closed();
+	Q_EMIT closed(profile);
 }
 
 void ProfileWidget::on_save_button_clicked()

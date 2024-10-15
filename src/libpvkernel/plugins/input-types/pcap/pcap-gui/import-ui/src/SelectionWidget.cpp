@@ -77,9 +77,14 @@ SelectionWidget::SelectionWidget(QWidget* parent) : QWidget(parent), _ui(new Ui:
 	QRect screen_geo = screen->geometry();
 	_profile_dialog->resize((double)screen_geo.width() / 1.2, (double)screen_geo.height() / 1.5);
 
-	connect(_profile_widget, &ProfileWidget::closed, _profile_dialog, &QDialog::close);
-	connect(_profile_widget, &ProfileWidget::closed, this,
-	        &SelectionWidget::load_select_profile_combobox_list);
+	connect(_profile_widget, &ProfileWidget::closed, [&](QString selected_profile)
+	{
+		load_select_profile_combobox_list();
+		if (not selected_profile.isEmpty()) {
+			_ui->select_profile_combobox->setCurrentText(selected_profile);
+		}
+		_profile_dialog->close();
+	});
 
 	_profile_dialog->installEventFilter(new CloseEventFilter(_profile_widget));
 }
