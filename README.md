@@ -1,3 +1,11 @@
+[![Version](https://img.shields.io/flathub/v/org.squey.Squey?style=flat&color=blueviolet&label=version)](https://gitlab.com/squey/squey/-/raw/main/CHANGELOG)
+[![Documentation](https://gitlab.com/inendi/inspector-reference-manual/badges/main/pipeline.svg?key_text=doc&key_width=30)](https://doc.squey.org)
+[![Flathub installs](https://img.shields.io/flathub/downloads/org.squey.Squey?label=flathub&style=flat&color=blue)](https://flathub.org/apps/details/org.squey.Squey)
+[![Matrix](https://img.shields.io/matrix/squey%3Amatrix.org)](https://matrix.to/#/#squey:matrix.org)
+[![DOI](https://zenodo.org/badge/648945293.svg)](https://doi.org/10.5281/zenodo.13927905)
+[![Liberapay](https://img.shields.io/liberapay/patrons/squey)](https://liberapay.com/squey)
+
+
 # About
 
 [![Squey presentation video](https://gitlab.com/squey/squey/-/raw/main/buildstream/files/screenshots/squey_screenshot.png)](https://www.youtube.com/watch?v=M9I8Vt5mmAc)
