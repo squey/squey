@@ -154,6 +154,14 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_timer_render->setSingleShot(true);
 	_timer_render->setInterval(RENDER_TIMER_TIMEOUT);
 	connect(_timer_render, &QTimer::timeout, this, &PVFullParallelScene::render_all_zones_all_imgs);
+
+	_lib_view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	    [this](const QList<PVCol>& scaleds_updated) {
+		    for (PVCol col : scaleds_updated) {
+				_axes[col]->refresh_density();
+			}
+		}
+	);
 }
 
 /******************************************************************************
