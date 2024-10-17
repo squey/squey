@@ -126,18 +126,15 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
 
 	PVScalingProperties const& get_properties_for_col(PVCol col) const
 	{
-		assert((size_t)col < _columns.size());
-		auto begin = _columns.begin();
-		std::advance(begin, col);
-		return *begin;
+		if (col < 0 || col >= (int)_columns.size()) {
+			throw std::out_of_range("PVScalingProperties::get_properties_for_col: Invalid column index");
+		}
+		return *std::next(_columns.begin(), (size_t)col);
 	}
 	PVScalingProperties& get_properties_for_col(PVCol col)
-	{
-		assert((size_t)col < _columns.size());
-		auto begin = _columns.begin();
-		std::advance(begin, col);
-		return *begin;
-	}
+    {
+        return const_cast<PVScalingProperties&>(static_cast<const PVScaled&>(*this).get_properties_for_col(col));
+    }
 
 	void append_scaled();
 	void delete_scaled(PVCol col);
