@@ -191,20 +191,35 @@ void Squey::PVLayerFilterMultipleSearch::operator()(PVLayer const& in, PVLayer& 
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
-			return std::regex_match(array_value, std::regex(exp_value));
+			try {
+				return std::regex_match(array_value, std::regex(exp_value));
+			}
+			catch(const std::regex_error& e) {
+				throw PVLayerFilter::error();
+			}
 		};
 		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (EXACT_MATCH | REGULAR_EXPRESSION | CASE_INSENSITIVE): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
-			return std::regex_match(array_value, std::regex(exp_value, std::regex_constants::icase));
+			try {
+				return std::regex_match(array_value, std::regex(exp_value, std::regex_constants::icase));
+			}
+			catch(const std::regex_error& e) {
+				throw PVLayerFilter::error();
+			}
 		};
 		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
 	case (REGULAR_EXPRESSION): {
 		auto predicate = [](const std::string& array_value, const std::string& exp_value) {
 			std::smatch match;
-			return std::regex_search(array_value, match, std::regex(exp_value));
+			try {
+				return std::regex_search(array_value, match, std::regex(exp_value));
+			}
+			catch(const std::regex_error& e) {
+				throw PVLayerFilter::error();
+			}
 		};
 		pvcop::db::algo::subselect_if(column, exps_utf8, predicate, in_sel, out_sel);
 	} break;
