@@ -76,7 +76,10 @@ static std::string get_tmp_filename()
 	out_path.resize(L_tmpnam);
 	// We assume that this name will not be use by another program before we
 	// create it.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	tmpnam(&out_path.front());
+#pragma GCC diagnostic pop
 
 	return out_path;
 }

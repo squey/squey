@@ -1,5 +1,12 @@
 #!/bin/bash
 
+TARGET_TRIPLES="x86_64-linux-gnu x86_64-apple-darwin aarch64-apple-darwin"
+echo "$TARGET_TRIPLES" | tr " " '\n' | grep -F -q -x "$TARGET_TRIPLE"
+if [ -n "$TARGET_TRIPLES" ] && [ $? != 0 ]; then
+    echo "target_triple should be a value in this list: $TARGET_TRIPLES"
+    exit -1
+fi
+
 # Load Python virtual environment
 if [ "$GITLAB_CI" != "true" ]; then
     if [ ! -d ".venv" ]; then
@@ -62,4 +69,5 @@ else
     echo "Please, install flatpaked NVIDIA Drivers in order to have GPU acceleration (flatpak install flathub org.freedesktop.Platform.GL.$NVIDIA_VERSION_NAME)"
 fi
 
-MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
+#MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
+MOUNT_OPTS="$GL_MOUNT_OPTS --mount /srv/tmp-squey /srv/tmp-squey"

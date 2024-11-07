@@ -40,7 +40,7 @@
 #include "pvkernel/rush/PVInputDescription.h"
 
 PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
-    : _input_desc(dynamic_cast<PVRush::PVParquetFileDescription*>(input.get()))
+    : _input_desc(reinterpret_cast<PVRush::PVParquetFileDescription*>(input.get()))
     , _api(_input_desc)
 {
 	_dicts.resize(_api.column_indexes().size());

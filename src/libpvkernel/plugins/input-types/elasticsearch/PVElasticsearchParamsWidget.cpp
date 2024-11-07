@@ -35,7 +35,7 @@
 #include <QPushButton>
 #include <QScreen>
 
-static const char* query_types[] = {"Query Builder", "JSON", "SQL"};
+static const char* query_types[] = {"JSON", "SQL"};
 static constexpr const char MATCH_ALL_QUERY[] = R"###({ "query" : { "match_all" : { } } })###";
 
 PVRush::PVElasticsearchParamsWidget::PVElasticsearchParamsWidget(
@@ -258,13 +258,6 @@ void PVRush::PVElasticsearchParamsWidget::tree_item_changed(QTreeWidgetItem* ite
 
 void PVRush::PVElasticsearchParamsWidget::index_changed_by_user_slot()
 {
-	int query_type = _query_type_cb->currentIndex();
-
-	if (query_type == EQueryType::QUERY_BUILDER) {
-		PVRush::PVElasticsearchAPI es(get_infos());
-		_querybuilder->set_filters(es.querybuilder_columns());
-	}
-
 	reset_columns_tree_widget();
 }
 
@@ -292,7 +285,6 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 {
 	int query_type = _query_type_cb->currentIndex();
 
-	_querybuilder->setVisible(false);
 	_txt_query->setVisible(false);
 
 	if (query_type == EQueryType::SQL) {
@@ -311,15 +303,6 @@ void PVRush::PVElasticsearchParamsWidget::query_type_changed_slot()
 			// buttonBox->buttons()[0]->setEnabled(false);
 		}
 		_txt_query->setVisible(true);
-	} else if (query_type == EQueryType::QUERY_BUILDER) {
-		_gb_query->setTitle("Query");
-		_reference_label->setText("");
-		_querybuilder->reset_rules();
-
-		PVRush::PVElasticsearchAPI es(get_infos());
-		_querybuilder->set_filters(es.querybuilder_columns());
-
-		_querybuilder->setVisible(true);
 	} else { // EQueryType::JSON
 		_txt_query->setPlainText(MATCH_ALL_QUERY);
 		_gb_query->setTitle("Query");
@@ -466,11 +449,6 @@ PVRush::PVElasticsearchParamsWidget::get_server_query(std::string* error /* = nu
 
 		if (query_type == EQueryType::SQL) {
 			q = es.sql_to_json(QString(get_sql_query_prefix() + q).toStdString(), error).c_str();
-		} else if (query_type == EQueryType::QUERY_BUILDER) {
-			q = QString::fromStdString(es.rules_to_json(_querybuilder->get_rules()));
-			if (q.isEmpty()) {
-				q = MATCH_ALL_QUERY;
-			}
 		}
 	}
 
@@ -482,28 +460,12 @@ PVRush::PVElasticsearchParamsWidget::get_server_query(std::string* error /* = nu
 
 QString PVRush::PVElasticsearchParamsWidget::get_serialize_query() const
 {
-	int query_type = _query_type_cb->currentIndex();
-
-	if (query_type == EQueryType::QUERY_BUILDER) {
-		return {_querybuilder->get_rules().c_str()};
-	} else {
-		return _txt_query->toPlainText();
-	}
+	return _txt_query->toPlainText();
 }
 
 void PVRush::PVElasticsearchParamsWidget::set_query(QString const& query)
 {
-	int query_type = _query_type_cb->currentIndex();
-
-	if (query_type == EQueryType::QUERY_BUILDER) {
-		if (not get_infos().get_index().isEmpty()) {
-			PVRush::PVElasticsearchAPI es(get_infos());
-			_querybuilder->set_filters(es.querybuilder_columns());
-			_querybuilder->set_rules(query.toStdString());
-		}
-	} else {
-		_txt_query->setPlainText(query);
-	}
+	_txt_query->setPlainText(query);
 }
 
 size_t PVRush::PVElasticsearchParamsWidget::query_result_count(std::string* error /* = nullptr */)

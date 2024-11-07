@@ -25,7 +25,7 @@ add_squey_test(Tsquey_format Tsquey_format)
 add_squey_compile_test(Tqt_new_layer_dialog LINKS ${LINK_LIBRARIES} FILES new_layer_dialog.cpp)
 
 add_squey_compile_test(Tsquey_export_selection LINKS ${LINK_LIBRARIES} FILES export_selection.cpp)
-add_squey_test(Tsquey_export_selection Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy.log.format 0 ${TESTS_FILES_DIR}/sources/proxy.log)
+add_squey_test(Tsquey_export_selection Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log ${TESTS_FILES_DIR}/formats/proxy.log.format 0 ${TESTS_FILES_DIR}/sources/proxy.log)
 
 add_squey_test(Tsquey_export_small_selection_gz Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.gz ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
 add_squey_test(Tsquey_export_small_selection_bz2 Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.bz2 ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
@@ -242,3 +242,6 @@ add_squey_test(Tsquey_multi_inputs Tsquey_multi_inputs)
 add_squey_compile_test(Tsquey_python_scripting LINKS ${LINK_LIBRARIES} FILES python_scripting.cpp)
 add_squey_test(Tsquey_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
 add_squey_test(Tsquey_embeded_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_embeded_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
+
+add_squey_compile_test(Tsquey_posix_spawn LINKS ${LINK_LIBRARIES} FILES posix_spawn.cpp)
+add_squey_test(Tsquey_posix_spawn Tsquey_posix_spawn )

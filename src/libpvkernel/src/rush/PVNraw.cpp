@@ -227,6 +227,10 @@ bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk& chunk)
 			if (chunk.is_invalid(PVCol(col))) {
 				auto range =  chunk.invalids().equal_range(PVCol(col));
 				for (auto it = range.first; it != range.second; ++it) {
+					//pvlogger::fatal() << "set_invalid(" << col << "," << chunk.start_index() + it->second << ")" << std::endl;
+					if (col == 0) {
+						pvlogger::fatal() << "set_invalid(" << chunk.start_index() + it->second << ")" << std::endl;
+					}
 					snk.set_invalid(col, chunk.start_index() + it->second);
 				}
 			}

@@ -11,20 +11,27 @@ sources:
 - kind: tar
   url: boost:release/1.85.0/source/boost_1_85_0.tar.bz2
   ref: 7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617
+
+(@): buildstream/elements/base/target.bst
   
 config:
   configure-commands:
   - |
     ./bootstrap.sh --prefix=%{prefix}
+    if [ "%{target-platform}" = "darwin" ] ; then
+      echo "using clang : osxcross : %{cxx-compiler} ;" > ~/user-config.jam
+    fi
     cat <<EOF > "Makefile"
     LIB_TARGETS = --with-date_time --with-system --with-filesystem --with-thread --with-program_options --with-chrono
     all:
-    	./b2 -j `nproc --ignore=1` \$(LIB_TARGETS)
+    	./b2 toolset=%{boost-toolset} target-os=%{boost-target-os} cxxflags="%{boost-cxx-flags}" linkflags="%{boost-link-flags}" -j `nproc --ignore=1` \$(LIB_TARGETS)
     install:
-    	./b2 install --prefix=\$(DESTDIR) \$(LIB_TARGETS)
+    	./b2 toolset=%{boost-toolset} target-os=%{boost-target-os} cxxflags="%{boost-cxx-flags}" linkflags="%{boost-link-flags}" install --prefix=\$(DESTDIR) \$(LIB_TARGETS)
     EOF
+  build-commands:
+  - make
   install-commands:
   - make -j 1 install DESTDIR="%{install-root}%{prefix}"
 
 depends:
-- base.bst
+- sdk.bst

@@ -7,7 +7,7 @@ FIND_PATH(NUMA_INCLUDE_DIR NAME numa.h
     HINTS /app/include $ENV{HOME}/local/include /opt/local/include /usr/local/include /usr/include)
 
 FIND_LIBRARY(NUMA_LIBRARY NAME numa
-    HINTS /app/lib $ENV{HOME}/local/lib64 $ENV{HOME}/local/lib /usr/local/lib64 /usr/local/lib /opt/local/lib64 /opt/local/lib /usr/lib64 /usr/lib
+    HINTS /mac/lib $ENV{HOME}/local/lib64 $ENV{HOME}/local/lib /usr/local/lib64 /usr/local/lib /opt/local/lib64 /opt/local/lib /usr/lib64 /usr/lib
     )
 
 IF (NUMA_INCLUDE_DIR AND NUMA_LIBRARY)

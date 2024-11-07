@@ -64,7 +64,7 @@ using device_func = std::function<void(cl::Context&, cl::Device&)>;
 /**
  * @return a string containing version and devices used
  */
-std::string opencl_version();
+std::pair<std::string, bool> opencl_infos();
 
 /**
  * find the first OpenCL plateform matching @p accelerated and call @p f on each of its devices

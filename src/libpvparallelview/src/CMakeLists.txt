@@ -92,8 +92,8 @@ PVScatterViewDataImpl.cpp
 PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
 
-PVSeriesRendererOpenGL.cpp
-PVSeriesRendererOffscreen.cpp
+#PVSeriesRendererOpenGL.cpp
+#PVSeriesRendererOffscreen.cpp
 PVSeriesView.cpp
 PVSeriesViewWidget.cpp
 PVSeriesViewParamsWidget.cpp
@@ -147,20 +147,20 @@ QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 # Declare the new library and linkage options
 ################################################
 
-set(QT6_LIBS Qt6Core Qt6Gui Qt6Widgets Qt6Xml Qt6OpenGL Qt6OpenGLWidgets)
+set(QT6_LIBS Qt6Core Qt6Gui Qt6Widgets Qt6Xml)
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
   COMMAND ${CMAKE_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
-  )
+)
 
 include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
 
 list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 
-set(LINK_LIBRARIES pvdisplays pvsquey pvkernel ${QT6_LIBS} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES} 
+set(LINK_LIBRARIES pvdisplays pvsquey pvkernel ${QT6_LIBS}
+	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES}
 	${PVHWLOC_LIBRARIES} KF6::ItemModels)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})

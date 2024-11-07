@@ -128,7 +128,7 @@ namespace PVParallelView::common
 RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
 	if (PVBCIDrawingBackendOpenCL::get().device_count() > 0) {
-		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
+	 	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 	} else {
 		_instance->init_backends<PVBCIDrawingBackendQPainter>();
 	}

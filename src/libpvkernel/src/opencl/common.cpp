@@ -39,26 +39,33 @@
 
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
-std::string PVOpenCL::opencl_version()
+std::pair<std::string, bool> PVOpenCL::opencl_infos()
 {
 	static std::string s_opencl_version;
+	static bool accelerated = true;
 	if (s_opencl_version.empty()) {
 		if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
-			return s_opencl_version;
+			accelerated = false;
 		}
-		find_first_usable_context(true, [](auto&, cl::Device& device) {
-			cl_int err;
-			if (s_opencl_version.empty()) {
-				std::string clversion = device.getInfo<CL_DEVICE_VERSION>(&err);
-				s_opencl_version += clversion;
-			}
-			std::string dname = device.getInfo<CL_DEVICE_NAME>(&err);
-			std::string dvendor = device.getInfo<CL_DEVICE_VENDOR>(&err);
-			std::string ddriver = device.getInfo<CL_DRIVER_VERSION>(&err);
-			s_opencl_version += "<br/>[" + dname + " (" + dvendor + " " + ddriver + ")]";
-		});
+		for (size_t i = 1 - (not accelerated); i >= 0; i--) {
+			accelerated = (bool) i;
+			bool found = false;
+			find_first_usable_context(accelerated, [&found](auto&, cl::Device& device) {
+				found = true;
+				cl_int err;
+				if (s_opencl_version.empty()) {
+					std::string clversion = device.getInfo<CL_DEVICE_VERSION>(&err);
+					s_opencl_version += clversion;
+				}
+				std::string dname = device.getInfo<CL_DEVICE_NAME>(&err);
+				std::string dvendor = device.getInfo<CL_DEVICE_VENDOR>(&err);
+				std::string ddriver = device.getInfo<CL_DRIVER_VERSION>(&err);
+				s_opencl_version += "<br/>[" + dname + " (" + dvendor + " " + ddriver + ")]";
+			});
+			if (found) break;
+		}
 	}
-	return s_opencl_version;
+	return std::make_pair(s_opencl_version, accelerated);
 }
 
 /*****************************************************************************

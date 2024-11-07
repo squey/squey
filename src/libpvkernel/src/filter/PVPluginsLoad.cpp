@@ -33,6 +33,8 @@
 #include <cstdlib> // for getenv
 #include <string>  // for allocator, operator+, etc
 
+#include <boost/dll/runtime_symbol_info.hpp>
+
 int PVFilter::PVPluginsLoad::load_all_plugins()
 {
 	return load_normalize_plugins();
@@ -52,9 +54,19 @@ int PVFilter::PVPluginsLoad::load_normalize_plugins()
 
 std::string PVFilter::PVPluginsLoad::get_normalize_dir()
 {
+	std::string plugins_dir;
 	const char* path = std::getenv("PVKERNEL_PLUGIN_PATH");
 	if (path) {
-		return std::string(path) + "/normalize-filters";
+		plugins_dir = std::string(path);
 	}
-	return std::string(PVKERNEL_PLUGIN_PATH) + "/normalize-filters";
+	else {
+#ifdef __APPLE__
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		plugins_dir = exe_path.parent_path().string() + "/../PlugIns";
+#else
+		plugins_dir = std::string(PVKERNEL_PLUGIN_PATH);
+#endif
+	}
+
+	return  plugins_dir + "/normalize-filters";
 }

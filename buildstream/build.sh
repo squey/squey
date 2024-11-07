@@ -1,8 +1,5 @@
 #!/bin/bash
 
-set -e
-set -x
-
 TMP_ARTIFACT_DIR="$(mktemp -d)"
 
 function cleanup {
@@ -15,21 +12,23 @@ function cleanup {
 trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
 
 usage() {
-echo "Usage: $0 [--branch=<branch_name_or_tag_name>]"
-echo "                  [--code-coverage=<true/false>]"
-echo "                  [--cxx_compiler=<g++/clang++>]"
-echo "                  [--disable-testsuite=<true/false>]"
-echo "                  [--flatpak-export=<true/false>]"
-echo "                  [--flatpak-repo=<repository_path>]"
-echo "                  [--gpg-private-key-path=<key>]"
-echo "                  [--gpg-sign-key=<key>]"
-echo "                  [--push-artifacts=<true/false>]"
-echo "                  [--upload-debug-symbols=<true/false>]"
-echo "                  [--user-target=<USER_TARGET>]" 1>&2; exit 1;
-
+echo "Usage: $0"
+  echo "--target_triple=<cross-compilation_target_triple>"
+  echo "--branch=<branch_name_or_tag_name>"
+  echo "--code-coverage=<true/false>"
+  echo "--cxx_compiler=<g++/clang++>"
+  echo "--disable-testsuite=<true/false>"
+  echo "--flatpak-export=<true/false>"
+  echo "--flatpak-repo=<repository_path>"
+  echo "--gpg-private-key-path=<key>"
+  echo "--gpg-sign-key=<key>"
+  echo "--push-artifacts=<true/false>"
+  echo "--upload-debug-symbols=<true/false>"
+  echo "--user-target=<USER_TARGET>" 1>&2; exit 1;
 }
 
 # Set default options
+TARGET_TRIPLE="x86_64-linux-gnu"
 BRANCH_NAME=main
 TAG_NAME=
 BUILD_TYPE=RelWithDebInfo
@@ -37,7 +36,7 @@ CXX_COMPILER=clang++
 USER_TARGET=developer
 USER_TARGET_SPECIFIED=false
 EXPORT_BUILD=false
-REPO_DIR="repo"
+EXPORT_DIR="export"
 TESTSUITE_DISABLED=false
 GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
@@ -46,19 +45,20 @@ UPLOAD_DEBUG_SYMBOLS=false
 PUSH_ARTIFACTS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a --long help,flatpak-export:,flatpak-repo:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx-compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a,t --long help,target_triple:,export:,export-dir:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx-compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
   case "$1" in
     -h | --help ) usage >&2 ; exit 0 ;;
+    -t | --target_triple ) TARGET_TRIPLE="$2"; shift 2 ;;
     -b | --branch ) BRANCH_NAME="$2"; shift 2 ;;
     -t | --build-type ) BUILD_TYPE="$2"; shift 2 ;;
     -p | --cxx-compiler ) CXX_COMPILER="$2"; shift 2 ;;
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
     -d | --disable-testsuite ) TESTSUITE_DISABLED="$2"; shift 2 ;;
-    -e | --flatpak-export ) EXPORT_BUILD="$2"; shift 2 ;;
-    -r | --flatpak-repo ) REPO_DIR="$2"; shift 2 ;;
+    -e | --export ) EXPORT_BUILD="$2"; shift 2 ;;
+    -r | --export-dir ) EXPORT_DIR="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -l | --code-coverage ) CODE_COVERAGE_ENABLED="$2"; shift 2 ;;
@@ -71,10 +71,13 @@ done
 
 source .common.sh
 
+set -e
+set -x
+
 ./generate_appstream_metadata.sh
 
 # Build Squey
-BUILD_OPTIONS="--option cxx_compiler $CXX_COMPILER --error-lines 10000 "
+BUILD_OPTIONS="--option target_triple $TARGET_TRIPLE --option cxx_compiler $CXX_COMPILER --error-lines 10000 "
 if [ $USER_TARGET_SPECIFIED = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option user_target $USER_TARGET"
 fi
@@ -94,16 +97,16 @@ fi
 
 if [ "$EXPORT_BUILD" = false ]; then
   bst $BUILD_OPTIONS build squey.bst
-else # Export flatpak images
+elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Export flatpak images
+
   if [[ ! -z "$GPG_PRIVATE_KEY_PATH" ]]; then
     # Import GPG private key
     gpg --import --no-tty --batch --yes $GPG_PRIVATE_KEY_PATH
   fi
 
-
   # Export flatpak Release image
   bst $BUILD_OPTIONS build flatpak/org.squey.Squey.bst
-  if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ]; then   # Upload debug symbols
+  if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ] ; then   # Upload debug symbols
     VERSION="$(cat ../VERSION.txt)"
     bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
         SYM_DIR=\"/tmp/squey.sym.d\"
@@ -116,9 +119,9 @@ else # Export flatpak images
   fi
   bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$TMP_ARTIFACT_DIR/flatpak_files"
   if [[ ! -z "$GPG_SIGN_KEY" ]]; then
-    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
+    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $EXPORT_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
   else
-    flatpak build-export --files=files $REPO_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
+    flatpak build-export --files=files $EXPORT_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
   fi
 
   ## Export flatpak Debug image
@@ -126,15 +129,20 @@ else # Export flatpak images
   #bst $BUILD_OPTIONS build flatpak/org.squey.Squey.Debug.bst
   #bst $BUILD_OPTIONS checkout flatpak/org.squey.Squey.Debug.bst "$DIR/build"
   #if [[ ! -z "$GPG_SIGN_KEY" ]]; then
-  #  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  #  flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $EXPORT_DIR $DIR/build $BRANCH_NAME
   #else
-  #  flatpak build-export --files=files $REPO_DIR $DIR/build $BRANCH_NAME
+  #  flatpak build-export --files=files $EXPORT_DIR $DIR/build $BRANCH_NAME
   #fi
+elif [ "$TARGET_TRIPLE" == "x86_64-apple-darwin" ] || [ "$TARGET_TRIPLE" == "aarch64-apple-darwin" ]; then
+  bst $BUILD_OPTIONS build macos_bundle/app-bundle.bst
+  bst $BUILD_OPTIONS artifact checkout macos_bundle/app-bundle.bst --directory "$EXPORT_DIR/bundle_root/app-bundle"
+  bst $BUILD_OPTIONS build macos_bundle/dmg-image.bst
+  bst $BUILD_OPTIONS artifact checkout macos_bundle/dmg-image.bst --directory "$EXPORT_DIR/dmg-image"
 fi
 
 # Push artifacts
 if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
-  bst --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
+  bst $BUILD_OPTIONS --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
 fi
 
 # Extract testsuite and code coverage reports out of the build sandbox

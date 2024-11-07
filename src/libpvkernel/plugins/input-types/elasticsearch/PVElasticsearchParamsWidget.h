@@ -32,9 +32,6 @@
 #include "../../common/elasticsearch/PVElasticsearchQuery.h"
 #include "PVElasticsearchPresets.h"
 
-#include <pvkernel/widgets/PVQueryBuilder.h>
-#include <pvkernel/widgets/PVQueryBuilder.h>
-
 #include "PVElasticsearchPresets.h"
 
 namespace PVWidgets
@@ -58,8 +55,7 @@ class PVElasticsearchParamsWidget : public PVParamsWidget<PVInputTypeElasticsear
 
   private:
 	enum EQueryType {
-		QUERY_BUILDER = 0,
-		JSON,
+		JSON = 0,
 		SQL,
 
 		COUNT

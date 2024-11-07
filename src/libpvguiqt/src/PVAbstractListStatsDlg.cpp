@@ -948,9 +948,8 @@ void PVGuiQt::__impl::PVListStringsDelegate::paint(QPainter* painter,
 
 		// Draw bounding rectangle
 		QRect r(option.rect.x(), option.rect.y(), option.rect.width(), option.rect.height());
-		QColor base_color = QPalette().color(QPalette::Base);
 		QColor alt_color = QPalette().color(QPalette::AlternateBase);
-		painter->fillRect(r, index.row() % 2 ? alt_color : base_color);
+		painter->fillRect(r, alt_color);
 
 		// Fill rectangle with color
 		painter->fillRect(

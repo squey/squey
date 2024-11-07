@@ -51,7 +51,7 @@ endforeach()
 find_path(
   RAPIDJSON_INCLUDE_DIRS
   NAMES rapidjson/rapidjson.h
-  PATHS ${RAPIDJSON_INCLUDEDIR} /app/include /usr/include /include
+  PATHS ${RAPIDJSON_INCLUDEDIR} /mac/include /usr/include /include
   DOC "Include directory for the rapidjson library."
 )
 

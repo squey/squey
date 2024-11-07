@@ -21,6 +21,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 #include <memory>
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
@@ -46,6 +47,8 @@
 
 #include <parquet/arrow/reader.h>
 #include <parquet/arrow/writer.h>
+
+#include <QFileInfo>
 
 
 template <typename T>
@@ -144,11 +147,16 @@ std::shared_ptr<arrow::Array> generate_array(size_t size, const F& sanitize_valu
     T min_value = std::numeric_limits<T>::min();
     T max_value = std::numeric_limits<T>::max();
     T init_value = max_value;
-    __int128_t v = (__int128_t)min_value - (__int128_t)max_value +1 ;
-    size_t decrement = std::abs(v)/(size-2);
+    __int128_t v = (__int128_t)min_value - (__int128_t)max_value +1;
+    size_t decrement = (v < 0 ? -v : v)/(size-2);
     decrement = std::max(1UL, decrement);
     status = builder.Append(sanitize_value(max_value));
     for (size_t i = 1; i < size-1; i++) {
+        if constexpr (std::is_same<T, float>::value) {
+            if (i == 10) {
+                pvlogger::info() << "init_value=" << init_value << " decrement=" << decrement << " value=" << (init_value -= decrement) << std::endl;
+            }
+        }
         if (i % 7 == 0) {
             status = builder.AppendNull();
         }
@@ -188,8 +196,8 @@ std::string generate_parquet_file(std::shared_ptr<arrow::Schema>& schema, const 
         arrow::field("duration#2", arrow::time64(arrow::TimeUnit::MICRO)),
         arrow::field("duration#3", arrow::time64(arrow::TimeUnit::NANO)),
         arrow::field("structure", arrow::struct_({
-            arrow::field("number_uint8#1", arrow::uint8()),
-            arrow::field("string#4", arrow::utf8())
+        arrow::field("number_uint8#1", arrow::uint8()),
+        arrow::field("string#4", arrow::utf8())
         }))
     });
 
@@ -300,17 +308,20 @@ void import_files(
 #pragma omp parallel for schedule(dynamic)
     for (int col = 0; col < nraw.column_count(); col++) {
         const pvcop::db::array& column = nraw.column(PVCol(col));
-        PV_ASSERT_VALID(column.is_valid(0) == true);
+        PV_VALID(column.is_valid(0), true);
         for (size_t j = 1; j < column.size()/2-1; j++) {
-            PV_ASSERT_VALID(column.is_valid(j) == (j % 7 != 0));
+            if (column.is_valid(j) != (j % 7 != 0)) {
+                pvlogger::info() << "col=" << col << " column.is_valid(" << j << ")=" << column.is_valid(j) << std::endl;
+            }
+            PV_VALID(column.is_valid(j), (j % 7 != 0));
         }
-        PV_ASSERT_VALID(column.is_valid(column.size()/2-1) == true);
-        PV_ASSERT_VALID(column.is_valid(column.size()/2) == true);
+        PV_VALID(column.is_valid(column.size()/2-1), true);
+        PV_VALID(column.is_valid(column.size()/2), true);
         for (size_t j = 1; j < column.size()/2-1; j++) {
             size_t j2 = j + column.size()/2;
-            PV_ASSERT_VALID(column.is_valid(j2) == (j % 7 != 0));
+            PV_VALID(column.is_valid(j2), (j % 7 != 0));
         }
-        PV_ASSERT_VALID(column.is_valid(column.size()-1) == true);
+        PV_VALID(column.is_valid(column.size()-1), true);
     }
 }
 
@@ -331,7 +342,7 @@ int main(int argc, char** argv)
         const std::string& csv_ref = argv[i+1];
 
         std::shared_ptr<arrow::Schema> schema;
-        std::string parquet_test_file = generate_parquet_file(schema, sizes[i], std::filesystem::path(csv_ref).filename().string() + ".parquet");
+        std::string parquet_test_file = generate_parquet_file(schema, sizes[i], QFileInfo(QString::fromStdString(csv_ref)).fileName().toStdString() + ".parquet");
 
         // Import multiple parquet files
         QStringList files;

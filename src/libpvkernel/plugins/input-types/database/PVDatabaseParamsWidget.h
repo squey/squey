@@ -70,7 +70,6 @@ class PVDatabaseParamsWidget : public QDialog, private Ui::DbParams
 	void preset_load_Slot(const QString& name);
 	void preset_save_Slot(const QString& name);
 	void preset_remove_Slot(const QString& name);
-	void preset_text_changed_Slot(const QString& text);
 	void sql_type_changed_Slot(int idx);
 	void query_preview_Slot();
 	bool update_fields_Slot();

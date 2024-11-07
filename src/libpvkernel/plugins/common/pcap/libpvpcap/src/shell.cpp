@@ -56,6 +56,61 @@
 #include "../include/libpvpcap/ws.h"
 #include <pvbase/general.h> // IWYU pragma: keep
 
+#include <boost/dll/runtime_symbol_info.hpp>
+
+#if __APPLE__
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+int execvpe(const char *file, char *const argv[], char *const envp[]) {
+    // Check if the path is absolute or relative
+    if (strchr(file, '/') != NULL) {
+        // Use execve directly if the path is given
+        return execve(file, argv, envp);
+    }
+
+    // Get the PATH from the environment
+    const char *path = getenv("PATH");
+    if (!path) {
+        errno = ENOENT; // PATH not set
+        return -1;
+    }
+
+    // Copy PATH to avoid modifying the original
+    char *path_copy = strdup(path);
+    if (!path_copy) {
+        return -1; // Allocation failed
+    }
+
+    char *saveptr;
+    char *dir = strtok_r(path_copy, ":", &saveptr);
+
+    while (dir != NULL) {
+        // Build the full path to the file
+        char full_path[PATH_MAX];
+        snprintf(full_path, sizeof(full_path), "%s/%s", dir, file);
+
+        // Attempt to execute with execve
+        execve(full_path, argv, envp);
+
+        // If execve fails, move to the next directory in PATH
+        if (errno != ENOENT) {
+            free(path_copy);
+            return -1; // Failure for reasons other than file not found
+        }
+
+        dir = strtok_r(NULL, ":", &saveptr);
+    }
+
+    // Free memory and set errno
+    free(path_copy);
+    errno = ENOENT;
+    return -1;
+}
+#endif
+
 extern char** environ;
 
 namespace pvpcap
@@ -361,7 +416,13 @@ std::string get_system_profile_dir()
 	QString pluginsdirs = QString(getenv("PVKERNEL_PLUGIN_PATH"));
 
 	if (pluginsdirs.isEmpty()) {
-		return (QString(PVKERNEL_PLUGIN_PATH) + "/input-types/pcap/profiles").toStdString();
+#ifdef __APPLE__
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		QString pluginsdirs = QString::fromStdString(exe_path.parent_path().string() + "/../PlugIns");
+#else
+		QString pluginsdirs = QString(PVKERNEL_PLUGIN_PATH);
+#endif
+		return (pluginsdirs + "/input-types/pcap/profiles").toStdString();
 	} else {
 		return (QString(SQUEY_SOURCE_DIRECTORY) + "/libpvkernel/plugins/common/pcap/profiles").toStdString();
 	}

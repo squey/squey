@@ -42,6 +42,8 @@
 
 #include <QSettings>
 
+#include <boost/dll/runtime_symbol_info.hpp>
+
 /******************************************************************************
  * opencl_kernel
  *****************************************************************************/
@@ -82,7 +84,7 @@ struct opencl_kernel {
 		/* we make fit the highest number of image column in the work group local memory
 		 */
 		const size_t local_num_x =
-		    std::min((ulong)width, (dev.local_mem_size / column_mem_size) - 1);
+		    std::min((cl_ulong)width, (dev.local_mem_size / column_mem_size) - 1);
 		const size_t local_num_y = dev.work_group_size / local_num_x;
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
 		const size_t global_num_y = local_num_y;
@@ -101,6 +103,12 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
     : _context(nullptr), _is_gpu_accelerated(true)
 {
 	setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
+
+#ifdef __APPLE__
+	boost::filesystem::path exe_path = boost::dll::program_location();
+	std::string libdir = exe_path.parent_path().string() + "/../Frameworks";
+	setenv("LIBRARY_PATH", libdir.c_str(), 1);
+#endif
 
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
@@ -253,7 +261,9 @@ auto PVParallelView::PVBCIDrawingBackendOpenCL::create_new_image(backend_image_t
 		    PVBCIBackendImageOpenCL(image_width, height_bits, _context, queue, _next_device->first);
 	}
 
-	++_next_device;
+	if (_devices.size() > 1) {
+		++_next_device;
+	}
 
 	return in_place;
 }

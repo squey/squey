@@ -34,6 +34,8 @@
 #include <fcntl.h>
 #include <cerrno>
 
+#include <QFile>
+
 #include "common.h"
 
 #define FILES_DIR "../../tests/files/pvkernel/run/tickets/28/"
@@ -50,7 +52,7 @@ int main(int argc, char** argv)
 	const QString format_path =
 	    QString::fromLocal8Bit(argv[1]) + QLatin1String("/tickets/28/field_enum.format");
 	const std::string& out_path = pvtest::get_tmp_filename();
-	std::filesystem::copy(format_path.toStdString(), out_path);
+	QFile::copy(format_path, QString::fromStdString(out_path));
 	PVRush::PVFormat format("org", QString::fromStdString(out_path));
 
 	int fd = open(out_path.c_str(), O_RDWR);

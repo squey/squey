@@ -95,6 +95,10 @@ void remove_common_folders(std::vector<std::string>& paths);
 
 size_t available_memory();
 
+#if __APPLE__
+int process_running_count(const std::string& process_name);
+#endif
+
 } // namespace PVCore
 
 #endif /* PVCORE_PVUTILS_H */

@@ -6,10 +6,13 @@ sources:
   url: sourceware:pub/binutils/releases/binutils-2.43.tar.xz
   ref: b53606f443ac8f01d1d5fc9c39497f2af322d99e14cea5c0b4b124d630379365
 
+(@): buildstream/elements/base/target.bst
+
 variables:
   target_flags_exceptions: ''
+  make-args: ''
   MAKEINFO: true
-  conf-local: >-
+  conf-global: >-
     CFLAGS="${CFLAGS}"
     --disable-nls
     --disable-multilib
@@ -45,11 +48,6 @@ config:
     - make -j1 DESTDIR="%{install-root}" install
 
 build-depends:
-- freedesktop-sdk.bst:bootstrap/build/gcc-stage2.bst
-- freedesktop-sdk.bst:bootstrap/build/debug-utils.bst
-- freedesktop-sdk.bst:bootstrap/gnu-config.bst
-- freedesktop-sdk.bst:bootstrap/zlib.bst
-- freedesktop-sdk.bst:bootstrap/elfutils.bst
 - freedesktop-sdk.bst:components/automake.bst
 - freedesktop-sdk.bst:components/bison.bst
 - freedesktop-sdk.bst:components/flex.bst
@@ -57,6 +55,5 @@ build-depends:
 - freedesktop-sdk.bst:components/gettext.bst
 - freedesktop-sdk.bst:components/texinfo.bst
 
-
 depends:
-- base.bst
+- sdk.bst

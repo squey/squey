@@ -13,8 +13,8 @@ find_package(Qt6Xml REQUIRED)
 include_directories(SYSTEM ${Qt6Xml_INCLUDE_DIRS})
 
 # For QOpenGLWidget
-find_package(Qt6OpenGL REQUIRED)
-include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
+# find_package(Qt6OpenGL REQUIRED)
+# include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
 
 # For QColor
 find_package(Qt6Gui REQUIRED)

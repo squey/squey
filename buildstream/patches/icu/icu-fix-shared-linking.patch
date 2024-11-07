@@ -1,0 +1,12 @@
+diff -ur icu.old/icu4c/source/config/mh-linux icu/icu4c/source/config/mh-linux
+--- icu4c.old/source/config/mh-linux	2019-03-09 23:27:27.039031271 +0100
++++ icu4c/source/config/mh-linux	2019-03-09 23:27:40.834903366 +0100
+@@ -23,7 +23,7 @@
+ LD_RPATH_PRE = -Wl,-rpath,
+ 
+ ## These are the library specific LDFLAGS
+-LDFLAGSICUDT=-nodefaultlibs -nostdlib
++LDFLAGSICUDT=
+ 
+ ## Compiler switch to embed a library name
+ # The initial tab in the next line is to prevent icu-config from reading it.

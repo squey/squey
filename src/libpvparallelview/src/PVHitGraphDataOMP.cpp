@@ -31,7 +31,7 @@
 #include <pvparallelview/PVHitGraphDataOMP.h>
 #include <pvparallelview/PVHitGraphSSEHelpers.h>
 
-#include <numa.h>
+//#include <numa.h>
 #include <omp.h>
 
 // Constants used by the OMP code

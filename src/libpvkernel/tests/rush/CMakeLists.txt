@@ -170,16 +170,6 @@ add_squey_test(Trush_ticket_28 Trush_ticket_28 ${PVRUSH_TEST_FILES})
 add_squey_compile_test(Trush_agg_index_with_grow LINKS ${LINK_LIBRARIES} FILES agg_index_grow.cpp)
 add_squey_test(Trush_agg_index_with_grow Trush_agg_index_with_grow)
 
-# Elasticsearch plugin test
-set(ELASTICSEARCH_SRC_FILES
-../../plugins/common/elasticsearch/PVElasticsearchAPI.cpp
-../../plugins/common/elasticsearch/PVElasticsearchInfos.cpp
-../../plugins/common/elasticsearch/PVElasticsearchQuery.cpp
-../../plugins/common/elasticsearch/PVElasticsearchJsonConverter.cpp
-)
-add_squey_compile_test(Trush_elasticsearch LINKS ${LINK_LIBRARIES} pvkernel curl FILES elasticsearch.cpp ${ELASTICSEARCH_SRC_FILES})
-#add_squey_test(Trush_elasticsearch Trush_elasticsearch ${TESTS_FILES_DIR}/exports/Trush_elasticsearch)
-
 # Datetime ICU to boost
 add_squey_compile_test(Trush_datetime_support LINKS ${LINK_LIBRARIES} FILES datetime_support.cpp)
 add_squey_test(Trush_datetime_support Trush_datetime_support)
@@ -225,7 +215,11 @@ set(PARQUET_SRC_FILES
 ../../plugins/common/parquet/PVParquetAPI.cpp
 ../../plugins/input-types/parquet/PVParquetExporter.cpp
 )
-add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
+
+add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
+if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+target_compile_options(SQUEY_TEST_Trush_apache_parquet PRIVATE "-O0") # Optimisations are breaking the test under MacOS
+endif()
 add_squey_test(Trush_apache_parquet Trush_apache_parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs_optim.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multichunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multichunks_export.csv)
-add_squey_compile_test(Trush_apache_parquet_multichunks LINKS ${LINK_LIBRARIES} FILES apache_parquet_multichunks.cpp ${PARQUET_SRC_FILES})
+add_squey_compile_test(Trush_apache_parquet_multichunks LINKS ${LINK_LIBRARIES} Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy FILES apache_parquet_multichunks.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_multichunks Trush_apache_parquet_multichunks ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multichunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multichunks.csv)

@@ -28,7 +28,10 @@
 #include <pvkernel/core/PVLogger.h> // for PVLOG_ERROR, PVLOG_WARN
 #include <pvbase/types.h> // for DECLARE_ALIGN
 #include <mm_malloc.h> // for posix_memalign
+
+#if __linux__
 #include <numa.h>      // for numa_alloc_interleaved, etc
+#endif
 #include <sys/mman.h>  // for mmap, madvise, munmap
 #include <cstddef>     // for size_t, ptrdiff_t
 #include <cstdint>     // for uintptr_t
@@ -199,57 +202,57 @@ class PVMMapAllocator
  * \todo Make this work under Windows (which has a different memory management system than Linux..
  *!)
  */
-template <class T>
-class PVNUMAHugePagedInterleavedAllocator
-{
-  public:
-	typedef T value_type;
-	typedef T* pointer;
-	typedef T& reference;
-	typedef const T* const_pointer;
-	typedef const T& const_reference;
-	typedef size_t size_type;
-	typedef ptrdiff_t difference_type;
-	template <class U>
-	struct rebind {
-		typedef PVNUMAHugePagedInterleavedAllocator<U> other;
-	};
+// template <class T>
+// class PVNUMAHugePagedInterleavedAllocator
+// {
+//   public:
+// 	typedef T value_type;
+// 	typedef T* pointer;
+// 	typedef T& reference;
+// 	typedef const T* const_pointer;
+// 	typedef const T& const_reference;
+// 	typedef size_t size_type;
+// 	typedef ptrdiff_t difference_type;
+// 	template <class U>
+// 	struct rebind {
+// 		typedef PVNUMAHugePagedInterleavedAllocator<U> other;
+// 	};
 
-  public:
-	pointer address(reference x) const { return &x; }
-	const_pointer address(const_reference x) const { return &x; }
+//   public:
+// 	pointer address(reference x) const { return &x; }
+// 	const_pointer address(const_reference x) const { return &x; }
 
-	pointer allocate(size_type n)
-	{
-		pointer mem;
+// 	pointer allocate(size_type n)
+// 	{
+// 		pointer mem;
 
-		mem = (pointer)numa_alloc_interleaved(sizeof(value_type) * n);
-		if (mem) {
-			if (madvise(mem, sizeof(value_type) * n, MADV_HUGEPAGE) < 0) {
-				PVLOG_WARN("can not set hugepage attribute.\n");
-			}
-		}
+// 		mem = (pointer)numa_alloc_interleaved(sizeof(value_type) * n);
+// 		if (mem) {
+// 			if (madvise(mem, sizeof(value_type) * n, MADV_HUGEPAGE) < 0) {
+// 				PVLOG_WARN("can not set hugepage attribute.\n");
+// 			}
+// 		}
 
-		return mem;
-	}
+// 		return mem;
+// 	}
 
-	void deallocate(pointer p, size_type n) { numa_free(p, n); }
+// 	void deallocate(pointer p, size_type n) { numa_free(p, n); }
 
-	size_type max_size() const throw()
-	{
-		// From TBB's scalable allocator
-		size_type absolutemax = static_cast<size_type>(-1) / sizeof(value_type);
-		return (absolutemax > 0 ? absolutemax : 1);
-	}
+// 	size_type max_size() const throw()
+// 	{
+// 		// From TBB's scalable allocator
+// 		size_type absolutemax = static_cast<size_type>(-1) / sizeof(value_type);
+// 		return (absolutemax > 0 ? absolutemax : 1);
+// 	}
 
-	template <class... U>
-	void construct(pointer p, U&&... val)
-	{
-		::new ((void*)p) value_type(std::forward<U>(val)...);
-	}
+// 	template <class... U>
+// 	void construct(pointer p, U&&... val)
+// 	{
+// 		::new ((void*)p) value_type(std::forward<U>(val)...);
+// 	}
 
-	void destroy(pointer p) { p->~value_type(); }
-};
+// 	void destroy(pointer p) { p->~value_type(); }
+// };
 
 /*! \brief C++ compliant allocator class that returns aligned pointers.
  *

@@ -102,17 +102,27 @@
         "*.inc": "cpp",
         "*.tbl": "cpp",
         "strstream": "cpp",
-        "text_encoding": "cpp"
+        "text_encoding": "cpp",
+        "generator": "cpp",
+        "print": "cpp",
+        "local_atomic": "cpp",
+        "string.h": "c",
+        "stdlib.h": "c",
+        "cassert": "cpp",
+        "*.ipp": "cpp"
     },
     "gotoSymbolStack.currentStackPosition": 0,
     "gotoSymbolStack.maxStackPosition": 0,
     "gotoSymbolStack.filePositionInfo": [],
-    "cmake.buildDirectory": "${workspaceFolder}/builds/${buildKitVendor}/${buildType}",
+    "cmake.buildDirectory": "${workspaceFolder}/builds/x86_64-linux-gnu/${buildKitVendor}/${buildType}",
     "cmake.configureArgs": [
         "-DCMAKE_CXX_COMPILER_LAUNCHER=ccache",
         "-DCMAKE_PREFIX_PATH=/app",
         "-DCMAKE_BUILD_TYPE=${buildType}",
         "-DCMAKE_INSTALL_PREFIX=/app"
     ],
-    "cmake.installPrefix": "/app"
+    "cmake.installPrefix": "/app",
+    "files.exclude": {
+        "Squey.app": true
+    }
 }

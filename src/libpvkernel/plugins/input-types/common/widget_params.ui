@@ -262,13 +262,6 @@
               </property>
              </widget>
             </item>
-            <item row="2" column="0" colspan="4">
-             <layout class="QGridLayout" name="_querybuilder_layout">
-              <property name="sizeConstraint">
-               <enum>QLayout::SetMaximumSize</enum>
-              </property>
-             </layout>
-            </item>
             <item row="3" column="0">
              <widget class="QLabel" name="_reference_label">
               <property name="text">

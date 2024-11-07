@@ -25,7 +25,7 @@
 
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/core/PVTextChunk.h>
-#include <bits/chrono.h>
+#include <chrono>
 #include <qtmetamacros.h>
 #include <stddef.h>
 #include <tbb/parallel_pipeline.h>
@@ -127,7 +127,8 @@ tbb::filter<void, void> PVRush::PVControllerJob::create_tbb_filter()
 
 		// Final output filter
 		tbb::filter<PVCore::PVTextChunk*, void> out_filter(
-		    tbb::filter_mode::parallel, [this](PVCore::PVTextChunk* chunk) { _out_filter(chunk); });
+			tbb::filter_mode::parallel,
+			[this](PVCore::PVTextChunk* chunk) { _out_filter(chunk); });
 
 		return filter & out_filter & pause_filter;
 	} else { // EChunkType::BINARY
@@ -142,7 +143,8 @@ tbb::filter<void, void> PVRush::PVControllerJob::create_tbb_filter()
 
 		// Final output filter
 		tbb::filter<PVCore::PVChunk*, void> out_filter(
-		    tbb::filter_mode::parallel, [this](PVCore::PVChunk* chunk) { _out_filter(chunk); });
+			tbb::filter_mode::parallel,
+			[this](PVCore::PVChunk* chunk) { _out_filter(chunk); });
 
 		return input_filter & out_filter & pause_filter;
 	}

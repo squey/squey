@@ -25,7 +25,7 @@
 #ifndef _PVSERIESRENDEREROFFSCREEN_H_
 #define _PVSERIESRENDEREROFFSCREEN_H_
 
-#include <pvparallelview/PVSeriesRendererOpenGL.h>
+//#include <pvparallelview/PVSeriesRendererOpenGL.h>
 
 #include <QOffscreenSurface>
 

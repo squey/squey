@@ -114,7 +114,9 @@ void PVCore::remove_common_folders(std::vector<std::string>& paths)
 	}
  }
 
- size_t PVCore::available_memory()
+#ifdef __linux__
+
+size_t PVCore::available_memory()
 {
     std::string token;
     std::ifstream file("/proc/meminfo");
@@ -131,4 +133,64 @@ void PVCore::remove_common_folders(std::vector<std::string>& paths)
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
     return 0; // Nothing found
+#elifdef __APPLE__
+
+#include <sys/types.h>
+#include <sys/sysctl.h>
+
+size_t PVCore::available_memory()
+{
+	int mib[2] = { CTL_HW, HW_MEMSIZE };
+    uint64_t mem = 0;
+    size_t len = sizeof(mem);
+
+    if (sysctl(mib, 2, &mem, &len, nullptr, 0) == 0) {
+        return mem * 1024;
+    } else {
+        perror("sysctl");
+        return 0;
+    }
+#else
+	static_assert(false, "__func__ not supported for this target.");
+#endif
 }
+
+#if __APPLE__
+
+#include <iostream>
+#include <string>
+#include <vector>
+#include <sys/sysctl.h>
+
+int PVCore::process_running_count(const std::string& process_name) {
+	int mib[4] = {CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0};
+    size_t buffer_size = 0;
+
+    // Get the size of the buffer needed to store process information
+    if (sysctl(mib, 4, nullptr, &buffer_size, nullptr, 0) == -1) {
+        perror("sysctl error");
+        return 0;
+    }
+
+    // Allocate the buffer and retrieve process information
+    std::vector<char> buffer(buffer_size);
+    if (sysctl(mib, 4, buffer.data(), &buffer_size, nullptr, 0) == -1) {
+        perror("sysctl error");
+        return 0;
+    }
+
+    // Iterate through processes to count matching names
+    struct kinfo_proc* process_list = reinterpret_cast<struct kinfo_proc*>(buffer.data());
+    size_t process_count = buffer_size / sizeof(struct kinfo_proc);
+    int instance_count = 0;
+
+    for (size_t i = 0; i < process_count; i++) {
+        std::string name = process_list[i].kp_proc.p_comm;
+        if (name == process_name) {
+            instance_count++;
+        }
+    }
+
+    return instance_count;
+}
+#endif

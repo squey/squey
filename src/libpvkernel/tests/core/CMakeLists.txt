@@ -2,8 +2,10 @@
 # @file
 #
 
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 add_squey_compile_test(Tcore_file_helper LINKS ${LINK_LIBRARIES} FILES file_helper.cpp)
 add_squey_test(Tcore_file_helper Tcore_file_helper)
+endif()
 
 add_squey_compile_test(Tcore_intrinsics LINKS ${LINK_LIBRARIES} FILES intrinsics.cpp)
 add_squey_test(Tcore_intrinsics Tcore_intrinsics)

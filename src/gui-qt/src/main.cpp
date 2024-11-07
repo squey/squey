@@ -44,7 +44,9 @@
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/squey_intrin.h>
+#ifdef __linux__
 #include <pvkernel/core/segfault_handler.h>
+#endif
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -63,7 +65,7 @@
 
 #include <boost/program_options.hpp>
 
-#include <QtWebEngineWidgets/QWebEngineView>
+//#include <QtWebEngineWidgets/QWebEngineView>
 
 // #ifdef USE_UNIKEY
 // #include <UniKeyFR.h>
@@ -273,7 +275,9 @@ int main(int argc, char* argv[])
 	setenv("TZ", "GMT", 1);
 	tzset();
 
+#ifdef __linux__
 	init_segfault_handler();
+#endif
 
 	// Set the soft limit same as hard limit for number of possible files opened
 	rlimit ulimit_info;
@@ -282,6 +286,11 @@ int main(int argc, char* argv[])
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
 
 	QApplication app(argc, argv);
+
+#ifdef __APPLE__
+	QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false);
+#endif
+
 	return run_squey(app, argc, argv);
 }
 //! [0]

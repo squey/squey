@@ -40,14 +40,16 @@
 #include <QDirIterator>
 #include <QTextEdit>
 #include <QTextStream>
-#include <QtWebEngineWidgets/QWebEngineView>
+//#include <QtWebEngineWidgets/QWebEngineView>
 #include <QDebug>
 
-#include <pvparallelview/PVSeriesRendererOffscreen.h>
+//#include <pvparallelview/PVSeriesRendererOffscreen.h>
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/core/PVTheme.h>
 
 #include <cassert>
+
+#include <boost/dll/runtime_symbol_info.hpp>
 
 static QString copying_dir()
 {
@@ -55,7 +57,12 @@ static QString copying_dir()
 	if (path) {
 		return path;
 	}
+#ifdef __APPLE__
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		return QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/COPYING";
+#else
 	return SQUEY_COPYING_DIR;
+#endif
 }
 
 class PVOpenSourceSoftwareWidget : public QWidget
@@ -107,7 +114,12 @@ class PVChangeLogWidget : public QWidget
 
 		layout->addWidget(changelog_text);
 
+#ifdef __APPLE__
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		QFile f(QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/CHANGELOG");
+#else
 		QFile f("/app/share/squey/squey/CHANGELOG");
+#endif
 		f.open(QFile::ReadOnly | QFile::Text);
 		QTextStream in(&f);
 		changelog_text->setText(in.readAll());
@@ -220,7 +232,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	_view3D_layout = new QHBoxLayout();
 
-	if (PVParallelView::egl_support() && false) { // Disabled for now as it crash with Qt 5.15.2
+	if (false /*PVParallelView::egl_support() && false*/) { // Disabled for now as it crash with Qt 5.15.2
 		// auto widget3d_maker = [this] {
 		// 	auto widget3d = new Qt3DExtras::Qt3DWindow();
 		// 	{
@@ -305,6 +317,11 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 
 	auto* ok = new QPushButton("OK");
 
+	auto* software_layout = new QVBoxLayout;
+	software_layout->addLayout(_view3D_layout);
+	software_layout->addWidget(_software_info_label);
+
+#ifdef __linux__
 	auto* crash = new QPushButton("&Crash ☠");
 	crash->setToolTip("Generates a crash of the application in order to test the crash reporter");
 	connect(crash, &QPushButton::clicked, [](){
@@ -313,13 +330,11 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
   		*a = 1;
 	});
 
-	auto* software_layout = new QVBoxLayout;
-	software_layout->addLayout(_view3D_layout);
-	software_layout->addWidget(_software_info_label);
 	QHBoxLayout* crash_layout = new QHBoxLayout;
 	crash_layout->addStretch();
 	crash_layout->addWidget(crash);
 	software_layout->addLayout(crash_layout);
+#endif
 
 	auto* tab_software = new QWidget;
 	tab_software->setLayout(software_layout);
@@ -356,14 +371,14 @@ void PVGuiQt::PVAboutBoxDialog::set_software_info_content()
 	content += EMAIL_ADDRESS_CONTACT;
 	content += "</a><br/><br/>";
 
-	if (PVParallelView::egl_support()) {
-		content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();
-		content += "<br/><b>EGL™ support:</b><br/>" + PVParallelView::egl_vendor();
-	} else {
-		content += "<br/>No EGL™/OpenGL® support; using software fallback";
-	}
-	if (auto openclver = PVOpenCL::opencl_version(); not openclver.empty()) {
-		content += "<br/><b>OpenCL™ support:</b><br/>";
+	//if (PVParallelView::egl_support()) {
+	//	content += "<br/><b>OpenGL® support:</b><br/>" + PVParallelView::opengl_version();
+	//	content += "<br/><b>EGL™ support:</b><br/>" + PVParallelView::egl_vendor();
+	//} else {
+	//	content += "<br/>No EGL™/OpenGL® support; using software fallback";
+	//}
+	if (auto [openclver, accel] = PVOpenCL::opencl_infos(); not openclver.empty()) {
+		content += QString("<br/><b>OpenCL™ support: %1</b><br/>").arg(accel ? "hardware": "software");
 		content += QString::fromStdString(openclver);
 	} else {
 		content += "<br/>No OpenCL™ support; using software fallback";

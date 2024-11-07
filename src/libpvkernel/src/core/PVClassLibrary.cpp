@@ -66,10 +66,15 @@ int PVCore::PVClassLibraryLibLoader::load_class_from_dir(QString const& pluginsd
 
 	// Set directory listing filters
 	QStringList filters;
+#if __APPLE__
+	filters << QString("*") + prefix + QString("_*.dylib");
+#else
 	filters << QString("*") + prefix + QString("_*.so");
+#endif
 	dir.setNameFilters(filters);
 
 	QStringList files = dir.entryList();
+
 	QStringListIterator filesIterator(files);
 	int count = 0;
 

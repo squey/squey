@@ -62,7 +62,6 @@
 
 #include "PVElasticsearchInfos.h"
 #include "PVElasticsearchQuery.h"
-#include "PVElasticsearchJsonConverter.h"
 #include "PVElasticsearchSAXParser.h"
 #include "pvcop/types/formatter/formatter_interface.h"
 #include "pvkernel/core/PVVersion.h"
@@ -391,39 +390,6 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 		                                        : mappings[_mapping_type.c_str()]["properties"],
 		                  f);
 	}
-}
-
-PVRush::PVElasticsearchAPI::querybuilder_columns_t PVRush::PVElasticsearchAPI::querybuilder_columns(
-    const std::string& filter_path /* = {} */, std::string* error /*= nullptr*/
-    ) const
-{
-	// type mapping between elasticsearch and querybuilder
-	static const std::unordered_map<std::string, std::string> types_mapping = {
-	    {"long", "integer"},  {"integer", "integer"}, {"short", "integer"},
-	    {"byte", "integer"},  {"double", "double"},   {"float", "double"},
-	    {"date", "datetime"}, {"text", "string"},     {"keyword", "string"}};
-	auto map_type = [&](const std::string& type) -> std::string {
-		const auto& it = types_mapping.find(type);
-		if (it != types_mapping.end()) {
-			return it->second;
-		} else {
-			// fallback type for unknown types
-			return "string";
-		}
-	};
-
-	querybuilder_columns_t cols;
-
-	visit_columns(
-	    [&](const std::string& /*rel_name*/, const std::string& abs_name, const std::string& type,
-	        bool is_leaf, bool /*is_last_child*/) {
-		    if (is_leaf) {
-			    cols.emplace_back(abs_name, map_type(type));
-		    }
-	    },
-	    filter_path, error);
-
-	return cols;
 }
 
 PVRush::PVElasticsearchAPI::columns_t PVRush::PVElasticsearchAPI::format_columns(
@@ -953,12 +919,6 @@ bool PVRush::PVElasticsearchAPI::clear_scroll()
 	return res;
 }
 
-std::string PVRush::PVElasticsearchAPI::rules_to_json(const std::string& rules) const
-{
-	PVElasticSearchJsonConverter esc(_version, rules);
-	return esc.rules_to_json();
-}
-
 std::string PVRush::PVElasticsearchAPI::sql_to_json(const std::string& sql,
                                                     std::string* error /* = nullptr */) const
 {
@@ -1022,9 +982,9 @@ bool PVRush::PVElasticsearchAPI::is_sql_available() const
 
 bool PVRush::PVElasticsearchAPI::init_scroll(CURL* curl,
                                              const PVRush::PVElasticsearchQuery& query,
-                                             const size_t slice_id,
-                                             const size_t slice_count,
-                                             const size_t max_result_window,
+                                             const uint64_t slice_id,
+                                             const uint64_t slice_count,
+                                             const uint64_t max_result_window,
                                              std::string& json_buffer,
                                              std::string* error /* = nullptr */)
 {

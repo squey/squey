@@ -22,3 +22,4 @@ depends:
 - freedesktop-sdk.bst:components/glib.bst
 - freedesktop-sdk.bst:components/libgcrypt.bst
 - libmaxminddb.bst
+

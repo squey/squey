@@ -36,7 +36,7 @@
 #include <QKeyEvent>
 #include <QFile>
 #include <QString>
-#include <QWebEngineView>
+#include <QTextBrowser>
 
 #include "pvkernel/widgets/PVPopupWidget.h"     // for PVPopupWidget
 #include "pvkernel/widgets/PVTextPopupWidget.h" // for PVTextPopupWidget, etc
@@ -85,11 +85,11 @@ PVWidgets::PVTextPopupWidget::PVTextPopupWidget(QWidget* parent)
 	l->setContentsMargins(0, 0, 0, 0);
 	setLayout(l);
 
-	_webview = new QWebEngineView();
+	_webview = new QTextBrowser();
 
-	// no need for "reload" context menu
-	_webview->setContextMenuPolicy(Qt::NoContextMenu);
-	_webview->setHtml(DEFAULT_HTML_TEXT);
+	// // no need for "reload" context menu
+	// _webview->setContextMenuPolicy(Qt::NoContextMenu);
+	_webview->setText(DEFAULT_HTML_TEXT);
 	l->addWidget(_webview);
 
 	connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this, &PVWidgets::PVTextPopupWidget::refresh_theme);
@@ -133,7 +133,7 @@ QString PVWidgets::PVTextPopupWidget::get_style()
 
 void PVWidgets::PVTextPopupWidget::setText(const QString& text)
 {
-	_webview->setHtml(text);
+	_webview->setText(text);
 }
 
 /*****************************************************************************
@@ -224,11 +224,11 @@ void PVWidgets::PVTextPopupWidget::finalizeText()
 	_temp_text += "</body>\n</html>";
 	setText(_temp_text.arg(get_style()));
 
-#if 0
+#if 1
 	//RH: may be usefull to dump the constructed
 	QFile file("aa.html");
 	if (file.open(QIODevice::WriteOnly)) {
-		file.write(_temp_text.toLocal8Bit ());
+		file.write(_temp_text.arg(get_style()).toLocal8Bit());
 	}
 	file.close();
 #endif

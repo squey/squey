@@ -61,7 +61,7 @@ class PVMappingFilterTimeWeek : public PVMappingFilter
 #pragma omp parallel for
 			for (size_t row = 0; row < array.size(); row++) {
 				tm local_tm;
-				const time_t t = static_cast<time_t>(core_array[row]);
+				const uint64_t t = static_cast<uint64_t>(core_array[row]);
 				pvcop::types::formatter_datetime::gmtime_r(&t, &local_tm);
 
 				dest_array[row] =

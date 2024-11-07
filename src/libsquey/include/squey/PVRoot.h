@@ -27,7 +27,9 @@
 
 #include <squey/PVCorrelationEngine.h> // for PVCorrelationEngine
 #include <squey/PVScene.h>             // for PVScene
+#ifdef PYTHON_SUPPORT
 #include <squey/PVPythonInterpreter.h>
+#endif
 
 #include <pvkernel/core/PVDataTreeObject.h> // for PVDataTreeParent
 #include <pvkernel/core/PVSerializeObject.h>

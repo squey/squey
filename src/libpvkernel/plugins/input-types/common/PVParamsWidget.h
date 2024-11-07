@@ -40,11 +40,6 @@
 
 #include <QTextStream>
 
-namespace PVWidgets
-{
-class PVQueryBuilder;
-}
-
 namespace PVRush
 {
 
@@ -124,7 +119,6 @@ class PVParamsWidgetBase : public QDialog, protected Ui::WidgetParams
 	QSettings _settings;
 	int64_t _last_load_preset;
 	PVInputType const* _in_t;
-	PVWidgets::PVQueryBuilder* _querybuilder = nullptr;
 	QDomDocument _custom_format;
 };
 

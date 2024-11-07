@@ -5,7 +5,6 @@ description: |
 
 sources:
 - kind: tar
-
   url: github:nodejs/node/archive/refs/tags/v22.8.0.tar.gz
   ref: cce84db6209366d35a9bffddd25294d97a3432c04f14e06ade7617d585073c7f
 

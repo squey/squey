@@ -24,8 +24,8 @@ find_package(Qt6Widgets REQUIRED)
 include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
 
 # For QGLWidget
-find_package(Qt6OpenGL REQUIRED)
-include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
+# find_package(Qt6OpenGL REQUIRED)
+# include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
 
 # For KSyntaxHighlighting
 find_package(KF6SyntaxHighlighting REQUIRED)

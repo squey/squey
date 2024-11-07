@@ -72,9 +72,7 @@ PVDisplayViewDistinctValues.cpp
 PVDisplayViewGroupBy.cpp
 PVDisplayViewLayerStack.cpp
 PVDisplayViewListing.cpp
-PVDisplayViewPythonConsole.cpp
 PVDisplayViewFilters.cpp
-PVProgressBoxPython.cpp
 )
 
 SET(LIBGUIQT_MOC_HEADERS
@@ -103,7 +101,6 @@ SET(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVAboutBoxDialog.h
 ../include/pvguiqt/PVPythonScriptWidget.h
 ../include/pvguiqt/PVPythonCodeEditor.h
-../include/pvguiqt/PVProgressBoxPython.h
 ../include/pvguiqt/PVDockWidgetTitleBar.h
 ../include/pvguiqt/PVStatusBar.h
 ../include/pvguiqt/PVErrorsAndWarnings.h
@@ -124,6 +121,16 @@ SET(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/format-builder/PVXmlTimeValidatorHighLight.h
 ../include/pvguiqt/format-builder/PVOptionsWidget.h
 )
+
+if (PYTHON_SUPPORT)
+	set(LIBGUIQT_SRC_FILES ${LIBGUIQT_SRC_FILES}
+	PVProgressBoxPython.cpp
+	PVDisplayViewPythonConsole.cpp
+	)
+	set(LIBGUIQT_MOC_HEADERS ${LIBGUIQT_MOC_HEADERS}
+	../include/pvguiqt/PVProgressBoxPython.h
+	)
+endif()
 
 SET(UI_FILES
 PVAxesCombinationWidget.ui
@@ -153,10 +160,10 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES}
 
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6OpenGL)
+set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets)
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays pvsquey pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} ${OPENGL_LIBRARIES}
-	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${QT6_LIBS} KF6::SyntaxHighlighting)
+set(PVGUIQT_LINK_LIBRARIES pvdisplays pvsquey pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} 
+	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${QT6_LIBS} KF6::SyntaxHighlighting)
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
 

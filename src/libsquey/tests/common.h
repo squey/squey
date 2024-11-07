@@ -49,11 +49,17 @@ namespace pvtest
  *
  * @warning, It can be use between this call and your creation.
  */
+
 std::string get_tmp_filename()
 {
 	char buffer[L_tmpnam];
-	return tmpnam(buffer);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+	std::string tmp_filename = tmpnam(buffer);
+#pragma GCC diagnostic pop
+	return tmp_filename;
 }
+
 
 enum class ProcessUntil { Source, Mapped, Scaled, View };
 

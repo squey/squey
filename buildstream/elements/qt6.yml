@@ -1,0 +1,123 @@
+description: |
+    Qt is the faster, smarter way to create innovative devices, modern UIs & applications for multiple screens. Cross-platform software development at its best.
+
+sources:
+- kind: tar
+  url: qt:archive/qt/6.8/6.8.0/single/qt-everywhere-src-6.8.0.tar.xz
+  ref: 70f1a87c6ecc6c108dec6e9389e564f8798bd48bec4c596f28d0564c1dbbc2c6
+
+- kind: patch
+  path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
+  strip-level: 1
+  
+- kind: patch
+  path: buildstream/patches/qt6/Fix-rectangle-intersection-issue-because-of-floating.patch
+  strip-level: 1
+
+variables:
+  cmake-local: >-
+    -DCMAKE_INSTALL_PREFIX=%{prefix}
+    -DINSTALL_LIBDIR=%{libdir}
+    -DINSTALL_ARCHDATADIR=%{libdir}/qt6
+    -DINSTALL_DATADIR=%{prefix}/share/qt6
+    -DINSTALL_DOCDIR=%{prefix}/share/doc/qt6
+    -DINSTALL_SYSCONFDIR=%{prefix}/etc/xdg
+    -DINSTALL_INCLUDEDIR=%{includedir}/qt6
+    -DINSTALL_PLUGINSDIR=%{libdir}/qt6/plugins
+    %{qt-crossplatform-options}
+    -DQT_BUILD_EXAMPLES=FALSE
+    -DQT_BUILD_TESTS=FALSE
+    -DBUILD_qt3d=OFF
+    -DBUILD_qtquick3d=OFF
+    -DBUILD_qtquick3dphysics=OFF
+    -DBUILD_qtcanvas3d=OFF
+    -DBUILD_qtandroidextras=OFF
+    -DBUILD_qtconnectivity=OFF
+    -DBUILD_qtdatavis3d=OFF
+    -DBUILD_qtdoc=OFF
+    -DBUILD_qtlocation=OFF
+    -DBUILD_qtmacextras=OFF
+    -DBUILD_qtmultimedia=OFF
+    -DBUILD_qtopcua=OFF
+    -DBUILD_qtgamepad=OFF
+    -DBUILD_qtpurchasing=OFF
+    -DBUILD_qtsensors=OFF
+    -DBUILD_qtserialbus=OFF
+    -DBUILD_qtserialport=OFF
+    -DBUILD_qtspeech=OFF
+    -DBUILD_qtvirtualkeyboard=OFF
+    -DBUILD_qtgraphs=OFF
+    -DFEATURE_renameat2=OFF
+    -DFEATURE_getentropy=OFF
+    -DFEATURE_webengine_geolocation=OFF
+    -DFEATURE_webengine_kerberos=OFF
+    -DFEATURE_webengine_pepper_plugins=OFF
+    -DFEATURE_webengine_printing_and_pdf=OFF
+    -DFEATURE_webengine_spellchecker=OFF
+    -DFEATURE_webengine_webrtc=OFF
+    -DFEATURE_webengine_webrtc_pipewire=OFF
+    -DFEATURE_webengine_developer_build=OFF
+    -DFEATURE_webengine_full_debug_info=OFF
+    -DFEATURE_webengine_native_spellchecker=OFF
+    -DFEATURE_webengine_system_minizip=OFF
+    -DFEATURE_sql_sqlite=ON
+    -DFEATURE_sql_mysql=OFF
+    -DFEATURE_accessibility=ON
+    -DFEATURE_system_proxies=ON
+    -DFEATURE_webengine_proprietary_codecs=OFF
+    -DFEATURE_glib=OFF
+    -DFEATURE_cups=OFF
+    -DFEATURE_appstore_compliant=ON
+    -DFEATURE_cxx20=ON
+    -DFEATURE_printsupport=OFF
+    -DFEATURE_clock_gettime=OFF
+    -DFEATURE_posix_shm=OFF
+    -DFEATURE_posix_sem=OFF
+    -DFEATURE_framework=OFF
+    -DFEATURE_zstd=ON
+    -DFEATURE_filesystem=OFF
+    -DQT_FEATURE_pdf=OFF
+    -DINPUT_release_tools=yes
+    -DBUILD_qttools=ON
+    -DBUILD_qttranslations=OFF
+    -DINPUT_openssl=on
+    -DINPUT_opengl=no
+    -DINPUT_bundled_xcb_xinput=yes
+
+environment:
+  OPENSSL_LIBS: "-L/%{libdir}/lib -lssl -lcrypto"
+  PYTHONPATH: "/usr/lib/python3.12/site-packages:/%{libdir}/python3.12/site-packages"
+
+build-depends:
+- freedesktop-sdk.bst:components/python3.bst
+
+depends:
+- freedesktop-sdk.bst:components/brotli.bst
+- freedesktop-sdk.bst:components/perl.bst
+- freedesktop-sdk.bst:components/which.bst
+- freedesktop-sdk.bst:components/giflib.bst
+- freedesktop-sdk.bst:components/glib.bst
+- freedesktop-sdk.bst:components/icu.bst
+- freedesktop-sdk.bst:bootstrap/pcre2.bst
+- freedesktop-sdk.bst:components/sqlite.bst
+- freedesktop-sdk.bst:components/dbus.bst
+- freedesktop-sdk.bst:components/fontconfig.bst
+- freedesktop-sdk.bst:components/freetype.bst
+- freedesktop-sdk.bst:components/gtk3.bst
+- freedesktop-sdk.bst:components/harfbuzz.bst
+- freedesktop-sdk.bst:components/vulkan-headers.bst
+- freedesktop-sdk.bst:components/xcb-util.bst
+- freedesktop-sdk.bst:components/xcb-util-cursor.bst
+- freedesktop-sdk.bst:components/xcb-util-image.bst
+- freedesktop-sdk.bst:components/xcb-util-keysyms.bst
+- freedesktop-sdk.bst:components/xcb-util-renderutil.bst
+- freedesktop-sdk.bst:components/xcb-util-wm.bst
+- freedesktop-sdk.bst:components/xorg-lib-xcb.bst
+- freedesktop-sdk.bst:components/xorg-lib-xrender.bst
+- freedesktop-sdk.bst:components/xorg-lib-xrandr.bst
+- freedesktop-sdk.bst:components/xorg-lib-xfixes.bst
+- freedesktop-sdk.bst:components/xorg-lib-xext.bst
+- freedesktop-sdk.bst:components/xorg-lib-x11.bst
+- freedesktop-sdk.bst:components/xorg-lib-xinerama.bst
+- freedesktop-sdk.bst:components/libxkbcommon.bst
+- freedesktop-sdk.bst:components/libglvnd.bst

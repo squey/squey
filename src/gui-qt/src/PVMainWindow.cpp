@@ -64,7 +64,9 @@
 
 #include <pvparallelview/PVParallelView.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
+#ifdef PYTHON_SUPPORT
 #include <pvguiqt/PVProgressBoxPython.h>
+#endif
 #include <pvguiqt/PVStatusBar.h>
 
 #include <pvparallelview/PVZoneTree.h>
@@ -1023,6 +1025,7 @@ void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_i
 				python_script + tr(" is missing"), QMessageBox::Ok);
 		}
 		else {
+#ifdef PYTHON_SUPPORT
 			QString exception_message;
 			Squey::PVPythonInterpreter& python_interpreter = Squey::PVPythonInterpreter::get(_root);
 			PVCore::PVProgressBox::CancelState cancel_state = PVGuiQt::PVProgressBoxPython::progress([&](PVCore::PVProgressBox& pbox) {
@@ -1038,6 +1041,7 @@ void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_i
 			if (cancel_state == PVCore::PVProgressBox::CancelState::CONTINUE and not exception_message.isEmpty()) {
 				QMessageBox::critical(this, "Error while executing Python script", exception_message , QMessageBox::Ok);
 			}
+#endif
 		}
 	}
 }

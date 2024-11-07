@@ -184,7 +184,7 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Squey::PVView& view)
 	bool overwritten = false;
 	for (int i = 0; i < layerstack.get_layer_count(); i++) {
 		files_path.emplace_back((dirname + "/" + layerstack.get_layer_n(i).get_name() + export_dialog.file_extension()).toStdString());
-		overwritten |= std::filesystem::exists(files_path.back());
+		overwritten |= QFile::exists(QString::fromStdString(files_path.back()));
 	}
 	if (overwritten) {
 		if (QMessageBox::warning(

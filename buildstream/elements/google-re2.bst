@@ -8,10 +8,20 @@ sources:
   url: github:google/re2/archive/refs/tags/2024-07-02.tar.gz
   ref: eb2df807c781601c14a260a507a5bb4509be1ee626024cb45acbd57cb9d4032b
 
-variables:
-  cmake-local: |
-    -DCMAKE_CXX_FLAGS="-fPIC"
+(@): buildstream/elements/base/target.bst
 
-depends:
-- base.bst
-- freedesktop-sdk.bst:components/abseil-cpp.bst
+variables:
+  cmake-local: >-
+    -DCMAKE_CXX_FLAGS="-fPIC"
+    -DBUILD_SHARED_LIBS=ON
+
+build-depends:
+  - sdk.bst
+
+(?):
+  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+      depends:
+        - abseil-cpp.bst
+  - target_triple == "x86_64-linux-gnu":
+      depends:
+        - freedesktop-sdk.bst:components/abseil-cpp.bst

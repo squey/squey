@@ -7,10 +7,12 @@ sources:
 - kind: git
   url: gitlab:squey/breakpad
   ref: d6893d1b875da0ef88b6de24f60a9940ffd32380
+
+(@): buildstream/elements/base/target.bst
     
 environment:
   CXXFLAGS: "-std=c++20"
 
-depends:
-- base.bst
+build-depends:
+- sdk.bst
 - freedesktop-sdk.bst:components/python3.bst

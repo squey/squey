@@ -242,7 +242,7 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 				data = convert_time64(column_array, _values[i].data());
 			}
 
-			// handle null values for single input (optimized)
+			// handle null values (optimized)
 			if (is_bit_optimizable and column_array->null_count() > 0) {
 				const uint8_t* null_bitmap_data = column_array->null_bitmap_data();
 				constexpr const int digits = std::numeric_limits<uint8_t>::digits;
@@ -262,16 +262,20 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 			set_raw_column_chunk(PVCol(i+multi_inputs), _values[i].data(), row_count, t.size_in_bytes, t.string);
 		}
 
-		// handle null values for multi inputs (not optimized)
+		// handle null values (not optimized)
 		if (not is_bit_optimizable) {
 			for (size_t i = 0 ; i < column_indexes.size(); i++) {
-				const size_t column_index = column_indexes[i];
-				const std::shared_ptr<arrow::Array>& column_array = table->column(column_index)->chunk(0);
+				const size_t col = column_indexes[i];
+				const std::shared_ptr<arrow::Array>& column_array = table->column(col)->chunk(0);
 				if (column_array->null_count() > 0) {
-					set_invalid_column(PVCol(i+1));
-					for (PVRow j = 0; j < column_array->length(); ++j) {
-						if (column_array->IsNull(j)) {
-							set_invalid(PVCol(i+1), j);
+					set_invalid_column(PVCol(i+multi_inputs));
+					//pvlogger::fatal() << "column(" << col << ")->length()=" << column_array->length() << std::endl;
+					for (PVRow row = 0; row < column_array->length(); ++row) {
+						if (column_array->IsNull(row)) {
+							// if (col == 0) {
+							// 	pvlogger::fatal() << "input_index=" << input_index << " set_invalid(" << row << ")" << std::endl;
+							// }
+							set_invalid(PVCol(i+multi_inputs), row);
 						}
 					}
 				}

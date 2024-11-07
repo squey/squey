@@ -76,28 +76,25 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
 		    PVInputDescription_p(new PVFileDescription(filename, filenames.size() > 1)));
 	}
 
-	if (inputs.size() >= _limit_nfds - 200) {
-		ssize_t nopen = _limit_nfds - 200;
-		if (nopen <= 0) {
-			nopen = 1;
-		}
-		QString msg =
-		    QObject::tr("You are trying to open %1 files, and your system limits a user to open %2 "
-		                "file descriptor at once.\nConsidering the needs of the application, this "
-		                "value must be set to a higher value. In order to change this limit, edit "
-		                "/etc/security/limits.conf and add the following lines:")
-		        .arg(inputs.size())
-		        .arg(_limit_nfds);
-		msg += "\n\n*\tsoft\tnofile\t131070\n*\thard\tnofile\t131070\n\n";
-		msg += QObject::tr("You can set 131070 to a bigger value if needed. Then, you need to "
-		                   "logout and login for these changes to be effectives.");
-		msg += "\n\n";
-		msg += QObject::tr("Only the first %1 file(s) will be opened.").arg(nopen);
-		QMessageBox err(QMessageBox::Warning, QObject::tr("Too many files selected"), msg,
-		                QMessageBox::Ok, parent);
-		err.exec();
-		inputs.erase(inputs.begin() + nopen + 1, inputs.end());
-	}
+	// if ((uint64_t)inputs.size() >= (uint64_t)_limit_nfds - 200) {
+	// 	uint64_t nopen = (uint64_t)_limit_nfds - 200;
+	// 	QString msg =
+	// 	    QObject::tr("You are trying to open %1 files, and your system limits a user to open %2 "
+	// 	                "file descriptor at once.\nConsidering the needs of the application, this "
+	// 	                "value must be set to a higher value. In order to change this limit, edit "
+	// 	                "/etc/security/limits.conf and add the following lines:")
+	// 	        .arg(inputs.size())
+	// 	        .arg(_limit_nfds);
+	// 	msg += "\n\n*\tsoft\tnofile\t131070\n*\thard\tnofile\t131070\n\n";
+	// 	msg += QObject::tr("You can set 131070 to a bigger value if needed. Then, you need to "
+	// 	                   "logout and login for these changes to be effectives.");
+	// 	msg += "\n\n";
+	// 	msg += QObject::tr("Only the first %1 file(s) will be opened.").arg(nopen);
+	// 	QMessageBox err(QMessageBox::Warning, QObject::tr("Too many files selected"), msg,
+	// 	                QMessageBox::Ok, parent);
+	// 	err.exec();
+	// 	inputs.erase(inputs.begin() + nopen + 1, inputs.end());
+	// }
 
 	return inputs.size() > 0;
 }

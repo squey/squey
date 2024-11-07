@@ -62,8 +62,8 @@ build testsuite:
     - ./build.sh 
         --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
         --branch="${CI_COMMIT_REF_NAME}" 
-        --flatpak-export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
-        --flatpak-repo="/srv/flatpak_repo" 
+        --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
+        --export-dir="/srv/flatpak_repo" 
         --code-coverage=$CODE_COVERAGE 
         --push-artifacts="${PUSH_ARTIFACTS}"
   coverage: '/lines\.+: (\d+\.\d+)% \(\d+ of \d+ lines\)/'
@@ -85,8 +85,8 @@ build release:
       --user-target=customer 
       --cxx-compiler=clang++ 
       --branch="${CI_COMMIT_REF_NAME}" 
-      --flatpak-export=true 
-      --flatpak-repo="$CI_PROJECT_DIR/public/flatpak" 
+      --export=true 
+      --export-dir="$CI_PROJECT_DIR/public/flatpak" 
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
       --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
       --upload-debug-symbols=true 

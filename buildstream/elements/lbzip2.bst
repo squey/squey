@@ -13,8 +13,10 @@ sources:
   path: buildstream/patches/lbzip2/lbzip2-2.5-glibc-2.28.patch
   strip-level: 1
 
+(@): buildstream/elements/base/target.bst
+
 depends:
-- base.bst
+- sdk.bst
 - freedesktop-sdk.bst:bootstrap-import.bst
 - freedesktop-sdk.bst:bootstrap/coreutils.bst
 - freedesktop-sdk.bst:bootstrap/glibc.bst

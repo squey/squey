@@ -26,7 +26,7 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <qflags.h>
-#include <cstdlib> // for mkdtemp
+#include <unistd.h> // for mkdtemp
 #include <QByteArray>
 #include <QDir>
 #include <QFile>

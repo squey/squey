@@ -43,7 +43,9 @@
 #include <squey/PVMapped.h>
 #include <squey/PVScaled.h>
 #include <squey/PVView.h>
+#ifdef PYTHON_SUPPORT
 #include <squey/PVPythonInterpreter.h>
+#endif
 
 #include <cstdlib>
 #include <iostream>
@@ -74,12 +76,14 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	Squey::PVView* view = env.root.current_view();
 
 	// Execute Python script if any
+#ifdef PYTHON_SUPPORT
 	bool is_path, disabled;
 	Squey::PVSource& src = view->get_parent<Squey::PVSource>();
 	QString python_script = src.get_original_format().get_python_script(is_path, disabled);
 	if (is_path) {
-		python_script.insert(0, (std::filesystem::current_path().string() + "/").c_str());
+		python_script.insert(0, (QDir::currentPath().toStdString() + "/").c_str());
 	}
+
 	if (not disabled and not python_script.isEmpty()) {
 		if (is_path and not QFileInfo(python_script).exists()) {
 			assert(false && "Missing Python script");
@@ -89,6 +93,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 			python_interpreter.execute_script(python_script.toStdString(), is_path);
 		}
 	}
+#endif
 
 	// Export selection to temporary file
 	Squey::PVSelection sel(view->get_row_count());

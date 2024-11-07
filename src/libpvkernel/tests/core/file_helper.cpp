@@ -29,6 +29,8 @@
 #include <iostream>
 #include <cstdio>
 
+#include <pvlogger.h>
+
 #define FILENAME                                                                                   \
 	"test_file_helper.test" // won't work on tmpfs, see https://lkml.org/lkml/2008/4/29/602
 
@@ -38,6 +40,7 @@ int main()
 	PV_VALID(PVCore::PVFileHelper::is_already_opened(FILENAME), false);
 
 	FILE* fp = fopen(FILENAME, "wt");
+	pvlogger::info() << "fp=" << fp << std::endl;
 
 	std::cout << "testing for an already opened file" << std::endl;
 	PV_VALID(PVCore::PVFileHelper::is_already_opened(FILENAME), true);

@@ -52,9 +52,9 @@ add_squey_test(Trendering_pipeline_base Trendering_pipeline_base 1000)
 add_bench(rendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)
 
 #GL Timeseries
-add_squey_compile_test(Tgl_timeseries LINKS ${LINK_LIBRARIES} Qt6OpenGL FILES gl_timeseries.cpp)
-#add_squey_test(Tgl_timeseries Tgl_timeseries)
-add_bench(gl_timeseries LINKS ${LINK_LIBRARIES} FILES gl_timeseries.cpp)
+# add_squey_compile_test(Tgl_timeseries LINKS ${LINK_LIBRARIES} Qt6OpenGL FILES gl_timeseries.cpp)
+# #add_squey_test(Tgl_timeseries Tgl_timeseries)
+# add_bench(gl_timeseries LINKS ${LINK_LIBRARIES} FILES gl_timeseries.cpp)
 
 add_squey_compile_test(Tseries_zoomer LINKS ${LINK_LIBRARIES} FILES series_zoomer.cpp)
 #add_squey_test(Tseries_zoomer Tseries_zoomer)

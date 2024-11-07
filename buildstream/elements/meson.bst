@@ -13,12 +13,14 @@ sources:
   - '*rc*'
   ref: 6f88e485f27bb0a41d31638f0c55055362e0b1ac
 
+(@): buildstream/elements/base/target.bst
+
 build-depends:
-- base.bst
+- sdk.bst
 - freedesktop-sdk.bst:components/python3-setuptools.bst
 - freedesktop-sdk.bst:components/python3-build.bst
 - freedesktop-sdk.bst:components/python3-wheel.bst
 - freedesktop-sdk.bst:components/python3-installer.bst
 
-depends:
+runtime-depends:
 - freedesktop-sdk.bst:components/python3.bst

@@ -30,6 +30,8 @@
 #include <QImage>
 #include <QPixmap>
 
+#include <mutex>
+
 namespace PVParallelView
 {
 

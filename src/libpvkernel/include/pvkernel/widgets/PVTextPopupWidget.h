@@ -30,7 +30,7 @@
 
 #include <QString>
 
-class QWebEngineView;
+class QTextBrowser;
 class QPaintEvent;
 
 namespace PVWidgets
@@ -189,7 +189,7 @@ class PVTextPopupWidget : public PVPopupWidget
 	QString get_style();
 
   private:
-	QWebEngineView* _webview;
+	QTextBrowser* _webview;
 	QWidget* _last_widget;
 	QString _temp_text;
 	int _last_align;

@@ -26,6 +26,9 @@
 #include <string>
 
 #include <squey/plugins.h>
+#include <cstdlib>
+
+#include <boost/dll/runtime_symbol_info.hpp>
 
 static std::string get_squey_plugins_path()
 {
@@ -33,7 +36,12 @@ static std::string get_squey_plugins_path()
 	if (path) {
 		return path;
 	}
+#ifdef __APPLE__
+	boost::filesystem::path exe_path = boost::dll::program_location();
+	return exe_path.parent_path().string() + "/../PlugIns";
+#else
 	return SQUEY_PLUGIN_PATH;
+#endif
 }
 
 std::string squey_plugins_get_layer_filters_dir()

@@ -25,8 +25,8 @@
 
 #include <pvparallelview/PVSeriesView.h>
 
-#include <pvparallelview/PVSeriesRendererOffscreen.h>
-#include <pvparallelview/PVSeriesRendererOpenGL.h>
+//#include <pvparallelview/PVSeriesRendererOffscreen.h>
+//#include <pvparallelview/PVSeriesRendererOpenGL.h>
 #include <pvparallelview/PVSeriesRendererQPainter.h>
 
 #include <cassert>
@@ -44,8 +44,6 @@ namespace PVParallelView
 	}
 
 #define CASELIST_BACKEND(...)                                                                      \
-	CASE_BACKEND(Backend::OffscreenOpenGL, PVSeriesRendererOffscreen, __VA_ARGS__)                 \
-	CASE_BACKEND(Backend::OpenGL, PVSeriesRendererOpenGL, __VA_ARGS__)                             \
 	CASE_BACKEND(Backend::QPainter, PVSeriesRendererQPainter, __VA_ARGS__)
 
 #define CASE_BACKEND(backend, Renderer, ...)                                                       \

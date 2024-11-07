@@ -11,9 +11,6 @@
 #########################################################################
 set(CORE_SRC_FILES
 core/network.cpp
-core/squey_intrin.cpp
-core/sse4detector.cpp
-core/segfault_handler.cpp
 core/serialize_numbers.cpp
 
 core/PVArchive.cpp
@@ -45,11 +42,16 @@ core/PVRecentItemsManager.cpp
 core/PVConfig.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp
-core/PVQueryBuilderJsonConverter.cpp
 core/PVStreamingCompressor.cpp
 core/PVVersion.cpp
 core/PVTheme.cpp
 )
+
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	set(CORE_SRC_FILES ${CORE_SRC_FILES}
+		core/segfault_handler.cpp
+	)
+endif()
 
 SET(CORE_MOC_HEADERS
 ../include/pvkernel/core/PVProgressBox.h
@@ -177,7 +179,6 @@ set(WIDGETS_MOC_HEADERS
 
 ../include/pvkernel/widgets/editors/PVPercentRangeEditor.h
 
-../include/pvkernel/widgets/PVQueryBuilder.h
 ../include/pvkernel/widgets/PVLongLongSpinBox.h
 ../include/pvkernel/widgets/PVExportDlg.h
 ../include/pvkernel/widgets/PVCSVExporterWidget.h
@@ -211,7 +212,6 @@ widgets/PVTextPopupWidget.cpp
 widgets/PVHelpWidget.cpp
 widgets/PVAbstractRangePicker.cpp
 widgets/PVLayerNamingPatternDialog.cpp
-widgets/PVQueryBuilder.cpp
 widgets/PVLongLongSpinBox.cpp
 widgets/PVFileDialog.cpp
 widgets/PVExportDlg.cpp
@@ -243,18 +243,22 @@ add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
 # Define third_party libs we have to link with for the library
-set(QT6_LIBS Qt6Core Qt6OpenGL Qt6Widgets Qt6Gui Qt6Xml Qt6DBus)
+set(QT6_LIBS Qt6Core Qt6Widgets Qt6Gui Qt6Xml Qt6DBus)
 find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
 
-set(QT6_LIBS ${QT6_LIBS} Qt6WebEngineWidgets Qt6WebEngineCore)
+set(QT6_LIBS ${QT6_LIBS})
 
 set(PVKERNEL_LINK_LIBRARIES ${QT6_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 	${OpenMP_LIBRARIES} ${Boost_LIBRARIES}
-	${ARCHIVE_LIBRARIES} ${BREAKPAD_LIBRARIES} ${WINSOCK_LIB} ${HWLOC_LIBRARIES}
-	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES} ${Python_LIBRARIES} Qt6::Core5Compat Arrow::arrow_shared Parquet::parquet_shared thrift)
+	${ARCHIVE_LIBRARIES} ${BREAKPAD_LIBRARIES} ${WINSOCK_LIB} ${PVHWLOC_LIBRARIES}
+	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES} Qt6::Core5Compat)
+
+if (PYTHON_SUPPORT)
+	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${Python_LIBRARIES})
+endif()
 
 if(OPENCL_FOUND)
-	list(APPEND PVKERNEL_LINK_LIBRARIES ${OPENCL_LIBRARIES})
+	list(APPEND PVKERNEL_LINK_LIBRARIES  ${OPENCL_LIBRARIES})
 endif(OPENCL_FOUND)
 
 target_link_libraries(pvkernel ${PVKERNEL_LINK_LIBRARIES})
@@ -262,4 +266,4 @@ target_link_libraries(pvkernel ${PVKERNEL_LINK_LIBRARIES})
 
 # Define installation directory
 INSTALL(TARGETS pvkernel LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-			 RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+		RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)

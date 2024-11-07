@@ -37,8 +37,15 @@
 #include <QSettings>
 #include <QFileInfo>
 
+#include <boost/dll/runtime_symbol_info.hpp>
+
 static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/squey/squey.conf";
-static constexpr const char LOCAL_CONFIG_FILENAME[] = SQUEY_CONFIG "/pvconfig.ini";
+#ifdef __APPLE__
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		static QString LOCAL_CONFIG_FILENAME = QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/pvconfig.ini";
+#else
+static QString LOCAL_CONFIG_FILENAME = QString(SQUEY_CONFIG) + "/pvconfig.ini";
+#endif
 
 PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 

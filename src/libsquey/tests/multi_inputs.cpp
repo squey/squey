@@ -33,7 +33,11 @@ static constexpr const char* csv_win2 = TEST_FOLDER "/sources/windows_endings2.c
 static constexpr const char* csv_win3 = TEST_FOLDER "/sources/windows_endings3.csv";
 static constexpr const char* csv_win_format = TEST_FOLDER "/formats/windows_endings.format";
 static constexpr const char* exported_win_csv_file =
+#if __APPLE__
+    TEST_FOLDER "/exports/multi_inputs_windows_endings_macos.csv";
+#else
     TEST_FOLDER "/exports/multi_inputs_windows_endings.csv";
+#endif
 
 static constexpr const char* csv_empty_last_col1 = TEST_FOLDER "/sources/empty_last_column1.csv";
 static constexpr const char* csv_empty_last_col2 = TEST_FOLDER "/sources/empty_last_column2.csv";
