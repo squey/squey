@@ -31,10 +31,7 @@
 
 #include <pvparallelview/PVScatterViewImage.h>
 
-namespace tbb
-{
-class task_group_context;
-} // namespace tbb
+#include <tbb/task_group.h>
 
 namespace Squey
 {

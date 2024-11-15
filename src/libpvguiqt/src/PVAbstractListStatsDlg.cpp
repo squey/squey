@@ -48,7 +48,7 @@
 #include <pvcop/db/types.h>
 
 #include <tbb/blocked_range.h>
-#include <tbb/task_scheduler_init.h>
+#include <tbb/global_control.h>
 
 #include <QActionGroup>
 #include <QComboBox>

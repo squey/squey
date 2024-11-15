@@ -8,10 +8,6 @@ sources:
   url: github:pocl/pocl/archive/refs/tags/v6.0.tar.gz
   ref: de9710223fc1855f833dbbf42ea2681e06aa8ec0464f0201104dc80a74dfd1f2
 
-- kind: patch
-  path: buildstream/patches/portablecl/FindTBB.cmake.patch
-  strip-level: 1
-
 variables:
   cmake-local: |
     -DCMAKE_C_COMPILER=/usr/bin/clang \

@@ -153,7 +153,6 @@ class PVRenderingPipeline : boost::noncopyable
 	                                   PVCore::PVHSVColor const* colors,
 	                                   PVZonesManager const& zm);
 
-	void cancel_all();
 	void wait_for_all();
 
   private:

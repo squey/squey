@@ -65,9 +65,9 @@ void PVCore::PVElement::init(PVTextChunk* parent)
 	_parent = parent;
 }
 
-void PVCore::PVElement::init_fields(void* fields_buf, size_t size_buf)
+void PVCore::PVElement::init_fields(void* /*fields_buf*/, size_t /*size_buf*/)
 {
-	new (&_fields) list_fields(list_fields::allocator_type(fields_buf, size_buf));
+	//new (&_fields) list_fields(list_fields::allocator_type(fields_buf, size_buf));
 	_fields.emplace_back(*this, begin(), end());
 }
 

@@ -41,7 +41,7 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVSlidersManager.h>
 
-#include <tbb/atomic.h>
+#include <atomic>
 
 namespace PVParallelView
 {
@@ -264,7 +264,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	QTimer* _timer_render;
 
-	tbb::atomic<bool> _view_deleted;
+	std::atomic<bool> _view_deleted;
 
 	bool _show_min_max_values;
 	bool _density_on_axes_enabled = false;

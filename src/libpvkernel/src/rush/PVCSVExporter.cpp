@@ -27,7 +27,7 @@
 #include <pvkernel/core/PVColumnIndexes.h> // for PVColumnIndexes
 #include <pvkernel/core/PVSelBitField.h>   // for PVSelBitField
 #include <pvbase/types.h> // for PVRow
-#include <tbb/pipeline.h>
+#include <tbb/parallel_pipeline.h>
 #include <cassert>    // for assert
 #include <functional> // for function
 #include <string>     // for allocator, string, etc
@@ -92,7 +92,7 @@ void PVRush::PVCSVExporter::export_rows(const std::string& file_path,
 		tbb::parallel_pipeline(
 		    thread_count /* = max_number_of_live_token */,
 		    tbb::make_filter<void, std::pair<size_t, size_t>>(
-		        tbb::filter::serial_in_order,
+		        tbb::filter_mode::serial_in_order,
 		        [&](tbb::flow_control& fc) -> std::pair<size_t, size_t> {
 			        if ((size_t)++thread_index == thread_count) {
 				        fc.stop();
@@ -108,7 +108,7 @@ void PVRush::PVCSVExporter::export_rows(const std::string& file_path,
 			        return std::make_pair(begin_index, end_index);
 			    }) &
 		        tbb::make_filter<std::pair<size_t, size_t>, std::string>(
-		            tbb::filter::parallel,
+		            tbb::filter_mode::parallel,
 		            [&](const std::pair<size_t, size_t>& range) -> std::string {
 
 			            const size_t begin_index = range.first;
@@ -129,7 +129,7 @@ void PVRush::PVCSVExporter::export_rows(const std::string& file_path,
 
 			        }) &
 		        tbb::make_filter<std::string, void>(
-		            tbb::filter::serial_in_order, [&](const std::string& content) {
+		            tbb::filter_mode::serial_in_order, [&](const std::string& content) {
 			            try {
 				            compressor.write(content);
 			            } catch (const PVCore::PVStreamingCompressorError& e) {

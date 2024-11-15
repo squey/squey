@@ -32,7 +32,7 @@
 #include <vector>
 #include <tuple>
 
-#include <tbb/atomic.h>
+#include <atomic>
 
 namespace PVParallelView
 {
@@ -175,8 +175,12 @@ class PVRenderingPipelinePreprocessRouter
 	 * Processing state for a given Zone.
 	 */
 	struct ZoneInfos {
-		tbb::atomic<ZoneState> state;
+		std::atomic<ZoneState> state;
 		std::vector<PVZoneRendering_p> waiters;
+
+		ZoneInfos() : state(ZoneState::NotStarted) {}
+		ZoneInfos(const ZoneInfos& other) : state(other.state.load()), waiters(other.waiters) {}
+		ZoneInfos(ZoneState state, std::vector<PVZoneRendering_p> waiters) : state(state), waiters(waiters) {}
 	};
 
 	/**

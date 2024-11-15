@@ -29,7 +29,7 @@
 
 #include <pvbase/types.h>
 
-#include <tbb/pipeline.h>
+#include <tbb/parallel_pipeline.h>
 
 #include <cstddef> // for size_t
 #include <list>

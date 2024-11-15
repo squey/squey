@@ -34,7 +34,7 @@
 #include <pvparallelview/PVZoomedZoneTree.h>
 
 #include <tbb/parallel_for.h>
-#include <tbb/task_scheduler_init.h>
+#include <tbb/global_control.h>
 
 #define ZZT_MAX_VALUE (1 << (32 - NBITS_INDEX))
 

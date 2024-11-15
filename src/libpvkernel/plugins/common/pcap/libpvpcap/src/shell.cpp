@@ -30,7 +30,7 @@
 #include <sys/wait.h>
 #include <pwd.h>
 #include <pvkernel/core/PVConfig.h>
-#include <tbb/pipeline.h>
+#include <tbb/parallel_pipeline.h>
 #include <dirent.h>
 #include <libpvpcap/pcap_splitter.h>
 #include <qchar.h>
@@ -142,7 +142,7 @@ extract_csv(splitted_files_t files,
 	tbb::parallel_pipeline(
 	    max_number_of_live_token,
 	    tbb::make_filter<void, splitted_file_t>(
-	        tbb::filter::serial_in_order,
+	        tbb::filter_mode::serial_in_order,
 	        [&](tbb::flow_control& fc) {
 
 		        if (file_count < files.size() and not canceled) {
@@ -166,7 +166,7 @@ extract_csv(splitted_files_t files,
 		        }
 		    }) &
 	        tbb::make_filter<splitted_file_t, void>(
-	            tbb::filter::parallel, [&](splitted_file_t pcap) {
+	            tbb::filter_mode::parallel, [&](splitted_file_t pcap) {
 
 		            if (not pcap.path().empty()) {
 			            std::string csv_path = pcap.path() + ".csv";

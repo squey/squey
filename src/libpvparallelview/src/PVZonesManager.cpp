@@ -31,7 +31,7 @@
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range.h>
 #include <tbb/enumerable_thread_specific.h>
-#include <tbb/task_scheduler_init.h>
+#include <tbb/global_control.h>
 
 #include <QSet>
 
@@ -90,7 +90,7 @@ void PVParallelView::PVZonesManager::update_all(bool reinit_zones)
 	__impl::ZoneCreation zc;
 	zc._zm = this;
 	const size_t nthreads = pvhwloc::core_count();
-	tbb::task_scheduler_init init(nthreads);
+	tbb::global_control control(tbb::global_control::max_allowed_parallelism, nthreads);
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, nzones, 8), zc);
 }
 
@@ -234,7 +234,7 @@ void PVParallelView::PVZonesManager::update_from_axes_comb(Squey::PVView const& 
 void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 {
 	const size_t nthreads = pvhwloc::core_count();
-	tbb::task_scheduler_init init(nthreads);
+	tbb::global_control control(tbb::global_control::max_allowed_parallelism, nthreads);
 
 	PVZoomedZoneTree& zztree = get_zoom_zone_tree(zone_id);
 

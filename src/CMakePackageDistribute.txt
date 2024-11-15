@@ -43,16 +43,5 @@ if(NOT ${QT_WEBKIT})
 	set(QTWEBENGINE_PATCH "0")
 endif(NOT ${QT_WEBKIT})
 
-###############################################################################
-# Intel Threading Building Blocks (TBB)
-###############################################################################
-
-
-set(TBB_MAJOR "2")
-install(FILES
-${TBB_BUILD_DIR}/libtbb.so.${TBB_MAJOR}
-${TBB_BUILD_DIR}/libtbbmalloc.so.${TBB_MAJOR}
-DESTINATION ${CUSTOM_TBB_PATH})
-
 # doc 
 add_definitions(-DDOC_URL="https://doc.squey.org")

@@ -99,7 +99,6 @@ rush/PVFormatVersion.cpp
 rush/PVInputFile.cpp
 rush/PVCharsetDetect.cpp
 rush/PVAggregator.cpp
-rush/PVPipelineTask.cpp
 rush/PVControllerJob.cpp
 rush/PVExtractor.cpp
 rush/PVPluginsLoad.cpp

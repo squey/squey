@@ -48,7 +48,7 @@
 
 #include <PVFilesTypesSelWidget.h>
 
-#include <tbb/task_scheduler_init.h>
+#include <tbb/global_control.h>
 
 QT_BEGIN_NAMESPACE
 class QAction;
