@@ -32,7 +32,7 @@
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVZoneRendering_types.h>
 
-#include <tbb/atomic.h>
+#include <atomic>
 
 #include <mutex>
 #include <condition_variable>
@@ -75,7 +75,7 @@ class PVZoneRendering
 
 		void launch();
 
-		tbb::atomic<PVZonesProcessor*> zp;
+		std::atomic<PVZonesProcessor*> zp;
 		p_type zr;
 	};
 
@@ -109,7 +109,7 @@ class PVZoneRendering
 		_zone_id = zone_id;
 	}
 
-	virtual bool cancel() { return _should_cancel.fetch_and_store(true); }
+	virtual bool cancel() { return _should_cancel.exchange(true); }
 	inline bool should_cancel() const { return _should_cancel; }
 	void cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr);
 
@@ -139,7 +139,7 @@ class PVZoneRendering
   private:
 	PVZoneID _zone_id;
 
-	tbb::atomic<cancel_state> _should_cancel;
+	std::atomic<cancel_state> _should_cancel;
 
 	// Qt signalisation
 	QObject* _qobject_finished_success;

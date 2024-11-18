@@ -31,8 +31,7 @@
 #include <pvkernel/filter/PVChunkFilterDumpElts.h>
 #include <pvkernel/filter/PVChunkFilterRemoveInvalidElts.h>
 #include <pvkernel/rush/PVOutput.h>
-#include <pvkernel/rush/PVPipelineTask.h>
-#include <tbb/pipeline.h>
+#include <tbb/parallel_pipeline.h>
 #include <qtmetamacros.h>
 #include <stddef.h>
 #include <memory>
@@ -52,7 +51,6 @@ class PVChunkFilterByElt;
 namespace PVRush
 {
 class PVAggregator;
-class PVPipelineTask;
 
 /*! \brief Defines a job to import data.
  *
@@ -116,7 +114,7 @@ class PVControllerJob : public QObject
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }
 
   private:
-	tbb::filter_t<void, void> create_tbb_filter();
+	tbb::filter<void, void> create_tbb_filter();
 	void job_has_run(); // Called when the job has finish to run
 
   Q_SIGNALS:
@@ -147,7 +145,8 @@ class PVControllerJob : public QObject
 	// TBB doesn't provide a way to get state of the task (wether it is over or not)
 	std::future<void>
 	    _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
-	PVPipelineTask* _pipeline; //!< The TBB pipeline performing data import.
+
+	bool _cancel = false;
 
 	std::mutex _pause;
 };

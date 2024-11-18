@@ -43,7 +43,7 @@
 
 #include <tbb/enumerable_thread_specific.h>
 #include <tbb/scalable_allocator.h>
-#include <tbb/task_scheduler_init.h>
+#include <tbb/global_control.h>
 
 constexpr uint32_t TREE_CREATION_GRAINSIZE = 1024;
 static_assert(TREE_CREATION_GRAINSIZE % 4 == 0, "TREE_CREATION_GRAINSIZE must be a multiple of 4!");

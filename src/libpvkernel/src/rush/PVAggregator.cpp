@@ -30,7 +30,7 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/core/PVLogger.h>  // for PVLOG_DEBUG
 #include <pvbase/types.h> // for chunk_index, PVCol
-#include <tbb/pipeline.h> // for flow_control
+#include <tbb/parallel_pipeline.h> // for flow_control
 #include <qstring.h>
 #include <algorithm> // for max
 #include <cassert>   // for assert

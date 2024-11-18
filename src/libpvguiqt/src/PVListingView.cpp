@@ -62,7 +62,7 @@
 #include <QStylePainter>
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
-#include <tbb/task_scheduler_init.h>
+#include <tbb/global_control.h>
 
 #include <boost/thread.hpp>
 

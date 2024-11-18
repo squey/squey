@@ -32,7 +32,7 @@
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/core/PVConfig.h> // for PVConfig
 #include <pvbase/types.h> // for chunk_index, PVCol
-#include <tbb/task_scheduler_init.h> // for task_scheduler_init
+#include <tbb/info.h>
 #include <qlist.h>
 #include <qvariant.h>
 #include <QSettings> // for QSettings
@@ -48,7 +48,7 @@ PVRush::PVExtractor::PVExtractor(const PVRush::PVFormat& format,
     : _output(output)
     , _format(format)
     , _chk_flt(_format.create_tbb_filters())
-    , _chunks(tbb::task_scheduler_init::default_num_threads())
+    , _chunks(tbb::info::default_concurrency())
     , _max_value(0)
 {
 	for (auto const& input : inputs) {

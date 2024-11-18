@@ -100,7 +100,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 	_node_cleanup_bci = new tbb::flow::function_node<ZoneRenderingWithBCI, PVZoneRendering_p>(
 	    tbb_graph(), tbb::flow::unlimited, [&](ZoneRenderingWithBCI const& zrb) {
 		    this->_bci_buffers.return_buffer(zrb.codes);
-		    this->_node_limiter.decrement.try_put(tbb::flow::continue_msg());
+		    this->_node_limiter.decrementer().try_put(tbb::flow::continue_msg());
 		    return zrb.zr;
 		});
 
@@ -151,14 +151,13 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 	tbb::flow::make_edge(*_node_compute_scatter, *_node_finish);
 
 	tbb::flow::make_edge(tbb::flow::output_port<cp_cancel_port>(*_cp_postlimiter), *_node_finish);
-	tbb::flow::make_edge(tbb::flow::output_port<2>(*_cp_postlimiter), _node_limiter.decrement);
+	tbb::flow::make_edge(tbb::flow::output_port<2>(*_cp_postlimiter), _node_limiter.decrementer());
 	tbb::flow::make_edge(tbb::flow::output_port<cp_cancel_port>(*_cp_postcomputebci),
 	                     *_node_cleanup_bci);
 }
 
 PVParallelView::PVRenderingPipeline::~PVRenderingPipeline()
 {
-	cancel_all();
 	wait_for_all();
 
 	delete _cp_postlimiter;
@@ -170,11 +169,6 @@ PVParallelView::PVRenderingPipeline::~PVRenderingPipeline()
 	delete _node_finish;
 	delete _node_compute_scatter;
 	delete _workflow_router;
-}
-
-void PVParallelView::PVRenderingPipeline::cancel_all()
-{
-	tbb_graph().root_task()->cancel_group_execution();
 }
 
 void PVParallelView::PVRenderingPipeline::wait_for_all()

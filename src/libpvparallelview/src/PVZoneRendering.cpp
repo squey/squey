@@ -80,7 +80,7 @@ void PVParallelView::PVZoneRendering::cancel_and_add_job(PVZonesProcessor& zp, p
 
 void PVParallelView::PVZoneRendering::next_job::launch()
 {
-	PVZonesProcessor* const zp_ = zp.fetch_and_store(nullptr);
+	PVZonesProcessor* const zp_ = zp.exchange(nullptr);
 	if (zp_) {
 		zp_->add_job(zr);
 		zr.reset();

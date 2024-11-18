@@ -37,11 +37,7 @@
 #include <squey/PVAxesCombination.h>
 #include <squey/PVView.h>
 
-namespace tbb
-{
-class task_group_context;
-} // namespace tbb
-
+#include <tbb/task_group.h>
 namespace PVGuiQt
 {
 

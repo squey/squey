@@ -29,7 +29,7 @@
 
 #include <QObject>
 
-#include <tbb/atomic.h>
+#include <atomic>
 
 namespace PVParallelView
 {
@@ -62,7 +62,7 @@ class PVRenderingJob : public QObject
 	void zone_rendered(PVZoneID z);
 
   protected:
-	tbb::atomic<bool> _should_cancel;
+	std::atomic<bool> _should_cancel;
 };
 } // namespace PVParallelView
 

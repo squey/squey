@@ -25,7 +25,6 @@ include_directories("/usr/include/qt5/QtCore")
 set(TBB_BUILD_DIR /app/lib)
 set(TBB_INCLUDE_DIRS /app/include)
 include_directories(AFTER SYSTEM ${TBB_INCLUDE_DIRS})
-set(TBB_LIBRARIES ${TBB_BUILD_DIR}/libtbb.so;${TBB_BUILD_DIR}/libtbbmalloc.so)
 add_definitions(-DTBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 
 ###############################################################################
@@ -74,6 +73,13 @@ else()
   set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
   add_definitions(${OpenMP_CXX_FLAGS})
 endif()
+
+###############################################################################
+# Intel Threading Building Blocks (TBB)
+###############################################################################
+
+find_package(TBB "2021.0" REQUIRED)
+set(TBB_LIBRARIES "TBB::tbb;TBB::tbbmalloc")
 
 ###############################################################################
 # Check for libnuma

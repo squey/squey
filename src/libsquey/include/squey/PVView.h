@@ -50,6 +50,7 @@
 #include <string>  // for allocator, string, etc
 #include <vector>  // for vector
 
+#include <tbb/task_group.h>
 namespace Squey
 {
 class PVScaled;
@@ -77,10 +78,6 @@ namespace db
 class indexes;
 } // namespace db
 } // namespace pvcop
-namespace tbb
-{
-class task_group_context;
-} // namespace tbb
 
 namespace pybind11
 {

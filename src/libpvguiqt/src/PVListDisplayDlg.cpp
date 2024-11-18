@@ -43,7 +43,7 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <tbb/blocked_range.h>
-#include <tbb/task_scheduler_init.h>
+#include <tbb/global_control.h>
 #include <tbb/parallel_reduce.h>
 
 #include <boost/thread.hpp>
@@ -242,7 +242,7 @@ bool PVGuiQt::PVListDisplayDlg::export_values(int count, QString& content)
 
 	// Define parallel execution environment
 	const size_t nthreads = pvhwloc::core_count();
-	tbb::task_scheduler_init init(nthreads);
+	tbb::global_control control(tbb::global_control::max_allowed_parallelism, nthreads);
 
 	auto res = PVCore::PVProgressBox::progress(
 	    [&, count](PVCore::PVProgressBox& /*pbox*/) {
