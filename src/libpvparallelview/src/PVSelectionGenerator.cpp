@@ -239,12 +239,12 @@ uint32_t PVParallelView::__impl::compute_selection_from_scaled_range_sse(
 		return 0;
 	}
 
-	const __m128i y_min_sse = _mm_set1_epi32(y_min);
-	const __m128i y_max_sse = _mm_set1_epi32(y_max);
+	const simde__m128i y_min_sse = simde_mm_set1_epi32(y_min);
+	const simde__m128i y_max_sse = simde_mm_set1_epi32(y_max);
 
 	const uint32_t nrows_sse = nrows & ~63U;
 
-	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
+	const simde__m128i sse_ff = simde_mm_set1_epi32(0xFFFFFFFFU);
 
 	BENCH_START(compute_selection_from_scaled_range_sse);
 
@@ -253,12 +253,12 @@ uint32_t PVParallelView::__impl::compute_selection_from_scaled_range_sse(
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
 		uint64_t chunk = 0;
 		for (int j = 0; j < 64; j += 4) {
-			const __m128i y_sse = _mm_load_si128((__m128i const*)&scaled[i + j]);
+			const simde__m128i y_sse = simde_mm_load_si128((simde__m128i const*)&scaled[i + j]);
 
-			const __m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
+			const simde__m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, y_min_sse, y_max_sse);
 
-			if (!(_mm_test_all_zeros(mask_y, sse_ff))) {
-				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y));
+			if (!(simde_mm_test_all_zeros(mask_y, sse_ff))) {
+				const uint64_t sel_bits = simde_mm_movemask_ps(reinterpret_cast<simde__m128>(mask_y));
 				chunk |= sel_bits << j;
 			}
 		}
@@ -321,26 +321,22 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 	const uint32_t c_min = PVCore::clamp(ceil(rect.left()), 1.0, (double)(max_count + 1));
 	const uint32_t c_max = PVCore::clamp(ceil(rect.right()), 1.0, (double)(max_count + 1));
 
-	const __m128i v_min_sse = _mm_set1_epi32(v_min);
-	const __m128i v_max_sse = _mm_set1_epi32(v_max);
+	const simde__m128i v_min_sse = simde_mm_set1_epi32(v_min);
+	const simde__m128i v_max_sse = simde_mm_set1_epi32(v_max);
 
-	const __m128i c_min_sse = _mm_set1_epi32(c_min);
-	const __m128i c_max_sse = _mm_set1_epi32(c_max);
+	const simde__m128i c_min_sse = simde_mm_set1_epi32(c_min);
+	const simde__m128i c_max_sse = simde_mm_set1_epi32(c_max);
 
 	const PVParallelView::PVHitGraphData& data = manager.hgdata();
 	const int zoom = manager.last_zoom();
 	const int nbits = data.nbits();
 	const int idx_shift = (32 - nbits) - zoom;
 	const uint32_t zoom_shift = 32 - zoom;
-	const __m128i zoom_mask_sse = _mm_set1_epi32((1ULL << zoom_shift) - 1ULL);
-	const __m128i base_y_sse = _mm_set1_epi32((uint64_t)(manager.last_y_min()) >> zoom_shift);
-	const __m128i y_min_ref_sse = _mm_slli_epi32(base_y_sse, zoom_shift);
-	const __m128i nblocks_sse = _mm_set1_epi32(data.nblocks());
-#ifdef __AVX__
-	const __m256d alpha_sse = _mm256_set1_pd(manager.last_alpha());
-#else
-	const __m128d alpha_sse = _mm_set1_pd(manager.last_alpha());
-#endif
+	const simde__m128i zoom_mask_sse = simde_mm_set1_epi32((1ULL << zoom_shift) - 1ULL);
+	const simde__m128i base_y_sse = simde_mm_set1_epi32((uint64_t)(manager.last_y_min()) >> zoom_shift);
+	const simde__m128i y_min_ref_sse = simde_mm_slli_epi32(base_y_sse, zoom_shift);
+	const simde__m128i nblocks_sse = simde_mm_set1_epi32(data.nblocks());
+	const simde__m256d alpha_sse = simde_mm256_set1_pd(manager.last_alpha());
 
 	uint32_t nb_selected = 0;
 
@@ -358,49 +354,49 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 		// Compute one chunk of the selection
 		int32_t chunk = 0;
 		for (int j = 0; j < 32; j += 4) {
-			const __m128i y_sse = _mm_load_si128((__m128i const*)&scaled[i + j]);
-			const __m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
+			const simde__m128i y_sse = simde_mm_load_si128((simde__m128i const*)&scaled[i + j]);
+			const simde__m128i mask_y = squey_mm_cmprange_in_epu32(y_sse, v_min_sse, v_max_sse);
 
-			if (!_mm_test_all_zeros(mask_y, _mm_set1_epi32(0xFFFFFFFFU))) {
+			if (!simde_mm_test_all_zeros(mask_y, simde_mm_set1_epi32(0xFFFFFFFFU))) {
 
 				// Get counters from the histogram
-				const __m128i base_sse = _mm_srli_epi32(y_sse, zoom_shift);
-				const __m128i p_sse = _mm_sub_epi32(base_sse, base_y_sse);
+				const simde__m128i base_sse = simde_mm_srli_epi32(y_sse, zoom_shift);
+				const simde__m128i p_sse = simde_mm_sub_epi32(base_sse, base_y_sse);
 
-				const __m128i res_sse =
-				    squey_mm_cmprange_epi32(p_sse, _mm_setzero_si128(), nblocks_sse);
+				const simde__m128i res_sse =
+				    squey_mm_cmprange_epi32(p_sse, simde_mm_setzero_si128(), nblocks_sse);
 
-				if (!_mm_test_all_zeros(res_sse, _mm_set1_epi32(0xFFFFFFFFU))) {
-					const __m128i idx_sse =
+				if (!simde_mm_test_all_zeros(res_sse, simde_mm_set1_epi32(0xFFFFFFFFU))) {
+					const simde__m128i idx_sse =
 					    PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
 					        y_sse, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift,
 					        zoom_shift, nbits);
 
-					__m128i count_sse = _mm_setzero_si128();
-					if (_mm_extract_epi32(res_sse, 0)) {
+					simde__m128i count_sse = simde_mm_setzero_si128();
+					if (simde_mm_extract_epi32(res_sse, 0)) {
 						count_sse =
-						    _mm_insert_epi32(count_sse, buffer[_mm_extract_epi32(idx_sse, 0)], 0);
+						    simde_mm_insert_epi32(count_sse, buffer[simde_mm_extract_epi32(idx_sse, 0)], 0);
 					}
-					if (_mm_extract_epi32(res_sse, 1)) {
+					if (simde_mm_extract_epi32(res_sse, 1)) {
 						count_sse =
-						    _mm_insert_epi32(count_sse, buffer[_mm_extract_epi32(idx_sse, 1)], 1);
+						    simde_mm_insert_epi32(count_sse, buffer[simde_mm_extract_epi32(idx_sse, 1)], 1);
 					}
-					if (_mm_extract_epi32(res_sse, 2)) {
+					if (simde_mm_extract_epi32(res_sse, 2)) {
 						count_sse =
-						    _mm_insert_epi32(count_sse, buffer[_mm_extract_epi32(idx_sse, 2)], 2);
+						    simde_mm_insert_epi32(count_sse, buffer[simde_mm_extract_epi32(idx_sse, 2)], 2);
 					}
-					if (_mm_extract_epi32(res_sse, 3)) {
+					if (simde_mm_extract_epi32(res_sse, 3)) {
 						count_sse =
-						    _mm_insert_epi32(count_sse, buffer[_mm_extract_epi32(idx_sse, 3)], 3);
+						    simde_mm_insert_epi32(count_sse, buffer[simde_mm_extract_epi32(idx_sse, 3)], 3);
 					}
 
-					const __m128i mask_count =
+					const simde__m128i mask_count =
 					    squey_mm_cmprange_in_epi32(count_sse, c_min_sse, c_max_sse);
 
-					const __m128i mask = _mm_and_si128(mask_y, mask_count);
+					const simde__m128i mask = simde_mm_and_si128(mask_y, mask_count);
 
 					// Get selection bits and write them
-					const int32_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask));
+					const int32_t sel_bits = simde_mm_movemask_ps(reinterpret_cast<simde__m128>(mask));
 					chunk |= sel_bits << j;
 				}
 			}
@@ -461,15 +457,15 @@ uint32_t PVParallelView::__impl::compute_selection_from_scaleds_ranges_sse(
 	const uint32_t y2_min = PVCore::clamp(floor(rect.top()), 0.0, (double)UINT32_MAX);
 	const uint32_t y2_max = PVCore::clamp(ceil(rect.bottom()), 0.0, (double)UINT32_MAX);
 
-	const __m128i y1_min_sse = _mm_set1_epi32(y1_min);
-	const __m128i y1_max_sse = _mm_set1_epi32(y1_max);
+	const simde__m128i y1_min_sse = simde_mm_set1_epi32(y1_min);
+	const simde__m128i y1_max_sse = simde_mm_set1_epi32(y1_max);
 
-	const __m128i y2_min_sse = _mm_set1_epi32(y2_min);
-	const __m128i y2_max_sse = _mm_set1_epi32(y2_max);
+	const simde__m128i y2_min_sse = simde_mm_set1_epi32(y2_min);
+	const simde__m128i y2_max_sse = simde_mm_set1_epi32(y2_max);
 
 	const uint32_t nrows_sse = nrows & ~63U;
 
-	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFFU);
+	const simde__m128i sse_ff = simde_mm_set1_epi32(0xFFFFFFFFU);
 
 	BENCH_START(compute_selection_from_scaleds_ranges_sse);
 
@@ -478,17 +474,17 @@ uint32_t PVParallelView::__impl::compute_selection_from_scaleds_ranges_sse(
 	for (PVRow i = 0; i < nrows_sse; i += 64) {
 		uint64_t chunk = 0;
 		for (int j = 0; j < 64; j += 4) {
-			const __m128i y1_sse = _mm_load_si128((__m128i const*)&y1_scaled[i + j]);
+			const simde__m128i y1_sse = simde_mm_load_si128((simde__m128i const*)&y1_scaled[i + j]);
 
-			const __m128i mask_y1 = squey_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
+			const simde__m128i mask_y1 = squey_mm_cmprange_in_epu32(y1_sse, y1_min_sse, y1_max_sse);
 
-			if (!(_mm_test_all_zeros(mask_y1, sse_ff))) {
-				const __m128i y2_sse = _mm_load_si128((__m128i const*)&y2_scaled[i + j]);
+			if (!(simde_mm_test_all_zeros(mask_y1, sse_ff))) {
+				const simde__m128i y2_sse = simde_mm_load_si128((simde__m128i const*)&y2_scaled[i + j]);
 
-				const __m128i mask_y2 = squey_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
-				const __m128i mask_y1_y2 = _mm_and_si128(mask_y1, mask_y2);
+				const simde__m128i mask_y2 = squey_mm_cmprange_in_epu32(y2_sse, y2_min_sse, y2_max_sse);
+				const simde__m128i mask_y1_y2 = simde_mm_and_si128(mask_y1, mask_y2);
 
-				const uint64_t sel_bits = _mm_movemask_ps(reinterpret_cast<__m128>(mask_y1_y2));
+				const uint64_t sel_bits = simde_mm_movemask_ps(reinterpret_cast<simde__m128>(mask_y1_y2));
 				chunk |= sel_bits << j;
 			}
 		}

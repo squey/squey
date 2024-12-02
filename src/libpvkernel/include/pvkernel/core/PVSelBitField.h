@@ -28,7 +28,6 @@
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBitVisitor.h>
 #include <assert.h>
-#include <emmintrin.h>
 #include <stdint.h>
 #include <sys/types.h>
 
@@ -345,7 +344,7 @@ class PVSelBitField
 	 */
 	inline void set_chunk32_fast_stream(PVRow const chunk_index, int32_t const chunk)
 	{
-		_mm_stream_si32(&(reinterpret_cast<int32_t*>(_selection.data())[chunk_index]), chunk);
+		simde_mm_stream_si32(&(reinterpret_cast<int32_t*>(_selection.data())[chunk_index]), chunk);
 	}
 
 	// Returns the index of the chunk following the last chunk that contains a line
@@ -430,7 +429,7 @@ class PVSelBitField
 			PVCore::PVBitVisitor::visit_bits(sel_buf, f, chunk_to_line_index(c));
 		}
 		for (; c < chunk_end_sse; c += 2) {
-			const __m128i sse_sel = _mm_load_si128((__m128i*)&_selection.data()[c]);
+			const simde__m128i sse_sel = simde_mm_load_si128((simde__m128i*)&_selection.data()[c]);
 			PVCore::PVBitVisitor::visit_bits(sse_sel, f, chunk_to_line_index(c));
 		}
 		for (; c < chunk_end; c++) {

@@ -111,11 +111,7 @@ inline T inv_log_scale(const T value, const T a, const T b)
  */
 inline bool is_power_of_two(uint32_t v)
 {
-#ifdef __SSE4_2__
-	return (_mm_popcnt_u32(v) == 1);
-#else
-	return (v && !(v & (v - 1)));
-#endif
+	return (__builtin_popcount(v) == 1);
 }
 
 /**

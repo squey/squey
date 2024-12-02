@@ -33,7 +33,6 @@
 
 void init_env()
 {
-	PVCore::PVIntrinsics::init_cpuid();
 	setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
 	setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
 

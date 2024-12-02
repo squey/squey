@@ -188,6 +188,7 @@ depends:
 - ksyntaxhighlighting.bst
 - apache-arrow.bst
 - libomp.bst
+- simde.bst
 
 (?):
   - target_triple == "x86_64-linux-gnu":

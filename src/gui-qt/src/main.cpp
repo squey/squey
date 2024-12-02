@@ -212,16 +212,6 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	splash.repaint();
 	app.processEvents();
 
-	PVCore::PVIntrinsics::init_cpuid();
-#ifdef __SSE4_1__
-	PVLOG_INFO("Compiled with SSE 4.1 instructions\n");
-	if (PVCore::PVIntrinsics::has_sse41()) {
-		PVLOG_INFO("SSE4.1 is supported by this CPU.\n");
-	} else {
-		PVLOG_INFO("SSE4.1 is not supported by this CPU.\n");
-	}
-#endif
-
 	app.setOrganizationName("SQUEY");
 	app.setApplicationName("Squey " SQUEY_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/squey"));

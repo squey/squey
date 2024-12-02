@@ -90,7 +90,6 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
 	// Get a SQUEY tree from the given file/format

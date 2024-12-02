@@ -103,28 +103,28 @@ struct PVQuadTreeEntry {
 
 typedef uint32_t pv_quadtree_buffer_entry_t;
 
-static inline bool test_sse(const __m128i& sse_y1,
-                            const __m128i& sse_y1_min,
-                            const __m128i& sse_y1_max,
-                            __m128i& sse_res)
+static inline bool test_sse(const simde__m128i& sse_y1,
+                            const simde__m128i& sse_y1_min,
+                            const simde__m128i& sse_y1_max,
+                            simde__m128i& sse_res)
 {
-	static const __m128i sse_full_ones = _mm_set1_epi32(0xFFFFFFFF);
-	static const __m128i sse_full_zeros = _mm_set1_epi32(0);
+	static const simde__m128i sse_full_ones = simde_mm_set1_epi32(0xFFFFFFFF);
+	static const simde__m128i sse_full_zeros = simde_mm_set1_epi32(0);
 
 	/* expand 4x32b register into 2 2x64b registers
 	 */
-	const __m128i sse_y1_0 = _mm_unpacklo_epi32(sse_y1, sse_full_zeros);
-	const __m128i sse_y1_1 = _mm_unpackhi_epi32(sse_y1, sse_full_zeros);
+	const simde__m128i sse_y1_0 = simde_mm_unpacklo_epi32(sse_y1, sse_full_zeros);
+	const simde__m128i sse_y1_1 = simde_mm_unpackhi_epi32(sse_y1, sse_full_zeros);
 
 	/* doing registers test against min
 	 */
-	const __m128i sse_min0 = _mm_cmpgt_epi64(sse_y1_min, sse_y1_0);
-	const __m128i sse_min1 = _mm_cmpgt_epi64(sse_y1_min, sse_y1_1);
+	const simde__m128i sse_min0 = simde_mm_cmpgt_epi64(sse_y1_min, sse_y1_0);
+	const simde__m128i sse_min1 = simde_mm_cmpgt_epi64(sse_y1_min, sse_y1_1);
 
 	/* doing registers test against max
 	 */
-	const __m128i sse_max0 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_0);
-	const __m128i sse_max1 = _mm_cmpgt_epi64(sse_y1_max, sse_y1_1);
+	const simde__m128i sse_max0 = simde_mm_cmpgt_epi64(sse_y1_max, sse_y1_0);
+	const simde__m128i sse_max1 = simde_mm_cmpgt_epi64(sse_y1_max, sse_y1_1);
 
 	/* results merge (by unpacking them from 64 bits to 32 bits)
 	 *
@@ -146,26 +146,26 @@ static inline bool test_sse(const __m128i& sse_y1,
 	 *                   ~~~~~~~~~~~
 	 */
 
-	__m128i sse_ms0 = _mm_srli_si128(sse_min0, 4);
-	__m128i sse_ms1 = _mm_srli_si128(sse_min1, 4);
+	simde__m128i sse_ms0 = simde_mm_srli_si128(sse_min0, 4);
+	simde__m128i sse_ms1 = simde_mm_srli_si128(sse_min1, 4);
 
 	/* a call to unpacklo_epi64 helps to gather these 64 bits
 	 * words into 1 register:
 	 *
 	 * res = [ v11 | v10 | v01 | v00 ]
 	 */
-	const __m128i sse_tmin = _mm_unpacklo_epi64(sse_ms0, sse_ms1);
+	const simde__m128i sse_tmin = simde_mm_unpacklo_epi64(sse_ms0, sse_ms1);
 
 	/* the same for tests with max
 	 */
-	sse_ms0 = _mm_srli_si128(sse_max0, 4);
-	sse_ms1 = _mm_srli_si128(sse_max1, 4);
+	sse_ms0 = simde_mm_srli_si128(sse_max0, 4);
+	sse_ms1 = simde_mm_srli_si128(sse_max1, 4);
 
-	const __m128i sse_tmax = _mm_unpacklo_epi64(sse_ms0, sse_ms1);
+	const simde__m128i sse_tmax = simde_mm_unpacklo_epi64(sse_ms0, sse_ms1);
 
-	sse_res = _mm_andnot_si128(sse_tmin, sse_tmax);
+	sse_res = simde_mm_andnot_si128(sse_tmin, sse_tmax);
 
-	return _mm_testz_si128(sse_res, sse_full_ones);
+	return simde_mm_testz_si128(sse_res, sse_full_ones);
 }
 
 /*****************************************************************************
@@ -641,7 +641,7 @@ class PVQuadTree
 				}
 			}
 		} else {
-			__m128i mins = _mm_set_epi32(_nodes[0].compute_min_indexes_sel_notempty(sel),
+			simde__m128i mins = simde_mm_set_epi32(_nodes[0].compute_min_indexes_sel_notempty(sel),
 			                             _nodes[1].compute_min_indexes_sel_notempty(sel),
 			                             _nodes[2].compute_min_indexes_sel_notempty(sel),
 			                             _nodes[3].compute_min_indexes_sel_notempty(sel));
@@ -669,11 +669,11 @@ class PVQuadTree
 	        }
 	    }
 	    else {
-	        __m128i mins = _mm_insert_epi32(_mm_setzero_si128(),
+	        simde__m128i mins = simde_mm_insert_epi32(simde_mm_setzero_si128(),
 	_nodes[0].compute_min_indexes_bg(layers_sel), 0);
-	        mins = _mm_insert_epi32(mins, _nodes[1].compute_min_indexes_bg(layers_sel), 1);
-	        mins = _mm_insert_epi32(mins, _nodes[2].compute_min_indexes_bg(layers_sel), 2);
-	        mins = _mm_insert_epi32(mins, _nodes[3].compute_min_indexes_bg(layers_sel), 3);
+	        mins = simde_mm_insert_epi32(mins, _nodes[1].compute_min_indexes_bg(layers_sel), 1);
+	        mins = simde_mm_insert_epi32(mins, _nodes[2].compute_min_indexes_bg(layers_sel), 2);
+	        mins = simde_mm_insert_epi32(mins, _nodes[3].compute_min_indexes_bg(layers_sel), 3);
 	        idx_min = squey_mm_hmin_epu32(mins);
 	    }
 
@@ -1172,14 +1172,14 @@ class PVQuadTree
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
 			uint32_t remaining = clipped_max_count * y2_count;
 
-			const __m128i sse_y1_min = _mm_set1_epi64x(y1_min);
-			const __m128i sse_y1_max = _mm_set1_epi64x(y1_max);
-			const __m128i sse_y1_orig = _mm_set1_epi32(y1_orig);
-			const __m128i sse_y1_shift = _mm_set1_epi32(y1_shift);
-			const __m128i sse_ly1_min = _mm_set1_epi32(ly1_min);
-			const __m128i sse_y2_orig = _mm_set1_epi32(y2_orig);
-			const __m128i sse_y2_shift = _mm_set1_epi32(y2_shift);
-			const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
+			const simde__m128i sse_y1_min = simde_mm_set1_epi64x(y1_min);
+			const simde__m128i sse_y1_max = simde_mm_set1_epi64x(y1_max);
+			const simde__m128i sse_y1_orig = simde_mm_set1_epi32(y1_orig);
+			const simde__m128i sse_y1_shift = simde_mm_set1_epi32(y1_shift);
+			const simde__m128i sse_ly1_min = simde_mm_set1_epi32(ly1_min);
+			const simde__m128i sse_y2_orig = simde_mm_set1_epi32(y2_orig);
+			const simde__m128i sse_y2_shift = simde_mm_set1_epi32(y2_shift);
+			const simde__m128i sse_clipped_max_count = simde_mm_set1_epi32(clipped_max_count);
 
 			const size_t size = obj._datas.size();
 			const size_t packed_size = size & ~3;
@@ -1190,45 +1190,45 @@ class PVQuadTree
 				const PVQuadTreeEntry& e2 = obj._datas.at(i + 2);
 				const PVQuadTreeEntry& e3 = obj._datas.at(i + 3);
 
-				// TODO: compact all _mm_xxxxx expressions ;-)
-				__m128i sse_r0 = _mm_loadu_si128((const __m128i*)&e0);
-				__m128i sse_r1 = _mm_loadu_si128((const __m128i*)&e1);
-				__m128i sse_r2 = _mm_loadu_si128((const __m128i*)&e2);
-				__m128i sse_r3 = _mm_loadu_si128((const __m128i*)&e3);
+				// TODO: compact all simde_mm_xxxxx expressions ;-)
+				simde__m128i sse_r0 = simde_mm_loadu_si128((const simde__m128i*)&e0);
+				simde__m128i sse_r1 = simde_mm_loadu_si128((const simde__m128i*)&e1);
+				simde__m128i sse_r2 = simde_mm_loadu_si128((const simde__m128i*)&e2);
+				simde__m128i sse_r3 = simde_mm_loadu_si128((const simde__m128i*)&e3);
 
 				/* partial "transposition" to have all y1 in one register
 				 * and all y2 in an other one
 				 */
-				__m128i sse_tmp01 = _mm_unpacklo_epi32(sse_r0, sse_r1);
-				__m128i sse_tmp23 = _mm_unpacklo_epi32(sse_r2, sse_r3);
+				simde__m128i sse_tmp01 = simde_mm_unpacklo_epi32(sse_r0, sse_r1);
+				simde__m128i sse_tmp23 = simde_mm_unpacklo_epi32(sse_r2, sse_r3);
 
-				__m128i sse_y1 = _mm_unpacklo_epi64(sse_tmp01, sse_tmp23);
+				simde__m128i sse_y1 = simde_mm_unpacklo_epi64(sse_tmp01, sse_tmp23);
 
-				__m128i sse_test;
+				simde__m128i sse_test;
 
 				if (test_sse(sse_y1, sse_y1_min, sse_y1_max, sse_test)) {
 					continue;
 				}
 
 				// sse_y2 is not needed before the call to test_sse
-				__m128i sse_y2 = _mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
+				simde__m128i sse_y2 = simde_mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
 
 				/*
 				 * pos = (((e.y1 - y1_orig) / y1_scale) - ly1_min)
 				 * + clipped_max_count * ((e.y2 - y2_orig) / y2_scale)
 				 */
-				__m128i sse_0s = _mm_sub_epi32(sse_y1, sse_y1_orig);
-				__m128i sse_0sd = _mm_srl_epi32(sse_0s, sse_y1_shift);
-				__m128i sse_0x = _mm_sub_epi32(sse_0sd, sse_ly1_min);
+				simde__m128i sse_0s = simde_mm_sub_epi32(sse_y1, sse_y1_orig);
+				simde__m128i sse_0sd = simde_mm_srl_epi32(sse_0s, sse_y1_shift);
+				simde__m128i sse_0x = simde_mm_sub_epi32(sse_0sd, sse_ly1_min);
 
-				__m128i sse_1s = _mm_sub_epi32(sse_y2, sse_y2_orig);
-				__m128i sse_1sd = _mm_srl_epi32(sse_1s, sse_y2_shift);
-				__m128i sse_1y = _mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
+				simde__m128i sse_1s = simde_mm_sub_epi32(sse_y2, sse_y2_orig);
+				simde__m128i sse_1sd = simde_mm_srl_epi32(sse_1s, sse_y2_shift);
+				simde__m128i sse_1y = simde_mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
 
-				__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
+				simde__m128i sse_pos = simde_mm_add_epi32(sse_0x, sse_1y);
 
-				if (_mm_extract_epi32(sse_test, 0)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 0);
+				if (simde_mm_extract_epi32(sse_test, 0)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 0);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e0, tlr);
 						B_SET(buffer[p >> 5], p & 31);
@@ -1239,8 +1239,8 @@ class PVQuadTree
 					}
 				}
 
-				if (_mm_extract_epi32(sse_test, 1)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 1);
+				if (simde_mm_extract_epi32(sse_test, 1)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 1);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e1, tlr);
 						B_SET(buffer[p >> 5], p & 31);
@@ -1251,8 +1251,8 @@ class PVQuadTree
 					}
 				}
 
-				if (_mm_extract_epi32(sse_test, 2)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 2);
+				if (simde_mm_extract_epi32(sse_test, 2)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 2);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e2, tlr);
 						B_SET(buffer[p >> 5], p & 31);
@@ -1263,8 +1263,8 @@ class PVQuadTree
 					}
 				}
 
-				if (_mm_extract_epi32(sse_test, 3)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 3);
+				if (simde_mm_extract_epi32(sse_test, 3)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 3);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e3, tlr);
 						B_SET(buffer[p >> 5], p & 31);
@@ -1607,14 +1607,14 @@ class PVQuadTree
 			memset(buffer, 0, count_aligned * sizeof(uint32_t));
 			uint32_t remaining = clipped_max_count * y1_count;
 
-			const __m128i sse_y2_min = _mm_set1_epi64x(y2_min);
-			const __m128i sse_y2_max = _mm_set1_epi64x(y2_max);
-			const __m128i sse_y2_orig = _mm_set1_epi32(y2_orig);
-			const __m128i sse_y2_shift = _mm_set1_epi32(y2_shift);
-			const __m128i sse_ly2_min = _mm_set1_epi32(ly2_min);
-			const __m128i sse_y1_orig = _mm_set1_epi32(y1_orig);
-			const __m128i sse_y1_shift = _mm_set1_epi32(y1_shift);
-			const __m128i sse_clipped_max_count = _mm_set1_epi32(clipped_max_count);
+			const simde__m128i sse_y2_min = simde_mm_set1_epi64x(y2_min);
+			const simde__m128i sse_y2_max = simde_mm_set1_epi64x(y2_max);
+			const simde__m128i sse_y2_orig = simde_mm_set1_epi32(y2_orig);
+			const simde__m128i sse_y2_shift = simde_mm_set1_epi32(y2_shift);
+			const simde__m128i sse_ly2_min = simde_mm_set1_epi32(ly2_min);
+			const simde__m128i sse_y1_orig = simde_mm_set1_epi32(y1_orig);
+			const simde__m128i sse_y1_shift = simde_mm_set1_epi32(y1_shift);
+			const simde__m128i sse_clipped_max_count = simde_mm_set1_epi32(clipped_max_count);
 
 			const size_t size = obj._datas.size();
 			const size_t packed_size = size & ~3;
@@ -1625,45 +1625,45 @@ class PVQuadTree
 				const PVQuadTreeEntry& e2 = obj._datas.at(i + 2);
 				const PVQuadTreeEntry& e3 = obj._datas.at(i + 3);
 
-				// TODO: compact all _mm_xxxxx expressions ;-)
-				__m128i sse_r0 = _mm_loadu_si128((const __m128i*)&e0);
-				__m128i sse_r1 = _mm_loadu_si128((const __m128i*)&e1);
-				__m128i sse_r2 = _mm_loadu_si128((const __m128i*)&e2);
-				__m128i sse_r3 = _mm_loadu_si128((const __m128i*)&e3);
+				// TODO: compact all simde_mm_xxxxx expressions ;-)
+				simde__m128i sse_r0 = simde_mm_loadu_si128((const simde__m128i*)&e0);
+				simde__m128i sse_r1 = simde_mm_loadu_si128((const simde__m128i*)&e1);
+				simde__m128i sse_r2 = simde_mm_loadu_si128((const simde__m128i*)&e2);
+				simde__m128i sse_r3 = simde_mm_loadu_si128((const simde__m128i*)&e3);
 
 				/* partial "transposition" to have all y1 in one register
 				 * and all y2 in an other one
 				 */
-				__m128i sse_tmp01 = _mm_unpacklo_epi32(sse_r0, sse_r1);
-				__m128i sse_tmp23 = _mm_unpacklo_epi32(sse_r2, sse_r3);
+				simde__m128i sse_tmp01 = simde_mm_unpacklo_epi32(sse_r0, sse_r1);
+				simde__m128i sse_tmp23 = simde_mm_unpacklo_epi32(sse_r2, sse_r3);
 
-				__m128i sse_y2 = _mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
+				simde__m128i sse_y2 = simde_mm_unpackhi_epi64(sse_tmp01, sse_tmp23);
 
-				__m128i sse_test;
+				simde__m128i sse_test;
 
 				if (test_sse(sse_y2, sse_y2_min, sse_y2_max, sse_test)) {
 					continue;
 				}
 
 				// sse_y1 is not needed before the call to test_sse
-				__m128i sse_y1 = _mm_unpacklo_epi64(sse_tmp01, sse_tmp23);
+				simde__m128i sse_y1 = simde_mm_unpacklo_epi64(sse_tmp01, sse_tmp23);
 
 				/*
 				 * pos = (((e.y2 - y2_orig) / y2_scale) - ly2_min)
 				 * + clipped_max_count * ((e.y1 - y1_orig) / y1_scale);
 				 */
-				__m128i sse_0s = _mm_sub_epi32(sse_y2, sse_y2_orig);
-				__m128i sse_0sd = _mm_srl_epi32(sse_0s, sse_y2_shift);
-				__m128i sse_0x = _mm_sub_epi32(sse_0sd, sse_ly2_min);
+				simde__m128i sse_0s = simde_mm_sub_epi32(sse_y2, sse_y2_orig);
+				simde__m128i sse_0sd = simde_mm_srl_epi32(sse_0s, sse_y2_shift);
+				simde__m128i sse_0x = simde_mm_sub_epi32(sse_0sd, sse_ly2_min);
 
-				__m128i sse_1s = _mm_sub_epi32(sse_y1, sse_y1_orig);
-				__m128i sse_1sd = _mm_srl_epi32(sse_1s, sse_y1_shift);
-				__m128i sse_1y = _mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
+				simde__m128i sse_1s = simde_mm_sub_epi32(sse_y1, sse_y1_orig);
+				simde__m128i sse_1sd = simde_mm_srl_epi32(sse_1s, sse_y1_shift);
+				simde__m128i sse_1y = simde_mm_mullo_epi32(sse_1sd, sse_clipped_max_count);
 
-				__m128i sse_pos = _mm_add_epi32(sse_0x, sse_1y);
+				simde__m128i sse_pos = simde_mm_add_epi32(sse_0x, sse_1y);
 
-				if (_mm_extract_epi32(sse_test, 0)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 0);
+				if (simde_mm_extract_epi32(sse_test, 0)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 0);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e0, tlr);
 						B_SET(buffer[p >> 5], p & 31);
@@ -1674,8 +1674,8 @@ class PVQuadTree
 					}
 				}
 
-				if (_mm_extract_epi32(sse_test, 1)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 1);
+				if (simde_mm_extract_epi32(sse_test, 1)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 1);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e1, tlr);
 						B_SET(buffer[p >> 5], p & 31);
@@ -1686,8 +1686,8 @@ class PVQuadTree
 					}
 				}
 
-				if (_mm_extract_epi32(sse_test, 2)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 2);
+				if (simde_mm_extract_epi32(sse_test, 2)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 2);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e2, tlr);
 						B_SET(buffer[p >> 5], p & 31);
@@ -1698,8 +1698,8 @@ class PVQuadTree
 					}
 				}
 
-				if (_mm_extract_epi32(sse_test, 3)) {
-					uint32_t p = _mm_extract_epi32(sse_pos, 3);
+				if (simde_mm_extract_epi32(sse_test, 3)) {
+					uint32_t p = simde_mm_extract_epi32(sse_pos, 3);
 					if (!(B_IS_SET(buffer[p >> 5], p & 31))) {
 						insert_f(e3, tlr);
 						B_SET(buffer[p >> 5], p & 31);
