@@ -109,11 +109,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	 */
 	void initConnexions();
 
-	/**
-	 * init the menubar
-	 */
-	void initMenuBar();
-
 	void setWindowTitleForFile(QString const& path);
 
 	bool save();
@@ -232,14 +227,10 @@ class PVFormatBuilderWidget : public QMainWindow
 	QTabWidget* _main_tab;
 	//
 	QVBoxLayout* vbParam;
-	QMenuBar* menuBar;
 	Squey::PVSource* _org_source; // If this widget is bound to a PVSource's format
 
 	//
 	QFile logFile; ///!< file we open to edit the format
-
-	QMenu* _splitters;
-	QMenu* _converters;
 
 	QAction* actionAddAxisAfter;
 	QAction* actionAddAxisIn;
@@ -258,6 +249,9 @@ class PVFormatBuilderWidget : public QMainWindow
 	QAction* actionOpen;
 	QAction* actionSave;
 	QAction* actionSaveAs;
+	QToolButton* buttonImport;
+	QToolButton* buttonSplitter;
+	QToolButton* buttonConverter;
 };
 } // namespace App
 #endif /* PVFORMATBUILDER_H */
