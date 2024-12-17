@@ -92,6 +92,9 @@ class PVStreamingBase
 	bool _passthrough;
 	bool _canceled = false;
 	bool _finished = false;
+
+	std::vector<std::string> _args;
+	std::vector<char*> _argv;
 };
 
 } // namespace __impl

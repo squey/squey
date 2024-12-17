@@ -18,8 +18,9 @@ echo "Usage: $0"
   echo "--code-coverage=<true/false>"
   echo "--cxx_compiler=<g++/clang++>"
   echo "--disable-testsuite=<true/false>"
-  echo "--flatpak-export=<true/false>"
-  echo "--flatpak-repo=<repository_path>"
+  echo "--export=<true/false>"
+  echo "--export-dir=<repository_path>"
+  echo "--macos-sdk-dir=<macos_sdk_dir>"
   echo "--gpg-private-key-path=<key>"
   echo "--gpg-sign-key=<key>"
   echo "--push-artifacts=<true/false>"
@@ -37,6 +38,7 @@ USER_TARGET=developer
 USER_TARGET_SPECIFIED=false
 EXPORT_BUILD=false
 EXPORT_DIR="export"
+MACOS_SDK_DIR=""
 TESTSUITE_DISABLED=false
 GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
@@ -45,7 +47,7 @@ UPLOAD_DEBUG_SYMBOLS=false
 PUSH_ARTIFACTS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a,t --long help,target_triple:,export:,export-dir:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx-compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a,t,s --long help,target_triple:,export:,export-dir:,macos-sdk-dir:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx-compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -59,6 +61,7 @@ while true; do
     -d | --disable-testsuite ) TESTSUITE_DISABLED="$2"; shift 2 ;;
     -e | --export ) EXPORT_BUILD="$2"; shift 2 ;;
     -r | --export-dir ) EXPORT_DIR="$2"; shift 2 ;;
+    -s | --macos-sdk-dir ) MACOS_SDK_DIR="$2"; shift 2 ;;
     -g | --gpg-private-key-path ) GPG_PRIVATE_KEY_PATH="$2"; shift 2 ;;
     -k | --gpg-sign-key ) GPG_SIGN_KEY="$2"; shift 2 ;;
     -l | --code-coverage ) CODE_COVERAGE_ENABLED="$2"; shift 2 ;;
@@ -75,6 +78,12 @@ set -e
 set -x
 
 ./generate_appstream_metadata.sh
+
+if [ -n "$MACOS_SDK_DIR" ]; then
+  MACOS_SDK_LOCAL_DIR="files/macos_sdk"
+  mkdir -p "$MACOS_SDK_LOCAL_DIR"
+  cp "$MACOS_SDK_DIR"/* "$MACOS_SDK_LOCAL_DIR"
+fi
 
 # Build Squey
 BUILD_OPTIONS="--option target_triple $TARGET_TRIPLE --option cxx_compiler $CXX_COMPILER --error-lines 10000 "
@@ -135,9 +144,10 @@ elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Export flatpak images
   #fi
 elif [ "$TARGET_TRIPLE" == "x86_64-apple-darwin" ] || [ "$TARGET_TRIPLE" == "aarch64-apple-darwin" ]; then
   bst $BUILD_OPTIONS build macos_bundle/app-bundle.bst
-  bst $BUILD_OPTIONS artifact checkout macos_bundle/app-bundle.bst --directory "$EXPORT_DIR/bundle_root/app-bundle"
   bst $BUILD_OPTIONS build macos_bundle/dmg-image.bst
-  bst $BUILD_OPTIONS artifact checkout macos_bundle/dmg-image.bst --directory "$EXPORT_DIR/dmg-image"
+  rm -rf "$EXPORT_DIR/$TARGET_TRIPLE"
+  bst $BUILD_OPTIONS artifact checkout macos_bundle/app-bundle.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/app-bundle"
+  bst $BUILD_OPTIONS artifact checkout macos_bundle/dmg-image.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/dmg-image"
 fi
 
 # Push artifacts

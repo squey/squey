@@ -219,6 +219,7 @@ depends:
         - icu.bst
         - libarchive.bst
         - curl.bst
+        - xz.bst
   - target_triple != "x86_64-linux-gnu":
       build-depends:
         (>):

@@ -36,7 +36,6 @@ variables:
     -DLLVM_LIBDIR="%{libdir}"
     -DSTATIC_LLVM=OFF
     -DDL_H="%{sdk-dir}/usr/include/dlfcn.h"
-    -DEXTRA_HOST_LD_FLAGS="-L@loader_path -L@loader_path/.."
 
   (?):
   - (target_triple == "x86_64-linux-gnu" or target_triple == "x86_64-apple-darwin"):

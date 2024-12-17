@@ -1,9 +1,10 @@
 image:
-  name: registry.gitlab.com/squey/container-images/squey_build:d6a57736
+  name: registry.gitlab.com/squey/container-images/squey_build:5708638a
   pull_policy: [if-not-present]
 
 variables:
   GIT_SUBMODULE_STRATEGY: recursive
+  GIT_LFS_SKIP_SMUDGE: 0
   CACHE_COMPRESSION_LEVEL: "fastest"
   UPDATE_INSTALLERS_ONLY:
     value: "false"
@@ -32,6 +33,7 @@ workflow:
     - privileged-docker
   before_script: |
     export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
+    git lfs pull
     for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
     mkdir -p "$CI_PROJECT_DIR/public/flatpak"
     cd buildstream
@@ -60,12 +62,29 @@ build testsuite:
   extends: .build
   script:
     - ./build.sh 
-        --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
+        --macos-sdk-dir="/srv/macos_sdk"
+        --target_triple="x86_64-apple-darwin"
         --branch="${CI_COMMIT_REF_NAME}" 
-        --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "action::flatpak_export" && echo true || echo false) 
-        --export-dir="/srv/flatpak_repo" 
+        --export=true
+        --target_triple="x86_64-w64-mingw32"
+        --branch="${CI_COMMIT_REF_NAME}" 
+        --export=true
+        --export-dir="/srv/msix_package/" 
+        --code-coverage=$CODE_COVERAGE
+    - ./build.sh 
+        --macos-sdk-dir="/srv/macos_sdk"
+        --target_triple="x86_64-apple-darwin"
+        --branch="${CI_COMMIT_REF_NAME}" 
+        --export=true
+        --export-dir="/srv/macos_bundle/" 
         --code-coverage=$CODE_COVERAGE 
-        --push-artifacts="${PUSH_ARTIFACTS}"
+    - ./build.sh 
+        --macos-sdk-dir="/srv/macos_sdk"
+        --target_triple="aarch64-apple-darwin"
+        --branch="${CI_COMMIT_REF_NAME}" 
+        --export=true
+        --export-dir="/srv/macos_bundle" 
+        --code-coverage=$CODE_COVERAGE 
   coverage: '/lines\.+: (\d+\.\d+)% \(\d+ of \d+ lines\)/'
   rules:
     - if: '$CI_COMMIT_TAG =~ "/^$/" && $UPDATE_INSTALLERS_ONLY == "false"'

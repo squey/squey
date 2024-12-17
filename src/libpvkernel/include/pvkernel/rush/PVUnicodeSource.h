@@ -406,7 +406,6 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 			PVLOG_ERROR("(PVRawSource) unable to get a new chunk: end of input\n");
 			return nullptr;
 		}
-
 		return ret;
 	}
 

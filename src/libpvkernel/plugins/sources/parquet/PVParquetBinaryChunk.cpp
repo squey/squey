@@ -269,12 +269,8 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 				const std::shared_ptr<arrow::Array>& column_array = table->column(col)->chunk(0);
 				if (column_array->null_count() > 0) {
 					set_invalid_column(PVCol(i+multi_inputs));
-					//pvlogger::fatal() << "column(" << col << ")->length()=" << column_array->length() << std::endl;
 					for (PVRow row = 0; row < column_array->length(); ++row) {
 						if (column_array->IsNull(row)) {
-							// if (col == 0) {
-							// 	pvlogger::fatal() << "input_index=" << input_index << " set_invalid(" << row << ")" << std::endl;
-							// }
 							set_invalid(PVCol(i+multi_inputs), row);
 						}
 					}

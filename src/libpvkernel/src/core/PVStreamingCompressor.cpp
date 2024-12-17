@@ -40,17 +40,18 @@
 #include <cassert>
 #include <algorithm>
 #include <memory>
+#include <spawn.h>
 
 #include "pvkernel/core/PVOrderedMap.h"
 
-#if __APPLE__
-	const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
-    PVCore::__impl::PVStreamingBase::_supported_compressors = {};
-#else
+static constexpr int PIPE_READ = 0;
+static constexpr int PIPE_WRITE = 1;
+
+extern char **environ;
+
 const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
     PVCore::__impl::PVStreamingBase::_supported_compressors = {
         {"gz", {"pigz", "unpigz"}}, {"bz2", {"lbzip2", "lbunzip2"}}, {"zip", {"zip", "funzip"}}, {"xz", {"xz -T0", "unxz -T0"}}};
-#endif
 
 /******************************************************************************
  *
@@ -153,95 +154,55 @@ int PVCore::__impl::PVStreamingBase::return_status(std::string* status_msg /* = 
  *
  ******************************************************************************/
 
-#include <fcntl.h>
-#include <iostream>
-#include <spawn.h>
-#include <stdexcept>
-#include <string>
-#include <sys/wait.h>
-#include <unistd.h>
-#include <vector>
-
-extern char **environ;
-
 PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
     : __impl::PVStreamingBase(path)
 {
-    if (_passthrough) {
-        _fd = open(path.c_str(), O_CREAT | O_WRONLY, 0666);
-        if (_fd == -1) {
-            throw PVCore::PVStreamingCompressorError("Unable to create file '" + path + "'");
-        }
-        return;
-    }
+	_fd = open(path.c_str(), O_CREAT | O_WRONLY, 0666);
+	if (_fd == -1) {
+		throw PVCore::PVStreamingCompressorError("Unable to create file '" + path + "'");
+	}
 
-    // Used to forward data to compressor
-    int in_pipe[2];
-    pipe(in_pipe);
+	if (_passthrough) {
+		return;
+	}
 
-    // Used to get error message back from compressor
-    int out_pipe[2];
-    pipe(out_pipe);
+	posix_spawn_file_actions_t actions;
+	posix_spawn_file_actions_init(&actions);
 
-    // Used to check if execvp failed
-    int exec_pipe[2];
-    pipe(exec_pipe);
+	// Used to forward data to compressor
+	int in_pipe[2];
+	pipe(in_pipe);
+	posix_spawn_file_actions_adddup2(&actions, in_pipe[PIPE_READ], STDIN_FILENO);
+	posix_spawn_file_actions_addclose(&actions, in_pipe[PIPE_WRITE]);
 
-    posix_spawn_file_actions_t actions;
-    posix_spawn_file_actions_init(&actions);
+	// redirect std::out to file
+	posix_spawn_file_actions_adddup2(&actions, _fd, STDOUT_FILENO);
 
-    const auto& [args, argv] = executable(_extension, EExecType::COMPRESSOR);
+	// Used to get error message back from compressor
+	int err_pipe[2];
+	pipe(err_pipe);
+	_status_fd = err_pipe[PIPE_READ];
+	posix_spawn_file_actions_adddup2(&actions, err_pipe[PIPE_WRITE], STDERR_FILENO);
+	posix_spawn_file_actions_addclose(&actions, err_pipe[PIPE_READ]);
 
-    // Redirect stdin from in_pipe
-    posix_spawn_file_actions_adddup2(&actions, in_pipe[STDIN_FILENO], STDIN_FILENO);
-    close(in_pipe[STDOUT_FILENO]);
+	// Spawn new process
+	std::tie(_args, std::ignore) = executable(_extension, EExecType::COMPRESSOR);
+	_argv.clear();
+	for (const auto& arg : _args) {
+		_argv.push_back((char*)arg.data());
+	}
+	_argv.push_back(nullptr);
+	int status_code = posix_spawnp(&_child_pid, _argv[0], &actions, nullptr, _argv.data(), environ);
+	posix_spawn_file_actions_destroy(&actions);
 
-    // Redirect stderr to out_pipe
-    posix_spawn_file_actions_adddup2(&actions, out_pipe[STDOUT_FILENO], STDERR_FILENO);
-    close(out_pipe[STDIN_FILENO]);
+	if (status_code != 0) {
+		std::string error_msg = std::strerror(status_code);
+		throw PVStreamingCompressorError(
+			"Call to compression process failed with the following error message: " +
+			error_msg);
+	}
 
-    // Redirect stdout to the file
-    int compression_fd = open(path.c_str(), O_CREAT | O_WRONLY | O_CLOEXEC, 0666);
-    if (compression_fd == -1) {
-        std::cerr << "Unable to create file '" + path + "'" << std::endl;
-        posix_spawn_file_actions_destroy(&actions);
-        throw PVCore::PVStreamingCompressorError("Unable to create file '" + path + "'");
-    }
-    posix_spawn_file_actions_adddup2(&actions, compression_fd, STDOUT_FILENO);
-    close(compression_fd);
-
-    // Mark exec_pipe[STDOUT_FILENO] to close-on-exec for error checking
-    fcntl(exec_pipe[STDOUT_FILENO], F_SETFD, FD_CLOEXEC);
-
-    pid_t child_pid;
-    if (posix_spawn(&child_pid, args[0].c_str(), &actions, nullptr, argv.data(), environ) != 0) {
-        posix_spawn_file_actions_destroy(&actions);
-        throw PVCore::PVStreamingCompressorError("Failed to spawn compression process");
-    }
-
-    // Cleanup posix_spawn actions
-    posix_spawn_file_actions_destroy(&actions);
-
-    // Parent process setup
-    setpgid(child_pid, 0);
-
-    // Close unnecessary pipe ends in parent
-    close(in_pipe[STDIN_FILENO]);
-    close(out_pipe[STDOUT_FILENO]);
-    close(exec_pipe[STDOUT_FILENO]);
-
-    // Check for exec error
-    char buffer[1024];
-    if (read(exec_pipe[STDIN_FILENO], buffer, sizeof(errno)) != 0) {
-        std::string error_msg = std::strerror(atoi(buffer));
-        throw PVCore::PVStreamingCompressorError(
-            "Call to compression process failed with the following error message: " + error_msg);
-    }
-    close(exec_pipe[STDIN_FILENO]);
-
-    _fd = in_pipe[STDOUT_FILENO];
-    _status_fd = out_pipe[STDIN_FILENO];
-    _child_pid = child_pid;
+	_fd = in_pipe[PIPE_WRITE];
 }
 
 PVCore::PVStreamingCompressor::~PVStreamingCompressor()
@@ -318,145 +279,137 @@ PVCore::PVStreamingDecompressor::~PVStreamingDecompressor()
 
 void PVCore::PVStreamingDecompressor::init()
 {
-    _compressed_chunk_size = 0;
+	_compressed_chunk_size = 0;
 
-    int input_fd;
-    if ((input_fd = open(_path.c_str(), O_RDONLY, 0666)) == -1) {
-        throw PVStreamingDecompressorError("Unable to open file '" + _path + "'");
-    }
+	int input_fd;
+	if ((input_fd = open(_path.c_str(), O_RDONLY, 0666)) == -1) {
+		throw PVStreamingDecompressorError(std::string("Unable to open file '") + _path + "'");
+	}
 
-    _init = true;
+	_init = true;
 
-    if (_passthrough) {
-        _fd = input_fd;
-        return;
-    }
+	if (_passthrough) {
+		_fd = input_fd;
+		return;
+	}
 
-    // Pipes pour les différentes redirections
-    int in_pipe[2];
-    pipe(in_pipe);
+	posix_spawn_file_actions_t actions;
+	posix_spawn_file_actions_init(&actions);
 
-    int out_pipe[2];
-    pipe(out_pipe);
+	// Used to forward data to decompressor
+	int in_pipe[2];
+	pipe(in_pipe);
+	_write_fd = in_pipe[PIPE_WRITE];
+	posix_spawn_file_actions_adddup2(&actions, in_pipe[PIPE_READ], STDIN_FILENO);
+	posix_spawn_file_actions_addclose(&actions, in_pipe[PIPE_WRITE]);
 
-    int err_pipe[2];
-    pipe(err_pipe);
+	// Used to get decompressed data
+	int out_pipe[2];
+	pipe(out_pipe);
+	posix_spawn_file_actions_adddup2(&actions, out_pipe[PIPE_WRITE], STDOUT_FILENO);
+	posix_spawn_file_actions_addclose(&actions, out_pipe[PIPE_READ]);
 
-    int exec_pipe[2];
-    pipe(exec_pipe);
+	// Used to get error back from decompressor
+	int err_pipe[2];
+	pipe(err_pipe);
+	_status_fd = err_pipe[PIPE_READ];
+	posix_spawn_file_actions_adddup2(&actions, err_pipe[PIPE_WRITE], STDERR_FILENO);
+	posix_spawn_file_actions_addclose(&actions, err_pipe[PIPE_READ]);
 
-    posix_spawn_file_actions_t actions;
-    posix_spawn_file_actions_init(&actions);
+	// Spawn new process
+	std::tie(_args, std::ignore) = executable(_extension, EExecType::DECOMPRESSOR);
+	_argv.clear();
+	for (const auto& arg : _args) {
+		_argv.push_back((char*)arg.data());
+	}
+	_argv.push_back(nullptr);
+	int status_code = posix_spawnp(&_child_pid, _argv[0], &actions, nullptr, _argv.data(), environ);
+	posix_spawn_file_actions_destroy(&actions);
 
-    const auto& [args, argv] = executable(_extension, EExecType::DECOMPRESSOR);
+	if (status_code != 0) {
+		std::string error_msg = std::strerror(status_code);
+		throw PVStreamingDecompressorError(
+			"Call to decompression process failed with the following error message: " +
+			error_msg);
+	}
 
-    // Redirect stdin depuis in_pipe
-    posix_spawn_file_actions_adddup2(&actions, in_pipe[STDIN_FILENO], STDIN_FILENO);
+	setpgid(_child_pid, 0);
+	close(out_pipe[PIPE_WRITE]);
 
-    // Redirect stdout vers out_pipe
-    posix_spawn_file_actions_adddup2(&actions, out_pipe[STDOUT_FILENO], STDOUT_FILENO);
+	/**
+	 * Write compressed file to pipe to store the compressed read bytes count so far
+	 * (used to display proper progression during import)
+	 */
+	_thread = std::thread([=,this]() {
+		signal(SIGUSR1, [](int){});
+		const size_t buffer_length = 65336;
 
-    // Redirect stderr vers err_pipe
-    posix_spawn_file_actions_adddup2(&actions, err_pipe[STDOUT_FILENO], STDERR_FILENO);
+		std::unique_ptr<char[]> buffer(new char[buffer_length]);
 
-    // Assurez-vous que exec_pipe est fermé à l'exécution pour l'erreur d'execvp
-    fcntl(exec_pipe[STDOUT_FILENO], F_SETFD, FD_CLOEXEC);
+		/*
+		 * ignore "broken pipe" error
+		 */
+		sigset_t oldset, newset;
+ 		sigemptyset(&newset);
+		sigaddset(&newset, SIGPIPE);
+		pthread_sigmask(SIG_BLOCK, &newset, &oldset);
 
-    pid_t child_pid;
-    int status = posix_spawn(&child_pid, /*args[0].c_str()*/"/Users/jib/squey_libs/bin/unpigz", &actions, nullptr, argv.data(), environ);
-	if (status != 0) {
-        posix_spawn_file_actions_destroy(&actions);
-        throw PVStreamingDecompressorError(std::string("Failed to spawn decompression process : ") + strerror(status));
-    }
+		int read_count = 0;
+		int write_count = 0;
+		char* error_msg;
 
-    // Nettoyer les actions de posix_spawn
-    posix_spawn_file_actions_destroy(&actions);
-    setpgid(child_pid, 0);
+		while (true) {
+			if ((read_count = ::read(input_fd, buffer.get(), buffer_length)) > 0) {
+				_compressed_chunk_size += read_count;
+				if ((write_count = write(_write_fd, buffer.get(), read_count)) < read_count) {
+					error_msg = std::strerror(errno);
+					break;
+				}
+			} else {
+				error_msg = std::strerror(errno);
+				break;
+			}
+		}
 
-    //close(in_pipe[STDIN_FILENO]);
-    _write_fd = in_pipe[STDOUT_FILENO];
-    //close(err_pipe[STDOUT_FILENO]);
-    _status_fd = err_pipe[STDIN_FILENO];
-    //close(exec_pipe[STDOUT_FILENO]);
-
-    char buffer[1024];
-    if (::read(exec_pipe[STDIN_FILENO], buffer, sizeof(errno)) != 0) {
-        int status_code = atoi(buffer);
-        if (status_code != 0) {
-            std::string error_msg = std::strerror(status_code);
-            throw PVStreamingDecompressorError(
-                "Call to decompression process failed with the following error message: " +
-                error_msg);
-        }
-    }
-
-    // Thread de transfert des données compressées
-    _thread = std::thread([=, this]() {
-        static constexpr const size_t buffer_length = 65536;
-        std::unique_ptr<char[]> buffer(new char[buffer_length]);
-
-        sigset_t oldset, newset;
-        sigemptyset(&newset);
-        sigaddset(&newset, SIGPIPE);
-        pthread_sigmask(SIG_BLOCK, &newset, &oldset);
-
-        int read_count = 0;
-        int write_count = 0;
-        char* error_msg;
-
-        while (true) {
-            if ((read_count = ::read(input_fd, buffer.get(), buffer_length)) > 0) {
-                _compressed_chunk_size += read_count;
-                if ((write_count = write(_write_fd, buffer.get(), read_count)) < read_count) {
-                    error_msg = std::strerror(errno);
-                    break;
-                }
-            } else {
-                error_msg = std::strerror(errno);
-                break;
-            }
-        }
-
-        close(_write_fd);
+		close(_write_fd);
 
 #if __APPLE__
-			sigset_t pending;
-			struct timespec ts = {0, 10000000};
+		sigset_t pending;
+		struct timespec ts = {0, 10000000};
 
-			do {
-				sigpending(&pending);
-				if (sigismember(&pending, SIGPIPE)) {
-					struct sigaction sa;
-					sa.sa_handler = SIG_DFL;
-					sigemptyset(&sa.sa_mask);
-					sa.sa_flags = 0;
-					sigaction(SIGPIPE, &sa, nullptr);
-				}
-				nanosleep(&ts, nullptr);
-			} while (sigismember(&pending, SIGPIPE));
+		do {
+			sigpending(&pending);
+			if (sigismember(&pending, SIGPIPE)) {
+				struct sigaction sa;
+				sa.sa_handler = SIG_DFL;
+				sigemptyset(&sa.sa_mask);
+				sa.sa_flags = 0;
+				sigaction(SIGPIPE, &sa, nullptr);
+			}
+			nanosleep(&ts, nullptr);
+		} while (sigismember(&pending, SIGPIPE));
 #else
-			siginfo_t si;
-			struct timespec ts = {0, 0};
-			while (sigtimedwait(&newset, &si, &ts) >= 0 || errno != EAGAIN)
-			;
+		siginfo_t si;
+		struct timespec ts = {0, 0};
+		while (sigtimedwait(&newset, &si, &ts) >= 0 || errno != EAGAIN)
+		;
 #endif
-        pthread_sigmask(SIG_SETMASK, &oldset, nullptr);
+		pthread_sigmask(SIG_SETMASK, &oldset, nullptr);
 
-        if (read_count < 0) {
-            throw PVStreamingDecompressorError(
-                "Error while reading compressed file: " + std::string(error_msg));
-        }
-        if (!(_canceled || _finished) && write_count < read_count) {
-            std::string error_msg;
-            return_status(&error_msg);
+		if (read_count < 0) {
+			throw PVStreamingDecompressorError(
+				std::string("Error while reading compressed file :") + error_msg);
+		}
+		if ((not _canceled and not _finished) and write_count < read_count) {
+			std::string error_msg;
+			return_status(&error_msg);
 
-            throw PVStreamingDecompressorError(
-                "Error while decompressing file: " + error_msg);
-        }
-    });
+			throw PVStreamingDecompressorError(
+				std::string("Error while decompressing file : ") + error_msg);
+		}
+	});
 
-    close(out_pipe[STDOUT_FILENO]);
-    _fd = out_pipe[STDIN_FILENO];
+	_fd = out_pipe[PIPE_READ];
 }
 
 void PVCore::PVStreamingDecompressor::do_wait_finished()
@@ -465,10 +418,14 @@ void PVCore::PVStreamingDecompressor::do_wait_finished()
 		return;
 	}
 
+#ifdef __linux__
 	close(_write_fd);
 	_write_fd = -1;
+#endif
 
-	kill(_child_pid, SIGTERM);
+    kill(_child_pid, SIGTERM);
+
+	pthread_kill(_thread.native_handle(), SIGUSR1);
 
 	_thread.join();
 

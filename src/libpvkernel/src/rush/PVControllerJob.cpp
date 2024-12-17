@@ -103,7 +103,8 @@ tbb::filter<void, void> PVRush::PVControllerJob::create_tbb_filter()
                 fc.stop();
                 return nullptr;
             }
-            return static_cast<PVCore::PVTextChunk*>(_agg(fc)); });
+			return static_cast<PVCore::PVTextChunk*>(_agg(fc)); }
+		);
 
 		// The "job" filter
 		tbb::filter<PVCore::PVTextChunk*, PVCore::PVTextChunk*> transform_filter(

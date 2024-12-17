@@ -10,6 +10,12 @@ sources:
 
 (@): buildstream/elements/base/target.bst
 
+(?):
+- (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+    variables:
+      cmake-local: >-
+        -DCMAKE_OSX_DEPLOYMENT_TARGET="%{macos-deployment-target-version}"
+
 config:
   (?):
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):

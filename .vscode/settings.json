@@ -109,7 +109,11 @@
         "string.h": "c",
         "stdlib.h": "c",
         "cassert": "cpp",
-        "*.ipp": "cpp"
+        "*.ipp": "cpp",
+        "ios": "cpp",
+        "locale": "cpp",
+        "stack": "cpp",
+        "osmemory": "cpp"
     },
     "gotoSymbolStack.currentStackPosition": 0,
     "gotoSymbolStack.maxStackPosition": 0,

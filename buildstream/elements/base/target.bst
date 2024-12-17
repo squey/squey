@@ -19,6 +19,7 @@
             prefix: "/mac"
             macos-version: "24.1"
             macos-sdk-version: "15.1"
+            macos-deployment-target-version: "10.13"
             target-vendor: "apple"
             target-platform: "darwin"
             host: "%{target-arch}-%{target-vendor}-%{target-platform}%{macos-version}"

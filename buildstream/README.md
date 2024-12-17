@@ -20,7 +20,7 @@ cd squey/buildstream && ./dev_shell.sh
 From then you can choose to use the development shell to compile and run the software as such:
 
 ```
-cd builds/{Clang,GCC}/{Debug,RelWithDebInfo} && cmake --build . && ./squey.sh
+cd builds/{x86_64-linux-gnu,x86_64-apple-darwin,aarch64-apple-darwin}/{Clang,GCC}/{Debug,RelWithDebInfo} && cmake --build . [ && ./squey.sh ]
 ```
 
 or you can continue to configure an IDE.
