@@ -56,6 +56,7 @@ See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 
 ```
 flatpak install --user -y https://dl.flathub.org/repo/appstream/org.squey.Squey.flatpakref
+flatpak run org.squey.Squey
 ```
 
 ### Windows
