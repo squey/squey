@@ -167,8 +167,8 @@ flathub:
     cd "$CI_PROJECT_DIR/org.squey.Squey"
     git checkout -b "$BRANCH_NAME"
   script: |
-    cp "$CI_PROJECT_DIR/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
-    jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
+    cp "$CI_PROJECT_DIR/buildstream/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
+    jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/buildstream/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
     git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
     git push -f --set-upstream origin "$BRANCH_NAME"
     echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
