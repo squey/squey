@@ -20,7 +20,6 @@ done
 
 source .common.sh
 
-xhost +
 scripts/cuda-devices &> /dev/null || true
 
 [ -n "$TARGET_TRIPLE" ] && TARGET_OPTION="--option target_triple $TARGET_TRIPLE"
