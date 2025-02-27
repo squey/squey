@@ -208,7 +208,7 @@ class TBBMergeTreesTask
 // PVZoneTree implementation
 //
 
-PVParallelView::PVZoneTree::PVZoneTree() : PVZoneTreeBase(), _tree_data(nullptr)
+PVParallelView::PVZoneTree::PVZoneTree() : PVZoneTreeBase()
 {
 }
 
@@ -304,13 +304,13 @@ void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Squey::PVSel
 			                  if (tree->branch_valid(b)) {
 				                  const PVRow r = tree->get_first_elt_of_branch(b);
 				                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-				                      (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+				                      ((PVSelection::chunk_t)1 << (PVSelection::line_index_to_chunk_bit(r)))) {
 					                  res = r;
 				                  } else {
 					                  for (size_t i = 0; i < tree->_treeb[b].count; i++) {
 						                  const PVRow r = tree->_treeb[b].p[i];
 						                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-						                      (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+						                      ((PVSelection::chunk_t)1 << (PVSelection::line_index_to_chunk_bit(r)))) {
 							                  res = r;
 							                  break;
 						                  }

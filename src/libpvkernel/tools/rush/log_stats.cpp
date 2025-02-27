@@ -25,6 +25,8 @@
 
 #include "log_stats.h"
 
+#include <pvkernel/core/PVUtils.h>
+
 #include <boost/program_options.hpp>
 #include <boost/tokenizer.hpp>
 
@@ -112,8 +114,8 @@ int main(int argc, char** argv)
  * The correct fix is probably to use the import API in Squey namespace...
  */
 #ifndef SQUEY_DEVELOPER_MODE
-	setenv("SQUEY_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
-	setenv("PVKERNEL_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
+	PVCore::setenv("SQUEY_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
+	PVCore::setenv("PVKERNEL_PLUGIN_PATH", PLUGINS_DISTRIB_DIR, 1);
 #endif
 
 	pvtest::init_ctxt();

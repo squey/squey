@@ -30,6 +30,32 @@
 #include <fcntl.h>
 #include <unistd.h>
 
+#ifdef _WIN32
+#include <windows.h>
+bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
+{
+	HANDLE fileHandle = CreateFile(
+        file_name,
+        GENERIC_READ,
+        0,
+        NULL,
+        OPEN_EXISTING,
+        FILE_ATTRIBUTE_NORMAL,
+        NULL
+    );
+
+    if (fileHandle == INVALID_HANDLE_VALUE) {
+        if (GetLastError() == ERROR_SHARING_VIOLATION) {
+            return true;
+        }
+        return false;
+    }
+
+    CloseHandle(fileHandle);
+
+    return false;
+}
+#else
 bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 {
 	errno = 0;
@@ -49,3 +75,4 @@ bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 
 	return ret;
 }
+#endif

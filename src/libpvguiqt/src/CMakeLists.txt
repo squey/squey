@@ -4,6 +4,8 @@
 
 include_directories(AFTER ../include/pvguiqt/format-builder)
 
+#set(CMAKE_CXX_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/libpvguiqt/export.def ${CMAKE_CXX_FLAGS}")
+
 ################################################
 # Ressource declaration
 ################################################
@@ -157,12 +159,14 @@ PV_QT6_WRAP_UI(UI_SRC pvguiqt ${UI_FILES})
 ################################################
 
 add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES})
-
+target_compile_definitions(pvguiqt PRIVATE PVGUIQT_LIBRARY)
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 
-set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets)
+find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
+set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6Core5Compat)
+include_directories(AFTER SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
 
-set(PVGUIQT_LINK_LIBRARIES pvdisplays pvsquey pvkernel ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} 
+set(PVGUIQT_LINK_LIBRARIES pvkernel pvsquey pvdisplays pvparallelview ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} 
 	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${QT6_LIBS} KF6::SyntaxHighlighting)
 
 target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})

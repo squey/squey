@@ -5,6 +5,7 @@
 project(libpvkernel)
 include(CTest)
 set(CTEST_PROJECT_NAME "PVKernel")
+add_definitions(-DSINGLETON_DLL)
 
 ################################################
 # QT6 related include and check
@@ -21,6 +22,10 @@ include_directories(SYSTEM ${Qt6Gui_INCLUDE_DIRS})
 # For Dialog
 find_package(Qt6Widgets REQUIRED)
 include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
+
+# For Qt6Core5Compat
+find_package(Qt6Core5Compat REQUIRED)
+include_directories(SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
 
 # FIXME : This is a hack waiting for Qt 5.4 and QOpenGLWidgets
 set(QT_NO_OPENGL 1)
@@ -43,11 +48,12 @@ else(${QT_WEBKIT})
 	# include_directories(SYSTEM ${Qt6WebEngineCore_INCLUDE_DIRS})
 endif(${QT_WEBKIT})
 
-set(utf8proc_LIB ${DCMAKE_INSTALL_PREFIX}/lib/libutf8proc.a)
+# set(utf8proc_LIB ${DCMAKE_INSTALL_PREFIX}/lib/libutf8proc.a)
 find_package(Arrow CONFIG REQUIRED)
 find_package(Parquet CONFIG REQUIRED)
 find_package(Thrift CONFIG REQUIRED)
 find_package(re2 REQUIRED)
+set(PARQUET_LIBS Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
 
 find_package(Qt6DBus REQUIRED)
 include_directories(SYSTEM ${Qt6DBus_INCLUDE_DIRS})

@@ -17,6 +17,7 @@ config:
     echo "export HOST=%{host}" >> %{target-env-vars-path}
     echo "export TOOLCHAIN_DIR=%{toolchain-dir}" >> %{target-env-vars-path}
     echo "export TARGET_PLATFORM=%{target-platform}" >> %{target-env-vars-path}
+    echo "export DEPLOYMENT_TARGET_VERSION=%{deployment-target-version}" >> %{target-env-vars-path}
 
 build-depends:
 - sdk.bst

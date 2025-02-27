@@ -3,8 +3,8 @@ description: |
 
 sources:
 - kind: tar
-  url: qt:archive/qt/6.8/6.8.0/single/qt-everywhere-src-6.8.0.tar.xz
-  ref: 70f1a87c6ecc6c108dec6e9389e564f8798bd48bec4c596f28d0564c1dbbc2c6
+  url: qt:archive/qt/6.8/6.8.2/single/qt-everywhere-src-6.8.2.tar.xz
+  ref: 659d8bb5931afac9ed5d89a78e868e6bd00465a58ab566e2123db02d674be559
 
 - kind: patch
   path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
@@ -25,68 +25,136 @@ variables:
     -DINSTALL_INCLUDEDIR=%{includedir}/qt6
     -DINSTALL_PLUGINSDIR=%{libdir}/qt6/plugins
     %{qt-crossplatform-options}
-    -DQT_BUILD_EXAMPLES=FALSE
-    -DQT_BUILD_TESTS=FALSE
+    -DBUILD_CMAKE_TESTING=OFF
     -DBUILD_qt3d=OFF
-    -DBUILD_qtquick3d=OFF
-    -DBUILD_qtquick3dphysics=OFF
-    -DBUILD_qtcanvas3d=OFF
+    -DBUILD_qtactiveqt=OFF
     -DBUILD_qtandroidextras=OFF
+    -DBUILD_qtcanvas3d=OFF
+    -DBUILD_qtcharts=OFF
+    -DBUILD_qtcoap=OFF
     -DBUILD_qtconnectivity=OFF
     -DBUILD_qtdatavis3d=OFF
+    -DBUILD_qtdeclarative=OFF
     -DBUILD_qtdoc=OFF
-    -DBUILD_qtlocation=OFF
-    -DBUILD_qtmacextras=OFF
-    -DBUILD_qtmultimedia=OFF
-    -DBUILD_qtopcua=OFF
     -DBUILD_qtgamepad=OFF
+    -DBUILD_qtgraphs=OFF
+    -DBUILD_qthttpserver=OFF
+    -DBUILD_qtlanguageserver=OFF
+    -DBUILD_qtlocation=OFF
+    -DBUILD_qtlottie=OFF
+    -DBUILD_qtmacextras=OFF
+    -DBUILD_qtmqtt=OFF
+    -DBUILD_qtmultimedia=OFF
+    -DBUILD_qtnetworkauth=OFF
+    -DBUILD_qtopcua=OFF
+    -DBUILD_qtpositioning=OFF
     -DBUILD_qtpurchasing=OFF
+    -DBUILD_qtquick3d=OFF
+    -DBUILD_qtquick3dphysics=OFF
+    -DBUILD_qtquickeffectmaker=OFF
+    -DBUILD_qtquicktimeline=OFF
+    -DBUILD_qtremoteobjects=OFF
+    -DBUILD_qtscxml=OFF
     -DBUILD_qtsensors=OFF
     -DBUILD_qtserialbus=OFF
     -DBUILD_qtserialport=OFF
+    -DBUILD_qtshadertools=OFF
     -DBUILD_qtspeech=OFF
-    -DBUILD_qtvirtualkeyboard=OFF
-    -DBUILD_qtgraphs=OFF
-    -DFEATURE_renameat2=OFF
-    -DFEATURE_getentropy=OFF
-    -DFEATURE_webengine_geolocation=OFF
-    -DFEATURE_webengine_kerberos=OFF
-    -DFEATURE_webengine_pepper_plugins=OFF
-    -DFEATURE_webengine_printing_and_pdf=OFF
-    -DFEATURE_webengine_spellchecker=OFF
-    -DFEATURE_webengine_webrtc=OFF
-    -DFEATURE_webengine_webrtc_pipewire=OFF
-    -DFEATURE_webengine_developer_build=OFF
-    -DFEATURE_webengine_full_debug_info=OFF
-    -DFEATURE_webengine_native_spellchecker=OFF
-    -DFEATURE_webengine_system_minizip=OFF
-    -DFEATURE_sql_sqlite=ON
-    -DFEATURE_sql_mysql=OFF
-    -DFEATURE_accessibility=ON
-    -DFEATURE_system_proxies=ON
-    -DFEATURE_webengine_proprietary_codecs=OFF
-    -DFEATURE_glib=OFF
-    -DFEATURE_cups=OFF
-    -DFEATURE_appstore_compliant=ON
-    -DFEATURE_cxx20=ON
-    -DFEATURE_printsupport=OFF
-    -DFEATURE_clock_gettime=OFF
-    -DFEATURE_posix_shm=OFF
-    -DFEATURE_posix_sem=OFF
-    -DFEATURE_framework=OFF
-    -DFEATURE_zstd=ON
-    -DFEATURE_filesystem=OFF
-    -DQT_FEATURE_pdf=OFF
-    -DINPUT_release_tools=yes
     -DBUILD_qttools=ON
     -DBUILD_qttranslations=OFF
-    -DINPUT_openssl=on
-    -DINPUT_opengl=no
+    -DBUILD_qtvirtualkeyboard=OFF
+    -DBUILD_qtwebengine=OFF
+    -DBUILD_qtwebview=OFF
+    -DFEATURE_accessibility=ON
+    -DFEATURE_appstore_compliant=ON
+    -DFEATURE_clock_gettime=OFF
+    -DFEATURE_cups=OFF
+    -DFEATURE_cxx20=ON
+    -DFEATURE_filesystem=OFF
+    -DFEATURE_framework=OFF
+    -DFEATURE_getentropy=OFF
+    -DFEATURE_glib=OFF
+    -DFEATURE_pdf=OFF
+    -DFEATURE_posix_sem=OFF
+    -DFEATURE_posix_shm=OFF
+    -DFEATURE_printsupport=OFF
+    -DFEATURE_qml_animation=OFF
+    -DFEATURE_qml_debug=OFF
+    -DFEATURE_qml_delegate_model=OFF
+    -DFEATURE_qml_itemmodel=OFF
+    -DFEATURE_qml_jit=OFF
+    -DFEATURE_qml_list_model=OFF
+    -DFEATURE_qml_locale=OFF
+    -DFEATURE_qml_network=OFF
+    -DFEATURE_qml_object_model=OFF
+    -DFEATURE_qml_preview=OFF
+    -DFEATURE_qml_profiler=OFF
+    -DFEATURE_qml_ssl=OFF
+    -DFEATURE_qml_table_model=OFF
+    -DFEATURE_qml_worker_script=OFF
+    -DFEATURE_qml_xml_http_request=OFF
+    -DFEATURE_qml_xmllistmodel=OFF
+    -DFEATURE_quick_animatedimage=OFF
+    -DFEATURE_quick_canvas=OFF
+    -DFEATURE_quick_designer=OFF
+    -DFEATURE_quick_draganddrop=OFF
+    -DFEATURE_quick_flipable=OFF
+    -DFEATURE_quick_gridview=OFF
+    -DFEATURE_quick_listview=OFF
+    -DFEATURE_quick_particles=OFF
+    -DFEATURE_quick_path=OFF
+    -DFEATURE_quick_pathview=OFF
+    -DFEATURE_quick_pixmap_cache_threaded_download=OFF
+    -DFEATURE_quick_positioners=OFF
+    -DFEATURE_quick_repeater=OFF
+    -DFEATURE_quick_shadereffect=OFF
+    -DFEATURE_quick_sprite=OFF
+    -DFEATURE_quick_tableview=OFF
+    -DFEATURE_quick_treeview=OFF
+    -DFEATURE_quickcontrols2_fluentwinui3=OFF
+    -DFEATURE_quickcontrols2_fusion=OFF
+    -DFEATURE_quickcontrols2_imagine=OFF
+    -DFEATURE_quickcontrols2_ios=OFF
+    -DFEATURE_quickcontrols2_macos=OFF
+    -DFEATURE_quickcontrols2_material=OFF
+    -DFEATURE_quickcontrols2_universal=OFF
+    -DFEATURE_quickcontrols2_windows=OFF
+    -DFEATURE_quicktemplates2_calendar=OFF
+    -DFEATURE_quicktemplates2_container=OFF
+    -DFEATURE_quicktemplates2_hover=OFF
+    -DFEATURE_quicktemplates2_multitouch=OFF
+    -DFEATURE_renameat2=OFF
+    -DFEATURE_sql_sqlite=ON
+    -DFEATURE_system_proxies=ON
+    -DFEATURE_webengine_developer_build=OFF
+    -DFEATURE_webengine_full_debug_info=OFF
+    -DFEATURE_webengine_geolocation=OFF
+    -DFEATURE_webengine_kerberos=OFF
+    -DFEATURE_webengine_native_spellchecker=OFF
+    -DFEATURE_webengine_pepper_plugins=OFF
+    -DFEATURE_webengine_printing_and_pdf=OFF
+    -DFEATURE_webengine_proprietary_codecs=OFF
+    -DFEATURE_webengine_spellchecker=OFF
+    -DFEATURE_webengine_system_minizip=OFF
+    -DFEATURE_webengine_webrtc=OFF
+    -DFEATURE_webengine_webrtc_pipewire=OFF
+    -DFEATURE_zstd=ON
     -DINPUT_bundled_xcb_xinput=yes
+    -DINPUT_opengl=no
+    -DINPUT_openssl=on
+    -DINPUT_release_tools=yes
+    -DQT_BUILD_EXAMPLES=FALSE
+    -DQT_BUILD_TESTS=FALSE
+    %{cmake-local-extra}
 
 environment:
   OPENSSL_LIBS: "-L/%{libdir}/lib -lssl -lcrypto"
   PYTHONPATH: "/usr/lib/python3.12/site-packages:/%{libdir}/python3.12/site-packages"
+
+config:
+  configure-commands:
+    (>):
+    - cat _builddir/config.summary
 
 build-depends:
 - freedesktop-sdk.bst:components/python3.bst

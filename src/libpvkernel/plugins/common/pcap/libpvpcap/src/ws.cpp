@@ -23,7 +23,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#ifndef _WIN32
 #include <pwd.h>
+#endif
 #include <assert.h>
 #include <libpvpcap/shell.h>
 #include <qchar.h>
@@ -54,12 +56,15 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <regex>
 
 #include "../include/libpvpcap.h"
 #include "../include/libpvpcap/ws.h"
 #include "../include/libpvpcap/exception.h"
 #include "rapidjson/document.h"
 #include "rapidjson/stringbuffer.h"
+
+#include <pvlogger.h>
 
 namespace pvpcap
 {
@@ -71,19 +76,23 @@ std::string get_wireshark_profiles_dir()
 	std::string wireshark_profile_dir;
 
 	struct stat info;
-	const char* homedir;
-	if ((homedir = getenv("HOME")) == nullptr) {
+	std::string homedir;
+#ifndef _WIN32
+	if ((homedir = std::getenv("HOME")) == std::string()) {
 		homedir = getpwuid(getuid())->pw_dir;
 	}
+#else
+	homedir = std::string(std::getenv("HOMEDRIVE")) + "/" + std::getenv("HOMEPATH");
+#endif
 
 	// Check if "$XDG_CONFIG_HOME/wireshark" exists (but don't use env var in flatpak)
-	wireshark_profile_dir = std::string(homedir) + "/.config/wireshark/profiles";
+	wireshark_profile_dir = homedir + "/.config/wireshark/profiles";
 	if (stat(wireshark_profile_dir.c_str(), &info) == 0 and S_ISDIR(info.st_mode)) {
 		return wireshark_profile_dir;
 	}
 
 	// Check if "~/.wireshark" exists for backward compatibility
-	wireshark_profile_dir = std::string(homedir) + "/.wireshark/profiles";
+	wireshark_profile_dir = homedir + "/.wireshark/profiles";
 	if (stat(wireshark_profile_dir.c_str(), &info) == 0 and S_ISDIR(info.st_mode)) {
 		return wireshark_profile_dir;
 	}
@@ -135,6 +144,26 @@ rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_fil
 
 /*******************************************************************************
  *
+ * ws_get_version
+ *
+ ******************************************************************************/
+std::string ws_get_version()
+{
+	// Save tshark version. we use the first line
+	std::string tshark_cmd = std::string(TSHARK_PATH) + " -v";
+	std::vector<std::string> tshark_version = execute_cmd(tshark_cmd);
+
+	// Extract version number
+    std::regex version_regex(R"(\d+\.\d+\.\d+)");
+    std::smatch match;
+    if (not std::regex_search(tshark_version[0], match, version_regex)) {
+		pvlogger::error() << "Unable to detect tshark version" << std::endl;
+    }
+	return match.str().c_str();
+}
+
+/*******************************************************************************
+ *
  * ws_create_protocols_dict
  *
  ******************************************************************************/
@@ -145,14 +174,9 @@ void ws_create_protocols_dict(std::string const& protocols_dict_file)
 	rapidjson::Document::AllocatorType& alloc = json.GetAllocator();
 	std::vector<std::string> split_fields;
 
-	// Save tshark version. we use the first line
-	std::vector<std::string> tshark_version = execute_cmd("tshark -v");
-
-	// take only the version number : split_fields[1]
-	boost::split(split_fields, tshark_version[0], boost::is_any_of(" "));
-
 	rapidjson::Value version;
-	version.SetString(split_fields[1].c_str(), alloc);
+	std::string tshark_version = ws_get_version();
+	version.SetString(tshark_version.c_str(), alloc);
 	json.AddMember("tshark_version", version, alloc);
 
 	// Add protocols information : key = protocol filter name
@@ -487,7 +511,8 @@ void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
  ******************************************************************************/
 std::vector<std::string> ws_get_tshark_fields()
 {
-	std::vector<std::string> fields = execute_cmd("tshark -G fields");
+	std::string cmdline = std::string(TSHARK_PATH) + " -G fields";
+	std::vector<std::string> fields = execute_cmd(cmdline);
 
 	// delete all line who doesn't begin with "F"
 	auto i = fields.begin();
@@ -508,7 +533,8 @@ std::vector<std::string> ws_get_tshark_fields()
  ******************************************************************************/
 std::vector<std::string> ws_get_tshark_protocols()
 {
-	return execute_cmd("tshark -G protocols");
+	std::string cmdline = std::string(TSHARK_PATH) + " -G protocols";
+	return execute_cmd(cmdline);
 }
 
 /*******************************************************************************
@@ -598,7 +624,7 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 	const std::string& filters = json_data["options"]["filters"].GetString();
 
 	std::vector<std::string> opts;
-	opts.emplace_back("tshark");
+	opts.emplace_back(TSHARK_PATH);
 	if (not filters.empty()) {
 		opts.emplace_back("-Y" + filters);
 	}

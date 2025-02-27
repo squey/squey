@@ -33,6 +33,8 @@
 
 #include <libpvpcap/ws.h>
 
+#include <pvlogger.h>
+
 namespace pvpcap
 {
 
@@ -464,14 +466,25 @@ bool PcapTreeModel::load(QString filename, bool& canceled)
 	const std::string& protocols_dict_file = protocols_dict_path();
 
 	static rapidjson::Document protocols_dict = [&]() {
+		// Create if not existing...
 		if (not file_exists(protocols_dict_file)) {
 			create_protocols_dict(protocols_dict_file);
 		}
-		return parse_protocol_dict(protocols_dict_file);
+
+		// ... or if tshark_version has changed
+		rapidjson::Document doc = parse_protocol_dict(protocols_dict_file);
+		if (doc.HasMember("tshark_version") && doc["tshark_version"].IsString()) {
+			if (doc["tshark_version"].GetString() != ws_get_version()) {
+				create_protocols_dict(protocols_dict_file);
+				doc = parse_protocol_dict(protocols_dict_file);
+			}
+		}
+		return doc;
+		
 	}();
 
 	std::vector<std::string> cmd;
-	cmd.emplace_back("tshark");
+	cmd.emplace_back(std::string(TSHARK_PATH));
 	cmd.emplace_back("-q");
 	cmd.emplace_back("-zio,phs,frame");
 	cmd.emplace_back("-r-");

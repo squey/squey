@@ -37,6 +37,7 @@
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/core/squey_assert.h>
 #include <pvkernel/core/PVStreamingCompressor.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <squey/PVSelection.h>
 #include <squey/PVScene.h>
@@ -80,11 +81,11 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	bool is_path, disabled;
 	Squey::PVSource& src = view->get_parent<Squey::PVSource>();
 	QString python_script = src.get_original_format().get_python_script(is_path, disabled);
-	if (is_path) {
-		python_script.insert(0, (QDir::currentPath().toStdString() + "/").c_str());
-	}
 
 	if (not disabled and not python_script.isEmpty()) {
+		if (is_path) {
+			python_script.insert(0, (QDir::currentPath().toStdString() + "/").c_str());
+		}
 		if (is_path and not QFileInfo(python_script).exists()) {
 			assert(false && "Missing Python script");
 		}
@@ -105,9 +106,10 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	}
 	view->set_selection_view(sel);
 
-	char temp_pattern[] = "/tmp/fileXXXXXX";
-	close(mkstemp(temp_pattern));
-	std::remove(temp_pattern);
+	
+	std::string temp_pattern = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/fileXXXXXX";
+	close(mkstemp(temp_pattern.data()));
+	std::remove(temp_pattern.c_str());
 	std::string output_file = std::string(temp_pattern) + "." + file_extension;
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();

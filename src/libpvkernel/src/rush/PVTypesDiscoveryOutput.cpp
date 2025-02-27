@@ -34,6 +34,7 @@
 #include <fstream>
 #include <list>
 #include <mutex>
+#include <cinttypes> // PRIxxx macro
 
 #include "pvcop/db/128bits_support.h"
 #include "pvcop/formatter_desc.h"
@@ -51,12 +52,12 @@ static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
 //   {{ formatter, parameters}, { excluded_formatter_1, excluded_formatter_2, ...}}
      {{"number_uint32", ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_int32",  ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint32", "%#o"}, { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint32", "0x%x"}, { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint32", "%#" PRIo32}, { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint32", "0x%" PRIx32}, { "number_float", "number_double", "time", "duration" }},
      {{"number_uint64", ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_int64",  ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", "%#lo"},{ "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", "0x%lx"},{ "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", "%#" PRIo64},{ "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", "0x%" PRIx64},{ "number_float", "number_double", "time", "duration" }},
      {{"number_float",  ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
      {{"number_double", ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
 

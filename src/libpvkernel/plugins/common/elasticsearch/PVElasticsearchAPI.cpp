@@ -354,7 +354,7 @@ void PVRush::PVElasticsearchAPI::visit_columns(const visit_columns_f& f,
 			    json[_infos.get_index().toStdString().c_str()]["mappings"];
 			if (mappings.MemberCount() == 1) {
 				if (not mappings.HasMember("properties")) {
-					_mapping_type = mappings.GetObject().MemberBegin()->name.GetString();
+					_mapping_type = mappings.GetObj().MemberBegin()->name.GetString();
 				}
 			} else {
 				if (_version < PVCore::PVVersion(7, 0, 0)) {
@@ -723,7 +723,7 @@ void PVRush::PVElasticsearchAPI::detect_time_formats(columns_t& cols) const
 			json.Parse<0>(json_buffer.c_str());
 
 			std::string params;
-			if (json.GetObject().MemberCount() > 0) {
+			if (json.GetObj().MemberCount() > 0) {
 				std::string col_name_pointer = col;
 				PVCore::replace(col_name_pointer, ".", "/");
 				const rapidjson::Value* time =

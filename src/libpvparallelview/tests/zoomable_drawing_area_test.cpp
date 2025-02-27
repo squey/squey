@@ -394,13 +394,13 @@ class MyScalingZDAWA : public PVParallelView::PVZoomableDrawingAreaWithAxes
 
 		install_default_scene_interactor();
 
-		for (long i = 0; i < (1L << 32); i += 1024 * 1024) {
-			long v = i;
-			scn->addLine(0, v, 1L << 32, v, QPen(Qt::red, 0));
-			scn->addLine(v, 0, v, (1L << 32), QPen(Qt::blue, 0));
+		for (size_t i = 0; i < ((size_t)1 << 32); i += 1024 * 1024) {
+			size_t v = i;
+			scn->addLine(0, v, (size_t)1 << 32, v, QPen(Qt::red, 0));
+			scn->addLine(v, 0, v, ((size_t)1 << 32), QPen(Qt::blue, 0));
 		}
 
-		QRectF r(0, 0, (1L << 32), (1L << 32));
+		QRectF r(0, 0, ((size_t)1 << 32), ((size_t)1 << 32));
 		set_scene_rect(r);
 
 		PVParallelView::PVZoomConverter* zc = new zoom_converter_t();

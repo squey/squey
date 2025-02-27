@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+         xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+         xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+         xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities">
+    <Identity Name="org.squey.Squey" Publisher="CN=Squey" Version="{{version}}.0" />
+    <Properties>
+        <DisplayName>Squey</DisplayName>
+        <PublisherDisplayName>Squey</PublisherDisplayName>
+        <Logo>org.squey.Squey.png</Logo>
+    </Properties>
+    <Dependencies>
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.16299.0" MaxVersionTested="10.0.26100.0" />
+    </Dependencies>
+    <Resources>
+        <Resource Language="en-US" />
+    </Resources>
+    <Capabilities>
+        <rescap:Capability Name="internetClient" />
+        <rescap:Capability Name="runFullTrust" />
+    </Capabilities>
+    <Applications>
+        <Application Id="Squey" Executable="squey.exe" EntryPoint="Windows.FullTrustApplication" uap10:TrustLevel="mediumIL">
+            <uap:VisualElements
+                DisplayName="Squey"
+                Description="Squey is an open-source cross-platform visualization software designed to interactively explore and understand large amounts of tabular data."
+                BackgroundColor="#ffffff"
+                Square44x44Logo="org.squey.Squey.png"
+                Square150x150Logo="org.squey.Squey.png" />
+        </Application>
+    </Applications>
+</Package>

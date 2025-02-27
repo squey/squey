@@ -45,6 +45,7 @@ core/PVMemory2D.cpp
 core/PVStreamingCompressor.cpp
 core/PVVersion.cpp
 core/PVTheme.cpp
+core/PVSingleton.cpp
 )
 
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
@@ -239,19 +240,18 @@ PV_QT6_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
 
 # List files use to create the library
 add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})
-
+target_compile_definitions(pvkernel PRIVATE PVKERNEL_LIBRARY)
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 
-# Define third_party libs we have to link with for the library
-set(QT6_LIBS Qt6Core Qt6Widgets Qt6Gui Qt6Xml Qt6DBus)
+# Define third_part=y libs we have to link with for the library
 find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
-
-set(QT6_LIBS ${QT6_LIBS})
+set(QT6_LIBS Qt6Core Qt6Widgets Qt6Gui Qt6Xml Qt6DBus Qt6Core5Compat)
+include_directories(AFTER SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
 
 set(PVKERNEL_LINK_LIBRARIES ${QT6_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 	${OpenMP_LIBRARIES} ${Boost_LIBRARIES}
 	${ARCHIVE_LIBRARIES} ${BREAKPAD_LIBRARIES} ${WINSOCK_LIB} ${PVHWLOC_LIBRARIES}
-	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES} Qt6::Core5Compat)
+	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES})
 
 if (PYTHON_SUPPORT)
 	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${Python_LIBRARIES})

@@ -114,6 +114,24 @@ void PVCore::remove_common_folders(std::vector<std::string>& paths)
 	}
  }
 
+#if _WIN32
+#include <cstdlib>
+#include <direct.h>
+char* PVCore::mkdtemp(char* tmpl)
+{
+	char* tmp_dir_p = _mktemp(tmpl);
+    if (tmp_dir_p and _mkdir(tmp_dir_p) == 0) {
+		return tmp_dir_p;
+	}
+	return {};
+}
+#else
+char* PVCore::mkdtemp(char* tmpl)
+{
+	return ::mkdtemp(tmpl);
+}
+#endif
+
 #ifdef __linux__
 
 size_t PVCore::available_memory()
@@ -133,6 +151,7 @@ size_t PVCore::available_memory()
         file.ignore(std::numeric_limits<std::streamsize>::max(), '\n');
     }
     return 0; // Nothing found
+}
 #elifdef __APPLE__
 
 #include <sys/types.h>
@@ -150,10 +169,26 @@ size_t PVCore::available_memory()
         perror("sysctl");
         return 0;
     }
+}
+#elif _WIN32
+#include <windows.h>
+
+size_t PVCore::available_memory()
+{
+    MEMORYSTATUSEX memStatus;
+    memStatus.dwLength = sizeof(MEMORYSTATUSEX);
+
+    if (GlobalMemoryStatusEx(&memStatus)) {
+        return static_cast<size_t>(memStatus.ullAvailPhys);
+    }
+	else {
+        return 0;
+    }
+}
 #else
 	static_assert(false, "__func__ not supported for this target.");
 #endif
-}
+
 
 #if __APPLE__
 
@@ -194,3 +229,15 @@ int PVCore::process_running_count(const std::string& process_name) {
     return instance_count;
 }
 #endif
+
+int PVCore::setenv(const char* name, const char* value, int overwrite)
+{
+#ifdef _WIN32
+	if (overwrite == 0 and std::getenv(name) != nullptr) {
+		return 0;
+	}
+	return _putenv_s(name, value);
+#else
+	return ::setenv(name, value, overwrite);
+#endif
+}

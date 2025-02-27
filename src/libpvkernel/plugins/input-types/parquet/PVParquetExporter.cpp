@@ -85,8 +85,7 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
             writer = parquet::arrow::FileWriter::Open(*schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props).ValueOrDie();
         }
 
-        std::unique_ptr<::arrow::RecordBatchReader> recordbatch_reader;
-        arrow::Status status = api.arrow_reader()->GetRecordBatchReader(&recordbatch_reader);
+        auto recordbatch_reader = api.arrow_reader()->GetRecordBatchReader().ValueOrDie();
 
         size_t total_rows = api.arrow_reader()->parquet_reader()->metadata()->num_rows();
         size_t batch_current_index = 0;

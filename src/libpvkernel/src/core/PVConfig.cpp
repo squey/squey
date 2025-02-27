@@ -43,11 +43,12 @@ static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/squey/squey.conf";
 #ifdef __APPLE__
 		boost::filesystem::path exe_path = boost::dll::program_location();
 		static QString LOCAL_CONFIG_FILENAME = QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/pvconfig.ini";
+#elifdef _WIN32
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		static QString LOCAL_CONFIG_FILENAME = QString::fromStdString(exe_path.parent_path().string()) + "/pvconfig.ini";
 #else
-static QString LOCAL_CONFIG_FILENAME = QString(SQUEY_CONFIG) + "/pvconfig.ini";
+	static QString LOCAL_CONFIG_FILENAME = QString(SQUEY_CONFIG) + "/pvconfig.ini";
 #endif
-
-PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
 
 static const QString _config_dir = QDir::homePath() + QDir::separator() + SQUEY_CONFDIR;
 static const QString _lists_folder = "lists";
@@ -87,7 +88,7 @@ PVCore::PVConfig::PVConfig()
 	QSettings old_presets(QSettings::UserScope, SQUEY_ORGANISATION, SQUEY_APPLICATIONNAME);
 	if (QFileInfo(old_presets.fileName()).exists()) {
 		QDir().rename(old_presets.fileName(),
-		              QString::fromStdString(user_dir()) + QDir::separator() + PRESETS_FILENAME);
+		              QString::fromStdString(user_dir()) + "/" + PRESETS_FILENAME);
 	}
 
 	_local_config = new QSettings(fi.filePath(), QSettings::IniFormat);
@@ -122,10 +123,8 @@ PVCore::PVConfig::~PVConfig()
 
 PVCore::PVConfig& PVCore::PVConfig::get()
 {
-	if (_pvconfig == nullptr) {
-		_pvconfig = PVConfig_p(new PVConfig());
-	}
-	return *_pvconfig;
+	static PVCore::PVConfig instance;
+	return instance;
 }
 
 QSettings& PVCore::PVConfig::config() const
@@ -169,7 +168,7 @@ void PVCore::PVConfig::set_value(const QString& name, const QVariant& value)
 
 QString PVCore::PVConfig::get_lists_dir() const
 {
-	return _config_dir + QDir::separator() + _lists_folder;
+	return _config_dir + "/" + _lists_folder;
 }
 
 /*****************************************************************************
@@ -196,7 +195,7 @@ QString PVCore::PVConfig::user_path()
 
 std::string PVCore::PVConfig::user_dir()
 {
-	return (QDir::homePath() + QDir::separator() + SQUEY_SQUEY_CONFDIR + QDir::separator())
+	return (QDir::homePath() + "/" + SQUEY_SQUEY_CONFDIR + "/")
 	    .toStdString();
 }
 

@@ -25,6 +25,7 @@
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/core/PVHSVColor.h>
@@ -43,6 +44,7 @@
 #include <QSettings>
 
 #include <boost/dll/runtime_symbol_info.hpp>
+#include <filesystem> // REMOVEME
 
 /******************************************************************************
  * opencl_kernel
@@ -102,12 +104,17 @@ struct opencl_kernel {
 PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
     : _context(nullptr), _is_gpu_accelerated(true)
 {
-	setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
+	PVCore::setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
 
 #ifdef __APPLE__
+	// Configure our patched PortableCL to find "ld64.lld" linker at runtime
 	boost::filesystem::path exe_path = boost::dll::program_location();
-	std::string libdir = exe_path.parent_path().string() + "/../Frameworks";
-	setenv("LIBRARY_PATH", libdir.c_str(), 1);
+	PVCore::setenv("POCL_LINKER_DIR", exe_path.parent_path().string().c_str(), 1);
+#elifdef _WIN32
+	// Configure "ld" linker to search for librairies in the proper location
+	boost::filesystem::path exe_path = boost::dll::program_location();
+	std::string libdir = exe_path.parent_path().string();
+	PVCore::setenv("LIBRARY_PATH", libdir.c_str(), 1);
 #endif
 
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
@@ -116,7 +123,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	const cl_uint Bbits = PARALLELVIEW_ZZT_BBITS;
 	const cl_uint image_height = PVParallelView::constants<Bbits>::image_height;
 	const size_t column_mem_size = image_height * sizeof(cl_uint);
-	const ulong max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
+	const uint64_t max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
 
 	auto& config = PVCore::PVConfig::get().config();
 	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
@@ -171,7 +178,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>(&err);
 	squey_verify_opencl_var(err);
 
-	ulong local_mem_size;
+	uint64_t local_mem_size;
 	for (auto& it : _devices) {
 		err = it.second.dev.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &local_mem_size);
 		squey_verify_opencl_var(err);

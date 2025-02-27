@@ -189,7 +189,7 @@ class PVMainWindow : public QMainWindow
 	void create_actions_import_types(QMenu* menu);
 
   private:
-	bool is_project_untitled() { return _projects_tab_widget->is_current_project_untitled(); }
+	bool is_project_untitled() { return true; /*_projects_tab_widget->is_current_project_untitled();*/ }
 	bool load_source(Squey::PVSource* src, bool update_recent_items = true);
 	void source_loaded(Squey::PVSource& src, bool update_recent_items);
 	void flag_investigation_as_cached(const QString& file);
@@ -263,7 +263,9 @@ class PVMainWindow : public QMainWindow
 	QString _cur_project_file;
 	Squey::PVRoot _root;
 	bool _auto_detect_cancellation;
+#ifdef __linux__
 	PVCore::PVDBusConnection _dbus_connection;
+#endif
 
   private:
 	QString _screenshot_root_dir;

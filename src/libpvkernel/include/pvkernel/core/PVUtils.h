@@ -32,6 +32,7 @@
 #include <QString>
 #include <QIODevice>
 #include <vector>
+#include <unistd.h> // for mkdtemp
 
 namespace PVCore
 {
@@ -98,6 +99,10 @@ size_t available_memory();
 #if __APPLE__
 int process_running_count(const std::string& process_name);
 #endif
+
+char* mkdtemp(char* tmpl);
+
+int setenv(const char* name, const char* value, int overwrite);
 
 } // namespace PVCore
 

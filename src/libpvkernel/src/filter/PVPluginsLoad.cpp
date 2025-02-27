@@ -63,6 +63,9 @@ std::string PVFilter::PVPluginsLoad::get_normalize_dir()
 #ifdef __APPLE__
 		boost::filesystem::path exe_path = boost::dll::program_location();
 		plugins_dir = exe_path.parent_path().string() + "/../PlugIns";
+#elifdef _WIN32
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		plugins_dir = exe_path.parent_path().string() + "/plugins";
 #else
 		plugins_dir = std::string(PVKERNEL_PLUGIN_PATH);
 #endif

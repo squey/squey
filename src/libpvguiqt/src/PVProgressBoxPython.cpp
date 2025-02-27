@@ -52,8 +52,8 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 
 		// Cancel python script execution
 		auto threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
-		unsigned long threadNumber = 0;
-		sscanf(threadId.c_str(), "%lx", &threadNumber);
+		long long unsigned int threadNumber = 0;
+		sscanf(threadId.c_str(), "%llx", &threadNumber);
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		PyThreadState_SetAsyncExc(threadNumber, PyExc_InterruptedError);
 		PyGILState_Release(gstate);

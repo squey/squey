@@ -41,6 +41,7 @@ class QLabel;
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 class PVModdedIconLabel;
+
 namespace PVGuiQt
 {
 

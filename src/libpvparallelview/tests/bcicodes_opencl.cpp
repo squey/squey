@@ -23,6 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <pvkernel/core/PVUtils.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
@@ -82,7 +83,7 @@ int main(int argc, char** argv)
 
 #ifdef SQUEY_BENCH
 	// we just want the measured time, not the backend information
-	setenv("SQUEY_DEBUG_LEVEL", "FATAL", 1);
+	PVCore::setenv("SQUEY_DEBUG_LEVEL", "FATAL", 1);
 	(void)argc;
 	(void)argv;
 

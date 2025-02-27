@@ -41,11 +41,23 @@ if [ "$TARGET_PLATFORM" = "darwin" ]; then
     compilers["Clang"]="$TOOLCHAIN_DIR/$HOST-clang++"
     CMAKE_OPTIONS="\
         -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_DIR/../toolchain.cmake \
-        -DCMAKE_FIND_ROOT_PATH=$PREFIX
+        -DCMAKE_FIND_ROOT_PATH=$PREFIX \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOYMENT_TARGET_VERSION
     "
+elif [ "$TARGET_PLATFORM" = "windows" ]; then
+    compilers["GCC"]="$TOOLCHAIN_DIR/$HOST-g++"
+    CMAKE_OPTIONS="\
+        -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+        -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_C_COMPILER=$HOST-gcc \
+        -DCMAKE_PREFIX_PATH=$PREFIX \
+        -DPython3_INCLUDE_DIR=$PREFIX/include \
+        -DCMAKE_SYSROOT="/usr/$HOST" \
+        -DCMAKE_CROSSCOMPILING=TRUE"
 elif [ "$TARGET_PLATFORM" = "linux" ]; then
     compilers["Clang"]="$TOOLCHAIN_DIR/clang++"
     compilers["GCC"]="$TOOLCHAIN_DIR/g++"
+    export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:$PREFIX/lib:$LD_LIBRARY_PATH"
 fi
 
 export VERBOSE=1

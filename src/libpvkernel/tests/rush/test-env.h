@@ -25,6 +25,7 @@
 #include <cstdlib>
 
 #include <pvkernel/core/squey_intrin.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvbase/general.h>
 
 #include <pvkernel/filter/PVPluginsLoad.h>
@@ -34,8 +35,9 @@
 
 void init_env()
 {
-	setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
-	setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
+	PVCore::setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
+	PVCore::setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
+	PVCore::setenv("OMP_TOOL", "disabled", 1); // Disable OMP_TOOL to avoid "Unable to find TSan function" errors
 
 	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
 	PVRush::PVPluginsLoad::load_all_plugins();   // Sources

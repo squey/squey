@@ -37,7 +37,6 @@
 #include <QFileInfo>
 
 #include <sys/time.h>
-#include <sys/resource.h>
 
 PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVParquetFileDescription>()
 {

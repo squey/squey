@@ -28,6 +28,7 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVTextChunk.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -92,7 +93,7 @@ void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 	// Generate random path
 	std::string collector_path =
 	    PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
-	if (mkdtemp(&collector_path.front()) == nullptr) {
+	if (PVCore::mkdtemp(&collector_path.front()) == nullptr) {
 		throw PVNrawException("unable to create temporary directory " + collector_path);
 	}
 

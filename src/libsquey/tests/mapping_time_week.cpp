@@ -70,8 +70,13 @@ int main()
 		tm tm_b;
 		const auto ta = static_cast<time_t>(array[a]);
 		const auto tb = static_cast<time_t>(array[b]);
+#ifdef _WIN32
+		gmtime_s(&tm_a, &ta);
+		gmtime_s(&tm_b, &tb);
+#else
 		gmtime_r(&ta, &tm_a);
 		gmtime_r(&tb, &tm_b);
+#endif
 		return tm_a.tm_wday < tm_b.tm_wday or
 		       (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour < tm_b.tm_hour) or
 		       (tm_a.tm_wday == tm_b.tm_wday and tm_a.tm_hour == tm_b.tm_hour and

@@ -4,7 +4,7 @@
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(LINK_LIBRARIES pvkernel ${PVLICENSE_LIBRARIES} pvsquey)
+set(LINK_LIBRARIES pvkernel pvsquey)
 include_directories(${PVLICENSE_INCLUDE_DIR})
 
 add_squey_compile_test(Tsquey_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp)
@@ -31,6 +31,7 @@ add_squey_test(Tsquey_export_small_selection_gz Tsquey_export_selection ${TESTS_
 add_squey_test(Tsquey_export_small_selection_bz2 Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.bz2 ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
 add_squey_test(Tsquey_export_small_selection_zip Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.zip ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
 add_squey_test(Tsquey_export_small_selection_xz Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.xz ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
+add_squey_test(Tsquey_export_small_selection_zst Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxy.log.zst ${TESTS_FILES_DIR}/formats/proxy_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxy_small.log)
 
 
 # Test selection

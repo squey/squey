@@ -55,13 +55,13 @@ public:
 protected:
     inline bool is_selected_fast(size_t row_index)
     {
-        return *(((uint64_t*)_data_buffer.ptr) + (row_index / 64)) & (1UL << row_index % 64);
+        return *(((uint64_t*)_data_buffer.ptr) + (row_index / 64)) & ((uint64_t)1 << row_index % 64);
     }
     inline void set_selected_fast(size_t row_index, bool selected)
     {
         uint64_t* p64 = (((uint64_t*)_data_buffer.ptr) + (row_index / 64));
         size_t d64_pos = (row_index % 64);
-        (*p64) ^= ((-(uint64_t)selected ^ (*p64)) & (1UL << d64_pos));
+        (*p64) ^= ((-(uint64_t)selected ^ (*p64)) & ((uint64_t)1 << d64_pos));
     }
 
 private:

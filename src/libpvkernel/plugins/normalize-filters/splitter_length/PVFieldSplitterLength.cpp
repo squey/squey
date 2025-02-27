@@ -68,6 +68,7 @@ void PVFilter::PVFieldSplitterLength::set_args(PVCore::PVArgumentList const& arg
 PVCore::list_fields::size_type PVFilter::PVFieldSplitterLength::one_to_many(
     PVCore::list_fields& l, PVCore::list_fields::iterator it_ins, PVCore::PVField& field)
 {
+	pvlogger::info() << "PVFieldSplitterLength::one_to_many" << std::endl;
 	PVCore::list_fields::value_type elt(field);
 
 	if (_from_left) {

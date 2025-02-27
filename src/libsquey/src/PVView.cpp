@@ -239,21 +239,21 @@ QStringList Squey::PVView::get_zones_names_list() const
 	return ret;
 }
 
-PVRush::PVAxisFormat const& Squey::PVView::get_axis(PVCombCol index) const
-{
-	// INFO : It is only to get colors (PVAxisFormat) with index a "combined index"
-	return _axes_combination.get_axis(index);
-}
+// PVRush::PVAxisFormat const& Squey::PVView::get_axis(PVCombCol index) const
+// {
+// 	// INFO : It is only to get colors (PVAxisFormat) with index a "combined index"
+// 	return _axes_combination.get_axis(index);
+// }
 
 /******************************************************************************
  *
  * Squey::PVView::get_axis_name
  *
  *****************************************************************************/
-QString Squey::PVView::get_axis_name(PVCombCol index) const
-{
-	return index == PVCombCol() ? "" : _axes_combination.get_axis(index).get_name();
-}
+// QString Squey::PVView::get_axis_name(PVCombCol index) const
+// {
+// 	return index == PVCombCol() ? "" : _axes_combination.get_axis(index).get_name();
+// }
 
 QString Squey::PVView::get_nraw_axis_name(PVCol axis_id) const
 {

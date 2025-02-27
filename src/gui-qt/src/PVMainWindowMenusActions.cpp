@@ -213,7 +213,7 @@ void App::PVMainWindow::create_menus()
 
 	theme_Menu->addAction(settings_dark_theme_Action);
 	theme_Menu->addAction(settings_light_theme_Action);
-#ifdef __linux__
+#ifndef __APPLE__ // FIXME
 	if (QString(std::getenv("DISABLE_FOLLOW_SYSTEM_THEME")).isEmpty()) {
 		theme_Menu->addAction(settings_follow_system_theme_Action);
 	}

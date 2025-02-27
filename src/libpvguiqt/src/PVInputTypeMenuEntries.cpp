@@ -33,10 +33,11 @@
  * a map function to iterate over input plugins according to their sorted
  * ::internal_name().
  */
+
 template <typename F>
 static void map_input_by_sorted_internal_name(const F& f)
 {
-	LIB_CLASS(PVRush::PVInputType)& input_types = LIB_CLASS(PVRush::PVInputType)::get();
+	LIB_CLASS(PVRush::PVInputType)& input_types = PVCore::PVClassLibrary<PVRush::PVInputType>::get();
 	LIB_CLASS(PVRush::PVInputType)::list_classes const& lf = input_types.get_list();
 
 	using ele_t = std::pair<QString, QString>;

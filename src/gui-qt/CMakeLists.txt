@@ -4,6 +4,8 @@
 
 project(gui-qt)
 
+add_definitions(-DBUILD_SQUEY)
+
 include(CTest)
 set(CTEST_PROJECT_NAME "GuiQt")
 
@@ -22,6 +24,14 @@ include_directories(SYSTEM ${Qt6Xml_INCLUDE_DIRS})
 # For QDesktopWidget
 find_package(Qt6Widgets REQUIRED)
 include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
+
+# For QDBus
+find_package(Qt6DBus REQUIRED)
+include_directories(SYSTEM ${Qt6DBus_INCLUDE_DIRS})
+
+# For Qt6Core5Compat
+find_package(Qt6Core5Compat REQUIRED)
+include_directories(SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

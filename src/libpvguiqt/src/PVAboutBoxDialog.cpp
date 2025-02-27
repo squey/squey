@@ -60,6 +60,9 @@ static QString copying_dir()
 #ifdef __APPLE__
 		boost::filesystem::path exe_path = boost::dll::program_location();
 		return QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/COPYING";
+#elifdef _WIN32
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		return QString::fromStdString(exe_path.parent_path().string()) + "/COPYING";
 #else
 	return SQUEY_COPYING_DIR;
 #endif
@@ -117,6 +120,9 @@ class PVChangeLogWidget : public QWidget
 #ifdef __APPLE__
 		boost::filesystem::path exe_path = boost::dll::program_location();
 		QFile f(QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/CHANGELOG");
+#elifdef _WIN32
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		QFile f(QString::fromStdString(exe_path.parent_path().string()) + "/CHANGELOG");
 #else
 		QFile f("/app/share/squey/squey/CHANGELOG");
 #endif

@@ -1104,5 +1104,6 @@ QString App::PVXmlDomModel::get_python_script(bool& is_path, bool& disabled) con
 	if (not is_path) {
 		python_script = PVCore::deserialize_base64<QString>(python_script);
 	}
+	pvlogger::info() << "python_script=" << python_script.toStdString() << std::endl;
 	return python_script;
 }

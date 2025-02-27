@@ -32,7 +32,7 @@
 static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy_1bad.log";
 static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
 static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
-static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation.pvi";
+static const std::string INVESTIGATION_PATH = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/tmp_investigation.pvi";
 static constexpr const char* ref_mapped_file = TEST_FOLDER "/picviz/ref_mapped";
 static constexpr const char* ref_scaled_file = TEST_FOLDER "/picviz/ref_scaled";
 static constexpr unsigned int ROW_COUNT = 100000;
@@ -50,7 +50,7 @@ double save_investigation()
 	env.add_source(csv_file2, csv_file_format, dupl, false);
 
 	size_t source_size = env.root.size<Squey::PVSource>();
-	PV_VALID(source_size, 3UL);
+	PV_VALID(source_size, (size_t)3);
 
 	// Check scene name saving
 	auto scenes = env.root.get_children<Squey::PVScene>();
@@ -73,19 +73,19 @@ double save_investigation()
 	env.compute_views();
 
 	auto mappeds = env.root.get_children<Squey::PVMapped>();
-	PV_VALID(mappeds.size(), 3UL);
+	PV_VALID(mappeds.size(), (size_t)3);
 	auto* mapped = mappeds.front();
 	mapped->set_name("other");
 	PV_VALID(mapped->get_name(), std::string("other"));
 
 	auto scaleds = env.root.get_children<Squey::PVScaled>();
-	PV_VALID(scaleds.size(), 3UL);
+	PV_VALID(scaleds.size(), (size_t)3);
 	auto* scaled = scaleds.front();
 	scaled->set_name("my scaling name");
 	PV_VALID(scaled->get_name(), std::string("my scaling name"));
 
 	size_t view_size = env.root.size<Squey::PVView>();
-	PV_VALID(view_size, 3UL);
+	PV_VALID(view_size, (size_t)3);
 	auto view = env.root.get_children<Squey::PVView>().front();
 
 	/**
@@ -115,7 +115,7 @@ double save_investigation()
 
 	auto start = std::chrono::system_clock::now();
 
-	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::write,
+	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH.c_str(), PVCore::PVSerializeArchive::write,
 	                                 SQUEY_ARCHIVES_VERSION, true);
 	env.root.save_to_file(ar);
 
@@ -132,7 +132,7 @@ double load_investigation()
 	auto start = std::chrono::system_clock::now();
 
 	{
-		PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::read,
+		PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH.c_str(), PVCore::PVSerializeArchive::read,
 		                                 SQUEY_ARCHIVES_VERSION, true);
 		root.load_from_archive(ar);
 	}
@@ -153,11 +153,11 @@ double load_investigation()
 	 * Check sources
 	 */
 	auto sources = root.get_children<Squey::PVSource>();
-	PV_VALID(sources.size(), 3UL);
+	PV_VALID(sources.size(), (size_t)3);
 	auto source = sources.front();
 	PV_VALID(source->get_format().is_valid(), true);
-	PV_VALID(source->get_invalid_evts().size(), 0UL);
-	// PV_VALID(source->get_invalid_evts().begin()->first, 0UL);
+	PV_VALID(source->get_invalid_evts().size(), (size_t)0);
+	// PV_VALID(source->get_invalid_evts().begin()->first, (size_t)0UL);
 	// PV_VALID(source->get_invalid_evts().begin()->second,
 	//          std::string("343,10.107.73.75,TCP_CLIENT_REFRESH_MISS,200,4420,GET,http,updates,"
 	//                      "updates.copernic.com,copernic.com,com,80,5986,application/octet-stream"));
@@ -189,7 +189,7 @@ double load_investigation()
 	 * Check mappeds
 	 */
 	auto mappeds = root.get_children<Squey::PVMapped>();
-	PV_VALID(mappeds.size(), 3UL);
+	PV_VALID(mappeds.size(), (size_t)3);
 	auto* mapped = mappeds.front();
 
 	PV_VALID(mapped->get_name(), std::string("other"));
@@ -216,7 +216,7 @@ double load_investigation()
 	 * Check scaleds
 	 */
 	auto scaleds = root.get_children<Squey::PVScaled>();
-	PV_VALID(scaleds.size(), 3UL);
+	PV_VALID(scaleds.size(), (size_t)3);
 	auto const* scaled = scaleds.front();
 	PV_VALID(scaled->get_name(), std::string("my scaling name"));
 
@@ -241,7 +241,7 @@ double load_investigation()
 	 * Check view
 	 */
 	auto views = root.get_children<Squey::PVView>();
-	PV_VALID(views.size(), 3UL);
+	PV_VALID(views.size(), (size_t)3);
 	auto view = views.front();
 	PV_VALID(view->get_row_count(), ROW_COUNT * dupl);
 
@@ -299,7 +299,7 @@ int main()
 	std::cout << saving_time + loading_time;
 #endif
 
-	PVRush::PVNrawCacheManager::get().remove_nraws_from_investigation(INVESTIGATION_PATH);
+	PVRush::PVNrawCacheManager::get().remove_nraws_from_investigation(INVESTIGATION_PATH.c_str());
 
 	// Recheck loading without cache
 	load_investigation();

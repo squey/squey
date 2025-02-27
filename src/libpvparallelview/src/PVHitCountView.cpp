@@ -133,7 +133,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 		get_hit_graph_manager().change_and_process_view(0, 0, .5);
 		_max_count = get_hit_graph_manager().get_max_count_all();
 
-		QRectF r(0, 0, _max_count, 1L << 32);
+		QRectF r(0, 0, _max_count, (size_t)1 << 32);
 		set_scene_rect(r);
 		get_scene()->setSceneRect(r);
 	}
@@ -201,7 +201,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 		        _sel_rect->set_x_range(0, _max_count);
 		        _sel_rect->set_y_range(0, UINT32_MAX);
 
-		        QRectF r(0, 0, _max_count, 1L << 32);
+		        QRectF r(0, 0, _max_count, (uint64_t)1 << 32);
 		        set_scene_rect(r);
 		        get_scene()->setSceneRect(r);
 

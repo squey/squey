@@ -35,6 +35,8 @@ static constexpr const char* csv_win_format = TEST_FOLDER "/formats/windows_endi
 static constexpr const char* exported_win_csv_file =
 #if __APPLE__
     TEST_FOLDER "/exports/multi_inputs_windows_endings_macos.csv";
+#elif _WIN32
+	TEST_FOLDER "/exports/multi_inputs_windows_endings_win.csv";
 #else
     TEST_FOLDER "/exports/multi_inputs_windows_endings.csv";
 #endif
@@ -53,7 +55,7 @@ int main()
 	               csv_empty_last_col_format);
 
 	const auto& sources = env.root.get_children<Squey::PVSource>();
-	PV_VALID(sources.size(), 2UL);
+	PV_VALID(sources.size(), (size_t)2);
 
 	auto exports =
 	    std::vector<std::string>{exported_win_csv_file, exported_empty_last_col_csv_file};

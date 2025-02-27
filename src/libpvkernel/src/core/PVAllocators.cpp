@@ -23,6 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#ifdef __linux__
 #include <pvkernel/core/PVAllocators.h>
 #include <unistd.h> // for sysconf, _SC_PAGE_SIZE
 #include <fstream>
@@ -62,3 +63,4 @@ void PVCore::PVMemory::get_memory_usage(double& vm_usage, double& resident_set)
 	vm_usage = vsize / 1024.0;
 	resident_set = rss * page_size_kb;
 }
+#endif // __linux__

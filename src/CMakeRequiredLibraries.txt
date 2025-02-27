@@ -24,9 +24,10 @@ message(STATUS "OPENCL_FOUND=${OPENCL_FOUND}")
 if(OPENCL_FOUND)
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(OPENCL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libOpenCL.so")
-endif()
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
   set(OPENCL_LIBRARIES "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dylib")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(OPENCL_LIBRARIES "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dll.a")
 endif()
 
 	message(STATUS "OpenCL runtime libraries: " ${OPENCL_LIBRARIES})
@@ -127,12 +128,12 @@ endif()
 ###############################################################################
 # IBM ICU
 ###############################################################################
-find_package(ICU REQUIRED)
+find_package(ICU 75.1 COMPONENTS data i18n uc REQUIRED)
 
 message(STATUS "ICU found: " ${ICU_FOUND})
 if(ICU_FOUND)
 	message(STATUS "ICU include: ${ICU_INCLUDE}")
-  	message(STATUS "ICU libraries: ${ICU_LIBRARY}")
+  message(STATUS "ICU libraries: ${ICU_LIBRARY}")
 endif(ICU_FOUND)
 
 ###############################################################################
@@ -158,7 +159,7 @@ include_directories(AFTER external/type_safe/include)
 ###############################################################################
 # Python3
 ###############################################################################
-find_package(Python 3.8 REQUIRED COMPONENTS Development.Embed)
+find_package(Python REQUIRED COMPONENTS Development)
 include_directories(AFTER SYSTEM ${Python_INCLUDE_DIRS})
 set(PYTHON_SUPPORT ON)
 add_definitions(-DPYTHON_SUPPORT=1)

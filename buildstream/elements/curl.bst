@@ -10,17 +10,19 @@ sources:
 
 environment:
   PREFIX_OPENSSL: "%{prefix}"
+  PKG_CONFIG_PATH: "%{bindir}/pkgconfig"
 
 variables:
   conf-local: >-
     --without-ca-bundle
     --with-ca-fallback
     --without-libpsl
-    --with-ssl
+    --with-openssl=%{prefix}
     --without-nghttp2
     --enable-optimize
     --disable-warnings
     --disable-curldebug
+  conf-cmd: "bash -x %{conf-root}/configure"
 
 config:
   configure-commands:
@@ -57,3 +59,4 @@ build-depends:
 - sdk.bst
 - openssl.bst
 - freedesktop-sdk.bst:components/git.bst
+- freedesktop-sdk.bst:components/pkg-config.bst

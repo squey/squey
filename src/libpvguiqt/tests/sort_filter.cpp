@@ -32,10 +32,12 @@
 #include <chrono>
 #include <iostream>
 
+#include "test-env.h"
+
 #ifdef SQUEY_BENCH
-constexpr size_t SIZE = 200000000;
+constexpr size_t SELECTION_SIZE = 200000000;
 #else
-constexpr size_t SIZE = 10000;
+constexpr size_t SELECTION_SIZE = 10000;
 #endif
 
 static bool is_sorted(const PVGuiQt::PVSortFilter& sf,
@@ -49,11 +51,13 @@ static bool is_sorted(const PVGuiQt::PVSortFilter& sf,
 
 int main()
 {
-	PVGuiQt::PVSortFilter sf(SIZE);
-	Squey::PVSelection sel(SIZE);
+	init_env();
+
+	PVGuiQt::PVSortFilter sf(SELECTION_SIZE);
+	Squey::PVSelection sel(SELECTION_SIZE);
 	sel.select_even();
 
-	PV_VALID(sf.size(), SIZE);
+	PV_VALID(sf.size(), SELECTION_SIZE);
 
 	// Shuffle values as it is the worse but normal case)
 	auto& sort = sf.sorting().to_core_array();
@@ -66,7 +70,7 @@ int main()
 	auto end = std::chrono::steady_clock::now();
 	std::chrono::duration<double> diff(end - start);
 
-	PV_VALID(sf.size(), SIZE / 2);
+	PV_VALID(sf.size(), SELECTION_SIZE / 2);
 
 #ifndef SQUEY_BENCH
 	PV_ASSERT_VALID(not is_sorted(sf, sorted_sel_array));

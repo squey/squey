@@ -89,9 +89,9 @@ add_library(pvsquey SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${MOC_SRC})
 
 set_target_properties(pvsquey PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvsquey ${QT6_LIBS} ${TBB_LIBRARIES}
+target_link_libraries(pvsquey pvkernel ${QT6_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
-			     ${OpenMP_LIBRARIES} ${SIGCPP_LIBRARIES} pvkernel curl)
+			     ${OpenMP_LIBRARIES} ${SIGCPP_LIBRARIES} curl)
 
 ###############################################################################
 # Install files

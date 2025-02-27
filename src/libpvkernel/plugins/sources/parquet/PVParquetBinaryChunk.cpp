@@ -133,16 +133,16 @@ void* convert_timestamp(const std::shared_ptr<arrow::Array>& column_array, void*
 
 void* convert_date32(const std::shared_ptr<arrow::Array>& column_array, void* data)
 {
-	auto& dates = static_cast<arrow::Date32Array&>(*column_array);
-	uint64_t* times = (uint64_t*)data;
-	std::transform(dates.begin(), dates.end(), times, [&](const std::optional<int32_t>& days_since_epoch) {
-		tm date = {};
-		date.tm_year = 70;
-		date.tm_isdst = -1;
-		date.tm_mday = days_since_epoch.value_or(0)+1;
-		return mktime(&date);
-	});
-	return data;
+    auto& dates = static_cast<arrow::Date32Array&>(*column_array);
+    uint64_t* times = static_cast<uint64_t*>(data);
+
+    std::transform(dates.begin(), dates.end(), times,
+        [](const std::optional<int32_t>& days_since_epoch) {
+            int32_t days = days_since_epoch.value_or(0);
+            return static_cast<uint64_t>(days) * 86400;
+        });
+
+    return data;
 }
 
 void* convert_time32(const std::shared_ptr<arrow::Array>& column_array, void* data)

@@ -37,6 +37,8 @@
 #include <QSettings>
 #include <QVariant>
 
+#include <pvlogger.h>
+
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 std::pair<std::string, bool> PVOpenCL::opencl_infos()
@@ -47,7 +49,7 @@ std::pair<std::string, bool> PVOpenCL::opencl_infos()
 		if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
 			accelerated = false;
 		}
-		for (size_t i = 1 - (not accelerated); i >= 0; i--) {
+		for (size_t i = 0; i < (size_t)(accelerated + 1); i++) {
 			accelerated = (bool) i;
 			bool found = false;
 			find_first_usable_context(accelerated, [&found](auto&, cl::Device& device) {

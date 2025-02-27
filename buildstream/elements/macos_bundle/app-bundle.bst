@@ -19,13 +19,13 @@ config:
   - |
     mkdir -p "%{install-root}/bundle_root/%{bundle-name}/Contents" && cd "$_"
     mkdir MacOS Frameworks PlugIns Resources
-    cp -r %{bindir}/* MacOS
-    cp -r %{libdir}/* Frameworks
-    cp -r %{libdir}/squey/plugins/* PlugIns
-    cp -r %{libdir}/qt6/plugins/* PlugIns
+    cp -ar %{bindir}/* MacOS
+    cp -ar %{libdir}/* Frameworks
+    cp -ar %{libdir}/squey/plugins/* PlugIns
+    cp -ar %{libdir}/qt6/plugins/* PlugIns
     mkdir share
-    cp -r %{prefix}/share/pocl share
-    cp -r %{prefix}/share/squey share
+    cp -ar %{prefix}/share/pocl share
+    cp -ar %{prefix}/share/squey share
     cp %{build-root}/buildstream/files/macos_bundle/squey.icns Resources
     VERSION=$(cat %{build-root}/VERSION.txt)
     CURRENT_YEAR=$(date +%Y)

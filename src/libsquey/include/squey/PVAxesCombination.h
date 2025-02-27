@@ -29,6 +29,7 @@
 
 #include <QString>     // for QString
 #include <QStringList> // for QStringList
+#include <pvkernel/rush/PVAxisFormat.h>
 
 #include <vector>
 #include <cstddef> // for size_t
@@ -59,10 +60,14 @@ class PVAxesCombination
 	explicit PVAxesCombination(QList<PVRush::PVAxisFormat> const& axes);
 
   public:
-	PVRush::PVAxisFormat const& get_axis(PVCombCol col) const;
+	PVRush::PVAxisFormat const& get_axis(PVCombCol col) const
+	{
+		assert(col != PVCombCol());
+		return _axes[_axes_comb[col]];
+	}
 	PVRush::PVAxisFormat const& get_axis(PVCol col) const;
 
-	PVCol get_nraw_axis(PVCombCol col) const;
+	PVCol get_nraw_axis(PVCombCol col) const { return col == PVCombCol() ? PVCol() : _axes_comb[col]; }
 	std::vector<PVCol> const& get_combination() const;
 	QStringList get_nraw_names() const;
 	QStringList get_combined_names() const;

@@ -160,7 +160,7 @@ std::string Squey::PVSource::hash() const
 {
 	QCryptographicHash hasher(QCryptographicHash::Md5);
 	constexpr size_t max_line_hash =
-	    500000UL; // Just use a subset. It is not optimal but it have to be "fast enough"
+	    500000; // Just use a subset. It is not optimal but it have to be "fast enough"
 	for (size_t j = 0; j < std::min<size_t>(_nraw.row_count(), max_line_hash); j++) {
 		std::string r = get_value(j, PVCol(0));
 		hasher.addData(QString::fromStdString(r).toUtf8());

@@ -9,6 +9,11 @@ sources:
 
 (@): buildstream/elements/base/target.bst
 
+(?):
+- target_triple == "x86_64-w64-mingw32":
+    environment:
+      CXXFLAGS: "-fext-numeric-literals"
+
 config:
   configure-commands:
   - |

@@ -4,9 +4,9 @@ description: |
     Syntax highlighting engine for Kate syntax definitions
 
 sources:
-- kind: tar
-  url: github:KDE/syntax-highlighting/archive/refs/tags/v6.5.0.tar.gz
-  ref: 2c754abe5c226a627f6064096b7d187552e4055a593d689f3fc68a3b5903e2fd
+- kind: git
+  url: github:KDE/syntax-highlighting
+  ref: 4dae8bf4ad2fd018f9c56450d9f09a32ec0f99af
 
 (@): buildstream/elements/base/target.bst
 

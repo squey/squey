@@ -91,7 +91,7 @@ inline static int mm_popcnt_u128(simde__m128i const v)
 {
 	const uint64_t b0 = simde_mm_extract_epi64(v, 0);
 	const uint64_t b1 = simde_mm_extract_epi64(v, 1);
-	return __builtin_popcount(b0) + __builtin_popcount(b1);
+	return __builtin_popcountll(b0) + __builtin_popcountll(b1);
 }
 
 inline static simde__m256d squey_mm256_cvtepu32_pd(simde__m128i const v)

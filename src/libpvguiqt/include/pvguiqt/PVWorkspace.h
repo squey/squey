@@ -165,7 +165,7 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	 *
 	 *  \param[in] act The QAction triggering the creation of the widget.
 	 */
-	void create_view_widget(PVDisplays::PVDisplayViewIf& interface,
+	void create_view_widget(PVDisplays::PVDisplayViewIf& iface,
 	                        Squey::PVView* view,
 	                        std::vector<std::any> params = {}) override;
 

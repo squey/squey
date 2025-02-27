@@ -106,7 +106,7 @@ fi
 
 if [ "$EXPORT_BUILD" = false ]; then
   bst $BUILD_OPTIONS build squey.bst
-elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Export flatpak images
+elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak repository
 
   if [[ ! -z "$GPG_PRIVATE_KEY_PATH" ]]; then
     # Import GPG private key
@@ -142,12 +142,16 @@ elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Export flatpak images
   #else
   #  flatpak build-export --files=files $EXPORT_DIR $DIR/build $BRANCH_NAME
   #fi
-elif [ "$TARGET_TRIPLE" == "x86_64-apple-darwin" ] || [ "$TARGET_TRIPLE" == "aarch64-apple-darwin" ]; then
+elif [ "$TARGET_TRIPLE" == "x86_64-apple-darwin" ] || [ "$TARGET_TRIPLE" == "aarch64-apple-darwin" ]; then # Generate MacOS app bundle
   bst $BUILD_OPTIONS build macos_bundle/app-bundle.bst
   bst $BUILD_OPTIONS build macos_bundle/dmg-image.bst
   rm -rf "$EXPORT_DIR/$TARGET_TRIPLE"
   bst $BUILD_OPTIONS artifact checkout macos_bundle/app-bundle.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/app-bundle"
   bst $BUILD_OPTIONS artifact checkout macos_bundle/dmg-image.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/dmg-image"
+elif [ "$TARGET_TRIPLE" == "x86_64-w64-mingw32" ]; then # Generate Windows MSIX package
+  bst $BUILD_OPTIONS build msi_package/msix-package.bst
+  rm -rf "$EXPORT_DIR/$TARGET_TRIPLE"
+  bst $BUILD_OPTIONS artifact checkout msi_package/msix-package.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/msix-package"
 fi
 
 # Push artifacts

@@ -27,13 +27,14 @@
 #include <pvkernel/core/PVProgressBox.h>
 #include <squey/PVView.h>
 #include <squey/PVScaled.h>
+#include <pvguiqt/export.h>
 
 class QString;
 class QWidget;
 
 namespace PVGuiQt {
 
-class PVProgressBoxPython : public PVCore::PVProgressBox
+class PVGUIQT_EXPORT PVProgressBoxPython : public PVCore::PVProgressBox
 {
     Q_OBJECT;
 

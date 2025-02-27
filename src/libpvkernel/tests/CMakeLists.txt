@@ -2,8 +2,8 @@
 # @file
 #
 
-set(LINK_LIBRARIES ${PVLICENSE_LIBRARIES} pvkernel)
-include_directories(${PVLICENSE_INCLUDE_DIR})
+set(LINK_LIBRARIES pvkernel)
+set(TESTS_FILES_DIR "../${TESTS_FILES_DIR}")
 add_definitions(-fopenmp)
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")

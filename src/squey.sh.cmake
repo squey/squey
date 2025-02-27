@@ -10,6 +10,7 @@ export PVKERNEL_PLUGIN_PATH=$IBRD/libpvkernel/plugins
 export SQUEY_PLUGIN_PATH=$IBRD/libsquey/plugins
 export COPYING_DIR=$ISRD/COPYING
 export PVFORMAT_HELPER=$ISRD/libpvkernel/plugins
+export SQUEY_PCAP_PROFILES_PATH=$ISRD/libpvkernel/plugins/common/pcap/profiles
 
 # AG: we don't need this anymore, because
 # the locale is automatically found for times in log files

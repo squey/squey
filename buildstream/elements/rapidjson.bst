@@ -11,9 +11,16 @@ sources:
 (@): buildstream/elements/base/target.bst
 
 config:
-  configure-commands:
-    - if [ "%{target-platform}" = "darwin" ] ; then sed "112d" -i CMakeLists.txt; fi
-    - "%{cmake}"
+  (?):
+  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+      configure-commands:
+        (<):
+        - sed "112d" -i CMakeLists.txt
+  - (target_triple == "x86_64-w64-mingw32"):
+      configure-commands:
+        (<):
+        - sed 's|RapidJSON_INCLUDE_DIRS  "@RapidJSON_INCLUDE_DIR@"|RapidJSON_INCLUDE_DIRS  "%{includedir}/rapidjson"|' -i "RapidJSONConfig.cmake.in"
+        - cat RapidJSONConfig.cmake.in
 
 depends:
 - sdk.bst

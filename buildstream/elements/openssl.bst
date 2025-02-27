@@ -19,11 +19,15 @@ config:
       --prefix=%{prefix} \
       --libdir=%{lib} \
       --openssldir=%{sysconfdir}/pki/tls \
+      --cross-compile-prefix="%{toolchain-dir}/%{host}-" \
       shared \
-      threads \
-      CC="%{host}" RANLIB="%{host}-ranlib" AR="%{host}-ar"
+      threads
 
   (?):
+  - (target_triple == "x86_64-linux-gnu"):
+      install-commands:
+        (>):
+        - rm %{install-root}%{libdir}/lib*.a
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       install-commands:
         (>):
@@ -31,10 +35,10 @@ config:
           %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/libssl.3.%{dylib-extension}" "%{install-root}/%{libdir}/libssl.%{dylib-extension}"
           %{toolchain-dir}/%{host}-install_name_tool -change "%{libdir}/libcrypto.3.%{dylib-extension}" "@rpath/libcrypto.3.%{dylib-extension}" "%{install-root}/%{libdir}/libssl.%{dylib-extension}"
           %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/libcrypto.3.%{dylib-extension}" "%{install-root}/%{libdir}/libcrypto.%{dylib-extension}"
-
-  install-commands:
-    (>):
-    - rm %{install-root}%{libdir}/lib*.a
+  - (target_triple == "x86_64-w64-mingw32"):
+      install-commands:
+        (>):
+        - cp -r ms/* "%{install-root}/%{includedir}/openssl"
 
 public:
   bst:

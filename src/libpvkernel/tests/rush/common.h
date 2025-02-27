@@ -147,6 +147,7 @@ class TestSplitter
 
 		std::vector<PVCore::PVTextChunk*> _chunks;
 		while (PVCore::PVTextChunk* pc = (*_source.get())()) {
+			pvlogger::error() << "_chunks" << std::endl;
 			_chunks.push_back(pc);
 		}
 

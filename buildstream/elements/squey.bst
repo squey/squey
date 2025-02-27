@@ -51,8 +51,8 @@ variables:
   - target_triple != "x86_64-linux-gnu":
       cmake-local-extra: ""
 
-  copy-launchers: 'bash -c "cp -r buildstream/files/flatpak/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"'
-  install-deps:
+  install-linux-launchers: 'bash -c "cp -r buildstream/files/flatpak/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"'
+  install-linux-deps:
     install -D /usr/lib/%{gcc_triplet}/crti.o -t %{install-root}%{libdir} && 
     install -D /usr/lib/%{gcc_triplet}/crtn.o -t %{install-root}%{libdir} && 
     install -D /usr/lib/%{gcc_triplet}/libgcc_s.so -t %{install-root}%{libdir} && 
@@ -66,13 +66,13 @@ variables:
     find /usr/lib/gcc/%{triplet} -name crtendS.o -exec install -D \{\} -t %{install-root}%{libdir} \;
   install-all: |
     %{make-install} &&
-    if [ "%{target_triple}" = "x86_64-linux-gnu" ]; then %{install-deps} && %{copy-launchers} ; fi &&
+    if [ "%{target_triple}" = "x86_64-linux-gnu" ]; then %{install-linux-deps} && %{install-linux-launchers} ; fi &&
     if [ "%{target-platform}" = "darwin" ]; then mkdir -p "%{install-root}%{libdir}" && cp libSystemStub.tbd "%{install-root}%{libdir}/libSystem.tbd" && %{toolchain-dir}/%{host}-install_name_tool -rpath %{libdir} @executable_path/../Frameworks %{install-root}%{bindir}/squey ; fi
     
 config:
   configure-commands:
     - |
-      WARNINGS_AS_ERRORS=$([ "%{cxx_compiler}" = "clang++" ] && echo 0 || echo 0)
+      WARNINGS_AS_ERRORS=$([ "%{code_coverage}" = "1" ] && echo 0 || echo 1)
       CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
       %{cmake} "%{source-dir}" \
         -DCMAKE_CXX_COMPILER_LAUNCHER="recc" \
@@ -163,20 +163,19 @@ build-depends:
 - freedesktop-sdk.bst:components/git.bst
 - freedesktop-sdk.bst:components/flatpak-xdg-utils.bst 
 - freedesktop-sdk.bst:components/buildbox.bst
+- target_env_vars.bst
 - openssh-portable.bst
 - procps.bst
 - waypipe.bst
-- target_env_vars.bst
+- mold.bst
 
 depends:
-- pigz.bst
-- lbzip2.bst
 - libhwloc.bst
 - pwgen.bst
 - mm-common.bst
 - libsigcplusplus.bst
 - rapidjson.bst
-- google-breakpad.bst
+- google-breakpad.bst ###
 - portablecl.bst
 - opencl-headers.bst
 - libpcap.bst
@@ -187,8 +186,8 @@ depends:
 - kitemmodels.bst
 - ksyntaxhighlighting.bst
 - apache-arrow.bst
-- libomp.bst
 - simde.bst
+- 7zip_host.bst
 
 (?):
   - target_triple == "x86_64-linux-gnu":
@@ -207,22 +206,39 @@ depends:
         (>):
         #- clang-tools-extra.bst
         - llvm.bst
-        - mold.bst
         - iwyu.bst
   - target_triple != "x86_64-linux-gnu":
       depends:
         (>):
         - qt6_target.bst
-        - tshark_darwin.bst
-        - python3_darwin.bst
-        - numpy_darwin.bst
+        - tshark_bin.bst
+        - python3_bin.bst
+        - numpy_bin.bst
         - icu.bst
         - libarchive.bst
         - curl.bst
         - xz.bst
+        - zstd.bst
+        - 7zip_target.bst
   - target_triple != "x86_64-linux-gnu":
       build-depends:
         (>):
         - qt6_host.bst
+  - target_triple != "x86_64-w64-mingw32":
+      depends:
+        (>):
+        - lbzip2.bst
+        - pigz.bst
+        - libomp.bst
+  - target_triple == "x86_64-w64-mingw32":
+      depends:
+        (>):
+        - 7zip_target.bst
+        - zip.bst
+        - pigz_bin.bst
+        - pbzip2.bst
+        - python3-pip_bin.bst
+
+
 
 

@@ -33,40 +33,43 @@
 #include <iostream>
 #include <chrono>
 
+#include "common.h"
+
 #ifdef SQUEY_BENCH
-constexpr size_t SIZE = 1 << 14;
+constexpr size_t SCALING_SIZE = (size_t)1 << 14;
 #else
-constexpr size_t SIZE = 1 << 11;
+constexpr size_t SCALING_SIZE = (size_t)1 << 11;
 #endif
 
 constexpr size_t width = 100;
 
 int main()
 {
+	init_env();
 
 	// FIXME: It is allocated on the heap as it is a too big object.
 	std::unique_ptr<PVParallelView::PVZoneTree> zt(new PVParallelView::PVZoneTree());
 
-	std::vector<uint32_t> plota(SIZE * SIZE);
-	std::vector<uint32_t> plotb(SIZE * SIZE);
+	std::vector<uint32_t> plota(SCALING_SIZE * SCALING_SIZE);
+	std::vector<uint32_t> plotb(SCALING_SIZE * SCALING_SIZE);
 
 	// Generate scaling to have equireparted line on both sides.
-	for (size_t i = 0; i < SIZE; i++) {
+	for (size_t i = 0; i < SCALING_SIZE; i++) {
 		uint32_t r = i << (32 - 11); // Make sure values are equireparted in the 10 upper bites.
-		for (size_t j = 0; j < SIZE; j++) {
-			plotb[j * SIZE + i] = plota[i * SIZE + j] = r;
+		for (size_t j = 0; j < SCALING_SIZE; j++) {
+			plotb[j * SCALING_SIZE + i] = plota[i * SCALING_SIZE + j] = r;
 		}
 	}
 
 	PVParallelView::PVZoneTree::ProcessData pdata;
-	PVParallelView::PVZoneProcessing zp{SIZE * SIZE, plota.data(), plotb.data()};
+	PVParallelView::PVZoneProcessing zp{SCALING_SIZE * SCALING_SIZE, plota.data(), plotb.data()};
 
 	zt->process(zp, pdata);
 
 	// +1 as we want the whole width but QRect with width == 100 go from 0 to 99 all included
 	QRect rect(0, 10, width + 1, 1000); // Skip the 24 last lines and 10 first lines
 
-	Squey::PVSelection sel(SIZE * SIZE);
+	Squey::PVSelection sel(SCALING_SIZE * SCALING_SIZE);
 	sel.select_none();
 
 	auto start = std::chrono::steady_clock::now();
@@ -79,15 +82,15 @@ int main()
 	std::cout << diff.count();
 
 #ifdef SQUEY_BENCH
-	for (size_t i = 0; i < SIZE; i++) {
-		for (size_t j = 0; j < SIZE; j++) {
-			uint32_t y1 = (plota[i * SIZE + j] >> 22);
-			uint32_t y2 = (plotb[i * SIZE + j] >> 22);
+	for (size_t i = 0; i < SCALING_SIZE; i++) {
+		for (size_t j = 0; j < SCALING_SIZE; j++) {
+			uint32_t y1 = (plota[i * SCALING_SIZE + j] >> 22);
+			uint32_t y2 = (plotb[i * SCALING_SIZE + j] >> 22);
 			if ((y1 > (size_t)rect.bottomLeft().y() and y2 > (size_t)rect.bottomRight().y()) or
 			    (y1 < (size_t)rect.topLeft().y() and y2 < (size_t)rect.topRight().y())) {
-				PV_VALID(sel.get_line_fast(i * SIZE + j), false);
+				PV_VALID(sel.get_line_fast(i * SCALING_SIZE + j), false);
 			} else {
-				PV_VALID(sel.get_line_fast(i * SIZE + j), true);
+				PV_VALID(sel.get_line_fast(i * SCALING_SIZE + j), true);
 			}
 		}
 	}

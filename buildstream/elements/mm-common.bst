@@ -27,7 +27,7 @@ config:
     cat <<EOF > "%{host}.txt"
     [binaries]
     name = '%{target-platform}'
-    c = '%{host}-clang'
+    c = '%{cc-compiler}'
     c_ld = '%{toolchain-dir}/%{host}-ld'
     ar = '%{host}-ar'
     ranlib = '%{host}-ranlib'

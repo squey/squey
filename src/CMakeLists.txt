@@ -87,6 +87,7 @@ add_subdirectory(furl)
 ###############################################################################
 SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvlogger/src/libpvlogger${CMAKE_SHARED_LIBRARY_SUFFIX})
 SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvhwloc/src/libpvhwloc${CMAKE_SHARED_LIBRARY_SUFFIX})
+include_directories(${CMAKE_SOURCE_DIR}/squey-utils/include)
 include_directories(${CMAKE_SOURCE_DIR}/squey-utils/libpvlogger/include)
 include_directories(${CMAKE_SOURCE_DIR}/squey-utils/libpvhwloc/include)
 add_subdirectory(squey-utils)

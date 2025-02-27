@@ -10,7 +10,12 @@ sources:
 
 (@): buildstream/elements/base/target.bst
 
+environment:
+    CFLAGS: "-D_WINSOCK_DEPRECATED_NO_WARNINGS -fpermissive"
+    CXXFLAGS: "-D_WINSOCK_DEPRECATED_NO_WARNINGS -fpermissive"
+
 variables:
+  source-dir: "."
   cmake-local: >-
     -DBUILD_SHARED_LIBS=ON
     -DBUILD_TESTING=OFF
@@ -22,15 +27,21 @@ variables:
     -DWITH_KOTLIN=OFF
 
 config:
-  configure-commands:
-    - |
-      %{cmake}
+  (?):
+  - (target_triple == "x86_64-w64-mingw32"):
+      configure-commands:
+        (<):
+        - |
+          find %{source-dir} \( -name TServerSocket.cpp -o -name Sync.h \) -exec sed 's/Windows.h/windows.h/' -i {} \;
+          find %{source-dir} \( -name THttpServer.cpp -o -name TWebSocketServer.h \) -exec sed 's/Shlwapi.h/shlwapi.h/' -i {} \;
+          find %{source-dir} -name SocketPair.cpp -exec sed 's/WS2tcpip.h/ws2tcpip.h/' -i {} \;
+          find %{source-dir} -name TPipeServer.cpp -exec sed -e 's/AccCtrl.h/accctrl.h/' -e 's/Aclapi.h/aclapi.h/' -i {} \;
 
 build-depends:
 - sdk.bst
 
 (?):
-  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+  - (target_triple != "x86_64-linux-gnu"):
       depends:
         - boost.bst
         - openssl.bst

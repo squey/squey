@@ -49,7 +49,7 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 		    QString(
 		        "The temporary working directory <b>%1</b> does not exists or is not writable. "
 		        "Please, change the permissions or chose another directory.<br><br>"
-				"This directory emplacement needs to be specified once and for all."
+				"This directory emplacement needs to be specified once and for all.<br>"
 		        "A fast underlying storage for this directory will provide better performances.")
 		        .arg(nraw_tmp));
 

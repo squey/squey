@@ -9,6 +9,46 @@ sources:
 (@): buildstream/elements/base/target.bst
 
 variables:
+  conf-local: >-
+    --without-cxx
+    --enable-warnings
+    --enable-assertions
+    --enable-exp-win32
+    --enable-ext-funcs
+    --disable-home-terminfo
+    --disable-echo
+    --disable-getcap
+    --disable-hard-tabs
+    --disable-leaks
+    --disable-macros
+    --disable-overwrite
+    --enable-opaque-curses
+    --enable-opaque-panel
+    --enable-opaque-menu
+    --enable-opaque-form
+    --enable-sp-funcs
+    --enable-term-driver
+    --enable-interop
+    --disable-termcap
+    --enable-database
+    --with-progs
+    --without-libtool
+    --without-debug
+    --with-fallbacks=ms-terminal
+    --without-manpages
+    --host="%{host}"
+    --disable-stripping
+    --libdir=%{libdir}
+    --with-pkg-config="%{bindir}/pkg-config"
+    --with-pkg-config-libdir="%{libdir}/pkgconfig"
+    --disable-root-access
+    --disable-setuid-environ
+    --with-shared
+    --without-ada
+    --without-normal
+    --enable-pc-files
+    --prefix=%{prefix}
+    TIC="/usr/bin/tic"
   make-args: ""
   
 config:
@@ -16,42 +56,12 @@ config:
   - |
     mkdir ncurses-build &&
     cd ncurses-build &&
-    ../configure \
-    --host="%{host}" \
-    --disable-stripping \
-    --libdir=%{libdir} \
-    --with-pkg-config="%{bindir}/pkg-config" \
-    --with-pkg-config-libdir="%{libdir}/pkgconfig" \
-    --disable-widec \
-    --disable-root-access \
-    --disable-setuid-environ \
-    --with-shared \
-    --without-ada \
-    --without-normal \
-    --enable-pc-files \
-    --with-termlib \
-    --prefix=%{prefix} \
-    TIC="/usr/bin/tic"
+    ../configure --disable-widec %{conf-local}
 
   - |
     mkdir ncursesw-build &&
     cd ncursesw-build &&
-    ../configure \
-    --host="%{host}" \
-    --disable-stripping \
-    --libdir=%{libdir} \
-    --with-pkg-config="%{bindir}/pkg-config" \
-    --with-pkg-config-libdir="%{libdir}/pkgconfig" \
-    --disable-root-access \
-    --disable-setuid-environ \
-    --enable-widec \
-    --with-shared \
-    --without-ada \
-    --without-normal \
-    --enable-pc-files \
-    --with-termlib \
-    --prefix=%{prefix} \
-    TIC="/usr/bin/tic"
+    ../configure --enable-widec %{conf-local}
 
   build-commands:
   - |
@@ -67,8 +77,8 @@ config:
   - |
     cd ncursesw-build && %{make-install}
 
-  - |
-    find "%{install-root}" -name "lib*.a" -delete
+  # - |
+  #   find "%{install-root}" -name "lib*.a" -delete
 
   - |
     %{delete-libtool-archives}

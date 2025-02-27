@@ -5,19 +5,20 @@ description: |
     
 sources:
 - kind: tar
-  url: github:apache/arrow/archive/refs/tags/apache-arrow-18.0.0.tar.gz
-  ref: 9c473f2c9914c59ab571761c9497cf0e5cfd3ea335f7782ccc6121f5cb99ae9b
+  url: github:apache/arrow/archive/refs/tags/apache-arrow-19.0.0.tar.gz
+  ref: 7bee51bb6c1176eb08070bd2c7fb7e9e4d17f277e59c9cf80a88082443b124de
 
 (@): buildstream/elements/base/target.bst
 
 variables:
+  source-dir: "."
   cmake-local: >-
     -DCMAKE_BUILD_TYPE=Release
     -DARROW_PARQUET=ON
     -DPARQUET_REQUIRE_ENCRYPTION=ON
+    -DThrift_SOURCE=SYSTEM
     -Djemalloc_SOURCE=SYSTEM
     -Dutf8proc_SOURCE=SYSTEM
-    -Dutf8proc_LIB=%{prefix}/lib/libutf8proc.a
     -DARROW_WITH_SNAPPY=ON
     -DARROW_WITH_BROTLI=ON
     -DARROW_WITH_BZ2=ON
@@ -25,12 +26,17 @@ variables:
     -DARROW_WITH_ZLIB=ON
     -DARROW_WITH_LZ4=ON
     -DARROW_JEMALLOC=OFF
+    -DARROW_MIMALLOC=OFF
     -DARROW_COMPUTE=ON
 
 config:
   configure-commands:
     - |
       cd cpp
+      if [ "%{target-platform}" = "windows" ] ; then
+        find %{source-dir} -name io_util.cc -exec sed 's/Windows.h/windows.h/' -i {} \;
+        sed '1843s/TRUE/FALSE/' -i cmake_modules/ThirdpartyToolchain.cmake
+      fi
       %{cmake}
 
   build-commands:
@@ -57,7 +63,7 @@ depends:
 - utf8proc.bst
 
 (?):
-  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+  - (target_triple != "x86_64-linux-gnu"):
       depends:
         (>):
         - bzip2.bst

@@ -38,6 +38,7 @@
 #include <squey/PVView.h>
 
 #include <tbb/task_group.h>
+
 namespace PVGuiQt
 {
 

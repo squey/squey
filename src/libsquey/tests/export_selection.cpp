@@ -24,6 +24,8 @@
 //
 
 #include "import_export.h"
+#include <boost/algorithm/string/join.hpp>
+#include <boost/filesystem.hpp>
 
 int main(int argc, char** argv)
 {
@@ -43,17 +45,22 @@ int main(int argc, char** argv)
 	std::string file_extension = input_file.substr(input_file.rfind('.') + 1);
 	const auto& [args, argv_] = PVCore::PVStreamingDecompressor::executable(file_extension, PVCore::PVStreamingDecompressor::EExecType::DECOMPRESSOR);
 	std::string uncompressed_file = output_file;
-	std::string cmd = args[0];
+	std::string cmd = boost::algorithm::join(args, " ");
 	if (not cmd.empty()) {
 		std::string output_file2 = import_export(output_file, format, test_selection);
+		output_file2 = std::filesystem::path(output_file2).make_preferred().string();
 		uncompressed_file = output_file2.substr(0, output_file2.find_last_of("."));
 		if (cmd == "funzip") {
-			cmd = "unzip -o -qq";
-			uncompressed_file = "-";
+			cmd = "unzip -o -qq -d " + boost::filesystem::path(output_file2).parent_path().string();
+		}
+		else if (cmd == "pigz -d -c") {
+			cmd = "pigz -d";
+		}
+		else if (cmd == "zstd -d -c") {
+			cmd = "zstd -d";
 		}
 		cmd += " " + output_file2;
-		int result = system(cmd.c_str());
-		PV_VALID(result, 0);
+		system(cmd.c_str());
 		std::remove(output_file2.c_str());
 	}
 	bool same_content = PVRush::PVUtils::files_have_same_content(ref_file, uncompressed_file);

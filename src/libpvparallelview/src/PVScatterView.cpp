@@ -82,7 +82,7 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 {
 	set_gl_viewport();
 
-	QRectF r(0, 0, (1UL << 32), (1UL << 32));
+	QRectF r(0, 0, ((size_t)1 << 32), ((size_t)1 << 32));
 	set_scene_rect(r);
 	get_scene()->setSceneRect(r);
 

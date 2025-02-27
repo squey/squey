@@ -113,7 +113,26 @@
         "ios": "cpp",
         "locale": "cpp",
         "stack": "cpp",
-        "osmemory": "cpp"
+        "osmemory": "cpp",
+        "mmap-windows.c": "cpp",
+        "__node_handle": "cpp",
+        "__split_buffer": "cpp",
+        "queue": "cpp",
+        "__locale": "cpp",
+        "__verbose_abort": "cpp",
+        "execution": "cpp",
+        "_70_exception": "cpp",
+        "_70_new": "cpp",
+        "_70_xstddef": "cpp",
+        "xstddef": "cpp",
+        "__config": "cpp",
+        "__bit_reference": "cpp",
+        "__hash_table": "cpp",
+        "__tree": "cpp",
+        "*.def": "cpp",
+        "__threading_support": "cpp",
+        "flat_map": "cpp",
+        "flat_set": "cpp"
     },
     "gotoSymbolStack.currentStackPosition": 0,
     "gotoSymbolStack.maxStackPosition": 0,
@@ -128,5 +147,6 @@
     "cmake.installPrefix": "/app",
     "files.exclude": {
         "Squey.app": true
-    }
+    },
+    "cmake.sourceDirectory": "${workspaceFolder}/src"
 }

@@ -26,6 +26,7 @@
 #define __SNIFF_DEF_H__
 
 #include <pcap.h>
+#ifndef _WIN32
 #include <sys/socket.h>
 #include <arpa/inet.h> // for inet_ntoa()
 #include <net/ethernet.h>
@@ -34,6 +35,7 @@
 #include <netinet/tcp.h>     //Provides declarations for tcp header
 #include <netinet/ip.h>      //Provides declarations for ip header
 #include <netinet/ip6.h>
+#endif
 
 #define IP_V(ip) (((ip)->ip_vhl) >> 4)
 
@@ -60,8 +62,8 @@ struct sniff_ip {
 struct sniff_tcp {
 	u_short th_sport; /* source port */
 	u_short th_dport; /* destination port */
-	tcp_seq th_seq;   /* sequence number */
-	tcp_seq th_ack;   /* acknowledgement number */
+	uint32_t th_seq;   /* sequence number */
+	uint32_t th_ack;   /* acknowledgement number */
 	u_char th_offx2;  /* data offset, rsvd */
 #define TH_OFF(th) (((th)->th_offx2 & 0xf0) >> 4)
 	u_char th_flags;
@@ -86,5 +88,32 @@ struct sniff_udp {
 	uint16_t udp_length;
 	uint16_t udp_sum; /* checksum */
 };
+
+#ifdef _WIN32
+
+#pragma pack(push, 1) // Ensure correct memory alignment
+
+struct ethhdr {
+    uint8_t  h_dest[6];  // Destination MAC address
+    uint8_t  h_source[6]; // Source MAC address
+    uint16_t h_proto;    // EtherType (e.g., 0x0800 for IPv4, 0x86DD for IPv6)
+};
+
+struct ip6_hdr {
+    union {
+        struct {
+            uint32_t ip6_un1_flow; // 4-bit Version + 8-bit Traffic Class + 20-bit Flow Label
+            uint16_t ip6_un1_plen; // Payload Length
+            uint8_t  ip6_un1_nxt;  // Next Header
+            uint8_t  ip6_un1_hlim; // Hop Limit
+        } ip6_un1;
+        uint8_t ip6_vfc; // Version and Traffic Class (quick access)
+    };
+    struct in6_addr ip6_src; // IPv6 Source Address
+    struct in6_addr ip6_dst; // IPv6 Destination Address
+};
+
+#pragma pack(pop) // Restore default alignment
+#endif // _WIN32
 
 #endif // __SNIFF_DEF_H__

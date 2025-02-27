@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
   url: kde:kitemmodels.git
-  ref: fa926680500bac596b2fce92f82ca19545c3085e
+  ref: 3a6b78f7f292330ecb90966974eebf8e596316b4
 
 (@): buildstream/elements/base/target.bst
 

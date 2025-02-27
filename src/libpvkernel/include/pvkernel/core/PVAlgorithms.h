@@ -53,7 +53,7 @@ T clamp(const T& value, const T& low, const T& high)
 
 inline uint64_t upper_power_of_2(uint64_t v)
 {
-	constexpr static uint64_t MantissaMask = (1UL << 52) - 1;
+	constexpr static uint64_t MantissaMask = (1ULL << 52) - 1;
 
 #ifdef __GNUG__
 #pragma GCC diagnostic push

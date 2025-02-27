@@ -1,4 +1,4 @@
-kind: meson
+kind: cmake
 
 sources:
 - kind: git_repo
@@ -9,28 +9,7 @@ sources:
 (@): buildstream/elements/base/target.bst
 
 variables:
-  command-subdir: build/meson
-  meson-local: -Dprograms=true -Dtests=false -Dossfuzz=false -Dexamples=false --cross-file %{host}.txt
-
-config:
-  configure-commands:
-  - |
-    cat <<EOF > "%{host}.txt"
-    [binaries]
-    name = '%{target-platform}'
-    c = '%{host}-clang'
-    c_ld = '%{toolchain-dir}/%{host}-ld'
-    ar = '%{host}-ar'
-    ranlib = '%{host}-ranlib'
-    strip = '%{host}-strip'
-
-    [host_machine]
-    system = '%{target-platform}'
-    cpu_family = '%{target-arch}'
-    cpu = '%{target-arch}'
-    endian = 'little'
-    EOF
-  - "%{meson}"
+  command-subdir: build/cmake
 
 public:
   bst:

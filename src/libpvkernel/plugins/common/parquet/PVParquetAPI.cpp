@@ -63,7 +63,7 @@ const std::unordered_map<arrow::Type::type, PVRush::PVParquetAPI::pvcop_type_inf
 	{ arrow::Type::type::FIXED_SIZE_BINARY,	{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::BINARY,			{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::DICTIONARY,		{ sizeof(pvcop::db::index_t),	"string" }}
-	// Note : "DATE64" and "DURATION" are not support by Apache Parquet
+	// Note : "DATE64" and "DURATION" are not supported by Apache Parquet
 };
 
 constexpr const char input_column_name[] = "filename";
@@ -168,7 +168,6 @@ QDomDocument PVRush::PVParquetAPI::get_format()
 	if (_format == QDomDocument()) {
     	std::shared_ptr<arrow::Schema> arrow_schema;
 		arrow::Status status = const_cast<PVRush::PVParquetAPI*>(this)->arrow_reader()->GetSchema(&arrow_schema);
-
 
 		std::shared_ptr<arrow::Schema> flattened_schema = flatten_schema(arrow_schema);
 		const arrow::FieldVector& fields = flattened_schema->fields();

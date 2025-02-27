@@ -3,39 +3,49 @@ description: GNU Binutils
 
 sources:
 - kind: tar
-  url: sourceware:pub/binutils/releases/binutils-2.43.tar.xz
-  ref: b53606f443ac8f01d1d5fc9c39497f2af322d99e14cea5c0b4b124d630379365
+  url: sourceware:pub/binutils/releases/binutils-2.44.tar.xz
+  ref: ce2017e059d63e67ddb9240e9d4ec49c2893605035cd60e92ad53177f4377237
 
 (@): buildstream/elements/base/target.bst
 
-variables:
-  target_flags_exceptions: ''
-  make-args: ''
-  MAKEINFO: true
-  conf-global: >-
-    CFLAGS="${CFLAGS}"
-    --disable-nls
-    --disable-multilib
-    --disable-werror
-    --enable-gold
-    --enable-ld=default
-    --enable-plugins
-    --disable-sim
-    --disable-readline
-    --disable-libdecnumber
-    --enable-relro=yes
-    --enable-lto
-    --with-system-zlib
-    --with-sysroot=%{libdir}
-    --with-lib-path=%{libdir}
-    --enable-ld=default
-    --enable-shared
-    --with-debuginfod
-    --disable-gprofng
-    --disable-doc
-    --disable-gdb
-    --disable-gdbserver
-    host_configargs='lt_cv_sys_lib_dlsearch_path_spec="%{libdir} /usr/lib/"'
+(?):
+  - target_triple != "x86_64-w64-mingw32":
+      variables:
+        cflags: ""
+  - target_triple == "x86_64-w64-mingw32":
+      variables:
+        cflags: "-L%{libdir}"
+  - target_triple != "none":
+      variables:
+        target_flags_exceptions: ''
+        make-args: ''
+        MAKEINFO: true
+        conf-local: >-
+          CFLAGS="%{cflags}"
+          --disable-nls
+          --disable-multilib
+          --disable-werror
+          --enable-gold
+          --enable-ld=default
+          --enable-plugins
+          --disable-sim
+          --disable-readline
+          --disable-libdecnumber
+          --enable-relro=yes
+          --enable-lto
+          --with-system-zlib
+          --with-sysroot=%{libdir}
+          --with-lib-path=%{libdir}
+          --enable-ld=default
+          --enable-shared
+          --disable-gprofng
+          --disable-doc
+          --disable-gdb
+          --disable-gdbserver
+          host_configargs='lt_cv_sys_lib_dlsearch_path_spec="%{libdir} /usr/lib/"'
+  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+      variables:
+        conf-global: ""
 
 config:
   configure-commands:
@@ -57,3 +67,4 @@ build-depends:
 
 depends:
 - sdk.bst
+- zlib.bst

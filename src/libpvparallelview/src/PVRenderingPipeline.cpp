@@ -101,7 +101,7 @@ PVParallelView::PVRenderingPipeline::PVRenderingPipeline(PVBCIDrawingBackend& ba
 	    tbb_graph(), tbb::flow::unlimited, [&](ZoneRenderingWithBCI const& zrb) {
 		    this->_bci_buffers.return_buffer(zrb.codes);
 		    this->_node_limiter.decrementer().try_put(tbb::flow::continue_msg());
-		    return zrb.zr;
+		    return std::static_pointer_cast<PVZoneRendering>(zrb.zr);
 		});
 
 	_node_finish = new tbb::flow::function_node<PVZoneRendering_p>(

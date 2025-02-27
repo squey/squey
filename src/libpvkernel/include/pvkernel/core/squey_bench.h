@@ -25,7 +25,7 @@
 #ifndef __BENCH_H
 #define __BENCH_H
 
-#ifdef SQUEY_DEVELOPER_MODE
+#if defined(SQUEY_DEVELOPER_MODE) && defined(__linux__)
 
 #include <tbb/tick_count.h>
 #include <iostream>

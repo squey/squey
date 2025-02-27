@@ -18,3 +18,12 @@ public:
 
 depends:
 - sdk.bst
+
+(?):
+- (target_triple != "x86_64-linux-gnu"):
+    depends:
+      (>):
+      - zlib.bst
+      - bzip2.bst
+      - lz4.bst
+      - zstd.bst

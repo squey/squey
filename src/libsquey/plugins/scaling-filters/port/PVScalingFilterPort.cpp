@@ -72,7 +72,7 @@ static void compute_port_scaling(pvcop::db::array const& mapped,
 
 			// Distribute ports linearly in [alpha2*Max, Max]
 			x_min = 49152;
-			x_max = (scaling_t)(1UL << 16);
+			x_max = ((scaling_t)1 << 16);
 			y_min = threshold2;
 			y_max = max_plot_value;
 		}

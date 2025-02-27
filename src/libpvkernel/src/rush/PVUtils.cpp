@@ -44,11 +44,16 @@ bool PVRush::PVUtils::files_have_same_content(const std::string& path1, const st
 		return false;
 	}
 
-	auto res = std::mismatch(std::istreambuf_iterator<char>(ifs1), std::istreambuf_iterator<char>(),
-	                         std::istreambuf_iterator<char>(ifs2));
+	std::string line1, line2;
+    while (true) {
+        bool read1 = static_cast<bool>(std::getline(ifs1, line1));
+        bool read2 = static_cast<bool>(std::getline(ifs2, line2));
+        if (read1 != read2) return false;
+        if (!read1) break;
+        if (line1 != line2) return false;
+    }
 
-	return res.first == std::istreambuf_iterator<char>() &&
-	       res.second == std::istreambuf_iterator<char>();
+    return true;
 }
 
 void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file /*= nullptr*/)

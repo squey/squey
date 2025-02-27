@@ -61,6 +61,7 @@ int main()
 	PVRush::PVNraw nraw = std::move(env._nraw);
 	nraw.dump_csv(out_path);
 
+	pvlogger::info() << filename << " " << out_path << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(filename, out_path));
 
 	std::remove(out_path.c_str());

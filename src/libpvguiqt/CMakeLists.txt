@@ -4,6 +4,8 @@
 
 project(libpvguiqt)
 
+add_definitions(-DBUILD_PVGUIQT)
+
 include(CTest)
 set(CTEST_PROJECT_NAME "PVGuiQT")
 

@@ -75,6 +75,9 @@ static QString get_pvkernel_plugins_path()
 #ifdef __APPLE__
 		boost::filesystem::path exe_path = boost::dll::program_location();
 		pluginsdirs = QString::fromStdString(exe_path.parent_path().string() + "/../PlugIns");
+#elifdef _WIN32
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		pluginsdirs = QString::fromStdString(exe_path.parent_path().string() + "/plugins");
 #else
 		pluginsdirs = QString(PVKERNEL_PLUGIN_PATH);
 #endif

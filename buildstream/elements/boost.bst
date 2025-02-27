@@ -20,6 +20,8 @@ config:
     ./bootstrap.sh --prefix=%{prefix}
     if [ "%{target-platform}" = "darwin" ] ; then
       echo "using clang : osxcross : %{cxx-compiler} ;" > ~/user-config.jam
+    elif [ "%{target_triple}" = "x86_64-w64-mingw32" ] ; then
+      echo "using gcc : mingw : %{cxx-compiler} ;" > ~/user-config.jam
     fi
     cat <<EOF > "Makefile"
     LIB_TARGETS = --with-date_time --with-system --with-filesystem --with-thread --with-program_options --with-chrono

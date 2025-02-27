@@ -32,7 +32,11 @@
 #if __linux__
 #include <numa.h>      // for numa_alloc_interleaved, etc
 #endif
+#ifdef _WIN32
+#include "mmap-windows.c"
+#else
 #include <sys/mman.h>  // for mmap, madvise, munmap
+#endif
 #include <cstddef>     // for size_t, ptrdiff_t
 #include <cstdint>     // for uintptr_t
 #include <cstdlib>     // for free, malloc, realloc
@@ -287,14 +291,27 @@ class PVAlignedAllocator
 	pointer allocate(size_type n)
 	{
 		pointer p;
+#ifdef _WIN32
+		p = (pointer)_aligned_malloc(sizeof(value_type) * n, Align);
+		if (p == nullptr) {
+			throw std::bad_alloc();
+		}
+#else
 		int ret = posix_memalign((void**)&p, Align, sizeof(value_type) * n);
 		if (ret != 0) {
 			throw std::bad_alloc();
 		}
+#endif
 		return p;
 	}
 
-	void deallocate(pointer p, size_type /*n*/) { free(p); }
+	void deallocate(pointer p, size_type /*n*/) {
+#ifdef _WIN32
+	_aligned_free(p);
+#else
+	free(p);
+#endif
+ 	}
 
 	size_type max_size() const throw()
 	{
@@ -361,11 +378,13 @@ class PVReallocableCAllocator
 	void destroy(pointer p) { p->~value_type(); }
 };
 
+#ifdef __linux__
 namespace PVMemory
 {
 
 void get_memory_usage(double& vm_usage, double& resident_set);
 } // namespace PVMemory
+#endif
 } // namespace PVCore
 
 #endif

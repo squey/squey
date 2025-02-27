@@ -77,7 +77,7 @@
 
 #include <boost/thread.hpp>
 
-#include <sys/utsname.h> // uname
+//#include <sys/utsname.h> // uname
 
 /******************************************************************************
  *
@@ -138,6 +138,8 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	        &PVMainWindow::close_solution_Slot);
 	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::active_project, this,
 	        &PVMainWindow::menu_activate_is_file_opened);
+			
+#ifdef __linux__
 	connect(&_dbus_connection, &PVCore::PVDBusConnection::import_signal, [this](const QString& input_type, const QString& params_json) {
 			PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(input_type.toStdString().c_str());
 			PVRush::PVInputType::list_inputs inputs;
@@ -148,6 +150,7 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 				load_source_from_description_Slot(src_desc);
 			}
 	});
+#endif
 
 	// We display the PV Icon together with a button to import files
 	pv_centralMainWidget = new QWidget();
@@ -177,13 +180,6 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	create_menus();
 	connect_actions();
 	menu_activate_is_file_opened(false);
-
-	// Center the main window
-	QRect r = geometry();
-	r.moveCenter(QGuiApplication::primaryScreen()->availableGeometry().center());
-	setGeometry(r);
-	PVCore::PVTheme::init();
-	showMaximized();
 
 	// CSS stylesheet hot reloading
 	QShortcut* refresh_theme = new QShortcut(QKeySequence(Qt::Key_Dollar), this);

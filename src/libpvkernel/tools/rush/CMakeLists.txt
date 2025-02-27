@@ -2,7 +2,7 @@
 # @file
 #
 
-set(LINK_LIBRARIES ${PVLICENSE_LIBRARIES} pvkernel)
+set(LINK_LIBRARIES pvkernel)
 include_directories(${PVLICENSE_INCLUDE_DIR})
 add_definitions(-fopenmp)
 

@@ -19,7 +19,7 @@ build-depends:
   - sdk.bst
 
 (?):
-  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+  - (target_triple != "x86_64-linux-gnu"):
       depends:
         - abseil-cpp.bst
   - target_triple == "x86_64-linux-gnu":

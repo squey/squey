@@ -15,7 +15,7 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(COMMON_LIBRARIES pvparallelview pvguiqt ${PVLICENSE_LIBRARIES} pvsquey pvkernel Qt6::Test)
+set(COMMON_LIBRARIES pvparallelview pvguiqt pvsquey pvkernel Qt6::Test)
 
 SET(MOC_HEADERS
 ../include/PVFilesTypesSelWidget.h

@@ -64,6 +64,9 @@ QT6_WRAP_CPP(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Generate linkage configuration
 add_library(input_type_pcap SHARED ${PCAP_SRC_FILES} ${PCAP_MOC_SRC})
+if (WIN32)
+set(WINSOCK_LIBRARY "ws2_32")
+endif()
 target_link_libraries(
 	input_type_pcap
 	pvkernel
@@ -71,6 +74,7 @@ target_link_libraries(
 	pcap-gui-widget
 	pvpcap
 	light_pcapng_static
+	${WINSOCK_LIBRARY}
 )
 
 set(INPUTS_DIST_LIST
@@ -142,10 +146,10 @@ QT6_WRAP_UI(ELASTICSEARCH_UI_SRCS ${ELASTICSEARCH_UI})
 add_library(input_type_elasticsearch SHARED ${ELASTICSEARCH_UI_SRCS} ${ELASTICSEARCH_SRC_FILES} ${ELASTICSEARCH_MOC_SRCS})
 target_link_libraries(input_type_elasticsearch pvkernel curl)
 
-################################################
-# Parquet input plugin
-################################################
-# Define ressources
+# ################################################
+# # Parquet input plugin
+# ################################################
+# # Define ressources
 SET(PARQUET_MOC_HEADERS
 parquet/PVParquetExporterWidget.h
 )
@@ -163,7 +167,7 @@ QT6_WRAP_CPP(PARQUET_MOC_SRC ${PARQUET_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
 
 # Generate linkage configuration
 add_library(input_type_parquet SHARED ${PARQUET_SRC} ${PARQUET_MOC_SRC})
-target_link_libraries(input_type_parquet pvkernel Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy ${ARCHIVE_LIBRARY})
+target_link_libraries(input_type_parquet pvkernel ${PARQUET_LIBS} ${ARCHIVE_LIBRARY})
 
 ###############################################################################
 # Install plugins

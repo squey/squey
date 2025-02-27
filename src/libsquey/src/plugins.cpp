@@ -39,6 +39,9 @@ static std::string get_squey_plugins_path()
 #ifdef __APPLE__
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	return exe_path.parent_path().string() + "/../PlugIns";
+#elifdef _WIN32
+	boost::filesystem::path exe_path = boost::dll::program_location();
+	return exe_path.parent_path().string() + "/plugins";
 #else
 	return SQUEY_PLUGIN_PATH;
 #endif

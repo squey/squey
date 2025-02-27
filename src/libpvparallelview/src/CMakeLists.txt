@@ -159,7 +159,7 @@ include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
 
 list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 
-set(LINK_LIBRARIES pvdisplays pvsquey pvkernel ${QT6_LIBS}
+set(LINK_LIBRARIES pvkernel pvsquey pvdisplays ${QT6_LIBS}
 	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES}
 	${PVHWLOC_LIBRARIES} KF6::ItemModels)
 

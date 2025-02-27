@@ -14,11 +14,17 @@ sources:
 (@): buildstream/elements/base/target.bst
 
 config:
+  (?):
+    - target_triple == "x86_64-w64-mingw32":
+        configure-commands:
+          (<):
+          - sed -i '30,$ d' CMakeLists.txt
   install-commands:
-    - mkdir -p "%{install-root}%{includedir}" "%{install-root}%{prefix}/lib"
-    - cp include/* "%{install-root}%{includedir}"
-    - find . -name "liblight_pcapng_static.a" -exec cp "{}" "%{install-root}%{prefix}/lib" \;
-    
+  - |
+    mkdir -p "%{install-root}%{includedir}" "%{install-root}%{prefix}/lib"
+    cp include/* "%{install-root}%{includedir}"
+    find . -name "liblight_pcapng_static.a" -exec cp "{}" "%{install-root}%{prefix}/lib" \;
+
 depends:
 - sdk.bst
 

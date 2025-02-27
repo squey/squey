@@ -229,8 +229,8 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               // hour
 	                                                               {"HH", "%H"},
 	                                                               {"H", "%H"},
-	                                                               {"hh", "%l"},
-	                                                               {"h", "%l"},
+	                                                               {"hh", "%I"},
+	                                                               {"h", "%I"},
 	                                                               {"K", "%h"},
 
 	                                                               // minute
@@ -662,7 +662,7 @@ PVRush::PVFormat PVRush::PVFormat::serialize_read(PVCore::PVSerializeObject& so)
 	auto fname = so.attribute_read<QString>("filename");
 	QString full_path = so.file_read(fname);
 	QString pattern = PVRush::PVNrawCacheManager::nraw_dir() + "/investigation_tmp_XXXXXX";
-	QString tmp_dir = mkdtemp(pattern.toLatin1().data());
+	QString tmp_dir = PVCore::mkdtemp(pattern.toLatin1().data());
 	QString new_full_path = tmp_dir + "/" + fname;
 	std::rename(full_path.toStdString().c_str(), new_full_path.toStdString().c_str());
 

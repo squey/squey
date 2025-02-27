@@ -40,19 +40,24 @@
 #include <QCheckBox>
 
 #include <sys/time.h>
+#ifndef _WIN32
 #include <sys/resource.h>
+#endif
 
 PVPcapsicum::PVInputTypePcap::PVInputTypePcap()
     : PVRush::PVInputTypeDesc<PVRush::PVPcapDescription>()
 {
+	_limit_nfds = 1024;
+#ifndef _WIN32
 	struct rlimit rlim;
-	if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-		PVLOG_WARN("Unable to get nofile limit. Uses 1024 by default.\n");
-		_limit_nfds = 1024;
-	} else {
+	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
 		_limit_nfds =
 		    rlim.rlim_cur - 1; // Take the soft limit as this is the one that will limit us...
 	}
+	else {
+		PVLOG_WARN("Unable to get nofile limit. Uses 1024 by default.\n");
+	}
+#endif
 }
 
 PVPcapsicum::PVInputTypePcap::~PVInputTypePcap()
@@ -97,28 +102,32 @@ bool PVPcapsicum::PVInputTypePcap::load_files(pvpcap::splitted_files_t&& splitte
 		    _input_paths.size() > 1)));
 	}
 
-	// if (inputs.size() >= _limit_nfds - 200) {
-	// 	ssize_t nopen = _limit_nfds - 200;
-	// 	if (nopen <= 0) {
-	// 		nopen = 1;
-	// 	}
-	// 	QString msg =
-	// 	    QObject::tr("You are trying to open %1 files, and your system limits a user to open %2 "
-	// 	                "file descriptor at once.\nConsidering the needs of the application, this "
-	// 	                "value must be set to a higher value. In order to change this limit, edit "
-	// 	                "/etc/security/limits.conf and add the following lines:")
-	// 	        .arg(inputs.size())
-	// 	        .arg(_limit_nfds);
-	// 	msg += "\n\n*\tsoft\tnofile\t131070\n*\thard\tnofile\t131070\n\n";
-	// 	msg += QObject::tr("You can set 131070 to a bigger value if needed. Then, you need to "
-	// 	                   "logout and login for these changes to be effectives.");
-	// 	msg += "\n\n";
-	// 	msg += QObject::tr("Only the first %1 file(s) will be opened.").arg(nopen);
-	// 	QMessageBox err(QMessageBox::Warning, QObject::tr("Too many files selected"), msg,
-	// 	                QMessageBox::Ok, parent);
-	// 	err.exec();
-	// 	inputs.erase(inputs.begin() + nopen + 1, inputs.end());
-	// }
+#ifdef __linux__
+	if (inputs.size() >= _limit_nfds - 200) {
+		ssize_t nopen = _limit_nfds - 200;
+		if (nopen <= 0) {
+			nopen = 1;
+		}
+		QString msg =
+		    QObject::tr("You are trying to open %1 files, and your system limits a user to open %2 "
+		                "file descriptor at once.\nConsidering the needs of the application, this "
+		                "value must be set to a higher value. In order to change this limit, edit "
+		                "/etc/security/limits.conf and add the following lines:")
+		        .arg(inputs.size())
+		        .arg(_limit_nfds);
+		msg += "\n\n*\tsoft\tnofile\t131070\n*\thard\tnofile\t131070\n\n";
+		msg += QObject::tr("You can set 131070 to a bigger value if needed. Then, you need to "
+		                   "logout and login for these changes to be effectives.");
+		msg += "\n\n";
+		msg += QObject::tr("Only the first %1 file(s) will be opened.").arg(nopen);
+		QMessageBox err(QMessageBox::Warning, QObject::tr("Too many files selected"), msg,
+		                QMessageBox::Ok, parent);
+		err.exec();
+		inputs.erase(inputs.begin() + nopen + 1, inputs.end());
+	}
+#else
+	(void) parent;
+#endif
 
 	return inputs.size() > 0;
 }

@@ -224,7 +224,7 @@ void PVWidgets::PVTextPopupWidget::finalizeText()
 	_temp_text += "</body>\n</html>";
 	setText(_temp_text.arg(get_style()));
 
-#if 1
+#if 0
 	//RH: may be usefull to dump the constructed
 	QFile file("aa.html");
 	if (file.open(QIODevice::WriteOnly)) {

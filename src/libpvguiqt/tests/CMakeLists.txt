@@ -12,7 +12,7 @@ include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(COMMON_LIBRARIES pvparallelview pvguiqt ${PVLICENSE_LIBRARIES} pvsquey pvkernel)
+set(COMMON_LIBRARIES pvparallelview pvguiqt pvsquey pvkernel)
 
 add_squey_compile_test(Tqt_listing_model LINKS ${COMMON_LIBRARIES} FILES listing_model.cpp common.cpp)
 

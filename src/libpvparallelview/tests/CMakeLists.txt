@@ -8,7 +8,7 @@ include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(LINK_LIBRARIES ${SQUEY_LIBRARY} ${PVKERNEL_LIBRARY} ${PVLICENSE_LIBRARIES} pvparallelview)
+set(LINK_LIBRARIES ${SQUEY_LIBRARY} ${PVKERNEL_LIBRARY} pvparallelview)
 include_directories(${PVLICENSE_INCLUDE_DIR})
 
 add_squey_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp)

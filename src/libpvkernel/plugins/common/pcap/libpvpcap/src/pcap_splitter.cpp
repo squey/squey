@@ -28,9 +28,13 @@
 #include <tbb/parallel_sort.h>
 #include <pvhwloc.h>
 #include <pvlogger.h>
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
 #include <netinet/in.h>
 #include <netinet/ip6.h>
+#endif
 #if __APPLE__
 #include <net/ethernet.h>
 #endif
@@ -57,7 +61,7 @@
 #include <tuple>
 #include <utility>
 
-#if __APPLE__
+#ifndef __linux__
 #ifndef ETH_P_IP
 #define ETH_P_IP 0x0800  // Protocole IP
 #endif
@@ -89,6 +93,16 @@ static std::pair<in6_addr, in6_addr> srcip_dstip(const sniff_ip* ip, bool ipv4)
 		ip_dst.__u6_addr.__u6_addr32[1] = 0;
 		ip_dst.__u6_addr.__u6_addr32[2] = 0x0000FFFF;
 		ip_dst.__u6_addr.__u6_addr32[3] = ipv4_dst;
+#elif _WIN32
+		uint32_t ipv4_src = ip->ip_src.s_addr;
+		ip_src = IN6ADDR_ANY_INIT;
+		ip_src.u.Word[5] = htons(0xFFFF);
+		memcpy(&ip_src.u.Byte[0], &ipv4_src, 4);
+
+		uint32_t ipv4_dst = ip->ip_dst.s_addr;
+    	ip_dst = IN6ADDR_ANY_INIT;
+		ip_dst.u.Word[5] = htons(0xFFFF);
+		memcpy(&ip_dst.u.Byte[0], &ipv4_dst, 4);
 #else
 		uint32_t ipv4_src = ip->ip_src.s_addr;
 		ip_src.s6_addr32[0] = 0;
@@ -551,6 +565,19 @@ class FlowSplitter : public PacketSplitter
 			ip_dst_port = ntohs(udp->dport);
 		}
 
+#ifdef _WIN32
+		struct half_ipv6 {
+			uint64_t u64;
+			half_ipv6(uint32_t high, uint32_t low) : u64(((uint64_t)high << 32) | low) {}
+		};
+
+		auto get_ipv6_part = [](const in6_addr& addr, int index) -> uint64_t
+		{
+			uint32_t words[4];
+			std::memcpy(words, addr.u.Byte, sizeof(words)); // Copy as 4 uint32_t
+			return half_ipv6(words[index], words[index + 1]).u64;
+		};
+#else
 		union half_ipv6 {
 			half_ipv6(uint32_t h1, uint32_t h2)
 			{
@@ -560,6 +587,7 @@ class FlowSplitter : public PacketSplitter
 			uint32_t u32[2];
 			uint64_t u64;
 		};
+#endif
 
 		// merge symetric directions flows
 #if __APPLE__
@@ -567,6 +595,11 @@ class FlowSplitter : public PacketSplitter
 		uint64_t ip_src_hi = half_ipv6(ip_src.__u6_addr.__u6_addr32[2], ip_src.__u6_addr.__u6_addr32[3]).u64;
 		uint64_t ip_dst_lo = half_ipv6(ip_dst.__u6_addr.__u6_addr32[0], ip_dst.__u6_addr.__u6_addr32[1]).u64;
 		uint64_t ip_dst_hi = half_ipv6(ip_dst.__u6_addr.__u6_addr32[2], ip_dst.__u6_addr.__u6_addr32[3]).u64;
+#elif _WIN32
+		uint64_t ip_src_lo = get_ipv6_part(ip_src, 0);
+		uint64_t ip_src_hi = get_ipv6_part(ip_src, 2);
+		uint64_t ip_dst_lo = get_ipv6_part(ip_dst, 0);
+		uint64_t ip_dst_hi = get_ipv6_part(ip_dst, 2);
 #else
 		uint64_t ip_src_lo = half_ipv6(ip_src.s6_addr32[0], ip_src.s6_addr32[1]).u64;
 		uint64_t ip_src_hi = half_ipv6(ip_src.s6_addr32[2], ip_src.s6_addr32[3]).u64;

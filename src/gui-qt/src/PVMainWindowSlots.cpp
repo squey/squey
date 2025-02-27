@@ -232,7 +232,6 @@ void App::PVMainWindow::solution_new_Slot()
 {
 	// FIXME : This Windows is a memory leak
 	auto* new_mw = new PVMainWindow();
-	new_mw->move(x() + 40, y() + 40);
 	new_mw->show();
 	new_mw->set_window_title_with_filename();
 }
@@ -262,7 +261,6 @@ void App::PVMainWindow::load_solution_and_create_mw(QString const& file)
 	} else {
 		// FIXME : This Windows is a memory leak
 		auto* other = new PVMainWindow();
-		other->move(x() + 40, y() + 40);
 		other->show();
 		if (!other->load_solution(file)) {
 			other->deleteLater();
@@ -533,6 +531,8 @@ void App::PVMainWindow::set_window_title_with_filename()
 		file = QFileInfo(get_solution_path()).canonicalFilePath();
 		tools_cur_format_Action->setEnabled(false);
 	}
+
+	pvlogger::info() << "file=" << qPrintable(file) << std::endl;
 
 	setWindowModified(false);
 	setWindowFilePath(file);

@@ -2,12 +2,6 @@
 # @file
 #
 
-# Temporary output directory for NRAW disk backend based tests
-if (NOT DEFINED PVKERNEL_RUSH_TEST_NRAW_TMP)
-	message(STATUS "PVKERNEL_RUSH_TEST_NRAW_TMP not defined, /tmp will be used by default")
-	set(PVKERNEL_RUSH_TEST_NRAW_TMP "/tmp")
-endif()
-
 set(PVRUSH_TEST_FILES "${TESTS_FILES_DIR}/pvkernel/rush")
 set(PVRUSH_TEST_FILES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test-files")
 
@@ -216,10 +210,10 @@ set(PARQUET_SRC_FILES
 ../../plugins/input-types/parquet/PVParquetExporter.cpp
 )
 
-add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
+add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
 if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 target_compile_options(SQUEY_TEST_Trush_apache_parquet PRIVATE "-O0") # Optimisations are breaking the test under MacOS
 endif()
 add_squey_test(Trush_apache_parquet Trush_apache_parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs_optim.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multichunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multichunks_export.csv)
-add_squey_compile_test(Trush_apache_parquet_multichunks LINKS ${LINK_LIBRARIES} Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy FILES apache_parquet_multichunks.cpp ${PARQUET_SRC_FILES})
+add_squey_compile_test(Trush_apache_parquet_multichunks LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_multichunks.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_multichunks Trush_apache_parquet_multichunks ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multichunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multichunks.csv)

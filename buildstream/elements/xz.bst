@@ -16,7 +16,8 @@ sources:
       install-commands:
         (>):
         - |
-          %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/liblzma.5.%{dylib-extension}" "%{install-root}%{libdir}/liblzma.5.%{dylib-extension}"
+          %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/liblzma.%{dylib-extension}" "%{install-root}%{libdir}/liblzma.%{dylib-extension}"
+          %{toolchain-dir}/%{host}-install_name_tool -change "%{libdir}/liblzma.5.%{dylib-extension}" "@rpath/liblzma.5.%{dylib-extension}" "%{install-root}%{bindir}/xz"
 
 depends:
 - sdk.bst

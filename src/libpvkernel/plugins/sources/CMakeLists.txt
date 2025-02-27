@@ -77,7 +77,7 @@ target_link_libraries(source_elasticsearch pvkernel curl ${TBB_LIBRARIES})
 # pcap sources
 ###############################################################################
 
-# Define ressources
+# # Define ressources
 set(PCAP_SRC_FILES
 	pcap/PVSourceCreatorPcap.cpp
 	pcap/register.cpp
@@ -91,7 +91,7 @@ target_link_libraries(source_pcap pvkernel)
 # parquet sources
 ###############################################################################
 
-# Define ressources
+# # Define ressources
 set(PARQUET_SRC_FILES
 	../common/parquet/PVParquetAPI.cpp
 	parquet/PVParquetSource.cpp

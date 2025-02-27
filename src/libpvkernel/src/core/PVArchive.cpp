@@ -78,7 +78,7 @@ static int copy_data(struct archive* ar, struct archive* aw)
 {
 	const void* buff;
 	size_t size;
-	off_t offset;
+	la_int64_t offset;
 
 	for (;;) {
 		int r = archive_read_data_block(ar, &buff, &size, &offset);
@@ -236,7 +236,8 @@ void PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 	a = archive_write_new();
 	archive_write_set_format_ustar(a);
 	if (archive_write_add_filter_gzip(a) != ARCHIVE_OK) {
-		throw PVCore::ArchiveCreationFail("Unable to use GZIP compression");
+		std::string error_message = std::string("Unable to use GZIP compression: ") + archive_error_string(a);
+		throw PVCore::ArchiveCreationFail(error_message.c_str());
 	}
 	QByteArray ar_path_ba = ar_path.toLocal8Bit();
 	if (archive_write_open_filename(a, ar_path_ba.constData()) != ARCHIVE_OK) {

@@ -47,7 +47,7 @@ PVGuiQt::PVStatusBar::PVStatusBar(QWidget* parent /*= nullptr*/)
 	 * Except under WSL where GPU is not supported yet
 	 * (https://wpdev.uservoice.com/forums/266908-command-prompt-console-windows-subsystem-for-l/suggestions/16108045-opencl-cuda-gpu-support)
 	 */
-	if (/*not PVParallelView::common::is_gpu_accelerated()*/ false and not PVCore::PVWSLHelper::is_microsoft_wsl()) {
+	if (not PVParallelView::common::is_gpu_accelerated()) {
 		QIcon warning_icon = QApplication::style()->standardIcon(QStyle::SP_MessageBoxWarning);
 		auto* warning_label_icon = new QLabel;
 		warning_label_icon->setPixmap(warning_icon.pixmap(QSize(16, 16)));

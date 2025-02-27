@@ -35,6 +35,9 @@
 #include <stdexcept>
 #include <tuple>
 #include <utility>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace PVCore
 {
@@ -75,7 +78,7 @@ class PVStreamingBase
 	const std::string& path() const { return _path; }
 
   public:
-	static std::tuple<std::vector<std::string>, std::vector<char*>> executable(const std::string& extension, EExecType type);
+	static std::tuple<std::vector<std::string>, std::vector<char*>> executable(const std::string& extension, EExecType type, const std::string& output_name = "-");
 
   protected:
 	int return_status(std::string* status_message = nullptr);
@@ -84,8 +87,6 @@ class PVStreamingBase
   protected:
 	std::string _path;
 	int _fd = -1;
-	pid_t _child_pid = -1;
-	int _status_fd = -1;
 	int _status_code = 0;
 	std::string _status_msg;
 	std::string _extension;
@@ -93,8 +94,18 @@ class PVStreamingBase
 	bool _canceled = false;
 	bool _finished = false;
 
+	int _status_fd = -1;
+	int _output_fd = -1;
 	std::vector<std::string> _args;
+#if defined(__linux__) || defined(__APPLE__)
+	pid_t _child_pid = -1;
 	std::vector<char*> _argv;
+#elifdef _WIN32
+	HANDLE _child_pid = INVALID_HANDLE_VALUE;
+	std::string _cmdline;
+#else
+#error "Unsupported platform"
+#endif
 };
 
 } // namespace __impl
