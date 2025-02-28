@@ -40,11 +40,11 @@
 #include <stdlib.h>
 #include <iostream>
 #include <sstream>
+#include <filesystem>
 
 #include <QSettings>
 
 #include <boost/dll/runtime_symbol_info.hpp>
-#include <filesystem> // REMOVEME
 
 /******************************************************************************
  * opencl_kernel
@@ -112,9 +112,13 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	PVCore::setenv("POCL_LINKER_DIR", exe_path.parent_path().string().c_str(), 1);
 #elifdef _WIN32
 	// Configure "ld" linker to search for librairies in the proper location
+	// and Khronos ICD loader to find PortableCL
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	std::string libdir = exe_path.parent_path().string();
 	PVCore::setenv("LIBRARY_PATH", libdir.c_str(), 1);
+	std::string pocl_path = libdir + "/pocl.dll";
+	PVCore::setenv("OCL_ICD_FILENAMES", pocl_path.c_str(), 1);
+	std::filesystem::current_path(libdir);
 #endif
 
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);

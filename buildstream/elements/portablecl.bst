@@ -47,14 +47,11 @@ variables:
     -DCLANGXX="/app/bin/clang++"
     -DCMAKE_C_FLAGS="-L%{libdir} -isystem %{includedir}"
     -DCMAKE_CXX_FLAGS="-L%{libdir} -isystem %{includedir}"
-    -DBUILD_PREFIX="%{host-prefix}"
-    -DHOST_PREFIX="%{prefix}"
     -DLLVM_HOST_TARGET="%{host}"
     -DCMAKE_SYSROOT="%{prefix}"
     -DLLVM_BINDIR="%{host-prefix}/bin"
     -DLLVM_LIBDIR="%{libdir}"
     -DSTATIC_LLVM=TRUE
-    -DLLVM_HOST_TRIPLE="x86_64-pc-win32-gnu"
     -DCMAKE_SIZEOF_VOID_P=8
     -DLLVM_PREFIX="%{prefix}"
     -DLLVM_VERSION_FULL=18.1.8
@@ -80,7 +77,7 @@ variables:
     -DENABLE_PRINTF_IMMEDIATE_FLUSH=OFF
     -DENABLE_TESTS=OFF
     -DENABLE_EXAMPLES=OFF
-    -DDEFAULT_ENABLE_ICD=OFF
+    -DOPENCL_VERSION="3.0.0"
 
   (?):
   - (target_triple == "x86_64-linux-gnu" or target_triple == "x86_64-apple-darwin" or target_triple == "x86_64-w64-mingw32"):
@@ -180,21 +177,8 @@ depends:
         (>):
         - clang_target.bst
         - binutils.bst
+        - opencl-icd-loader.bst
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       depends:
         (>):
         - clang_target.bst
-#  - target_triple == "x86_64-w64-mingw32":
-#      depends:
-#        (>):
-#        - icd-loader.bst
-
-# -DLLVM_LIBS="-lLLVMWindowsManifest -lLLVMXRay -lLLVMLibDriver -lLLVMDlltoolDriver -lLLVMTextAPIBinaryReader -lLLVMCoverage -lLLVMLineEditor
-#    -lLLVMX86TargetMCA -lLLVMX86Disassembler -lLLVMX86AsmParser -lLLVMX86CodeGen -lLLVMX86Desc -lLLVMX86Info -lLLVMOrcDebugging -lLLVMOrcJIT -lLLVMWindowsDriver
-#    -lLLVMMCJIT -lLLVMJITLink -lLLVMInterpreter -lLLVMExecutionEngine -lLLVMRuntimeDyld -lLLVMOrcTargetProcess -lLLVMOrcShared -lLLVMDWP -lLLVMDebugInfoLogicalView -lLLVMDebugInfoGSYM -lLLVMOption
-#    -lLLVMObjectYAML -lLLVMObjCopy -lLLVMMCA -lLLVMMCDisassembler -lLLVMLTO -lLLVMPasses -lLLVMHipStdPar -lLLVMCFGuard -lLLVMCoroutines -lLLVMipo -lLLVMVectorize -lLLVMLinker -lLLVMInstrumentation
-#    -lLLVMFrontendOpenMP -lLLVMFrontendOffloading -lLLVMFrontendOpenACC -lLLVMFrontendHLSL -lLLVMFrontendDriver -lLLVMExtensions -lLLVMDWARFLinkerParallel -lLLVMDWARFLinkerClassic -lLLVMDWARFLinker
-#    -lLLVMGlobalISel -lLLVMMIRParser -lLLVMAsmPrinter -lLLVMSelectionDAG -lLLVMCodeGen -lLLVMTarget -lLLVMObjCARCOpts -lLLVMCodeGenTypes -lLLVMIRPrinter -lLLVMInterfaceStub -lLLVMFileCheck
-#    -lLLVMFuzzMutate -lLLVMScalarOpts -lLLVMInstCombine -lLLVMAggressiveInstCombine -lLLVMTransformUtils -lLLVMBitWriter -lLLVMAnalysis -lLLVMProfileData -lLLVMSymbolize -lLLVMDebugInfoBTF
-#    -lLLVMDebugInfoPDB -lLLVMDebugInfoMSF -lLLVMDebugInfoDWARF -lLLVMObject -lLLVMTextAPI -lLLVMMCParser -lLLVMIRReader -lLLVMAsmParser -lLLVMMC -lLLVMDebugInfoCodeView -lLLVMBitReader
-#    -lLLVMFuzzerCLI -lLLVMCore -lLLVMRemarks -lLLVMBitstreamReader -lLLVMBinaryFormat -lLLVMTargetParser -lLLVMTableGen -lLLVMSupport -lLLVMDemangle"

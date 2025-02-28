@@ -44,7 +44,7 @@ config:
     deps_list=""
     declare -a seen
     cd "%{package-root}/Squey"
-    extract_local_deps "OpenCL.dll"
+    extract_local_deps "pocl.dll"
     echo "LLVM/Clang deps: " $deps_list
     rm -rf libLLVM*.dll libclang*.dll
     cd "%{bindir}"

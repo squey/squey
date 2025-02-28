@@ -50,7 +50,7 @@ std::pair<std::string, bool> PVOpenCL::opencl_infos()
 			accelerated = false;
 		}
 		for (size_t i = 0; i < (size_t)(accelerated + 1); i++) {
-			accelerated = (bool) i;
+			accelerated = (not (bool) i) && accelerated;
 			bool found = false;
 			find_first_usable_context(accelerated, [&found](auto&, cl::Device& device) {
 				found = true;
