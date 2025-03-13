@@ -20,13 +20,12 @@ if [ "$GITLAB_CI" != "true" ]; then
     pip install --upgrade pip
 
     # Install Buildstream if needed
-    BST_VERSION="2.3.0"
+    BST_VERSION=$(sed -n 's/^BuildStream==\([^ ]*\)$/\1/p' requirements_bst.txt)
     BST_PATH=".venv/bin/bst"
     if [ ! -x "${BST_PATH}" ] || [ $("${BST_PATH}" --version) != "${BST_VERSION}" ]; then
-        pip install BuildStream==${BST_VERSION}
         pip install -r requirements_bst.txt
         # Patch BuildStream to expose CAS socket in order to use recc from the build sandbox
-        sed '135 i \            buildbox_command.append("--bind-mount={}:/tmp/casd.sock".format(casd._socket_path))\n' -i .venv/lib/python*/site-packages/buildstream/sandbox/_sandboxbuildboxrun.py
+        sed '122 i \            buildbox_command.append("--bind-mount={}:/tmp/casd.sock".format(casd._socket_path))\n' -i .venv/lib/python*/site-packages/buildstream/sandbox/_sandboxbuildboxrun.py
     fi
 fi
 
