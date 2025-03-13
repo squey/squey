@@ -35,6 +35,7 @@
 #include <QMessageBox>
 #include <QMenu>
 #include <QHeaderView>
+#include <QStandardPaths>
 
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVAlgorithms.h>
@@ -291,8 +292,14 @@ void PVGuiQt::PVListDisplayDlg::export_to_file_ui(bool append)
 	if (append) {
 		options = QFileDialog::DontConfirmOverwrite;
 	}
-	QString path = PVWidgets::PVFileDialog::getSaveFileName(this, tr("Save to file..."), QString(),
-	                                                        QString(), nullptr, options);
+	QString path = PVWidgets::PVFileDialog::getSaveFileName(
+		this,
+		tr("Save to file..."),
+		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+	    QString(),
+		nullptr,
+		options
+	);
 	if (path.isEmpty()) {
 		return;
 	}

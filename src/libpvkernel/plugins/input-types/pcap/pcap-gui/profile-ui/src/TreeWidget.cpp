@@ -25,6 +25,7 @@
 
 #include <QTableView>
 #include <QProgressDialog>
+#include <QStandardPaths>
 
 #include "include/TreeWidget.h"
 #include "ui_TreeWidget.h"
@@ -72,8 +73,11 @@ TreeWidget::~TreeWidget()
 
 void TreeWidget::on_select_button_clicked()
 {
-	QString filename = PVWidgets::PVFileDialog::getOpenFileName(this, tr("Open PCAP file"), "",
-	                                                            tr("PCAP file (*.pcap *.pcapng)"));
+	QString filename = PVWidgets::PVFileDialog::getOpenFileName(
+		this, tr("Open PCAP file"),
+		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+	    tr("PCAP file (*.pcap *.pcapng)")
+	);
 
 	if (not filename.isEmpty()) {
 		_ui->select_edit->setText(filename);

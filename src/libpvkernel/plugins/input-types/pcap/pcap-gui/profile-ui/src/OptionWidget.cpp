@@ -29,6 +29,7 @@
 #include <libpvpcap/ws.h>
 
 #include <QStringList>
+#include <QStandardPaths>
 
 #include <unistd.h>
 #include <sys/types.h>
@@ -274,9 +275,11 @@ void OptionWidget::on_geoip_db_button_clicked(bool /*checked = false*/)
 {
 	if (not _json_data.IsNull()) {
 		std::string dirname =
-		    PVWidgets::PVFileDialog::getExistingDirectory(this, tr("Open GeoIP Database directory"),
-		                                                  "", QFileDialog::ShowDirsOnly)
-		        .toStdString();
+		    PVWidgets::PVFileDialog::getExistingDirectory(
+				this,
+				tr("Open GeoIP Database directory"),
+		        QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+				QFileDialog::ShowDirsOnly).toStdString();
 		if (not dirname.empty()) {
 			if (not _json_data["options"].HasMember("geoip_db_paths")) {
 				rapidjson::Document::AllocatorType& alloc = _json_data.GetAllocator();

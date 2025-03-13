@@ -41,6 +41,7 @@
 #include <QPushButton>
 #include <QRadioButton>
 #include <QButtonGroup>
+#include <QStandardPaths>
 
 PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*/)
     : QGroupBox(tr("Execute Python script after import"), parent)
@@ -64,7 +65,7 @@ PVGuiQt::PVPythonScriptWidget::PVPythonScriptWidget(QWidget* parent /*= nullptr*
 		QString file_path = PVWidgets::PVFileDialog::getOpenFileName(
 			this,
 			"Browse your python file",
-			"",
+			QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
 			QString("Python file (*.py)"));
 		if (not file_path.isEmpty()) {
 			_exec_python_file_line_edit->setText(file_path);
