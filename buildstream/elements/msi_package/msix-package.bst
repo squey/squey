@@ -9,6 +9,12 @@ sources:
 - kind: local
   path: ./buildstream/files/org.squey.Squey.png
 - kind: local
+  path: ./buildstream/files/msi_package/Square44x44Logo.png
+- kind: local
+  path: ./buildstream/files/msi_package/Square150x150Logo.png
+- kind: local
+  path: ./buildstream/files/msi_package/resources.pri
+- kind: local
   path: VERSION.txt
 
 (@):
@@ -66,7 +72,12 @@ config:
       %{prefix}/share/squey/squey/{pvconfig.ini,COPYING,CHANGELOG} \
       squey.ico \
       org.squey.Squey.png \
+      Square44x44Logo.png \
+      Square150x150Logo.png \
+      resources.pri \
       "%{package-root}"
+    cp "Square44x44Logo.png" "%{package-root}/Square44x44Logo.targetsize-44_altform-unplated.png"
+    cp "Square150x150Logo.png" "%{package-root}/Square150x150Logo.targetsize-150_altform-unplated.png"
     cp -r %{libdir}/squey/plugins/* "%{package-root}/plugins"
     cp %{bindir}/pocl/* "%{package-root}/pocl"
     mkdir -p "%{package-root}/python"
