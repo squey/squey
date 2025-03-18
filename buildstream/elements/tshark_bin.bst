@@ -7,19 +7,19 @@ description: |
   - target_triple == "x86_64-apple-darwin":
       sources:
         - kind: remote
-          url: wireshark:osx/Wireshark%204.4.2%20Intel%2064.dmg
+          url: wireshark:download/osx/all-versions/Wireshark%204.4.2%20Intel%2064.dmg
           ref: 5f379065fa16424c68362346177b146b6050fcb77f2468b85cf197f09e399113
           filename: wireshark.dmg
   - target_triple == "aarch64-apple-darwin":
       sources:
         - kind: remote
-          url: wireshark:osx/Wireshark%204.4.2%20Arm%2064.dmg
+          url: wireshark:download/osx/all-versions/Wireshark%204.4.2%20Arm%2064.dmg
           ref: e60c577e9e2ffff7b2fc10d50c27f41a061d3140ae3bc2a223dba882da00c428
           filename: wireshark.dmg
   - target_triple == "x86_64-w64-mingw32":
       sources:
         - kind: remote
-          url: wireshark:win64/WiresharkPortable64_4.4.2.paf.exe
+          url: wireshark:download/win64/all-versions/WiresharkPortable64_4.4.2.paf.exe
           ref: 937de59eb2ca8d9ec706e3b218f780ca6f3e9a209cb32a34e4557e381a17c895
           filename: wireshark.exe
   
