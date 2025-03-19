@@ -143,15 +143,15 @@ elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak r
   #  flatpak build-export --files=files $EXPORT_DIR $DIR/build $BRANCH_NAME
   #fi
 elif [ "$TARGET_TRIPLE" == "x86_64-apple-darwin" ] || [ "$TARGET_TRIPLE" == "aarch64-apple-darwin" ]; then # Generate MacOS app bundle
-  bst $BUILD_OPTIONS build macos_bundle/app-bundle.bst
   bst $BUILD_OPTIONS build macos_bundle/dmg-image.bst
   rm -rf "$EXPORT_DIR/$TARGET_TRIPLE"
-  bst $BUILD_OPTIONS artifact checkout macos_bundle/app-bundle.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/app-bundle"
-  bst $BUILD_OPTIONS artifact checkout macos_bundle/dmg-image.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/dmg-image"
+  mkdir -p "$EXPORT_DIR/$TARGET_TRIPLE"
+  bst $BUILD_OPTIONS shell -b --mount "$EXPORT_DIR/$TARGET_TRIPLE" /output macos_bundle/dmg-image.bst bash "buildstream/files/macos_bundle/make-dmg-image.sh"
 elif [ "$TARGET_TRIPLE" == "x86_64-w64-mingw32" ]; then # Generate Windows MSIX package
-  bst $BUILD_OPTIONS build msi_package/msix-package.bst
+  bst $BUILD_OPTIONS build msix_package/msix-package.bst
   rm -rf "$EXPORT_DIR/$TARGET_TRIPLE"
-  bst $BUILD_OPTIONS artifact checkout msi_package/msix-package.bst --directory "$EXPORT_DIR/$TARGET_TRIPLE/msix-package"
+  mkdir -p "$EXPORT_DIR/$TARGET_TRIPLE"
+  bst $BUILD_OPTIONS shell -b --mount "$EXPORT_DIR/$TARGET_TRIPLE" /output msix_package/msix-package.bst bash "buildstream/files/msix_package/make-msix-package.sh"
 fi
 
 # Push artifacts

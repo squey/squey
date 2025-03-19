@@ -1,7 +1,7 @@
 kind: manual
 description: |
 
-    MSIX SDK
+    Microsoft MSIX SDK
 
 sources:
 - kind: git
@@ -23,7 +23,4 @@ build-depends:
 
 depends:
 - base.bst
-# - freedesktop-sdk.bst:bootstrap/zlib.bst
-# - freedesktop-sdk.bst:components/openssl.bst
-# - freedesktop-sdk.bst:components/icu.bst
-- msi_package/icu.bst
+- msix_package/icu.bst

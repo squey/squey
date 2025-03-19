@@ -1,4 +1,3 @@
 variables:
     volume-name: "Squey"
     bundle-name: "%{volume-name}.app"
-    dmg-image-name: "%{volume-name}.dmg"

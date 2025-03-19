@@ -109,6 +109,8 @@ config:
       install-commands:
       - |
         %{install-all}
+        # embed cross-compiled testsuites
+        [ "%{target_triple}" != "x86_64-linux-gnu" ] && cmake --install "%{build-dir}" --component tests --prefix "%{install-root}%{prefix}/tests"
 
   strip-commands:
     - |

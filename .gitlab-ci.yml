@@ -1,23 +1,18 @@
-image:
-  name: registry.gitlab.com/squey/container-images/squey_build:5708638a
-  pull_policy: [if-not-present]
-
 variables:
+  BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:5708638a
   GIT_SUBMODULE_STRATEGY: recursive
-  GIT_LFS_SKIP_SMUDGE: 0
   CACHE_COMPRESSION_LEVEL: "fastest"
-  UPDATE_INSTALLERS_ONLY:
-    value: "false"
-    description: "Only update the various installers, do not build the software"
   CODE_COVERAGE:
     value: "false"
     description: "Only update the code coverage report"
 
 stages:
-  - test
+  - check
+  - static_analysis
   - build
+  - test
   - pages
-  - publish
+  - deploy
   - stop
 
 workflow:
@@ -26,24 +21,29 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
-    
-.build:
-  stage: build
-  tags:
-    - privileged-docker
-  before_script: |
-    export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
-    git lfs pull
-    for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
-    mkdir -p "$CI_PROJECT_DIR/public/flatpak"
-    cd buildstream
-  interruptible: true
+
+cancel_scheduled_pipeline_if_already_ran_for_this_commit:
+  stage: check
+  script:
+    - |
+      existing_pipeline=$(curl --silent --header "PRIVATE-TOKEN: $CI_JOB_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines?sha=$CI_COMMIT_SHA" | jq '.[] | select(.id != '$CI_PIPELINE_ID')')
+      if [ -n "$existing_pipeline" ]; then
+        echo "Already built, skipping pipeline."
+        curl --request POST --form token="$CI_JOB_TOKEN" \
+          --form ref="$CI_COMMIT_REF_NAME" \
+          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipeline/cancel"
+        exit 0
+      fi
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
 
 builder appstream-linter:
   image:
     name: ghcr.io/flathub/flatpak-builder-lint:latest
     entrypoint: [""]
-  stage: build
+  stage: static_analysis
   tags:
     - privileged-docker
   before_script:
@@ -57,67 +57,190 @@ builder appstream-linter:
       - README.md
       - buildstream/files/org.squey.Squey.metainfo.xml.j2
   interruptible: true
+  allow_failure: false
 
-build testsuite:
+.build:
+  stage: build
+  image:
+      name: "$BASE_IMAGE_NAME"
+      pull_policy : [if-not-present] 
+  tags:
+    - privileged-docker
+  before_script: |
+    export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
+    # git lfs pull
+    for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
+    cd buildstream
+  interruptible: true
+
+.archs:
+  macos:
+    matrix:
+      # macOS Apple Silicon
+      - TARGET_TRIPLE: aarch64-apple-darwin
+        TARGET_TAG: saas-macos-large-m2pro
+        IMAGE_NAME: macos-15-xcode-16
+  windows:
+    matrix:
+      # Windows
+      - TARGET_TRIPLE: x86_64-w64-mingw32
+        TARGET_TAG: saas-windows-medium-amd64
+        IMAGE_NAME: ""
+
+build and run testsuite linux:
   extends: .build
   script:
     - ./build.sh 
-        --macos-sdk-dir="/srv/macos_sdk"
-        --target_triple="x86_64-apple-darwin"
+        --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
         --branch="${CI_COMMIT_REF_NAME}" 
-        --export=true
-        --target_triple="x86_64-w64-mingw32"
-        --branch="${CI_COMMIT_REF_NAME}" 
-        --export=true
-        --export-dir="/srv/msix_package/" 
-        --code-coverage=$CODE_COVERAGE
-    - ./build.sh 
-        --macos-sdk-dir="/srv/macos_sdk"
-        --target_triple="x86_64-apple-darwin"
-        --branch="${CI_COMMIT_REF_NAME}" 
-        --export=true
-        --export-dir="/srv/macos_bundle/" 
+        --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "export_linux_package" && echo true || echo false) 
+        --export-dir="/srv/flatpak_repo" 
         --code-coverage=$CODE_COVERAGE 
-    - ./build.sh 
-        --macos-sdk-dir="/srv/macos_sdk"
-        --target_triple="aarch64-apple-darwin"
-        --branch="${CI_COMMIT_REF_NAME}" 
-        --export=true
-        --export-dir="/srv/macos_bundle" 
-        --code-coverage=$CODE_COVERAGE 
+        --push-artifacts="${PUSH_ARTIFACTS}"
   coverage: '/lines\.+: (\d+\.\d+)% \(\d+ of \d+ lines\)/'
   rules:
-    - if: '$CI_COMMIT_TAG =~ "/^$/" && $UPDATE_INSTALLERS_ONLY == "false"'
+    - if: '$CI_COMMIT_TAG =~ "/^$/"'
   artifacts:
     when: always
     paths:
       - junit.xml
       - code_coverage_report
+      - export
     reports:
       junit: junit.xml
+
+build testsuite windows:
+  extends: .build
+  script:
+    - ./build.sh
+        --target_triple="${TARGET_TRIPLE}"
+        --user-target=customer 
+        --branch="${CI_COMMIT_REF_NAME}" 
+        --export=true 
+        --export-dir="$CI_PROJECT_DIR/export" 
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
+      when: always
+    - when: never
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+      - export
+    reports:
+      junit: junit.xml
+  parallel: !reference [.archs,windows]
+
+build testsuite macos:
+  extends: .build
+  script:
+    - ./build.sh
+        --target_triple="${TARGET_TRIPLE}"
+        --macos-sdk-dir="/srv/macos_sdk"
+        --user-target=customer 
+        --branch="${CI_COMMIT_REF_NAME}" 
+        --export=true 
+        --export-dir="$CI_PROJECT_DIR/export" 
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
+      when: always
+    - when: never
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+      - export
+    reports:
+      junit: junit.xml
+  parallel: !reference [.archs,macos]
+
+.run testsuite macos:
+    - .gitlab-ci/run_testsuite.sh
+
+.run testsuite windows:
+    - .gitlab-ci\run_testsuite.ps1
+
+.run testsuite:
+  stage: test
+  image: $IMAGE_NAME
+  tags:
+    - $TARGET_TAG
+  before_script: |
+    git submodule update --init --recursive src/tests # src/libpvcop
+  needs:
+    - job: build testsuite
+      artifacts: true
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+  artifacts:
+    when: always
+    paths:
+      - junit.xml
+    reports:
+      junit: junit.xml
+  interruptible: true
+
+run testsuite windows:
+  extends: .run testsuite
+  parallel: !reference [.archs,windows]
+  script:
+    - !reference [.run testsuite windows]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
+      when: always
+    - when: never
+  needs:
+    - job: build testsuite windows
+      artifacts: true
+
+run testsuite macos:
+  extends: .run testsuite
+  parallel: !reference [.archs,macos]
+  script:
+    - !reference [.run testsuite macos]
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      when: always
+    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/'
+      when: always
+    - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
+      when: always
+    - when: never
+  needs:
+    - job: build testsuite macos
+      artifacts: true
 
 build release:
   extends: .build
   script:
-    - if [ "$UPDATE_INSTALLERS_ONLY" = "false" ]; then
-      ./build.sh 
+    - ./build.sh 
       --user-target=customer 
       --cxx-compiler=clang++ 
       --branch="${CI_COMMIT_REF_NAME}" 
-      --export=true 
-      --export-dir="$CI_PROJECT_DIR/public/flatpak" 
+      --flatpak-export=true 
+      --flatpak-repo="$CI_PROJECT_DIR/public/flatpak" 
       --gpg-private-key-path=$GPG_PRIVATE_KEY 
       --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
       --upload-debug-symbols=true 
       --push-artifacts="${PUSH_ARTIFACTS}"
-      ; fi
   artifacts:
     paths:
     - public/flatpak
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
       when: manual
-    - if: '$UPDATE_INSTALLERS_ONLY == "true"'
   allow_failure: false
 
 pages:
@@ -130,11 +253,14 @@ pages:
     VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
     PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
     JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
-    if [ $UPDATE_INSTALLERS_ONLY = "true" ] || [ $CODE_COVERAGE = "true" ]; then curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
-    if [ $CODE_COVERAGE = "true" ]; then rm -rf $CI_PROJECT_DIR/public/code_coverage_report && mv code_coverage_report $CI_PROJECT_DIR/public; exit 0; fi;
-    cp buildstream/install.flatpakref public
-    if [ $UPDATE_INSTALLERS_ONLY != "true" ]; then ostree checkout -U --repo=public/flatpak app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app" ; fi
-    rm -rf "$CI_PROJECT_DIR/public/flatpak"
+    if [ $CODE_COVERAGE = "true" ]; then
+      curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
+      rm -rf $CI_PROJECT_DIR/public/code_coverage_report
+      mv code_coverage_report $CI_PROJECT_DIR/public
+      exit 0
+    fi
+    ostree checkout -U --repo="$CI_PROJECT_DIR/export/x86_64-linux-gnu" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
+    rm -rf "$CI_PROJECT_DIR/export"
   artifacts:
     reports:
       coverage_report:
@@ -145,11 +271,11 @@ pages:
     when: on_success
     expire_in: 1 day
   rules:
-    - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/ || $UPDATE_INSTALLERS_ONLY == "true" || $CODE_COVERAGE == "true"'
+    - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/ || $CODE_COVERAGE == "true"'
   interruptible: true
 
 flathub:
-  stage: publish
+  stage: deploy
   tags:
     - privileged-docker
   needs:
@@ -182,7 +308,7 @@ sast:
     SAST_EXCLUDED_PATHS: external, tests, doc
     SAST_EXCLUDED_ANALYZERS: bandit, brakeman, gosec, kubesec, nodejs-scan, phpcs-security-audit,
       pmd-apex, security-code-scan, sobelow, spotbugs, flawfinder
-  stage: test
+  stage: static_analysis
   tags:
     - privileged-docker
 include:

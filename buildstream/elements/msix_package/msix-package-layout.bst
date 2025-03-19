@@ -1,40 +1,35 @@
 kind: manual
+description: |
+
+    Squey MSIX package files layout
 
 sources:
 - kind: local
-  path: buildstream/files/msi_package
-  directory: buildstream/files/msi_package
+  path: buildstream/files/msix_package/Square44x44Logo.png
+- kind: local
+  path: buildstream/files/msix_package/Square150x150Logo.png
+- kind: local
+  path: buildstream/files/msix_package/resources.pri
 - kind: local
   path: ./src/gui-qt/src/resources/squey.ico
 - kind: local
   path: ./buildstream/files/org.squey.Squey.png
 - kind: local
-  path: ./buildstream/files/msi_package/Square44x44Logo.png
-- kind: local
-  path: ./buildstream/files/msi_package/Square150x150Logo.png
-- kind: local
-  path: ./buildstream/files/msi_package/resources.pri
-- kind: local
   path: VERSION.txt
 
 (@):
     - buildstream/elements/base/target.bst
-    - buildstream/elements/msi_package/config.yml
-
-environment:
-  LD_LIBRARY_PATH: "%{host-prefix}/lib"
+    - buildstream/elements/msix_package/config.yml
 
 variables:
-    msix-project: "AppxManifest.xml"
-    package-name: "squey"
-    package-root: "msi_package_root"
+  install-package-root: "%{install-root}/%{package-root}"
 
 config:
-  configure-commands:
+  install-commands:
   - |
     SOURCE_DIR=$(pwd)
-    mkdir -p "%{package-root}/plugins"
-    cp %{bindir}/*.dll "%{package-root}"
+    mkdir -p "%{install-package-root}/plugins"
+    cp %{bindir}/*.dll "%{install-package-root}"
 
     # Remove unused LLVM/Clang libraries
     extract_local_deps() {
@@ -50,12 +45,12 @@ config:
     }
     deps_list=""
     declare -a seen
-    cd "%{package-root}"
+    cd "%{install-package-root}"
     extract_local_deps "pocl.dll"
     echo "LLVM/Clang deps: " $deps_list
     rm -rf libLLVM*.dll libclang*.dll
     cd "%{bindir}"
-    cp $deps_list "${SOURCE_DIR}/%{package-root}"
+    cp $deps_list "%{install-package-root}"
     cd "${SOURCE_DIR}"
 
     cp -r --backup=numbered \
@@ -75,23 +70,15 @@ config:
       Square44x44Logo.png \
       Square150x150Logo.png \
       resources.pri \
-      "%{package-root}"
-    cp "Square44x44Logo.png" "%{package-root}/Square44x44Logo.targetsize-44_altform-unplated.png"
-    cp "Square150x150Logo.png" "%{package-root}/Square150x150Logo.targetsize-150_altform-unplated.png"
-    cp -r %{libdir}/squey/plugins/* "%{package-root}/plugins"
-    cp %{bindir}/pocl/* "%{package-root}/pocl"
-    mkdir -p "%{package-root}/python"
-    cp -r %{libdir}/python*/* "%{package-root}/python"
-    rm -rf %{package-root}/libjemalloc.* %{package-root}/jemalloc.*
-
-  build-commands:
-  - |
-    VERSION=$(cat VERSION.txt)
-    PACKAGE_NAME="%{package-name}_${VERSION}.msix"
-    sed -e "s|{{version}}|${VERSION}|" "%{build-root}/buildstream/files/msi_package/%{msix-project}.j2" > "%{package-root}/%{msix-project}"
-    makemsix pack -d "%{package-root}" -p "%{install-root}/${PACKAGE_NAME}"
+      "%{install-package-root}"
+    cp "Square44x44Logo.png" "%{install-package-root}/Square44x44Logo.targetsize-44_altform-unplated.png"
+    cp "Square150x150Logo.png" "%{install-package-root}/Square150x150Logo.targetsize-150_altform-unplated.png"
+    cp -r %{libdir}/squey/plugins/* "%{install-package-root}/plugins"
+    cp %{bindir}/pocl/* "%{install-package-root}/pocl"
+    mkdir -p "%{install-package-root}/python"
+    cp -r %{libdir}/python*/* "%{install-package-root}/python"
+    rm -rf %{install-package-root}/libjemalloc.* %{install-package-root}/jemalloc.*
     
 build-depends:
 - squey-cleanup.bst
-- msi_package/msix-packaging.bst
 - sdk.bst

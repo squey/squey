@@ -23,6 +23,7 @@ config:
     cp -ar %{libdir}/* Frameworks
     cp -ar %{libdir}/squey/plugins/* PlugIns
     cp -ar %{libdir}/qt6/plugins/* PlugIns
+    rm -rf Frameworks/{objects-Release,sigc++-3.0}
     mkdir share
     cp -ar %{prefix}/share/pocl share
     cp -ar %{prefix}/share/squey share
