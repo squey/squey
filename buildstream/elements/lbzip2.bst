@@ -6,7 +6,7 @@ description: |
 
 sources:
 - kind: tar
-  url: fossies:linux/privat/lbzip2-2.5.tar.gz
+  url: fossies:linux/privat/old/lbzip2-2.5.tar.gz
   ref: 46c75ee93cc95eedc6005625442b2b8e59a2bef3ba80987d0491f055185650e9
   
 - kind: patch
