@@ -217,3 +217,6 @@ endif()
 add_squey_test(Trush_apache_parquet Trush_apache_parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multiinputs_optim.csv ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multichunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multichunks_export.csv)
 add_squey_compile_test(Trush_apache_parquet_multichunks LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_multichunks.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_multichunks Trush_apache_parquet_multichunks ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multichunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multichunks.csv)
+
+file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

@@ -79,10 +79,12 @@ function(add_squey_compile_test test_exe)
 	target_link_libraries(SQUEY_TEST_${test_exe} ${links})
 	# All of this will be done on the already defined squey_testsuite target
 	add_dependencies(squey_testsuite SQUEY_TEST_${test_exe})
+	file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+	install(TARGETS SQUEY_TEST_${test_exe} DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)
 endfunction()
 
 function(add_squey_test test_exe test_name)
-	add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name} ${ARGN})
+	add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX} ${ARGN})
 endfunction()
 
 function(add_bench bench_name)

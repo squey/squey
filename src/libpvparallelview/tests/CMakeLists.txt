@@ -59,3 +59,6 @@ add_bench(rendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeli
 add_squey_compile_test(Tseries_zoomer LINKS ${LINK_LIBRARIES} FILES series_zoomer.cpp)
 #add_squey_test(Tseries_zoomer Tseries_zoomer)
 add_bench(series_zoomer LINKS ${LINK_LIBRARIES} FILES series_zoomer.cpp)
+
+file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

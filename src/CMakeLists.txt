@@ -61,13 +61,13 @@ include_directories(AFTER "${squey_SOURCE_DIR}/include")
 
 add_custom_target(squey_testsuite)
 if (CMAKE_CONFIGURATION_TYPES)
-    add_custom_target(squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
-        --force-new-ctest-process --output-on-failure
-        --build-config "$<CONFIGURATION>")
-else()
-    add_custom_target(squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
-        --force-new-ctest-process --output-on-failure)
+    set(BUILD_CONF_OPTION "--build-config $<CONFIGURATION>")
 endif()
+add_custom_target(
+    squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
+    --force-new-ctest-process --output-on-failure
+    ${BUILD_CONF_OPTION}
+)
 
 add_dependencies(squey_testsuite squey)
 add_dependencies(squey_run_testsuite squey_testsuite)
@@ -111,3 +111,5 @@ add_subdirectory(gui-qt)
 ###############################################################################
 # Set squey.sh for current build
 configure_file(squey.sh.cmake squey.sh @ONLY)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests" COMPONENT tests)

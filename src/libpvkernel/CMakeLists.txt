@@ -88,3 +88,6 @@ add_subdirectory(tools)
 set(PVKERNEL_PLUGINS_LIST ${PLUGINS_LIST})
 
 add_subdirectory(tests)
+
+file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)
