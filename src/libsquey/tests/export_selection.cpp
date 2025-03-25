@@ -51,7 +51,11 @@ int main(int argc, char** argv)
 		output_file2 = std::filesystem::path(output_file2).make_preferred().string();
 		uncompressed_file = output_file2.substr(0, output_file2.find_last_of("."));
 		if (cmd == "funzip") {
+#ifdef _WIN32
+			cmd = "7z x -y -o" + boost::filesystem::path(output_file2).parent_path().string();
+#else
 			cmd = "unzip -o -qq -d " + boost::filesystem::path(output_file2).parent_path().string();
+#endif
 		}
 		else if (cmd == "pigz -d -c") {
 			cmd = "pigz -d";
@@ -63,6 +67,7 @@ int main(int argc, char** argv)
 		system(cmd.c_str());
 		std::remove(output_file2.c_str());
 	}
+
 	bool same_content = PVRush::PVUtils::files_have_same_content(ref_file, uncompressed_file);
 	std::cout << std::endl << ref_file << " - " << uncompressed_file << std::endl;
 	PV_ASSERT_VALID(same_content);

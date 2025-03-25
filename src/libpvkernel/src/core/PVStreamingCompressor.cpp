@@ -61,10 +61,10 @@ extern char **environ;
 const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
     PVCore::__impl::PVStreamingBase::_supported_compressors = {
 #ifdef _WIN32
-		{"zip", {"7z a dummy.zip -si\"" OUTPUT_FILENAME_PLACEHOLDER "\" -tzip -so", "funzip"}},
+		{"zip", {"7z a dummy.zip -si\"" OUTPUT_FILENAME_PLACEHOLDER "\" -tzip -so -bb0 -bso0 -bse0 -bsp0", "funzip"}},
 		{"bz2", {"pbzip2 -z", "pbzip2 -d"}},
 #else	
-		{"zip", {"7zz a dummy.zip -si\"" OUTPUT_FILENAME_PLACEHOLDER "\" -tzip -so", "funzip"}},
+		{"zip", {"7zz a dummy.zip -si" OUTPUT_FILENAME_PLACEHOLDER " -tzip -so -bb0 -bso0 -bse0 -bsp0", "funzip"}},
 		{"bz2", {"lbzip2", "lbzip2 -d"}},
 #endif
 		{"gz", {"pigz -c", "pigz -d -c"}},
