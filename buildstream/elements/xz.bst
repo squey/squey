@@ -1,23 +1,26 @@
-kind: autotools
+kind: cmake
 description: |
 
    XZ Utils provide a general-purpose data-compression library plus command-line tools.
 
 sources:
 - kind: tar
-  url: github:tukaani-project/xz/archive/refs/tags/v5.6.3.tar.gz
-  ref: 1256ba1212249569e572ffe412635becbe4b033145ba30ff24dcb7e9c6c04b27
+  url: github:tukaani-project/xz/archive/refs/tags/v5.8.0.tar.gz
+  ref: f50fe3279c276b46b1073b4fa5695f02d5a6a7aad38646b795a0d7c01cc10802
 
 (@): buildstream/elements/base/target.bst
 
-(?):
-- (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
-    config:
+variables:
+  cmake-local: >-
+    -DBUILD_SHARED_LIBS=ON
+
+config:
+  (?):
+  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       install-commands:
         (>):
         - |
-          %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/liblzma.%{dylib-extension}" "%{install-root}%{libdir}/liblzma.%{dylib-extension}"
-          %{toolchain-dir}/%{host}-install_name_tool -change "%{libdir}/liblzma.5.%{dylib-extension}" "@rpath/liblzma.5.%{dylib-extension}" "%{install-root}%{bindir}/xz"
+          %{toolchain-dir}/%{host}-install_name_tool -add_rpath @executable_path/../Frameworks %{install-root}%{bindir}/xz
 
 depends:
 - sdk.bst
