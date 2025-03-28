@@ -1,12 +1,9 @@
 kind: cmake
 
 sources:
-- kind: git_repo
-  url: github:facebook/zstd.git
-  track: v*.*.*
-  exclude:
-  - "*-kernel"
-  ref: v1.5.6-0-g794ea1b0afca0f020f4e57b6732332231fb23c70
+- kind: tar
+  url: github:facebook/zstd/archive/refs/tags/v1.5.7.tar.gz
+  ref: 37d7284556b20954e56e1ca85b80226768902e2edabd3b649e9e72c0c9012ee3
 
 (@): buildstream/elements/base/target.bst
 
