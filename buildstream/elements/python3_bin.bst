@@ -45,7 +45,7 @@ config:
           mv mingw64/include/python3.12/* "%{install-root}%{includedir}"
           mv mingw64/bin/* "%{install-root}%{bindir}"
           rm -rf mingw64/lib/python3.12/test
-          find mingw64/lib/python3.12/ | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
+          find mingw64/lib/python3.12/ -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
           mv mingw64/lib/* "%{install-root}%{libdir}"
 
           # mkdir -p "%{install-root}%{bindir}/python"

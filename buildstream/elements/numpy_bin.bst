@@ -45,6 +45,7 @@ config:
         mv mingw64/bin/libopenblas.dll "%{install-root}%{bindir}"
         tar --no-same-owner --zstd -xvf *libgfortran*.tar.zst --wildcards --no-anchored 'bin/*'
         mv mingw64/bin/libgfortran*.dll "%{install-root}%{bindir}"
+        find "%{python-site-packages-dir}" -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
       else
         exit 1
       fi
