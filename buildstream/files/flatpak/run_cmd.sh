@@ -11,6 +11,9 @@ NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed 's/-/./g'`
 PYTHON_VERSION=`python3 -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
 export PYTHONPATH="$PYTHONPATH:$(echo $XDG_DATA_HOME/python/lib/python${PYTHON_VERSION}/site-packages)"
 
+# export LD_LIBRARY_PATH
+export LD_LIBRARY_PATH=/app/lib:$LD_LIBRARY_PATH
+
 echo "/app/lib/libpocl.so" > $OCL_ICD_VENDORS/pocl.icd
 if [ -n "$NVIDIA_VERSION" ]; then
 	echo "$GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > $OCL_ICD_VENDORS/nvidia.icd

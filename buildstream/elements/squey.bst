@@ -38,7 +38,7 @@ environment:
   RECC_MAX_THREADS: -1
   
 variables:
-  build-dir: "build"
+  build-dir: "build/%{target_triple}/%{cxx_compiler}/build"
   source-dir: "."
   cmake-local: >-
     -DUSER_TARGET=%{user_target}
@@ -84,16 +84,17 @@ config:
       build-commands:
       - |
         export PYTHONPATH=$(bash -c "echo /app/lib/python*/site-packages")
+        SOURCE_DIR=$(pwd)
         cd "%{build-dir}" && (ninja && ninja squey_testsuite) || exit 1
         [ "%{target_triple}" != "x86_64-linux-gnu" ] && exit 0
         if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
         TESTS="-R SQUEY_TEST"
         if [ "%{code_coverage}" = "1" ]; then CODE_COVERAGE_COMMAND="-T coverage"; TESTS="-R 'SQUEY_TEST|PVCOP_TEST'"; fi
-        mkdir -p /tmp/.squey/squey/tmp-squey/tomjon && cp ../pvconfig.ini /tmp/.squey/squey/config.ini && sed 's|\(nraw_tmp=\)/srv/tmp-squey|\1/tmp/.squey/squey/tmp-squey|' -i /tmp/.squey/squey/config.ini
-        ../buildstream/files/flatpak/run_cmd.sh ctest -j $(nproc) --output-junit junit.xml --output-on-failure -T test ${CODE_COVERAGE_COMMAND} ${TESTS} || if [ "%{code_coverage}" = "0" ]; then exit 1; fi
+        mkdir -p /tmp/.squey/squey/tmp-squey/tomjon && cp $SOURCE_DIR/pvconfig.ini /tmp/.squey/squey/config.ini && sed 's|\(nraw_tmp=\)/srv/tmp-squey|\1/tmp/.squey/squey/tmp-squey|' -i /tmp/.squey/squey/config.ini
+        $SOURCE_DIR/buildstream/files/flatpak/run_cmd.sh ctest -j $(nproc) --output-junit junit.xml --output-on-failure -T test ${CODE_COVERAGE_COMMAND} ${TESTS} || if [ "%{code_coverage}" = "0" ]; then exit 1; fi
         # Generate code coverage report
         if [ "%{code_coverage}" = "1" ]; then
-            ../scripts/gen_code_coverage_report.sh
+            $SOURCE_DIR/scripts/gen_code_coverage_report.sh
         fi || exit 1 # fail the testsuite on errors
       install-commands:
       - |
