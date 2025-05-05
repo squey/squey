@@ -31,6 +31,7 @@
 #include <windows.h>
 #include <process.h>
 #else
+#include <spawn.h>
 #include <sys/wait.h>
 #include <pwd.h>
 #endif
@@ -317,44 +318,67 @@ extract_csv(splitted_files_t files,
 						CloseHandle(pi.hThread);
 
 						// remove pcap file
-				        //std::remove(pcap.path().c_str());
+				        std::remove(pcap.path().c_str());
 
 #else
-			            /**
-			             * using 'vfork' instead of 'fork' because of some very serious
-			             * performance problems related to the 'fork' implementation
-			             */
-			            pid_t pid = vfork();
-			            if (pid == 0) {
-				            int fd_in = open(pcap.path().c_str(), O_RDONLY, O_CLOEXEC, 0);
-				            int fd_out = open(csv_path.c_str(),
-				                              O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
-				            dup2(fd_out, STDOUT_FILENO);
-				            dup2(fd_in, STDIN_FILENO);
-				            if (execvpe(cmd_opts[0], cmd_opts.data(), env_vars.data()) == -1) {
-					            _exit(-1);
-				            }
-			            } else {
-				            pids_mutex.lock();
-				            pids.emplace(pid);
-				            pids_mutex.unlock();
+						posix_spawn_file_actions_t actions;
+						posix_spawn_file_actions_init(&actions);
 
-				            int status = 0;
-				            waitpid(pid, &status, 0);
+						// Set up file descriptors
+						int fd_in = open(pcap.path().c_str(), O_RDONLY | O_CLOEXEC);
+						int fd_out = open(csv_path.c_str(), O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
 
-				            pids_mutex.lock();
-				            pids.erase(pid);
-				            pids_mutex.unlock();
+						if (fd_in == -1 || fd_out == -1) {
+							perror("open failed");
+							if (fd_in != -1) close(fd_in);
+							if (fd_out != -1) close(fd_out);
+							return;
+						}
 
-				            if (WIFEXITED(status) and WEXITSTATUS(status) == 0) {
-					            if (f_progression) {
-						            processed_pcap_packets_count += pcap.packets_count();
-						            f_progression(processed_pcap_packets_count);
-					            }
-				            }
-				            // remove pcap file
-				            std::remove(pcap.path().c_str());
-			            }
+						posix_spawn_file_actions_adddup2(&actions, fd_out, STDOUT_FILENO);
+						posix_spawn_file_actions_adddup2(&actions, fd_in, STDIN_FILENO);
+
+						pid_t pid = 0;
+						int status = posix_spawnp(
+							&pid,
+							cmd_opts[0],
+							&actions,
+							nullptr,
+							cmd_opts.data(),
+							env_vars.data()
+						);
+
+						posix_spawn_file_actions_destroy(&actions);
+						close(fd_in);
+						close(fd_out);
+
+						if (status != 0) {
+							perror("posix_spawnp failed");
+							return;
+						}
+
+						{
+							std::lock_guard<std::mutex> lock(pids_mutex);
+							pids.emplace(pid);
+						}
+
+						int exit_status = 0;
+						waitpid(pid, &exit_status, 0);
+
+						{
+							std::lock_guard<std::mutex> lock(pids_mutex);
+							pids.erase(pid);
+						}
+
+						if (WIFEXITED(exit_status) && WEXITSTATUS(exit_status) == 0) {
+							if (f_progression) {
+								processed_pcap_packets_count += pcap.packets_count();
+								f_progression(processed_pcap_packets_count);
+							}
+						}
+
+						// remove pcap file
+						std::remove(pcap.path().c_str());
 #endif
 		            }
 		        }));
