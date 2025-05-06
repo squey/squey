@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -e
+
 CONFIG_FILE="buildstream/files/msix_package/config.yml"
 PACKAGE_ROOT=$(yq '.variables."package-root"' $CONFIG_FILE)
 MSIX_PROJECT="AppxManifest.xml"
