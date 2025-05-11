@@ -38,13 +38,17 @@ try {
     Expand-Archive -Path "export\x86_64-w64-mingw32\testsuite.zip" -DestinationPath "$appdir" -Force
 
     # Setup Squey config file
-    $configdir = "$HOME\.squey"
+    $squey_unicode = "Squëy" # Validate unicode support
+    $nraw_tmp = "$env:TEMP\$squey_unicode"
+    $configdir = "$env:APPDATA\$squey_unicode"
+    $env:SQUEY_CONFIG_DIR = $configdir
     $inifile = "$configdir\squey\config.ini"
     New-Item -ItemType Directory -Path "$configdir\squey" -Force
     Copy-Item -Path "$projdir\src\pvconfig.ini" -Destination "$inifile"
-    $contenu = Get-Content $iniFile
-    $contenu = $contenu -replace "(?<=^nraw_tmp=).*", ($env:TEMP -replace "\\", "/")
-    $contenu | Set-Content $iniFile
+    New-Item -ItemType Directory -Path "$nraw_tmp" -Force
+    $content = Get-Content $iniFile
+    $content = $content -replace "(?<=^nraw_tmp=).*", ($nraw_tmp -replace "\\", "/")
+    $content | Set-Content $iniFile
 
     # Run testsuite
     ctest --test-dir "$appdir" -j $env:NUMBER_OF_PROCESSORS --output-junit "$env:CI_PROJECT_DIR\junit.xml" --output-on-failure -T test -R 'SQUEY_TEST'

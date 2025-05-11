@@ -39,6 +39,8 @@
 #include <stdexcept>
 #include <QTemporaryDir>
 
+#include <pvlogger.h>
+
 std::string& PVCore::replace(std::string& str,
                              const std::string& from,
                              const std::string& to,
@@ -113,14 +115,15 @@ void PVCore::remove_common_folders(std::vector<std::string>& paths)
 			paths[i] = boost::join(paths_folders[i], std::string("/"));
 		}
 	}
- }
-
+}
 
 QString PVCore::mkdtemp(QString tmpl)
-{	QTemporaryDir tmp_dir(tmpl);
+{
+	QTemporaryDir tmp_dir(tmpl);
 	tmp_dir.setAutoRemove(false);
 
 	if (!tmp_dir.isValid()) {
+		pvlogger::error() << "Failed to create temporary directory '" << qPrintable(tmpl) << "' : " << qPrintable(tmp_dir.errorString()) << std::endl;
 		return {};
 	}
 

@@ -68,7 +68,11 @@ static constexpr const char* SQUEY_DLL_PREFIX = "lib";
 
 static constexpr const char* ESCAPE_PERCENT = "\%";
 
-#define SQUEY_CONFDIR ".squey"
-#define SQUEY_SQUEY_CONFDIR SQUEY_CONFDIR SQUEY_PATH_SEPARATOR "squey"
+#ifdef _WIN32
+    #define SQUEY_CONFDIR "Squey"
+#else
+    #define SQUEY_CONFDIR ".squey"
+#endif
+#define SQUEY_SQUEY_CONFDIR "squey"
 
 #endif /* PVBASE_GENERAL_H */
