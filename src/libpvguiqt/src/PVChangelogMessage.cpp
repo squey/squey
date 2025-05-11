@@ -39,7 +39,7 @@ PVGuiQt::PVChangelogMessage::PVChangelogMessage(QWidget* parent /* = nullptr*/)
 	QString current_version = QString(SQUEY_CURRENT_VERSION_STR);
 	QString previous_version;
 
-	QFile version_file(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+	QFile version_file(PVCore::PVConfig::user_dir() + QDir::separator() +
 	                   "version.txt");
 	if (version_file.open(QFile::ReadOnly | QFile::Text)) {
 		QTextStream in(&version_file);

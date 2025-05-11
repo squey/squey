@@ -644,7 +644,7 @@ split_pcaps(const std::vector<std::string>& input_pcap_filenames,
 	size_t total_datasize = 0;
 	for (const std::string& input_pcap_filename : input_pcap_filenames) {
 		total_datasize +=
-		    std::ifstream(input_pcap_filename, std::ifstream::ate | std::ifstream::binary).tellg();
+		    std::ifstream(std::filesystem::path{input_pcap_filename}, std::ifstream::ate | std::ifstream::binary).tellg();
 	}
 	if (f_total_datasize) {
 		f_total_datasize(total_datasize);

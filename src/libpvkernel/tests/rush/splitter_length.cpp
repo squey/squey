@@ -68,7 +68,7 @@ int main()
 	ff->add_filter(sp_lib_p);
 	PVFilter::PVChunkFilterByElt chk_flt{std::move(ff)};
 
-	std::ofstream of(log_file);
+	std::ofstream of{std::filesystem::path(log_file)};
 	of << test_text << std::endl;
 	of.close();
 
@@ -87,7 +87,7 @@ int main()
 
 		/* initializing the reference file
 		 */
-		std::ofstream of(ref_file);
+		std::ofstream of{std::filesystem::path(ref_file)};
 		of << "'" << testcase.result[0] << "','" << testcase.result[1] << "'" << std::endl;
 		of.close();
 

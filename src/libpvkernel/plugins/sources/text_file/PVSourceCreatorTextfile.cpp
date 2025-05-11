@@ -45,7 +45,7 @@ PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p i
 
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input->human_name()));
 	auto* file = reinterpret_cast<PVFileDescription*>(input.get());
-	PVRush::PVInput_p ifile(new PVRush::PVInputFile(file->path().toLocal8Bit().constData()));
+	PVRush::PVInput_p ifile(new PVRush::PVInputFile(file->path().toUtf8()));
 	// FIXME: chunk size must be computed somewhere once and for all !
 	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
 	if (size_chunk <= 0) {

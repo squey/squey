@@ -249,11 +249,13 @@ extract_csv(splitted_files_t files,
 						sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 						sa.lpSecurityDescriptor = NULL;
 						sa.bInheritHandle = TRUE;
-    					HANDLE hStdin = CreateFile(pcap.path().c_str(), GENERIC_READ, FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+						std::wstring pcap_wpath = std::filesystem::path(pcap.path()).wstring();
+						HANDLE hStdin = CreateFileW(pcap_wpath.c_str(), GENERIC_READ, FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 						if (hStdin == INVALID_HANDLE_VALUE) {
 							pvlogger::error() << "Failed to open input file: " << GetLastError() << std::endl;
 						}
-						HANDLE hStdout = CreateFile(csv_path.c_str(), GENERIC_WRITE, 0, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+						std::wstring csv_wpath = std::filesystem::path(csv_path).wstring();
+						HANDLE hStdout = CreateFileW(csv_wpath.c_str(), GENERIC_WRITE, 0, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 						if (hStdout == INVALID_HANDLE_VALUE) {
 							pvlogger::error() << "Failed to open output file: " << GetLastError() << std::endl;
 						}
@@ -265,9 +267,10 @@ extract_csv(splitted_files_t files,
 						si.dwFlags |= STARTF_USESTDHANDLES;
 
 						std::string cmdline = boost::algorithm::join(cmd, " ");
-						BOOL status = CreateProcess(
+						std::wstring wcmdline = QString::fromStdString(cmdline).toStdWString();
+						BOOL status = CreateProcessW(
 							nullptr,
-							cmdline.data(),
+							wcmdline.data(),
 							nullptr,
 							nullptr,
 							TRUE,
@@ -279,12 +282,12 @@ extract_csv(splitted_files_t files,
 						);
 						if (not status) {
 							LPVOID error_buffer;
-							FormatMessage(
+							FormatMessageW(
 								FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
 								NULL,
 								GetLastError(),
 								MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-								(LPSTR)&error_buffer,
+								(LPWSTR)&error_buffer,
 								0,
 								NULL);
 							pvlogger::error() << "Unable to execute '" << cmdline << "' : " << (char*)error_buffer << std::endl;
@@ -400,7 +403,7 @@ void save_to_file(const std::string& file_name, std::vector<std::string> const& 
 {
 	std::cout << "Save to " << file_name << "..." << std::endl;
 
-	std::ofstream output_file(file_name);
+	std::ofstream output_file{std::filesystem::path(file_name)};
 
 	if (!output_file) {
 		std::cerr << "Error: can't open output file \"" << file_name << "\"" << std::endl;
@@ -483,7 +486,7 @@ std::string get_file_extension(const std::string& file_name)
 std::string get_user_conf_dir()
 {
 	// FIXME: How to manage standalone version
-	QString user_conf_dir = QString::fromStdString(PVCore::PVConfig::user_dir()) +
+	QString user_conf_dir = PVCore::PVConfig::user_dir() +
 	                        QDir::separator() + "plugins" + QDir::separator() + "pcapsicum";
 
 	// we should do this at install time

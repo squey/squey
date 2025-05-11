@@ -80,7 +80,7 @@ class PVConfig
 	/**
 	 * return the path to the user configuration directory
 	 */
-	static std::string user_dir();
+	static QString user_dir();
 
 	/**
 	 * return the name of the product (ex: squey, etc)

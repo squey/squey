@@ -34,8 +34,16 @@
 #include <windows.h>
 bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 {
-	HANDLE fileHandle = CreateFile(
-        file_name,
+    int size_needed = MultiByteToWideChar(CP_UTF8, 0, file_name, -1, nullptr, 0);
+    if (size_needed == 0) {
+        return false;
+    }
+
+    std::wstring wfile_name(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, file_name, -1, &wfile_name[0], size_needed);
+
+    HANDLE fileHandle = CreateFileW(
+        wfile_name.c_str(),
         GENERIC_READ,
         0,
         NULL,
@@ -45,14 +53,10 @@ bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
     );
 
     if (fileHandle == INVALID_HANDLE_VALUE) {
-        if (GetLastError() == ERROR_SHARING_VIOLATION) {
-            return true;
-        }
-        return false;
+        return GetLastError() == ERROR_SHARING_VIOLATION;
     }
 
     CloseHandle(fileHandle);
-
     return false;
 }
 #else

@@ -45,7 +45,7 @@ PVPcapsicum::PVSourceCreatorPcap::create_source_from_input(PVRush::PVInputDescri
 
 	PVLOG_DEBUG("(pcap plugin) create source for %s\n", qPrintable(input->human_name()));
 	auto* pcap_desc = reinterpret_cast<PVRush::PVPcapDescription*>(input.get());
-	PVRush::PVInput_p ifile(new PVRush::PVInputFile(pcap_desc->path().toLocal8Bit().constData()));
+	PVRush::PVInput_p ifile(new PVRush::PVInputFile(pcap_desc->path().toUtf8()));
 	// FIXME: chunk size must be computed somewhere once and for all !
 	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
 	if (size_chunk <= 0) {

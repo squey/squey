@@ -102,7 +102,7 @@ class PVStreamingBase
 	std::vector<char*> _argv;
 #elifdef _WIN32
 	HANDLE _child_pid = INVALID_HANDLE_VALUE;
-	std::string _cmdline;
+	std::wstring _cmdline;
 #else
 #error "Unsupported platform"
 #endif

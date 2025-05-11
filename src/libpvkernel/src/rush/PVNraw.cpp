@@ -91,14 +91,16 @@ PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0) {}
 void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
-	std::string collector_path =
-	    PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
-	if (PVCore::mkdtemp(&collector_path.front()) == nullptr) {
-		throw PVNrawException("unable to create temporary directory " + collector_path);
+	QString collector_path =
+	    PVRush::PVNrawCacheManager::nraw_dir() + "/" + QString::fromStdString(nraw_tmp_pattern);
+	collector_path = PVCore::mkdtemp(collector_path);
+	if (collector_path.isEmpty()) {
+		QString error = QString("Unable to create temporary directory %1").arg(collector_path);
+		throw PVNrawException(error.toStdString());
 	}
 
 	// Create collector and format
-	_collector = std::make_unique<pvcop::collector>(collector_path.data(), format);
+	_collector = std::make_unique<pvcop::collector>(collector_path.toUtf8().constData(), format);
 	_collection.reset();
 }
 

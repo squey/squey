@@ -88,7 +88,7 @@ PVCore::PVConfig::PVConfig()
 	QSettings old_presets(QSettings::UserScope, SQUEY_ORGANISATION, SQUEY_APPLICATIONNAME);
 	if (QFileInfo(old_presets.fileName()).exists()) {
 		QDir().rename(old_presets.fileName(),
-		              QString::fromStdString(user_dir()) + "/" + PRESETS_FILENAME);
+		              user_dir() + "/" + PRESETS_FILENAME);
 	}
 
 	_local_config = new QSettings(fi.filePath(), QSettings::IniFormat);
@@ -186,17 +186,16 @@ QString PVCore::PVConfig::username()
 
 QString PVCore::PVConfig::user_path()
 {
-	return QString::fromStdString(user_dir()) + CONFIG_FILENAME;
+	return user_dir() + CONFIG_FILENAME;
 }
 
 /*****************************************************************************
  * PVCore::PVConfig::user_dir
  *****************************************************************************/
 
-std::string PVCore::PVConfig::user_dir()
+QString PVCore::PVConfig::user_dir()
 {
-	return (QDir::homePath() + "/" + SQUEY_SQUEY_CONFDIR + "/")
-	    .toStdString();
+	return QDir::homePath() + "/" + SQUEY_SQUEY_CONFDIR + "/";
 }
 
 /*****************************************************************************

@@ -37,6 +37,7 @@
 #include <iterator>
 #include <limits>
 #include <stdexcept>
+#include <QTemporaryDir>
 
 std::string& PVCore::replace(std::string& str,
                              const std::string& from,
@@ -59,7 +60,7 @@ std::string& PVCore::replace(std::string& str,
 
 std::string PVCore::file_content(const std::string& file_path)
 {
-	std::ifstream stream(file_path);
+	std::ifstream stream(std::filesystem::path{file_path});
 
 	return {std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
 }
@@ -114,23 +115,17 @@ void PVCore::remove_common_folders(std::vector<std::string>& paths)
 	}
  }
 
-#if _WIN32
-#include <cstdlib>
-#include <direct.h>
-char* PVCore::mkdtemp(char* tmpl)
-{
-	char* tmp_dir_p = _mktemp(tmpl);
-    if (tmp_dir_p and _mkdir(tmp_dir_p) == 0) {
-		return tmp_dir_p;
+
+QString PVCore::mkdtemp(QString tmpl)
+{	QTemporaryDir tmp_dir(tmpl);
+	tmp_dir.setAutoRemove(false);
+
+	if (!tmp_dir.isValid()) {
+		return {};
 	}
-	return {};
+
+	return tmp_dir.path();
 }
-#else
-char* PVCore::mkdtemp(char* tmpl)
-{
-	return ::mkdtemp(tmpl);
-}
-#endif
 
 #ifdef __linux__
 

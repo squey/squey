@@ -124,7 +124,7 @@ rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_fil
 	rapidjson::Document protocol_dict;
 
 	// Open protocols_dict json file
-	std::ifstream ifs(protocols_dict_file);
+	std::ifstream ifs(std::filesystem::path{protocols_dict_file});
 
 	if (not ifs) {
 		throw PcapTreeException("Unable to open protocol_dict json file");
@@ -244,7 +244,7 @@ void ws_create_protocols_dict(std::string const& protocols_dict_file)
 	rapidjson::Writer<rapidjson::StringBuffer> writer(str_buffer);
 	json.Accept(writer);
 
-	std::ofstream ofs(protocols_dict_file);
+	std::ofstream ofs{std::filesystem::path(protocols_dict_file)};
 	ofs << str_buffer.GetString();
 
 	if (!ofs.good()) {
@@ -314,7 +314,7 @@ rapidjson::Document ws_create_protocols_tree(const std::string& source,
 
 	// We begin by ignoring the superfluous lines
 	std::string row;
-	std::ifstream infile(source);
+	std::ifstream infile(std::filesystem::path{source});
 	size_t row_idx = 0;
 	while (std::getline(infile, row)) {
 		if (++row_idx > 5 and row[0] != '=') { // skip 5 rows header and 1 row footer
@@ -669,7 +669,7 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 	QString geoip_db_paths_filename = "~/.wireshark/maxmind_db_paths";
 	geoip_db_paths_filename.replace(QString('~'), QDir::homePath());
 	QDir().mkdir(QFileInfo(geoip_db_paths_filename).dir().path());
-	std::ofstream geoip_db_paths_file(geoip_db_paths_filename.toStdString(), std::ios_base::trunc);
+	std::ofstream geoip_db_paths_file(std::filesystem::path(geoip_db_paths_filename.toUtf8().constData()), std::ios_base::trunc);
 	geoip_db_paths_file << "\"" << geoip_db_paths << "\"" << std::endl;
 	if (not name_resolving_flags.empty()) {
 		opts.emplace_back("-N" + name_resolving_flags);

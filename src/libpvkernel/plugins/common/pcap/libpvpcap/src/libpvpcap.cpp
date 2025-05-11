@@ -29,6 +29,7 @@
 #include <rapidjson/encodings.h>
 #include <fstream>
 #include <iterator>
+#include <filesystem>
 
 #include "../include/libpvpcap/ws.h"
 #include "../include/libpvpcap/exception.h"
@@ -46,7 +47,7 @@ namespace pvpcap
  ******************************************************************************/
 bool file_exists(const std::string& file_name)
 {
-	std::ifstream input_file(file_name.c_str());
+	std::ifstream input_file(std::filesystem::path{file_name});
 	return input_file.good();
 }
 
@@ -102,7 +103,7 @@ void save_profile_data(rapidjson::Document& json_data, std::string const& profil
 	rapidjson::Writer<rapidjson::StringBuffer> writer(str_buffer);
 	json_data.Accept(writer);
 
-	std::ofstream ofs(profile_path);
+	std::ofstream ofs{std::filesystem::path(profile_path)};
 	ofs << str_buffer.GetString();
 
 	if (!ofs.good())
@@ -117,7 +118,7 @@ void save_profile_data(rapidjson::Document& json_data, std::string const& profil
 void load_profile_data(rapidjson::Document& json_data, std::string const& profile_path)
 {
 	// Open json file
-	std::ifstream ifs(profile_path);
+	std::ifstream ifs(std::filesystem::path{profile_path});
 
 	if (not ifs)
 		throw PcapTreeException("Unable to open profile json file");

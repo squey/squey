@@ -100,7 +100,7 @@ size_t available_memory();
 int process_running_count(const std::string& process_name);
 #endif
 
-char* mkdtemp(char* tmpl);
+QString mkdtemp(QString tmpl);
 
 int setenv(const char* name, const char* value, int overwrite);
 

@@ -64,7 +64,7 @@ int main()
 	const pvcop::db::array& column = nraw.column(PVCol(0));
 
 	std::string res_file = pvtest::get_tmp_filename();
-	std::ofstream ofs(res_file);
+	std::ofstream ofs{std::filesystem::path(res_file)};
 
 	for (size_t i = 0; i < column.size(); i++) {
 		ofs << mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[i] << std::endl;

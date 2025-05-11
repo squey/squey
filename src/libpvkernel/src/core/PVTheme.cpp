@@ -52,7 +52,7 @@ static constexpr const char* DBUS_KEY = "color-scheme";
 #elifdef _WIN32
 #include <windows.h>
 #include <thread>
-static constexpr const char* THEME_REG_KEY = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+static constexpr const wchar_t* THEME_REG_KEY = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
 #endif
 
 static constexpr const char* COLOR_SCHEME_SETTINGS_KEY = "gui/theme_scheme";
@@ -85,7 +85,7 @@ PVCore::PVTheme::PVTheme()
         HKEY hKey;
         HANDLE hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
 
-        if (RegOpenKeyEx(HKEY_CURRENT_USER, THEME_REG_KEY, 0, KEY_NOTIFY, &hKey) != ERROR_SUCCESS) {
+        if (RegOpenKeyExW(HKEY_CURRENT_USER, THEME_REG_KEY, 0, KEY_NOTIFY, &hKey) != ERROR_SUCCESS) {
             pvlogger::error() << "Failed to monitor system theme changes" << std::endl;
             CloseHandle(hEvent);
             return;
@@ -97,7 +97,7 @@ PVCore::PVTheme::PVTheme()
                     QMetaObject::invokeMethod(this, &PVTheme::setting_changed, Qt::QueuedConnection);
                 }
             } else {
-                pvlogger::error() << "Failed to read registry key " << THEME_REG_KEY << std::endl;
+                pvlogger::error() << "Failed to read THEME_REG_KEY" << std::endl;
                 break;
             }
         }
@@ -130,8 +130,8 @@ PVCore::PVTheme::EColorScheme PVCore::PVTheme::system_color_scheme()
     DWORD value = 0;
     DWORD size = sizeof(value);
     
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, THEME_REG_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
-        if (RegQueryValueEx(hKey, "AppsUseLightTheme", nullptr, nullptr, reinterpret_cast<LPBYTE>(&value), &size) == ERROR_SUCCESS) {
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, THEME_REG_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (RegQueryValueExW(hKey, L"AppsUseLightTheme", nullptr, nullptr, reinterpret_cast<LPBYTE>(&value), &size) == ERROR_SUCCESS) {
             RegCloseKey(hKey);
             return value == 0 ? EColorScheme::DARK : EColorScheme::LIGHT;  // 0 = Dark Mode, 1 = Light Mode
         }

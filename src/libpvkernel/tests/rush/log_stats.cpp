@@ -37,7 +37,7 @@ int main()
 	pvtest::init_ctxt();
 
 	std::string tmp_output = pvtest::get_tmp_filename();
-	std::ofstream out(tmp_output);
+	std::ofstream out{std::filesystem::path(tmp_output)};
 	std::streambuf* coutbuf = std::cout.rdbuf();
 	std::cout.rdbuf(out.rdbuf());
 

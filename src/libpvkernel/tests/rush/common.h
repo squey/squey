@@ -95,11 +95,11 @@ std::string duplicate_log_file(std::string const& log_file, size_t dup)
 		return log_file;
 	}
 
-	std::ifstream ifs(log_file);
+	std::ifstream ifs(std::filesystem::path{log_file});
 	std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
 	std::string big_log_file = get_tmp_filename();
-	std::ofstream big_file(big_log_file);
+	std::ofstream big_file{std::filesystem::path(big_log_file)};
 	// Duplicate file to have one millions lines
 	for (size_t i = 0; i < dup; i++) {
 		big_file << content;
@@ -139,7 +139,7 @@ class TestSplitter
 
 		std::string output_file = get_tmp_filename();
 		// Extract source and split fields.
-		std::ofstream ofs(output_file);
+		std::ofstream ofs{std::filesystem::path(output_file)};
 
 		size_t nelts_org = 0;
 		size_t nelts_valid = 0;

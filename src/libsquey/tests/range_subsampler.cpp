@@ -92,7 +92,7 @@ void test(const testcase& test)
 		PV_VALID(indexes_count, nraw.row_count());
 
 		std::ifstream f;
-		f.open(test.file_path + ".output_ranges_" + std::to_string(sampling_count));
+		f.open(std::filesystem::path{test.file_path + ".output_ranges_" + std::to_string(sampling_count)});
 		for (const auto& v : sampler.histogram()) {
 			size_t range_values_count;
 			f >> range_values_count;
@@ -100,7 +100,7 @@ void test(const testcase& test)
 		}
 		f.close();
 
-		f.open(test.file_path + ".output_averages_" + std::to_string(sampling_count));
+		f.open(std::filesystem::path{test.file_path + ".output_averages_" + std::to_string(sampling_count)});
 		for (const auto& v : avg_ts) {
 			display_type avg_values_count;
 			f >> avg_values_count;

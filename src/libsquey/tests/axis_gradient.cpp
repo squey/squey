@@ -88,7 +88,7 @@ int main()
 	// Check result against reference file
 	int last_blue = 255;
 	int last_red = 0;
-	std::ifstream scaled_values(outputvalues);
+	std::ifstream scaled_values(std::filesystem::path{outputvalues});
 
 	QColor qcolor = out.get_lines_properties().get_line_properties(0).toQColor();
 	PV_VALID(qcolor.blue(), last_blue);

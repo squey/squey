@@ -196,7 +196,7 @@ double load_investigation()
 
 	pvcop::db::array const& mapping_values = mapped->get_column(PVCol(2));
 	auto mapping = mapping_values.to_core_array<uint32_t>();
-	std::ifstream ref_stream(ref_mapped_file);
+	std::ifstream ref_stream(std::filesystem::path{ref_mapped_file});
 	size_t i = 0;
 	for (uint32_t v : mapping) {
 		uint32_t ref;
@@ -221,7 +221,7 @@ double load_investigation()
 	PV_VALID(scaled->get_name(), std::string("my scaling name"));
 
 	uint32_t const* scaling_values = scaled->get_column_pointer(PVCol(0));
-	std::ifstream ref_scaled_stream(ref_scaled_file);
+	std::ifstream ref_scaled_stream(std::filesystem::path{ref_scaled_file});
 	for (size_t i = 0; i < scaled->get_row_count(); i++) {
 		uint32_t ref;
 		ref_scaled_stream >> ref;

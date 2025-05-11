@@ -47,7 +47,8 @@
 #include <cassert>
 #include <algorithm>
 #include <memory>
-
+#include <QString>
+#include <filesystem>
 
 #include "pvkernel/core/PVOrderedMap.h"
 
@@ -176,7 +177,14 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
     : __impl::PVStreamingBase(path)
 {
 	int open_flags = O_CREAT | O_WRONLY;
-	_fd = open(path.c_str(), open_flags, 0666);
+#ifdef _WIN32
+	std::wstring wpath = std::filesystem::path(path).wstring();
+	_fd = _wopen
+#else
+	const std::string& wpath = path;
+	_fd = open
+#endif
+	(wpath.c_str(), open_flags, 0666);
 	if (_fd == -1) {
 		throw PVCore::PVStreamingCompressorError("Unable to create file '" + path + "'");
 	}
@@ -255,7 +263,7 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
 
     // Start new process
 	std::tie(_args, std::ignore) = executable(_extension, EExecType::COMPRESSOR, output_name);
-	_cmdline = boost::algorithm::join(_args, " ");
+	_cmdline = QString::fromStdString(boost::algorithm::join(_args, " ")).toStdWString(); // decompressor
     if (not CreateProcess(
 		nullptr,
 		_cmdline.data(),
@@ -382,9 +390,12 @@ void PVCore::PVStreamingDecompressor::init()
 	_compressed_chunk_size = 0;
 
 	int input_fd;
-	if ((input_fd = open(_path.c_str(), O_RDONLY
+
 #ifdef _WIN32
-	| O_BINARY
+	std::wstring path = std::filesystem::path(_path).wstring();
+	if ((input_fd = _wopen(path.c_str(), O_RDONLY | O_BINARY
+#else
+	if ((input_fd = open(_path.c_str(), O_RDONLY
 #endif
 	, 0666)) == -1) {
 		throw PVStreamingDecompressorError(std::string("Unable to open file '") + _path + "'");
@@ -477,8 +488,8 @@ void PVCore::PVStreamingDecompressor::init()
     _status_fd = _open_osfhandle(reinterpret_cast<intptr_t>(err_pipe_read), _O_RDONLY); // Used to read error messages
 
     // Set up the process startup information
-    STARTUPINFOA si{};
-    si.cb = sizeof(STARTUPINFOA);
+    STARTUPINFOW si{};
+    si.cb = sizeof(STARTUPINFOW);
     si.hStdInput = in_pipe_read;
     si.hStdOutput = out_pipe_write;
     si.hStdError = err_pipe_write;
@@ -489,8 +500,8 @@ void PVCore::PVStreamingDecompressor::init()
     // Start new process
 	auto it = _supported_compressors.find(_extension);
 	assert(it != _supported_compressors.end());
-	_cmdline = it->value().second; // decompressor
-    if (not CreateProcess(
+	_cmdline = QString::fromStdString(it->value().second).toStdWString(); // decompressor
+    if (not CreateProcessW(
         nullptr,
 		_cmdline.data(),
 		nullptr,
