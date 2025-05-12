@@ -7,6 +7,8 @@ sources:
 - kind: git
   url: github:pocl/pocl
   ref: a2e0199f794c8dfbcd92b775cd4f82ba05e816a9
+- kind: patch
+  path: buildstream/patches/portablecl/pocl_cache.c.patch
 
 (@): buildstream/elements/base/target.bst
 
