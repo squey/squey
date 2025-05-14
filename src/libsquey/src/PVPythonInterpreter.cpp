@@ -44,7 +44,7 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
     pybind11::gil_scoped_acquire gil{};
 
     // Add PYTHONPATH folders to sys.path
-    if (const char* python_path = std::getenv("PYTHONPATH")) {
+    if (const char* python_path = PVCore::getenv("PYTHONPATH")) {
         pybind11::module sys = pybind11::module::import("sys");
         std::vector<std::string> python_sys_paths;
         boost::split(python_sys_paths, python_path, boost::is_any_of(PATH_DELIMITER));
@@ -55,7 +55,7 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
 
 #ifdef _WIN32
     // Add PATH folders to os.add_dll_directory
-    if (const char* path = std::getenv("PATH")) {
+    if (const char* path = PVCore::getenv("PATH")) {
         pybind11::module os = pybind11::module::import("os");
         std::vector<std::string> paths;
         boost::split(paths, path, boost::is_any_of(PATH_DELIMITER));
@@ -117,8 +117,8 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
 Squey::PVPythonInterpreter& Squey::PVPythonInterpreter::get(Squey::PVRoot& root)
 {
 #if defined(_WIN32)
-    const char* squey_pythonhome = std::getenv("SQUEY_PYTHONHOME");
-    const char* squey_pythonpath = std::getenv("SQUEY_PYTHONPATH");
+    const char* squey_pythonhome = PVCore::getenv("SQUEY_PYTHONHOME");
+    const char* squey_pythonpath = PVCore::getenv("SQUEY_PYTHONPATH");
     std::string pythonpath;
     std::string pythonhome;
 	if (squey_pythonhome) {

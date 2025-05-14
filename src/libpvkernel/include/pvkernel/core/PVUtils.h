@@ -101,8 +101,10 @@ int process_running_count(const std::string& process_name);
 #endif
 
 QString mkdtemp(QString tmpl);
+QString mkstemp(QString tmpl);
 
 int setenv(const char* name, const char* value, int overwrite);
+char* getenv(const char* env_var);
 
 } // namespace PVCore
 

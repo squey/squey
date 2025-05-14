@@ -22,5 +22,5 @@ build-depends:
 - macos_bundle/app-bundle.bst
 - macos_bundle/genisoimage.bst
 - macos_bundle/libdmg-hfsplus.bst
-- freedesktop-sdk.bst:components/zip.bst
+- 7zip_host.bst
 - base.bst

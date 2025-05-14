@@ -27,7 +27,7 @@ build-depends:
 - squey-cleanup.bst
 - msix_package/msix-packaging.bst
 - msix_package/yq.bst
-- freedesktop-sdk.bst:components/zip.bst
+- 7zip_host.bst
 - sdk.bst
 
 runtime-depends:

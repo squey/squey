@@ -106,11 +106,8 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	}
 	view->set_selection_view(sel);
 
-	
-	std::string temp_pattern = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/fileXXXXXX";
-	close(mkstemp(temp_pattern.data()));
-	std::remove(temp_pattern.c_str());
-	std::string output_file = std::string(temp_pattern) + "." + file_extension;
+	QString temp_pattern = PVRush::PVNrawCacheManager::nraw_dir() + "/fileXXXXXX." + QString::fromStdString(file_extension);
+	QString output_file = PVCore::mkstemp(temp_pattern);
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
@@ -126,7 +123,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	if (cancel) {
 		exp.cancel();
 	}
-	exp.export_rows(output_file, sel);
+	exp.export_rows(output_file.toUtf8().toStdString(), sel);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -136,7 +133,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	// Remove nraw folder
 	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path()
 	                                                       : QString::fromStdString(nraw.dir()));
-	return output_file;
+	return output_file.toUtf8().toStdString();
 }
 
 #endif // __EXPORT_SELECTION_H__

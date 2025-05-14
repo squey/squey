@@ -25,16 +25,23 @@
 
 #include "import_export.h"
 
-int main(int argc, char** argv)
+UNICODE_MAIN()
 {
     if (argc <= 3) {
-		std::cerr << "Usage: " << argv[0] << " file format ref_file" << std::endl;
+		std::cerr << "Usage: file format ref_file" << std::endl;
 		return 1;
 	}
 
+#ifdef _WIN32
+	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+	static const std::string input_file = conv.to_bytes(argv[1]);
+	static const std::string format = conv.to_bytes(argv[2]);
+	static const std::string ref_file =conv.to_bytes(argv[3]);
+#else
 	static const std::string input_file = argv[1];
 	static const std::string format = argv[2];
 	static const std::string ref_file = argv[3];
+#endif
 
 	std::string output_file = import_export(input_file, format, true);
 
@@ -42,4 +49,6 @@ int main(int argc, char** argv)
 	std::cout << std::endl << ref_file << " - " << output_file << std::endl;
 	PV_ASSERT_VALID(same_content);
 	std::remove(output_file.c_str());
+
+	return 0;
 }

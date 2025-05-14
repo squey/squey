@@ -58,7 +58,8 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile,
 	QFile xmlfile(nameFile);
 
 	if (!xmlfile.exists() or !xmlfile.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		PVLOG_ERROR("(PVRush::PVXmlParamparser::PVXmlParamParser) file to parse not found!\n");
+		QString error = QString("(PVRush::PVXmlParamparser::PVXmlParamParser) file '") + qPrintable(nameFile) + "' not found!\n";
+		PVLOG_ERROR(qPrintable(error));
 		throw PVInvalidFile("Can't open file to parse : " + nameFile.toStdString());
 	}
 	QTextStream tmpTextXml(&xmlfile); // file stream creation

@@ -327,29 +327,43 @@ void import_files(
     }
 }
 
-int main(int argc, char** argv)
+UNICODE_MAIN()
 {
 	if (argc <= 4) {
 		std::cerr
-		    << "Usage: " << argv[0]
+		    << "Usage:"
 		    << " <csv_ref1 csv_ref2 parquet_file csv_ref3>"
 		    << std::endl;
 		return 1;
 	}
     pvtest::init_ctxt();
 
+#ifdef _WIN32
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+    std::string parquet_test_file = conv.to_bytes(argv[3]);
+    std::string csv_ref_file = conv.to_bytes(argv[4]);
+#else
+    std::string parquet_test_file = argv[3];
+    std::string csv_ref_file = argv[4];
+#endif
+
     std::vector<size_t> sizes = { 150000, 65544 };
     //std::vector<size_t> sizes = { 128 };
     for (size_t i = 0; i < sizes.size(); i++) {
+#ifdef _WIN32
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+        const std::string csv_ref = conv.to_bytes(argv[i+1]);
+#else
         const std::string& csv_ref = argv[i+1];
+#endif
 
         std::shared_ptr<arrow::Schema> schema;
-        std::string parquet_test_file = generate_parquet_file(schema, sizes[i], QFileInfo(QString::fromStdString(csv_ref)).fileName().toStdString() + ".parquet");
+        std::string test_file = generate_parquet_file(schema, sizes[i], QFileInfo(QString::fromStdString(csv_ref)).fileName().toStdString() + ".parquet");
 
         // Import multiple parquet files
         QStringList files;
-        files << QString::fromStdString(parquet_test_file);
-        files << QString::fromStdString(parquet_test_file);
+        files << QString::fromStdString(test_file);
+        files << QString::fromStdString(test_file);
         QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
         PVRush::PVFormat format;
         PVRush::PVNraw nraw;
@@ -398,9 +412,6 @@ int main(int argc, char** argv)
         // std::remove(output_csv_file2.c_str());
         // std::remove(output_parquet_file.c_str());
     }
-
-    std::string parquet_test_file = argv[3];
-    std::string csv_ref_file = argv[4];
 
     // Import multiple parquet files
     QStringList files;

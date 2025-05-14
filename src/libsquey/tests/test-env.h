@@ -22,6 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#ifndef __TEST_ENV_H__
+#define __TEST_ENV_H__
+
 #include <cstdlib>
 #include <squey/common.h>
 #include <pvbase/general.h>
@@ -32,7 +35,7 @@
 
 #include <QDir>
 
-void init_env()
+inline void init_env()
 {
 	PVCore::setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
 	PVCore::setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
@@ -43,3 +46,5 @@ void init_env()
 
 	Squey::common::load_filters();
 }
+
+#endif // __TEST_ENV_H__

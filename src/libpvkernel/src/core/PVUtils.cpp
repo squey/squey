@@ -38,6 +38,11 @@
 #include <limits>
 #include <stdexcept>
 #include <QTemporaryDir>
+#include <QTemporaryFile>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include <pvlogger.h>
 
@@ -128,6 +133,19 @@ QString PVCore::mkdtemp(QString tmpl)
 	}
 
 	return tmp_dir.path();
+}
+
+QString PVCore::mkstemp(QString tmpl)
+{
+	QTemporaryFile tmp_file(tmpl);
+	tmp_file.setAutoRemove(false);
+
+	if (!tmp_file.open()) {
+		return {};
+	}
+	tmp_file.close();
+
+	return tmp_file.fileName();
 }
 
 #ifdef __linux__
@@ -231,11 +249,56 @@ int PVCore::process_running_count(const std::string& process_name) {
 int PVCore::setenv(const char* name, const char* value, int overwrite)
 {
 #ifdef _WIN32
-	if (overwrite == 0 and std::getenv(name) != nullptr) {
-		return 0;
+    int wname_len = MultiByteToWideChar(CP_UTF8, 0, name, -1, nullptr, 0);
+    if (wname_len == 0) return -1;
+    std::wstring wname(wname_len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, name, -1, &wname[0], wname_len);
+
+    if (!overwrite and _wgetenv(wname.c_str()) != nullptr) {
+        return 0;
+    }
+
+    int wvalue_len = MultiByteToWideChar(CP_UTF8, 0, value, -1, nullptr, 0);
+    if (wvalue_len == 0) {
+		return -1;
 	}
-	return _putenv_s(name, value);
+
+    std::wstring wvalue(wvalue_len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, value, -1, &wvalue[0], wvalue_len);
+
+    return _wputenv_s(wname.c_str(), wvalue.c_str());
 #else
 	return ::setenv(name, value, overwrite);
+#endif
+}
+
+char* PVCore::getenv(const char* env_var)
+{
+#ifdef _WIN32
+    int wenv_var_len = MultiByteToWideChar(CP_UTF8, 0, env_var, -1, nullptr, 0);
+    if (wenv_var_len == 0) {
+        return nullptr;
+    }
+
+    std::wstring wenv_var(wenv_var_len, L'\0');
+    MultiByteToWideChar(CP_UTF8, 0, env_var, -1, &wenv_var[0], wenv_var_len);
+
+    const wchar_t* wvalue = _wgetenv(wenv_var.c_str());
+    if (not wvalue) {
+        return nullptr;
+    }
+
+    int utf8_len = WideCharToMultiByte(CP_UTF8, 0, wvalue, -1, nullptr, 0, nullptr, nullptr);
+    if (utf8_len == 0) {
+        return nullptr;
+    }
+
+    static thread_local std::string utf8_value;
+    utf8_value.resize(utf8_len - 1);
+    WideCharToMultiByte(CP_UTF8, 0, wvalue, -1, &utf8_value[0], utf8_len, nullptr, nullptr);
+
+    return const_cast<char*>(utf8_value.c_str());
+#else
+	return std::getenv(env_var);
 #endif
 }

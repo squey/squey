@@ -29,7 +29,7 @@
 
 int main()
 {
-	pvtest::TestEnv env(TEST_FOLDER "/sources/proxy.log", TEST_FOLDER "/formats/proxy.log.format",
+	pvtest::TestEnv env(TEST_FOLDER "/sources/proxÿ.log", TEST_FOLDER "/formats/proxÿ.log.format",
 	                    1);
 
 	PV_VALID(env.root.get_children<Squey::PVSource>().front()->get_row_count(), 100000U);

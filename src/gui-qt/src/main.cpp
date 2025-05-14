@@ -280,7 +280,7 @@ int main(int argc, char* argv[])
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	std::string libdir = exe_path.parent_path().string();
 #ifdef SQUEY_DEVELOPER_MODE
-	const char* path = std::getenv("PATH");
+	const char* path = PVCore::getenv("PATH");
 	if (path) {
 		libdir += ";" + std::string(path);
 	}

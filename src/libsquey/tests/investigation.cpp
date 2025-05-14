@@ -31,7 +31,7 @@
 
 static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy_1bad.log";
 static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
-static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
+static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxÿ.log.format";
 static const std::string INVESTIGATION_PATH = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/tmp_investigation.pvi";
 static constexpr const char* ref_mapped_file = TEST_FOLDER "/picviz/ref_mapped";
 static constexpr const char* ref_scaled_file = TEST_FOLDER "/picviz/ref_scaled";

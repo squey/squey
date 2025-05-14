@@ -29,9 +29,9 @@
 
 #include "common.h"
 
-static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy.log";
+static constexpr const char* csv_file = TEST_FOLDER "/sources/proxÿ.log";
 static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
-static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
+static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxÿ.log.format";
 static const std::string INVESTIGATION_PATH = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/tmp_investigation_multisource.pvi";
 static constexpr unsigned int ROW_COUNT = 100000;
 static constexpr unsigned int MINESET_ROW_COUNT = 1000;
@@ -51,7 +51,7 @@ double save_investigation()
 
 	auto sources = env.root.get_children<Squey::PVSource>();
 	auto it = sources.begin();
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxÿ.log"));
 	std::advance(it, 1);
 #ifdef __linux__ // Won't work if not build and run on the same directory
 	const std::string& source1 = std::string(TEST_FOLDER "/sources");
@@ -130,7 +130,7 @@ double load_investigation()
 	PV_VALID(sources.size(), (size_t)2);
 
 	auto it = sources.begin();
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxÿ.log"));
 	PV_VALID((*it)->get_row_count(), ROW_COUNT * dupl);
 	std::advance(it, 1);
 	PV_VALID((*it)->get_row_count(), ROW_COUNT * dupl + MINESET_ROW_COUNT);

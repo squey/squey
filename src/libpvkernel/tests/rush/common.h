@@ -48,6 +48,29 @@
 #include <omp.h>
 #include <sstream>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+
+#define UNICODE_MAIN() \
+int wmain(int argc, WCHAR **argv); \
+int main(int argc, char **argv) { \
+	(void) argc; \
+	(void) argv; \
+    LPWSTR commandLine = GetCommandLineW(); \
+    int argcw = 0; \
+    LPWSTR *argvw = CommandLineToArgvW(commandLine, &argcw); \
+    if (!argvw) return 127; \
+    int result = wmain(argcw, argvw); \
+    LocalFree(argvw); \
+    return result; \
+} \
+int wmain(int argc, WCHAR **argv)
+#else
+#define UNICODE_MAIN() \
+int main(int argc, char **argv)
+#endif
+
 namespace pvtest
 {
 

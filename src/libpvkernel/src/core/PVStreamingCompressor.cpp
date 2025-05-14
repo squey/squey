@@ -264,7 +264,7 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
     // Start new process
 	std::tie(_args, std::ignore) = executable(_extension, EExecType::COMPRESSOR, output_name);
 	_cmdline = QString::fromStdString(boost::algorithm::join(_args, " ")).toStdWString(); // decompressor
-    if (not CreateProcess(
+    if (not CreateProcessW(
 		nullptr,
 		_cmdline.data(),
 		nullptr,
