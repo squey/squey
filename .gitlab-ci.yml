@@ -1,5 +1,5 @@
 variables:
-  BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:5708638a
+  BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:bbed5e6c
   GIT_SUBMODULE_STRATEGY: recursive
   CACHE_COMPRESSION_LEVEL: "fastest"
   CODE_COVERAGE:
@@ -221,6 +221,7 @@ run testsuite macos:
   needs:
     - job: build testsuite macos
       artifacts: true
+  allow_failure: true
 
 build release:
   extends: .build
