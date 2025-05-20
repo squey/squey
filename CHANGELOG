@@ -1,3 +1,12 @@
+5.0.6 (2025-05-20)
+------------------
+
+This minor release fixes or improves:
+* fix uncatched exceptions on regexp searches
+* fix axes density refresh on mapping/plotting updates
+* fix a python crash introduced in version 5.0.5
+* [windows] fix unicode support
+
 5.0.5 (2024-10-15)
 ------------------
 
@@ -5,7 +14,6 @@ This minor release fixes or improves:
 * improve SQL import plugin supported types
 * select last edited PCAP profile when closing PCAP manage profiles dialog
 * update freedesktop runtime to 24.08 and dependencies to latest versions
-
 
 5.0.4 (2024-08-13)
 ------------------
