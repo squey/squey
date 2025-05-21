@@ -258,7 +258,7 @@ pages:
       PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
       JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
       if [ "$CODE_COVERAGE" = "true" ]; then
-        curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
+        curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true
         rm -rf $CI_PROJECT_DIR/public/code_coverage_report
         mv code_coverage_report $CI_PROJECT_DIR/public
         exit 0
