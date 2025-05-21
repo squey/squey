@@ -127,6 +127,7 @@ elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak r
         "
   fi
   bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$TMP_ARTIFACT_DIR/flatpak_files"
+  mkdir -p "$EXPORT_DIR" &> /dev/null || true
   if [[ ! -z "$GPG_SIGN_KEY" ]]; then
     flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $EXPORT_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
   else
