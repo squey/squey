@@ -255,10 +255,10 @@ pages:
     VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
     PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
     JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
-    if [ $CODE_COVERAGE = "true" ]; then
+    if [ "$CODE_COVERAGE" = "true" ]; then
       curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
       rm -rf $CI_PROJECT_DIR/public/code_coverage_report
-      mv code_coverage_report $CI_PROJECT_DIR/public &>/dev/null || true
+      mv code_coverage_report $CI_PROJECT_DIR/public
       exit 0
     fi
     ostree checkout -U --repo="$CI_PROJECT_DIR/export/x86_64-linux-gnu" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
