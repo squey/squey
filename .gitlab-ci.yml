@@ -223,7 +223,7 @@ run testsuite macos:
       artifacts: true
   allow_failure: true
 
-build release:
+build release linux:
   extends: .build
   script:
     - ./build.sh 
@@ -246,6 +246,7 @@ build release:
 
 pages:
   stage: pages
+  image: "$BASE_IMAGE_NAME"
   tags:
     - privileged-docker
   before_script: |
@@ -277,6 +278,7 @@ pages:
 
 flathub:
   stage: deploy
+  image: "$BASE_IMAGE_NAME"
   tags:
     - privileged-docker
   needs:
