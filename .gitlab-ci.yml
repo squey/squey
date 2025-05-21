@@ -264,7 +264,7 @@ pages:
         exit 0
       fi
       ostree checkout -U --repo="$CI_PROJECT_DIR/public/flatpak" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
-      rm -rf "$CI_PROJECT_DIR/export"
+      rm -rf "$CI_PROJECT_DIR/public/flatpak"
   artifacts:
     reports:
       coverage_report:
