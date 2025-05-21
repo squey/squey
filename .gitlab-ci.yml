@@ -258,7 +258,7 @@ pages:
     if [ $CODE_COVERAGE = "true" ]; then
       curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
       rm -rf $CI_PROJECT_DIR/public/code_coverage_report
-      mv code_coverage_report $CI_PROJECT_DIR/public
+      mv code_coverage_report $CI_PROJECT_DIR/public &>/dev/null || true
       exit 0
     fi
     ostree checkout -U --repo="$CI_PROJECT_DIR/export/x86_64-linux-gnu" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
