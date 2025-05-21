@@ -66,11 +66,12 @@ builder appstream-linter:
       pull_policy : [if-not-present] 
   tags:
     - privileged-docker
-  before_script: |
-    export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
-    # git lfs pull
-    for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
-    cd buildstream
+  before_script:
+    - |
+      export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
+      # git lfs pull
+      for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
+      cd buildstream
   interruptible: true
 
 .archs:
@@ -249,20 +250,21 @@ pages:
   image: "$BASE_IMAGE_NAME"
   tags:
     - privileged-docker
-  before_script: |
-    mkdir -p $CI_PROJECT_DIR/public/code_quality_report
-  script: |
-    VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
-    PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
-    JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
-    if [ "$CODE_COVERAGE" = "true" ]; then
-      curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
-      rm -rf $CI_PROJECT_DIR/public/code_coverage_report
-      mv code_coverage_report $CI_PROJECT_DIR/public
-      exit 0
-    fi
-    ostree checkout -U --repo="$CI_PROJECT_DIR/export/x86_64-linux-gnu" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
-    rm -rf "$CI_PROJECT_DIR/export"
+  before_script:
+    - mkdir -p $CI_PROJECT_DIR/public/code_quality_report
+  script:
+    - |
+      VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
+      PIPELINE_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines?scope=tags | jq -r .[0].id`
+      JOB_ID=`curl -s -X GET ${CI_API_V4_URL}/projects/squey%2Fsquey/pipelines/${PIPELINE_ID}/jobs | jq -r '.[] | select(.stage=="pages") | .id'`
+      if [ "$CODE_COVERAGE" = "true" ]; then
+        curl -XGET -L ${CI_PROJECT_URL}/-/jobs/${JOB_ID}/artifacts/download | bsdtar -xvf- || true; fi
+        rm -rf $CI_PROJECT_DIR/public/code_coverage_report
+        mv code_coverage_report $CI_PROJECT_DIR/public
+        exit 0
+      fi
+      ostree checkout -U --repo="$CI_PROJECT_DIR/export/x86_64-linux-gnu" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
+      rm -rf "$CI_PROJECT_DIR/export"
   artifacts:
     reports:
       coverage_report:
@@ -283,26 +285,28 @@ flathub:
     - privileged-docker
   needs:
     - pages
-  before_script: |
-    export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-    eval $(ssh-agent -s)
-    echo "$SSH_FLATHUB_PRIVATE_KEY_B64" | base64 -d | ssh-add - > /dev/null
-    rm -rf org.squey.Squey
-    git clone git@github.com:flathub/org.squey.Squey.git
-    git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
-    git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
-    export VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
-    export BRANCH_NAME="publish-$VERSION"
-    cd "$CI_PROJECT_DIR/org.squey.Squey"
-    git checkout -b "$BRANCH_NAME"
-  script: |
-    cp "$CI_PROJECT_DIR/buildstream/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
-    jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/buildstream/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
-    git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
-    git push -f --set-upstream origin "$BRANCH_NAME"
-    echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
-    gh pr --repo "flathub/org.squey.Squey" create --head master --base "$BRANCH_NAME" --fill || true
-    gh pr --repo "flathub/org.squey.Squey" merge "$BRANCH_NAME" --auto --merge --delete-branch
+  before_script:
+    - |
+      export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
+      eval $(ssh-agent -s)
+      echo "$SSH_FLATHUB_PRIVATE_KEY_B64" | base64 -d | ssh-add - > /dev/null
+      rm -rf org.squey.Squey
+      git clone git@github.com:flathub/org.squey.Squey.git
+      git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
+      git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
+      export VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
+      export BRANCH_NAME="publish-$VERSION"
+      cd "$CI_PROJECT_DIR/org.squey.Squey"
+      git checkout -b "$BRANCH_NAME"
+  script: 
+    - |
+      cp "$CI_PROJECT_DIR/buildstream/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
+      jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/buildstream/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
+      git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
+      git push -f --set-upstream origin "$BRANCH_NAME"
+      echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
+      gh pr --repo "flathub/org.squey.Squey" create --head master --base "$BRANCH_NAME" --fill || true
+      gh pr --repo "flathub/org.squey.Squey" merge "$BRANCH_NAME" --auto --merge --delete-branch
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
   
