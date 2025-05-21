@@ -263,7 +263,7 @@ pages:
         mv code_coverage_report $CI_PROJECT_DIR/public
         exit 0
       fi
-      ostree checkout -U --repo="$CI_PROJECT_DIR/export/x86_64-linux-gnu" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
+      ostree checkout -U --repo="$CI_PROJECT_DIR/public/flatpak" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
       rm -rf "$CI_PROJECT_DIR/export"
   artifacts:
     reports:
