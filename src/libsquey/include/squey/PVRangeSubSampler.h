@@ -286,7 +286,7 @@ void Squey::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 			}
 			start = end;
 			for (size_t group_index = 0; group_index < _split_count; group_index++) {
-				size_t& selected_values_count = selected_values_counts[group_index];
+				uint64_t& selected_values_count = selected_values_counts[group_index];
 				const size_t ii = (_split_count * i) + group_index;
 				if (selected_values_count == 0) {
 					_ts_matrix[ii][j] = no_value; // no value in range

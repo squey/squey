@@ -11,6 +11,7 @@ fi
 
 cd "$SOURCE_DIR"
 source buildstream/env.conf
+source "/etc/target_env_vars.sh"
 PYTHON_VERSION=`python3 -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
 export PYTHONPATH="/app/lib/python${PYTHON_VERSION}/site-packages:$HOME/.local/lib/python${PYTHON_VERSION}/site-packages"
 runtime_branch=`sed -n "s/  track: 'freedesktop-sdk-\(.*\)'\.*$/\1/ p" "${SOURCE_DIR}/buildstream/elements/freedesktop-sdk.bst" | cut -d "." -f 1,2`
@@ -35,15 +36,48 @@ export __EGL_VENDOR_LIBRARY_DIRS="$__EGL_VENDOR_LIBRARY_DIRS:$(find /usr/lib/x86
 # Run ssh server to enable remote debugging into development sandbox
 buildstream/sshd/run_ssh_server.sh &
 
-declare -A compilers=(["GCC"]="/usr/bin/g++" ["Clang"]="/usr/bin/clang++")
+declare -A compilers
+if [ "$TARGET_PLATFORM" = "darwin" ]; then
+    compilers["Clang"]="$TOOLCHAIN_DIR/$HOST-clang++"
+    CMAKE_OPTIONS="\
+        -DCMAKE_TOOLCHAIN_FILE=$TOOLCHAIN_DIR/../toolchain.cmake \
+        -DCMAKE_FIND_ROOT_PATH=$PREFIX \
+        -DCMAKE_OSX_DEPLOYMENT_TARGET=$DEPLOYMENT_TARGET_VERSION
+    "
+elif [ "$TARGET_PLATFORM" = "windows" ]; then
+    compilers["GCC"]="$TOOLCHAIN_DIR/$HOST-g++"
+    CMAKE_OPTIONS="\
+        -DCMAKE_SYSTEM_PROCESSOR=x86_64 \
+        -DCMAKE_SYSTEM_NAME=Windows \
+        -DCMAKE_C_COMPILER=$HOST-gcc \
+        -DCMAKE_PREFIX_PATH=$PREFIX \
+        -DPython3_INCLUDE_DIR=$PREFIX/include \
+        -DCMAKE_SYSROOT="/usr/$HOST" \
+        -DCMAKE_CROSSCOMPILING=TRUE"
+elif [ "$TARGET_PLATFORM" = "linux" ]; then
+    compilers["Clang"]="$TOOLCHAIN_DIR/clang++"
+    compilers["GCC"]="$TOOLCHAIN_DIR/g++"
+    export LD_LIBRARY_PATH="/usr/lib/x86_64-linux-gnu:$PREFIX/lib:$LD_LIBRARY_PATH"
+fi
+
+export VERBOSE=1
+
 for build_type in Debug RelWithDebInfo
 do
     for compiler in "${!compilers[@]}"
     do
-        BUILD_FOLDER="builds/$compiler/$build_type"
+        BUILD_FOLDER="builds/$TARGET_TRIPLE/$compiler/$build_type"
         if [ ! -d "$BUILD_FOLDER" ]
         then
-            cmake -Ssrc -B"$BUILD_FOLDER" -DCMAKE_CXX_COMPILER="${compilers[$compiler]}" -DCMAKE_BUILD_TYPE="$build_type" -DCMAKE_INSTALL_PREFIX=$PREFIX -DCMAKE_CXX_COMPILER_LAUNCHER=ccache #-DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="/app/bin/include-what-you-use;-Xiwyu;--error_always"
+            echo CMAKE_CXX_COMPILER="${compilers[$compiler]}"
+            cmake -Ssrc -B"$BUILD_FOLDER" \
+                -DCMAKE_CXX_COMPILER="${compilers[$compiler]}" \
+                -DCMAKE_BUILD_TYPE="$build_type" \
+                -DCMAKE_INSTALL_PREFIX=$PREFIX \
+                $CMAKE_OPTIONS \
+                -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+                #-DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="/app/bin/include-what-you-use;-Xiwyu;--error_always"
         fi
     done
 done
+

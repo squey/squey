@@ -30,6 +30,7 @@
 #include <stdint.h>
 #include <fstream>
 #include <memory>
+#include <filesystem>
 
 #include "pvkernel/core/PVStreamingCompressor.h"
 
@@ -66,7 +67,7 @@ QString PVRush::PVInputFile::human_name()
 
 uint64_t PVRush::PVInputFile::file_size()
 {
-	return std::ifstream(_path, std::ifstream::ate | std::ifstream::binary).tellg();
+	return std::ifstream{std::filesystem::path(_path), std::ifstream::ate | std::ifstream::binary}.tellg();
 }
 
 IMPL_INPUT(PVRush::PVInputFile)

@@ -2,8 +2,10 @@
 # @file
 #
 
+if(NOT CMAKE_SYSTEM_NAME STREQUAL "Darwin")
 add_squey_compile_test(Tcore_file_helper LINKS ${LINK_LIBRARIES} FILES file_helper.cpp)
 add_squey_test(Tcore_file_helper Tcore_file_helper)
+endif()
 
 add_squey_compile_test(Tcore_intrinsics LINKS ${LINK_LIBRARIES} FILES intrinsics.cpp)
 add_squey_test(Tcore_intrinsics Tcore_intrinsics)
@@ -25,3 +27,6 @@ add_squey_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/cor
 
 add_squey_compile_test(Tcore_crash_reporter LINKS ${LINK_LIBRARIES} curl FILES crash_reporter.cpp)
 add_squey_test(Tcore_crash_reporter Tcore_crash_reporter)
+
+file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

@@ -76,7 +76,6 @@ class PVElasticsearchAPI
 	using indexes_t = std::vector<std::string>;
 	using aliases_t = indexes_t;
 	using columns_t = std::vector<std::pair<std::string, std::pair<std::string, std::string>>>;
-	using querybuilder_columns_t = std::vector<std::pair<std::string, std::string>>;
 	using rows_t = std::vector<std::vector<std::string>>;
 	using filter_paths_t = std::vector<std::string>;
 	using visit_columns_f = std::function<void(const std::string& relative_name,
@@ -119,14 +118,6 @@ class PVElasticsearchAPI
 	 */
 	aliases_t aliases(std::string* error = nullptr) const;
 
-	/** Fetch the list of columns for a given index provided in the Query object
-	 *
-	 * @param error Store any occured error if provided
-	 *
-	 * @return the list of columns
-	 */
-	querybuilder_columns_t querybuilder_columns(const std::string& filter_path = {},
-	                                            std::string* error = nullptr) const;
 	columns_t format_columns(const std::string& filter_path = {},
 	                         std::string* error = nullptr) const;
 
@@ -199,13 +190,6 @@ class PVElasticsearchAPI
 	bool clear_scroll();
 
   public:
-	/** Convert json from QueryBuilder to json as ElasticSearch input
-	 *
-	 * @param rules : json from QueryBuilder
-	 *
-	 * @return json as Elasticsearch input
-	 */
-	std::string rules_to_json(const std::string& rules) const;
 
 	/** Convert json from SQL editor to json as ElasticSearch input
 	 *
@@ -243,9 +227,9 @@ class PVElasticsearchAPI
 	 */
 	bool init_scroll(CURL* curl,
 	                 const PVRush::PVElasticsearchQuery& query,
-	                 const size_t slice_id,
-	                 const size_t slice_count,
-	                 const size_t max_result_window,
+	                 const uint64_t slice_id,
+	                 const uint64_t slice_count,
+	                 const uint64_t max_result_window,
 	                 std::string& json_buffer,
 	                 std::string* error = nullptr);
 

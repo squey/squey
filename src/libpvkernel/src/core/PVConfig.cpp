@@ -36,13 +36,40 @@
 #include <QFile>
 #include <QSettings>
 #include <QFileInfo>
+#include <QStandardPaths>
+
+#include <boost/dll/runtime_symbol_info.hpp>
 
 static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/squey/squey.conf";
-static constexpr const char LOCAL_CONFIG_FILENAME[] = SQUEY_CONFIG "/pvconfig.ini";
 
-PVCore::PVConfig::PVConfig_p PVCore::PVConfig::_pvconfig;
+#ifdef _WIN32
+	static const QString _config_dir = []() {
+		QString config_dir = QString::fromLocal8Bit(qgetenv("SQUEY_CONFIG_DIR"));
+		if (config_dir.isEmpty()) {
+			config_dir = QStandardPaths::writableLocation(QStandardPaths::AppDataLocation) + QDir::separator() + SQUEY_CONFDIR;
+		}
+		return config_dir;
+	}();
+#else
+	static const QString _config_dir = []() {
+		QString config_dir = qgetenv("SQUEY_CONFIG_DIR");
+		if (config_dir.isEmpty()) {
+			config_dir = QDir::homePath() + QDir::separator() + SQUEY_CONFDIR;
+		}
+		return config_dir;
+	}();
+#endif
 
-static const QString _config_dir = QDir::homePath() + QDir::separator() + SQUEY_CONFDIR;
+#ifdef __APPLE__
+	boost::filesystem::path exe_path = boost::dll::program_location();
+	static QString LOCAL_CONFIG_FILENAME = QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/pvconfig.ini";
+#elifdef _WIN32
+	boost::filesystem::path exe_path = boost::dll::program_location();
+	static QString LOCAL_CONFIG_FILENAME = QString::fromStdString(exe_path.parent_path().string()) + "/pvconfig.ini";
+#else
+	static QString LOCAL_CONFIG_FILENAME = QString(SQUEY_CONFIG) + "/pvconfig.ini";
+#endif
+
 static const QString _lists_folder = "lists";
 
 /*****************************************************************************
@@ -51,10 +78,11 @@ static const QString _lists_folder = "lists";
 
 PVCore::PVConfig::PVConfig()
 {
-	// initialization of white/grey/black lists' directories
 	QDir dir;
-	dir.mkdir(_config_dir);
+	dir.mkpath(_config_dir);
 	dir.cd(_config_dir);
+
+	// initialization of white/grey/black lists' directories
 	dir.mkdir(get_lists_dir());
 	dir.cd(get_lists_dir());
 	dir.mkdir("blacklist");
@@ -71,7 +99,7 @@ PVCore::PVConfig::PVConfig()
 		if (sys_fi.exists()) {
 			QFile::copy(sys_fi.filePath(), fi.filePath());
 		} else {
-			PVLOG_ERROR("%s file doesn't exists\n", fi.filePath().toLatin1().data());
+			PVLOG_ERROR("%s file doesn't exists\n", sys_fi.filePath().toLatin1().data());
 			throw std::runtime_error("No config file found");
 		}
 	}
@@ -80,7 +108,7 @@ PVCore::PVConfig::PVConfig()
 	QSettings old_presets(QSettings::UserScope, SQUEY_ORGANISATION, SQUEY_APPLICATIONNAME);
 	if (QFileInfo(old_presets.fileName()).exists()) {
 		QDir().rename(old_presets.fileName(),
-		              QString::fromStdString(user_dir()) + QDir::separator() + PRESETS_FILENAME);
+		              user_dir() + "/" + PRESETS_FILENAME);
 	}
 
 	_local_config = new QSettings(fi.filePath(), QSettings::IniFormat);
@@ -89,7 +117,11 @@ PVCore::PVConfig::PVConfig()
 		_global_config = new QSettings(GLOBAL_CONFIG_FILENAME, QSettings::IniFormat);
 	}
 
+#ifdef _WIN32
+	_username = QString::fromLocal8Bit(qgetenv("USERNAME"));
+#else
 	_username = qgetenv("USER");
+#endif
 }
 
 /*****************************************************************************
@@ -115,10 +147,8 @@ PVCore::PVConfig::~PVConfig()
 
 PVCore::PVConfig& PVCore::PVConfig::get()
 {
-	if (_pvconfig == nullptr) {
-		_pvconfig = PVConfig_p(new PVConfig());
-	}
-	return *_pvconfig;
+	static PVCore::PVConfig instance;
+	return instance;
 }
 
 QSettings& PVCore::PVConfig::config() const
@@ -180,17 +210,16 @@ QString PVCore::PVConfig::username()
 
 QString PVCore::PVConfig::user_path()
 {
-	return QString::fromStdString(user_dir()) + CONFIG_FILENAME;
+	return user_dir() + CONFIG_FILENAME;
 }
 
 /*****************************************************************************
  * PVCore::PVConfig::user_dir
  *****************************************************************************/
 
-std::string PVCore::PVConfig::user_dir()
+QString PVCore::PVConfig::user_dir()
 {
-	return (QDir::homePath() + QDir::separator() + SQUEY_SQUEY_CONFDIR + QDir::separator())
-	    .toStdString();
+	return _config_dir + QDir::separator() + SQUEY_SQUEY_CONFDIR + QDir::separator();
 }
 
 /*****************************************************************************

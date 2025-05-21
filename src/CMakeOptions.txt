@@ -20,7 +20,11 @@ endif()
 
 # Default values for tests files root
 if (NOT DEFINED TESTS_FILES_DIR)
-	set(TESTS_FILES_DIR "${CMAKE_SOURCE_DIR}/tests/files")
+	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+		set(TESTS_FILES_DIR "${CMAKE_SOURCE_DIR}/tests/files")
+	else()
+		set(TESTS_FILES_DIR "../../../../../../src/tests/files")
+	endif()
 endif()
 
 # Default values for tests kind

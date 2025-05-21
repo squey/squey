@@ -26,6 +26,7 @@
 #include <QComboBox>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QStandardPaths>
 
 #include "PVImportFileDialog.h"
 
@@ -65,6 +66,7 @@ QStringList PVRush::PVImportFileDialog::getFileNames(QString& treat_as)
 {
 
 	/* Launch the Dialog and check if the user pressed Cancel button */
+	setDirectory(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
 	if (not exec()) {
 		return {};
 	}

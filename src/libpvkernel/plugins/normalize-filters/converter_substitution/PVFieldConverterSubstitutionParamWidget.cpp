@@ -39,6 +39,7 @@
 #include <QGroupBox>
 #include <QTableWidget>
 #include <QHeaderView>
+#include <QStandardPaths>
 
 /******************************************************************************
  *
@@ -476,7 +477,12 @@ void PVFilter::PVFieldConverterSubstitutionParamWidget::browse_conversion_file()
 {
 	PVWidgets::PVFileDialog fd;
 
-	QString filename = fd.getOpenFileName(nullptr, tr("Open File"), "", tr("Files (*.*)"));
+	QString filename = fd.getOpenFileName(
+		nullptr,
+		tr("Open File"),
+		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+		tr("Files (*.*)")
+	);
 	if (!filename.isEmpty()) {
 		_file_path_line_edit->setText(filename);
 	}

@@ -80,7 +80,7 @@ QT6_WRAP_CPP(MOC_SRC ${PCAP_GUI_MOC_HEADER} OPTIONS ${QT6_WRAP_OPTIONS})
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${PVKERNEL_PLUGIN}/input-types/")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-add_library(pcap-gui-widget SHARED ${PCAP_GUI_SRC} ${UI_SRC} ${MOC_SRC}) # ${QRC_FILES_SRCS})
+add_library(pcap-gui-widget STATIC ${PCAP_GUI_SRC} ${UI_SRC} ${MOC_SRC}) # ${QRC_FILES_SRCS})
 target_link_libraries(pcap-gui-widget Qt6Widgets Qt6Gui Qt6Core pvpcap)
 
 #INSTALL(TARGETS pcapsicum-gui DESTINATION bin)

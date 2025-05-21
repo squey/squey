@@ -29,12 +29,13 @@
 #include <qstring.h>
 #include <qtmetamacros.h>
 #include <QObject>
+#include <pvkernel/export.h>
 
 class QDBusVariant;
 
 namespace PVCore
 {
-class PVTheme : public QObject
+class PVKERNEL_EXPORT PVTheme : public QObject
 {
     Q_OBJECT
 
@@ -66,18 +67,26 @@ public:
     static void follow_system_scheme(bool follow);
 
 private:
-    static void apply_style(bool dark_theme);
+    void apply_style(bool dark_theme);
 
 Q_SIGNALS:
     void color_scheme_changed(EColorScheme color_scheme);
 
-
 public Q_SLOTS:
+#ifdef __linux__
     void setting_changed(const QString& ns, const QString& key, const QDBusVariant& value);
+#elifdef _WIN32
+    void setting_changed(); 
+#endif
+
+public:
+    QColor light_base_color;
+    QColor light_alternate_base_color;
 
 private:
     PVCore::PVTheme::EColorScheme _color_scheme;
     bool _follow_system_scheme = false;
+    bool _init = true;
 };
 
 } // namespace PVCore

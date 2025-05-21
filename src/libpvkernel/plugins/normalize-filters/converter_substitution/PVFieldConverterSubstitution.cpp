@@ -28,6 +28,7 @@
 #include <pvkernel/core/PVUtils.h>
 
 #include <fstream>
+#include <filesystem>
 
 #include <boost/utility/string_ref.hpp>
 
@@ -61,7 +62,7 @@ void PVFilter::PVFieldConverterSubstitution::set_args(PVCore::PVArgumentList con
 	_sep_char = args.at("sep").toChar().toLatin1();
 	_quote_char = args.at("quote").toChar().toLatin1();
 
-	std::ifstream ifs(args.at("path").toString().toStdString());
+	std::ifstream ifs(std::filesystem::path{args.at("path").toString().toStdString()});
 	std::string buffer(4096 * 2, 0);
 	// FIXME : Add more check on file format.
 	// FIXME : Handle quote char

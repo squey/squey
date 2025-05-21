@@ -37,6 +37,7 @@
 #include <QHash>
 #include <QMessageBox>
 #include <QPushButton>
+#include <QStandardPaths>
 
 // Hash table used to have 'human-readable' name of Qt's SQL drivers
 class HashDriversName
@@ -80,7 +81,7 @@ PVRush::PVDatabaseParamsWidget::PVDatabaseParamsWidget(PVInputTypeDatabase const
                                                        PVRush::hash_formats const& formats,
                                                        QWidget* parent)
     : QDialog(parent)
-    , _settings(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+    , _settings(PVCore::PVConfig::user_dir() + QDir::separator() +
                     PVCore::PVConfig::PRESETS_FILENAME,
                 QSettings::IniFormat)
     , _in_t(in_t)
@@ -449,7 +450,7 @@ QString PVRush::PVDatabaseParamsWidget::get_existing_format()
 
 void PVRush::PVDatabaseParamsWidget::browse_sqlite_Slot()
 {
-	QString file = _file_dlg.getOpenFileName(this, tr("Choose an SQLite database..."));
+	QString file = _file_dlg.getOpenFileName(this, tr("Choose an SQLite database..."), QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
 	if (file.isEmpty()) {
 		return;
 	}

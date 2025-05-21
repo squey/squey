@@ -37,13 +37,16 @@
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/core/squey_assert.h>
 #include <pvkernel/core/PVStreamingCompressor.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <squey/PVSelection.h>
 #include <squey/PVScene.h>
 #include <squey/PVMapped.h>
 #include <squey/PVScaled.h>
 #include <squey/PVView.h>
+#ifdef PYTHON_SUPPORT
 #include <squey/PVPythonInterpreter.h>
+#endif
 
 #include <cstdlib>
 #include <iostream>
@@ -74,13 +77,15 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	Squey::PVView* view = env.root.current_view();
 
 	// Execute Python script if any
+#ifdef PYTHON_SUPPORT
 	bool is_path, disabled;
 	Squey::PVSource& src = view->get_parent<Squey::PVSource>();
 	QString python_script = src.get_original_format().get_python_script(is_path, disabled);
-	if (is_path) {
-		python_script.insert(0, (std::filesystem::current_path().string() + "/").c_str());
-	}
+
 	if (not disabled and not python_script.isEmpty()) {
+		if (is_path) {
+			python_script.insert(0, (QDir::currentPath().toStdString() + "/").c_str());
+		}
 		if (is_path and not QFileInfo(python_script).exists()) {
 			assert(false && "Missing Python script");
 		}
@@ -89,6 +94,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 			python_interpreter.execute_script(python_script.toStdString(), is_path);
 		}
 	}
+#endif
 
 	// Export selection to temporary file
 	Squey::PVSelection sel(view->get_row_count());
@@ -100,10 +106,8 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	}
 	view->set_selection_view(sel);
 
-	char temp_pattern[] = "/tmp/fileXXXXXX";
-	close(mkstemp(temp_pattern));
-	std::remove(temp_pattern);
-	std::string output_file = std::string(temp_pattern) + "." + file_extension;
+	QString temp_pattern = PVRush::PVNrawCacheManager::nraw_dir() + "/fileXXXXXX." + QString::fromStdString(file_extension);
+	QString output_file = PVCore::mkstemp(temp_pattern);
 
 	PVRush::PVNraw& nraw = view->get_rushnraw_parent();
 	const PVCore::PVColumnIndexes& col_indexes =
@@ -119,7 +123,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	if (cancel) {
 		exp.cancel();
 	}
-	exp.export_rows(output_file, sel);
+	exp.export_rows(output_file.toUtf8().toStdString(), sel);
 
 	auto end = std::chrono::system_clock::now();
 	std::chrono::duration<double> diff = end - start;
@@ -129,7 +133,7 @@ import_export(const std::string& input_file, const std::string& format, bool tes
 	// Remove nraw folder
 	PVCore::PVDirectory::remove_rec(delete_nraw_parent_dir ? nraw_dir.path()
 	                                                       : QString::fromStdString(nraw.dir()));
-	return output_file;
+	return output_file.toUtf8().toStdString();
 }
 
 #endif // __EXPORT_SELECTION_H__

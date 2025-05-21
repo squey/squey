@@ -47,7 +47,6 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " file format" << std::endl;
 		return 1;
 	}
-	PVCore::PVIntrinsics::init_cpuid();
 	init_env();
 
 	// Get a SQUEY tree from the given file/format

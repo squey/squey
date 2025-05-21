@@ -29,10 +29,10 @@
 
 #include "common.h"
 
-static constexpr const char* csv_file = TEST_FOLDER "/sources/proxy.log";
+static constexpr const char* csv_file = TEST_FOLDER "/sources/proxÿ.log";
 static constexpr const char* csv_file2 = TEST_FOLDER "/sources/proxy_mineset.log";
-static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxy.log.format";
-static constexpr const char* INVESTIGATION_PATH = "/tmp/tmp_investigation_multisource.pvi";
+static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxÿ.log.format";
+static const std::string INVESTIGATION_PATH = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/tmp_investigation_multisource.pvi";
 static constexpr unsigned int ROW_COUNT = 100000;
 static constexpr unsigned int MINESET_ROW_COUNT = 1000;
 #ifdef SQUEY_BENCH
@@ -47,28 +47,30 @@ double save_investigation()
 	env.add_source(std::vector<std::string>{csv_file2, csv_file}, csv_file_format, dupl, false);
 
 	size_t source_size = env.root.size<Squey::PVSource>();
-	PV_VALID(source_size, 2UL);
+	PV_VALID(source_size, (size_t)2);
 
 	auto sources = env.root.get_children<Squey::PVSource>();
 	auto it = sources.begin();
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxÿ.log"));
 	std::advance(it, 1);
+#ifdef __linux__ // Won't work if not build and run on the same directory
 	const std::string& source1 = std::string(TEST_FOLDER "/sources");
 	const std::string& source2 = (*it)->get_name();
 	PV_ASSERT_VALID(source1.compare(source1.length() - source2.length(), source2.length(), source2) == 0);
+#endif
 
 	env.compute_mappings();
 	env.compute_scalings();
 	env.compute_views();
 
 	size_t mapped_size = env.root.size<Squey::PVMapped>();
-	PV_VALID(mapped_size, 2UL);
+	PV_VALID(mapped_size, (size_t)2);
 
 	size_t scaled_size = env.root.size<Squey::PVScaled>();
-	PV_VALID(scaled_size, 2UL);
+	PV_VALID(scaled_size, (size_t)2);
 
 	size_t view_size = env.root.size<Squey::PVView>();
-	PV_VALID(view_size, 2UL);
+	PV_VALID(view_size, (size_t)2);
 	auto view = env.root.get_children<Squey::PVView>().front();
 
 	/**
@@ -98,7 +100,7 @@ double save_investigation()
 
 	auto start = std::chrono::system_clock::now();
 
-	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::write,
+	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH.c_str(), PVCore::PVSerializeArchive::write,
 	                                 SQUEY_ARCHIVES_VERSION, false);
 	env.root.save_to_file(ar);
 
@@ -114,7 +116,7 @@ double load_investigation()
 
 	auto start = std::chrono::system_clock::now();
 
-	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH, PVCore::PVSerializeArchive::read,
+	PVCore::PVSerializeArchiveZip ar(INVESTIGATION_PATH.c_str(), PVCore::PVSerializeArchive::read,
 	                                 SQUEY_ARCHIVES_VERSION, false);
 	root.load_from_archive(ar);
 
@@ -125,10 +127,10 @@ double load_investigation()
 	 * Check sources
 	 */
 	auto sources = root.get_children<Squey::PVSource>();
-	PV_VALID(sources.size(), 2UL);
+	PV_VALID(sources.size(), (size_t)2);
 
 	auto it = sources.begin();
-	PV_VALID((*it)->get_name(), std::string("proxy.log"));
+	PV_VALID((*it)->get_name(), std::string("proxÿ.log"));
 	PV_VALID((*it)->get_row_count(), ROW_COUNT * dupl);
 	std::advance(it, 1);
 	PV_VALID((*it)->get_row_count(), ROW_COUNT * dupl + MINESET_ROW_COUNT);
@@ -139,19 +141,19 @@ double load_investigation()
 	 * Check mappeds
 	 */
 	size_t mapped_size = root.size<Squey::PVMapped>();
-	PV_VALID(mapped_size, 2UL);
+	PV_VALID(mapped_size, (size_t)2);
 
 	/**
 	 * Check scaleds
 	 */
 	size_t scaled_size = root.size<Squey::PVScaled>();
-	PV_VALID(scaled_size, 2UL);
+	PV_VALID(scaled_size, (size_t)2);
 
 	/**
 	 * Check view
 	 */
 	auto views = root.get_children<Squey::PVView>();
-	PV_VALID(views.size(), 2UL);
+	PV_VALID(views.size(), (size_t)2);
 	auto view = views.front();
 	PV_VALID(view->get_row_count(), ROW_COUNT * dupl);
 
@@ -212,7 +214,7 @@ int main()
 	std::cout << saving_time + loading_time;
 #endif
 
-	PVRush::PVNrawCacheManager::get().remove_nraws_from_investigation(INVESTIGATION_PATH);
+	PVRush::PVNrawCacheManager::get().remove_nraws_from_investigation(INVESTIGATION_PATH.c_str());
 
 	// Recheck loading without cache
 	load_investigation();

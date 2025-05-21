@@ -55,37 +55,37 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(
 
 	for (uint64_t b = 0; b < NBUCKETS; b += 4) {
 
-		__m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
-		__m128i sse_index = _mm_load_si128((const __m128i*)&elts[b]);
-		__m128i see_cmp = _mm_cmpeq_epi32(sse_ff, sse_index);
+		simde__m128i sse_ff = simde_mm_set1_epi32(0xFFFFFFFF);
+		simde__m128i sse_index = simde_mm_load_si128((const simde__m128i*)&elts[b]);
+		simde__m128i see_cmp = simde_mm_cmpeq_epi32(sse_ff, sse_index);
 
-		if (_mm_testz_si128(see_cmp, sse_ff)) {
+		if (simde_mm_testz_si128(see_cmp, sse_ff)) {
 
-			__m128i sse_lr = _mm_set_epi32(b, b + 1, b + 2, b + 3);
+			simde__m128i sse_lr = simde_mm_set_epi32(b, b + 1, b + 2, b + 3);
 
 			//  +------------+------------++------------+------------+
 			//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
 			//  +------------+------------++------------+------------+
 
-			__m128i sse_color = _mm_set_epi32(colors[_mm_extract_epi32(sse_index, 0)].h(),
-			                                  colors[_mm_extract_epi32(sse_index, 1)].h(),
-			                                  colors[_mm_extract_epi32(sse_index, 2)].h(),
-			                                  colors[_mm_extract_epi32(sse_index, 3)].h());
+			simde__m128i sse_color = simde_mm_set_epi32(colors[simde_mm_extract_epi32(sse_index, 0)].h(),
+			                                  colors[simde_mm_extract_epi32(sse_index, 1)].h(),
+			                                  colors[simde_mm_extract_epi32(sse_index, 2)].h(),
+			                                  colors[simde_mm_extract_epi32(sse_index, 3)].h());
 			;
-			sse_color = _mm_slli_epi32(sse_color, NBITS_INDEX * 2);
+			sse_color = simde_mm_slli_epi32(sse_color, NBITS_INDEX * 2);
 
 			//  +------------+------------++------------+------------+
 			//  |color3 << 20|color2 << 20||color1 << 20|color0 << 20| (sse_color)
 			//  +------------+------------++------------+------------+
 
-			__m128i sse_lrcolor = _mm_or_si128(sse_color, sse_lr);
+			simde__m128i sse_lrcolor = simde_mm_or_si128(sse_color, sse_lr);
 
 			//  +------------+------------++------------+------------+
 			//  |   lrcolor3 |   lrcolor2 ||   lrcolor1 |   lrcolor0 | (sse_lrcolor)
 			//  +------------+------------++------------+------------+
 
-			__m128i sse_bcicodes0_1 = _mm_unpacklo_epi32(sse_index, sse_lrcolor);
-			__m128i sse_bcicodes2_3 = _mm_unpackhi_epi32(sse_index, sse_lrcolor);
+			simde__m128i sse_bcicodes0_1 = simde_mm_unpacklo_epi32(sse_index, sse_lrcolor);
+			simde__m128i sse_bcicodes2_3 = simde_mm_unpackhi_epi32(sse_index, sse_lrcolor);
 
 			//  +------------+------------++------------+------------+
 			//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) |
@@ -97,11 +97,11 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(
 			//  +------------+------------++------------+------------+
 
 			if ((idx_code & 1) == 0) {
-				_mm_stream_si128((__m128i*)&codes[idx_code + 0], sse_bcicodes0_1);
-				_mm_stream_si128((__m128i*)&codes[idx_code + 2], sse_bcicodes2_3);
+				simde_mm_stream_si128((simde__m128i*)&codes[idx_code + 0], sse_bcicodes0_1);
+				simde_mm_stream_si128((simde__m128i*)&codes[idx_code + 2], sse_bcicodes2_3);
 			} else {
-				_mm_storeu_si128((__m128i*)&codes[idx_code + 0], sse_bcicodes0_1);
-				_mm_storeu_si128((__m128i*)&codes[idx_code + 2], sse_bcicodes2_3);
+				simde_mm_storeu_si128((simde__m128i*)&codes[idx_code + 0], sse_bcicodes0_1);
+				simde_mm_storeu_si128((simde__m128i*)&codes[idx_code + 2], sse_bcicodes2_3);
 			}
 
 			idx_code += 4;

@@ -48,7 +48,7 @@
 
 void init_big(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* timer)
 {
-	static constexpr auto POS_SCALE = (qreal)((1L << 40) * LINE_STEP);
+	static constexpr auto POS_SCALE = (qreal)(((size_t)1 << 40) * LINE_STEP);
 	static constexpr qreal SCENE_WIDTH = ((qreal)LINE_NUM * POS_SCALE);
 
 	for (long i = 0; i < LINE_NUM; ++i) {
@@ -75,7 +75,7 @@ void init_big(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* time
 
 void init_small(QGraphicsScene* scene, PVWidgets::PVGraphicsView*, QTimeLine* timer)
 {
-	static constexpr auto POS_SCALE = (qreal)(1L << 63);
+	static constexpr auto POS_SCALE = (qreal)((size_t)1 << 63);
 	static constexpr qreal SCENE_WIDTH = ((qreal)LINE_NUM * POS_SCALE);
 
 	for (long i = 0; i < LINE_NUM; ++i) {

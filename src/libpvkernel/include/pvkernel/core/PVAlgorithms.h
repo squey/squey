@@ -53,7 +53,7 @@ T clamp(const T& value, const T& low, const T& high)
 
 inline uint64_t upper_power_of_2(uint64_t v)
 {
-	constexpr static uint64_t MantissaMask = (1UL << 52) - 1;
+	constexpr static uint64_t MantissaMask = (1ULL << 52) - 1;
 
 #ifdef __GNUG__
 #pragma GCC diagnostic push
@@ -111,11 +111,7 @@ inline T inv_log_scale(const T value, const T a, const T b)
  */
 inline bool is_power_of_two(uint32_t v)
 {
-#ifdef __SSE4_2__
-	return (_mm_popcnt_u32(v) == 1);
-#else
-	return (v && !(v & (v - 1)));
-#endif
+	return (__builtin_popcount(v) == 1);
 }
 
 /**

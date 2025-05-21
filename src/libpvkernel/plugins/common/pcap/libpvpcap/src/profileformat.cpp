@@ -106,7 +106,7 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 		csv_format->addOneField("pcap_path", "string");
 	}
 
-	for (const auto& field : selected_fields.GetObject()) {
+	for (const auto& field : selected_fields.GetObj()) {
 		const QString& type = QString::fromStdString(ws_map_type(field.value["type"].GetString()));
 		const QString& name = field.name.GetString();
 		PVRush::PVXmlTreeNodeDom* node = csv_format->addOneField(name, type);

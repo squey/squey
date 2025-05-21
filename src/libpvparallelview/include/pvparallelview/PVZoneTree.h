@@ -229,7 +229,7 @@ class PVZoneTree : public PVZoneTreeBase
 
   protected:
 	PVBranch _treeb[NBUCKETS];
-	PVRow* _tree_data;
+	PVRow* _tree_data = nullptr;
 };
 
 typedef PVZoneTree::p_type PVZoneTree_p;

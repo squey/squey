@@ -34,9 +34,9 @@ int main()
 
 	env.load_data();
 
-	PV_VALID(env.get_nraw_size(), 3UL);
+	PV_VALID(env.get_nraw_size(), (size_t)3);
 
-	PV_VALID(env._nraw.get_valid_row_count(), 3UL);
+	PV_VALID(env._nraw.get_valid_row_count(), (size_t)3);
 	PV_VALID(env._nraw.valid_rows_sel().get_line(2), true);
 
 	return 0;

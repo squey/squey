@@ -71,7 +71,7 @@ class PVHitGraphBlocksManager : boost::noncopyable
 	inline PVRow get_nrows() const { return _data_params.nrows; }
 
 	uint32_t get_count_for(const uint32_t value) const;
-	__m128i get_count_for(__m128i value) const;
+	simde__m128i get_count_for(simde__m128i value) const;
 
 	uint32_t get_max_count_all() const;
 	uint32_t get_max_count_selected() const;

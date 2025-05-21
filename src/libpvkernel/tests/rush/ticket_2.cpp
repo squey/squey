@@ -34,7 +34,7 @@ int main()
 
 	env.load_data();
 
-	PV_VALID(env.get_nraw_size(), 100000UL);
+	PV_VALID(env.get_nraw_size(), (size_t)100000);
 
 	return 0;
 }

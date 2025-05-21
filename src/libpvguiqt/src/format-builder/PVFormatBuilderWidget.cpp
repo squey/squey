@@ -27,6 +27,7 @@
 #include <QDesktopServices>
 #include <QScreen>
 #include <QInputDialog>
+#include <QWidgetAction>
 
 #include <PVFormatBuilderWidget.h>
 #include <PVXmlTreeItemDelegate.h>
@@ -119,9 +120,6 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	// initialisation of the toolbar.
 	actionAllocation();
 
-	menuBar = new QMenuBar();
-	initMenuBar();
-
 	vb->addWidget(vertical_splitter);
 
 	// the view
@@ -183,7 +181,6 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	auto main_layout = new QVBoxLayout();
 	initToolBar(main_layout);
 	main_layout->addWidget(main_splitter);
-	main_layout->setMenuBar(menuBar);
 
 	auto central_widget = new QWidget();
 	central_widget->setLayout(main_layout);
@@ -266,9 +263,9 @@ App::PVFormatBuilderWidget::~PVFormatBuilderWidget()
  *****************************************************************************/
 void App::PVFormatBuilderWidget::actionAllocation()
 {
-	actionAddAxisIn = new QAction("add an axis", (QObject*)this);
+	actionAddAxisIn = new QAction("Add an axis", (QObject*)this);
 	actionAddAxisIn->setIcon(PVModdedIcon("chart-simple"));
-	actionAddFilterAfter = new QAction("add a filter", (QObject*)this);
+	actionAddFilterAfter = new QAction("Add a filter", (QObject*)this);
 	actionAddFilterAfter->setIcon(PVModdedIcon("filter"));
 	actionNameAxes = new QAction("Set axes name", (QObject*)this);
 	actionNameAxes->setIcon(PVModdedIcon("pen-to-square"));
@@ -280,14 +277,65 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	actionSave->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_S));
 	actionSave->setIcon(PVModdedIcon("floppy-disk"));
 	actionSaveAs = new QAction("Save format as...", (QObject*)this);
+	actionSaveAs->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_S));
+	actionSaveAs->setIcon(PVModdedIcon("floppy-disk-circle-arrow-right"));
+
+	QMenu* import_menu = new QMenu();
+	import_menu->setAttribute(Qt::WA_TranslucentBackground);
+	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(import_menu, this, SLOT(slotOpenLog()));
+	buttonImport = new QToolButton();
+    buttonImport->setToolTip("Import data");
+    buttonImport->setPopupMode(QToolButton::InstantPopup);
+	buttonImport->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_I));
+	buttonImport->setIcon(PVModdedIcon("file-import"));
+	buttonImport->setMenu(import_menu);
+
+	QMenu* splitter_menu = new QMenu();
+	splitter_menu->setAttribute(Qt::WA_TranslucentBackground);
+	buttonSplitter = new QToolButton();
+    buttonSplitter->setToolTip("Add a splitter");
+    buttonSplitter->setPopupMode(QToolButton::InstantPopup);
+	buttonSplitter->setIcon(PVModdedIcon("split"));
+	buttonSplitter->setMenu(splitter_menu);
+	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list()) {
+		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
+		assert(pluginsSplitter);
+		QAction* action = pluginsSplitter->get_action_menu(this);
+
+		if (action) {
+			action->setData(it.key());
+			connect(action, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddSplitter);
+			splitter_menu->addAction(action);
+		}
+	}
+
+	QMenu* converter_menu = new QMenu();
+	converter_menu->setAttribute(Qt::WA_TranslucentBackground);
+	buttonConverter = new QToolButton();
+    buttonConverter->setToolTip("Add a converter");
+    buttonConverter->setPopupMode(QToolButton::InstantPopup);
+	buttonConverter->setIcon(PVModdedIcon("swap"));
+	buttonConverter->setMenu(converter_menu);
+	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list()) {
+		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = it.value();
+		assert(pluginsConverter);
+		QAction* action = pluginsConverter->get_action_menu(this);
+
+		if (action) {
+			action->setData(it.key());
+			connect(action, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddConverter);
+			converter_menu->addAction(action);
+		}
+	}
+
 	actionDelete = new QAction("Delete", (QObject*)this);
 	actionDelete->setIcon(PVModdedIcon("trash-xmark"));
 	actionDelete->setShortcut(QKeySequence(Qt::Key_Delete));
 	actionDelete->setEnabled(false);
-	actionMoveDown = new QAction("move down", (QObject*)this);
+	actionMoveDown = new QAction("Move down", (QObject*)this);
 	actionMoveDown->setShortcut(QKeySequence(Qt::Key_Down));
 	actionMoveDown->setIcon(PVModdedIcon("arrow-down-long"));
-	actionMoveUp = new QAction("move up", (QObject*)this);
+	actionMoveUp = new QAction("Move up", (QObject*)this);
 	actionMoveUp->setShortcut(QKeySequence(Qt::Key_Up));
 	actionMoveUp->setIcon(PVModdedIcon("arrow-up-long"));
 	actionOpen = new QAction(tr("Open format..."), (QObject*)this);
@@ -338,6 +386,7 @@ void App::PVFormatBuilderWidget::initConnexions()
 	connect(actionOpen, &QAction::triggered, this, &PVFormatBuilderWidget::slotOpen);
 	connect(actionSave, &QAction::triggered, this, &PVFormatBuilderWidget::slotSave);
 	connect(actionSaveAs, &QAction::triggered, this, &PVFormatBuilderWidget::slotSaveAs);
+
 	connect(actionAddUrl, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddUrl);
 	connect(myParamBord_old_model, &PVXmlParamWidget::signalNeedApply, this,
 	        &PVFormatBuilderWidget::slotNeedApply);
@@ -368,6 +417,13 @@ void App::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 
 	auto tools = new QToolBar();
 
+	tools->addAction(actionOpen);
+	tools->addAction(actionSave);
+	tools->addAction(actionSaveAs);
+	tools->addWidget(buttonImport);
+	tools->addSeparator();
+	tools->addWidget(buttonSplitter);
+	tools->addWidget(buttonConverter);
 	tools->addAction(actionAddFilterAfter);
 	tools->addAction(actionAddAxisIn);
 	tools->addSeparator();
@@ -377,9 +433,7 @@ void App::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 	tools->addAction(actionMoveUp);
 	tools->addSeparator();
 	tools->addAction(actionDelete);
-	tools->addSeparator();
-	tools->addAction(actionOpen);
-	tools->addAction(actionSave);
+
 
 	vb->addWidget(tools);
 }
@@ -868,101 +922,47 @@ void App::PVFormatBuilderWidget::slotUpdateToolsState(const QModelIndex& index)
 		myTreeView->expandRecursive(index);
 		actionAddFilterAfter->setEnabled(true);
 		actionAddAxisIn->setEnabled(true);
-		_splitters->setEnabled(true);
-		_converters->setEnabled(true);
+		buttonSplitter->setEnabled(true);
+		buttonConverter->setEnabled(true);
 		actionDelete->setEnabled(false);
 	} else if (node->getDom().tagName() == "axis") {
 		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		_splitters->setEnabled(false);
-		_converters->setEnabled(false);
+		buttonSplitter->setEnabled(false);
+		buttonConverter->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "filter" || node->getDom().tagName() == "converter") {
 		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		_splitters->setEnabled(force_root_action);
-		_converters->setEnabled(force_root_action);
+		buttonSplitter->setEnabled(force_root_action);
+		buttonConverter->setEnabled(force_root_action);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "splitter") {
 		myTreeView->expandRecursive(index);
 		actionAddFilterAfter->setEnabled(force_root_action);
 		actionAddAxisIn->setEnabled(false);
-		_splitters->setEnabled(false);
-		_converters->setEnabled(force_root_action);
+		buttonSplitter->setEnabled(false);
+		buttonConverter->setEnabled(force_root_action);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "RegEx") {
 		myTreeView->expandRecursive(index);
 		actionAddFilterAfter->setEnabled(false);
 		actionAddAxisIn->setEnabled(false);
-		_splitters->setEnabled(false);
-		_converters->setEnabled(false);
+		buttonSplitter->setEnabled(false);
+		buttonConverter->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else if (node->getDom().tagName() == "url") {
 		actionAddFilterAfter->setEnabled(false);
 		actionAddAxisIn->setEnabled(false);
-		_splitters->setEnabled(false);
-		_converters->setEnabled(false);
+		buttonSplitter->setEnabled(false);
+		buttonConverter->setEnabled(false);
 		actionDelete->setEnabled(true);
 	} else {
 		actionAddFilterAfter->setEnabled(true);
 		actionAddAxisIn->setEnabled(false);
-		_splitters->setEnabled(true);
-		_converters->setEnabled(true);
+		buttonSplitter->setEnabled(true);
+		buttonConverter->setEnabled(true);
 		actionDelete->setEnabled(false);
-	}
-}
-
-/******************************************************************************
- *
- * App::PVFormatBuilderWidget::initMenuBar
- *
- *****************************************************************************/
-void App::PVFormatBuilderWidget::initMenuBar()
-{
-	QMenu* file = menuBar->addMenu(tr("&File"));
-	file->setAttribute(Qt::WA_TranslucentBackground);
-	file->addAction(actionNewWindow);
-	file->addSeparator();
-	file->addAction(actionOpen);
-	file->addAction(actionSave);
-	file->addAction(actionSaveAs);
-	file->addSeparator();
-	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(file, this, SLOT(slotOpenLog()));
-	file->addSeparator();
-	file->addAction(actionCloseWindow);
-
-	// add all splitting plugins
-	_splitters = menuBar->addMenu(tr("&Splitters"));
-	_splitters->setAttribute(Qt::WA_TranslucentBackground);
-
-	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_list()) {
-		PVFilter::PVFieldsSplitterParamWidget_p pluginsSplitter = it.value();
-		assert(pluginsSplitter);
-		QAction* action = pluginsSplitter->get_action_menu(this);
-
-		if (action) {
-			action->setData(it.key());
-			connect(action, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddSplitter);
-			_splitters->addAction(action);
-		}
-	}
-
-	_splitters->addAction(actionAddUrl);
-
-	// add all conversion plugins
-	_converters = menuBar->addMenu(tr("&Converters"));
-	_converters->setAttribute(Qt::WA_TranslucentBackground);
-
-	for (const auto& it : LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_list()) {
-		PVFilter::PVFieldsConverterParamWidget_p pluginsConverter = it.value();
-		assert(pluginsConverter);
-		QAction* action = pluginsConverter->get_action_menu(this);
-
-		if (action) {
-			action->setData(it.key());
-			connect(action, &QAction::triggered, this, &PVFormatBuilderWidget::slotAddConverter);
-			_converters->addAction(action);
-		}
 	}
 }
 

@@ -28,6 +28,7 @@
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
 #include <pvkernel/core/PVTextChunk.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawException.h>
@@ -79,7 +80,10 @@ const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
  *
  ****************************************************************************/
 
-PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0) {}
+PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0)
+{
+	QDir().mkpath(PVRush::PVNrawCacheManager::nraw_dir());
+}
 
 /*****************************************************************************
  *
@@ -90,14 +94,16 @@ PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0) {}
 void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
-	std::string collector_path =
-	    PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/" + nraw_tmp_pattern;
-	if (mkdtemp(&collector_path.front()) == nullptr) {
-		throw PVNrawException("unable to create temporary directory " + collector_path);
+	QString collector_path =
+	    PVRush::PVNrawCacheManager::nraw_dir() + "/" + QString::fromStdString(nraw_tmp_pattern);
+	collector_path = PVCore::mkdtemp(collector_path);
+	if (collector_path.isEmpty()) {
+		QString error = QString("Unable to create temporary directory %1").arg(collector_path);
+		throw PVNrawException(error.toStdString());
 	}
 
 	// Create collector and format
-	_collector = std::make_unique<pvcop::collector>(collector_path.data(), format);
+	_collector = std::make_unique<pvcop::collector>(collector_path.toUtf8().constData(), format);
 	_collection.reset();
 }
 
@@ -227,6 +233,10 @@ bool PVRush::PVNraw::add_bin_chunk(PVCore::PVBinaryChunk& chunk)
 			if (chunk.is_invalid(PVCol(col))) {
 				auto range =  chunk.invalids().equal_range(PVCol(col));
 				for (auto it = range.first; it != range.second; ++it) {
+					//pvlogger::fatal() << "set_invalid(" << col << "," << chunk.start_index() + it->second << ")" << std::endl;
+					if (col == 0) {
+						pvlogger::fatal() << "set_invalid(" << chunk.start_index() + it->second << ")" << std::endl;
+					}
 					snk.set_invalid(col, chunk.start_index() + it->second);
 				}
 			}

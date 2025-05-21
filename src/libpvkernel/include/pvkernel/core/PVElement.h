@@ -39,9 +39,7 @@ namespace PVCore
 class PVTextChunk;
 
 using list_fields_allocator = PVPreAllocatedListAllocator<PVField, std::allocator<PVField>>;
-using list_fields =
-    std::list<PVField/*, list_fields_allocator*/>;
-;
+using list_fields = std::list<PVField/*, list_fields_allocator*/>;
 
 class PVElement : public PVBufferSlice
 {

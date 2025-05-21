@@ -34,6 +34,7 @@
 
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVWorkspace.h>
+#include <pvguiqt/export.h>
 
 #include <QWidget>
 #include <QObject>
@@ -44,6 +45,8 @@
 #include <QSplitterHandle>
 #include <QSplitter>
 #include <QTabBar>
+
+
 
 namespace Squey
 {
@@ -135,7 +138,7 @@ class PVSplitter : public QSplitter
  *
  * \note This class is representing a project tab widget.
  */
-class PVProjectsTabWidget : public QWidget, public sigc::trackable
+class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackable
 {
 	Q_OBJECT
 

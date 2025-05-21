@@ -25,6 +25,7 @@
 
 #include <pvkernel/core/PVHSVColor.h>
 
+#include <pvkernel/core/PVUtils.h>
 #include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVRenderingPipeline.h>
@@ -82,7 +83,7 @@ const std::string fileformat = TEST_FOLDER "/picviz/heat_line.csv.format";
 int main(int argc, char** argv)
 {
 #ifdef SQUEY_BENCH
-	setenv("SQUEY_DEBUG_LEVEL", "FATAL", 1);
+	PVCore::setenv("SQUEY_DEBUG_LEVEL", "FATAL", 1);
 
 	/* 1K take 2 seconds on proto-03 with the CPU backend while 1M take 2.2 seconds on the same
 	 * computer but using the GPU backend.

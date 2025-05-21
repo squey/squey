@@ -5,10 +5,11 @@ description: |
 
 sources:
 - kind: git
-
   url: kde:extra-cmake-modules.git
-  ref: 54646d3b5dd8d1112d8be370bd34a3fc63ab067a
+  ref: 7dd28cc56c339c3f8fb356f7c53c0e8f61433d81
 
-depends:
-- base.bst
-- qt6.bst
+(@): buildstream/elements/base/target.bst
+
+build-depends:
+- sdk.bst
+- qt6_host.bst

@@ -42,6 +42,7 @@
 #include <tbb/enumerable_thread_specific.h>
 
 #include <regex>
+#include <string.h>
 
 #include <QMessageBox>
 
@@ -59,6 +60,27 @@
 #define ARG_DESC_INTERPRET "Interpret expressions as"
 #define ARG_NAME_TYPE "type"
 #define ARG_DESC_TYPE "Search in"
+
+#ifdef _WIN32
+char *strcasestr(const char *s, const char *find)
+{
+	char c, sc;
+	size_t len;
+
+	if ((c = *find++) != 0) {
+		c = tolower((unsigned char)c);
+		len = strlen(find);
+		do {
+			do {
+				if ((sc = *s++) == 0)
+				return (NULL);
+			} while ((char)tolower((unsigned char)sc) != c);
+		} while (strncasecmp(s, find, len) != 0);
+			s--;
+	}
+	return ((char *)s);
+}
+#endif
 
 /******************************************************************************
  *

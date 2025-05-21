@@ -28,10 +28,16 @@
 #include <tbb/parallel_sort.h>
 #include <pvhwloc.h>
 #include <pvlogger.h>
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
-#include <linux/if_ether.h>
 #include <netinet/in.h>
 #include <netinet/ip6.h>
+#endif
+#if __APPLE__
+#include <net/ethernet.h>
+#endif
 #include <pcap/pcap.h>
 #include <stdio.h>
 #include <sys/time.h>
@@ -55,12 +61,49 @@
 #include <tuple>
 #include <utility>
 
+#ifndef __linux__
+#ifndef ETH_P_IP
+#define ETH_P_IP 0x0800  // Protocole IP
+#endif
+
+#ifndef ETH_P_IPV6
+#define ETH_P_IPV6 0x86DD  // Protocole IPv6
+#endif
+
+#ifndef ETH_P_8021Q
+#define ETH_P_8021Q 0x8100  // VLAN 802.1Q
+#endif
+#endif
+
 static std::pair<in6_addr, in6_addr> srcip_dstip(const sniff_ip* ip, bool ipv4)
 {
 	in6_addr ip_src;
 	in6_addr ip_dst;
 
 	if (ipv4) {
+#if __APPLE__
+		uint32_t ipv4_src = ip->ip_src.s_addr;
+		ip_src.__u6_addr.__u6_addr32[0] = 0;
+		ip_src.__u6_addr.__u6_addr32[1] = 0;
+		ip_src.__u6_addr.__u6_addr32[2] = 0x0000FFFF;
+		ip_src.__u6_addr.__u6_addr32[3] = ipv4_src;
+
+		uint32_t ipv4_dst = ip->ip_dst.s_addr;
+		ip_dst.__u6_addr.__u6_addr32[0] = 0;
+		ip_dst.__u6_addr.__u6_addr32[1] = 0;
+		ip_dst.__u6_addr.__u6_addr32[2] = 0x0000FFFF;
+		ip_dst.__u6_addr.__u6_addr32[3] = ipv4_dst;
+#elif _WIN32
+		uint32_t ipv4_src = ip->ip_src.s_addr;
+		ip_src = IN6ADDR_ANY_INIT;
+		ip_src.u.Word[5] = htons(0xFFFF);
+		memcpy(&ip_src.u.Byte[0], &ipv4_src, 4);
+
+		uint32_t ipv4_dst = ip->ip_dst.s_addr;
+    	ip_dst = IN6ADDR_ANY_INIT;
+		ip_dst.u.Word[5] = htons(0xFFFF);
+		memcpy(&ip_dst.u.Byte[0], &ipv4_dst, 4);
+#else
 		uint32_t ipv4_src = ip->ip_src.s_addr;
 		ip_src.s6_addr32[0] = 0;
 		ip_src.s6_addr32[1] = 0;
@@ -72,6 +115,7 @@ static std::pair<in6_addr, in6_addr> srcip_dstip(const sniff_ip* ip, bool ipv4)
 		ip_dst.s6_addr32[1] = 0;
 		ip_dst.s6_addr32[2] = 0x0000FFFF;
 		ip_dst.s6_addr32[3] = ipv4_dst;
+#endif
 	} else {
 		const auto* ipv6_h = reinterpret_cast<const ip6_hdr*>(ip);
 
@@ -469,29 +513,37 @@ class FlowSplitter : public PacketSplitter
 	stream_infos_t extract_flow(const pcap_pkthdr* header, const u_char* packet)
 	{
 		uint16_t protocol = (uint8_t)IPPROTO_MAX;
-		in6_addr ip_src = {{ .__u6_addr32 = { 0, 0, 0, 0 }}};
-		in6_addr ip_dst = {{ .__u6_addr32 = { 0, 0, 0, 0 }}};
+		in6_addr ip_src = {{{0}}};
+		in6_addr ip_dst = {{{0}}};
 		uint16_t ip_src_port = 0;
 		uint16_t ip_dst_port = 0;
 		time_t timestamp = header->ts.tv_sec;
 
 		size_t size_ip = 0;
 
+#if __APPLE__
+		const auto* eth_h = reinterpret_cast<const ether_header*>(packet);
+		uint16_t eth_proto = ntohs(eth_h->ether_type);
+		uint64_t ethhdr_size = sizeof(ether_header);
+#else
 		const auto* eth_h = reinterpret_cast<const ethhdr*>(packet);
 		uint16_t eth_proto = ntohs(eth_h->h_proto);
+		uint64_t ethhdr_size = sizeof(ethhdr);
+#endif
+
 
 		if (eth_proto == ETH_P_IPV6) {
-			const auto* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
+			const auto* ip = reinterpret_cast<const sniff_ip*>(packet + ethhdr_size);
 			size_ip = IP_HL(ip) * 4;
 			protocol = ip->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ip, false);
 		} else if (eth_proto == ETH_P_IP) {
-			const auto* ip = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr));
+			const auto* ip = reinterpret_cast<const sniff_ip*>(packet + ethhdr_size);
 			size_ip = IP_HL(ip) * 4;
 			protocol = ip->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ip, true);
 		} else if (eth_proto == ETH_P_8021Q) { // 802.1Q VLAN Extended Header
-			const auto* ipq = reinterpret_cast<const sniff_ip*>(packet + sizeof(ethhdr) + 4);
+			const auto* ipq = reinterpret_cast<const sniff_ip*>(packet + ethhdr_size + 4);
 			size_ip = IP_HL(ipq) * 4;
 			protocol = ipq->ip_p;
 			std::tie(ip_src, ip_dst) = srcip_dstip(ipq, IP_V(ipq) == 4);
@@ -501,18 +553,31 @@ class FlowSplitter : public PacketSplitter
 
 		if (protocol == IPPROTO_TCP) {
 			const auto* tcp =
-			    reinterpret_cast<const sniff_tcp*>(packet + sizeof(ethhdr) + size_ip);
+			    reinterpret_cast<const sniff_tcp*>(packet + ethhdr_size + size_ip);
 
 			ip_src_port = ntohs(tcp->th_sport);
 			ip_dst_port = ntohs(tcp->th_dport);
 		} else if (protocol == IPPROTO_UDP) {
 			const auto* udp =
-			    reinterpret_cast<const sniff_udp*>(packet + sizeof(ethhdr) + size_ip);
+			    reinterpret_cast<const sniff_udp*>(packet + ethhdr_size + size_ip);
 
 			ip_src_port = ntohs(udp->sport);
 			ip_dst_port = ntohs(udp->dport);
 		}
 
+#ifdef _WIN32
+		struct half_ipv6 {
+			uint64_t u64;
+			half_ipv6(uint32_t high, uint32_t low) : u64(((uint64_t)high << 32) | low) {}
+		};
+
+		auto get_ipv6_part = [](const in6_addr& addr, int index) -> uint64_t
+		{
+			uint32_t words[4];
+			std::memcpy(words, addr.u.Byte, sizeof(words)); // Copy as 4 uint32_t
+			return half_ipv6(words[index], words[index + 1]).u64;
+		};
+#else
 		union half_ipv6 {
 			half_ipv6(uint32_t h1, uint32_t h2)
 			{
@@ -522,12 +587,25 @@ class FlowSplitter : public PacketSplitter
 			uint32_t u32[2];
 			uint64_t u64;
 		};
+#endif
 
 		// merge symetric directions flows
+#if __APPLE__
+		uint64_t ip_src_lo = half_ipv6(ip_src.__u6_addr.__u6_addr32[0], ip_src.__u6_addr.__u6_addr32[1]).u64;
+		uint64_t ip_src_hi = half_ipv6(ip_src.__u6_addr.__u6_addr32[2], ip_src.__u6_addr.__u6_addr32[3]).u64;
+		uint64_t ip_dst_lo = half_ipv6(ip_dst.__u6_addr.__u6_addr32[0], ip_dst.__u6_addr.__u6_addr32[1]).u64;
+		uint64_t ip_dst_hi = half_ipv6(ip_dst.__u6_addr.__u6_addr32[2], ip_dst.__u6_addr.__u6_addr32[3]).u64;
+#elif _WIN32
+		uint64_t ip_src_lo = get_ipv6_part(ip_src, 0);
+		uint64_t ip_src_hi = get_ipv6_part(ip_src, 2);
+		uint64_t ip_dst_lo = get_ipv6_part(ip_dst, 0);
+		uint64_t ip_dst_hi = get_ipv6_part(ip_dst, 2);
+#else
 		uint64_t ip_src_lo = half_ipv6(ip_src.s6_addr32[0], ip_src.s6_addr32[1]).u64;
 		uint64_t ip_src_hi = half_ipv6(ip_src.s6_addr32[2], ip_src.s6_addr32[3]).u64;
 		uint64_t ip_dst_lo = half_ipv6(ip_dst.s6_addr32[0], ip_dst.s6_addr32[1]).u64;
 		uint64_t ip_dst_hi = half_ipv6(ip_dst.s6_addr32[2], ip_dst.s6_addr32[3]).u64;
+#endif
 		if (ip_src_lo < ip_dst_lo or (ip_src_lo == ip_dst_lo and ip_src_hi < ip_dst_hi)) {
 			std::swap(ip_src, ip_dst);
 			std::swap(ip_src_port, ip_dst_port);
@@ -566,7 +644,7 @@ split_pcaps(const std::vector<std::string>& input_pcap_filenames,
 	size_t total_datasize = 0;
 	for (const std::string& input_pcap_filename : input_pcap_filenames) {
 		total_datasize +=
-		    std::ifstream(input_pcap_filename, std::ifstream::ate | std::ifstream::binary).tellg();
+		    std::ifstream(std::filesystem::path{input_pcap_filename}, std::ifstream::ate | std::ifstream::binary).tellg();
 	}
 	if (f_total_datasize) {
 		f_total_datasize(total_datasize);

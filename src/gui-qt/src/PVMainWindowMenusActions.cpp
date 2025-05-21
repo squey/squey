@@ -213,9 +213,11 @@ void App::PVMainWindow::create_menus()
 
 	theme_Menu->addAction(settings_dark_theme_Action);
 	theme_Menu->addAction(settings_light_theme_Action);
+#ifndef __APPLE__ // FIXME
 	if (QString(std::getenv("DISABLE_FOLLOW_SYSTEM_THEME")).isEmpty()) {
 		theme_Menu->addAction(settings_follow_system_theme_Action);
 	}
+#endif
 
 	help_Menu = menubar->addMenu(tr("&Help"));
 	help_Menu->setAttribute(Qt::WA_TranslucentBackground);

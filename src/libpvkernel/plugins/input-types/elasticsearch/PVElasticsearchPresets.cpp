@@ -33,7 +33,7 @@ const char PVRush::PVElasticsearchPresets::PV_SETTINGS_INPUT[] =
     "plugins/input_type/elasticsearch/";
 
 PVRush::PVElasticsearchPresets::PVElasticsearchPresets()
-    : _settings(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+    : _settings(PVCore::PVConfig::user_dir() + QDir::separator() +
                     PVCore::PVConfig::PRESETS_FILENAME,
                 QSettings::IniFormat)
 {

@@ -42,8 +42,6 @@
 
 void merge_tlr(PVParallelView::PVZoomedZoneTree::context_t::tls_set_t& tls)
 {
-#if defined __SSE2__
-
 	PVParallelView::PVZoomedZoneTree::context_t::tls_set_t::iterator it = tls.begin();
 	uint32_t* res_data = it->get_tlr_buffer().get_data();
 	++it;
@@ -61,10 +59,10 @@ void merge_tlr(PVParallelView::PVZoomedZoneTree::context_t::tls_set_t& tls)
 		uint32_t* val_data = it2->get_tlr_buffer().get_data();
 
 		for (i = 0; i < packed_size; i += 4) {
-			__m128i res_sse = _mm_loadu_si128((const __m128i*)&res_data[i]);
-			__m128i val_sse = _mm_loadu_si128((const __m128i*)&(val_data[i]));
-			res_sse = _mm_min_epu32(res_sse, val_sse);
-			_mm_storeu_si128((__m128i*)&res_data[i], res_sse);
+			simde__m128i res_sse = simde_mm_loadu_si128((const simde__m128i*)&res_data[i]);
+			simde__m128i val_sse = simde_mm_loadu_si128((const simde__m128i*)&(val_data[i]));
+			res_sse = simde_mm_min_epu32(res_sse, val_sse);
+			simde_mm_storeu_si128((simde__m128i*)&res_data[i], res_sse);
 		}
 
 		for (; i < size; ++i) {
@@ -75,15 +73,15 @@ void merge_tlr(PVParallelView::PVZoomedZoneTree::context_t::tls_set_t& tls)
 	}
 #else
 	for (i = 0; i < packed_size; i += 4) {
-		__m128i res_sse = _mm_loadu_si128((const __m128i*)&res_data[i]);
+		simde__m128i res_sse = simde_mm_loadu_si128((const simde__m128i*)&res_data[i]);
 
 		for (it2 = it; it2 != tls.end(); ++it2) {
 			uint32_t* val_data = it2->get_tlr_buffer().get_data();
-			__m128i val_sse = _mm_loadu_si128((const __m128i*)&(val_data[i]));
-			res_sse = _mm_min_epu32(res_sse, val_sse);
+			simde__m128i val_sse = simde_mm_loadu_si128((const simde__m128i*)&(val_data[i]));
+			res_sse = simde_mm_min_epu32(res_sse, val_sse);
 		}
 
-		_mm_storeu_si128((__m128i*)&res_data[i], res_sse);
+		simde_mm_storeu_si128((simde__m128i*)&res_data[i], res_sse);
 	}
 
 	for (i = 0; i < packed_size; i += 4) {
@@ -97,24 +95,6 @@ void merge_tlr(PVParallelView::PVZoomedZoneTree::context_t::tls_set_t& tls)
 			}
 		}
 		res_data[i] = res;
-	}
-#endif
-
-#else
-	PVParallelView::PVZoomedZoneTree::context_t::tls_set_t::iterator it = tls.begin();
-	PVParallelView::PVZoomedZoneTree::pv_tlr_buffer_t& result = it->get_tlr_buffer();
-	++it;
-
-	for (; it != tls.end(); ++it) {
-		PVParallelView::PVZoomedZoneTree::pv_tlr_buffer_t& tlr_buffer = it->get_tlr_buffer();
-
-		for (size_t i = 0; i < PVParallelView::PVZoomedZoneTree::pv_tlr_buffer_t::length; ++i) {
-			if (tlr_buffer[i] < result[i]) {
-				result[i] = tlr_buffer[i];
-			}
-		}
-
-		tlr_buffer.clear();
 	}
 #endif
 }

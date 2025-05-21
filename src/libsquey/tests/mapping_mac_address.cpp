@@ -32,6 +32,8 @@
 #include <chrono>
 #include <iostream>
 
+#include <libgen.h>
+
 /**
  * reference mapping result are contained in the input CSV file with contains:
  * - col(0): an index

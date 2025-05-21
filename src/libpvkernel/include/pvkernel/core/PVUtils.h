@@ -32,6 +32,7 @@
 #include <QString>
 #include <QIODevice>
 #include <vector>
+#include <unistd.h> // for mkdtemp
 
 namespace PVCore
 {
@@ -94,6 +95,16 @@ std::string join(It it_begin, It it_end, const std::string& separator)
 void remove_common_folders(std::vector<std::string>& paths);
 
 size_t available_memory();
+
+#if __APPLE__
+int process_running_count(const std::string& process_name);
+#endif
+
+QString mkdtemp(QString tmpl);
+QString mkstemp(QString tmpl);
+
+int setenv(const char* name, const char* value, int overwrite);
+char* getenv(const char* env_var);
 
 } // namespace PVCore
 

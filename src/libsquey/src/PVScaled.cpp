@@ -57,7 +57,7 @@
 #include <vector>     // for vector
 #include <mutex>
 
-std::mutex g_mutex;
+std::mutex gg_mutex;
 
 Squey::PVScaled::PVScaled(PVMapped& mapped, std::string const& name)
     : PVCore::PVDataTreeChild<PVMapped, PVScaled>(mapped), _name(name)
@@ -310,7 +310,7 @@ void Squey::PVScaled::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) co
 // not be really expensive.
 // TODO : As it is a two arguments reduction, it can be done using
 // OpenMP 3.1 but maybe with custom reduction from OpenMP 4.0
-		std::lock_guard<std::mutex> guard(g_mutex);
+		std::lock_guard<std::mutex> guard(gg_mutex);
 		{
 			if (local_min < vmin) {
 				vmin = local_min;

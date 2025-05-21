@@ -57,7 +57,7 @@ int main(int argc, char** argv)
 	std::string output_file = pvtest::get_tmp_filename();
 	// Extract source and split fields.
 	{
-		std::ofstream ofs(output_file);
+		std::ofstream ofs{std::filesystem::path(output_file)};
 
 		std::chrono::duration<double> dur(0.);
 		auto start = std::chrono::steady_clock::now();

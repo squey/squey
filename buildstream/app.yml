@@ -13,7 +13,7 @@ variables:
   runtime-branch: "24.08"
 
 environment:
-  PATH: '/app/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin'
+  PATH: '%{bindir}:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin'
   PKG_CONFIG_PATH: "%{libdir}/pkgconfig:"
 
 shell:

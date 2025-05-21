@@ -69,14 +69,19 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 
 	setNameFilters(_name_filters);
 
-	// Set specific exporter as default if any, .csv.gz otherwise
-	int gz_idx;
-	for (gz_idx = _name_filters.size() - 1; gz_idx >= 0; gz_idx--) {
-		if (_name_filters[gz_idx].contains("gz")) {
+	// Set specific exporter as default if any, otherwise select default platform compressor
+	int compressor_idx;
+	for (compressor_idx = _name_filters.size() - 1; compressor_idx >= 0; compressor_idx--) {
+#ifdef __linux__
+		QString default_compressor = "gz";
+#else
+		QString default_compressor = "zip";
+#endif
+		if (_name_filters[compressor_idx].contains(default_compressor)) {
 			break;
 		}
 	}
-	int default_filter_index = specific_export_filter.isEmpty() ? gz_idx : 0;
+	int default_filter_index = specific_export_filter.isEmpty() ? compressor_idx : 0;
 
 	auto* stacked_layout = new QStackedLayout;
 	stacked_layout->addWidget(exporter_widget);
@@ -184,7 +189,7 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Squey::PVView& view)
 	bool overwritten = false;
 	for (int i = 0; i < layerstack.get_layer_count(); i++) {
 		files_path.emplace_back((dirname + "/" + layerstack.get_layer_n(i).get_name() + export_dialog.file_extension()).toStdString());
-		overwritten |= std::filesystem::exists(files_path.back());
+		overwritten |= QFile::exists(QString::fromStdString(files_path.back()));
 	}
 	if (overwritten) {
 		if (QMessageBox::warning(

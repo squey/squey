@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvparallelview/PVSeriesRendererOpenGL.h>
+//#include <pvparallelview/PVSeriesRendererOpenGL.h>
 
 #include <pvkernel/core/PVConfig.h>
 #include <QSettings>

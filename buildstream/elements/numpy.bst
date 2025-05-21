@@ -18,4 +18,3 @@ build-depends:
 - freedesktop-sdk.bst:components/cython.bst
 - freedesktop-sdk.bst:components/git.bst
 - meson.bst # using the numpy fork that contains the required "features" module
- 

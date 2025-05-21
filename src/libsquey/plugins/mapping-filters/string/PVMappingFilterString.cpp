@@ -74,7 +74,7 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 
 	// Compute "a" and set it in the first 4 bits of factor
 	uint8_t shift = 32 - 4;
-	const uint8_t a = int_log2(PVCore::clamp(1UL, size, (size_t)(1 << ((1 << 4) - 1))));
+	const uint8_t a = int_log2(PVCore::clamp((size_t)1, size, (size_t)(1 << ((1 << 4) - 1))));
 	uint32_t factor = (a + 1) << shift; // +1 to separate 1 length strings from 0 length strings
 
 	// Compute "b" and set it in the shortest number of bits that may contains it after "a"
@@ -91,7 +91,7 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 	// Compute the sum of remaining bytes. Truncate it on the remaining bytes (truncate strong bits)
 	// and set it in "d".
 	// "d" size depend on "b" size.
-	size_t max_remaining_size = std::min(size, 1UL << (32 - 4 - a - 8)) - 1;
+	size_t max_remaining_size = std::min(size, (size_t)1 << (32 - 4 - a - 8)) - 1;
 
 	if (max_remaining_size == 0) {
 		// Nothing more to sum.

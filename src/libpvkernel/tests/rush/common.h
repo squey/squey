@@ -48,6 +48,29 @@
 #include <omp.h>
 #include <sstream>
 
+#ifdef _WIN32
+#include <windows.h>
+#include <shellapi.h>
+
+#define UNICODE_MAIN() \
+int wmain(int argc, WCHAR **argv); \
+int main(int argc, char **argv) { \
+	(void) argc; \
+	(void) argv; \
+    LPWSTR commandLine = GetCommandLineW(); \
+    int argcw = 0; \
+    LPWSTR *argvw = CommandLineToArgvW(commandLine, &argcw); \
+    if (!argvw) return 127; \
+    int result = wmain(argcw, argvw); \
+    LocalFree(argvw); \
+    return result; \
+} \
+int wmain(int argc, WCHAR **argv)
+#else
+#define UNICODE_MAIN() \
+int main(int argc, char **argv)
+#endif
+
 namespace pvtest
 {
 
@@ -59,7 +82,12 @@ namespace pvtest
 std::string get_tmp_filename()
 {
 	char buffer[L_tmpnam];
-	return tmpnam(buffer);
+		
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+	std::string tmp_filename = tmpnam(buffer);
+#pragma GCC diagnostic pop
+	return tmp_filename;
 }
 
 /**
@@ -90,11 +118,11 @@ std::string duplicate_log_file(std::string const& log_file, size_t dup)
 		return log_file;
 	}
 
-	std::ifstream ifs(log_file);
+	std::ifstream ifs(std::filesystem::path{log_file});
 	std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
 
 	std::string big_log_file = get_tmp_filename();
-	std::ofstream big_file(big_log_file);
+	std::ofstream big_file{std::filesystem::path(big_log_file)};
 	// Duplicate file to have one millions lines
 	for (size_t i = 0; i < dup; i++) {
 		big_file << content;
@@ -134,7 +162,7 @@ class TestSplitter
 
 		std::string output_file = get_tmp_filename();
 		// Extract source and split fields.
-		std::ofstream ofs(output_file);
+		std::ofstream ofs{std::filesystem::path(output_file)};
 
 		size_t nelts_org = 0;
 		size_t nelts_valid = 0;
@@ -142,6 +170,7 @@ class TestSplitter
 
 		std::vector<PVCore::PVTextChunk*> _chunks;
 		while (PVCore::PVTextChunk* pc = (*_source.get())()) {
+			pvlogger::error() << "_chunks" << std::endl;
 			_chunks.push_back(pc);
 		}
 

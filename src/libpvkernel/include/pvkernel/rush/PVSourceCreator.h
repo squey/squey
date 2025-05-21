@@ -31,6 +31,10 @@
 
 #include <memory>
 
+#ifndef BUILD_SQUEY
+template class PVCore::PVClassLibrary<PVRush::PVInputType>;
+#endif
+
 namespace PVRush
 {
 

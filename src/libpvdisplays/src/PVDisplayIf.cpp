@@ -66,8 +66,8 @@ void add_displays_view_axis_menu(QMenu& menu,
 	menu.addSeparator();
 
 	visit_displays_by_if<PVDisplayViewIf>(
-	    [&](PVDisplayViewIf& interface) {
-		    interface.add_to_axis_menu(menu, axis, axis_comb, view, container);
+	    [&](PVDisplayViewIf& iface) {
+		    iface.add_to_axis_menu(menu, axis, axis_comb, view, container);
 		},
 	    PVDisplayIf::ShowInCtxtMenu);
 }

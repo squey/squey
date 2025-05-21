@@ -35,9 +35,9 @@
 
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QStandardPaths>
 
 #include <sys/time.h>
-#include <sys/resource.h>
 
 PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVParquetFileDescription>()
 {
@@ -53,7 +53,7 @@ bool PVRush::PVInputTypeParquet::createWidget(hash_formats& formats,
 	QStringList file_paths = PVWidgets::PVFileDialog::getOpenFileNames(
 	    parent,
 		tr("Import Apache Parquet files"),
-		"",
+		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
 		tr("Apache Parquet files (*.parquet)")
 	);
 	if (file_paths.size() == 0) {

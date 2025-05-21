@@ -28,7 +28,6 @@
 #include <pvbase/general.h>
 
 #include <pvkernel/rush/PVInputType.h>
-#include <pvkernel/widgets/PVQueryBuilder.h>
 
 /******************************************************************************
  *
@@ -42,10 +41,6 @@ PVRush::PVParamsWidgetBase::PVParamsWidgetBase(PVInputType const* in_t,
 {
 	// Create the UI
 	setupUi(this);
-
-	// Create the Query Builder
-	_querybuilder = new PVWidgets::PVQueryBuilder(this);
-	_querybuilder_layout->addWidget(_querybuilder);
 
 	// Set the dialog title
 	setWindowTitle("Import from " + in_t->menu_input_name());

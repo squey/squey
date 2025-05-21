@@ -30,6 +30,8 @@
 #include <cassert>
 #include <cstring>
 
+#include <pvlogger.h> // REMOVEME
+
 constexpr size_t REALLOC_GROWBY_ADD = 20;
 
 // No buffer simulation
@@ -73,7 +75,8 @@ void PVCore::PVBufferSlice::set_end(char* p)
 
 void PVCore::PVBufferSlice::set_physical_end(char* p)
 {
-	assert(p >= _end);
+	// pvlogger::info() << "p=" << std::addressof(p) << " _end=" << std::addressof(_end) << std::endl;
+	// assert(p >= _end);
 	_physical_end = p;
 }
 

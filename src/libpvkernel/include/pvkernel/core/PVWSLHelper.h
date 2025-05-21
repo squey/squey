@@ -25,7 +25,9 @@
 #ifndef __PVKERNEL_PVWSLHELPER_H__
 #define __PVKERNEL_PVWSLHELPER_H__
 
+#ifndef _WIN32
 #include <sys/utsname.h>
+#endif
 
 #include <QDirIterator>
 
@@ -40,6 +42,9 @@ class PVWSLHelper
 	static constexpr const char WSL_WINDOWS_ROOT[] = "/mnt";
 
   public:
+#if _WIN32
+	static bool is_microsoft_wsl() { return false; }
+#else
 	static bool is_microsoft_wsl()
 	{
 		struct utsname uname_buf;
@@ -50,6 +55,7 @@ class PVWSLHelper
 
 		return is_microsoft_wsl;
 	}
+#endif
 
 	static std::string user_directory()
 	{

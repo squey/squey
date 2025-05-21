@@ -27,8 +27,14 @@
 
 #include <fcntl.h>
 #include <sys/stat.h>
+#ifdef _WIN32
+#include <windows.h>
+#include <process.h>
+#else
+#include <spawn.h>
 #include <sys/wait.h>
 #include <pwd.h>
+#endif
 #include <pvkernel/core/PVConfig.h>
 #include <tbb/parallel_pipeline.h>
 #include <dirent.h>
@@ -56,6 +62,61 @@
 #include "../include/libpvpcap/ws.h"
 #include <pvbase/general.h> // IWYU pragma: keep
 
+#include <boost/dll/runtime_symbol_info.hpp>
+
+#if __APPLE__
+#include <unistd.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+
+int execvpe(const char *file, char *const argv[], char *const envp[]) {
+    // Check if the path is absolute or relative
+    if (strchr(file, '/') != NULL) {
+        // Use execve directly if the path is given
+        return execve(file, argv, envp);
+    }
+
+    // Get the PATH from the environment
+    const char *path = getenv("PATH");
+    if (!path) {
+        errno = ENOENT; // PATH not set
+        return -1;
+    }
+
+    // Copy PATH to avoid modifying the original
+    char *path_copy = strdup(path);
+    if (!path_copy) {
+        return -1; // Allocation failed
+    }
+
+    char *saveptr;
+    char *dir = strtok_r(path_copy, ":", &saveptr);
+
+    while (dir != NULL) {
+        // Build the full path to the file
+        char full_path[PATH_MAX];
+        snprintf(full_path, sizeof(full_path), "%s/%s", dir, file);
+
+        // Attempt to execute with execve
+        execve(full_path, argv, envp);
+
+        // If execve fails, move to the next directory in PATH
+        if (errno != ENOENT) {
+            free(path_copy);
+            return -1; // Failure for reasons other than file not found
+        }
+
+        dir = strtok_r(NULL, ":", &saveptr);
+    }
+
+    // Free memory and set errno
+    free(path_copy);
+    errno = ENOENT;
+    return -1;
+}
+#endif
+
 extern char** environ;
 
 namespace pvpcap
@@ -71,24 +132,27 @@ std::vector<std::string> execute_cmd(const std::string& cmd)
 	// TODO: cmd size limite
 
 	FILE* output;
-	char buffer[1024];               // 1024/2048/3072/4096/5120/10240/
-	std::vector<std::string> result; // = new std::vector<std::string>;
+	char buffer[1024];
+	std::vector<std::string> result;
 
-	std::cout << cmd << std::endl;
-
+#ifdef _WIN32
+	std::string cmd_wrapper = std::string("cmd.exe /C ") + cmd;
+	if (!(output = _popen(cmd_wrapper.c_str(), "r"))) {
+#else
 	if (!(output = popen(cmd.c_str(), "r"))) {
-		std::cerr << "Error: can't execute popen command..." << std::endl;
-		exit(EXIT_FAILURE);
+#endif
+		pvlogger::error() << "Can't execute '" << cmd << "'" << std::endl;
 	}
 
 	while (fgets(buffer, sizeof(buffer), output) != nullptr) {
 		result.emplace_back(buffer);
 	}
 
-	if (pclose(output) != 0) { // en cas d'erreur
-		std::cerr << "Error: can't execute pclose command..." << std::endl;
-		exit(EXIT_FAILURE);
-	}
+#ifdef _WIN32
+	_pclose(output);
+#else
+	pclose(output);
+#endif
 
 	return result;
 }
@@ -110,7 +174,13 @@ extract_csv(splitted_files_t files,
 		f_total_datasize(total_packets_count);
 	}
 
-	std::unordered_set<pid_t> pids;
+	std::unordered_set<
+#ifdef _WIN32
+	HANDLE
+#else
+	pid_t
+#endif
+	> pids;
 	std::mutex pids_mutex;
 
 	std::vector<char*> cmd_opts(cmd.size() + 2);
@@ -120,17 +190,13 @@ extract_csv(splitted_files_t files,
 	cmd_opts[cmd.size()] = nullptr;
 
 	// Override XDG_CONFIG_HOME variable to find wireshark profiles
-	const char* homedir;
-	if ((homedir = getenv("HOME")) == nullptr) {
-		homedir = getpwuid(getuid())->pw_dir;
-	}
 	std::basic_string<char*> env_vars(environ);
 	std::string xdg_config_home("XDG_CONFIG_HOME=");
 	auto it = std::find_if(
 	    env_vars.begin(), env_vars.end(), [&xdg_config_home](std::string_view env_var) {
 		    return env_var.substr(0, xdg_config_home.size()).compare(xdg_config_home) == 0;
 		});
-	if(it != env_vars.end()) {
+	if (it != env_vars.end()) {
 		std::string xdg_config_home_value = get_wireshark_profiles_dir();
 		*it = xdg_config_home_value.data();
 	}
@@ -154,12 +220,16 @@ extract_csv(splitted_files_t files,
 			        fc.stop();
 
 			        if (canceled) { // force running processes to terminate and remove pcap files
-				        for (const pid_t& pid : pids) {
+				        for (const auto& pid : pids) {
+#ifdef _WIN32
+							TerminateProcess(pid, 1);
+#else
 					        kill(pid, 15);
+#endif
 				        }
-				        for (const splitted_file_t& pcap_file : files) {
-					        std::remove(pcap_file.path().c_str());
-				        }
+				        // for (const splitted_file_t& pcap_file : files) {
+					    //     std::remove(pcap_file.path().c_str());
+				        // }
 			        }
 
 			        return splitted_file_t();
@@ -171,42 +241,148 @@ extract_csv(splitted_files_t files,
 		            if (not pcap.path().empty()) {
 			            std::string csv_path = pcap.path() + ".csv";
 
-			            /**
-			             * using 'vfork' instead of 'fork' because of some very serious
-			             * performance problems related to the 'fork' implementation
-			             */
-			            pid_t pid = vfork();
-			            if (pid == 0) {
-				            int fd_in = open(pcap.path().c_str(), O_RDONLY, O_CLOEXEC, 0);
-				            int fd_out = open(csv_path.c_str(),
-				                              O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
-				            dup2(fd_out, STDOUT_FILENO);
-				            dup2(fd_in, STDIN_FILENO);
-				            if (execvpe(cmd_opts[0], cmd_opts.data(), env_vars.data()) == -1) {
-					            _exit(-1);
-				            }
-			            } else {
-				            pids_mutex.lock();
-				            pids.emplace(pid);
-				            pids_mutex.unlock();
+#ifdef _WIN32
+						STARTUPINFO si{};
+						PROCESS_INFORMATION pi{};
+						si.dwFlags = STARTF_USESTDHANDLES;
+						SECURITY_ATTRIBUTES sa{};
+						sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+						sa.lpSecurityDescriptor = NULL;
+						sa.bInheritHandle = TRUE;
+						std::wstring pcap_wpath = std::filesystem::path(pcap.path()).wstring();
+						HANDLE hStdin = CreateFileW(pcap_wpath.c_str(), GENERIC_READ, FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+						if (hStdin == INVALID_HANDLE_VALUE) {
+							pvlogger::error() << "Failed to open input file: " << GetLastError() << std::endl;
+						}
+						std::wstring csv_wpath = std::filesystem::path(csv_path).wstring();
+						HANDLE hStdout = CreateFileW(csv_wpath.c_str(), GENERIC_WRITE, 0, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+						if (hStdout == INVALID_HANDLE_VALUE) {
+							pvlogger::error() << "Failed to open output file: " << GetLastError() << std::endl;
+						}
 
-				            int status = 0;
-				            waitpid(pid, &status, 0);
+						si.cb = sizeof(STARTUPINFOA);
+						si.hStdInput = hStdin;
+						si.hStdOutput = hStdout;
+						si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+						si.dwFlags |= STARTF_USESTDHANDLES;
 
-				            pids_mutex.lock();
-				            pids.erase(pid);
-				            pids_mutex.unlock();
+						std::string cmdline = boost::algorithm::join(cmd, " ");
+						std::wstring wcmdline = QString::fromStdString(cmdline).toStdWString();
+						BOOL status = CreateProcessW(
+							nullptr,
+							wcmdline.data(),
+							nullptr,
+							nullptr,
+							TRUE,
+							CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP,
+							/*env_vars.data()*/ nullptr, // FIXME
+							nullptr,
+							&si,
+							&pi
+						);
+						if (not status) {
+							LPVOID error_buffer;
+							FormatMessageW(
+								FORMAT_MESSAGE_ALLOCATE_BUFFER | FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS,
+								NULL,
+								GetLastError(),
+								MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+								(LPWSTR)&error_buffer,
+								0,
+								NULL);
+							pvlogger::error() << "Unable to execute '" << cmdline << "' : " << (char*)error_buffer << std::endl;
+							LocalFree(error_buffer);
+						}
 
-				            if (WIFEXITED(status) and WEXITSTATUS(status) == 0) {
-					            if (f_progression) {
-						            processed_pcap_packets_count += pcap.packets_count();
-						            f_progression(processed_pcap_packets_count);
-					            }
-				            }
+						pids_mutex.lock();
+						pids.emplace(pi.hProcess);
+						pids_mutex.unlock();
 
-				            // remove pcap file
-				            std::remove(pcap.path().c_str());
-			            }
+						WaitForSingleObject(pi.hProcess, INFINITE);
+						DWORD exit_code = -1;
+						GetExitCodeProcess(pi.hProcess, &exit_code);
+
+						pids_mutex.lock();
+						pids.erase(pi.hProcess);
+						pids_mutex.unlock();
+
+						if (exit_code == 0) {
+							if (f_progression) {
+								processed_pcap_packets_count += pcap.packets_count();
+						        f_progression(processed_pcap_packets_count);
+							}
+						}
+						else if (status) {
+							pvlogger::error() << "'" << cmdline << "' exit code: " << exit_code << std::endl;
+						}
+						CloseHandle(hStdin);
+						CloseHandle(hStdout);
+						CloseHandle(pi.hProcess);
+						CloseHandle(pi.hThread);
+
+						// remove pcap file
+				        std::remove(pcap.path().c_str());
+
+#else
+						posix_spawn_file_actions_t actions;
+						posix_spawn_file_actions_init(&actions);
+
+						// Set up file descriptors
+						int fd_in = open(pcap.path().c_str(), O_RDONLY | O_CLOEXEC);
+						int fd_out = open(csv_path.c_str(), O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
+
+						if (fd_in == -1 || fd_out == -1) {
+							perror("open failed");
+							if (fd_in != -1) close(fd_in);
+							if (fd_out != -1) close(fd_out);
+							return;
+						}
+
+						posix_spawn_file_actions_adddup2(&actions, fd_out, STDOUT_FILENO);
+						posix_spawn_file_actions_adddup2(&actions, fd_in, STDIN_FILENO);
+
+						pid_t pid = 0;
+						int status = posix_spawnp(
+							&pid,
+							cmd_opts[0],
+							&actions,
+							nullptr,
+							cmd_opts.data(),
+							env_vars.data()
+						);
+
+						posix_spawn_file_actions_destroy(&actions);
+						close(fd_in);
+						close(fd_out);
+
+						if (status != 0) {
+							perror("posix_spawnp failed");
+							return;
+						}
+
+						{
+							std::lock_guard<std::mutex> lock(pids_mutex);
+							pids.emplace(pid);
+						}
+
+						int exit_status = 0;
+						waitpid(pid, &exit_status, 0);
+
+						{
+							std::lock_guard<std::mutex> lock(pids_mutex);
+							pids.erase(pid);
+						}
+
+						if (WIFEXITED(exit_status) && WEXITSTATUS(exit_status) == 0) {
+							if (f_progression) {
+								processed_pcap_packets_count += pcap.packets_count();
+								f_progression(processed_pcap_packets_count);
+							}
+						}
+
+						// remove pcap file
+						std::remove(pcap.path().c_str());
+#endif
 		            }
 		        }));
 
@@ -227,7 +403,7 @@ void save_to_file(const std::string& file_name, std::vector<std::string> const& 
 {
 	std::cout << "Save to " << file_name << "..." << std::endl;
 
-	std::ofstream output_file(file_name);
+	std::ofstream output_file{std::filesystem::path(file_name)};
 
 	if (!output_file) {
 		std::cerr << "Error: can't open output file \"" << file_name << "\"" << std::endl;
@@ -310,7 +486,7 @@ std::string get_file_extension(const std::string& file_name)
 std::string get_user_conf_dir()
 {
 	// FIXME: How to manage standalone version
-	QString user_conf_dir = QString::fromStdString(PVCore::PVConfig::user_dir()) +
+	QString user_conf_dir = PVCore::PVConfig::user_dir() +
 	                        QDir::separator() + "plugins" + QDir::separator() + "pcapsicum";
 
 	// we should do this at install time
@@ -358,12 +534,23 @@ std::string get_user_profile_path(const std::string& filename)
  ******************************************************************************/
 std::string get_system_profile_dir()
 {
-	QString pluginsdirs = QString(getenv("PVKERNEL_PLUGIN_PATH"));
+	QString pcap_profiles_dir = QString(getenv("SQUEY_PCAP_PROFILES_PATH"));
 
-	if (pluginsdirs.isEmpty()) {
-		return (QString(PVKERNEL_PLUGIN_PATH) + "/input-types/pcap/profiles").toStdString();
-	} else {
-		return (QString(SQUEY_SOURCE_DIRECTORY) + "/libpvkernel/plugins/common/pcap/profiles").toStdString();
+	if (not pcap_profiles_dir.isEmpty()) {
+		return pcap_profiles_dir.toStdString();
+	}
+	else {
+#ifndef __linux__
+		boost::filesystem::path exe_path = boost::dll::program_location();
+#endif
+#ifdef __APPLE__
+		QString pluginsdirs = QString::fromStdString(exe_path.parent_path().string() + "/../PlugIns");
+#elifdef _WIN32
+		QString pluginsdirs = QString::fromStdString(exe_path.parent_path().string() + "/plugins");
+#else
+		QString pluginsdirs = QString(PVKERNEL_PLUGIN_PATH);
+#endif
+		return (pluginsdirs + "/input-types/pcap/profiles").toStdString();
 	}
 }
 

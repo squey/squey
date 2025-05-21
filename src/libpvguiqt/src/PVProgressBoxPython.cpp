@@ -43,6 +43,8 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 	QString& exception_message,
 	QWidget* parent)
 {
+	pybind11::gil_scoped_release gil{};
+
 	PVProgressBoxPython pbox(name, parent);
     pbox.set_extended_status("(this progress box may hang for a while)");
 
@@ -52,8 +54,8 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 
 		// Cancel python script execution
 		auto threadId = boost::lexical_cast<std::string>(boost::this_thread::get_id());
-		unsigned long threadNumber = 0;
-		sscanf(threadId.c_str(), "%lx", &threadNumber);
+		long long unsigned int threadNumber = 0;
+		sscanf(threadId.c_str(), "%llx", &threadNumber);
 		PyGILState_STATE gstate = PyGILState_Ensure();
 		PyThreadState_SetAsyncExc(threadNumber, PyExc_InterruptedError);
 		PyGILState_Release(gstate);
@@ -62,6 +64,7 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 	boost::thread th([&]() {
 		try {
 			// Execute python code in a cancelable thread
+			pybind11::gil_scoped_acquire gil{};
 			pybind11::module main = pybind11::module::import("__main__");
 			main.attr(Squey::PVPythonSource::GUI_UPDATE_VAR) = pybind11::cast((uint32_t)Squey::PVPythonSource::GuiUpdateType::NONE);
 			f(pbox);
@@ -101,7 +104,6 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 		pbox.exec();
 	}
 
-	pybind11::gil_scoped_release gil_release;
 	th.join();
 
 	return pbox.get_cancel_state();

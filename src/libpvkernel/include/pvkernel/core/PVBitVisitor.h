@@ -117,29 +117,26 @@ struct visit_bits<uint8_t, F> : private visit_bits_base<uint8_t, F> {
 	}
 };
 
-#ifdef __SSE4_1__
-// Specialisation if SSE4.1 is enabled
-
 #if defined __GNUC__ && __GNUC__ >= 6
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wignored-attributes"
 #endif
 
 template <typename F>
-struct visit_bits<__m128i, F> {
+struct visit_bits<simde__m128i, F> {
   private:
 	typedef size_t bit_t;
 
   public:
-	static void f(const __m128i chunk, F const& f, const bit_t offset)
+	static void f(const simde__m128i chunk, F const& f, const bit_t offset)
 	{
-		const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
-		if (_mm_testz_si128(chunk, ones) == 1) {
+		const simde__m128i ones = simde_mm_set1_epi32(0xFFFFFFFF);
+		if (simde_mm_testz_si128(chunk, ones) == 1) {
 			// If chunk is empty, just do nothing
 			return;
 		}
 
-		if (_mm_testc_si128(_mm_setzero_si128(), chunk) == 1) {
+		if (simde_mm_testc_si128(simde_mm_setzero_si128(), chunk) == 1) {
 			// If chunk is full, then go with all of the bits
 			for (bit_t b = offset; b < offset + 128; b++) {
 				f(b);
@@ -148,8 +145,8 @@ struct visit_bits<__m128i, F> {
 		}
 
 		// Go one granularity under
-		const uint64_t v1 = _mm_extract_epi64(chunk, 0);
-		const uint64_t v2 = _mm_extract_epi64(chunk, 1);
+		const uint64_t v1 = simde_mm_extract_epi64(chunk, 0);
+		const uint64_t v2 = simde_mm_extract_epi64(chunk, 1);
 		visit_bits<uint64_t, F>::f(v1, f, offset);
 		visit_bits<uint64_t, F>::f(v2, f, offset + 64);
 	}
@@ -159,7 +156,6 @@ struct visit_bits<__m128i, F> {
 #pragma GCC diagnostic pop
 #endif
 
-#endif
 } // namespace __impl
 
 template <typename T, typename F>

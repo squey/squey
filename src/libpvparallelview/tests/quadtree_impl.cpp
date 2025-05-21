@@ -57,8 +57,8 @@ int main(int argc, char** argv)
 
 	entries = new PVParallelView::PVQuadTreeEntry[count];
 	for (unsigned i = 0; i < count; ++i) {
-		entries[i].y1 = random() & MAX_VALUE;
-		entries[i].y2 = random() & MAX_VALUE;
+		entries[i].y1 = rand() & MAX_VALUE;
+		entries[i].y2 = rand() & MAX_VALUE;
 		entries[i].idx = i;
 	}
 
@@ -74,7 +74,7 @@ int main(int argc, char** argv)
 	std::cout << "sizeof(node): " << sizeof(*qt) << std::endl;
 	std::cout << "memory used : " << qt->memory() << std::endl;
 
-	std::unique_ptr<PVParallelView::pv_quadtree_buffer_entry_t> buffer_uptr(new PVParallelView::pv_quadtree_buffer_entry_t[QUADTREE_BUFFER_SIZE]);
+	std::unique_ptr<PVParallelView::pv_quadtree_buffer_entry_t[]> buffer_uptr(new PVParallelView::pv_quadtree_buffer_entry_t[QUADTREE_BUFFER_SIZE]);
 	PVParallelView::pv_quadtree_buffer_entry_t* buffer = buffer_uptr.get();
 	std::unique_ptr<pvquadtree::pv_tlr_buffer_t> tlr(new pvquadtree::pv_tlr_buffer_t);
 

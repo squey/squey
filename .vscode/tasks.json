@@ -6,7 +6,7 @@
             "command": "ninja",
             "args": [],
             "options": {
-                "cwd": "${workspaceFolder}/builds/GCC/Debug"
+                "cwd": "${workspaceFolder}/builds/x86_64-linux-gnu/GCC/Debug"
             },
             "problemMatcher": [
                 "$gcc"
@@ -19,7 +19,7 @@
             "label": "CMake: build (g++)",
             "command": "build",
             "options": {
-                "cwd": "${workspaceFolder}/builds/GCC/Debug"
+                "cwd": "${workspaceFolder}/builds/x86_64-linux-gnu/GCC/Debug"
             },
             "targets": [
                 "all"
@@ -33,7 +33,7 @@
             "label": "CMake: build testsuite (g++)",
             "command": "build",
             "options": {
-                "cwd": "${workspaceFolder}/builds/GCC/Debug"
+                "cwd": "${workspaceFolder}/builds/x86_64-linux-gnu/GCC/Debug"
             },
             "targets": [
                 "squey_testsuite"
@@ -48,7 +48,7 @@
             "command": "ninja",
             "args": [],
             "options": {
-                "cwd": "${workspaceFolder}/builds/Clang/Debug"
+                "cwd": "${workspaceFolder}/builds/x86_64-linux-gnu/Clang/Debug"
             },
             "problemMatcher": [
                 "$gcc"
@@ -61,7 +61,7 @@
             "label": "CMake: build (clang++)",
             "command": "build",
             "options": {
-                "cwd": "${workspaceFolder}/builds/Clang/Debug"
+                "cwd": "${workspaceFolder}/builds/x86_64-linux-gnu/Clang/Debug"
             },
             "targets": [
                 "all"
@@ -78,7 +78,7 @@
             "label": "CMake: build testsuite (clang++)",
             "command": "build",
             "options": {
-                "cwd": "${workspaceFolder}/builds/Clang/Debug"
+                "cwd": "${workspaceFolder}/builds/x86_64-linux-gnu/Clang/Debug"
             },
             "targets": [
                 "squey_testsuite"

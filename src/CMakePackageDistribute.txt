@@ -11,14 +11,11 @@
 
 SET(SHARE_RESSOURCES "${CMAKE_INSTALL_PREFIX}/share/squey/squey")
 SET(SQUEY_CONFIG ${SHARE_RESSOURCES})
-SET(CUSTOM_QT_PATH "${CMAKE_INSTALL_PREFIX}/lib/squey/qt")
-SET(CUSTOM_TBB_PATH "${CMAKE_INSTALL_PREFIX}/lib/squey/tbb")
 SET(PVKERNEL_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/squey/plugins")
 SET(SQUEY_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/squey/plugins")
 add_definitions(-DPLUGINS_DISTRIB_DIR="${SQUEY_PLUGIN}")
 
 # Set rpath for custom Qt and TBB
-set(CMAKE_INSTALL_RPATH "${CUSTOM_QT_PATH}:${CUSTOM_TBB_PATH}")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 add_definitions(-DSQUEY_CONFIG="${SQUEY_CONFIG}")
@@ -29,19 +26,7 @@ add_definitions(-DSQUEY_CONFIG="${SQUEY_CONFIG}")
 
 install(FILES "pvconfig.ini" DESTINATION ${SQUEY_CONFIG})
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME squey.png)
-install(FILES "../CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
-
-set(LINUX_QT6_PATH "/usr/lib/x86_64-linux-gnu")
-
-set(QTLIBS_MAJOR "6")
-set(QTLIBS_MINOR "4")
-set(QTLIBS_PATCH "0")
-
-if(NOT ${QT_WEBKIT})
-	set(QTWEBENGINE_MAJOR "6")
-	set(QTWEBENGINE_MINOR "4")
-	set(QTWEBENGINE_PATCH "0")
-endif(NOT ${QT_WEBKIT})
+install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 # doc 
 add_definitions(-DDOC_URL="https://doc.squey.org")

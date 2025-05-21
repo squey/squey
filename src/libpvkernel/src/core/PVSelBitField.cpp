@@ -29,8 +29,6 @@
 #include <pvcop/core/array.h>          // for array<>::data_type, array, etc
 #include <pvcop/core/impl/bit.h>       // for to_mem_size
 #include <sys/types.h> // for ssize_t
-#include <emmintrin.h>
-#include <smmintrin.h>
 #include <cstdlib>     // for rand
 #include <cstring>     // for memset
 #include <algorithm>   // for find_if
@@ -380,9 +378,9 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 	if (!_selection.data() || (starting_chunk < 0 || ending_chunk < 0)) {
 		return -1;
 	}
-#ifdef __SSE4_1__
-	const __m128i ones = _mm_set1_epi32(0xFFFFFFFF);
-	__m128i vec;
+
+	const simde__m128i ones = simde_mm_set1_epi32(0xFFFFFFFF);
+	simde__m128i vec;
 	const auto ending_chunk_aligned = (ssize_t)(((size_t)ending_chunk >> 1) << 1);
 	if (ending_chunk_aligned <= starting_chunk) {
 		for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
@@ -398,10 +396,10 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 		}
 		const ssize_t starting_chunk_aligned = ((starting_chunk + 3) / 2) * 2;
 		for (ssize_t i = ((ssize_t)ending_chunk_aligned) - 2; i >= starting_chunk_aligned; i -= 2) {
-			vec = _mm_load_si128((__m128i*)&_selection.data()[i]);
-			if (_mm_testz_si128(vec, ones) == 0) {
+			vec = simde_mm_load_si128((simde__m128i*)&_selection.data()[i]);
+			if (simde_mm_testz_si128(vec, ones) == 0) {
 				uint64_t DECLARE_ALIGN(16) final_sel[2];
-				_mm_store_si128((__m128i*)final_sel, vec);
+				simde_mm_store_si128((simde__m128i*)final_sel, vec);
 				// If final_sel[0] == 0, it means that the chunk is in one of the last two 32 bits
 				// of vec.
 				// Otherwise, it is one of the two first.
@@ -419,15 +417,6 @@ ssize_t PVCore::PVSelBitField::get_last_nonzero_chunk_index(ssize_t starting_chu
 		}
 	}
 	return starting_chunk - 1;
-
-#else
-	for (ssize_t i = ending_chunk; i >= starting_chunk; i--) {
-		if (_selection.data()[i] != 0) {
-			return i;
-		}
-	}
-	return starting_chunk - 1;
-#endif
 }
 
 PVRow PVCore::PVSelBitField::find_next_set_bit(const PVRow index, const PVRow size) const

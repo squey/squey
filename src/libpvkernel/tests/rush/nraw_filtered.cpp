@@ -53,7 +53,7 @@ int main()
 	std::chrono::duration<double> diff = end - start;
 	std::cout << diff.count();
 
-	PV_VALID(env.get_nraw_size(), 0UL);
+	PV_VALID(env.get_nraw_size(), (size_t)0);
 
 	return 0;
 }

@@ -282,7 +282,7 @@ PVCore::PVSerializedSource PVCore::PVRecentItemsManager::deserialize_source_desc
 
 static QString get_recent_items_file()
 {
-	QFileInfo fi(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+	QFileInfo fi(PVCore::PVConfig::user_dir() + QDir::separator() +
 	             RECENTS_FILENAME);
 
 	if (fi.exists() == false) {

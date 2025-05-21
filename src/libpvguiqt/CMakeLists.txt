@@ -4,6 +4,8 @@
 
 project(libpvguiqt)
 
+add_definitions(-DBUILD_PVGUIQT)
+
 include(CTest)
 set(CTEST_PROJECT_NAME "PVGuiQT")
 
@@ -24,8 +26,8 @@ find_package(Qt6Widgets REQUIRED)
 include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
 
 # For QGLWidget
-find_package(Qt6OpenGL REQUIRED)
-include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
+# find_package(Qt6OpenGL REQUIRED)
+# include_directories(SYSTEM ${Qt6OpenGL_INCLUDE_DIRS})
 
 # For KSyntaxHighlighting
 find_package(KF6SyntaxHighlighting REQUIRED)
@@ -46,3 +48,6 @@ include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 
 add_subdirectory(src)
 add_subdirectory(tests)
+
+file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

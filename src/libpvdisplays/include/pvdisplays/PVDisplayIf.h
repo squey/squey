@@ -219,13 +219,13 @@ If& display_view_if()
 }
 
 template <typename If, typename... P>
-QWidget* get_widget(If& interface, P&&... args)
+QWidget* get_widget(If& iface, P&&... args)
 {
-	if (interface.match_flags(PVDisplayIf::UniquePerParameters)) {
-		return interface.get_unique_widget(std::forward<P>(args)...);
+	if (iface.match_flags(PVDisplayIf::UniquePerParameters)) {
+		return iface.get_unique_widget(std::forward<P>(args)...);
 	}
 
-	return interface.create_widget(std::forward<P>(args)...);
+	return iface.create_widget(std::forward<P>(args)...);
 }
 
 /**
@@ -249,5 +249,7 @@ void add_displays_view_axis_menu(QMenu& menu,
 PVCol col_param(Squey::PVView* view, std::vector<std::any> const& params, size_t index);
 
 } // namespace PVDisplays
+
+template class PVCore::PVClassLibrary<PVDisplays::PVDisplaySourceIf>;
 
 #endif

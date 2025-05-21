@@ -44,7 +44,7 @@
 #include <QPushButton>
 #include <QLineEdit>
 #include <QLabel>
-
+#include <QStandardPaths>
 
 #include <functional>
 
@@ -127,7 +127,7 @@ QWidget* PVDisplays::PVDisplayViewPythonConsole::create_widget(Squey::PVView* vi
 		QString file_path = PVWidgets::PVFileDialog::getOpenFileName(
 			console_widget,
 			"Browse your python file",
-			"",
+			QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
 			QString("Python file (*.py)"));
 		if (not file_path.isEmpty()) {
 			exec_file_line_edit->setText(file_path);

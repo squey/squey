@@ -8,7 +8,7 @@
 message(STATUS "CMAKE_CURRENT_SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}")
 
 find_path(Tcmalloc_INCLUDE_DIR gperftools/tcmalloc.h
-    /app/inlude
+    /mac/inlude
     /include
     /usr/include
     /opt/local/include
@@ -23,7 +23,7 @@ endif ()
 
 find_library(Tcmalloc_LIBRARY
     NAMES ${Tcmalloc_NAMES}
-    PATHS /app/lib /lib /usr/lib /usr/local/lib /opt/local/lib
+    PATHS /mac/lib /lib /usr/lib /usr/local/lib /opt/local/lib
 )
 
 message(STATUS "Tcmalloc_LIBRARY=${Tcmalloc_LIBRARY}")

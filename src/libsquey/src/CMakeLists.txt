@@ -28,13 +28,21 @@ PVStateMachine.cpp
 PVView.cpp
 PVCorrelationEngine.cpp
 PVRangeSubSampler.cpp
-PVPythonInterpreter.cpp
-PVPythonSource.cpp
-PVPythonSelection.cpp
-PVPythonInputDialog.cpp
 
 plugins.cpp
 )
+
+if (PYTHON_SUPPORT)
+	set(SRC_FILES ${SRC_FILES}
+	PVPythonInterpreter.cpp
+	PVPythonSource.cpp
+	PVPythonSelection.cpp
+	PVPythonInputDialog.cpp
+	)
+	set(MOC_HEADERS
+	../include/squey/PVPythonInterpreter.h
+	)
+endif()
 
 set(WIDGETS_MOC_HEADERS
 ../include/squey/widgets/PVAxisComboBox.h
@@ -66,10 +74,6 @@ widgets/editors/PVViewRowsSpinBoxEditor.cpp
 widgets/editors/PVZoneIndexEditor.cpp
 )
 
-set(MOC_HEADERS
-../include/squey/PVPythonInterpreter.h
-)
-
 ###############################################################################
 # Generate Qt files
 ###############################################################################
@@ -85,9 +89,9 @@ add_library(pvsquey SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${MOC_SRC})
 
 set_target_properties(pvsquey PROPERTIES SOVERSION 1)
 
-target_link_libraries(pvsquey ${QT6_LIBS} ${TBB_LIBRARIES}
+target_link_libraries(pvsquey pvkernel ${QT6_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
-			     ${OpenMP_LIBRARIES} ${OPENGL_LIBRARIES} ${SIGCPP_LIBRARIES} pvkernel curl)
+			     ${OpenMP_LIBRARIES} ${SIGCPP_LIBRARIES} curl)
 
 ###############################################################################
 # Install files

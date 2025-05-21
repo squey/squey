@@ -28,19 +28,44 @@
 #include <squey/PVRoot.h>
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/core/PVUtils.h>
 
 #include <boost/algorithm/string.hpp>
+#include <boost/dll/runtime_symbol_info.hpp>
+
+#ifdef _WIN32
+#define PATH_DELIMITER ";"
+#else
+#define PATH_DELIMITER ":"
+#endif
 
 Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(), _root(&root)
 {
-    if (const char* python_path = std::getenv("PYTHONPATH")) {
+    pybind11::gil_scoped_acquire gil{};
+
+    // Add PYTHONPATH folders to sys.path
+    if (const char* python_path = PVCore::getenv("PYTHONPATH")) {
         pybind11::module sys = pybind11::module::import("sys");
         std::vector<std::string> python_sys_paths;
-        boost::split(python_sys_paths, python_path, boost::is_any_of(":"));
+        boost::split(python_sys_paths, python_path, boost::is_any_of(PATH_DELIMITER));
         for (const std::string& path : python_sys_paths) {
             sys.attr("path").attr("insert")(1, path.c_str());
         }
     }
+
+#ifdef _WIN32
+    // Add PATH folders to os.add_dll_directory
+    if (const char* path = PVCore::getenv("PATH")) {
+        pybind11::module os = pybind11::module::import("os");
+        std::vector<std::string> paths;
+        boost::split(paths, path, boost::is_any_of(PATH_DELIMITER));
+        for (const std::string& path : paths) {
+            if (std::filesystem::is_directory(path)) {
+                os.attr("add_dll_directory")(path.c_str());
+            }
+        }
+    }
+#endif
 
     pybind11::module main = pybind11::module::import("__main__");
     pybind11::class_<PVPythonInterpreter> pysquey(main, "squey");
@@ -74,7 +99,7 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
     python_source.def("selection", pybind11::overload_cast<>(&PVPythonSource::selection));
     python_source.def("selection", pybind11::overload_cast<int>(&PVPythonSource::selection), pybind11::arg("layer_index"));
     python_source.def("selection", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::selection), pybind11::arg("layer_name"), pybind11::arg("position") = 0);
-    python_source.def("insert_column", &PVPythonSource::insert_column),  pybind11::arg("column"), pybind11::arg("column_name");
+    python_source.def("insert_column", &PVPythonSource::insert_column, pybind11::arg("column"), pybind11::arg("column_name"));
     python_source.def("delete_column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::delete_column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
     python_source.def("insert_layer", pybind11::overload_cast<const std::string&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"));
     python_source.def("insert_layer", pybind11::overload_cast<const std::string&, const pybind11::array&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"), pybind11::arg("selection_array"));
@@ -91,6 +116,30 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
 
 Squey::PVPythonInterpreter& Squey::PVPythonInterpreter::get(Squey::PVRoot& root)
 {
+#if defined(_WIN32)
+    const char* squey_pythonhome = PVCore::getenv("SQUEY_PYTHONHOME");
+    const char* squey_pythonpath = PVCore::getenv("SQUEY_PYTHONPATH");
+    std::string pythonpath;
+    std::string pythonhome;
+	if (squey_pythonhome) {
+        pythonhome = squey_pythonhome;
+	}
+    else {
+        std::string app_dir = boost::dll::program_location().parent_path().string();
+        pythonhome = app_dir + "\\python";
+    }
+    PVCore::setenv("PYTHONHOME", pythonhome.c_str(), 1);
+
+    if (squey_pythonpath) {
+        pythonpath = pythonhome + ";" + squey_pythonpath;
+	}
+    else {
+        pythonpath = pythonhome + ";" + pythonhome + "\\site-packages";
+    }
+    pythonpath += ";" + pythonhome + "\\lib-dynload";
+    PVCore::setenv("PYTHONPATH", pythonpath.c_str(), 1);
+#endif
+
     static PVPythonInterpreter instance(root);
     return instance;
 }

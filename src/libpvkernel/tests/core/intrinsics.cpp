@@ -27,33 +27,33 @@
 #include <pvkernel/core/squey_assert.h>
 #include <cstdio>
 
-__m128i get_epi8_ff_pos(int pos)
+simde__m128i get_epi8_ff_pos(int pos)
 {
 	if (pos <= 7) {
-		const __m128i v = _mm_set_epi8(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF);
-		return _mm_slli_epi64(v, pos * 8);
+		const simde__m128i v = simde_mm_set_epi8(0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0xFF);
+		return simde_mm_slli_epi64(v, pos * 8);
 	}
 
-	const __m128i v = _mm_set_epi8(0, 0, 0, 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0);
-	return _mm_slli_epi64(v, (pos - 8) * 8);
+	const simde__m128i v = simde_mm_set_epi8(0, 0, 0, 0, 0, 0, 0, 0xFF, 0, 0, 0, 0, 0, 0, 0, 0);
+	return simde_mm_slli_epi64(v, (pos - 8) * 8);
 }
 
-void test_pos_lastnonzero_8(__m128i const v, int ref)
+void test_pos_lastnonzero_8(simde__m128i const v, int ref)
 {
 	int pos = squey_mm_getpos_lastnonzero_epi8(v);
-	printf("Test with sse=0x%.16llx%.16llx, pos_lastnonzero_8 = %d\n", _mm_extract_epi64(v, 1),
-	       _mm_extract_epi64(v, 0), pos);
+	printf("Test with sse=0x%.16llx%.16llx, pos_lastnonzero_8 = %d\n", simde_mm_extract_epi64(v, 1),
+	       simde_mm_extract_epi64(v, 0), pos);
 	PV_ASSERT_VALID(pos == ref);
 }
 
 int main()
 {
-	const __m128i sse_ff = _mm_set1_epi32(0xFFFFFFFF);
+	const simde__m128i sse_ff = simde_mm_set1_epi32(0xFFFFFFFF);
 	// Test squey_mm_getpos_lastff_epi8
 	for (int i = 0; i < 16; i++) {
-		const __m128i sse_v = get_epi8_ff_pos(i);
+		const simde__m128i sse_v = get_epi8_ff_pos(i);
 		printf("Test with 0xff at the %d byte,\tsse=0x%.16llx%.16llx", i,
-		       _mm_extract_epi64(sse_v, 1), _mm_extract_epi64(sse_v, 0));
+		       simde_mm_extract_epi64(sse_v, 1), simde_mm_extract_epi64(sse_v, 0));
 		int pos_nonzero_8 = squey_mm_getpos_nonzero_epi8(sse_v, sse_ff);
 		int pos_max_16 = squey_mm_getpos_max_epi16(sse_v, sse_ff);
 		int pos_lastnonzero_8 = squey_mm_getpos_lastnonzero_epi8(sse_v);
@@ -64,35 +64,35 @@ int main()
 		PV_ASSERT_VALID(pos_lastnonzero_8 == i);
 	}
 
-	__m128i sse_v =
-	    _mm_set_epi8(0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0);
+	simde__m128i sse_v =
+	    simde_mm_set_epi8(0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0, 0xFF, 0);
 	for (int i = 15; i >= 0; i--) {
 		test_pos_lastnonzero_8(sse_v, i);
-		sse_v = _mm_srli_si128(sse_v, 1);
+		sse_v = simde_mm_srli_si128(sse_v, 1);
 	}
 
 	sse_v = sse_ff;
 	for (int i = 15; i >= 0; i--) {
 		test_pos_lastnonzero_8(sse_v, i);
-		sse_v = _mm_srli_si128(sse_v, 1);
+		sse_v = simde_mm_srli_si128(sse_v, 1);
 	}
 
-	sse_v = _mm_set_epi32(-1, 5, 6, 7);
+	sse_v = simde_mm_set_epi32(-1, 5, 6, 7);
 	PV_ASSERT_VALID(squey_mm_hmin_epi32(sse_v) == -1);
-	sse_v = _mm_set_epi32(5, -1, 6, 7);
+	sse_v = simde_mm_set_epi32(5, -1, 6, 7);
 	PV_ASSERT_VALID(squey_mm_hmin_epi32(sse_v) == -1);
-	sse_v = _mm_set_epi32(5, 6, -1, 7);
+	sse_v = simde_mm_set_epi32(5, 6, -1, 7);
 	PV_ASSERT_VALID(squey_mm_hmin_epi32(sse_v) == -1);
-	sse_v = _mm_set_epi32(5, 6, 7, -1);
+	sse_v = simde_mm_set_epi32(5, 6, 7, -1);
 	PV_ASSERT_VALID(squey_mm_hmin_epi32(sse_v) == -1);
 
-	sse_v = _mm_set_epi32(0, 5, 6, 7);
+	sse_v = simde_mm_set_epi32(0, 5, 6, 7);
 	PV_ASSERT_VALID(squey_mm_hmin_epu32(sse_v) == 0);
-	sse_v = _mm_set_epi32(5, 0, 6, 7);
+	sse_v = simde_mm_set_epi32(5, 0, 6, 7);
 	PV_ASSERT_VALID(squey_mm_hmin_epu32(sse_v) == 0);
-	sse_v = _mm_set_epi32(5, 6, 0, 7);
+	sse_v = simde_mm_set_epi32(5, 6, 0, 7);
 	PV_ASSERT_VALID(squey_mm_hmin_epu32(sse_v) == 0);
-	sse_v = _mm_set_epi32(5, 6, 7, 0);
+	sse_v = simde_mm_set_epi32(5, 6, 7, 0);
 	PV_ASSERT_VALID(squey_mm_hmin_epu32(sse_v) == 0);
 
 	return 0;

@@ -275,6 +275,7 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
 
     // Notifify axes combination update on Qt GUI thread
     if (ret) {
+        pybind11::gil_scoped_acquire gil{};
         pybind11::module main = pybind11::module::import("__main__");
         main.attr(GUI_UPDATE_VAR) = pybind11::cast((uint32_t)GuiUpdateType::SCALING);
     }
@@ -333,6 +334,7 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
     }
     layer->compute_selectable_count();
 
+    pybind11::gil_scoped_acquire gil{};
     pybind11::module main = pybind11::module::import("__main__");
     main.attr(GUI_UPDATE_VAR) = pybind11::cast((uint32_t)GuiUpdateType::LAYER);
  }

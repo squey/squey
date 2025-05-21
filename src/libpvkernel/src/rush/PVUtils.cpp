@@ -34,26 +34,32 @@
 #include <string>
 #include <utility>
 #include <vector>
+#include <filesystem>
 
 bool PVRush::PVUtils::files_have_same_content(const std::string& path1, const std::string& path2)
 {
-	std::ifstream ifs1(path1);
-	std::ifstream ifs2(path2);
+	std::ifstream ifs1(std::filesystem::path{path1});
+	std::ifstream ifs2(std::filesystem::path{path2});
 
 	if (not ifs1.good() or not ifs2.good()) {
 		return false;
 	}
 
-	auto res = std::mismatch(std::istreambuf_iterator<char>(ifs1), std::istreambuf_iterator<char>(),
-	                         std::istreambuf_iterator<char>(ifs2));
+	std::string line1, line2;
+    while (true) {
+        bool read1 = static_cast<bool>(std::getline(ifs1, line1));
+        bool read2 = static_cast<bool>(std::getline(ifs2, line2));
+        if (read1 != read2) return false;
+        if (!read1) break;
+        if (line1 != line2) return false;
+    }
 
-	return res.first == std::istreambuf_iterator<char>() &&
-	       res.second == std::istreambuf_iterator<char>();
+    return true;
 }
 
 void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file /*= nullptr*/)
 {
-	std::ifstream fin(input_file);
+	std::ifstream fin(std::filesystem::path{input_file});
 	std::vector<std::string> array;
 
 	while (true) {
@@ -68,7 +74,7 @@ void PVRush::PVUtils::sort_file(const char* input_file, const char* output_file 
 
 	std::sort(array.begin(), array.end());
 
-	std::ofstream fout(output_file ? output_file : input_file);
+	std::ofstream fout(output_file ? std::filesystem::path{output_file} : std::filesystem::path{input_file});
 	std::copy(array.begin(), array.end(), std::ostream_iterator<std::string>(fout, "\n"));
 	fout.close();
 }

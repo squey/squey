@@ -40,11 +40,19 @@
 #include <string>
 #include <vector>
 #include <iostream>
+#ifndef _WIN32
 #include <sys/resource.h>
+#else
+#include <io.h> // TODO: CHECK IF NEEDED
+#include <fcntl.h> // TODO: CHECK IF NEEDED
+#include <stdio.h> // TODO: CHECK IF NEEDED
+#endif
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/squey_intrin.h>
+#ifdef __linux__
 #include <pvkernel/core/segfault_handler.h>
+#endif
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -62,8 +70,12 @@
 #include <pvdisplays/PVDisplaysImpl.h>
 
 #include <boost/program_options.hpp>
+#include <boost/dll/runtime_symbol_info.hpp>
 
-#include <QtWebEngineWidgets/QWebEngineView>
+#include <filesystem>
+
+
+//#include <QtWebEngineWidgets/QWebEngineView>
 
 // #ifdef USE_UNIKEY
 // #include <UniKeyFR.h>
@@ -157,6 +169,9 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	product_name = vm["product"].as<std::string>();
 	PVCore::PVConfig::set_product_name(product_name);
 
+	// Init theme
+	PVCore::PVTheme::init();
+
 	// Check at least two CPU cores are available
 	if (std::thread::hardware_concurrency() == 1) {
 
@@ -178,9 +193,11 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	auto* vl = new QVBoxLayout(&splash);
 
 	auto* task_label = new QLabel();
+	task_label->setStyleSheet("background: transparent;");
 	task_label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
 
 	auto* version_label = new QLabel(QString("Squey ") + SQUEY_CURRENT_VERSION_STR);
+	version_label->setStyleSheet("background: transparent;");
 	version_label->setAlignment(Qt::AlignRight | Qt::AlignBottom);
 
 	vl->addWidget(task_label);
@@ -210,16 +227,6 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	splash.repaint();
 	app.processEvents();
 
-	PVCore::PVIntrinsics::init_cpuid();
-#ifdef __SSE4_1__
-	PVLOG_INFO("Compiled with SSE 4.1 instructions\n");
-	if (PVCore::PVIntrinsics::has_sse41()) {
-		PVLOG_INFO("SSE4.1 is supported by this CPU.\n");
-	} else {
-		PVLOG_INFO("SSE4.1 is not supported by this CPU.\n");
-	}
-#endif
-
 	app.setOrganizationName("SQUEY");
 	app.setApplicationName("Squey " SQUEY_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/squey"));
@@ -227,10 +234,11 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	app.installEventFilter(new DisplaysFocusInEventFilter());
 
 	App::PVMainWindow pv_mw;
-	pv_mw.show();
+	pv_mw.setAttribute(Qt::WA_TranslucentBackground);
+	pv_mw.showMaximized();
 	splash.finish(&pv_mw);
 
-	// Show changelog if software version has changed
+	// Show changelog if software version has changed // FIXME
 	{
 		PVGuiQt::PVChangelogMessage changelog_msg(&pv_mw);
 	}
@@ -267,21 +275,49 @@ int run_squey(QApplication& app, int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
-	setenv("OMP_TOOL", "disabled", 1); // Disable OMP_TOOL to avoid "Unable to find TSan function" errors
+#ifdef _WIN32
+	// Update PATH
+	boost::filesystem::path exe_path = boost::dll::program_location();
+	std::string libdir = exe_path.parent_path().string();
+#ifdef SQUEY_DEVELOPER_MODE
+	const char* path = PVCore::getenv("PATH");
+	if (path) {
+		libdir += ";" + std::string(path);
+	}
+#endif
+	PVCore::setenv("PATH", libdir.c_str(), 1);
+
+    // Attach console to parent process
+    if (AttachConsole(ATTACH_PARENT_PROCESS)) {
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+    }
+#endif
+
 	setlocale(LC_ALL, "C.UTF-8");
-	setenv("LANG", "C.UTF-8", 1);
-	setenv("TZ", "GMT", 1);
+	PVCore::setenv("OMP_TOOL", "disabled", 1); // Disable OMP_TOOL to avoid "Unable to find TSan function" errors
+	PVCore::setenv("LANG", "C.UTF-8", 1);
+	PVCore::setenv("TZ", "GMT", 1);
 	tzset();
 
+#ifdef __linux__
 	init_segfault_handler();
+#endif
 
 	// Set the soft limit same as hard limit for number of possible files opened
+#ifndef _WIN32
 	rlimit ulimit_info;
 	getrlimit(RLIMIT_NOFILE, &ulimit_info);
 	ulimit_info.rlim_cur = ulimit_info.rlim_max;
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
+#endif
 
 	QApplication app(argc, argv);
+
+#ifdef __APPLE__
+	QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false);
+#endif
+
 	return run_squey(app, argc, argv);
 }
 //! [0]

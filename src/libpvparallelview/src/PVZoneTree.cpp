@@ -76,35 +76,35 @@ class TBBCreateTreeTask
 		PVParallelView::PVZoneTree::nbuckets_array_vector_t& tree =
 		    _params.pdata().trees[_task_num];
 
-		__m128i sse_y1, sse_y2, sse_bcodes;
+		simde__m128i sse_y1, sse_y2, sse_bcodes;
 
 		for (; r < nrows_sse; r += 4) {
-			sse_y1 = _mm_load_si128((const __m128i*)&pcol_a[r]);
-			sse_y2 = _mm_load_si128((const __m128i*)&pcol_b[r]);
+			sse_y1 = simde_mm_load_si128((const simde__m128i*)&pcol_a[r]);
+			sse_y2 = simde_mm_load_si128((const simde__m128i*)&pcol_b[r]);
 
-			sse_y1 = _mm_srli_epi32(sse_y1, 32 - NBITS_INDEX);
-			sse_y2 = _mm_srli_epi32(sse_y2, 32 - NBITS_INDEX);
-			sse_bcodes = _mm_or_si128(sse_y1, _mm_slli_epi32(sse_y2, NBITS_INDEX));
+			sse_y1 = simde_mm_srli_epi32(sse_y1, 32 - NBITS_INDEX);
+			sse_y2 = simde_mm_srli_epi32(sse_y2, 32 - NBITS_INDEX);
+			sse_bcodes = simde_mm_or_si128(sse_y1, simde_mm_slli_epi32(sse_y2, NBITS_INDEX));
 
-			uint32_t b0 = _mm_extract_epi32(sse_bcodes, 0);
+			uint32_t b0 = simde_mm_extract_epi32(sse_bcodes, 0);
 			if (tree[b0].size() == 0) {
 				first_elts[b0] = r + 0;
 			}
 			tree[b0].push_back(r + 0);
 
-			uint32_t b1 = _mm_extract_epi32(sse_bcodes, 1);
+			uint32_t b1 = simde_mm_extract_epi32(sse_bcodes, 1);
 			if (tree[b1].size() == 0) {
 				first_elts[b1] = r + 1;
 			}
 			tree[b1].push_back(r + 1);
 
-			uint32_t b2 = _mm_extract_epi32(sse_bcodes, 2);
+			uint32_t b2 = simde_mm_extract_epi32(sse_bcodes, 2);
 			if (tree[b2].size() == 0) {
 				first_elts[b2] = r + 2;
 			}
 			tree[b2].push_back(r + 2);
 
-			uint32_t b3 = _mm_extract_epi32(sse_bcodes, 3);
+			uint32_t b3 = simde_mm_extract_epi32(sse_bcodes, 3);
 			if (tree[b3].size() == 0) {
 				first_elts[b3] = r + 3;
 			}
@@ -208,7 +208,7 @@ class TBBMergeTreesTask
 // PVZoneTree implementation
 //
 
-PVParallelView::PVZoneTree::PVZoneTree() : PVZoneTreeBase(), _tree_data(nullptr)
+PVParallelView::PVZoneTree::PVZoneTree() : PVZoneTreeBase()
 {
 }
 
@@ -304,13 +304,13 @@ void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Squey::PVSel
 			                  if (tree->branch_valid(b)) {
 				                  const PVRow r = tree->get_first_elt_of_branch(b);
 				                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-				                      (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+				                      ((PVSelection::chunk_t)1 << (PVSelection::line_index_to_chunk_bit(r)))) {
 					                  res = r;
 				                  } else {
 					                  for (size_t i = 0; i < tree->_treeb[b].count; i++) {
 						                  const PVRow r = tree->_treeb[b].p[i];
 						                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-						                      (1UL << (PVSelection::line_index_to_chunk_bit(r)))) {
+						                      ((PVSelection::chunk_t)1 << (PVSelection::line_index_to_chunk_bit(r)))) {
 							                  res = r;
 							                  break;
 						                  }

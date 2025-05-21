@@ -60,18 +60,24 @@ void import_files(
     std::cout << diff.count();
 }
 
-int main(int argc, char** argv)
+UNICODE_MAIN()
 {
 	if (argc <= 2) {
 		std::cerr
-		    << "Usage: " << argv[0]
+		    << "Usage: "
 		    << "<parquet_path> <csv_ref_path>"
 		    << std::endl;
 		return 1;
 	}
 
+#ifdef _WIN32
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+    const std::string& parquet_test_file = conv.to_bytes(argv[1]);
+    const std::string& csv_ref_file = conv.to_bytes(argv[2]);
+#else
     const std::string& parquet_test_file = argv[1];
     const std::string& csv_ref_file = argv[2];
+#endif
 
     pvtest::init_ctxt();
 

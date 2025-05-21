@@ -32,7 +32,7 @@
 #include <QStringList>
 
 PVRush::PVDBPresets::PVDBPresets()
-    : _settings(QString::fromStdString(PVCore::PVConfig::user_dir()) + QDir::separator() +
+    : _settings(PVCore::PVConfig::user_dir() + QDir::separator() +
                     PVCore::PVConfig::PRESETS_FILENAME,
                 QSettings::IniFormat)
 {

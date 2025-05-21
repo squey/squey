@@ -76,7 +76,10 @@ static std::string get_tmp_filename()
 	out_path.resize(L_tmpnam);
 	// We assume that this name will not be use by another program before we
 	// create it.
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 	tmpnam(&out_path.front());
+#pragma GCC diagnostic pop
 
 	return out_path;
 }
@@ -251,11 +254,11 @@ class TestEnv
 		if (dup > 1) {
 			new_path = get_tmp_filename();
 			_big_file_paths.push_back(new_path);
-			std::ifstream ifs(log_files[0]);
+			std::ifstream ifs(std::filesystem::path{log_files[0]});
 			std::string content{std::istreambuf_iterator<char>(ifs),
 			                    std::istreambuf_iterator<char>()};
 
-			std::ofstream big_file(new_path);
+			std::ofstream big_file{std::filesystem::path(new_path)};
 			// Duplicate file to have one millions lines
 			for (size_t i = 0; i < dup; i++) {
 				big_file << content;

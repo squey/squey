@@ -166,7 +166,14 @@ void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	_start_screen_widget = new PVGuiQt::PVStartScreenWidget();
 	_tab_widget->addTab(new QWidget(), "");
 	_tab_widget->setTabPosition(QTabWidget::West);
-	_tab_widget->tabBar()->tabButton(0, QTabBar::RightSide)->resize(0, 0);
+	QTabBar::ButtonPosition button_pos = // See https://bugreports.qt.io/browse/QTBUG-134919
+#ifdef __APPLE__
+	QTabBar::LeftSide;
+#else
+	QTabBar::RightSide;
+#endif
+	_tab_widget->tabBar()->tabButton(0, button_pos)->deleteLater();
+	_tab_widget->tabBar()->setTabButton(0, button_pos, nullptr);
 
 	QPixmap pm(":/squey");
 	QTransform trans;

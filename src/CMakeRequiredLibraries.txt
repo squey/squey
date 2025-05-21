@@ -3,8 +3,8 @@
 #
 
 # Allows to develop the application in a Flatpak environment
-include_directories(SYSTEM /app/include)
-link_directories(/app/lib)
+include_directories(SYSTEM ${CMAKE_INSTALL_PREFIX}/include)
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 ###############################################################################
 # Define the Qt Core package
@@ -14,26 +14,22 @@ ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
 FIND_PACKAGE(Qt6Core REQUIRED)
 message(STATUS "QtCore include dirs: " ${Qt6Core_INCLUDE_DIR})
 message(STATUS "QtCore include dirs: " ${Qt${QT_MAJOR_VERSION}_INCLUDE_DIRS})
-include_directories("/usr/include/qt5/QtCore")
-
-
-
-
-###############################################################################
-# Define the Intel TBB Library
-###############################################################################
-set(TBB_BUILD_DIR /app/lib)
-set(TBB_INCLUDE_DIRS /app/include)
-include_directories(AFTER SYSTEM ${TBB_INCLUDE_DIRS})
-add_definitions(-DTBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 
 ###############################################################################
 # Define the OpenCL runtime
 ###############################################################################
 pkg_check_modules(OPENCL REQUIRED)
+message(STATUS "OPENCL_FOUND=${OPENCL_FOUND}")
 
 if(OPENCL_FOUND)
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
   set(OPENCL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libOpenCL.so")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+  set(OPENCL_LIBRARIES "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dylib")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+  set(OPENCL_LIBRARIES "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dll.a")
+endif()
+
 	message(STATUS "OpenCL runtime libraries: " ${OPENCL_LIBRARIES})
   add_definitions(-DCL_TARGET_OPENCL_VERSION=220)
 
@@ -52,7 +48,7 @@ endif()
 set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.49 REQUIRED COMPONENTS thread date_time system program_options)
+find_package(Boost 1.49 REQUIRED COMPONENTS thread date_time system program_options filesystem)
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
@@ -80,17 +76,18 @@ endif()
 
 find_package(TBB "2021.0" REQUIRED)
 set(TBB_LIBRARIES "TBB::tbb;TBB::tbbmalloc")
+add_definitions(-DTBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 
 ###############################################################################
 # Check for libnuma
 ###############################################################################
-find_package(NUMA REQUIRED)
-if (NUMA_FOUND)
-  message(STATUS "NUMA_LIBRARIES: ${NUMA_LIBRARIES}")
-  message(STATUS "NUMA_INCLUDE_DIRS: ${NUMA_INCLUDE_DIRS}")
-else()
-  message(ERROR "libNUMA not found!")
-endif()
+#find_package(NUMA REQUIRED)
+#if (NUMA_FOUND)
+#  message(STATUS "NUMA_LIBRARIES: ${NUMA_LIBRARIES}")
+#  message(STATUS "NUMA_INCLUDE_DIRS: ${NUMA_INCLUDE_DIRS}")
+#else()
+#  message(ERROR "libNUMA not found!")
+#endif()
 
 ###############################################################################
 # Check for rapidjson
@@ -114,27 +111,29 @@ pkg_check_modules(ARCHIVE REQUIRED libarchive)
 ###############################################################################
 # Google Breakpad
 ###############################################################################
-set(BREAKPAD_INCLUDE_DIRS /usr/include/breakpad /app/include/breakpad /include/breakpad)
-pkg_check_modules(BREAKPAD REQUIRED breakpad-client)
-message(STATUS "Google Breakpad libraries: ${BREAKPAD_LIBRARIES}")
-message(STATUS "Google Breakpad include: ${BREAKPAD_INCLUDE_DIRS}")
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+  set(BREAKPAD_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/breakpad)
+  pkg_check_modules(BREAKPAD REQUIRED breakpad-client)
+  message(STATUS "Google Breakpad libraries: ${BREAKPAD_LIBRARIES}")
+  message(STATUS "Google Breakpad include: ${BREAKPAD_INCLUDE_DIRS}")
+endif()
 
 ###############################################################################
 # OpenGL
 # TODO : Check result and deduce OpenGL Support in Qt?
 ###############################################################################
-find_package(OpenGL REQUIRED)
-set(OPENGL_LIBRARIES ${OPENGL_LIBRARIES} EGL) # Force EGL as CMake is too old to find it
+# find_package(OpenGL REQUIRED)
+# set(OPENGL_LIBRARIES ${OPENGL_LIBRARIES} EGL) # Force EGL as CMake is too old to find it
 
 ###############################################################################
 # IBM ICU
 ###############################################################################
-find_package(ICU REQUIRED)
+find_package(ICU 75.1 COMPONENTS data i18n uc REQUIRED)
 
 message(STATUS "ICU found: " ${ICU_FOUND})
 if(ICU_FOUND)
 	message(STATUS "ICU include: ${ICU_INCLUDE}")
-  	message(STATUS "ICU libraries: ${ICU_LIBRARY}")
+  message(STATUS "ICU libraries: ${ICU_LIBRARY}")
 endif(ICU_FOUND)
 
 ###############################################################################
@@ -160,5 +159,7 @@ include_directories(AFTER external/type_safe/include)
 ###############################################################################
 # Python3
 ###############################################################################
-find_package(Python 3.8 REQUIRED COMPONENTS Development.Embed)
+find_package(Python REQUIRED COMPONENTS Development)
 include_directories(AFTER SYSTEM ${Python_INCLUDE_DIRS})
+set(PYTHON_SUPPORT ON)
+add_definitions(-DPYTHON_SUPPORT=1)

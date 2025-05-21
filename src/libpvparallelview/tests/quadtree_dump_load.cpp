@@ -30,6 +30,7 @@
 #include "common.h"
 
 #include <cstdlib>
+#include <libgen.h>
 
 #define VALUE_MAX (1UL << 22)
 #define VALUE_MASK (VALUE_MAX - 1)
@@ -53,7 +54,7 @@ int main(int argc, char** argv)
 	std::cout << "initialization, it can take a while" << std::endl;
 	std::unique_ptr<quadtree_t> qt(new quadtree_t(0, VALUE_MAX, 0, VALUE_MAX, 8));
 	for (size_t i = 0; i < num; ++i) {
-		qt->insert(quadtree_entry_t(i, random() & VALUE_MASK, random() & VALUE_MASK));
+		qt->insert(quadtree_entry_t(i, rand() & VALUE_MASK, rand() & VALUE_MASK));
 	}
 	std::cout << "done" << std::endl;
 

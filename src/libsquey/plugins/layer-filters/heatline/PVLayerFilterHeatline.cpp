@@ -88,8 +88,6 @@ void Squey::PVLayerFilterHeatline::operator()(PVLayer const& in, PVLayer& out)
 	auto axis = _args[ARG_NAME_AXIS].value<PVCore::PVOriginalAxisIndexType>();
 	const PVCol axis_id = axis.get_original_index();
 
-	pvlogger::info() << "axis_id=" << axis_id << std::endl;
-
 	// Extract ratio information
 	auto ratios = _args[ARG_NAME_COLORS].value<PVCore::PVPercentRangeType>();
 

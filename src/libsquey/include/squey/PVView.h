@@ -34,6 +34,7 @@
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVDataTreeObject.h>
+#include <pvkernel/rush/PVAxisFormat.h>
 
 #include <pvbase/types.h> // for PVCol, PVRow
 #include <pvcop/db/types.h>
@@ -118,8 +119,8 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	 * @return The name of that axis
 	 *
 	 */
-	QString get_axis_name(PVCombCol index) const;
-	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const;
+	QString get_axis_name(PVCombCol index) const { return index == PVCombCol() ? "" : _axes_combination.get_axis(index).get_name(); }
+	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const { return _axes_combination.get_axis(comb_index);} ;
 	bool is_last_axis(PVCombCol const axis_comb) const
 	{
 		return axis_comb == get_column_count() - 1;

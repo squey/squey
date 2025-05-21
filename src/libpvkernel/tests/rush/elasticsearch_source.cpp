@@ -129,7 +129,7 @@ int main()
 	std::string ref_file_sorted = output_file + "_sorted";
 	// Extract source and split fields.
 	{
-		std::ofstream ofs(output_file);
+		std::ofstream ofs{std::filesystem::path(output_file)};
 
 		std::chrono::duration<double> dur(0.);
 		auto start = std::chrono::steady_clock::now();

@@ -36,7 +36,7 @@
 template <typename TYPE>
 static std::shared_ptr<arrow::Array> array_from_indexes(
     const std::shared_ptr<arrow::DataType>& type,
-    const pvcop::core::array<uint64_t>& indexes
+    const pvcop::core::array<uint32_t>& indexes
 )
 {
     std::unique_ptr<arrow::ArrayBuilder> builder_ptr;
@@ -85,8 +85,7 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
             writer = parquet::arrow::FileWriter::Open(*schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props).ValueOrDie();
         }
 
-        std::unique_ptr<::arrow::RecordBatchReader> recordbatch_reader;
-        arrow::Status status = api.arrow_reader()->GetRecordBatchReader(&recordbatch_reader);
+        auto recordbatch_reader = api.arrow_reader()->GetRecordBatchReader().ValueOrDie();
 
         size_t total_rows = api.arrow_reader()->parquet_reader()->metadata()->num_rows();
         size_t batch_current_index = 0;
@@ -95,8 +94,8 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
 
             size_t selected_record_batch_indexes_size = pvcop::core::algo::bit_count(selected_rows, selection_current_index + batch_current_index, selection_current_index + batch_current_index + batch->num_rows() -1);
 
-            pvcop::db::array selected_record_batch_indexes("number_uint64", selected_record_batch_indexes_size);
-            auto& selected_record_batch_indexes_core = selected_record_batch_indexes.to_core_array<size_t>();
+            pvcop::db::array selected_record_batch_indexes("number_uint32", selected_record_batch_indexes_size);
+            auto& selected_record_batch_indexes_core = selected_record_batch_indexes.to_core_array<uint32_t>();
             size_t index = 0;
             sel.visit_selected_lines([&](int row_id) {
                 selected_record_batch_indexes_core[index++] = row_id - (selection_current_index + batch_current_index);

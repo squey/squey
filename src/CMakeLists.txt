@@ -44,7 +44,6 @@ include(CMakePVTests.txt)
 ####################n###########################################################
 # Define distribution stuff
 ###############################################################################
-include(CMakePackage.txt)
 include(CMakePackageDistribute.txt)
 
 ###############################################################################
@@ -62,44 +61,33 @@ include_directories(AFTER "${squey_SOURCE_DIR}/include")
 
 add_custom_target(squey_testsuite)
 if (CMAKE_CONFIGURATION_TYPES)
-    add_custom_target(squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
-        --force-new-ctest-process --output-on-failure
-        --build-config "$<CONFIGURATION>")
-else()
-    add_custom_target(squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
-        --force-new-ctest-process --output-on-failure)
+    set(BUILD_CONF_OPTION "--build-config $<CONFIGURATION>")
 endif()
+add_custom_target(
+    squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
+    --force-new-ctest-process --output-on-failure
+    ${BUILD_CONF_OPTION}
+)
 
 add_dependencies(squey_testsuite squey)
 add_dependencies(squey_run_testsuite squey_testsuite)
 add_custom_target(squey_bench COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_BENCH_)
 add_dependencies(squey_bench squey_testsuite)
 
-###############################################################################
-# Define project dependencies
-###############################################################################
-include(ExternalProject)
-
-###############################################################################
-# furl
-###############################################################################
-set(FURL_STATIC_LIB ${CMAKE_CURRENT_BINARY_DIR}/furl-prefix/src/furl-build/src/lib/libfurll-utf8.a)
-ExternalProject_Add(furl
-    SOURCE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/furl
-    STEP_TARGETS build
-  	EXCLUDE_FROM_ALL TRUE
-  	CMAKE_ARGS -DARCH_TYPE=${ARCH_TYPE}
-  	BUILD_BYPRODUCTS ${FURL_STATIC_LIB}
-  	INSTALL_COMMAND cmake -E echo "Skipping install step."
-)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/include)
+# ###############################################################################
+# # furl
+# ###############################################################################
 add_definitions(-DFURL_UTF8_CHAR)
+set(FURL_STATIC_LIB ${CMAKE_CURRENT_BINARY_DIR}/furl/src/lib/libfurls-utf8${CMAKE_SHARED_LIBRARY_SUFFIX})
+include_directories(${CMAKE_SOURCE_DIR}/furl/src/lib/include)
+add_subdirectory(furl)
 
 ###############################################################################
 # squey-utils
 ###############################################################################
-SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvlogger/src/libpvlogger.so)
-SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvhwloc/src/libpvhwloc.so)
+SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvlogger/src/libpvlogger${CMAKE_SHARED_LIBRARY_SUFFIX})
+SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvhwloc/src/libpvhwloc${CMAKE_SHARED_LIBRARY_SUFFIX})
+include_directories(${CMAKE_SOURCE_DIR}/squey-utils/include)
 include_directories(${CMAKE_SOURCE_DIR}/squey-utils/libpvlogger/include)
 include_directories(${CMAKE_SOURCE_DIR}/squey-utils/libpvhwloc/include)
 add_subdirectory(squey-utils)
@@ -109,7 +97,7 @@ add_subdirectory(squey-utils)
 ###############################################################################
 add_subdirectory(libpvcop)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
-SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop/src/libpvcop.so)
+SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop/src/libpvcop${CMAKE_SHARED_LIBRARY_SUFFIX})
 
 declare_internal_library(pvkernel)
 declare_internal_library(squey)
@@ -123,3 +111,5 @@ add_subdirectory(gui-qt)
 ###############################################################################
 # Set squey.sh for current build
 configure_file(squey.sh.cmake squey.sh @ONLY)
+
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests" COMPONENT tests)

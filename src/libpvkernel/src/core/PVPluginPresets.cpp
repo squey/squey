@@ -23,7 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvbase/general.h>                // for SQUEY_SQUEY_CONFDIR
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVPluginPresets.h> // for PVPluginPresets
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList_to_QSettings, etc
 #include <pvkernel/core/PVFunctionArgs.h> // for PVFunctionArgsBase
@@ -53,8 +53,7 @@ PVCore::__impl::PVPluginPresets::PVPluginPresets(PVCore::PVFunctionArgsBase* far
     : _fargs(fargs), _abs_reg_name(path + "/" + registered_name)
 {
 	if (g_presets_settings == nullptr) {
-		QFileInfo fi(QDir::homePath() + QDir::separator() + SQUEY_SQUEY_CONFDIR +
-		             QDir::separator() + PRESETS_FILENAME);
+		QFileInfo fi(PVCore::PVConfig::user_dir() + PRESETS_FILENAME);
 
 		if (!fi.exists()) {
 			fi.dir().mkpath(fi.path());

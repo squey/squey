@@ -5,6 +5,7 @@
 project(libpvkernel)
 include(CTest)
 set(CTEST_PROJECT_NAME "PVKernel")
+add_definitions(-DSINGLETON_DLL)
 
 ################################################
 # QT6 related include and check
@@ -22,6 +23,10 @@ include_directories(SYSTEM ${Qt6Gui_INCLUDE_DIRS})
 find_package(Qt6Widgets REQUIRED)
 include_directories(SYSTEM ${Qt6Widgets_INCLUDE_DIRS})
 
+# For Qt6Core5Compat
+find_package(Qt6Core5Compat REQUIRED)
+include_directories(SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
+
 # FIXME : This is a hack waiting for Qt 5.4 and QOpenGLWidgets
 set(QT_NO_OPENGL 1)
 if(${QT_NO_OPENGL})
@@ -37,26 +42,25 @@ if(${QT_WEBKIT})
 	find_package(Qt6WebKitWidgets REQUIRED)
 	include_directories(SYSTEM ${Qt6WebKitWidgets_INCLUDE_DIRS})
 else(${QT_WEBKIT})
-	find_package(Qt6WebEngineWidgets REQUIRED)
-	include_directories(SYSTEM ${Qt6WebEngineWidgets_INCLUDE_DIRS})
-	find_package(Qt6WebEngineCore REQUIRED)
-	include_directories(SYSTEM ${Qt6WebEngineCore_INCLUDE_DIRS})
+	# find_package(Qt6WebEngineWidgets REQUIRED)
+	# include_directories(SYSTEM ${Qt6WebEngineWidgets_INCLUDE_DIRS})
+	# find_package(Qt6WebEngineCore REQUIRED)
+	# include_directories(SYSTEM ${Qt6WebEngineCore_INCLUDE_DIRS})
 endif(${QT_WEBKIT})
 
-set(utf8proc_LIB /app/lib/libutf8proc.a)
 find_package(Arrow CONFIG REQUIRED)
 find_package(Parquet CONFIG REQUIRED)
 find_package(Thrift CONFIG REQUIRED)
+find_package(re2 REQUIRED)
+set(PARQUET_LIBS Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
 
 find_package(Qt6DBus REQUIRED)
 include_directories(SYSTEM ${Qt6DBus_INCLUDE_DIRS})
 
 
 ##################################################################
-# set installation path for query builder and plugins
+# set installation path for plugins
 ##################################################################
-install(DIRECTORY ${squey_SOURCE_DIR}/libpvkernel/src/widgets/querybuilder DESTINATION ${SHARE_RESSOURCES})
-add_definitions(-DSQUEY_QUERY_BUILDER="${SHARE_RESSOURCES}/querybuilder")
 add_definitions(-DPVKERNEL_PLUGIN_PATH="${PVKERNEL_PLUGIN}")
 
 ###################################################################
@@ -71,8 +75,6 @@ include_directories(AFTER SYSTEM ${Boost_INCLUDE_DIR})
 include_directories(AFTER SYSTEM ${HWLOC_INCLUDE_DIRS})
 include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 include_directories(AFTER "src/third_party/uchardetect")
-include_directories(AFTER /app/include/erf)
-include_directories(AFTER /app/include/erf/cpp)
 
 ###############################################################################
 # Configure subdirectories
@@ -85,3 +87,6 @@ add_subdirectory(tools)
 set(PVKERNEL_PLUGINS_LIST ${PLUGINS_LIST})
 
 add_subdirectory(tests)
+
+file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

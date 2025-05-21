@@ -7,9 +7,10 @@ description: |
 
 sources:
 - kind: tar
+  url: github:gperftools/gperftools/archive/refs/tags/gperftools-2.16.tar.gz
+  ref: 737be182b4e42f5c7f595da2a7aa59ce0489a73d336d0d16847f2aa52d5221b4
 
-  url: github:gperftools/gperftools/archive/refs/tags/gperftools-2.15.tar.gz
-  ref: 3918ff2e21bb3dbb5a801e1daf55fb20421906f7c42fbb482bede7bdc15dfd2e
+(@): buildstream/elements/base/target.bst
 
 config:
 
@@ -20,7 +21,7 @@ config:
     %{configure}
 
 depends:
-- base.bst
+- sdk.bst
 
 build-depends:
 - freedesktop-sdk.bst:components/patch.bst

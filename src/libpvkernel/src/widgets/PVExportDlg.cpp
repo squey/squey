@@ -38,6 +38,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <QStandardPaths>
 
 #include "pvkernel/core/PVStreamingCompressor.h"
 #include "pvkernel/widgets/PVExporterWidgetInterface.h"
@@ -57,6 +58,7 @@ PVWidgets::PVExportDlg::PVExportDlg(
 	setWindowTitle(tr("Export selection"));
 	setAcceptMode(accept_mode);
 	setFileMode(file_mode);
+	setDirectory(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
 
 	// Use default CSV exporter if input type doesn't define a specific one
 	_exporter_widget = new PVWidgets::PVCSVExporterWidget();

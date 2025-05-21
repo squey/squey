@@ -229,6 +229,8 @@ rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data)
  */
 std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data);
 
+std::string ws_get_version();
+
 } /* namespace pvpcap */
 
 #endif // WS_H

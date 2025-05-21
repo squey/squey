@@ -24,13 +24,14 @@
 //
 
 #include <pvkernel/core/PVDirectory.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <qflags.h>
-#include <cstdlib> // for mkdtemp
 #include <QByteArray>
 #include <QDir>
 #include <QFile>
 #include <QFileInfo>
+#include <QTemporaryDir>
 
 // Taken from http://john.nachtimwald.com/2010/06/08/qt-remove-directory-and-its-contents/
 bool PVCore::PVDirectory::remove_rec(QString const& dirName)
@@ -62,13 +63,15 @@ QString PVCore::PVDirectory::temp_dir(QDir const& directory, QString const& patt
 {
 	QFileInfo fi(pattern);
 	QString tmp_dir_pattern = directory.absoluteFilePath(fi.fileName());
-	QByteArray tmp_dir_ba = tmp_dir_pattern.toLocal8Bit();
-	char* tmp_dir_p = mkdtemp(tmp_dir_ba.data());
-	if (tmp_dir_p == nullptr) {
+	QTemporaryDir tmp_dir(tmp_dir_pattern);
+	tmp_dir.setAutoRemove(false);
+
+	if (!tmp_dir.isValid()) {
 		return {};
 	}
-	QString tmp_dir(tmp_dir_p);
-	return tmp_dir;
+
+	return tmp_dir.path();
+
 }
 
 QString PVCore::PVDirectory::temp_dir(QString const& pattern)

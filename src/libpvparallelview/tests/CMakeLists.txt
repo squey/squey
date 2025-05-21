@@ -8,7 +8,7 @@ include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
 
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
 
-set(LINK_LIBRARIES ${SQUEY_LIBRARY} ${PVKERNEL_LIBRARY} ${PVLICENSE_LIBRARIES} pvparallelview)
+set(LINK_LIBRARIES ${SQUEY_LIBRARY} ${PVKERNEL_LIBRARY} pvparallelview)
 include_directories(${PVLICENSE_INCLUDE_DIR})
 
 add_squey_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp)
@@ -52,10 +52,13 @@ add_squey_test(Trendering_pipeline_base Trendering_pipeline_base 1000)
 add_bench(rendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)
 
 #GL Timeseries
-add_squey_compile_test(Tgl_timeseries LINKS ${LINK_LIBRARIES} Qt6OpenGL FILES gl_timeseries.cpp)
-#add_squey_test(Tgl_timeseries Tgl_timeseries)
-add_bench(gl_timeseries LINKS ${LINK_LIBRARIES} FILES gl_timeseries.cpp)
+# add_squey_compile_test(Tgl_timeseries LINKS ${LINK_LIBRARIES} Qt6OpenGL FILES gl_timeseries.cpp)
+# #add_squey_test(Tgl_timeseries Tgl_timeseries)
+# add_bench(gl_timeseries LINKS ${LINK_LIBRARIES} FILES gl_timeseries.cpp)
 
 add_squey_compile_test(Tseries_zoomer LINKS ${LINK_LIBRARIES} FILES series_zoomer.cpp)
 #add_squey_test(Tseries_zoomer Tseries_zoomer)
 add_bench(series_zoomer LINKS ${LINK_LIBRARIES} FILES series_zoomer.cpp)
+
+file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

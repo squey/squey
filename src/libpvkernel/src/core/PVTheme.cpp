@@ -35,8 +35,13 @@
 #include <QDBusInterface>
 #include <QDBusReply>
 #include <QFile>
+#include <QPalette>
+#include <QWidget>
+#include <QStyle>
+
 #include <cstdlib>
 
+#ifdef __linux__
 static constexpr const char* DBUS_NAME = "org.freedesktop.portal.Desktop";
 static constexpr const char* DBUS_PATH = "/org/freedesktop/portal/desktop";
 static constexpr const char* DBUS_INTERFACE = "org.freedesktop.portal.Settings";
@@ -44,6 +49,11 @@ static constexpr const char* DBUS_NAMESPACE = "org.freedesktop.appearance";
 static constexpr const char* DBUS_METHOD = "ReadOne";
 static constexpr const char* DBUS_SIGNAL = "SettingChanged";
 static constexpr const char* DBUS_KEY = "color-scheme";
+#elifdef _WIN32
+#include <windows.h>
+#include <thread>
+static constexpr const wchar_t* THEME_REG_KEY = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
+#endif
 
 static constexpr const char* COLOR_SCHEME_SETTINGS_KEY = "gui/theme_scheme";
 
@@ -60,6 +70,7 @@ PVCore::PVTheme::PVTheme()
     }
 
     // Monitor system theme scheme changes
+#ifdef __linux__
     QDBusConnection::sessionBus().connect(
         DBUS_NAME,
         DBUS_PATH,
@@ -69,10 +80,38 @@ PVCore::PVTheme::PVTheme()
         SLOT(setting_changed(QString, QString, QDBusVariant))
     );
     // See https://docs.flatpak.org/en/latest/portal-api-reference.html#gdbus-signal-org-freedesktop-portal-Settings.SettingChanged
+#elifdef _WIN32
+    std::thread theme_change_monitoring_thread([this](){
+        HKEY hKey;
+        HANDLE hEvent = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+
+        if (RegOpenKeyExW(HKEY_CURRENT_USER, THEME_REG_KEY, 0, KEY_NOTIFY, &hKey) != ERROR_SUCCESS) {
+            pvlogger::error() << "Failed to monitor system theme changes" << std::endl;
+            CloseHandle(hEvent);
+            return;
+        }
+
+        while (true) {
+            if (RegNotifyChangeKeyValue(hKey, FALSE, REG_NOTIFY_CHANGE_LAST_SET, hEvent, TRUE) == ERROR_SUCCESS) {
+                if (WaitForSingleObject(hEvent, INFINITE) == WAIT_OBJECT_0) {
+                    QMetaObject::invokeMethod(this, &PVTheme::setting_changed, Qt::QueuedConnection);
+                }
+            } else {
+                pvlogger::error() << "Failed to read THEME_REG_KEY" << std::endl;
+                break;
+            }
+        }
+
+        RegCloseKey(hKey);
+        CloseHandle(hEvent);
+    });
+    theme_change_monitoring_thread.detach();   
+#endif
 }
 
 PVCore::PVTheme::EColorScheme PVCore::PVTheme::system_color_scheme()
 {
+#ifdef __linux__
     // Query DBUS
     QDBusInterface ifc(
         DBUS_NAME,
@@ -86,6 +125,19 @@ PVCore::PVTheme::EColorScheme PVCore::PVTheme::system_color_scheme()
             return reply.value().value<uint>() == 1 ? EColorScheme::DARK : EColorScheme::LIGHT;
         }
     }
+#elifdef _WIN32
+    HKEY hKey;
+    DWORD value = 0;
+    DWORD size = sizeof(value);
+    
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, THEME_REG_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
+        if (RegQueryValueExW(hKey, L"AppsUseLightTheme", nullptr, nullptr, reinterpret_cast<LPBYTE>(&value), &size) == ERROR_SUCCESS) {
+            RegCloseKey(hKey);
+            return value == 0 ? EColorScheme::DARK : EColorScheme::LIGHT;  // 0 = Dark Mode, 1 = Light Mode
+        }
+        RegCloseKey(hKey);
+    }
+#endif
 
     return  EColorScheme::UNKNOWN;
 }
@@ -129,7 +181,7 @@ void PVCore::PVTheme::set_color_scheme(bool dark_theme)
 {
     PVCore::PVTheme::get()._color_scheme = dark_theme ? PVCore::PVTheme::EColorScheme::DARK : PVCore::PVTheme::EColorScheme::LIGHT ;
     PVCore::PVConfig::set_value(COLOR_SCHEME_SETTINGS_KEY, PVCore::PVTheme::get()._follow_system_scheme ? "system" : color_scheme_name());
-    PVCore::PVTheme::apply_style(dark_theme);
+    PVCore::PVTheme::get().apply_style(dark_theme);
     Q_EMIT PVCore::PVTheme::get().color_scheme_changed(get()._color_scheme);
 }
 
@@ -158,23 +210,47 @@ void PVCore::PVTheme::follow_system_scheme(bool follow)
     PVCore::PVTheme::get()._follow_system_scheme = follow;
 }
 
+QColor light_alternate_base_color();
+
 void PVCore::PVTheme::apply_style(bool dark_theme)
 {
+    auto load_stylesheet = [](const QString& css_theme){
+        QFile css_file(css_theme);
+        css_file.open(QFile::ReadOnly);
+        QTextStream css_stream(&css_file);
+        QString css_string(css_stream.readAll());
+        css_file.close();
+        return css_string;
+    };
     QString css_theme(":/theme-light.qss");
+
+    if (_init) {
+#ifdef __APPLE__
+        PVCore::PVTheme::get().light_base_color = QPalette().color(QPalette::AlternateBase).lighter(150);
+        PVCore::PVTheme::get().light_alternate_base_color = QPalette().color(QPalette::BrightText).lighter(500);
+#else
+        QString css_string = load_stylesheet(css_theme);
+        QWidget dummy_widget;
+        dummy_widget.hide();
+        dummy_widget.setStyleSheet(css_string);
+        PVCore::PVTheme::get().light_base_color = dummy_widget.style()->standardPalette().color(QPalette::Base);
+        PVCore::PVTheme::get().light_alternate_base_color = dummy_widget.style()->standardPalette().color(QPalette::AlternateBase);
+#endif
+        _init = false;
+    }
+
     if (dark_theme) {
         css_theme = ":/theme-dark.qss";
     }
+    
 //#ifdef SQUEY_DEVELOPER_MODE
 //    css_theme = SQUEY_SOURCE_DIRECTORY "/gui-qt/src/resources/" + css_theme.mid(2);
 //#endif
-    QFile css_file(css_theme);
-    css_file.open(QFile::ReadOnly);
-    QTextStream css_stream(&css_file);
-    QString css_string(css_stream.readAll());
-    css_file.close();
+    QString css_string = load_stylesheet(css_theme);
     qApp->setStyleSheet(css_string);
 }
 
+#ifdef __linux__
 void PVCore::PVTheme::setting_changed(const QString& ns, const QString& key, const QDBusVariant& value)
 {
     if (_follow_system_scheme and ns == DBUS_NAMESPACE and key == DBUS_KEY) {
@@ -184,3 +260,9 @@ void PVCore::PVTheme::setting_changed(const QString& ns, const QString& key, con
         }
     }
 }
+#elifdef _WIN32
+void PVCore::PVTheme::setting_changed()
+{
+    set_color_scheme(system_color_scheme());
+}
+#endif

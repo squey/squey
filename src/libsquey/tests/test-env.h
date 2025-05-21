@@ -22,23 +22,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#ifndef __TEST_ENV_H__
+#define __TEST_ENV_H__
+
 #include <cstdlib>
 #include <squey/common.h>
 #include <pvbase/general.h>
 #include <pvkernel/core/squey_intrin.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 
 #include <QDir>
 
-void init_env()
+inline void init_env()
 {
-	PVCore::PVIntrinsics::init_cpuid();
-	setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
-	setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
+	PVCore::setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
+	PVCore::setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
+	PVCore::setenv("OMP_TOOL", "disabled", 1); // Disable OMP_TOOL to avoid "Unable to find TSan function" errors
 
 	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
 	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
 
 	Squey::common::load_filters();
 }
+
+#endif // __TEST_ENV_H__

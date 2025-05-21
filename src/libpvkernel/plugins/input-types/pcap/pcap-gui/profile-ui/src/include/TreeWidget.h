@@ -59,7 +59,7 @@ class ExtractProtocolsWorker : public QObject
 
   private:
 	pvpcap::PcapTreeModel* _tree_model;
-	const QString& _pcap_path;
+	QString _pcap_path;
 	bool _canceled = false;
 };
 

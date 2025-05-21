@@ -36,6 +36,8 @@
 #include <string> // for allocator, operator+, etc
 #include <QString>
 
+#include <pvlogger.h> // FIXME: REMOVEME
+
 PVCore::PVSerializeArchiveZip::PVSerializeArchiveZip(version_t v, bool save_log_file)
     : PVSerializeArchive(v, save_log_file)
 {
@@ -55,7 +57,8 @@ PVCore::PVSerializeArchiveZip::~PVSerializeArchiveZip()
 	try {
 		close_zip();
 	} catch (PVCore::ArchiveCreationFail const& e) {
-		PVLOG_ERROR("Zip file not saved");
+		std::string error_msg = std::string("Zip file not saved:") + e.what();
+		PVLOG_ERROR(error_msg.c_str());
 	}
 }
 

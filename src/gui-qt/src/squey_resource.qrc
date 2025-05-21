@@ -1049,6 +1049,14 @@
     <file>rc.dark/sigma_focus@2x.png</file>
     <file>rc.dark/sigma_pressed.png</file>
     <file>rc.dark/sigma_pressed@2x.png</file>
+    <file>rc.dark/split.png</file>
+    <file>rc.dark/split@2x.png</file>
+    <file>rc.dark/split_disabled.png</file>
+    <file>rc.dark/split_disabled@2x.png</file>
+    <file>rc.dark/split_focus.png</file>
+    <file>rc.dark/split_focus@2x.png</file>
+    <file>rc.dark/split_pressed.png</file>
+    <file>rc.dark/split_pressed@2x.png</file>
     <file>rc.dark/square-1.png</file>
     <file>rc.dark/square-1@2x.png</file>
     <file>rc.dark/square-1_disabled.png</file>
@@ -1113,6 +1121,14 @@
     <file>rc.dark/sun-haze_focus@2x.png</file>
     <file>rc.dark/sun-haze_pressed.png</file>
     <file>rc.dark/sun-haze_pressed@2x.png</file>
+    <file>rc.dark/swap.png</file>
+    <file>rc.dark/swap@2x.png</file>
+    <file>rc.dark/swap_disabled.png</file>
+    <file>rc.dark/swap_disabled@2x.png</file>
+    <file>rc.dark/swap_focus.png</file>
+    <file>rc.dark/swap_focus@2x.png</file>
+    <file>rc.dark/swap_pressed.png</file>
+    <file>rc.dark/swap_pressed@2x.png</file>
     <file>rc.dark/symmetric-difference-activate.png</file>
     <file>rc.dark/symmetric-difference-activate@2x.png</file>
     <file>rc.dark/symmetric-difference-activate_disabled.png</file>
@@ -2076,6 +2092,14 @@
     <file>rc.light/sigma_focus@2x.png</file>
     <file>rc.light/sigma_pressed.png</file>
     <file>rc.light/sigma_pressed@2x.png</file>
+    <file>rc.light/split.png</file>
+    <file>rc.light/split@2x.png</file>
+    <file>rc.light/split_disabled.png</file>
+    <file>rc.light/split_disabled@2x.png</file>
+    <file>rc.light/split_focus.png</file>
+    <file>rc.light/split_focus@2x.png</file>
+    <file>rc.light/split_pressed.png</file>
+    <file>rc.light/split_pressed@2x.png</file>
     <file>rc.light/square-1.png</file>
     <file>rc.light/square-1@2x.png</file>
     <file>rc.light/square-1_disabled.png</file>
@@ -2140,6 +2164,14 @@
     <file>rc.light/sun-haze_focus@2x.png</file>
     <file>rc.light/sun-haze_pressed.png</file>
     <file>rc.light/sun-haze_pressed@2x.png</file>
+    <file>rc.light/swap.png</file>
+    <file>rc.light/swap@2x.png</file>
+    <file>rc.light/swap_disabled.png</file>
+    <file>rc.light/swap_disabled@2x.png</file>
+    <file>rc.light/swap_focus.png</file>
+    <file>rc.light/swap_focus@2x.png</file>
+    <file>rc.light/swap_pressed.png</file>
+    <file>rc.light/swap_pressed@2x.png</file>
     <file>rc.light/symmetric-difference-activate.png</file>
     <file>rc.light/symmetric-difference-activate@2x.png</file>
     <file>rc.light/symmetric-difference-activate_disabled.png</file>

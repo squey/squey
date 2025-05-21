@@ -21,7 +21,7 @@ SET(PCAP_SRC
     src/pcap_splitter.cpp
    )
 
-add_library (pvpcap SHARED ${PCAP_SRC})
+add_library (pvpcap STATIC ${PCAP_SRC})
 
 # Set rpath
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${PVKERNEL_PLUGIN}/input-types/")
@@ -32,6 +32,7 @@ target_link_libraries(
 	-lpthread
 	-lpcap
 	 ${Boost_LIBRARIES}
+     pvkernel
 )
 
 set(INPUTS_DIST_LIST

@@ -28,6 +28,7 @@
 #include <pvkernel/core/PVConfig.h>     // for PVConfig
 #include <pvkernel/core/PVDirectory.h>  // for remove_rec
 #include <pvkernel/core/PVFileHelper.h> // for PVFileHelper
+#include <pvkernel/core/PVUtils.h>
 #include <pvbase/general.h> // for SQUEY_PATH_SEPARATOR_CHAR
 #include <qchar.h>
 #include <qcontainerfwd.h>
@@ -88,6 +89,12 @@ void PVRush::PVNrawCacheManager::remove_nraws_from_investigation(const QString& 
 
 void PVRush::PVNrawCacheManager::delete_unused_cache()
 {
+#if __APPLE__
+	if (PVCore::process_running_count("squey") > 1) {
+		return;
+	}
+#endif
+
 	QString regexp = QString::fromStdString(PVRush::PVNraw::nraw_tmp_name_regexp);
 
 	QStringList nraw_without_opened_files =
@@ -97,8 +104,10 @@ void PVRush::PVNrawCacheManager::delete_unused_cache()
 		    while (it.hasNext()) {
 			    it.next();
 			    QByteArray data = it.filePath().toLocal8Bit();
+#if __linux__
 			    const char* c_file_name = data.data();
 			    has_opened_file |= PVCore::PVFileHelper::is_already_opened(c_file_name);
+#endif
 		    }
 
 		    return !has_opened_file;

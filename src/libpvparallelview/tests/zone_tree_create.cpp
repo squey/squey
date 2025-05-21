@@ -32,10 +32,10 @@
 #include <iostream>
 
 #ifdef SQUEY_BENCH
-constexpr size_t SIZE = 10000; // Means X ** 2 total lines
+constexpr size_t SCALING_SIZE = 10000; // Means X ** 2 total lines
 #else
 // Number of line on each scaling axe (use all combination between these values)
-constexpr size_t SIZE = 1 << 11;
+constexpr size_t SCALING_SIZE = 1 << 11;
 #endif
 
 constexpr size_t significant_bits = 10;
@@ -48,20 +48,20 @@ int main()
 
 	std::unique_ptr<PVParallelView::PVZoneTree> zt(new PVParallelView::PVZoneTree());
 
-	std::vector<uint32_t> plota(SIZE * SIZE);
-	std::vector<uint32_t> plotb(SIZE * SIZE);
+	std::vector<uint32_t> plota(SCALING_SIZE * SCALING_SIZE);
+	std::vector<uint32_t> plotb(SCALING_SIZE * SCALING_SIZE);
 
 	// Generate scaling to have equireparted line on both sides.
-	for (size_t i = 0; i < SIZE; i++) {
+	for (size_t i = 0; i < SCALING_SIZE; i++) {
 		uint32_t r =
 		    i << (32 - significant_bits); // Make sure values are equireparted in the 10 upper bits.
-		for (size_t j = 0; j < SIZE; j++) {
-			plotb[j * SIZE + i] = plota[i * SIZE + j] = r;
+		for (size_t j = 0; j < SCALING_SIZE; j++) {
+			plotb[j * SCALING_SIZE + i] = plota[i * SCALING_SIZE + j] = r;
 		}
 	}
 
 	PVParallelView::PVZoneTree::ProcessData pdata;
-	PVParallelView::PVZoneProcessing zp{SIZE * SIZE, plota.data(), plotb.data()};
+	PVParallelView::PVZoneProcessing zp{SCALING_SIZE * SCALING_SIZE, plota.data(), plotb.data()};
 
 	auto start = std::chrono::steady_clock::now();
 
@@ -72,7 +72,7 @@ int main()
 	std::cout << diff.count();
 
 #ifndef SQUEY_BENCH
-	for (size_t i = 0; i < SIZE * SIZE; i++) {
+	for (size_t i = 0; i < SCALING_SIZE * SCALING_SIZE; i++) {
 		uint32_t pos =
 		    (plotb[i] >> (32 - significant_bits) << 10 | (plota[i] >> (32 - significant_bits)));
 		PVParallelView::PVBCode b_code;
@@ -86,7 +86,7 @@ int main()
 
 		// Check Number of row per branches with pow2 equireparted values.
 		PV_VALID(static_cast<size_t>(zt->get_branch_count(b_code.int_v)),
-		         (SIZE * SIZE + NBUCKETS - 1) / NBUCKETS);
+		         (SCALING_SIZE * SCALING_SIZE + NBUCKETS - 1) / NBUCKETS);
 	}
 #endif
 

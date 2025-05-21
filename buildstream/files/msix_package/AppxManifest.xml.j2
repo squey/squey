@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Package
+  xmlns="http://schemas.microsoft.com/appx/manifest/foundation/windows10"
+  xmlns:uap="http://schemas.microsoft.com/appx/manifest/uap/windows10"
+  xmlns:uap2="http://schemas.microsoft.com/appx/manifest/uap/windows10/2"
+  xmlns:uap3="http://schemas.microsoft.com/appx/manifest/uap/windows10/3"
+  xmlns:rescap="http://schemas.microsoft.com/appx/manifest/foundation/windows10/restrictedcapabilities"
+  xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
+  xmlns:desktop4="http://schemas.microsoft.com/appx/manifest/desktop/windows10/4"
+  xmlns:desktop5="http://schemas.microsoft.com/appx/manifest/desktop/windows10/5"
+  xmlns:uap10="http://schemas.microsoft.com/appx/manifest/uap/windows10/10"
+  xmlns:com="http://schemas.microsoft.com/appx/manifest/com/windows10"
+  IgnorableNamespaces="uap uap2 uap3 rescap desktop desktop4 desktop5 uap10 com">
+    <Identity Name="17578INENDI.Squey" Publisher="CN=4F6757BC-2C96-42A6-8C07-36FC5C66D827" Version="{{version}}.0" />
+    <Properties>
+        <DisplayName>Squey</DisplayName>
+        <PublisherDisplayName>Squey</PublisherDisplayName>
+        <Logo>Square150x150Logo.png</Logo>
+        <uap10:PackageIntegrity>
+            <uap10:Content Enforcement="on" />
+        </uap10:PackageIntegrity>
+    </Properties>
+    <Dependencies>
+        <TargetDeviceFamily Name="Windows.Desktop" MinVersion="10.0.19041.0" MaxVersionTested="10.0.26100.0" />
+    </Dependencies>
+    <Resources>
+        <Resource Language="en-US" />
+    </Resources>
+    <Capabilities>
+        <Capability Name="internetClient" />
+        <rescap:Capability Name="runFullTrust" />
+    </Capabilities>
+    <Applications>
+        <Application Id="Squey" Executable="squey.exe" EntryPoint="Windows.FullTrustApplication" uap10:TrustLevel="mediumIL">
+            <uap:VisualElements
+                DisplayName="Squey"
+                Description="Squey is an open-source cross-platform visualization software designed to interactively explore and understand large amounts of tabular data."
+                BackgroundColor="transparent"
+                Square44x44Logo="Square44x44Logo.png"
+                Square150x150Logo="Square150x150Logo.png" />
+        </Application>
+    </Applications>
+</Package>

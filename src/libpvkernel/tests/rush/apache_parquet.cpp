@@ -21,6 +21,7 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+
 #include <memory>
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
@@ -46,6 +47,8 @@
 
 #include <parquet/arrow/reader.h>
 #include <parquet/arrow/writer.h>
+
+#include <QFileInfo>
 
 
 template <typename T>
@@ -78,11 +81,6 @@ int64_t sanitize_timestamp_ns(int64_t val)
 int32_t sanitize_date32(int32_t val)
 {
     return std::abs(val) % 1000000;
-}
-
-int64_t sanitize_date64(int64_t val)
-{
-    return std::abs(val) % 100000000000 * 1000;
 }
 
 int32_t sanitize_time32_sec(int32_t val)
@@ -143,17 +141,32 @@ std::shared_ptr<arrow::Array> generate_array(size_t size, const F& sanitize_valu
 
     T min_value = std::numeric_limits<T>::min();
     T max_value = std::numeric_limits<T>::max();
+    if constexpr (std::is_same<T, float>::value) {
+        min_value = static_cast<float>(std::numeric_limits<uint32_t>::min());
+        max_value = static_cast<float>(std::numeric_limits<uint32_t>::max());
+    }
+    else if constexpr (std::is_same<T, double>::value) {
+        min_value = static_cast<double>(std::numeric_limits<uint64_t>::min());
+        max_value = static_cast<double>(std::numeric_limits<uint64_t>::max());
+    }
     T init_value = max_value;
-    __int128_t v = (__int128_t)min_value - (__int128_t)max_value +1 ;
-    size_t decrement = std::abs(v)/(size-2);
-    decrement = std::max(1UL, decrement);
+    __int128_t v = (__int128_t)min_value - (__int128_t)max_value +1;
+    size_t decrement = (v < 0 ? -v : v)/(size-2);
+    decrement = std::max((size_t)1, decrement);
     status = builder.Append(sanitize_value(max_value));
     for (size_t i = 1; i < size-1; i++) {
         if (i % 7 == 0) {
             status = builder.AppendNull();
         }
         else {
-            status = builder.Append(sanitize_value(init_value -= decrement));
+            if constexpr (std::is_same<T, float>::value or std::is_same<T, double>::value) {
+                T ratio = static_cast<T>(i) / (size - 1);
+                T value = min_value + (max_value - min_value) * ratio;
+                status = builder.Append(value);
+            }
+            else {
+                status = builder.Append(sanitize_value(init_value -= decrement));
+            }
         }
     }
     status = builder.Append(sanitize_value(min_value+1));
@@ -188,8 +201,8 @@ std::string generate_parquet_file(std::shared_ptr<arrow::Schema>& schema, const 
         arrow::field("duration#2", arrow::time64(arrow::TimeUnit::MICRO)),
         arrow::field("duration#3", arrow::time64(arrow::TimeUnit::NANO)),
         arrow::field("structure", arrow::struct_({
-            arrow::field("number_uint8#1", arrow::uint8()),
-            arrow::field("string#4", arrow::utf8())
+        arrow::field("number_uint8#1", arrow::uint8()),
+        arrow::field("string#4", arrow::utf8())
         }))
     });
 
@@ -300,43 +313,57 @@ void import_files(
 #pragma omp parallel for schedule(dynamic)
     for (int col = 0; col < nraw.column_count(); col++) {
         const pvcop::db::array& column = nraw.column(PVCol(col));
-        PV_ASSERT_VALID(column.is_valid(0) == true);
+        PV_VALID(column.is_valid(0), true);
         for (size_t j = 1; j < column.size()/2-1; j++) {
-            PV_ASSERT_VALID(column.is_valid(j) == (j % 7 != 0));
+            PV_VALID(column.is_valid(j), (j % 7 != 0));
         }
-        PV_ASSERT_VALID(column.is_valid(column.size()/2-1) == true);
-        PV_ASSERT_VALID(column.is_valid(column.size()/2) == true);
+        PV_VALID(column.is_valid(column.size()/2-1), true);
+        PV_VALID(column.is_valid(column.size()/2), true);
         for (size_t j = 1; j < column.size()/2-1; j++) {
             size_t j2 = j + column.size()/2;
-            PV_ASSERT_VALID(column.is_valid(j2) == (j % 7 != 0));
+            PV_VALID(column.is_valid(j2), (j % 7 != 0));
         }
-        PV_ASSERT_VALID(column.is_valid(column.size()-1) == true);
+        PV_VALID(column.is_valid(column.size()-1), true);
     }
 }
 
-int main(int argc, char** argv)
+UNICODE_MAIN()
 {
 	if (argc <= 4) {
 		std::cerr
-		    << "Usage: " << argv[0]
+		    << "Usage:"
 		    << " <csv_ref1 csv_ref2 parquet_file csv_ref3>"
 		    << std::endl;
 		return 1;
 	}
-
     pvtest::init_ctxt();
 
+#ifdef _WIN32
+    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+    std::string parquet_test_file = conv.to_bytes(argv[3]);
+    std::string csv_ref_file = conv.to_bytes(argv[4]);
+#else
+    std::string parquet_test_file = argv[3];
+    std::string csv_ref_file = argv[4];
+#endif
+
     std::vector<size_t> sizes = { 150000, 65544 };
+    //std::vector<size_t> sizes = { 128 };
     for (size_t i = 0; i < sizes.size(); i++) {
+#ifdef _WIN32
+        std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
+        const std::string csv_ref = conv.to_bytes(argv[i+1]);
+#else
         const std::string& csv_ref = argv[i+1];
+#endif
 
         std::shared_ptr<arrow::Schema> schema;
-        std::string parquet_test_file = generate_parquet_file(schema, sizes[i], std::filesystem::path(csv_ref).filename().string() + ".parquet");
+        std::string test_file = generate_parquet_file(schema, sizes[i], QFileInfo(QString::fromStdString(csv_ref)).fileName().toStdString() + ".parquet");
 
         // Import multiple parquet files
         QStringList files;
-        files << QString::fromStdString(parquet_test_file);
-        files << QString::fromStdString(parquet_test_file);
+        files << QString::fromStdString(test_file);
+        files << QString::fromStdString(test_file);
         QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
         PVRush::PVFormat format;
         PVRush::PVNraw nraw;
@@ -380,14 +407,11 @@ int main(int argc, char** argv)
         PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_csv_file2, csv_ref));
 
         // Cleanup files
-        std::remove(parquet_test_file.c_str());
-        std::remove(output_csv_file.c_str());
-        std::remove(output_csv_file2.c_str());
-        std::remove(output_parquet_file.c_str());
+        // std::remove(parquet_test_file.c_str());
+        // std::remove(output_csv_file.c_str());
+        // std::remove(output_csv_file2.c_str());
+        // std::remove(output_parquet_file.c_str());
     }
-
-    std::string parquet_test_file = argv[3];
-    std::string csv_ref_file = argv[4];
 
     // Import multiple parquet files
     QStringList files;
@@ -428,7 +452,7 @@ int main(int argc, char** argv)
             const std::string& quote) { return nraw.export_line(row, cols, sep, quote); };
     PVRush::PVCSVExporter exp_csv(format.get_axes_comb(), nraw.row_count(), export_func);
     exp_csv.export_rows(output_csv_file, sel);
-    std::cout << std::endl << output_csv_file << " - " << csv_ref_file << std::endl;
+    std::cout << std::endl << output_csv_file << " - " << csv_ref_file << std::endl << std::flush;
     PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_csv_file, csv_ref_file));
 
 	return 0;

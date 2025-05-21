@@ -12,8 +12,10 @@ sources:
   path: buildstream/patches/libomp/ExtendPath.cmake.patch
   strip-level: 1
 
+(@): buildstream/elements/base/target.bst
+
 variables:
-  cmake-local: |
+  cmake-local: >-
     -DCMAKE_BUILD_TYPE=Release
 
 config:
@@ -23,6 +25,6 @@ config:
     %{cmake}
 
 depends:
-- base.bst
+- sdk.bst
 - freedesktop-sdk.bst:components/llvm.bst
 - freedesktop-sdk.bst:components/python3.bst

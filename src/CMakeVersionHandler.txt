@@ -2,7 +2,7 @@
 # @file
 #
 
-file(STRINGS ../VERSION.txt VERSION)
+file(STRINGS VERSION.txt VERSION) #FIXME
 STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+).*" "\\1" VERSION_MAJOR "${VERSION}" )
 STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+).*" "\\2" VERSION_MINOR "${VERSION}" )
 STRING(REGEX REPLACE "([0-9]+)\\.([0-9]+)\\.([0-9]+).*" "\\3" VERSION_MICRO "${VERSION}" )

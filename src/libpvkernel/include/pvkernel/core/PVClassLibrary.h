@@ -26,6 +26,7 @@
 #define PVCORE_PVCLASSLIBRARY_H
 
 #include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMap
+#include <pvkernel/core/PVSingleton.h> // for PVOrderedMap
 #include <qcontainerfwd.h>
 #include <cassert>   // for assert
 #include <stdexcept> // for runtime_error
@@ -34,6 +35,10 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+
+#include <typeinfo> // FIXME: REMOVEME
+
+#include <pvlogger.h>
 
 namespace PVCore
 {
@@ -102,8 +107,21 @@ class InvalidPlugin : public std::runtime_error
  * AG: WARNING: there is *no* and this is *wanted* !
  *              check the wiki for more informations
  */
+
+#ifdef _WIN32
+	#ifdef BUILD_DLL
+		#define SQUEY_EXPORT __attribute__((visibility("hidden")))
+	#else
+		#define SQUEY_EXPORT __attribute__((visibility("hidden")))
+	#endif
+#else
+	#define SQUEY_EXPORT
+#endif
+
+
+
 template <class RegAs>
-class PVClassLibrary
+class SQUEY_EXPORT PVClassLibrary
 {
   public:
 	// PF is a shared pointer to a registered class's base class
@@ -111,15 +129,17 @@ class PVClassLibrary
 	typedef PVCore::PVOrderedMap<QString, PF> list_classes;
 	typedef PVClassLibrary<RegAs> C;
 
-  private:
-	PVClassLibrary() { _last_registered_id = 0; }
-
-  public:
+	public:
 	static C& get()
 	{
+#if _WIN32
+		return PVSingleton<C>::get(); // work across dll
+#else
 		static C obj;
 		return obj;
+#endif
 	}
+
 
   public:
 	template <class T>
@@ -146,7 +166,7 @@ class PVClassLibrary
 
   private:
 	list_classes _classes;
-	int _last_registered_id;
+	int _last_registered_id = 0;
 };
 
 class PVClassLibraryLibLoader

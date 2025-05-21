@@ -2,6 +2,10 @@
 # @file
 #
 
+# For QtCore5Compat
+find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
+include_directories(AFTER SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
+
 ###############################################################################
 # Normalize plugins
 ###############################################################################

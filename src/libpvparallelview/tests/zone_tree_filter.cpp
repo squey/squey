@@ -32,10 +32,10 @@
 #include <iostream>
 
 #ifdef SQUEY_BENCH
-constexpr size_t SIZE = 10000; // Means X ** 2 total lines
+constexpr size_t SCALING_SIZE = 10000; // Means X ** 2 total lines
 #else
 // Number of line on each scaling axe (use all combination between these values)
-constexpr size_t SIZE = 1 << 11;
+constexpr size_t SCALING_SIZE = (size_t)1 << 11;
 #endif
 
 /**
@@ -46,22 +46,22 @@ int main()
 
 	std::unique_ptr<PVParallelView::PVZoneTree> zt(new PVParallelView::PVZoneTree());
 
-	std::vector<uint32_t> plota(SIZE * SIZE);
-	std::vector<uint32_t> plotb(SIZE * SIZE);
+	std::vector<uint32_t> plota(SCALING_SIZE * SCALING_SIZE);
+	std::vector<uint32_t> plotb(SCALING_SIZE * SCALING_SIZE);
 
 	// Generate scaling to have equireparted line on both sides.
-	for (size_t i = 0; i < SIZE; i++) {
+	for (size_t i = 0; i < SCALING_SIZE; i++) {
 		uint32_t r = i << (32 - 11); // Make sure values are equireparted in the 10 upper bites.
-		for (size_t j = 0; j < SIZE; j++) {
-			plotb[j * SIZE + i] = plota[i * SIZE + j] = r;
+		for (size_t j = 0; j < SCALING_SIZE; j++) {
+			plotb[j * SCALING_SIZE + i] = plota[i * SCALING_SIZE + j] = r;
 		}
 	}
 
 	PVParallelView::PVZoneTree::ProcessData pdata;
-	PVParallelView::PVZoneProcessing zp{SIZE * SIZE, plota.data(), plotb.data()};
+	PVParallelView::PVZoneProcessing zp{SCALING_SIZE * SCALING_SIZE, plota.data(), plotb.data()};
 	zt->process(zp, pdata);
 
-	Squey::PVSelection sel(SIZE * SIZE);
+	Squey::PVSelection sel(SCALING_SIZE * SCALING_SIZE);
 	sel.select_odd(); // Start with 1 as first value thus we check for x % 2 == 0
 
 	auto start = std::chrono::steady_clock::now();

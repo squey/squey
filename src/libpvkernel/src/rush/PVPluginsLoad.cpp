@@ -33,6 +33,8 @@
 
 #include <cstdlib>
 
+#include <boost/dll/runtime_symbol_info.hpp>
+
 int PVRush::PVPluginsLoad::load_all_plugins()
 {
 	int ret = 0;
@@ -66,22 +68,29 @@ int PVRush::PVPluginsLoad::load_source_plugins()
 	return ret;
 }
 
-QString PVRush::PVPluginsLoad::get_input_type_dir()
+static QString get_pvkernel_plugins_path()
 {
 	QString pluginsdirs = QString(getenv("PVKERNEL_PLUGIN_PATH"));
 	if (pluginsdirs.isEmpty()) {
+#ifdef __APPLE__
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		pluginsdirs = QString::fromStdString(exe_path.parent_path().string() + "/../PlugIns");
+#elifdef _WIN32
+		boost::filesystem::path exe_path = boost::dll::program_location();
+		pluginsdirs = QString::fromStdString(exe_path.parent_path().string() + "/plugins");
+#else
 		pluginsdirs = QString(PVKERNEL_PLUGIN_PATH);
+#endif
 	}
+	return pluginsdirs;
+}
 
-	return pluginsdirs + QDir::separator() + "input-types";
+QString PVRush::PVPluginsLoad::get_input_type_dir()
+{
+	return get_pvkernel_plugins_path() + QDir::separator() + "input-types";
 }
 
 QString PVRush::PVPluginsLoad::get_source_dir()
 {
-	QString pluginsdirs = QString(getenv("PVKERNEL_PLUGIN_PATH"));
-	if (pluginsdirs.isEmpty()) {
-		pluginsdirs = QString(PVKERNEL_PLUGIN_PATH);
-	}
-
-	return pluginsdirs + QDir::separator() + "sources";
+	return get_pvkernel_plugins_path() + QDir::separator() + "sources";
 }

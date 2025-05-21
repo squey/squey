@@ -175,10 +175,10 @@ class PVBufferSlice
 	}
 
   protected:
-	char* _begin;
-	char* _end;
-	char* _physical_end;
-	char* _realloc_buf;
+	char* _begin = nullptr;
+	char* _end = nullptr;
+	char* _physical_end = nullptr;
+	char* _realloc_buf = nullptr;
 
 	buf_list_t& _buf_list;
 };

@@ -34,6 +34,7 @@
 #include <fstream>
 #include <list>
 #include <mutex>
+#include <cinttypes> // PRIxxx macro
 
 #include "pvcop/db/128bits_support.h"
 #include "pvcop/formatter_desc.h"
@@ -51,12 +52,12 @@ static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
 //   {{ formatter, parameters}, { excluded_formatter_1, excluded_formatter_2, ...}}
      {{"number_uint32", ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_int32",  ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint32", "%#o"}, { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint32", "0x%x"}, { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint32", "%#" PRIo32}, { "number_float", "number_double", "time", "duration" }},
+     {{"number_uint32", "0x%" PRIx32}, { "number_float", "number_double", "time", "duration" }},
      {{"number_uint64", ""},    { "number_float", "number_double", "time", "duration" }},
      {{"number_int64",  ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", "%#lo"},{ "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", "0x%lx"},{ "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", "%#" PRIo64},{ "number_float", "number_double", "time", "duration" }},
+     {{"number_uint64", "0x%" PRIx64},{ "number_float", "number_double", "time", "duration" }},
      {{"number_float",  ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
      {{"number_double", ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
 
@@ -106,7 +107,7 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 
 std::mutex g_mutex;
 
-static std::string get_user_time_formats_path()
+static QString get_user_time_formats_path()
 {
 	return PVCore::PVConfig::user_dir() + USER_TIME_FORMATS_FILENAME;
 }
@@ -145,25 +146,32 @@ static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()
 	std::vector<std::string> time_formats = SUPPLIED_TIMES_FORMATS;
 
 	// user time formats (update file if needed to remove potential duplications)
-	std::string updated_user_time_formats;
+	QString updated_user_time_formats;
 	const std::unordered_set<std::string> supplied_times_formats(SUPPLIED_TIMES_FORMATS.begin(),
 	                                                             SUPPLIED_TIMES_FORMATS.end());
-	std::ifstream in_f(get_user_time_formats_path());
+    QFile file(get_user_time_formats_path());
 	bool user_time_formats_file_needs_update = false;
-	for (std::string user_time_format; getline(in_f, user_time_format);) {
-		auto it = supplied_times_formats.find(user_time_format);
-		bool duplicated_time_format = it != supplied_times_formats.end();
-		user_time_formats_file_needs_update |= duplicated_time_format;
-		if (not duplicated_time_format) {
-			time_formats.push_back(user_time_format);
-			updated_user_time_formats += user_time_format + "\n";
-		}
-	}
-	if (user_time_formats_file_needs_update) {
-		in_f.close();
-		std::ofstream out_f(get_user_time_formats_path());
-		out_f << updated_user_time_formats;
-	}
+	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        QTextStream in(&file);
+        while (!in.atEnd()) {
+            QString user_time_format = in.readLine();
+            bool duplicated = supplied_times_formats.contains(user_time_format.toStdString());
+            user_time_formats_file_needs_update |= duplicated;
+            if (!duplicated) {
+                time_formats.push_back(user_time_format.toStdString());
+                updated_user_time_formats += user_time_format + '\n';
+            }
+        }
+        file.close();
+    }
+
+    if (user_time_formats_file_needs_update) {
+        if (file.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate)) {
+            QTextStream out(&file);
+            out << updated_user_time_formats;
+            file.close();
+        }
+    }
 
 	time_formats = sort_time_formats_to_reduce_false_detection_rate(time_formats);
 	for (const std::string& time_format : time_formats) {
@@ -186,11 +194,14 @@ static pvcop::formatter_desc get_formatter_desc(const std::string& type,
 void PVRush::PVTypesDiscoveryOutput::append_time_formats(
     const std::unordered_set<std::string>& time_formats)
 {
-	std::ofstream f;
-	f.open(get_user_time_formats_path(), std::ios_base::app | std::ios_base::out);
-	for (const std::string& time_format : time_formats) {
-		f << time_format << std::endl;
-	}
+	QFile file(get_user_time_formats_path());
+    if (file.open(QIODevice::Append | QIODevice::Text)) {
+        QTextStream out(&file);
+        for (const std::string& time_format : time_formats) {
+            out << QString::fromStdString(time_format) << '\n';
+        }
+        file.close();
+    }
 }
 
 std::unordered_set<std::string> PVRush::PVTypesDiscoveryOutput::supported_time_formats()
@@ -203,12 +214,15 @@ std::unordered_set<std::string> PVRush::PVTypesDiscoveryOutput::supported_time_f
 	}
 
 	// user time formats
-	std::string time_format;
-	std::ifstream f(get_user_time_formats_path());
-	for (std::string supported_time_format; getline(f, supported_time_format);) {
-		supported_time_formats.emplace(supported_time_format);
+	QFile file(get_user_time_formats_path());
+	if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+		QTextStream in(&file);
+		while (!in.atEnd()) {
+			QString supported_time_format = in.readLine();
+			supported_time_formats.insert(supported_time_format.toStdString());
+		}
+		file.close();
 	}
-	f.close();
 
 	return supported_time_formats;
 }

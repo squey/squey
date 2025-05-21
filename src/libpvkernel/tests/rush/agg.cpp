@@ -72,7 +72,7 @@ int main(int argc, char** argv)
 	}
 
 	std::string output_file = pvtest::get_tmp_filename();
-	std::ofstream out(output_file);
+	std::ofstream out{std::filesystem::path(output_file)};
 
 	out << "Process from 10 to 20..." << std::endl;
 	agg.process_indexes(10, 20);

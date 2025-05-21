@@ -34,18 +34,18 @@
 #include <QFileInfo>
 
 #include <sys/time.h>
-#include <sys/resource.h>
+//#include <sys/resource.h>
 
 PVRush::PVInputTypeFilename::PVInputTypeFilename() : PVInputTypeDesc<PVFileDescription>()
 {
-	struct rlimit rlim;
-	if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
-		PVLOG_WARN("Unable to get nofile limit. Uses 1024 by default.\n");
+	// struct rlimit rlim;
+	// if (getrlimit(RLIMIT_NOFILE, &rlim) != 0) {
+	// 	PVLOG_WARN("Unable to get nofile limit. Uses 1024 by default.\n");
 		_limit_nfds = 1024;
-	} else {
-		_limit_nfds =
-		    rlim.rlim_cur - 1; // Take the soft limit as this is the one that will limit us...
-	}
+	// } else {
+	// 	_limit_nfds =
+	// 	    rlim.rlim_cur - 1; // Take the soft limit as this is the one that will limit us...
+	// }
 }
 
 bool PVRush::PVInputTypeFilename::createWidget(hash_formats& formats,
@@ -76,11 +76,9 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
 		    PVInputDescription_p(new PVFileDescription(filename, filenames.size() > 1)));
 	}
 
-	if (inputs.size() >= _limit_nfds - 200) {
-		ssize_t nopen = _limit_nfds - 200;
-		if (nopen <= 0) {
-			nopen = 1;
-		}
+#ifdef __linux__
+	if ((uint64_t)inputs.size() >= (uint64_t)_limit_nfds - 200) {
+		uint64_t nopen = (uint64_t)_limit_nfds - 200;
 		QString msg =
 		    QObject::tr("You are trying to open %1 files, and your system limits a user to open %2 "
 		                "file descriptor at once.\nConsidering the needs of the application, this "
@@ -98,6 +96,9 @@ bool PVRush::PVInputTypeFilename::load_files(QStringList const& filenames,
 		err.exec();
 		inputs.erase(inputs.begin() + nopen + 1, inputs.end());
 	}
+#else
+	(void) parent;
+#endif
 
 	return inputs.size() > 0;
 }

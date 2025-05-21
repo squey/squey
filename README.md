@@ -80,9 +80,9 @@ https://doc.squey.org
 
 See the developement [README.md](buildstream/README.md) page.
 
-### Installing a flatpak development branch
+### Installing a development branch
 
-Note : Merge Requests having the `action::flatpak_export` [label](https://gitlab.com/squey/squey/-/labels#) are exported by the CI/CD pipeline as a flatpak package named after the git branch name.
+Note : Merge Requests having the `export_linux_package` [label](https://gitlab.com/squey/squey/-/labels#) are exported by the CI/CD pipeline as a flatpak package named after the git branch name.
 
 Adding the flatpak development remote (once):
 ```
@@ -92,6 +92,8 @@ Installing a development branch:
 ```
 flatpak install --user squey_dev org.squey.Squey//<dev_branch_name>
 ```
+
+`export_windows_package` and `export_macos_package` can also be used to generate the packages targeting these platforms.
 
 ### Roadmap
 

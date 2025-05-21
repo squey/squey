@@ -44,7 +44,7 @@ static constexpr const size_t nic_max_count = 1 << 24;
 
 static constexpr const size_t invalid_vendor = 1 << 24;
 
-static constexpr const size_t mapping_range = 1UL << 32;
+static constexpr const size_t mapping_range = (size_t)1 << 32;
 
 using mac_t = uint64_t;
 using vendor_t = uint64_t;
@@ -142,7 +142,7 @@ static void compute_mac_distribution(const pvcop::db::array& data_array,
 
 	/* we compute per-vendor unique MAC count
 	 */
-	for (unsigned long i : uniq) {
+	for (uint64_t i : uniq) {
 		++counts[mac_to_vendor(i)];
 	}
 

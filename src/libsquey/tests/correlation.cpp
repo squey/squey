@@ -77,7 +77,7 @@ int main()
 	env.compute_views();
 
 	auto views = env.root.get_children<Squey::PVView>();
-	PV_VALID(views.size(), 2UL);
+	PV_VALID(views.size(), (size_t)2);
 
 	/**
 	 * Add correlation between source IP columns
@@ -117,8 +117,8 @@ int main()
 	size_t count1 = sel1.bit_count();
 	const Squey::PVSelection& sel2 = view2->get_post_filter_layer().get_selection();
 	size_t count2 = sel2.bit_count();
-	PV_VALID(count1, 11UL);
-	PV_VALID(count2, 84UL);
+	PV_VALID(count1, (size_t)11);
+	PV_VALID(count2, (size_t)84);
 
 	std::vector<size_t> v1(
 	    {1332, 1485, 1540, 1875, 1877, 1966, 3156, 3159, 3199, 5689, 5762, 5764, 5767, 5791,
@@ -193,8 +193,8 @@ int main()
 	size_t count1 = sel1.bit_count();
 	const Squey::PVSelection& sel2 = view2->get_post_filter_layer().get_selection();
 	size_t count2 = sel2.bit_count();
-	PV_VALID(count1, 138UL);
-	PV_VALID(count2, 3990UL);
+	PV_VALID(count1, (size_t)138);
+	PV_VALID(count2, (size_t)3990);
 	}
 
 

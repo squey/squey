@@ -27,6 +27,8 @@
 #include <pvkernel/rush/PVTypesDiscoveryOutput.h>
 #include <pvkernel/rush/PVFileDescription.h>
 
+#include <boost/algorithm/string/replace.hpp>
+
 #include "common.h"
 
 #include <pvkernel/core/squey_assert.h>
@@ -87,6 +89,9 @@ int main()
 		std::string type_format;
 		std::string axe_name;
 		std::tie(type, type_format, axe_name) = types_discovery_output.type_desc(col);
+#ifdef __linux__
+		boost::replace_all(axe_name, "ll", "l"); // To fix PRIxxx macro difference between Linux and Windows/macOS
+#endif
 		PV_VALID(type + type_format, axe_name);
 	}
 #endif // SQUEY_BENCH

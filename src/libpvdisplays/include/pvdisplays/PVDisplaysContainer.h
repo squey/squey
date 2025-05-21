@@ -48,7 +48,7 @@ class PVDisplaysContainer : public QMainWindow
 	explicit PVDisplaysContainer(QWidget* w) : QMainWindow(w) {}
 
   public Q_SLOTS:
-	virtual void create_view_widget(PVDisplays::PVDisplayViewIf& interface,
+	virtual void create_view_widget(PVDisplays::PVDisplayViewIf& iface,
 	                                Squey::PVView* view,
 	                                std::vector<std::any> params = {}) = 0;
 };

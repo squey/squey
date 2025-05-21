@@ -37,13 +37,21 @@
 PVParallelView::PVHitGraphBuffer::PVHitGraphBuffer(uint32_t nbits, uint32_t nblocks)
     : _nbits(nbits), _nblocks(nblocks), _size_block(1 << nbits)
 {
+#ifdef _WIN32
+	_buf = (uint32_t*)_aligned_malloc(size_bytes(), 16);
+#else
 	posix_memalign((void**)&_buf, 16, size_bytes());
+#endif
 }
 
 PVParallelView::PVHitGraphBuffer::~PVHitGraphBuffer()
 {
 	if (_buf) {
-		free(_buf);
+#ifdef _WIN32
+	_aligned_free(_buf);
+#else
+	free(_buf);
+#endif
 	}
 }
 

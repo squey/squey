@@ -43,7 +43,7 @@ static void compute_log_scaling(pvcop::db::array const& mapped,
 
 	if (ymin == ymax) {
 		for (size_t i = 0; i < mapped.size(); i++) {
-			dest[i] = invalid_selection and invalid_selection[i] ? ~value_type(0) : 1UL << 31;
+			dest[i] = invalid_selection and invalid_selection[i] ? ~value_type(0) : (value_type)1 << 31;
 		}
 		return;
 	}
