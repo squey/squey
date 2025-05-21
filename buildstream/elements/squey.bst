@@ -75,7 +75,6 @@ config:
       WARNINGS_AS_ERRORS=$([ "%{code_coverage}" = "1" ] && echo 0 || echo 1)
       CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
       %{cmake} "%{source-dir}" \
-        -DCMAKE_CXX_COMPILER_LAUNCHER="recc" \
         -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
         -DCMAKE_COMPILE_WARNING_AS_ERROR=$WARNINGS_AS_ERRORS
     
