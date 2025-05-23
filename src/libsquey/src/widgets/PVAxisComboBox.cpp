@@ -44,14 +44,14 @@ PVWidgets::PVAxisComboBox::PVAxisComboBox(Squey::PVAxesCombination const& axes_c
 	refresh_axes();
 	connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
 		if (index < 0) {
-			return current_axis_changed(PVCol(), PVCombCol());
+			Q_EMIT current_axis_changed(PVCol(), PVCombCol());
 		}
 		if (_axes_shown == AxesShown::CombinationAxes or
 		    (_axes_shown == AxesShown::BothOriginalCombinationAxes and
 		     index < count() - _axes_comb.get_nraw_axes_count())) {
-			return current_axis_changed(current_axis(), PVCombCol(index));
+			Q_EMIT current_axis_changed(current_axis(), PVCombCol(index));
 		}
-		return current_axis_changed(current_axis(), PVCombCol());
+		Q_EMIT current_axis_changed(current_axis(), PVCombCol());
 	});
 	setAcceptDrops(true);
 }

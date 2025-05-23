@@ -26,6 +26,7 @@
 #define PVWIDGETS_PVAXISCOMBOBOX_H
 
 #include <squey/PVAxesCombination.h>
+#include <squey/export.h>
 
 #include <QComboBox>
 
@@ -35,7 +36,7 @@ namespace PVWidgets
 /**
  * This widget is a combo box to choose an axis among those in a PVAxesCombination.
  */
-class PVAxisComboBox : public QComboBox
+class PVSQUEY_EXPORT PVAxisComboBox : public QComboBox
 {
 	Q_OBJECT
   public:
