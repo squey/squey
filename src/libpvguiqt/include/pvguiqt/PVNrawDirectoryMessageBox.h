@@ -42,16 +42,16 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 			return;
 		}
 
-		setStandardButtons(QMessageBox::Ok);
+		setStandardButtons(QMessageBox::Cancel);
 		setIcon(QMessageBox::Information);
-		setWindowTitle("Temporary working directory error");
+		setWindowTitle("Welcome to Squey!");
 		setText(
 		    QString(
-		        "The temporary working directory <b>%1</b> does not exists or is not writable. "
-		        "Please, change the permissions or chose another directory.<br><br>"
-				"This directory emplacement needs to be specified once and for all.<br>"
-		        "A fast underlying storage for this directory will provide better performances.")
-		        .arg(nraw_tmp));
+		        "It seems that you are using Squey for the first time.<br><br>"
+		        "Please, chose a temporary files directory for Squey.<br>"
+		        "A fast underlying storage for this directory will provide better performances."
+			)
+		);
 
 		QAbstractButton* browser_button = addButton(tr("Browse..."), QMessageBox::ActionRole);
 
@@ -63,6 +63,9 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 				if (not nraw_tmp.isEmpty()) {
 					PVCore::PVConfig::get().config().setValue(config_nraw_tmp, nraw_tmp);
 				}
+			}
+			else if (clickedButton() == button(QMessageBox::Cancel)) {
+				::exit(0);
 			}
 
 		} while (not QFileInfo(nraw_tmp).isWritable());
