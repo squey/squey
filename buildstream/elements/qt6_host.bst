@@ -14,5 +14,5 @@ build-depends:
 depends:
   (>):
   - freedesktop-sdk.bst:components/openssl.bst
-  - mysql_host.bst
+  - mariadb-connector-c_host.bst
   - libpq_host.bst

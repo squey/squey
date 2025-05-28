@@ -1,0 +1,14 @@
+description: |
+
+  MariaDB Connector/C is used to connect applications developed in C/C++ to MariaDB and MySQL databases.
+
+sources:
+- kind: tar
+  url: github:mariadb-corporation/mariadb-connector-c/archive/refs/tags/v3.4.5.tar.gz
+  ref: 07803adff502edf9b294ba1953cd99e2729d728bcb13c20f823633f7507040a6
+
+variables:
+  cmake-local-extra: ''
+  cmake-local: >-
+    -DWITH_EXTERNAL_ZLIB=ON
+    %{cmake-local-extra}
