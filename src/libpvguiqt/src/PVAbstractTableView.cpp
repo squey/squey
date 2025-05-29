@@ -25,13 +25,170 @@
 
 #include <pvguiqt/PVAbstractTableView.h>
 #include <pvguiqt/PVAbstractTableModel.h>
+#include <pvkernel/core/PVTheme.h>
 
 #include <QScrollBar>
 #include <QHeaderView>
 #include <QMouseEvent>
-
+#include <QApplication>
+#include <QDesktopServices>
+#include <QUrl>
+#include <QPainter>
+#include <QTextCharFormat>
+#include <QAbstractTextDocumentLayout>
+#include <QTextCursor>
 namespace PVGuiQt
 {
+
+bool PVHyperlinkDelegate::is_url(const QModelIndex& index) const
+{
+	QString text = index.data().toString();
+	QUrl url(text);
+	return url.isValid() and url.scheme().startsWith("http");
+}
+
+QString PVHyperlinkDelegate::get_elided_text(const QString& url, const QTextDocument& doc, int max_width) const
+{
+	QFont font = doc.defaultFont();
+	QFontMetrics fm(font);
+	return fm.elidedText(url, Qt::ElideRight, max_width);
+}
+
+void PVHyperlinkDelegate::format_text_document(QTextDocument& doc, QColor& color, const QString& url, const QRect& rect, bool is_selected /* = false */) const
+{
+	color = QColor(PVCore::PVTheme::link_colors[(int)PVCore::PVTheme::color_scheme()].name());
+	if (is_selected) {
+		color = color.darker(300);
+	}
+
+	QTextOption text_option;
+	text_option.setAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+	text_option.setWrapMode(QTextOption::NoWrap);
+	doc.setDefaultTextOption(text_option);
+
+	const QString& elided_text = get_elided_text(url, doc, rect.width());
+	doc.setHtml(_link.arg(url, elided_text, color.name(), "none"));
+}
+
+void PVHyperlinkDelegate::paint(
+	QPainter* painter,
+	const QStyleOptionViewItem& option,
+	const QModelIndex& index) const
+{
+	if (is_url(index)) {
+		QStyleOptionViewItem opt(option);
+		initStyleOption(&opt, index);
+
+		const PVAbstractTableModel* model = static_cast<const PVAbstractTableModel*>(index.model());
+
+		painter->save();
+		opt.widget->style()->drawPrimitive(QStyle::PE_PanelItemViewItem, &opt, painter, opt.widget);
+
+		QTextDocument doc;
+		const QString& url = index.data().toString();
+		QColor color;
+		format_text_document(doc, color, url, option.rect, model->is_selected(index));
+		if (mouse_over_link(index, option.rect)) {
+			const QString& elided_text = get_elided_text(url, doc, option.rect.width());
+			doc.setHtml(_link.arg(url, elided_text, color.name(), "underline"));
+		}
+
+
+		qreal doc_height = doc.size().height();
+		qreal offset_y = option.rect.top() + (option.rect.height() - doc_height) / 2.0;
+		painter->translate(option.rect.left(), offset_y);
+		doc.setTextWidth(option.rect.width());
+		doc.drawContents(painter);
+		painter->restore();
+	}
+	else {
+		return QStyledItemDelegate::paint(painter, option, index);
+	}
+}
+
+bool PVHyperlinkDelegate::mouse_over_link(const QModelIndex& index, const QRect& rect) const
+{
+	if (is_url(index)) {
+		const QString& url = index.data().toString();
+		QTextDocument doc;
+		QColor color;
+		format_text_document(doc, color, url, rect);
+
+		QPointF mouse_local = QPointF(_mouse_pos - rect.topLeft());
+		int pos = doc.documentLayout()->hitTest(mouse_local, Qt::ExactHit);
+
+		if (pos != -1) {
+			QTextCursor cursor(&doc);
+			cursor.setPosition(pos);
+			if (not cursor.isNull()) {
+				QTextCharFormat format = cursor.charFormat();
+				if (format.isAnchor()) {
+					const QString& elided_text = get_elided_text(url, doc, rect.width());
+					doc.setHtml(_link.arg(url, elided_text, color.name(), "underline"));
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+void PVHyperlinkDelegate::set_mouse_pos(const QPoint& mouse_pos_in_viewport)
+{
+	_mouse_pos = mouse_pos_in_viewport;
+}
+
+bool PVAbstractTableView::viewportEvent(QEvent* event)
+{
+    switch (event->type()) {
+		case QEvent::MouseMove: {
+			auto* e = static_cast<QMouseEvent*>(event);
+			if (_hyperlink_delegate) {
+                _hyperlink_delegate->set_mouse_pos(e->pos());
+                viewport()->update();
+            }
+			QModelIndex index = indexAt(e->pos());
+			QString text = index.data().toString();
+			QUrl url(text);
+
+			if (_hyperlink_delegate and _hyperlink_delegate->mouse_over_link(index, visualRect(index))) {
+				setCursor(Qt::PointingHandCursor);
+			} else {
+				unsetCursor();
+			}
+			break;
+		}
+		case QEvent::Leave: {
+			if (_hyperlink_delegate) {
+                _hyperlink_delegate->set_mouse_pos(QPoint(-1, -1));
+                viewport()->update();
+            }
+			unsetCursor();
+			break;
+		}
+		case QEvent::MouseButtonPress: {
+			auto* e = static_cast<QMouseEvent*>(event);
+			QModelIndex index = indexAt(e->pos());
+			if (not index.isValid()) {
+				break;
+			}
+
+			QString text = index.data().toString();
+			QUrl url(text);
+			if (_hyperlink_delegate and _hyperlink_delegate->mouse_over_link(index, visualRect(index))) {
+				QDesktopServices::openUrl(url);
+				return true;
+			}
+			break;
+		}
+		default: {
+			break;
+		}
+    }
+
+    return PVTableView::viewportEvent(event);
+}
 
 /******************************************************************************
  *
@@ -41,6 +198,11 @@ namespace PVGuiQt
 
 PVAbstractTableView::PVAbstractTableView(QWidget* parent) : PVTableView(parent)
 {
+	// Handle hyperlink rendering
+	_hyperlink_delegate = new PVHyperlinkDelegate(this);
+	setMouseTracking(true);
+	viewport()->setMouseTracking(true);
+
 	connect(verticalScrollBar(), &QScrollBar::valueChanged, this,
 	        &PVAbstractTableView::slider_move_to);
 	connect(verticalScrollBar(), &QScrollBar::actionTriggered, this,
@@ -319,6 +481,9 @@ void PVAbstractTableView::mousePressEvent(QMouseEvent* event)
 			table_model()->start_selection(clc_row);
 		}
 	}
+	else {
+		PVTableView::mousePressEvent(event);
+	}
 }
 
 /******************************************************************************
@@ -420,6 +585,10 @@ void PVAbstractTableView::mouseReleaseEvent(QMouseEvent* event)
  *****************************************************************************/
 void PVAbstractTableView::mouseMoveEvent(QMouseEvent* event)
 {
+	if (event->buttons() == Qt::NoButton) {
+        return;
+    }
+
 	int pos = event->position().y();
 	// Scroll up while the clicked mouse is above the listing
 	while (pos < 0) {
@@ -459,6 +628,22 @@ void PVAbstractTableView::mouseMoveEvent(QMouseEvent* event)
 void PVAbstractTableView::setModel(QAbstractItemModel* model)
 {
 	PVTableView::setModel(model);
+
+	// Setup model hyperlink delegate
+	auto setup_hyperlink_delegate = [this,model]() {
+		if (_hyperlink_delegate) {
+			int columnCount = model->columnCount();
+			for (int col = 0; col < columnCount; ++col) {
+				setItemDelegateForColumn(col, _hyperlink_delegate);
+			}
+		}
+	};
+	setup_hyperlink_delegate();
+	connect(table_model(), &QAbstractItemModel::modelReset,
+	this, [setup_hyperlink_delegate]() {
+		setup_hyperlink_delegate();
+	});
+
 	connect(model, &QAbstractItemModel::layoutChanged, this,
 	        (void (PVAbstractTableView::*)()) & PVAbstractTableView::new_range);
 	Q_EMIT table_model()->layoutChanged();
