@@ -5,8 +5,8 @@ description: |
     
 sources:
 - kind: tar
-  url: github:apache/thrift/archive/refs/tags/v0.20.0.tar.gz
-  ref: cd7b829d3d9d87f9f7d708e004eef7629789591ee1d416f4741913bc33e5c27d
+  url: github:apache/thrift/archive/refs/tags/v0.22.0.tar.gz
+  ref: c4649c5879dd56c88f1e7a1c03e0fbfcc3b2a2872fb81616bffba5aa8a225a37
 
 (@): buildstream/elements/base/target.bst
 

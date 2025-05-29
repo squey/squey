@@ -5,8 +5,8 @@ description: |
     
 sources:
 - kind: tar
-  url: github:apache/arrow/archive/refs/tags/apache-arrow-19.0.0.tar.gz
-  ref: 7bee51bb6c1176eb08070bd2c7fb7e9e4d17f277e59c9cf80a88082443b124de
+  url: github:apache/arrow/archive/refs/tags/apache-arrow-20.0.0.tar.gz
+  ref: 67e31a4f46528634b8c3cbb0dc60ac8f85859d906b400d83d0b6f732b0c5b0e3
 
 (@): buildstream/elements/base/target.bst
 
