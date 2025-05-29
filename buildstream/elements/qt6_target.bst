@@ -24,7 +24,7 @@ build-depends:
 
 depends:
   (>):
-#  - mysql_target.bst
+  - mariadb-connector-c_target.bst
   - libpq_target.bst
   - brotli.bst
   - icu.bst

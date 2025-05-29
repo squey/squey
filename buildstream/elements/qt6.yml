@@ -24,6 +24,8 @@ variables:
     -DINSTALL_SYSCONFDIR=%{prefix}/etc/xdg
     -DINSTALL_INCLUDEDIR=%{includedir}/qt6
     -DINSTALL_PLUGINSDIR=%{libdir}/qt6/plugins
+    -DMySQL_ROOT=%{includedir}/mariadb
+    -DMySQL_LIBRARY_DIR=%{libdir}/mariadb
     %{qt-crossplatform-options}
     -DBUILD_CMAKE_TESTING=OFF
     -DBUILD_qt3d=OFF
