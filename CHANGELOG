@@ -1,3 +1,16 @@
+5.0.7 (2025-06-04)
+------------------
+
+This minor release fixes or improves:
+* fix a crash in series view
+* update Apache Arrow library from 19.0 to 20.0 to fix a bug in Parquet plugin
+* [windows] enable MySQL backend for Database plugin
+* [windows] fix scatter view axes changes
+* [linux] fix a regression in distinct values background color introduced in 5.0.5
+* fix dark theme in FormatBuilder type format help
+* improve temporary folder dialog selection message
+* add support for hyperlinks in table views
+
 5.0.6 (2025-05-20)
 ------------------
 
