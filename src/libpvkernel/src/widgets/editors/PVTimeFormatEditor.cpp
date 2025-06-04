@@ -130,8 +130,6 @@ PVWidgets::PVTimeFormatHelpDlg::PVTimeFormatHelpDlg(QLineEdit* editor, QWidget* 
 void PVWidgets::PVTimeFormatHelpDlg::set_help(QTextEdit* txt)
 {
 	txt->setReadOnly(true);
-	txt->document()->setDefaultStyleSheet(
-	    "td {\nbackground-color:#ffe6bb;\n}\nbody{\nbackground-color:#fcffc4;\n}\n");
 	QString html = QString("<body>\
   <big><b>Help for the time format</b></big><br/>\
   sample :<br/>\
