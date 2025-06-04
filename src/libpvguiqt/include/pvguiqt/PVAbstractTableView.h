@@ -28,10 +28,36 @@
 #include <pvguiqt/PVTableView.h>
 #include <pvbase/types.h>
 
+#include <QStyledItemDelegate>
+#include <QTextDocument>
+
 namespace PVGuiQt
 {
 
 class PVAbstractTableModel;
+
+class PVHyperlinkDelegate : public QStyledItemDelegate {
+public:
+    using QStyledItemDelegate::QStyledItemDelegate;
+
+	void paint(QPainter* painter, const QStyleOptionViewItem& option, const QModelIndex& index) const override;
+
+	void set_mouse_pos(const QPoint& mouse_pos_in_viewport);
+
+	bool mouse_over_link(const QModelIndex& index, const QRect& rect) const;
+
+private:
+	bool is_url(const QModelIndex& index) const;
+
+	void format_text_document(QTextDocument& doc, QColor& color, const QString& url, const QRect& rect, bool is_selected = false) const;
+
+	QString get_elided_text(const QString& url, const QTextDocument& doc, int max_width) const;
+
+private:
+	QPoint _mouse_pos;
+	mutable bool _mouse_over_link = false;
+	const QString _link = "<a style=\"text-decoration: %4; color: %3\" href=\"%1\">%2</a>";
+};
 
 /**
  * Abstract class for Huge table view.
@@ -112,6 +138,11 @@ class PVAbstractTableView : public PVTableView
 	void mouseMoveEvent(QMouseEvent* event) override;
 
 	/**
+	 * Handle URL clicks
+	 */
+	bool viewportEvent(QEvent* event) override;
+
+	/**
 	 * Move the pagination information to have row as first line and update view.
 	 *
 	 * @param[in] row : row from nraw to display
@@ -166,6 +197,11 @@ class PVAbstractTableView : public PVTableView
   Q_SIGNALS:
 	void selection_commited();
 	void validate_selection();
+
+  private:
+	PVHyperlinkDelegate* _hyperlink_delegate = nullptr;
+
+  protected:
 };
 } // namespace PVGuiQt
 
