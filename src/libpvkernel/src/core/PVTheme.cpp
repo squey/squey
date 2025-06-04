@@ -228,7 +228,10 @@ void PVCore::PVTheme::apply_style(bool dark_theme)
 #ifdef __APPLE__
         PVCore::PVTheme::get().light_base_color = QPalette().color(QPalette::AlternateBase).lighter(150);
         PVCore::PVTheme::get().light_alternate_base_color = QPalette().color(QPalette::BrightText).lighter(500);
-#else
+#elifdef __linux__
+        PVCore::PVTheme::get().light_base_color = QPalette().color(QPalette::Base);
+		PVCore::PVTheme::get().light_alternate_base_color = QPalette().color(QPalette::AlternateBase);
+#else // _WIN32
         QString css_string = load_stylesheet(css_theme);
         QWidget dummy_widget;
         dummy_widget.hide();
