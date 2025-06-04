@@ -56,6 +56,8 @@ See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
 </a>
 
+[standalone archive](https://squey.gitlab.io/squey/squey-win64-standalone-latest.zip)
+
 ### Linux
 
 [<img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="200"/>](https://flathub.org/apps/details/org.squey.Squey)
