@@ -12,4 +12,5 @@ cp -ar "/$PACKAGE_ROOT" .
 sed -e "s|{{version}}|${VERSION}|" "buildstream/files/msix_package/$MSIX_PROJECT.j2" > "$PACKAGE_ROOT/$MSIX_PROJECT"
 makemsix pack -d "$PACKAGE_ROOT" -p "/output/${PACKAGE_NAME}"
 
+cd "$PACKAGE_ROOT" && 7zz a /output/squey-win64-standalone-latest.zip .
 cd /win/tests && 7zz a /output/testsuite.zip .

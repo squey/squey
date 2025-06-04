@@ -265,6 +265,7 @@ pages:
       fi
       ostree checkout -U --repo="$CI_PROJECT_DIR/public/flatpak" app/org.squey.Squey/x86_64/release-$VERSION public/flatpak_app && cd public/flatpak_app && XZ_OPT=-9T0 tar Jcvf "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" . && cd - && rm -rf "$CI_PROJECT_DIR/public/flatpak_app"
       rm -rf "$CI_PROJECT_DIR/public/flatpak"
+      mv "$CI_PROJECT_DIR/export/x86_64-w64-mingw32/squey-win64-standalone-latest.zip" "$CI_PROJECT_DIR/public"
   artifacts:
     reports:
       coverage_report:
