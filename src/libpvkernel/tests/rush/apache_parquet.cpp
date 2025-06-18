@@ -407,10 +407,9 @@ UNICODE_MAIN()
         PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(output_csv_file2, csv_ref));
 
         // Cleanup files
-        // std::remove(parquet_test_file.c_str());
-        // std::remove(output_csv_file.c_str());
-        // std::remove(output_csv_file2.c_str());
-        // std::remove(output_parquet_file.c_str());
+        std::remove(output_csv_file.c_str());
+        std::remove(output_csv_file2.c_str());
+        std::remove(output_parquet_file.c_str());
     }
 
     // Import multiple parquet files
