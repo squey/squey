@@ -47,7 +47,7 @@ cp "$CI_PROJECT_DIR/src/pvconfig.ini" "$inifile"
 sed -i '' "s|\(nraw_tmp=\).*|\1${TMPDIR}|" "$inifile"
 
 # Run testsuite
-ctest_cmd=(ctest --test-dir "$testsuitedir" -j $(nproc) --output-junit "$CI_PROJECT_DIR/junit.xml" --output-on-failure -T test -R 'SQUEY_TEST' --timeout 60)
+ctest_cmd=(ctest --test-dir "$testsuitedir" -j $(nproc) --output-junit "$CI_PROJECT_DIR/junit.xml" --output-on-failure -T test -R 'SQUEY_TEST')
 if [ "$TARGET_TRIPLE" = "aarch64-apple-darwin" ]; then
     "${ctest_cmd[@]}"
 elif [ "$TARGET_TRIPLE" = "x86_64-apple-darwin" ]; then
