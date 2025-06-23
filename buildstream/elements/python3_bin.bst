@@ -26,15 +26,15 @@ config:
           xar -x -f *.pkg "%{python-framework-payload-path}"
           gunzip < "%{python-framework-payload-path}" | cpio -idm
           mkdir -p "%{python-framework-install-dir}"
-          mv "Versions" "%{python-framework-install-dir}"
+          mv Versions Resources Python "%{python-framework-install-dir}"
           cd "%{install-root}/%{libdir}" && ln -s "Python.framework/Versions/Current/lib/libpython3.12.dylib" && cd -
           cd "%{install-root}/%{libdir}"
-          find "Python.framework" \( -name "*.dylib" -o -name "Python" \) \
+          find "Python.framework" -type f \( -name "*.dylib" -o -name "Python" \) \
             -exec echo "{}" \; \
             -exec %{toolchain-dir}/%{host}-lipo -extract "%{macho-arch}" "{}" -output "{}" \; \
             -exec %{toolchain-dir}/%{host}-codesign_allocate -r -i "{}" -o "{}" \; \
             -exec %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/{}" "{}" \;
-          mv Python.framework/Versions/Current/include/* %{install-root}/%{includedir}
+          cp -r Python.framework/Versions/Current/include/* %{install-root}/%{includedir}
     - target_triple == "x86_64-w64-mingw32":
         install-commands:
         - |

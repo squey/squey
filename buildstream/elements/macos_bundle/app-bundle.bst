@@ -23,7 +23,10 @@ config:
     cp -ar %{libdir}/* Frameworks
     cp -ar %{libdir}/squey/plugins/* PlugIns
     cp -ar %{libdir}/qt6/plugins/* PlugIns
-    rm -rf Frameworks/{objects-Release,sigc++-3.0}
+    mv Frameworks/python* Resources/python
+    rm -rf Frameworks/{objects-Release,sigc++-3.0,icu,postgresql/pgxs}
+    find . -name "libclang_rt.*" -exec rm -f {} \;
+    sed 's/org.python.python/org.squey.python/' -i Frameworks/Python.framework/Versions/Current/Resources/Python.app/Contents/Info.plist
     mkdir share
     cp -ar %{prefix}/share/pocl share
     cp -ar %{prefix}/share/squey share

@@ -14,8 +14,8 @@ export PATH="$appdir:/opt/homebrew/bin:$PATH"
 export DYLD_LIBRARY_PATH="$appdir/../Frameworks"
 export PVKERNEL_PLUGIN_PATH="$appdir/../Frameworks/squey/plugins"
 export SQUEY_PLUGIN_PATH="$PVKERNEL_PLUGIN_PATH"
-export PYTHONHOME="$appdir/../Frameworks/Python.framework/Versions/Current"
-export PYTHONPATH="$appdir/../Frameworks/python3.12/site-packages"
+export SQUEY_PYTHONHOME="$appdir/../Frameworks/Python.framework/Versions/Current"
+export SQUEY_PYTHONPATH="$appdir/../Resources/python/site-packages"
 
 # Install dependencies
 export HOMEBREW_NO_INSTALL_CLEANUP=1

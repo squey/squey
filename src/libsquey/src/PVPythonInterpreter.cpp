@@ -116,29 +116,47 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
 
 Squey::PVPythonInterpreter& Squey::PVPythonInterpreter::get(Squey::PVRoot& root)
 {
-#if defined(_WIN32)
-    const char* squey_pythonhome = PVCore::getenv("SQUEY_PYTHONHOME");
-    const char* squey_pythonpath = PVCore::getenv("SQUEY_PYTHONPATH");
-    std::string pythonpath;
+#ifndef __linux__
     std::string pythonhome;
-	if (squey_pythonhome) {
+    const char* squey_pythonhome = PVCore::getenv("SQUEY_PYTHONHOME");
+    if (squey_pythonhome) {
         pythonhome = squey_pythonhome;
-	}
+    }
+    #ifdef _WIN32
     else {
         std::string app_dir = boost::dll::program_location().parent_path().string();
         pythonhome = app_dir + "\\python";
+        
+    }
+    #elifdef __APPLE__
+    else {
+        std::string app_dir = boost::dll::program_location().parent_path().string();
+        pythonhome = app_dir = "/../Frameworks/Python.framework/Versions/Current";
     }
     PVCore::setenv("PYTHONHOME", pythonhome.c_str(), 1);
+    #endif // _WIN32
 
+    const char* squey_pythonpath = PVCore::getenv("SQUEY_PYTHONPATH");
+    std::string pythonpath;
+    #ifdef _WIN32
     if (squey_pythonpath) {
         pythonpath = pythonhome + ";" + squey_pythonpath;
-	}
+    }
     else {
         pythonpath = pythonhome + ";" + pythonhome + "\\site-packages";
     }
     pythonpath += ";" + pythonhome + "\\lib-dynload";
+    #elifdef __APPLE__
+    if (squey_pythonpath) {
+        pythonpath = squey_pythonpath;
+    }
+    else {
+        std::string app_dir = boost::dll::program_location().parent_path().string();
+        pythonpath = app_dir + "/../Resources/python/site-packages";
+    }
+    #endif // __APPLE__
     PVCore::setenv("PYTHONPATH", pythonpath.c_str(), 1);
-#endif
+#endif // __linux__
 
     static PVPythonInterpreter instance(root);
     return instance;
