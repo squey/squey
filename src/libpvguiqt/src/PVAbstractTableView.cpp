@@ -232,6 +232,16 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent) : PVTableView(parent)
 
 /******************************************************************************
  *
+ * PVAbstractTableView::set_hyperlink_delegate_max_index
+ *
+ *****************************************************************************/
+void PVAbstractTableView::set_hyperlink_delegate_max_index(int max_index)
+{
+	_hyperlink_delegate_max_index = max_index;
+}
+
+/******************************************************************************
+ *
  * PVAbstractTableView::show_rclick_menu
  *
  *****************************************************************************/
@@ -632,8 +642,8 @@ void PVAbstractTableView::setModel(QAbstractItemModel* model)
 	// Setup model hyperlink delegate
 	auto setup_hyperlink_delegate = [this,model]() {
 		if (_hyperlink_delegate) {
-			int columnCount = model->columnCount();
-			for (int col = 0; col < columnCount; ++col) {
+			int column_count = _hyperlink_delegate_max_index == 0 ? model->columnCount() : _hyperlink_delegate_max_index;
+			for (int col = 0; col < column_count; ++col) {
 				setItemDelegateForColumn(col, _hyperlink_delegate);
 			}
 		}
