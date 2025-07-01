@@ -83,6 +83,8 @@ class PVAbstractTableView : public PVTableView
 	 */
 	PVAbstractTableModel* table_model();
 
+	void set_hyperlink_delegate_max_index(int max_index);
+
   protected:
 	/**
 	 * Slots called on slider movement.
@@ -200,6 +202,7 @@ class PVAbstractTableView : public PVTableView
 
   private:
 	PVHyperlinkDelegate* _hyperlink_delegate = nullptr;
+	size_t _hyperlink_delegate_max_index = 0;
 
   protected:
 };

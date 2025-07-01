@@ -73,6 +73,7 @@ PVGuiQt::PVListDisplayDlg::PVListDisplayDlg(PVAbstractTableModel* model, QWidget
 
 	// `_values_view' is a PVAbstractTableView to handle huge number of values.
 	_values_view->setModel(model);
+	_values_view->set_hyperlink_delegate_max_index(model->columnCount()-1);
 	_values_view->setGridStyle(Qt::NoPen);
 
 	_values_view->horizontalHeader()->setStretchLastSection(true);
