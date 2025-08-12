@@ -35,6 +35,7 @@
 #include <qstring.h>
 #include <stdint.h>
 #include <time.h>
+#include <boost/algorithm/string/replace.hpp>
 #include <boost/date_time/posix_time/conversion.hpp>
 #include <boost/date_time/posix_time/posix_time_config.hpp>
 #include <boost/date_time/posix_time/posix_time_duration.hpp>
@@ -79,7 +80,13 @@ void* convert_dictionnary(const std::shared_ptr<arrow::Array>& column_array, pvc
 	dict_index_map.reserve(dictionary.length());
 
 	std::transform(dictionary.begin(), dictionary.end(), std::back_inserter(dict_index_map),
-		[&dict](auto str){ return dict->insert(std::string(str.value_or("")).c_str()); });
+		[&dict](auto str)
+		{
+		    std::string safe_str(std::string(str.value_or("")));
+			boost::replace_all(safe_str, "\n", "\\n"); // escape end of lines
+			return dict->insert(safe_str.c_str());
+		}
+	);
 	std::span<int32_t> rw_indices{(int32_t*)indices.raw_values(), (size_t)indices.length()};
 	std::for_each(rw_indices.begin(), rw_indices.end(), [&dict_index_map](int32_t& index) { index = dict_index_map[index]; });
 
@@ -200,7 +207,7 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 			_input_index = std::vector<pvcop::db::index_t>(row_count, (pvcop::db::index_t)input_index);
 			set_raw_column_chunk(PVCol(0), (void*)(_input_index.data()), row_count, sizeof(pvcop::db::index_t), "string");
 		}
-		
+
 #pragma omp parallel for schedule(dynamic)
 		for (size_t i = 0 ; i < column_indexes.size(); i++) {
 			const size_t column_index = column_indexes[i];
