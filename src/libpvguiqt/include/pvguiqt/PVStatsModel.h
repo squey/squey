@@ -152,7 +152,8 @@ class PVStatsModel : public PVAbstractTableModel
 			}
 			break;
 		case Qt::ToolTipRole: {
-			std::string const& raw_str = _col1.at(row);
+			std::string raw_str = _col1.at(row);
+			boost::replace_all(raw_str, "\\n", "<br>"); // Properly show new lines
 			return get_wrapped_string(QString::fromUtf8(raw_str.c_str(), raw_str.size()));
 		}
 

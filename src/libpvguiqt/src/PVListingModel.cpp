@@ -30,8 +30,9 @@
 #include <squey/PVRoot.h>
 #include <squey/PVSource.h>
 #include <squey/PVView.h>
-
 #include <pvguiqt/PVListingModel.h>
+
+#include <boost/algorithm/string/replace.hpp>
 
 /******************************************************************************
  *
@@ -132,7 +133,9 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	}
 	case Qt::ToolTipRole: {
 		const auto& src = _view.get_parent<Squey::PVSource>();
-		return get_wrapped_string(QString::fromStdString(src.get_value(r, org_col)));
+		std::string str_with_newlines = src.get_value(r, org_col);
+		boost::replace_all(str_with_newlines, "\\n", "<br>"); // Properly show new lines
+		return get_wrapped_string(QString::fromStdString(str_with_newlines));
 	}
 
 	// Set alignment
