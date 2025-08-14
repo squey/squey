@@ -147,11 +147,11 @@ sign_and_notarize "$BUNDLENAME_ARM" "$APPLE_DEVELOPER_CERT_IDENTITY"
 sign_and_notarize "$BUNDLENAME_X86" "$APPLE_DEVELOPER_CERT_IDENTITY"
 
 # Sign and deliver the app to the App Store
-SUBMISSION_INFO="{\"export_compliance_uses_encryption\": true, \
-                  \"export_compliance_contains_third_party_cryptography\": true, \
-                  \"export_compliance_contains_proprietary_cryptography\": false, \
-                  \"export_compliance_is_exempt\": true, \
-                  \"add_id_info_uses_idfa\": false }" 
+SUBMISSION_INFO='{"export_compliance_uses_encryption": true, \
+                  "export_compliance_contains_third_party_cryptography": true, \
+                  "export_compliance_contains_proprietary_cryptography": false, \
+                  "export_compliance_is_exempt": true, \
+                  "add_id_info_uses_idfa": false }'"
 sign "$BUNDLENAME" "$APPLE_DISTRIBUTION_CERT_IDENTITY"
 codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist --options runtime --sign "$APPLE_DISTRIBUTION_CERT_IDENTITY" "$BUNDLENAME"
 productbuild --component "$BUNDLENAME" /Applications --sign "$APPLE_INSTALLER_CERT_IDENTITY" "$PKGNAME"
