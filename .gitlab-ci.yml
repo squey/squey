@@ -11,8 +11,9 @@ stages:
   - static_analysis
   - build
   - test
+  - macos_publish
   - pages
-  - deploy
+  - flathub_publish
   - stop
 
 workflow:
@@ -54,16 +55,16 @@ builder appstream-linter:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
       changes:
-      - README.md
-      - buildstream/files/org.squey.Squey.metainfo.xml.j2
+        - README.md
+        - buildstream/files/org.squey.Squey.metainfo.xml.j2
   interruptible: true
   allow_failure: false
 
 .build:
   stage: build
   image:
-      name: "$BASE_IMAGE_NAME"
-      pull_policy : [if-not-present] 
+    name: "$BASE_IMAGE_NAME"
+    pull_policy: [if-not-present]
   tags:
     - privileged-docker
   before_script:
@@ -75,12 +76,16 @@ builder appstream-linter:
   interruptible: true
 
 .archs:
-  macos:
+  macos-arm64: # macOS Apple Silicon
     matrix:
-      # macOS Apple Silicon
       - TARGET_TRIPLE: aarch64-apple-darwin
         TARGET_TAG: saas-macos-large-m2pro
         IMAGE_NAME: macos-15-xcode-16
+  macos-x86_64: # macOS Intel
+    matrix:
+      - TARGET_TRIPLE: x84_64-apple-darwin
+        TARGET_TAG: ""
+        IMAGE_NAME: ""
   windows:
     matrix:
       # Windows
@@ -91,13 +96,13 @@ builder appstream-linter:
 build and run testsuite linux:
   extends: .build
   script:
-    - ./build.sh 
-        --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
-        --branch="${CI_COMMIT_REF_NAME}" 
-        --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "export_linux_package" && echo true || echo false) 
-        --export-dir="/srv/flatpak_repo" 
-        --code-coverage=$CODE_COVERAGE 
-        --push-artifacts="${PUSH_ARTIFACTS}"
+    - ./build.sh
+      --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
+      --branch="${CI_COMMIT_REF_NAME}"
+      --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "export_linux_package" && echo true || echo false)
+      --export-dir="/srv/flatpak_repo"
+      --code-coverage=$CODE_COVERAGE
+      --push-artifacts="${PUSH_ARTIFACTS}"
   coverage: '/lines\.+: (\d+\.\d+)% \(\d+ of \d+ lines\)/'
   rules:
     - if: '$CI_COMMIT_TAG =~ "/^$/"'
@@ -114,15 +119,15 @@ build testsuite windows:
   extends: .build
   script:
     - ./build.sh
-        --target_triple="${TARGET_TRIPLE}"
-        --user-target=customer 
-        --branch="${CI_COMMIT_REF_NAME}" 
-        --export=true 
-        --export-dir="$CI_PROJECT_DIR/export" 
+      --target_triple="${TARGET_TRIPLE}"
+      --user-target=customer
+      --branch="${CI_COMMIT_REF_NAME}"
+      --export=true
+      --export-dir="$CI_PROJECT_DIR/export"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/'
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
       when: always
@@ -134,22 +139,29 @@ build testsuite windows:
       - export
     reports:
       junit: junit.xml
-  parallel: !reference [.archs,windows]
+  parallel: !reference [.archs, windows]
 
 build testsuite macos:
   extends: .build
   script:
     - ./build.sh
-        --target_triple="${TARGET_TRIPLE}"
-        --macos-sdk-dir="/srv/macos_sdk"
-        --user-target=customer 
-        --branch="${CI_COMMIT_REF_NAME}" 
-        --export=true 
-        --export-dir="$CI_PROJECT_DIR/export" 
+      --target_triple="aarch64-apple-darwin"
+      --macos-sdk-dir="/srv/macos_sdk"
+      --user-target=customer
+      --branch="${CI_COMMIT_REF_NAME}"
+      --export=true
+      --export-dir="$CI_PROJECT_DIR/export"
+    - ./build.sh
+      --target_triple="x86_64-apple-darwin"
+      --macos-sdk-dir="/srv/macos_sdk"
+      --user-target=customer
+      --branch="${CI_COMMIT_REF_NAME}"
+      --export=true
+      --export-dir="$CI_PROJECT_DIR/export"
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/'
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
       when: always
@@ -161,13 +173,12 @@ build testsuite macos:
       - export
     reports:
       junit: junit.xml
-  parallel: !reference [.archs,macos]
 
 .run testsuite macos:
-    - .gitlab-ci/run_testsuite.sh
+  - .gitlab-ci/run_testsuite.sh
 
 .run testsuite windows:
-    - .gitlab-ci\run_testsuite.ps1
+  - .gitlab-ci\run_testsuite.ps1
 
 .run testsuite:
   stage: test
@@ -191,13 +202,13 @@ build testsuite macos:
 
 run testsuite windows:
   extends: .run testsuite
-  parallel: !reference [.archs,windows]
+  parallel: !reference [.archs, windows]
   script:
     - !reference [.run testsuite windows]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/'
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
       when: always
@@ -208,13 +219,13 @@ run testsuite windows:
 
 run testsuite macos:
   extends: .run testsuite
-  parallel: !reference [.archs,macos]
+  parallel: !reference [.archs, macos-arm64]
   script:
     - !reference [.run testsuite macos]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
-    - if: '$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/'
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
       when: always
@@ -222,28 +233,56 @@ run testsuite macos:
   needs:
     - job: build testsuite macos
       artifacts: true
-  allow_failure: true
+  allow_failure: false
 
 build release linux:
   extends: .build
   script:
-    - ./build.sh 
-      --user-target=customer 
-      --cxx-compiler=clang++ 
-      --branch="${CI_COMMIT_REF_NAME}" 
-      --export=true 
-      --export-dir="$CI_PROJECT_DIR/public/flatpak" 
-      --gpg-private-key-path=$GPG_PRIVATE_KEY 
-      --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63 
-      --upload-debug-symbols=true 
+    - ./build.sh
+      --user-target=customer
+      --cxx-compiler=clang++
+      --branch="${CI_COMMIT_REF_NAME}"
+      --export=true
+      --export-dir="$CI_PROJECT_DIR/public/flatpak"
+      --gpg-private-key-path=$GPG_PRIVATE_KEY
+      --gpg-sign-key=ADAD28A413FCB239A979C83B7C828C315B98BC63
+      --upload-debug-symbols=true
       --push-artifacts="${PUSH_ARTIFACTS}"
   artifacts:
     paths:
-    - public/flatpak
+      - public/flatpak
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
       when: always
   allow_failure: false
+
+macos_publish:
+  stage: macos_publish
+  image: "$IMAGE_NAME"
+  variables:
+    GIT_SUBMODULE_STRATEGY: none
+  tags:
+    - $TARGET_TAG
+  parallel: !reference [.archs, macos-arm64]
+  before_script:
+    - gem install fastlane
+  script:
+    - |
+      "$CI_PROJECT_DIR/.gitlab-ci/macos_publish.sh"
+  artifacts:
+    paths:
+      - public
+  needs:
+    - job: build testsuite macos
+      artifacts: true
+    - job: run testsuite macos
+      artifacts: false
+    - job: run testsuite windows
+      artifacts: false
+    - job: build and run testsuite linux
+      artifacts: false
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
 
 pages:
   stage: pages
@@ -277,10 +316,13 @@ pages:
     expire_in: 1 day
   rules:
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/ || $CODE_COVERAGE == "true"'
+  needs:
+    - job: macos_publish
+      artifacts: true
   interruptible: true
 
 flathub:
-  stage: deploy
+  stage: flathub_publish
   image: "$BASE_IMAGE_NAME"
   tags:
     - privileged-docker
@@ -299,7 +341,7 @@ flathub:
       export BRANCH_NAME="publish-$VERSION"
       cd "$CI_PROJECT_DIR/org.squey.Squey"
       git checkout -b "$BRANCH_NAME"
-  script: 
+  script:
     - |
       cp "$CI_PROJECT_DIR/buildstream/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
       jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/buildstream/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
@@ -310,25 +352,25 @@ flathub:
       gh pr --repo "flathub/org.squey.Squey" merge "$BRANCH_NAME" --auto --merge --delete-branch
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
-  
+
 sast:
   variables:
     SAST_EXCLUDED_PATHS: external, tests, doc
-    SAST_EXCLUDED_ANALYZERS: bandit, brakeman, gosec, kubesec, nodejs-scan, phpcs-security-audit,
+    SAST_EXCLUDED_ANALYZERS:
+      bandit, brakeman, gosec, kubesec, nodejs-scan, phpcs-security-audit,
       pmd-apex, security-code-scan, sobelow, spotbugs, flawfinder
   stage: static_analysis
   tags:
     - privileged-docker
 include:
-- template: Security/SAST.gitlab-ci.yml
-#- template: Code-Quality.gitlab-ci.yml
-#- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
-- template: Jobs/Container-Scanning.gitlab-ci.yml
+  - template: Security/SAST.gitlab-ci.yml
+  #- template: Code-Quality.gitlab-ci.yml
+  #- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
+  - template: Jobs/Container-Scanning.gitlab-ci.yml
 
 semgrep-sast:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-
 #secret_detection:
 #  rules:
 #    - if: '$CI_PIPELINE_SOURCE == "push"'
