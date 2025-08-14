@@ -29,14 +29,10 @@ cp -R -p "$bundledir" "$CI_PROJECT_DIR"
 mkdir -p "$testsuitedir"
 unzip -qq "$packagedir/testsuite.zip" -d "$testsuitedir"
 
-# Sign libraries an binaries
-if [ "$TARGET_TRIPLE" = "x86_64-apple-darwin" ]; then
-    find "$testsuitedir" -name "SQUEY_TEST*" -exec install_name_tool -rpath "/mac/lib" "$appdir/../Frameworks" "{}" \; 2> /dev/null
-fi
-#codesign --force --deep --sign - "$CI_PROJECT_DIR/Squey.app"
+# Sign libraries and binaries
+find "$testsuitedir" -name "SQUEY_TEST*" -exec install_name_tool -rpath "/mac/lib" "$appdir/../Frameworks" "{}" \; 2> /dev/null
 find "$appdir/../Frameworks" -name "*.dylib" -exec codesign --force --deep --sign - "{}" \; 2> /dev/null
 find "$appdir" -exec codesign --force --deep --sign - "{}" \; 2> /dev/null
-#
 find "$testsuitedir" -name "SQUEY_TEST*" -exec codesign --force --deep --sign - "{}" \; 2> /dev/null
 
 # Setup Squey config file
@@ -47,7 +43,7 @@ cp "$CI_PROJECT_DIR/src/pvconfig.ini" "$inifile"
 sed -i '' "s|\(nraw_tmp=\).*|\1${TMPDIR}|" "$inifile"
 
 # Increase file descriptors limit to avoid "Too many open files" error
-ulimit -n 1048576 
+ulimit -n 1048576
 
 # Run testsuite
 ctest_cmd=(ctest --test-dir "$testsuitedir" -j $(nproc) --output-junit "$CI_PROJECT_DIR/junit.xml" --output-on-failure -T test -R 'SQUEY_TEST')

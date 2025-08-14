@@ -68,9 +68,13 @@ int main()
 		nraw.dump_csv(out_path);
 
 		pvlogger::info() << exports[i] << " - " << out_path << std::endl;
-		PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(exports[i], out_path));
+		bool same_content = PVRush::PVUtils::files_have_same_content(exports[i], out_path);
+		if (not same_content) {
+		    pvlogger::error() << std::ifstream(out_path).rdbuf() << std::endl;
+		}
 
 		std::remove(out_path.c_str());
+		PV_ASSERT_VALID(same_content);
 	}
 
 	return 0;
