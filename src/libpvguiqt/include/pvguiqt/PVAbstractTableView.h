@@ -201,6 +201,7 @@ class PVAbstractTableView : public PVTableView
 	void validate_selection();
 
   private:
+	double _scroll_accumulator_y = 0.0;
 	PVHyperlinkDelegate* _hyperlink_delegate = nullptr;
 	size_t _hyperlink_delegate_max_index = 0;
 

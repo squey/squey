@@ -567,8 +567,19 @@ void PVAbstractTableView::wheelEvent(QWheelEvent* e)
 	// delta is wheel movement in degree. QtWheelEvent doc give this formule
 	// to convert it to "wheel step"
 	// http://doc.qt.io/qt-5/qwheelevent.html
-	// Scroll 3 line by wheel step on listing
-	move_by(-e->angleDelta().y() / 8 / 15 * 3);
+	double complete_scroll_angle = 120.0;
+	double delta_y = e->angleDelta().y() / 8.0 * 15.0;
+
+	// anti-sticky : reset accumulator when changing scrolling direction
+	if (delta_y * _scroll_accumulator_y < 0) {
+		_scroll_accumulator_y = 0;
+	}
+	_scroll_accumulator_y += delta_y;
+
+	if (std::abs(_scroll_accumulator_y) >= complete_scroll_angle) {
+		move_by(_scroll_accumulator_y > 0 ? -1 : 1);
+		_scroll_accumulator_y += _scroll_accumulator_y > 0 ? -complete_scroll_angle : complete_scroll_angle;
+	}
 	e->accept(); // I am the one who handle event
 }
 
