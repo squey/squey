@@ -158,4 +158,4 @@ SUBMISSION_INFO='{"export_compliance_uses_encryption": false,
 sign "$BUNDLENAME" "$APPLE_DISTRIBUTION_CERT_IDENTITY"
 codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist --options runtime --sign "$APPLE_DISTRIBUTION_CERT_IDENTITY" "$BUNDLENAME"
 productbuild --component "$BUNDLENAME" /Applications --sign "$APPLE_INSTALLER_CERT_IDENTITY" "$PKGNAME"
-fastlane deliver --force --pkg "$PKGNAME" --app_identifier "$BUNDLE_ID" --api_key_path "$APPLE_API_KEY_JSON" --skip_screenshots --skip_metadata --run_precheck_before_submit false --submission_information "$SUBMISSION_INFO" --submit_for_review
+fastlane deliver --force --pkg "$PKGNAME" --app_identifier "$BUNDLE_ID" --api_key_path "$APPLE_API_KEY_JSON" --skip_screenshots --skip_metadata --run_precheck_before_submit false --submission_information "$SUBMISSION_INFO" --submit_for_review || true
