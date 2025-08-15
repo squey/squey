@@ -60,7 +60,7 @@ See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 
 ### macOS
 
-[Apple silicon disk image (arm64)](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
+[Apple silicon disk image (arm64)](https://squey.gitlab.io/squey/Squey-arm64.dmg)
 
 [Intel disk image (x86_64)](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
 
