@@ -58,6 +58,12 @@ See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 
 [standalone archive](https://squey.gitlab.io/squey/squey-win64-standalone-latest.zip)
 
+### macOS
+
+[Apple silicon disk image (arm64)](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
+
+[Intel disk image (x86_64)](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
+
 ### Linux
 
 [<img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="200"/>](https://flathub.org/apps/details/org.squey.Squey)
