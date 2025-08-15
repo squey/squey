@@ -60,9 +60,14 @@ See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 
 ### macOS
 
+[<img src="buildstream/files/macos_bundle/BadgeMacOSM1.png" width="200"/>](https://squey.gitlab.io/squey/Squey-arm64.dmg)
+
 [Apple silicon disk image (arm64)](https://squey.gitlab.io/squey/Squey-arm64.dmg)
 
+[<img src="buildstream/files/macos_bundle/BadgeMacOS.png" width="200"/>](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
+
 [Intel disk image (x86_64)](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
+
 
 ### Linux
 
