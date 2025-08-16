@@ -1,6 +1,6 @@
 kind: autotools
 
-(@): 
+(@):
   - buildstream/elements/libpq.yml
   - buildstream/elements/base/target.bst
 

@@ -27,8 +27,9 @@ config:
           gunzip < "%{python-framework-payload-path}" | cpio -idm
           mkdir -p "%{python-framework-install-dir}"
           mv Versions Resources Python "%{python-framework-install-dir}"
-          cd "%{install-root}/%{libdir}" && ln -s "Python.framework/Versions/Current/lib/libpython3.12.dylib" && cd -
+          cd "%{install-root}/%{libdir}" && ln -s Python.framework/Versions/Current/lib/libpython3.*.dylib && cd -
           cd "%{install-root}/%{libdir}"
+          rm -rf Python.framework/Versions/Current/lib/libtk* # Useless and using non-public or deprecated macOS API that prevents publishing on the App Store
           find "Python.framework" -type f \( -name "*.dylib" -o -name "Python" \) \
             -exec echo "{}" \; \
             -exec %{toolchain-dir}/%{host}-lipo -extract "%{macho-arch}" "{}" -output "{}" \; \

@@ -1,20 +1,18 @@
 description: |
 
-    PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance. 
+  PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.
 
 sources:
-- kind: tar
-  url: postgresql:pub/source/v14.2/postgresql-14.2.tar.bz2
-  ref: 2cf78b2e468912f8101d695db5340cf313c2e9f68a612fb71427524e8c9a977a
+  - kind: tar
+    url: postgresql:pub/source/v14.2/postgresql-14.2.tar.bz2
+    ref: 2cf78b2e468912f8101d695db5340cf313c2e9f68a612fb71427524e8c9a977a
 
 variables:
   conf-local: |
-     --with-ssl=openssl
+    --with-ssl=openssl
 
 config:
-    build-commands:
-        - cd src/interfaces/libpq
-        - make
-    install-commands:
-        - cd src/interfaces/libpq
-        - make -j1 DESTDIR="%{install-root}" install
+  install-commands:
+    - |
+      make -j1 DESTDIR="%{install-root}" install
+      rm -rf %{install-root}%{libdir}/postgresql # Delete useless server part
