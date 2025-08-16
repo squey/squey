@@ -42,7 +42,9 @@
         <true/>
 
         <key>ITSAppUsesNonExemptEncryption</key>
-        <false/>
+        <true/>
+        <key>ITSEncryptionExportComplianceCode</key>
+	    <string>8fbf994e-95b5-4a79-9b9c-01f114ce7760</string>
 
         <key>CFBundleDocumentTypes</key>
         <array>
