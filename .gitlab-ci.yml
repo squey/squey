@@ -183,8 +183,6 @@ build release macos:
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
       when: always
-    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
-      when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
       when: always
     - when: never
