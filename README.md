@@ -53,20 +53,20 @@ See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 ### Windows
 
 <a href="https://apps.microsoft.com/detail/9PDP9BKD9NVD?mode=full">
-	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200"/>
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" alt="Download from the Microsoft Store"/>
 </a>
+<br/>
 
-[standalone archive](https://squey.gitlab.io/squey/squey-win64-standalone-latest.zip)
+Or install it using a [standalone archive](https://squey.gitlab.io/squey/squey-win64-standalone-latest.zip).
 
 ### macOS
 
-[<img src="buildstream/files/macos_bundle/BadgeMacOSM1.png" width="200"/>](https://squey.gitlab.io/squey/Squey-arm64.dmg)
+<a href="https://apps.apple.com/us/app/squey/id6748079336">
+  <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1647734400" width="200"  alt="Download on the App Store"/>
+</a>
+<br/>
 
-[Apple silicon disk image (arm64)](https://squey.gitlab.io/squey/Squey-arm64.dmg)
-
-[<img src="buildstream/files/macos_bundle/BadgeMacOS.png" width="200"/>](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
-
-[Intel disk image (x86_64)](https://squey.gitlab.io/squey/Squey-x86_64.dmg)
+Or install it using [Apple silicon (arm64)](https://squey.gitlab.io/squey/Squey-arm64.dmg) or [Intel (x86_64)](https://squey.gitlab.io/squey/Squey-x86_64.dmg) disk image.
 
 
 ### Linux
