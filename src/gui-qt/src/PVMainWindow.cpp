@@ -138,7 +138,6 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	        &PVMainWindow::close_solution_Slot);
 	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::active_project, this,
 	        &PVMainWindow::menu_activate_is_file_opened);
-			
 #ifdef __linux__
 	connect(&_dbus_connection, &PVCore::PVDBusConnection::import_signal, [this](const QString& input_type, const QString& params_json) {
 			PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(input_type.toStdString().c_str());
@@ -354,7 +353,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 
 	PVCore::PVArgumentList args;
 
-	if (!in_t->createWidget(formats, inputs, choosenFormat, args, this))
+	if (!in_t->create_widget(formats, inputs, choosenFormat, args, this))
 		return; // This means that the user pressed the "cancel" button
 
 	// Add the new formats to the formats
@@ -374,11 +373,12 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
  * App::PVMainWindow::import_type
  *
  *****************************************************************************/
-void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t,
-                                            PVRush::PVInputType::list_inputs const& inputs,
-                                            PVRush::hash_formats& formats,
-                                            PVRush::hash_format_creator& format_creator,
-                                            QString const& choosenFormat)
+void App::PVMainWindow::import_type(
+    PVRush::PVInputType_p in_t,
+    PVRush::PVInputType::list_inputs const& inputs,
+    PVRush::hash_formats& formats,
+    PVRush::hash_format_creator& format_creator,
+    QString const& choosenFormat)
 {
 	PVRush::PVSourceCreator_p sc = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
@@ -615,45 +615,112 @@ void App::PVMainWindow::import_type_Slot(const QString& itype)
  * App::PVMainWindow::load_files
  *
  *****************************************************************************/
-void App::PVMainWindow::load_files(std::vector<QString> const& files, QString format)
+void App::PVMainWindow::load_files(QStringList const& files, QString format_str /* = "" */)
 {
+    bool load_as_multiple_sources = false;
 	if (files.size() == 0) {
 		return;
 	}
+	else if (files.size() > 1) {
+        load_as_multiple_sources = QMessageBox::question(
+            this,
+            "Opening multiple input files",
+            QString("Do you want to open each of these files as a source ?\n"
+                    "Selecting 'Yes' will load each input file as a new source."
+                    "Selecting 'No' will load a unique source with a concatenation of all the input files."),
+            QMessageBox::Yes|QMessageBox::No
+        ) == QMessageBox::Yes;
+	}
 
-	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-	PVRush::PVSourceCreator_p src_creator =
-	    PVRush::PVSourceCreatorFactory::get_by_input_type(in_file);
-	PVRush::hash_format_creator format_creator;
+	QSet<QString> exts;
+	for (auto const& file : files) {
+	    const QFileInfo& fi = QFileInfo(file);
+		if (not fi.exists()) {
+		    QMessageBox::critical(
+				this,
+				"File not found",
+				QString("The file '%1' does not exist, ignoring.").arg(file),
+				QMessageBox::Ok
+			);
+		}
+		else {
+            const QString& ext = fi.completeSuffix();
+            if (not ext.isEmpty()) {
+                exts.insert(ext);
+            }
+        }
+	}
+	if (exts.size() == 0) {
+	    return; // No file to load...
+	}
+	else if (exts.size() > 1) {
+	    QMessageBox::critical(
+			this,
+			"Mismatching extensions",
+	        "Only one type of extension is supported when loading several files.",
+	        QMessageBox::Ok
+		);
+		return;
+	}
+	const QString& extension = *exts.begin();
 
-	PVRush::hash_formats formats;
-	{
-		for (auto itfc = format_creator.begin(); itfc != format_creator.end(); ++itfc) {
-			formats[itfc.key()] = itfc.value().first;
+	if (extension == "pvi") {
+	    load_solution_and_create_mw(files[0]);
+		return;
+	}
+
+
+	if (load_as_multiple_sources) {
+	    for (const QString& file : files) {
+			PVRush::PVInputType_p in_file;
+			try {
+			    in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_extension(extension);
+			}
+			catch (std::runtime_error const& e) {
+               	QMessageBox::critical(
+                        this,
+                        "Error when loading file(s)",
+                        QString::fromStdString(e.what()),
+                        QMessageBox::Ok
+               	);
+                return;
+			}
+			PVRush::hash_formats formats;
+			PVRush::PVInputType::list_inputs inputs;
+			PVCore::PVArgumentList args;
+			if (!in_file->create_widget_with_input_files({file}, formats, inputs, format_str, args, this)) {
+           	    return;
+           	}
+
+           	PVRush::hash_format_creator format_creator;
+           	import_type(in_file, inputs, formats, format_creator, format_str);
 		}
 	}
+	else { // load a unique source as a concatenation of the input files
+    	PVRush::PVInputType_p in_file;
+    	try {
+    	    in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_extension(extension);
+    	}
+    	catch (std::runtime_error const& e) {
+       	QMessageBox::critical(
+                this,
+                "Error when loading file(s)",
+                QString::fromStdString(e.what()),
+                QMessageBox::Ok
+       	);
+            return;
+    	}
 
-	// Create PVFileDescription objects
-	//
+    	PVRush::hash_formats formats;
+    	PVRush::PVInputType::list_inputs inputs;
+    	PVCore::PVArgumentList args;
+    	if (!in_file->create_widget_with_input_files(files, formats, inputs, format_str, args, this)) {
+    	    return;
+    	}
 
-	PVRush::PVInputType::list_inputs files_in;
-	{
-		for (QString filename : files) {
-			files_in.push_back(PVRush::PVInputDescription_p(
-			    new PVRush::PVFileDescription(filename, files.size() > 1)));
-		}
+    	PVRush::hash_format_creator format_creator;
+    	import_type(in_file, inputs, formats, format_creator, format_str);
 	}
-
-	if (!format.isEmpty()) {
-		PVRush::PVFormat new_format("custom:arg", format);
-		formats["custom:arg"] = new_format;
-		PVRush::hash_format_creator::mapped_type v(new_format, src_creator);
-		// Save this format/creator pair to the "format_creator" object
-		format_creator["custom:arg"] = v;
-		format = "custom:arg";
-	}
-
-	import_type(in_file, files_in, formats, format_creator, format);
 }
 
 void App::PVMainWindow::display_inv_elts()

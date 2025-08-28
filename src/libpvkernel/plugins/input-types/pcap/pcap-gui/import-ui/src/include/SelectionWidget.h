@@ -60,6 +60,8 @@ class SelectionWidget : public QWidget
 
 	bool is_canceled() const { return _progress_widget->is_canceled(); }
 
+	void add_files(const QStringList& pcap_paths);
+
   Q_SIGNALS:
 	void closed();
 	void canceled();

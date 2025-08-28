@@ -24,9 +24,9 @@
 //
 
 #include <pvbase/general.h>
+#include "PVSingleInstanceApplication.h"
 
 //! [0]
-#include <QApplication>
 #include <QFile>
 #include <QString>
 #include <QObject>
@@ -123,7 +123,7 @@ class DragNDropTransparencyHack : public QObject
 
 namespace bpo = boost::program_options;
 
-int run_squey(QApplication& app, int argc, char* argv[])
+int run_squey(App::PVSingleInstanceApplication& app, int argc, char* argv[])
 {
 	// Program options
 	bpo::options_description desc_opts("Options");
@@ -158,7 +158,7 @@ int run_squey(QApplication& app, int argc, char* argv[])
 		format = QString::fromLocal8Bit(format_arg.c_str(), format_arg.size());
 	}
 
-	std::vector<QString> files;
+	QStringList files;
 	if (vm.count("input-file")) {
 		std::vector<std::string> files_arg = vm["input-file"].as<std::vector<std::string>>();
 		files.reserve(files_arg.size());
@@ -251,11 +251,16 @@ int run_squey(QApplication& app, int argc, char* argv[])
 		PVGuiQt::PVChangelogMessage changelog_msg(&pv_mw);
 	}
 
+	pv_mw.set_window_title_with_filename();
+
+	QObject::connect(
+	    &app,
+		&App::PVSingleInstanceApplication::files_opened,
+		&pv_mw,
+		std::bind(&App::PVMainWindow::load_files, &pv_mw, std::placeholders::_1, "")
+	);
 	if (files.size() > 0) {
 		pv_mw.load_files(files, format);
-	} else {
-		// Set default title
-		pv_mw.set_window_title_with_filename();
 	}
 
 #if 1 // Taking screenshots is not supported under Wayland
@@ -283,6 +288,15 @@ int run_squey(QApplication& app, int argc, char* argv[])
 
 int main(int argc, char* argv[])
 {
+	App::PVSingleInstanceApplication app(argc, argv);
+	if (app.is_running()) {
+	    return 0;
+	}
+
+#ifdef __APPLE__
+	QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false);
+#endif
+
 #ifdef _WIN32
 	// Update PATH
 	boost::filesystem::path exe_path = boost::dll::program_location();
@@ -318,12 +332,6 @@ int main(int argc, char* argv[])
 	getrlimit(RLIMIT_NOFILE, &ulimit_info);
 	ulimit_info.rlim_cur = ulimit_info.rlim_max;
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
-#endif
-
-	QApplication app(argc, argv);
-
-#ifdef __APPLE__
-	QCoreApplication::setAttribute(Qt::AA_DontShowIconsInMenus, false);
 #endif
 
 	return run_squey(app, argc, argv);

@@ -43,6 +43,7 @@ class PVPcapParamsWidget : public QDialog
 
   public:
 	PVPcapParamsWidget(QWidget* parent);
+	PVPcapParamsWidget(const QStringList& pcap_paths, QWidget* parent);
 
   public:
 	pvpcap::splitted_files_t csv_paths() const { return _selection_widget->csv_paths(); }

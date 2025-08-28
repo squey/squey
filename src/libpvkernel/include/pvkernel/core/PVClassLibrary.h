@@ -35,6 +35,8 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
+#include <QFileInfo>
+#include <type_traits>
 
 #include <pvlogger.h>
 
@@ -116,7 +118,11 @@ class InvalidPlugin : public std::runtime_error
 	#define SQUEY_EXPORT
 #endif
 
-
+template <typename T>
+concept HasGetSupportedExtensions =
+    requires(T t) {
+        { t.get_supported_extensions() };
+    };
 
 template <class RegAs>
 class SQUEY_EXPORT PVClassLibrary
@@ -148,6 +154,12 @@ class SQUEY_EXPORT PVClassLibrary
 		pf->__registered_class_id = _last_registered_id;
 		_last_registered_id++;
 		_classes[name] = pf;
+
+		if constexpr (HasGetSupportedExtensions<decltype(*pf)>) {
+			for (const QString& extension : pf->get_supported_extensions()) {
+				_classes_extensions[extension] = pf;
+			}
+		}
 	}
 
 	list_classes const& get_list() const { return _classes; }
@@ -162,8 +174,21 @@ class SQUEY_EXPORT PVClassLibrary
 		return _classes.at(name);
 	}
 
+	PF get_class_by_extension(QString const& extension) const
+	{
+	    QString extension_suffixe = extension;
+		if (!_classes_extensions.contains(extension_suffixe)) {
+		    extension_suffixe = QFileInfo(extension).suffix();
+			if (!_classes_extensions.contains(extension_suffixe)) {
+			    throw InvalidPlugin("Unsupported input file extension : " + extension_suffixe.toStdString());
+			}
+		}
+		return _classes_extensions.at(extension_suffixe);
+	}
+
   private:
 	list_classes _classes;
+	list_classes _classes_extensions;
 	int _last_registered_id = 0;
 };
 

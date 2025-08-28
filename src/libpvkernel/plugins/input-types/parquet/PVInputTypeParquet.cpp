@@ -43,11 +43,12 @@ PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVParquetFile
 {
 }
 
-bool PVRush::PVInputTypeParquet::createWidget(hash_formats& formats,
-                                              list_inputs& inputs,
-                                              QString& format_str,
-                                              PVCore::PVArgumentList& /*args_ext*/,
-                                              QWidget* parent) const
+bool PVRush::PVInputTypeParquet::create_widget(
+    hash_formats& formats,
+    list_inputs& inputs,
+    QString& format_str,
+    PVCore::PVArgumentList& args_ext,
+    QWidget* parent) const
 {
 	// Get information from file dialog
 	QStringList file_paths = PVWidgets::PVFileDialog::getOpenFileNames(
@@ -60,8 +61,19 @@ bool PVRush::PVInputTypeParquet::createWidget(hash_formats& formats,
 		return false;
 	}
 
-	PVFormat format;
-	if (create_source_description_params(file_paths, inputs, format)) {
+	return create_widget_with_input_files(file_paths, formats, inputs, format_str, args_ext, parent);
+}
+
+bool PVRush::PVInputTypeParquet::create_widget_with_input_files(
+    const QStringList& input_paths,
+    hash_formats& formats,
+    list_inputs& inputs,
+    QString& format_str,
+    PVCore::PVArgumentList& /*args_ext*/,
+    QWidget* /*parent*/) const
+{
+    PVFormat format;
+	if (create_source_description_params(input_paths, inputs, format)) {
 		formats[QString("custom")] = format;
 		format_str = "custom";
 		return true;
@@ -128,6 +140,11 @@ PVRush::PVInputTypeParquet::create_exporter(const list_inputs& inputs,
                                          PVRush::PVNraw const& nraw) const
 {
 	return std::make_unique<PVRush::PVParquetExporter>(inputs, nraw);
+}
+
+QStringList PVRush::PVInputTypeParquet::get_supported_extensions() const
+{
+    return { "parquet" };
 }
 
 QString PVRush::PVInputTypeParquet::get_exporter_filter_string(const list_inputs& /*inputs*/) const

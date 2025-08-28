@@ -31,7 +31,7 @@
 
 #include "../../common/elasticsearch/PVElasticsearchInfos.h"
 
-bool PVRush::PVInputTypeElasticsearch::createWidget(hash_formats& formats,
+bool PVRush::PVInputTypeElasticsearch::create_widget(hash_formats& formats,
                                                     list_inputs& inputs,
                                                     QString& format,
                                                     PVCore::PVArgumentList& /*args_ext*/,

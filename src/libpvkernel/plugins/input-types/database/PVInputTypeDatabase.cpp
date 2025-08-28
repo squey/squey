@@ -30,7 +30,7 @@
 
 PVRush::PVInputTypeDatabase::PVInputTypeDatabase() : PVInputTypeDesc<PVDBQuery>() {}
 
-bool PVRush::PVInputTypeDatabase::createWidget(hash_formats& formats,
+bool PVRush::PVInputTypeDatabase::create_widget(hash_formats& formats,
                                                list_inputs& inputs,
                                                QString& format,
                                                PVCore::PVArgumentList& /*args_ext*/,

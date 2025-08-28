@@ -113,13 +113,10 @@ void SelectionWidget::load_select_profile_combobox_list()
 	}
 }
 
-void SelectionWidget::on_add_button_clicked()
+void SelectionWidget::add_files(const QStringList& pcap_paths)
 {
-	QStringList filenames = PVWidgets::PVFileDialog::getOpenFileNames(
-	    this, tr("Open PCAP files"), QStandardPaths::writableLocation(QStandardPaths::HomeLocation), tr("PCAP files (*.pcap *.pcapng)"));
-
-	// Prevent input pcap files to be duplicated
-	for (const QString& filename : filenames) {
+    // Prevent input pcap files to be duplicated
+	for (const QString& filename : pcap_paths) {
 		if (not _pcap_paths.contains(filename)) {
 			_ui->select_pcap_list->addItem(filename);
 			_pcap_paths.append(filename);
@@ -127,6 +124,14 @@ void SelectionWidget::on_add_button_clicked()
 	}
 
 	update_select_pcap_list_button_state();
+}
+
+void SelectionWidget::on_add_button_clicked()
+{
+	QStringList filenames = PVWidgets::PVFileDialog::getOpenFileNames(
+	    this, tr("Open PCAP files"), QStandardPaths::writableLocation(QStandardPaths::HomeLocation), tr("PCAP files (*.pcap *.pcapng)"));
+
+	add_files(filenames);
 }
 
 void SelectionWidget::on_remove_button_clicked()
