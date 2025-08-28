@@ -38,6 +38,68 @@
                 BackgroundColor="transparent"
                 Square44x44Logo="Square44x44Logo.png"
                 Square150x150Logo="Square150x150Logo.png" />
+
+            <Extensions>
+                <!-- PVI -->
+                <uap:Extension Category="windows.fileTypeAssociation">
+                <uap:FileTypeAssociation Name="pvifile">
+                    <uap:SupportedFileTypes>
+                    <uap:FileType>.pvi</uap:FileType>
+                    </uap:SupportedFileTypes>
+                    <uap:DisplayName>Squey investigation</uap:DisplayName>
+                </uap:FileTypeAssociation>
+                </uap:Extension>
+
+                <!-- CSV -->
+                <uap:Extension Category="windows.fileTypeAssociation">
+                <uap:FileTypeAssociation Name="csvfile">
+                    <uap:SupportedFileTypes>
+                    <uap:FileType>.csv</uap:FileType>
+                    </uap:SupportedFileTypes>
+                    <uap:DisplayName>CSV file</uap:DisplayName>
+                </uap:FileTypeAssociation>
+                </uap:Extension>
+
+                <!-- TSV -->
+                <uap:Extension Category="windows.fileTypeAssociation">
+                <uap:FileTypeAssociation Name="tsvfile">
+                    <uap:SupportedFileTypes>
+                    <uap:FileType>.tsv</uap:FileType>
+                    </uap:SupportedFileTypes>
+                    <uap:DisplayName>TSV file</uap:DisplayName>
+                </uap:FileTypeAssociation>
+                </uap:Extension>
+
+                <!-- PCAP -->
+                <uap:Extension Category="windows.fileTypeAssociation">
+                <uap:FileTypeAssociation Name="pcapfile">
+                    <uap:SupportedFileTypes>
+                    <uap:FileType>.pcap</uap:FileType>
+                    </uap:SupportedFileTypes>
+                    <uap:DisplayName>PCAP file</uap:DisplayName>
+                </uap:FileTypeAssociation>
+                </uap:Extension>
+
+                <!-- PCAPNG -->
+                <uap:Extension Category="windows.fileTypeAssociation">
+                <uap:FileTypeAssociation Name="pcapngfile">
+                    <uap:SupportedFileTypes>
+                    <uap:FileType>.pcapng</uap:FileType>
+                    </uap:SupportedFileTypes>
+                    <uap:DisplayName>PCAPNG file</uap:DisplayName>
+                </uap:FileTypeAssociation>
+                </uap:Extension>
+
+                <!-- PARQUET -->
+                <uap:Extension Category="windows.fileTypeAssociation">
+                <uap:FileTypeAssociation Name="parquetfile">
+                    <uap:SupportedFileTypes>
+                    <uap:FileType>.parquet</uap:FileType>
+                    </uap:SupportedFileTypes>
+                    <uap:DisplayName>Parquet file</uap:DisplayName>
+                </uap:FileTypeAssociation>
+                </uap:Extension>
+            </Extensions>
         </Application>
     </Applications>
 </Package>
