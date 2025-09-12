@@ -480,11 +480,11 @@ bool PcapTreeModel::load(QString filename, bool& canceled)
 			}
 		}
 		return doc;
-		
+
 	}();
 
 	std::vector<std::string> cmd;
-	cmd.emplace_back(std::string(TSHARK_PATH));
+	cmd.emplace_back(tshark_path());
 	cmd.emplace_back("-q");
 	cmd.emplace_back("-zio,phs,frame");
 	cmd.emplace_back("-r-");

@@ -22,7 +22,7 @@ description: |
           url: wireshark:download/win64/all-versions/WiresharkPortable64_4.4.2.paf.exe
           ref: 937de59eb2ca8d9ec706e3b218f780ca6f3e9a209cb32a34e4557e381a17c895
           filename: wireshark.exe
-  
+
 (@): buildstream/elements/base/target.bst
 
 config:
@@ -66,4 +66,3 @@ build-depends:
 - sdk.bst
 - 7zip_host.bst
 - macos_bundle/dmg2img.bst
-

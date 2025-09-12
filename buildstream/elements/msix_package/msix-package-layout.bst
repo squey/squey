@@ -77,8 +77,10 @@ config:
     cp %{bindir}/pocl/* "%{install-package-root}/pocl"
     mkdir -p "%{install-package-root}/python"
     cp -r %{libdir}/python*/* "%{install-package-root}/python"
+    cd "%{bindir}/tshark" && 7zz a "%{install-package-root}/tshark.zip" .
     rm -rf %{install-package-root}/libjemalloc.* %{install-package-root}/jemalloc.*
-    
+
 build-depends:
 - squey-cleanup.bst
 - sdk.bst
+- 7zip_host.bst

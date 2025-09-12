@@ -73,6 +73,9 @@
 #include <boost/dll/runtime_symbol_info.hpp>
 
 #include <filesystem>
+#ifdef _WIN32
+#include <pvkernel/core/PVUtilitiesDecompressor.h>
+#endif
 
 
 //#include <QtWebEngineWidgets/QWebEngineView>
@@ -207,6 +210,13 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	splash.show();
 	app.processEvents();
 
+#ifdef _WIN32
+	task_label->setText(QObject::tr("Uncompressing utilities..."));
+	splash.repaint();
+	app.processEvents();
+	PVCore::PVUtilitiesDecompressor();
+#endif
+
 	task_label->setText(QObject::tr("Initializing backends..."));
 	splash.repaint();
 	app.processEvents();
@@ -227,8 +237,6 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	splash.repaint();
 	app.processEvents();
 
-	app.setOrganizationName("SQUEY");
-	app.setApplicationName("Squey " SQUEY_CURRENT_VERSION_STR);
 	app.setWindowIcon(QIcon(":/squey"));
 	app.installEventFilter(new DragNDropTransparencyHack());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
@@ -238,7 +246,7 @@ int run_squey(QApplication& app, int argc, char* argv[])
 	pv_mw.showMaximized();
 	splash.finish(&pv_mw);
 
-	// Show changelog if software version has changed // FIXME
+	// Show changelog if software version has changed
 	{
 		PVGuiQt::PVChangelogMessage changelog_msg(&pv_mw);
 	}
