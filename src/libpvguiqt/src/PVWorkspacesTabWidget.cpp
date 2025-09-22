@@ -206,6 +206,7 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Squey::PVScene& 
 
 	connect(_workspace_tab_bar, &QTabBar::currentChanged, this, &PVSceneWorkspacesTabWidget::tab_changed);
 	connect(_workspace_tab_bar, &QTabBar::tabCloseRequested, this, &PVSceneWorkspacesTabWidget::tab_close_requested);
+	connect(_workspace_tab_bar, &QTabBar::tabMoved, this, &PVSceneWorkspacesTabWidget::tab_moved);
 
 	connect(_import_worflow_tab_bar, &QTabBar::currentChanged, [this]() {
 		_stacked_widget->setCurrentIndex(_import_worflow_tab_bar->currentIndex());
@@ -382,7 +383,6 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::set_project_modified()
 
 void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 {
-	// TODO : should update current sub stacked widget index 
 	if (index == -1 or _stacked_widget_workspace->count() == 0) {
 		return;
 	}
@@ -398,10 +398,34 @@ void PVGuiQt::PVSceneWorkspacesTabWidget::tab_changed(int index)
 	get_scene().get_parent<Squey::PVRoot>().select_source(*workspace->get_source());
 }
 
+void PVGuiQt::PVSceneWorkspacesTabWidget::tab_moved(int from, int to)
+{
+    // Swap underlying widgets
+    for (QStackedWidget* stacked_widget : { _stacked_widget_format, _stacked_widget_errors, _stacked_widget_workspace }) {
+        int idx1 = from;
+        int idx2 = to;
+
+        QWidget* w1 = stacked_widget->widget(from);
+        QWidget* w2 = stacked_widget->widget(to);
+
+        // Remove widgets in decreasing order to avoid messing with indices
+        if (idx1 > idx2) {
+            std::swap(idx1, idx2);
+            std::swap(w1, w2);
+        }
+        stacked_widget->removeWidget(w2);
+        stacked_widget->removeWidget(w1);
+
+        // Reinsert in the proper order
+        stacked_widget->insertWidget(idx1, w2);
+        stacked_widget->insertWidget(idx2, w1);
+    }
+}
+
 void PVGuiQt::PVSceneWorkspacesTabWidget::set_worflow_tab_status(int index)
 {
 	auto* workspace = qobject_cast<PVSourceWorkspace*>(_stacked_widget_workspace->widget(index));
-	
+
 	bool has_format = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)->source_type() == "text";
 	bool has_errors_or_warnings = dynamic_cast<PVGuiQt::PVSourceWorkspace*>(workspace)->has_errors_or_warnings();
 

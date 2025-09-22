@@ -133,6 +133,7 @@ class PVSceneWorkspacesTabWidget : public QWidget, public sigc::trackable
 	/*! \brief Call Squey::PVRoot::select_source to keep track of current source.
 	 */
 	void tab_changed(int index);
+	void tab_moved(int from, int to);
 
   protected Q_SLOTS:
 	/*! \brief Slot called when the user closes a workspace.
