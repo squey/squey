@@ -150,7 +150,7 @@ rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_fil
 std::string ws_get_version()
 {
 	// Save tshark version. we use the first line
-	std::string tshark_cmd = std::string(TSHARK_PATH) + " -v";
+	std::string tshark_cmd = std::string(tshark_path()) + " -v";
 	std::vector<std::string> tshark_version = execute_cmd(tshark_cmd);
 
 	// Extract version number
@@ -511,7 +511,7 @@ void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
  ******************************************************************************/
 std::vector<std::string> ws_get_tshark_fields()
 {
-	std::string cmdline = std::string(TSHARK_PATH) + " -G fields";
+	std::string cmdline = tshark_path() + " -G fields";
 	std::vector<std::string> fields = execute_cmd(cmdline);
 
 	// delete all line who doesn't begin with "F"
@@ -533,7 +533,7 @@ std::vector<std::string> ws_get_tshark_fields()
  ******************************************************************************/
 std::vector<std::string> ws_get_tshark_protocols()
 {
-	std::string cmdline = std::string(TSHARK_PATH) + " -G protocols";
+	std::string cmdline = tshark_path() + " -G protocols";
 	return execute_cmd(cmdline);
 }
 
@@ -624,7 +624,7 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 	const std::string& filters = json_data["options"]["filters"].GetString();
 
 	std::vector<std::string> opts;
-	opts.emplace_back(TSHARK_PATH);
+	opts.emplace_back(tshark_path());
 	if (not filters.empty()) {
 		opts.emplace_back("-Y" + filters);
 	}

@@ -16,6 +16,8 @@ config:
   root-read-only: False
   commands:
     - |
+      set -e
+      set -x
       rm -rf %{prefix}/compilation_build
       rm -rf %{prefix}/junit.xml
       rm -rf %{prefix}/code_coverage_report
@@ -28,7 +30,7 @@ config:
       rm -rf %{prefix}/doc*
       rm -rf %{prefix}/mkspecs
       cd %{prefix}/share && ls -I squey -I qt6 -I pocl -I doc -I applications -I icons -I app-info | xargs rm -rf
-      [ cd %{prefix}/share/qt6 ] && ls -I resources | xargs rm -rf
+      [ -d %{prefix}/share/qt6 ] && cd %{prefix}/share/qt6 && ls -I resources | xargs rm -rf
       cd %{prefix}/share/doc && ls -I squey | xargs rm -rf
 
       target_platform_files="%{target-platform}_bin_files"
@@ -40,7 +42,7 @@ config:
       if [ "%{target-platform}" = "windows" ] ; then
         find %{libdir} %{bindir} -name "*.dll" ! -name "cygwin1.dll" | xargs %{host}-strip -s # cygwin1.dll doesn't support symbols stripping
       fi
-      
+
       cp -r %{prefix} %{install-root}
 
 build-depends:

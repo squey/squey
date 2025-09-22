@@ -26,7 +26,7 @@
 #define PVCORE_PVCLASSLIBRARY_H
 
 #include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMap
-#include <pvkernel/core/PVSingleton.h> // for PVOrderedMap
+#include <pvkernel/core/PVSingleton.h>
 #include <qcontainerfwd.h>
 #include <cassert>   // for assert
 #include <stdexcept> // for runtime_error
@@ -35,8 +35,6 @@
 #include <QString>
 #include <QStringList>
 #include <QList>
-
-#include <typeinfo> // FIXME: REMOVEME
 
 #include <pvlogger.h>
 

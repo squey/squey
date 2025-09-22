@@ -36,6 +36,7 @@
 #include "rapidjson/document.h"
 #include "rapidjson/writer.h"
 #include "rapidjson/stringbuffer.h"
+#include <boost/dll/runtime_symbol_info.hpp>
 
 namespace pvpcap
 {
@@ -210,6 +211,17 @@ std::vector<std::string> get_user_profile_list()
 std::vector<std::string> get_system_profile_list()
 {
 	return get_directory_files(get_system_profile_dir());
+}
+
+std::string tshark_path()
+{
+#ifdef _WIN32
+    return QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath("tshark/tshark.exe").toStdString();
+#elifdef __APPLE__
+    return boost::dll::program_location().parent_path().string() + "/tshark";
+#else
+	return "tshark";
+#endif
 }
 
 } // namespace pvpcap

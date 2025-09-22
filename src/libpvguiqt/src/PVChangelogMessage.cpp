@@ -25,35 +25,12 @@
 
 #include <pvguiqt/PVChangelogMessage.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
-
-#include <pvkernel/core/PVConfig.h>
-
-#include <QDir>
-#include <QFile>
-#include <QTextStream>
-
-#include SQUEY_VERSION_FILE_PATH
+#include <pvkernel/core/PVVersionChanged.h>
 
 PVGuiQt::PVChangelogMessage::PVChangelogMessage(QWidget* parent /* = nullptr*/)
 {
-	QString current_version = QString(SQUEY_CURRENT_VERSION_STR);
-	QString previous_version;
-
-	QFile version_file(PVCore::PVConfig::user_dir() + QDir::separator() +
-	                   "version.txt");
-	if (version_file.open(QFile::ReadOnly | QFile::Text)) {
-		QTextStream in(&version_file);
-		previous_version = in.readLine();
-		version_file.close();
-	}
-
-	if (current_version != previous_version) {
+	if (PVCore::PVVersionChanged::version_changed()) {
 		PVGuiQt::PVAboutBoxDialog aboutbox(PVGuiQt::PVAboutBoxDialog::Tab::CHANGELOG, parent);
 		aboutbox.exec();
-	}
-
-	if (version_file.open(QIODevice::WriteOnly)) {
-		QTextStream out(&version_file);
-		out << current_version;
 	}
 }

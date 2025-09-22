@@ -29,6 +29,8 @@
 #include <rapidjson/rapidjson.h>
 #include <vector>
 #include <string>
+#include <QDir>
+#include <QStandardPaths>
 
 #include "rapidjson/document.h"
 
@@ -42,12 +44,9 @@ namespace pvpcap
 // use DEL character as separator as it is very unlikely to be present and is XML 1.0 compliant
 static constexpr const char SEPARATOR[] = "\x7F";
 static constexpr const char QUOTE[] = "n";
-#ifdef _WIN32
-	static constexpr const char TSHARK_PATH[] = "tshark\\tshark.exe";
-#else
-	static constexpr const char TSHARK_PATH[] = "tshark";
-#endif
 
+
+std::string tshark_path();
 
 /**
  * Test if a file exist.
