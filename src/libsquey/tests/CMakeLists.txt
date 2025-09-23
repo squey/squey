@@ -34,7 +34,7 @@ add_squey_test(Tsquey_export_small_selection_bz2 Tsquey_export_selection ${TESTS
 add_squey_test(Tsquey_export_small_selection_zip Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxÿ.log.zip ${TESTS_FILES_DIR}/formats/proxÿ_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxÿ_small.log)
 add_squey_test(Tsquey_export_small_selection_xz Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxÿ.log.xz ${TESTS_FILES_DIR}/formats/proxÿ_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxÿ_small.log)
 add_squey_test(Tsquey_export_small_selection_zst Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxÿ.log.zst ${TESTS_FILES_DIR}/formats/proxÿ_small.log.format 0 ${TESTS_FILES_DIR}/sources/proxÿ_small.log)
-
+add_squey_test(Tsquey_import_compressed_very_long_lines Tsquey_export_selection ${TESTS_FILES_DIR}/sources/very_long_lines_numbers.csv.zip ${TESTS_FILES_DIR}/sources/very_long_lines_numbers.csv.format 0 ${TESTS_FILES_DIR}/sources/very_long_lines_numbers.csv)
 
 # Test selection
 add_squey_test(Tsquey_export_odd_selection Tsquey_export_selection ${TESTS_FILES_DIR}/sources/proxÿ.log ${TESTS_FILES_DIR}/formats/proxÿ.log.format 1 ${TESTS_FILES_DIR}/sources/proxy_odd.log)

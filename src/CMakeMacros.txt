@@ -67,7 +67,7 @@ function(add_squey_compile_test test_exe)
 	set(args ${_WRAP_TEST_UNPARSED_ARGUMENTS})
 	set(files ${_WRAP_TEST_FILES})
 	set(links ${_WRAP_TEST_LINKS})
-	
+
 	# Now, we have all arguments, compile the executable
 	add_executable(SQUEY_TEST_${test_exe} EXCLUDE_FROM_ALL ${files})
 	target_compile_definitions(SQUEY_TEST_${test_exe} PRIVATE TEST_FOLDER=\"${TESTS_FILES_DIR}\" TESTS_FILES_DIR=\"${TESTS_FILES_DIR}\")

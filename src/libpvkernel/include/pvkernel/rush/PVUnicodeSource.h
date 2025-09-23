@@ -316,98 +316,91 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	 * * Computed indexes.
 	 */
 	PVCore::PVTextChunk* operator()() override
-	{
-		// The current chunk must be filled with data, then aligned and returned
+    {
+        // Try to read data into current chunk
+        char* begin_read = _curc->end();
+        size_t r, c;
+        std::tie(r, c) = _input->operator()(begin_read, _curc->avail());
+        size_t chunk_size = r;
+        size_t compressed_chunk_size = c;
 
-		// Read data from input
-		char* begin_read = _curc->end();
-		size_t r, c;
-		std::tie(r, c) = _input->operator()(begin_read, _curc->avail());
-		size_t chunk_size = r;
-		size_t compressed_chunk_size = c;
+        // End of input
+        if (r == 0) {
+            if (_curc->size() == 0) {
+                return nullptr;
+            }
+            create_elements(_curc->begin(), _curc->end());
+            _curc->init_elements_fields();
+            PVCore::PVTextChunk* ret = _curc;
+            _curc = _nextc;
+            return ret;
+        }
 
-		if (r == 0) { // No more data to read.
-			if (_curc->size() > 0) {
-				create_elements(_curc->begin(), _curc->end());
+        char* b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
+        char* buffer_end = _curc->end() + r;
+        char* end = get_end_from_charset(_curc->begin(), _curc->size() + r);
 
-				_curc->init_elements_fields();
+        // Ensure we find a line ending or EOF
+        while (end == nullptr) {
+            if (buffer_end == _curc->physical_end()) {
+                size_t start_offset = b - _curc->begin();
+                _curc = _curc->realloc_grow(_chunk_size / 10);
+                b = _curc->begin() + start_offset;
+                chunk_size = 0;
+            } else if (chunk_size < _curc->avail()) {
+                std::tie(r, c) = _input->operator()(_curc->end() + chunk_size, _curc->avail() - chunk_size);
+                chunk_size += r;
+                compressed_chunk_size += c;
+                buffer_end = _curc->end() + chunk_size;
+                if (r == 0) {
+                    end = buffer_end; // EOF
+                } else {
+                    end = get_end_from_charset(buffer_end - r, r);
+                }
+            } else {
+                end = buffer_end;
+            }
+        }
 
-				PVCore::PVTextChunk* ret = _curc;
-				// _nextc is empty, so the next call to this function will return nullptr
-				_curc = _nextc;
-				return ret;
-			} else {
-				// No more data to read
-				return nullptr;
-			}
-		}
+        // Copy overflow into next chunk
+        if (end < buffer_end) {
+            _nextc->set_end(std::copy(end, buffer_end, _nextc->begin()));
+            double keep_ratio = 1.0 - double(buffer_end - end) / chunk_size;
+            _curc->set_init_size(compressed_chunk_size * keep_ratio);
+        }
 
-		char* b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
-		char* end = get_end_from_charset(_curc->begin(), _curc->size() + r);
-		char* buffer_end = _curc->end() + r;
-		// Grow chunk until we have at least a new line in the chunk or end of file is reach.
-		while (end == nullptr) {
-			if (buffer_end != _curc->physical_end()) {
-				// Case where there is only the last line in the chunk.
-				end = buffer_end;
-				break;
-			}
-			size_t start_offset = b - _curc->begin();
-			_curc = _curc->realloc_grow(_chunk_size / 10);
+        // Convert buffer, realloc if needed
+        while (true) {
+            try {
+                _curc->set_end(convert_buffer(b, end));
+                break;
+            } catch (const UnicodeSourceBufferOverflowError&) {
+                _curc = _curc->realloc_grow(_chunk_size);
+                b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
+                end = get_end_from_charset(_curc->begin(), _curc->size() + r);
+            }
+        }
 
-			b = start_offset + _curc->begin();
-			std::tie(r, c) = _input->operator()(_curc->end(), _curc->avail());
-			chunk_size += r;
-			compressed_chunk_size += c;
-			buffer_end = _curc->end() + r;
+        // Build elements
+        create_elements(b, _curc->end());
+        _curc->init_elements_fields();
 
-			end = get_end_from_charset(_curc->end(), r);
-		}
+        // Update indexes
+        chunk_index next_index = _curc->index() + _curc->c_elements().size();
+        _nextc->set_index(next_index);
+        _last_elt_index = std::max(_last_elt_index, next_index - 1);
 
-		// Process the read data
-		// Copy remaining chars in the next chunk
-		_nextc->set_end(std::copy(end, buffer_end, _nextc->begin()));
-		_curc->set_init_size(compressed_chunk_size *
-		                     (1 - ((double)(buffer_end - end) / chunk_size)));
+        // Swap chunks
+        PVCore::PVTextChunk* ret = _curc;
+        _curc = _nextc;
+        _nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
+        if (!_nextc) {
+            PVLOG_ERROR("(PVRawSource) unable to allocate new chunk\n");
+            return nullptr;
+        }
+        return ret;
+    }
 
-		while (true) {
-			try {
-				_curc->set_end(convert_buffer(b, end));
-				break;
-			} catch (const UnicodeSourceBufferOverflowError& e) {
-				/**
-				 * Increase the size of the buffer and retry if a buffer
-				 * overflow occured during the conversion
-				 */
-				_curc = _curc->realloc_grow(_chunk_size);
-				b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
-				end = get_end_from_charset(_curc->begin(), _curc->size() + r);
-			}
-		}
-
-		// Create an element and align its end on Chunk's end
-		create_elements(b, _curc->end());
-
-		// Allocate memory for the fields
-		_curc->init_elements_fields();
-
-		// Compute the chunk indexes, based on the number of elements found
-		chunk_index next_index = _curc->index() + _curc->c_elements().size();
-		_nextc->set_index(next_index);
-		if (next_index - 1 > _last_elt_index) {
-			_last_elt_index = next_index - 1;
-		}
-
-		// Invert the chunks, allocate the new one and go on
-		PVCore::PVTextChunk* ret = _curc;
-		_curc = _nextc;
-		_nextc = PVChunkAlloc::allocate(_chunk_size, this, _alloc);
-		if (_nextc == nullptr) {
-			PVLOG_ERROR("(PVRawSource) unable to get a new chunk: end of input\n");
-			return nullptr;
-		}
-		return ret;
-	}
 
 	void seek_begin() override
 	{
