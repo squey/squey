@@ -1,3 +1,11 @@
+5.0.9 (2025-09-25)
+------------------
+
+This minor release fixes or improves:
+* [windows/macos] fix PCAP loading
+* fix very long lines of compressed text files being split
+* fix moving of source tabs
+
 5.0.8 (2025-08-14)
 ------------------
 
