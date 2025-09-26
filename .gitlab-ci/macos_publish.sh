@@ -89,6 +89,29 @@ sha256sum *.cer
 security find-identity -v
 security find-certificate -a
 
+codesign_retry() {
+  cmd=( "$@" )
+  max=5
+  delay=60
+  CODESIGN_LOG_FILE="/tmp/codesign_last_err.log"
+  for i in $(seq 1 $max); do
+    echo "Attempt $i: ${cmd[*]}"
+    if "${cmd[@]}" 2> "$CODESIGN_LOG_FILE"; then
+      return 0
+    fi
+    if grep -q "timestamp service is not available" "$CODESIGN_LOG_FILE"; then
+      echo "Timestamp service error — retrying after $delay s"
+      sleep $delay
+      delay=$((delay * 2))
+      continue
+    else
+      cat "$CODESIGN_LOG_FILE" >&2
+      return 1
+    fi
+  done
+  return 1
+}
+
 sign()
 {
     bundlename="$1"
@@ -98,7 +121,7 @@ sign()
     find "$bundlename/Contents" -type f | while read bin; do
         TYPE=$(file "$bin")
         if echo "$TYPE" | grep -q "Mach-O"; then
-            codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
+            codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
         fi
     done
 
@@ -110,14 +133,17 @@ sign()
         fi
     done)
     for exe in $EXECUTABLES; do
-        codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist --options runtime --sign "$CERT_IDENTITY" "$exe"
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist --options runtime --sign "$CERT_IDENTITY" "$exe"
     done
 
     # Sign frameworks
     find "$bundlename/Contents/Frameworks" -type d -name "*.framework" | while read fw; do
-        codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$fw"
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$fw"
     done
 }
+
+# Ping "timestamp.apple.com" in the background (see https://stackoverflow.com/a/71013831/340754)
+ping timestamp.apple.com &>/dev/null &
 
 # Sign packages for external distribution
 sign_and_notarize()
