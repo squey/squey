@@ -16,12 +16,12 @@ sources:
   path: VERSION.txt
 
 (@):
-    - buildstream/elements/base/target.bst
+    - buildstream/elements/base/target.yml
     - buildstream/elements/msix_package/config.yml
 
 environment:
   LD_LIBRARY_PATH: "%{host-prefix}/lib"
-    
+
 build-depends:
 - msix_package/msix-package-layout.bst
 - squey-cleanup.bst

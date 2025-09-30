@@ -7,9 +7,9 @@ sources:
 - kind: git_repo
   url: github:abseil/abseil-cpp.git
   track: '[0-9]*.[0-9]'
-  ref: 20240722.0-0-g4447c7562e3bc702ade25105912dce503f0c4010
+  ref: 20250814.1-0-gd38452e1ee03523a208362186fd42248ff2609f6
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   cmake-local: >-
@@ -18,7 +18,7 @@ variables:
 
 config:
   configure-commands:
-  - sed '243d' -i absl/base/CMakeLists.txt
+  - sed '250d' -i absl/base/CMakeLists.txt
   - "%{cmake}"
 
 depends:

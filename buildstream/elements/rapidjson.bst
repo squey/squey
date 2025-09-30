@@ -5,17 +5,23 @@ description: |
 
 sources:
 - kind: tar
-  url: github:Tencent/rapidjson/archive/232389d4f1012dddec4ef84861face2d2ba85709.tar.gz
-  ref: b9290a9a6d444c8e049bd589ab804e0ccf2b05dc5984a19ed5ae75d090064806
-  
-(@): buildstream/elements/base/target.bst
+  url: github:Tencent/rapidjson/archive/24b5e7a8b27f42fa16b96fc70aade9106cf7102f.tar.gz
+  ref: 2d2601a82d2d3b7e143a3c8d43ef616671391034bc46891a9816b79cf2d3e7a8
+
+(@): buildstream/elements/base/target.yml
+
+variables:
+  cmake-local: >-
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
+    -DRAPIDJSON_BUILD_EXAMPLES=FALSE
+    -DRAPIDJSON_BUILD_DOC=FALSE
 
 config:
   (?):
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       configure-commands:
         (<):
-        - sed "112d" -i CMakeLists.txt
+        - sed "105d" -i CMakeLists.txt
   - (target_triple == "x86_64-w64-mingw32"):
       configure-commands:
         (<):

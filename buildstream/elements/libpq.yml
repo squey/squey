@@ -4,8 +4,8 @@ description: |
 
 sources:
   - kind: tar
-    url: postgresql:pub/source/v14.2/postgresql-14.2.tar.bz2
-    ref: 2cf78b2e468912f8101d695db5340cf313c2e9f68a612fb71427524e8c9a977a
+    url: postgresql:pub/source/v18.0/postgresql-18.0.tar.bz2
+    ref: 0d5b903b1e5fe361bca7aa9507519933773eb34266b1357c4e7780fdee6d6078
 
 variables:
   conf-local: |
@@ -16,3 +16,7 @@ config:
     - |
       make -j1 DESTDIR="%{install-root}" install
       rm -rf %{install-root}%{libdir}/postgresql # Delete useless server part
+
+depends:
+  - freedesktop-sdk.bst:components/bison.bst
+  - freedesktop-sdk.bst:components/flex.bst

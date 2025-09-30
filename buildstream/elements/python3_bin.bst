@@ -4,15 +4,15 @@ kind: manual
 - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
     sources:
     - kind: remote
-      url: python:ftp/python/3.12.8/python-3.12.8-macos11.pkg
-      ref: c411b5372d563532f5e6b589af7eb16e95613d61bd5af7bfe78563467130bbff
+      url: python:ftp/python/3.13.7/python-3.13.7-macos11.pkg
+      ref: f7e8c8d63ab0a4e736b5864aa369098b16af622042c079addb2f1a08400560c5
 - target_triple == "x86_64-w64-mingw32":
     sources:
     - kind: remote
       url: msys2:mingw/mingw64/mingw-w64-x86_64-python-3.12.9-3-any.pkg.tar.zst
       ref: 0cef0bc354bb4640d871e6ecab27f709a9fe14ba7c35bd8e308435562c6087c7
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   python-framework-payload-path: "Python_Framework.pkg/Payload"
@@ -44,10 +44,10 @@ config:
           mkdir -p "%{install-root}%{bindir}"
           mkdir -p "%{install-root}%{libdir}"
           mkdir -p "%{install-root}%{includedir}"
-          mv mingw64/include/python3.12/* "%{install-root}%{includedir}"
+          mv mingw64/include/python%{python-version}/* "%{install-root}%{includedir}"
           mv mingw64/bin/* "%{install-root}%{bindir}"
-          rm -rf mingw64/lib/python3.12/test
-          find mingw64/lib/python3.12/ -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
+          rm -rf mingw64/lib/python%{python-version}/test
+          find mingw64/lib/python%{python-version}/ -regex '^.*\(__pycache__\|\.py[co]\)$' -delete
           mv mingw64/lib/* "%{install-root}%{libdir}"
 
           # mkdir -p "%{install-root}%{bindir}/python"

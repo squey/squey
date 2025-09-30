@@ -6,11 +6,9 @@ description: |
     about the status of entries in its process table.
 
 sources:
-- kind: tar  
-  url: gitlab:procps-ng/procps/-/archive/v4.0.4/procps-v4.0.4.tar.bz2
-  ref: 08dbaaaae6afe8d5fbeee8aa3f8b460b01c5e09ce4706b161846f067103a2cf2
+- kind: tar
+  url: gitlab:procps-ng/procps/-/archive/v4.0.5/procps-v4.0.5.tar.bz2
+  ref: 7e4b385e8f3e426089f3bb04e3bf150c710b875bd005474f034486b2379ce221
 
 depends:
 - base.bst
-
-

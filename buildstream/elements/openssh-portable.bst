@@ -10,9 +10,9 @@ description: |
     and includes support for OS-native authentication and auditing (e.g. using PAM).
 
 sources:
-- kind: tar  
-  url: github:openssh/openssh-portable/archive/refs/tags/V_9_8_P1.tar.gz
-  ref: d8f6802914e4c344dc74599c29915651554bb318102d71cb4063e1f4a0d8286f
+- kind: tar
+  url: github:openssh/openssh-portable/archive/refs/tags/V_10_0_P2.tar.gz
+  ref: a25b32645dc6b474064b9deb07afc9d8e37b127d026a1170b54feb929145140c
 
 depends:
 - base.bst

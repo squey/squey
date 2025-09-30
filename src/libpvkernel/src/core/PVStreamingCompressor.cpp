@@ -64,8 +64,11 @@ const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
 #ifdef _WIN32
 		{"zip", {"7z a dummy.zip -si\"" OUTPUT_FILENAME_PLACEHOLDER "\" -tzip -so -bb0 -bso0 -bse0 -bsp0", "funzip"}},
 		{"bz2", {"pbzip2 -z", "pbzip2 -d"}},
-#else	
+#elif __APPLE__
 		{"zip", {"7zz a dummy.zip -si" OUTPUT_FILENAME_PLACEHOLDER " -tzip -so -bb0 -bso0 -bse0 -bsp0", "funzip"}},
+		{"bz2", {"lbzip2", "lbzip2 -d"}},
+#else // __linux__
+        {"zip", {"7zzs a dummy.zip -si" OUTPUT_FILENAME_PLACEHOLDER " -tzip -so -bb0 -bso0 -bse0 -bsp0", "funzip"}},
 		{"bz2", {"lbzip2", "lbzip2 -d"}},
 #endif
 		{"gz", {"pigz -c", "pigz -d -c"}},
@@ -235,7 +238,7 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
 #elifdef _WIN32
 	HANDLE in_pipe_read, in_pipe_write;
     HANDLE err_pipe_read, err_pipe_write;
-    
+
     // Create stdin pipe
     SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE};
     if (not CreatePipe(&in_pipe_read, &in_pipe_write, &sa, 0)) {

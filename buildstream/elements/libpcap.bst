@@ -8,7 +8,7 @@ sources:
   url: tcpdump:release/libpcap-1.10.5.tar.xz
   ref: 84fa89ac6d303028c1c5b754abff77224f45eca0a94eb1a34ff0aa9ceece3925
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   cmake-local:

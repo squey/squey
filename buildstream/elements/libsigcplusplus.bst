@@ -10,7 +10,11 @@ sources:
   url: github:libsigcplusplus/libsigcplusplus/archive/refs/tags/3.6.0.tar.gz
   ref: bbe81e4f6d8acb41a9795525a38c0782751dbc4af3d78a9339f4a282e8a16c38
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
+
+variables:
+  cmake-local: >-
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 depends:
 - sdk.bst

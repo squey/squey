@@ -385,7 +385,7 @@ void PVParallelView::PVScatterView::update_all()
 void PVParallelView::PVScatterView::update_sel()
 {
 	if (_backend) {
-		_backend->get_images_manager().process_sel();	
+		_backend->get_images_manager().process_sel();
 	}
 }
 
@@ -625,7 +625,7 @@ void PVParallelView::PVScatterView::RenderedImage::swap(QImage const& img,
                                                         QTransform const& mv2s)
 {
 	_mv2s = mv2s;
-	_img = img.copy(viewport_rect.toAlignedRect()).mirrored(true, false);
+	_img = img.copy(viewport_rect.toAlignedRect()).flipped(Qt::Horizontal);
 }
 
 void PVParallelView::PVScatterView::RenderedImage::draw(PVGraphicsView* view, QPainter* painter)

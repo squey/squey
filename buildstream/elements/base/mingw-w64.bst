@@ -13,8 +13,8 @@ config:
 sources:
     - kind: ostree
       url: flathub:repo/
-      track: org.freedesktop.Sdk.Extension.mingw-w64/x86_64/24.08
-      ref: 9415ed9428decea376bc669a4c2154ac570c6aeceb5d21349cdfea1839e1e3ff
+      track: org.freedesktop.Sdk.Extension.mingw-w64/x86_64/25.08
+      ref: 25d303a18f3a25b39c18aa2f2aededc04a09ea953a77be0d7bc6dafcec4e1286
 
 depends:
 - base.bst

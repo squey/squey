@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: git
   url: github:numpy/numpy
-  ref: 48606ab22bfdb0e9d7ec4ed5eef984b873b7796d
-    
+  ref: f2a77a76e08719556527e0819182073fe9b5f1c3
+
 depends:
 - base.bst
 - lapack.bst

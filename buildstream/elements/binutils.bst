@@ -2,11 +2,12 @@ kind: autotools
 description: GNU Binutils
 
 sources:
-- kind: tar
-  url: sourceware:pub/binutils/releases/binutils-2.44.tar.xz
-  ref: ce2017e059d63e67ddb9240e9d4ec49c2893605035cd60e92ad53177f4377237
+  - kind: tar
+    url: sourceware:pub/binutils/releases/binutils-2.45.tar.xz
+    ref: c50c0e7f9cb188980e2cc97e4537626b1672441815587f1eab69d2a1bfbef5d2
 
-(@): buildstream/elements/base/target.bst
+(@):
+  - buildstream/elements/base/target.yml
 
 (?):
   - target_triple != "x86_64-w64-mingw32":

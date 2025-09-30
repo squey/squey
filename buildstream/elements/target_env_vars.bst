@@ -1,6 +1,6 @@
 kind: manual
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
     target-env-vars-path: "%{install-root}/etc/target_env_vars.sh"

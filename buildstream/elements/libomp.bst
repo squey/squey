@@ -1,18 +1,19 @@
 kind: cmake
 description: |
 
-    LLVM OpenMP library implementation 
+    LLVM OpenMP library implementation
 
 sources:
 - kind: tar
-  url: github:llvm/llvm-project/releases/download/llvmorg-18.1.8/openmp-18.1.8.src.tar.xz
-  ref: 60ed57245e73894e4a2a89b15889f367bd906abfe6d3f92e1718223d4b496150
+  url: github:llvm/llvm-project/releases/download/llvmorg-19.1.7/openmp-19.1.7.src.tar.xz
+  ref: bd7e6901ab086fd268750363017935fd4a717c153dad3c2aab86cb0140d9e3fe
 
-- kind: patch
-  path: buildstream/patches/libomp/ExtendPath.cmake.patch
-  strip-level: 1
+- kind: tar
+  url: github:llvm/llvm-project/releases/download/llvmorg-19.1.7/cmake-19.1.7.src.tar.xz
+  ref: 11c5a28f90053b0c43d0dec3d0ad579347fc277199c005206b963c19aae514e3
+  directory: cmake/
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   cmake-local: >-
@@ -21,7 +22,8 @@ variables:
 config:
   configure-commands:
   - |
-    sed -i '20d;133,137d;148d;149d;' runtime/cmake/config-ix.cmake
+    cd cmake && for f in Modules/*.cmake; do ln -s "$f" .; done
+    cd ..
     %{cmake}
 
 depends:

@@ -7,10 +7,10 @@ description: |
 
 sources:
 - kind: tar
-  url: github:gperftools/gperftools/archive/refs/tags/gperftools-2.16.tar.gz
-  ref: 737be182b4e42f5c7f595da2a7aa59ce0489a73d336d0d16847f2aa52d5221b4
+  url: github:gperftools/gperftools/archive/refs/tags/gperftools-2.17.2.tar.gz
+  ref: 885dbbf1f25a922de0cdc78b0703c3ab93c43850e1d2f7c889e41be7c824c53d
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 config:
 

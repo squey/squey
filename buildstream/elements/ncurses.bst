@@ -6,7 +6,7 @@ sources:
   url: github:mirror/ncurses/archive/refs/tags/v6.4.tar.gz
   ref: 39893846139518e6c2d00ac1d354d4889f0f394acd44885d70b14eaef4e23e8e
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   conf-local: >-
@@ -50,7 +50,7 @@ variables:
     --prefix=%{prefix}
     TIC="/usr/bin/tic"
   make-args: ""
-  
+
 config:
   configure-commands:
   - |

@@ -6,8 +6,8 @@ description: |
 
 sources:
 - kind: tar
-  url: gitlab:wireshark/wireshark/-/archive/wireshark-4.4.2/wireshark-wireshark-4.4.2.tar.bz2
-  ref: ca5224def17866c2167086aba07be99aa646c9ebf711f7a5573982f0d90e7278
+  url: gitlab:wireshark/wireshark/-/archive/wireshark-4.4.9/wireshark-wireshark-4.4.9.tar.bz2
+  ref: a476c3435bbd5254840ad8c860cf55c853ac9c955f220984813c2ac677735cb5
 
 variables:
   cmake-local: >-
@@ -22,4 +22,3 @@ depends:
 - freedesktop-sdk.bst:components/glib.bst
 - freedesktop-sdk.bst:components/libgcrypt.bst
 - libmaxminddb.bst
-

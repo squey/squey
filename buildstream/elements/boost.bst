@@ -12,8 +12,8 @@ sources:
   url: boost:release/1.85.0/source/boost_1_85_0.tar.bz2
   ref: 7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617
 
-(@): buildstream/elements/base/target.bst
-  
+(@): buildstream/elements/base/target.yml
+
 config:
   configure-commands:
   - |

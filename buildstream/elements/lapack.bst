@@ -5,9 +5,9 @@ description: |
 
 sources:
 - kind: tar
-  url: github:Reference-LAPACK/lapack/archive/refs/tags/v3.12.0.tar.gz
-  ref: eac9570f8e0ad6f30ce4b963f4f033f0f643e7c3912fc9ee6cd99120675ad48b
-  
+  url: github:Reference-LAPACK/lapack/archive/refs/tags/v3.12.1.tar.gz
+  ref: 2ca6407a001a474d4d4d35f3a61550156050c48016d949f0da0529c0aa052422
+
 environment:
   INTERFACE64: 1
   SYMBOLSUFFIX: "64_"

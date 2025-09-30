@@ -3,9 +3,9 @@ description: |
 
     This project does as the name implies: it converts code coverage report files in lcov format to
     Cobertura's XML report format so that CI servers like Jenkins can aggregate results and determine build stability etc.
-    
+
 sources:
-- kind: tar  
+- kind: tar
   url: github:eriwen/lcov-to-cobertura-xml/archive/refs/tags/2.0.2.tar.gz
   ref: bbbf0867ec7bf90d4a071097242edc88437a819d072a522cd79d8a44432861ca
 

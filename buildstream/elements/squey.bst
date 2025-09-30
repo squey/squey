@@ -27,7 +27,7 @@ sources:
 - kind: local
   path: buildstream/files/macos_bundle/libSystemStub.tbd
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 environment:
   LC_ALL: "C.UTF-8"
@@ -36,7 +36,7 @@ environment:
   RECC_CACHE_UPLOAD_LOCAL_BUILD: 1
   RECC_CAS_SERVER: unix:/tmp/casd.sock
   RECC_MAX_THREADS: -1
-  
+
 variables:
   build-dir: "build/%{target_triple}/%{cxx_compiler}/build"
   source-dir: "."
@@ -53,22 +53,22 @@ variables:
 
   install-linux-launchers: 'bash -c "cp -r buildstream/files/flatpak/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"'
   install-linux-deps:
-    install -D /usr/lib/%{gcc_triplet}/crti.o -t %{install-root}%{libdir} && 
-    install -D /usr/lib/%{gcc_triplet}/crtn.o -t %{install-root}%{libdir} && 
-    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so -t %{install-root}%{libdir} && 
-    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so.1 -t %{install-root}%{libdir} && 
-    install -D /usr/lib/%{gcc_triplet}/libc.so -t %{install-root}%{libdir} && 
-    sed -i 's|/usr/lib/x86_64-linux-gnu/||g;s|/lib64/||' %{install-root}%{libdir}/libc.so && 
-    install -D /usr/lib/%{gcc_triplet}/libc_nonshared.a -t %{install-root}%{libdir} && 
-    cp /usr/lib/%{gcc_triplet}/libm.so.6 %{install-root}%{libdir}/libm.so && 
-    find /usr/lib/gcc/%{triplet} -name libgcc.a -exec install -D \{\} -t %{install-root}%{libdir} \; && 
-    find /usr/lib/gcc/%{triplet} -name crtbeginS.o -exec install -D \{\} -t %{install-root}%{libdir} \; && 
+    install -D /usr/lib/%{gcc_triplet}/crti.o -t %{install-root}%{libdir} &&
+    install -D /usr/lib/%{gcc_triplet}/crtn.o -t %{install-root}%{libdir} &&
+    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so -t %{install-root}%{libdir} &&
+    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so.1 -t %{install-root}%{libdir} &&
+    install -D /usr/lib/%{gcc_triplet}/libc.so -t %{install-root}%{libdir} &&
+    sed -i 's|/usr/lib/x86_64-linux-gnu/||g;s|/lib64/||' %{install-root}%{libdir}/libc.so &&
+    install -D /usr/lib/%{gcc_triplet}/libc_nonshared.a -t %{install-root}%{libdir} &&
+    cp /usr/lib/%{gcc_triplet}/libm.so.6 %{install-root}%{libdir}/libm.so &&
+    find /usr/lib/gcc/%{triplet} -name libgcc.a -exec install -D \{\} -t %{install-root}%{libdir} \; &&
+    find /usr/lib/gcc/%{triplet} -name crtbeginS.o -exec install -D \{\} -t %{install-root}%{libdir} \; &&
     find /usr/lib/gcc/%{triplet} -name crtendS.o -exec install -D \{\} -t %{install-root}%{libdir} \;
   install-all: |
     %{make-install} &&
     if [ "%{target_triple}" = "x86_64-linux-gnu" ]; then %{install-linux-deps} && %{install-linux-launchers} ; fi &&
     if [ "%{target-platform}" = "darwin" ]; then mkdir -p "%{install-root}%{libdir}" && cp libSystemStub.tbd "%{install-root}%{libdir}/libSystem.tbd" && %{toolchain-dir}/%{host}-install_name_tool -rpath %{libdir} @executable_path/../Frameworks %{install-root}%{bindir}/squey ; fi
-    
+
 config:
   configure-commands:
     - |
@@ -77,7 +77,7 @@ config:
       %{cmake} "%{source-dir}" \
         -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
         -DCMAKE_COMPILE_WARNING_AS_ERROR=$WARNINGS_AS_ERRORS
-    
+
   (?):
   - disable_testsuite == False:
       build-commands:
@@ -163,7 +163,7 @@ build-depends:
 - freedesktop-sdk.bst:components/python3-pip.bst
 - freedesktop-sdk.bst:components/python3.bst
 - freedesktop-sdk.bst:components/git.bst
-- freedesktop-sdk.bst:components/flatpak-xdg-utils.bst 
+- freedesktop-sdk.bst:components/flatpak-xdg-utils.bst
 - freedesktop-sdk.bst:components/buildbox.bst
 - target_env_vars.bst
 - openssh-portable.bst
@@ -240,7 +240,3 @@ depends:
         - pigz_bin.bst
         - pbzip2.bst
         - python3-pip_bin.bst
-
-
-
-

@@ -7,7 +7,7 @@ sources:
   track: v*
   ref: v1.3.1-0-g51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 (?):
 - (target_triple == "x86_64-linux-gnu"):

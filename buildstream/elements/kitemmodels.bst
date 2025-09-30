@@ -6,9 +6,9 @@ description: |
 sources:
 - kind: git
   url: kde:kitemmodels.git
-  ref: 3a6b78f7f292330ecb90966974eebf8e596316b4
+  ref: 18193e5860898500e4f45d3c3b80c86b4c8bc12f
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   cmake-local: >-

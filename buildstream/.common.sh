@@ -10,14 +10,14 @@ fi
 # Load Python virtual environment
 if [ "$GITLAB_CI" != "true" ]; then
     if [ ! -d ".venv" ]; then
-        python -m venv .venv
+        python3.12 -m venv .venv
         source .venv/bin/activate
         pip install -r requirements.txt
     fi
 
     echo "Activating python virtual environment"
     source .venv/bin/activate
-    pip install --upgrade pip
+    pip --retries 0 --timeout 5 install --upgrade pip
 
     # Install Buildstream if needed
     BST_VERSION=$(sed -n 's/^BuildStream==\([^ ]*\)$/\1/p' requirements_bst.txt)
@@ -43,10 +43,10 @@ GL_MOUNT_OPTS=""
 export IS_TRUE_LINUX=$([[ "$(uname -s)" == "Linux" && -z "$(uname -a | grep -i 'microsoft')" ]] && echo 1 || echo 0)
 
 if [[ "$IS_TRUE_LINUX" -eq 1 ]]; then # Enable GPU acceleration
-    GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/24.08/active/files"
+    GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/25.08/active/files"
     GL_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_HOST_DIR"
     GL_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_HOST_DIR"
-    GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/24.08extra/active/files"
+    GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/25.08extra/active/files"
     GL_EXTRA_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_EXTRA_HOST_DIR"
     GL_EXTRA_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_EXTRA_HOST_DIR"
     NVIDIA_VERSION_NAME=$(flatpak --gl-drivers|grep "nvidia") || true

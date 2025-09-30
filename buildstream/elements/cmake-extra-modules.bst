@@ -6,9 +6,9 @@ description: |
 sources:
 - kind: git
   url: kde:extra-cmake-modules.git
-  ref: 7dd28cc56c339c3f8fb356f7c53c0e8f61433d81
+  ref: 67c974b0e34feee683f4d905dde33a2b6abac2f7
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 build-depends:
 - sdk.bst

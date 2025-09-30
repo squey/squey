@@ -22,4 +22,4 @@ AcceptEnv XDG_RUNTIME_DIR
 EOF
 
 /app/sbin/sshd -f "${DIR}/sshd_config" -E "${DIR}/sshd.log"
-/app/bin/waypipe --socket /tmp/squey-waypipe-socket-server server
+/app/bin/waypipe-c --socket /tmp/squey-waypipe-socket-server server

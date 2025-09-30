@@ -2,13 +2,13 @@ kind: cmake
 description: |
 
     Apache Thrift is a lightweight, language-independent software stack for point-to-point RPC implementation.
-    
+
 sources:
 - kind: tar
   url: github:apache/thrift/archive/refs/tags/v0.22.0.tar.gz
   ref: c4649c5879dd56c88f1e7a1c03e0fbfcc3b2a2872fb81616bffba5aa8a225a37
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 environment:
     CFLAGS: "-D_WINSOCK_DEPRECATED_NO_WARNINGS -fpermissive"

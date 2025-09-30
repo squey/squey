@@ -12,10 +12,10 @@ description: |
 
 sources:
 - kind: tar
-  url: github:maxmind/libmaxminddb/archive/refs/tags/1.11.0.tar.gz
-  ref: dfda7a1367b64b78acd99ac309d6e4bcfea3408678808d3f48bf41728b321909
+  url: github:maxmind/libmaxminddb/archive/refs/tags/1.12.2.tar.gz
+  ref: c325cb952d512b12a715e0a08aedff0d16791db528dc3f23af576057398d66ab
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   conf-local: |

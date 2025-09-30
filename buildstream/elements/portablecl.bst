@@ -3,14 +3,7 @@ description: |
 
     PoCL is a portable open source (MIT-licensed) implementation of the OpenCL standard.
 
-sources:
-- kind: git
-  url: github:pocl/pocl
-  ref: a2e0199f794c8dfbcd92b775cd4f82ba05e816a9
-- kind: patch
-  path: buildstream/patches/portablecl/pocl_cache.c.patch
-
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 environment:
   PKG_CONFIG_PATH: "%{bindir}/pkgconfig"
@@ -25,7 +18,6 @@ variables:
     -DINSTALL_OPENCL_HEADERS=1
     -DCMAKE_BUILD_TYPE=Release
     -DENABLE_TBB_DEVICE=1
-    -DCMAKE_FIND_DEBUG_MODE=OFF
 
   executable_dir_keyword: "@executable_dir"
   cmake-local-darwin: >-
@@ -56,7 +48,7 @@ variables:
     -DSTATIC_LLVM=TRUE
     -DCMAKE_SIZEOF_VOID_P=8
     -DLLVM_PREFIX="%{prefix}"
-    -DLLVM_VERSION_FULL=18.1.8
+    -DLLVM_VERSION_FULL=19.1.7
     -DLLVM_CFLAGS="-I%{includedir}"
     -DLLVM_CXXFLAGS="-I%{includedir}"
     -DLLVM_CPPFLAGS="-I%{includedir}"
@@ -80,8 +72,15 @@ variables:
     -DENABLE_TESTS=OFF
     -DENABLE_EXAMPLES=OFF
     -DOPENCL_VERSION="3.0.0"
+    -DPOCL_INSTALL_PRIVATE_DATADIR="%{bindir}/pocl"
 
   (?):
+  - (target_triple != "x86_64-w64-mingw32"):
+      commit_ref: "a6f7e5cc223cdf6254ff62ea1f37a9aa8a52d778"
+      patch: "buildstream/patches/portablecl/fix_tbb.patch"
+  - (target_triple == "x86_64-w64-mingw32"):
+      commit_ref: "85654efe89894af6d0fbc701d597b2f9be5441fe"
+      patch: "buildstream/patches/noop.patch"
   - (target_triple == "x86_64-linux-gnu" or target_triple == "x86_64-apple-darwin" or target_triple == "x86_64-w64-mingw32"):
       cmake-local-distro: >-
         -DKERNELLIB_HOST_CPU_VARIANTS=distro
@@ -93,6 +92,15 @@ variables:
   - target_triple == "x86_64-linux-gnu":
       cmake-local-linux: >-
         -DEXTRA_HOST_LD_FLAGS="-L%{libdir}"
+
+sources:
+- kind: git
+  url: github:pocl/pocl
+  ref: "%{commit_ref}"
+
+- kind: patch
+  path: "%{patch}"
+  strip-level: 1
 
 config:
   (?):
@@ -154,9 +162,9 @@ config:
         test -f "%{bindir}/ld.exe" || exit 1 # Check that ld.exe is available
         rm -rf cmake/FindHwloc.cmake
         sed 's/ -fPIC / /g' -i CMakeLists.txt
-        sed 's/@POCL_INSTALL_PRIVATE_DATADIR@/pocl/' -i config.h.in.cmake
+        sed 's/set(BUILD_SHARED_LIBS_DEFAULT OFF)/set(BUILD_SHARED_LIBS_DEFAULT ON)/' -i CMakeLists.txt
         %{cmake} %{cmake-local-distro} %{cmake-local-win}
-    
+
 build-depends:
 - sdk.bst
 - clang_host.bst

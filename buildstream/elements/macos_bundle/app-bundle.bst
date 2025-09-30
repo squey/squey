@@ -8,7 +8,7 @@ sources:
   path: VERSION.txt
 
 (@):
-    - buildstream/elements/base/target.bst
+    - buildstream/elements/base/target.yml
     - buildstream/elements/macos_bundle/config.yml
 
 variables:

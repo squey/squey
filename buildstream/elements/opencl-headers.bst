@@ -5,14 +5,15 @@ description: |
 
 sources:
 - kind: tar
-  url: github:KhronosGroup/OpenCL-Headers/archive/refs/tags/v2024.10.24.tar.gz
-  ref: 159f2a550592bae49859fee83d372acd152328fdf95c0dcd8b9409f8fad5db93
+  url: github:KhronosGroup/OpenCL-Headers/archive/refs/tags/v2025.07.22.tar.gz
+  ref: 98f0a3ea26b4aec051e533cb1750db2998ab8e82eda97269ed6efe66ec94a240
 
 - kind: patch
   path: buildstream/patches/opencl-headers/cl.hpp.patch
   strip-level: 1
 
-(@): buildstream/elements/base/target.bst
+
+(@): buildstream/elements/base/target.yml
 
 variables:
   make-args: ""
@@ -20,4 +21,3 @@ variables:
 
 build-depends:
 - sdk.bst
-

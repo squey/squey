@@ -1,6 +1,6 @@
 kind: stack
 depends:
-- filename: bootstrap-import.bst
+- filename: bootstrap/bootstrap.bst
   junction: freedesktop-sdk.bst
 - filename: public-stacks/buildsystem-autotools.bst
   junction: freedesktop-sdk.bst
@@ -10,4 +10,3 @@ depends:
   junction: freedesktop-sdk.bst
 #- filename: components/ccache.bst
 #  junction: freedesktop-sdk.bst
- 

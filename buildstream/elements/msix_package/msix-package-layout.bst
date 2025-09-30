@@ -18,7 +18,7 @@ sources:
   path: VERSION.txt
 
 (@):
-    - buildstream/elements/base/target.bst
+    - buildstream/elements/base/target.yml
     - buildstream/elements/msix_package/config.yml
 
 variables:
@@ -27,6 +27,7 @@ variables:
 config:
   install-commands:
   - |
+    set -x
     SOURCE_DIR=$(pwd)
     mkdir -p "%{install-package-root}/plugins"
     cp %{bindir}/*.dll "%{install-package-root}"
@@ -46,7 +47,7 @@ config:
     deps_list=""
     declare -a seen
     cd "%{install-package-root}"
-    extract_local_deps "pocl.dll"
+    extract_local_deps "%{bindir}/pocl.dll"
     echo "LLVM/Clang deps: " $deps_list
     rm -rf libLLVM*.dll libclang*.dll
     cd "%{bindir}"
@@ -77,7 +78,7 @@ config:
     cp %{bindir}/pocl/* "%{install-package-root}/pocl"
     mkdir -p "%{install-package-root}/python"
     cp -r %{libdir}/python*/* "%{install-package-root}/python"
-    cd "%{bindir}/tshark" && 7zz a "%{install-package-root}/tshark.zip" .
+    cd "%{bindir}/tshark" && 7zzs a "%{install-package-root}/tshark.zip" .
     rm -rf %{install-package-root}/libjemalloc.* %{install-package-root}/jemalloc.*
 
 build-depends:

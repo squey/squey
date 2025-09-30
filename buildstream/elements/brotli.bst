@@ -8,7 +8,7 @@ sources:
   - "*rc*"
   ref: v1.1.0-0-ged738e842d2fbdf2d6459e39267a633c4a9b2f5d
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 config:
   configure-commands:

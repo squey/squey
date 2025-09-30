@@ -4,9 +4,9 @@ sources:
 - kind: git_repo
   url: github:curl/curl.git
   track: curl-*
-  ref: curl-8_10_1-0-g7eb8c048470ed2cc14dca75be9c1cdae7ac8498b
+  ref: curl-8_16_0-0-g11b991232fbcaa88e2b1faecac224416b0001e35
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 environment:
   PREFIX_OPENSSL: "%{prefix}"

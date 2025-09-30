@@ -11,9 +11,9 @@ sources:
   track: '*.*.*'
   exclude:
   - '*rc*'
-  ref: 6f88e485f27bb0a41d31638f0c55055362e0b1ac
+  ref: e72c717199fa18d34020c7c97f9de3f388c5e055
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 build-depends:
 - sdk.bst

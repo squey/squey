@@ -4,13 +4,13 @@ kind: manual
 - target_triple == "x86_64-w64-mingw32":
     sources:
     - kind: remote
-      url: msys2:mingw/mingw64/mingw-w64-x86_64-python-pip-25.0-1-any.pkg.tar.zst
-      ref: a9bea0aa0e020a9543d42e8798835c9a9292f7f44b30b7588523d4d074562fac
+      url: msys2:mingw/mingw64/mingw-w64-x86_64-python-pip-25.2-1-any.pkg.tar.zst
+      ref: 4d678225ad8c42765e1fbca05ea43f5c8fb56d77b1379948af2837c4cae37d6c
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
-    python-site-package: "python3.12/site-packages"
+    python-site-package: "python%{python-version}/site-packages"
 
 config:
     (?):
@@ -22,7 +22,7 @@ config:
           mkdir -p "%{install-root}%{libdir}/%{python-site-package}"
           mv mingw64/bin/* "%{install-root}%{bindir}"
           find mingw64 | grep -E "(/__pycache__$|\.pyc$|\.pyo$)" | xargs rm -rf
-          mv mingw64/lib/%{python-site-package}/* "%{install-root}%{libdir}/%{python-site-package}"
+          mv mingw64/lib/python*/site-packages/* "%{install-root}%{libdir}/%{python-site-package}"
 
 build-depends:
 - sdk.bst

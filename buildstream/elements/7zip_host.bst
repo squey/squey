@@ -5,14 +5,14 @@ description: |
 
 sources:
 - kind: remote
-  url: github:ip7z/7zip/releases/download/24.08/7z2408-linux-x64.tar.xz
-  ref: 9b3a2edf0644a2b00b0a39ab6843f426128e4a6f6f98c40f8c02a668e5b5b59b
+  url: github:ip7z/7zip/releases/download/25.01/7z2501-linux-x86.tar.xz
+  ref: 62a47626eb9ce2886de3fec6f201f6a4210f14ba61b30a16141b953aed705207
 
 config:
   install-commands:
   - |
     tar Jxvf *.tar.xz
-    install -D 7zz -t %{install-root}/%{bindir}
+    install -D 7zzs -t %{install-root}/%{bindir}
 
 build-depends:
 - base.bst

@@ -6,9 +6,9 @@ description: |
 sources:
 - kind: git
   url: github:KDE/syntax-highlighting
-  ref: 4dae8bf4ad2fd018f9c56450d9f09a32ec0f99af
+  ref: f39b8f4054efa48389765d82081854053d8cfd91
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   cmake-local: >-

@@ -30,7 +30,7 @@
 #include <unicode/calendar.h>
 #include <unicode/unistr.h>
 
-using namespace icu_75;
+using namespace icu_77;
 
 /******************************************************************************
  *

@@ -5,10 +5,10 @@ description: |
 
 sources:
 - kind: tar
-  url: github:c-ares/c-ares/archive/refs/tags/v1.33.1.tar.gz
-  ref: b3d127d8357863eb465053ce9308b79d9b00314f92ec09df056221a1a45c2fef
+  url: github:c-ares/c-ares/archive/refs/tags/v1.34.5.tar.gz
+  ref: dcd919635f01b7c8c9c2f5fb38063cd86500f7c6d4d32ecf4deff5e3497fb157
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   conf-local: |
