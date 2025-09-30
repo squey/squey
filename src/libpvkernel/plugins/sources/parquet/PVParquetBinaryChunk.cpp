@@ -263,8 +263,9 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 			}
 
 			if (_values[i].data() != data) {
-				data = static_cast<void*>(static_cast<uint8_t*>(data) + column_array->offset()*t.size_in_bytes);
-				std::memcpy(_values[i].data(), data, row_count * t.size_in_bytes);
+    			const uint8_t* base_ptr = static_cast<const uint8_t*>(column_array->data()->buffers[1]->data());
+                const uint8_t* src_ptr = base_ptr + column_array->offset() * t.size_in_bytes;
+                std::memcpy(_values[i].data(), src_ptr, row_count * t.size_in_bytes);
 			}
 			set_raw_column_chunk(PVCol(i+multi_inputs), _values[i].data(), row_count, t.size_in_bytes, t.string);
 		}
