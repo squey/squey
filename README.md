@@ -53,7 +53,7 @@ See presentation video : https://www.youtube.com/watch?v=M9I8Vt5mmAc
 ### Windows
 
 <a href="https://apps.microsoft.com/detail/9PDP9BKD9NVD?mode=full">
-	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" alt="Download from the Microsoft Store"/>
+	<img src="https://get.microsoft.com/images/en-us%20dark.svg" width="200" alt="Download from the Microsoft Store" style="border: 1px solid #bbbbbb; border-radius: 10px;"/>
 </a>
 <br/>
 
