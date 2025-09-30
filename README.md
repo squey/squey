@@ -61,7 +61,7 @@ Or install it using a [standalone archive](https://squey.gitlab.io/squey/squey-w
 
 ### macOS
 
-<a href="https://apps.apple.com/us/app/squey/id6748079336">
+<a href="https://apps.apple.com/app/squey/id6748079336">
   <img src="https://toolbox.marketingtools.apple.com/api/v2/badges/download-on-the-app-store/black/en-us?releaseDate=1647734400" width="200"  alt="Download on the App Store"/>
 </a>
 <br/>
