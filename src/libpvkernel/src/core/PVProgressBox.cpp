@@ -74,6 +74,7 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	widgetCancel = new QWidget(this);
 	layoutCancel = new QHBoxLayout();
 	widgetCancel->setLayout(layoutCancel);
+	widgetCancel->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 	_btnCancel2 = new QPushButton(PVModdedIcon("circle-check"),
 	                              QString(tr("")));
 	_btnCancel = new QPushButton(PVModdedIcon("circle-x"),
@@ -130,6 +131,8 @@ PVCore::PVProgressBox::PVProgressBox(QString msg, QWidget* parent)
 	 */
 	connect(this, &PVProgressBox::exec_gui_sig, this, &PVProgressBox::exec_gui_slot,
 	        Qt::BlockingQueuedConnection);
+
+	qApp->processEvents();
 }
 
 void PVCore::PVProgressBox::cancel()
