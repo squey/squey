@@ -51,7 +51,7 @@ struct ChildrenAccessor {
 		return std::accumulate(c.begin(), c.end(), 0UL, [](size_t cum, T const* c1) {
 			using child_t = typename std::remove_cv<
 			    typename std::remove_reference<decltype(**c1->get_children().begin())>::type>::type;
-			return cum + ChildrenAccessor<child_t, B>::size(c1->template get_children());
+			return cum + ChildrenAccessor<child_t, B>::size(c1->get_children());
 		});
 	}
 
