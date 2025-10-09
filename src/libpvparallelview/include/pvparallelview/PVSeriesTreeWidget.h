@@ -245,7 +245,8 @@ class PVSeriesTreeFilterProxyModel : public QSortFilterProxyModel
 	void set_selection(const QSet<int>& selected)
 	{
 		_selected = selected;
-		invalidateFilter();
+		beginFilterChange();
+		endFilterChange();
 	}
 
 	void clear_selection() { _selected.clear(); }

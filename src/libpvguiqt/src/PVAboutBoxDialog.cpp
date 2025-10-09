@@ -94,7 +94,10 @@ class PVOpenSourceSoftwareWidget : public QWidget
 			const QString& file_path =
 			    copying_dir() + "/" + oss_software_list->currentItem()->text();
 			QFile f(file_path);
-			f.open(QFile::ReadOnly | QFile::Text);
+			if (not f.open(QFile::ReadOnly | QFile::Text)) {
+			    assert(false && "Error when opening file");
+                return;
+			}
 			QTextStream in(&f);
 			license_text->setText(in.readAll());
 		});
@@ -126,7 +129,10 @@ class PVChangeLogWidget : public QWidget
 #else
 		QFile f("/app/share/squey/squey/CHANGELOG");
 #endif
-		f.open(QFile::ReadOnly | QFile::Text);
+		if (not f.open(QFile::ReadOnly | QFile::Text)) {
+		    assert(false && "Error when opening file");
+            return;
+		}
 		QTextStream in(&f);
 		changelog_text->setText(in.readAll());
 
