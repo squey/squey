@@ -38,6 +38,7 @@
 #include <QPalette>
 #include <QWidget>
 #include <QStyle>
+#include <QTimer>
 
 #include <cstdlib>
 
@@ -105,7 +106,7 @@ PVCore::PVTheme::PVTheme()
         RegCloseKey(hKey);
         CloseHandle(hEvent);
     });
-    theme_change_monitoring_thread.detach();   
+    theme_change_monitoring_thread.detach();
 #endif
 }
 
@@ -129,7 +130,7 @@ PVCore::PVTheme::EColorScheme PVCore::PVTheme::system_color_scheme()
     HKEY hKey;
     DWORD value = 0;
     DWORD size = sizeof(value);
-    
+
     if (RegOpenKeyExW(HKEY_CURRENT_USER, THEME_REG_KEY, 0, KEY_READ, &hKey) == ERROR_SUCCESS) {
         if (RegQueryValueExW(hKey, L"AppsUseLightTheme", nullptr, nullptr, reinterpret_cast<LPBYTE>(&value), &size) == ERROR_SUCCESS) {
             RegCloseKey(hKey);
@@ -216,7 +217,10 @@ void PVCore::PVTheme::apply_style(bool dark_theme)
 {
     auto load_stylesheet = [](const QString& css_theme){
         QFile css_file(css_theme);
-        css_file.open(QFile::ReadOnly);
+        if (not css_file.open(QFile::ReadOnly)) {
+            assert(false && "Error when opening file");
+            return QString();
+        }
         QTextStream css_stream(&css_file);
         QString css_string(css_stream.readAll());
         css_file.close();
@@ -244,8 +248,16 @@ void PVCore::PVTheme::apply_style(bool dark_theme)
 
     if (dark_theme) {
         css_theme = ":/theme-dark.qss";
+
+        // Fix missing palette colors in dark theme
+        QPalette palette = qApp->palette();
+        const QColor& color = QRgb(0x2a2e32);
+        palette.setColor(QPalette::Window, color);
+        palette.setColor(QPalette::Base, color);
+        qApp->setPalette(palette);
     }
-    
+
+
 //#ifdef SQUEY_DEVELOPER_MODE
 //    css_theme = SQUEY_SOURCE_DIRECTORY "/gui-qt/src/resources/" + css_theme.mid(2);
 //#endif
