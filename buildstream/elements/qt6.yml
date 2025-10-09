@@ -3,8 +3,8 @@ description: |
 
 sources:
   - kind: tar
-    url: qt:archive/qt/6.9/6.9.3/single/qt-everywhere-src-6.9.3.tar.xz
-    ref: 59d4fbf50d2524a9082f85d565f0197316cde89c26e97cfc6c157cb255b7ea18
+    url: qt:archive/qt/6.10/6.10.0/single/qt-everywhere-src-6.10.0.tar.xz
+    ref: 81895fb038a9c3d6c6f698d7611339a189eb45c3d91746c7789b0b77a5981aa3
 
   - kind: patch
     path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
