@@ -527,7 +527,7 @@ bool PVRush::PVFormat::populate_from_xml(QString filename)
 {
 	QFile file(filename);
 	if (not file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-        assert(false && "Error when opening file");
+        //assert(false && "Error when opening file");
         return false;
 	}
 	_dom.setContent(&file);

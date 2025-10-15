@@ -110,7 +110,8 @@ class PVMainWindow : public QMainWindow
 	                 PVRush::PVInputType::list_inputs const& inputs,
 	                 PVRush::hash_formats& formats,
 	                 PVRush::hash_format_creator& format_creator,
-	                 QString const& choosenFormat);
+	                 QString const& choosenFormat,
+					 bool concatenation = false);
 	/* void import_type(); */
 
 	QString get_solution_path() const { return get_root().get_path(); }

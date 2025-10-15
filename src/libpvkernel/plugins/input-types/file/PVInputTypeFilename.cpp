@@ -76,14 +76,37 @@ bool PVRush::PVInputTypeFilename::create_widget_with_input_files(
     PVCore::PVArgumentList& /*args_ext*/,
     QWidget* parent) const
 {
-    QStringList formats_name = formats.keys();
-	formats_name.sort();
-
-	formats_name.prepend(QString(SQUEY_BROWSE_FORMAT_STR));
-	formats_name.prepend(QString(SQUEY_LOCAL_FORMAT_STR));
-
-	if (not format.isEmpty()) {
-	    formats["custom"] = PVRush::PVFormat("custom", format);
+	if (filenames.size() > 1) {
+		QString custom_format;
+		const QString& squey_local_generic_format = QFileInfo(filenames[0]).absoluteDir().path() + "/squey.format";
+		if (QFile::exists(squey_local_generic_format)) { // Use generic 'squey.format' if existing // TODO : check in every directory ?
+			format = "custom";
+			custom_format = squey_local_generic_format;
+			formats["custom"] = PVRush::PVFormat("custom", custom_format);
+		}
+		else {
+			QStringList intput_formats;
+			for (int i = 0; i < filenames.size(); i++) {
+				const QString& input_file = filenames[i];
+				const QString& input_file_format =  input_file + ".format";
+				if (QFile::exists(input_file_format)) {
+					intput_formats << input_file_format;
+				}
+			}
+			if (intput_formats.size() == 0) {
+				format = SQUEY_LOCAL_FORMAT_STR;
+			}
+			else if (intput_formats.size() == 1) {
+				format = "custom";
+				custom_format = intput_formats[0];
+				formats["custom"] = PVRush::PVFormat("custom", custom_format);
+			}
+			else { // intput_formats.size() > 1
+				format = SQUEY_BROWSE_FORMAT_STR;
+				// Set format only to retrieve parent folder to setup open file dialog
+				formats["custom"] = PVRush::PVFormat("custom", intput_formats[0]);
+			}
+		}
 	}
 	else {
 	    format = SQUEY_LOCAL_FORMAT_STR;
