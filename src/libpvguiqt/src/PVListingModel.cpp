@@ -43,7 +43,7 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
     : PVAbstractTableModel(view.get_row_count(), parent)
     , _zombie_brush(QColor(0, 0, 0))
     , _vheader_font(":/Convergence-Regular")
-    , _view(view)
+    , _view(&view)
 {
 	// Update the full model if axis combination change
 	view._axis_combination_updated.connect(
@@ -64,6 +64,8 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
 
 	// Update display of unselected lines on option toogling
 	view._toggle_unselected.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingModel::update_filter));
+
+	view._about_to_be_delete.connect([this](){ _view = nullptr; });
 
 	// Set listing view on visible_selection_listing selection.
 	update_filter();
@@ -87,15 +89,15 @@ static QBrush black_or_white_best_contrast(const QBrush& brush) // https://stack
  *****************************************************************************/
 QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 {
-	if (not index.isValid()) {
+	if (not index.isValid() or _view == nullptr) {
 		return {};
 	}
 
 	// Axis may have been duplicated and moved, get the real one.
-	const PVCol org_col = _view.get_axes_combination().get_nraw_axis((PVCombCol)index.column());
+	const PVCol org_col = _view->get_axes_combination().get_nraw_axis((PVCombCol)index.column());
 	const PVRow r = rowIndex(index);
 
-	if (r >= _view.get_row_count()) {
+	if (r >= _view->get_row_count()) {
 		// Nothing for rows out of bound.
 		return {};
 	}
@@ -105,18 +107,18 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 			// Visual selected lines from current selection
 			// and "in progress" selection
 			return _selection_brush;
-		} else if (_view.get_real_output_selection().get_line(r)) {
+		} else if (_view->get_real_output_selection().get_line(r)) {
 			// Selected elements, use output layer color
-			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
+			const PVCore::PVHSVColor color = _view->get_color_in_output_layer(r);
 			if (color == HSV_COLOR_WHITE or color == HSV_COLOR_BLACK) {
 				return QBrush();
 			}
 			else {
 				return QBrush(color.toQColor());
 			}
-		} else if (_view.get_line_state_in_layer_stack_output_layer(r)) {
+		} else if (_view->get_line_state_in_layer_stack_output_layer(r)) {
 			/* The event is unselected use darker output layer color */
-			const PVCore::PVHSVColor color = _view.get_color_in_output_layer(r);
+			const PVCore::PVHSVColor color = _view->get_color_in_output_layer(r);
 			return QBrush(color.toQColor().darker(200));
 		} else {
 			/* The event is a ZOMBIE */
@@ -128,11 +130,11 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 
 	// Set content and tooltip
 	case Qt::DisplayRole: {
-		const auto& src = _view.get_parent<Squey::PVSource>();
+		const auto& src = _view->get_parent<Squey::PVSource>();
 		return QString::fromStdString(src.get_value(r, org_col));
 	}
 	case Qt::ToolTipRole: {
-		const auto& src = _view.get_parent<Squey::PVSource>();
+		const auto& src = _view->get_parent<Squey::PVSource>();
 		std::string str_with_newlines = src.get_value(r, org_col);
 		boost::replace_all(str_with_newlines, "\\n", "<br>"); // Properly show new lines
 		return get_wrapped_string(QString::fromStdString(str_with_newlines));
@@ -161,7 +163,7 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 	case (Qt::FontRole): {
 		QFont f;
 
-		const auto& src = _view.get_parent<Squey::PVSource>();
+		const auto& src = _view->get_parent<Squey::PVSource>();
 
 		if (not src.is_valid(r, org_col)) {
 			f.setItalic(true);
@@ -182,19 +184,19 @@ QVariant PVGuiQt::PVListingModel::data(const QModelIndex& index, int role) const
 QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientation, int role) const
 {
 	// Sometimes Qt is using an invalid row value...
-	if (role == Qt::DisplayRole and orientation == Qt::Vertical and row>= (int)_view.get_row_count()) {
+	if (_view == nullptr or (role == Qt::DisplayRole and orientation == Qt::Vertical and row>= (int)_view->get_row_count())) {
 		return {};
 	}
 
 	PVCombCol comb_col(orientation == Qt::Horizontal ? row : 0);
-	PVCol col = _view.get_axes_combination().get_nraw_axis(comb_col);
+	PVCol col = _view->get_axes_combination().get_nraw_axis(comb_col);
 
 	switch (role) {
 	// Horizontal header contains axis labels and Vertical is line number
 	case (Qt::DisplayRole):
 		if (orientation == Qt::Horizontal) {
 			if (comb_col >= 0) {
-				return _view.get_axis_name(comb_col);
+				return _view->get_axis_name(comb_col);
 			}
 		} else if (comb_col >= 0) {
 			assert(orientation == Qt::Vertical && "No others possible orientations.");
@@ -204,7 +206,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 	// Selected lines are bold, others use class specific font
 	case (Qt::FontRole):
 		if (orientation == Qt::Vertical and row >= 0) {
-			if (_view.get_real_output_selection().get_line(row)) {
+			if (_view->get_real_output_selection().get_line(row)) {
 				QFont f(_vheader_font);
 				f.setBold(true);
 				return f;
@@ -212,7 +214,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 			return _vheader_font;
 		} else if (orientation == Qt::Horizontal) {
 			QFont f;
-			const auto& src = _view.get_parent<Squey::PVSource>();
+			const auto& src = _view->get_parent<Squey::PVSource>();
 			f.setItalic(src.has_invalid(col) & pvcop::db::INVALID_TYPE::INVALID);
 			return f;
 		}
@@ -228,14 +230,14 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
 	// Define tooltip text
 	case (Qt::ToolTipRole):
 		if (orientation == Qt::Horizontal) {
-			const auto& root = _view.get_parent<Squey::PVRoot>();
-			const Squey::PVCorrelation* correlation = root.correlations().correlation(&_view);
+			const auto& root = _view->get_parent<Squey::PVRoot>();
+			const Squey::PVCorrelation* correlation = root.correlations().correlation(_view);
 
 			if (correlation and correlation->col1 == col) {
 
 				QString orig_source =
-				    QString::fromStdString(_view.get_parent<Squey::PVSource>().get_name());
-				QString orig_axis = _view.get_axis_name(comb_col);
+				    QString::fromStdString(_view->get_parent<Squey::PVSource>().get_name());
+				QString orig_axis = _view->get_axis_name(comb_col);
 				QString dest_source = QString::fromStdString(
 				    correlation->view2->get_parent<Squey::PVSource>().get_name());
 				QString dest_axis =
@@ -261,7 +263,7 @@ QVariant PVGuiQt::PVListingModel::headerData(int row, Qt::Orientation orientatio
  *****************************************************************************/
 int PVGuiQt::PVListingModel::columnCount(const QModelIndex&) const
 {
-	return _view.get_column_count();
+	return _view == nullptr ? 0 : _view->get_column_count();
 }
 
 /******************************************************************************
@@ -295,13 +297,17 @@ void PVGuiQt::PVListingModel::sort_on_col(PVCombCol comb_col,
                                           Qt::SortOrder order,
                                           tbb::task_group_context& ctxt)
 {
+    if (_view == nullptr) {
+        return;
+    }
+
 	if (comb_col == -1) { // sort "index" virtual column
 		auto& indexes = _display.sorting().to_core_array();
 		std::iota(indexes.begin(), indexes.end(), 0);
 	}
 	else {
-		PVCol orig_col = _view.get_axes_combination().get_nraw_axis(comb_col);
-		_view.sort_indexes(orig_col, _display.sorting(), &ctxt);
+		PVCol orig_col = _view->get_axes_combination().get_nraw_axis(comb_col);
+		_view->sort_indexes(orig_col, _display.sorting(), &ctxt);
 	}
 
 	if (not ctxt.is_group_execution_cancelled()) {
@@ -327,10 +333,14 @@ QString PVGuiQt::PVListingModel::export_line(int /*row*/, const QString& /*fsep*
  *****************************************************************************/
 void PVGuiQt::PVListingModel::update_filter()
 {
+    if (_view == nullptr) {
+        return;
+    }
+
 	// Reset the current selection as context change
 	reset_selection();
 
-	Squey::PVSelection const& sel = _view.get_selection_visible_listing();
+	Squey::PVSelection const& sel = _view->get_selection_visible_listing();
 
 	// Inform view about future update
 	Q_EMIT layoutAboutToBeChanged();

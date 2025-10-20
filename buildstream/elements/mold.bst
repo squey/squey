@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:rui314/mold/archive/refs/tags/v2.33.0.tar.gz
-  ref: 37b3aacbd9b6accf581b92ba1a98ca418672ae330b78fe56ae542c2dcb10a155
+  url: github:rui314/mold/archive/refs/tags/v2.40.4.tar.gz
+  ref: 69414c702ec1084e1fa8ca16da24f167f549e5e11e9ecd5d70a8dcda6f08c249
 
 config:
   install-commands:
@@ -18,5 +18,3 @@ config:
 
 depends:
 - base.bst
-
-

@@ -164,7 +164,10 @@ bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats& formats,
 	QString format_path =
 	    format_dir + "/" + QString::number(QDateTime::currentMSecsSinceEpoch()) + ".format";
 	QFile format_file(format_path);
-	format_file.open(QIODevice::WriteOnly);
+	if (not format_file.open(QIODevice::WriteOnly)) {
+        assert(false && "Error when opening file");
+        return false;
+	}
 	QTextStream text_stream(&format_file);
 	xml.save(text_stream, 0);
 	format_file.close();

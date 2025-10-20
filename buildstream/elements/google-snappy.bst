@@ -2,13 +2,13 @@ kind: cmake
 description: |
 
     Snappy is a compression/decompression library.
-    
+
 sources:
 - kind: tar
-  url: github:google/snappy/archive/refs/tags/1.2.1.tar.gz
-  ref: 736aeb64d86566d2236ddffa2865ee5d7a82d26c9016b36218fcc27ea4f09f86
+  url: github:google/snappy/archive/refs/tags/1.2.2.tar.gz
+  ref: 90f74bc1fbf78a6c56b3c4a082a05103b3a56bb17bca1a27e052ea11723292dc
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 (?):
   - (target_triple == "x86_64-linux-gnu" or target_triple == "x86_64-apple-darwin"):
@@ -26,5 +26,3 @@ variables:
 
 depends:
 - sdk.bst
-
-

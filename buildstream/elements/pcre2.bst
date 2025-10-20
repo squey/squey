@@ -6,9 +6,9 @@ sources:
   track: pcre2-*
   exclude:
   - '*-RC*'
-  ref: pcre2-10.44-0-g6ae58beca071f13ccfed31d03b3f479ab520639b
+  ref: pcre2-10.46-0-gb2bd4254b379b9d7dc9a3dda060a7e27009ccdff
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   conf-local: "--enable-pcre2-16 --enable-pcre2-32"

@@ -5,12 +5,11 @@ description: |
 
 sources:
 - kind: tar
-  url: github:KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2024.10.24.tar.gz
-  ref: 95f2f0cda375b13d2760290df044ebea9c6ff954a7d7faa0867422442c9174dc
+  url: github:KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2025.07.22.tar.gz
+  ref: dff7a0b11ad5b63a669358e3476e3dc889a4a361674e5b69b267b944d0794142
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 build-depends:
 - opencl-headers.bst
 - sdk.bst
-

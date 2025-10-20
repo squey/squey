@@ -14,16 +14,16 @@ sources:
   url: sourceforge:project/gnuwin32/unzip/5.51-1/unzip-5.51-1-bin.zip
   ref: 3580e7908dab5136da7d84df6bee81499c6591ee50b40db80721ed3a2f43247b
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 config:
   (?):
   - (target_triple == "x86_64-w64-mingw32"):
       install-commands:
       - |
-        7zz x zip-3.0-bin.zip bin
-        7zz x zip-3.0-dep.zip bin
-        7zz x unzip-5.51-1-bin.zip bin
+        7zzs x zip-3.0-bin.zip bin
+        7zzs x zip-3.0-dep.zip bin
+        7zzs x unzip-5.51-1-bin.zip bin
         install -D bin/zip.exe bin/unzip.exe bin/bzip2.dll bin/funzip.exe -t %{install-root}%{bindir}
 
 build-depends:

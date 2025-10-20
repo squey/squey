@@ -45,7 +45,7 @@ int main()
 	std::cout << "testing for an already opened file" << std::endl;
 	PV_VALID(PVCore::PVFileHelper::is_already_opened(FILENAME), true);
 
-	char c;
+	char c = 'T';
 	fwrite(&c, 1, 1, fp);
 
 	fclose(fp);

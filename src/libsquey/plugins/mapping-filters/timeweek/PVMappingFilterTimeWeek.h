@@ -36,7 +36,7 @@
 
 #include <omp.h>
 
-using namespace icu_75;
+using namespace icu_77;
 
 namespace Squey
 {

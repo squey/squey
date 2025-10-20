@@ -34,7 +34,7 @@
 
 #include <unicode/calendar.h>
 
-using namespace icu_75;
+using namespace icu_77;
 
 #ifdef SQUEY_BENCH
 // 10 000 000 lines.

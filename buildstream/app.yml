@@ -10,7 +10,7 @@ variables:
   gcc_arch: "%{arch}"
   runtime-libdir: "/usr/lib/%{gcc_triplet}"
   branch: "master"
-  runtime-branch: "24.08"
+  runtime-branch: "25.08"
 
 environment:
   PATH: '%{bindir}:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin'

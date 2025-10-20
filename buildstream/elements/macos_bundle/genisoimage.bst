@@ -38,9 +38,13 @@ sources:
   strip-level: 1
 
 config:
+    configure-commands:
+      (<):
+       - |
+         sed '1i cmake_minimum_required(VERSION 3.5)' -i CMakeLists.txt
     build-commands:
     - |
-        %{make} genisoimage
+      %{make} genisoimage
 
 depends:
 - base.bst

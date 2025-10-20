@@ -3,4 +3,4 @@ kind: junction
 sources:
 - kind: git
   url: gitlab:BuildStream/buildstream-plugins-community
-  ref: 587f27f72c42f81848ba41a3fd542e7a1c093bde
+  ref: 637e2d95e656b9d46575da5737b65fd0cc25dce2

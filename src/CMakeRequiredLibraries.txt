@@ -48,7 +48,7 @@ endif()
 set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
-find_package(Boost 1.49 REQUIRED COMPONENTS thread date_time system program_options filesystem)
+find_package(Boost 1.49 REQUIRED COMPONENTS thread date_time program_options filesystem)
 add_definitions(-DBOOST_ALL_NO_LIB)
 add_definitions(-DBOOST_ALL_DYN_LINK)
 
@@ -128,7 +128,7 @@ endif()
 ###############################################################################
 # IBM ICU
 ###############################################################################
-find_package(ICU 75.1 COMPONENTS data i18n uc REQUIRED)
+find_package(ICU 77 COMPONENTS data i18n uc REQUIRED)
 
 message(STATUS "ICU found: " ${ICU_FOUND})
 if(ICU_FOUND)
@@ -143,7 +143,7 @@ find_package(CURL "7.38.0" REQUIRED)
 
 ###############################################################################
 # Check for SIGCPP installation
-###############################################################################      
+###############################################################################
 
 pkg_check_modules(SIGCPP REQUIRED sigc++-3.0)
 

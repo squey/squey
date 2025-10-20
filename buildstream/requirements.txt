@@ -1,2 +1,2 @@
 jinja2-cli==0.8.2
-dulwich
+dulwich==0.24.2

@@ -7,13 +7,13 @@ description: |
   - target_triple == "x86_64-apple-darwin":
       sources:
         - kind: remote
-          url: pythonhosted:packages/8a/f0/385eb9970309643cbca4fc6eebc8bb16e560de129c91258dfaa18498da8b/numpy-2.1.3-cp312-cp312-macosx_10_13_x86_64.whl
-          ref: f55ba01150f52b1027829b50d70ef1dafd9821ea82905b63936668403c3b471e
+          url: pythonhosted:packages/a7/45/7f9244cd792e163b334e3a7f02dff1239d2890b6f37ebf9e82cbe17debc0/numpy-2.1.3-cp313-cp313t-macosx_10_13_x86_64.whl
+          ref: 996bb9399059c5b82f76b53ff8bb686069c05acc94656bb259b1d63d04a9506f
   - target_triple == "aarch64-apple-darwin":
       sources:
         - kind: remote
-          url: pythonhosted:packages/54/4a/765b4607f0fecbb239638d610d04ec0a0ded9b4951c56dc68cef79026abf/numpy-2.1.3-cp312-cp312-macosx_11_0_arm64.whl
-          ref: 13138eadd4f4da03074851a698ffa7e405f41a0845a6b1ad135b81596e4e9958
+          url: pythonhosted:packages/45/e1/210b2d8b31ce9119145433e6ea78046e30771de3fe353f313b2778142f34/numpy-2.1.3-cp313-cp313-macosx_11_0_arm64.whl
+          ref: f653490b33e9c3a4c1c01d41bc2aef08f9475af51146e4a7710c450cf9761598
   - target_triple == "x86_64-w64-mingw32":
       sources:
         - kind: remote
@@ -26,10 +26,10 @@ description: |
           url: msys2:mingw/mingw64/mingw-w64-x86_64-gcc-libgfortran-14.2.0-3-any.pkg.tar.zst
           ref: 6f5d0967234ccc25f18556308293be70d3a63ca8c285033e561593a7d754fe24
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
-  python-site-packages-dir: "%{install-root}%{libdir}/python3.12/site-packages"
+    python-site-packages-dir: "%{install-root}%{libdir}/python%{python-version}/site-packages"
 
 config:
   install-commands:
@@ -49,7 +49,7 @@ config:
       else
         exit 1
       fi
-    
+
 build-depends:
 - sdk.bst
 - zstd.bst

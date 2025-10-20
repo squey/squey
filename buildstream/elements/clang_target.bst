@@ -1,7 +1,7 @@
 kind: cmake
 
 (@):
-  - buildstream/elements/base/target.bst
+  - buildstream/elements/base/target.yml
   - buildstream/elements/clang.yml
 
 variables:
@@ -23,6 +23,10 @@ variables:
 config:
   (?):
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
+      configure-commands:
+        (<):
+        - |
+          sed "415,420d" -i compiler-rt/cmake/Modules/AddCompilerRT.cmake # Disable code signing
       install-commands:
         (>):
         - |

@@ -26,14 +26,11 @@
 #define SQUEY_PVLAYERSTACK_H
 
 #include <pvbase/types.h> // for PVRow
+#include <squey/PVLayer.h>
 
 #include <QList>   // for QList
 #include <QString> // for QString
 
-namespace Squey
-{
-class PVLayer;
-} // namespace Squey
 namespace Squey
 {
 class PVLinesProperties;

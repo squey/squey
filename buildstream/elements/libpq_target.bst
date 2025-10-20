@@ -2,17 +2,18 @@ kind: autotools
 
 (@):
   - buildstream/elements/libpq.yml
-  - buildstream/elements/base/target.bst
+  - buildstream/elements/base/target.yml
 
 environment:
   LDFLAGS: "-L%{libdir}"
   CPPFLAGS: "-I%{includedir}"
 
 depends:
-- sdk.bst
-- openssl.bst
-- icu.bst
-- lz4.bst
+  (>):
+  - sdk.bst
+  - openssl.bst
+  - icu.bst
+  - lz4.bst
 
 (?):
 - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):

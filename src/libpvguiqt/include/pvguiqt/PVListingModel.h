@@ -160,7 +160,7 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	void update_filter();
 
   private:
-	Squey::PVView const& _view; //!< Observed view
+	Squey::PVView const* _view = nullptr; //!< Observed view
 };
 } // namespace PVGuiQt
 

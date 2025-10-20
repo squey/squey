@@ -55,7 +55,6 @@ private:
 
 private:
 	QPoint _mouse_pos;
-	mutable bool _mouse_over_link = false;
 	const QString _link = "<a style=\"text-decoration: %4; color: %3\" href=\"%1\">%2</a>";
 };
 

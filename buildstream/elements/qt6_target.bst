@@ -1,7 +1,7 @@
 kind: cmake
 
 (@):
-  - buildstream/elements/base/target.bst
+  - buildstream/elements/base/target.yml
   - buildstream/elements/qt6.yml
 
 (?):
@@ -9,6 +9,8 @@ kind: cmake
       variables:
         cmake-local-extra: >-
           -DQT_FORCE_WARN_APPLE_SDK_AND_XCODE_CHECK=ON
+          -DCMAKE_CXX_STANDARD=23
+          -DCMAKE_CXX_STANDARD_REQUIRED=ON
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       environment:
         CXXFLAGS: "-fuse-ld=%{toolchain-dir}/%{host}-ld"

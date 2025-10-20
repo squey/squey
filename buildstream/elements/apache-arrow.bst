@@ -2,13 +2,13 @@ kind: cmake
 description: |
 
     Apache Arrow is a development platform for in-memory analytics. It contains a set of technologies that enable big data systems to process and move data fast.
-    
+
 sources:
 - kind: tar
-  url: github:apache/arrow/archive/refs/tags/apache-arrow-20.0.0.tar.gz
-  ref: 67e31a4f46528634b8c3cbb0dc60ac8f85859d906b400d83d0b6f732b0c5b0e3
+  url: github:apache/arrow/releases/download/apache-arrow-21.0.0/apache-arrow-21.0.0.tar.gz
+  ref: 5d3f8db7e72fb9f65f4785b7a1634522e8d8e9657a445af53d4a34a3849857b5
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 variables:
   source-dir: "."
@@ -28,6 +28,7 @@ variables:
     -DARROW_JEMALLOC=OFF
     -DARROW_MIMALLOC=OFF
     -DARROW_COMPUTE=ON
+    -DARROW_JSON=ON
 
 config:
   configure-commands:
@@ -35,7 +36,6 @@ config:
       cd cpp
       if [ "%{target-platform}" = "windows" ] ; then
         find %{source-dir} -name io_util.cc -exec sed 's/Windows.h/windows.h/' -i {} \;
-        sed '1843s/TRUE/FALSE/' -i cmake_modules/ThirdpartyToolchain.cmake
       fi
       %{cmake}
 

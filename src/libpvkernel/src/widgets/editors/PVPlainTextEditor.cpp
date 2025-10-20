@@ -119,7 +119,10 @@ void PVWidgets::PVPlainTextEditor::save_to_file(const bool append)
 	if (append) {
 		flags |= QIODevice::ReadOnly;
 	}
-	outfile.open(flags);
+	if (not outfile.open(flags)) {
+        assert(false && "Error when opening file");
+        return;
+	}
 
 	const size_t file_size = outfile.size();
 	if (append && file_size > 0) {

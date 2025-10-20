@@ -6,9 +6,13 @@ description: |
     application forwarding similar to ssh -X feasible.
 
 sources:
-- kind: tar  
-  url: freedesktop:mstoeckl/waypipe/-/archive/v0.9.1/waypipe-v0.9.1.tar.bz2
-  ref: d60d94a19038d2e231e3f1bf8122ae0894bc78fa753190f6e831c7931f8caaab
+- kind: tar
+  url: freedesktop:mstoeckl/waypipe/-/archive/v0.10.4/waypipe-v0.10.4.tar.bz2
+  ref: 4de622de39890912a0242e446b8d401f6fe385977985224f15353d40d6f7f0a3
+
+variables:
+  meson-local: |
+    -Dbuild_c=true -Dbuild_rs=false
 
 depends:
 - base.bst

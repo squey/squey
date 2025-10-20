@@ -5,10 +5,10 @@ description: |
 
 sources:
 - kind: tar
-  url: open-mpi:release/hwloc/v2.11/hwloc-2.11.1.tar.bz2
-  ref: 04cdfbffad225ce15f66184f0f4141327dabf288d10a8b84d13f517acb7870c6
+  url: open-mpi:release/hwloc/v2.12/hwloc-2.12.2.tar.bz2
+  ref: 563e61d70febb514138af0fac36b97621e01a4aacbca07b86e7bd95b85055ba0
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 (?):
 - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):

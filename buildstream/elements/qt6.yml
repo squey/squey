@@ -1,18 +1,18 @@
 description: |
-    Qt is the faster, smarter way to create innovative devices, modern UIs & applications for multiple screens. Cross-platform software development at its best.
+  Qt is the faster, smarter way to create innovative devices, modern UIs & applications for multiple screens. Cross-platform software development at its best.
 
 sources:
-- kind: tar
-  url: qt:archive/qt/6.8/6.8.2/single/qt-everywhere-src-6.8.2.tar.xz
-  ref: 659d8bb5931afac9ed5d89a78e868e6bd00465a58ab566e2123db02d674be559
+  - kind: tar
+    url: qt:archive/qt/6.10/6.10.0/single/qt-everywhere-src-6.10.0.tar.xz
+    ref: 81895fb038a9c3d6c6f698d7611339a189eb45c3d91746c7789b0b77a5981aa3
 
-- kind: patch
-  path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
-  strip-level: 1
-  
-- kind: patch
-  path: buildstream/patches/qt6/Fix-rectangle-intersection-issue-because-of-floating.patch
-  strip-level: 1
+  - kind: patch
+    path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
+    strip-level: 1
+
+  - kind: patch
+    path: buildstream/patches/qt6/Fix-rectangle-intersection-issue-because-of-floating.patch
+    strip-level: 1
 
 variables:
   cmake-local: >-
@@ -151,43 +151,43 @@ variables:
 
 environment:
   OPENSSL_LIBS: "-L/%{libdir}/lib -lssl -lcrypto"
-  PYTHONPATH: "/usr/lib/python3.12/site-packages:/%{libdir}/python3.12/site-packages"
+  PYTHONPATH: "/usr/lib/python3.13/site-packages:/%{libdir}/python3.13/site-packages"
 
 config:
   configure-commands:
     (>):
-    - cat _builddir/config.summary
+      - cat _builddir/config.summary
 
 build-depends:
-- freedesktop-sdk.bst:components/python3.bst
+  - freedesktop-sdk.bst:components/python3.bst
 
 depends:
-- freedesktop-sdk.bst:components/brotli.bst
-- freedesktop-sdk.bst:components/perl.bst
-- freedesktop-sdk.bst:components/which.bst
-- freedesktop-sdk.bst:components/giflib.bst
-- freedesktop-sdk.bst:components/glib.bst
-- freedesktop-sdk.bst:components/icu.bst
-- freedesktop-sdk.bst:bootstrap/pcre2.bst
-- freedesktop-sdk.bst:components/sqlite.bst
-- freedesktop-sdk.bst:components/dbus.bst
-- freedesktop-sdk.bst:components/fontconfig.bst
-- freedesktop-sdk.bst:components/freetype.bst
-- freedesktop-sdk.bst:components/gtk3.bst
-- freedesktop-sdk.bst:components/harfbuzz.bst
-- freedesktop-sdk.bst:components/vulkan-headers.bst
-- freedesktop-sdk.bst:components/xcb-util.bst
-- freedesktop-sdk.bst:components/xcb-util-cursor.bst
-- freedesktop-sdk.bst:components/xcb-util-image.bst
-- freedesktop-sdk.bst:components/xcb-util-keysyms.bst
-- freedesktop-sdk.bst:components/xcb-util-renderutil.bst
-- freedesktop-sdk.bst:components/xcb-util-wm.bst
-- freedesktop-sdk.bst:components/xorg-lib-xcb.bst
-- freedesktop-sdk.bst:components/xorg-lib-xrender.bst
-- freedesktop-sdk.bst:components/xorg-lib-xrandr.bst
-- freedesktop-sdk.bst:components/xorg-lib-xfixes.bst
-- freedesktop-sdk.bst:components/xorg-lib-xext.bst
-- freedesktop-sdk.bst:components/xorg-lib-x11.bst
-- freedesktop-sdk.bst:components/xorg-lib-xinerama.bst
-- freedesktop-sdk.bst:components/libxkbcommon.bst
-- freedesktop-sdk.bst:components/libglvnd.bst
+  - freedesktop-sdk.bst:components/brotli.bst
+  - freedesktop-sdk.bst:components/perl.bst
+  - freedesktop-sdk.bst:components/which.bst
+  - freedesktop-sdk.bst:components/giflib.bst
+  - freedesktop-sdk.bst:components/glib.bst
+  - freedesktop-sdk.bst:components/icu.bst
+  - freedesktop-sdk.bst:bootstrap/pcre2.bst
+  - freedesktop-sdk.bst:components/sqlite.bst
+  - freedesktop-sdk.bst:components/dbus.bst
+  - freedesktop-sdk.bst:components/fontconfig.bst
+  - freedesktop-sdk.bst:components/freetype.bst
+  - freedesktop-sdk.bst:components/gtk3.bst
+  - freedesktop-sdk.bst:components/harfbuzz.bst
+  - freedesktop-sdk.bst:components/vulkan-headers.bst
+  - freedesktop-sdk.bst:components/xcb-util.bst
+  - freedesktop-sdk.bst:components/xcb-util-cursor.bst
+  - freedesktop-sdk.bst:components/xcb-util-image.bst
+  - freedesktop-sdk.bst:components/xcb-util-keysyms.bst
+  - freedesktop-sdk.bst:components/xcb-util-renderutil.bst
+  - freedesktop-sdk.bst:components/xcb-util-wm.bst
+  - freedesktop-sdk.bst:components/xorg-lib-xcb.bst
+  - freedesktop-sdk.bst:components/xorg-lib-xrender.bst
+  - freedesktop-sdk.bst:components/xorg-lib-xrandr.bst
+  - freedesktop-sdk.bst:components/xorg-lib-xfixes.bst
+  - freedesktop-sdk.bst:components/xorg-lib-xext.bst
+  - freedesktop-sdk.bst:components/xorg-lib-x11.bst
+  - freedesktop-sdk.bst:components/xorg-lib-xinerama.bst
+  - freedesktop-sdk.bst:components/libxkbcommon.bst
+  - freedesktop-sdk.bst:components/libglvnd.bst

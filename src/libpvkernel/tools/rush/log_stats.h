@@ -85,7 +85,10 @@ std::string format_with_ignored_axes(const std::string& format_path, integers_li
 	}
 
 	QFile tmp_format_file(QString::fromStdString(tmp_format));
-	tmp_format_file.open(QIODevice::WriteOnly | QIODevice::Text);
+	if (not tmp_format_file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+	    assert(false && "Error when opening file");
+	    return "";
+	}
 	QTextStream tmp_format_stream(&tmp_format_file);
 	tmp_format_stream << dom.toString();
 

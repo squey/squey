@@ -11,7 +11,11 @@ sources:
   url: github:rvelea/LightPcapNg.git
   ref: 33296580096f83a9f17ebe7ea3d2c79977a24471
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
+
+variables:
+  cmake-local: >-
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5
 
 config:
   (?):
@@ -27,7 +31,3 @@ config:
 
 depends:
 - sdk.bst
-
-
-
- 

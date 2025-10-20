@@ -5,19 +5,20 @@ description: |
 
 sources:
 - kind: tar
-  url: github:pybind/pybind11/archive/refs/tags/v2.13.6.tar.gz
-  ref: e08cb87f4773da97fa7b5f035de8763abc656d87d5773e62f6da0587d1f0ec20
+  url: github:pybind/pybind11/archive/refs/tags/v3.0.1.tar.gz
+  ref: 741633da746b7c738bb71f1854f957b9da660bcd2dce68d71949037f0969d0ca
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 environment:
   (?):
   - (target_triple == "x86_64-w64-mingw32"):
-      Python_ROOT_DIR: "%{bindir}/python"
+      Python_ROOT_DIR: "%{prefix}"
 
 variables:
   cmake-local: >-
     -DPYBIND11_TEST=0
+    -DPYBIND11_NOPYTHON=ON
 
 build-depends:
 - base.bst

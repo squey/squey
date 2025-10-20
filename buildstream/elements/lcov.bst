@@ -6,11 +6,11 @@ description: |
     annotated with coverage information.
     It also adds overview pages for easy navigation within the file structure.
     LCOV supports statement, function and branch coverage measurement.
-    
+
 sources:
-- kind: tar  
-  url: github:linux-test-project/lcov/archive/refs/tags/v1.16.tar.gz
-  ref: 02eece2802697c079ff51ce056b0a6691020f21082c46ccfe6604bbfd06d7937
+- kind: tar
+  url: github:linux-test-project/lcov/archive/refs/tags/v2.3.2.tar.gz
+  ref: c77dbd4b8919c13ca9450a20482d40b386fee6bec6cef33be1790bf3d1bb7d3e
 
 config:
   configure-commands:

@@ -5,9 +5,9 @@ sources:
 - kind: git_repo
   url: github:libarchive/libarchive.git
   track: v*
-  ref: v3.7.7-0-gb439d586f53911c84be5e380445a8a259e19114c
+  ref: v3.8.1-0-g9525f90ca4bd14c7b335e2f8c84a4607b0af6bdf
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 public:
   bst:

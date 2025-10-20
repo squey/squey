@@ -295,7 +295,7 @@ void PVWidgets::__impl::PVAbstractRangeRamp::paintEvent(QPaintEvent* event)
 		painter.drawRect(left_mask);
 	}
 
-	int start = _max_cursor->pos().x();
+	int start = std::max(0, _max_cursor->pos().x());
 
 	if (start <= area.right()) {
 		QRect right_mask(start, RAMP_MARGIN, area.right() - start + 1, area.height());

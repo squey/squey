@@ -8,14 +8,14 @@ sources:
   url: kjkpub:software/pigz/2.3.1-149/pigz.zip
   ref: ffe226432099342d8cd846c039f30d3db934d02474058c66c07064b25604de9e
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 (?):
 - target_triple == "x86_64-w64-mingw32":
     config:
       install-commands:
       - |
-        7zz x pigz.zip
+        7zzs x pigz.zip
         install -D pigz.exe -t "%{install-root}%{bindir}"
 
 build-depends:

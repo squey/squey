@@ -4,12 +4,12 @@ description: |
 
     Remove unwanted files.
 
-(@): buildstream/elements/base/target.bst
+(@): buildstream/elements/base/target.yml
 
 environment:
-  common_bin_files: "squey tshark 7zz lbzip2 funzip pigz zstd xz pip3 pip3.12"
-  linux_bin_files: "ld run_cmd.sh squey_sh squey_launcher.sh squey-crashreport squey-logstats"
-  darwin_bin_files: "lld ld64.lld"
+  common_bin_files: "squey tshark lbzip2 funzip pigz zstd xz pip3 pip3.13"
+  linux_bin_files: "ld 7zzs run_cmd.sh squey_sh squey_launcher.sh squey-crashreport squey-logstats"
+  darwin_bin_files: "lld ld64.lld 7zz"
   windows_bin_files: "ld 7z pbzip2 python pocl \"*.dll\""
 
 config:

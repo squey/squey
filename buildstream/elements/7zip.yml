@@ -1,4 +1,4 @@
 sources:
-- kind: tar
-  url: github:ip7z/7zip/releases/download/24.08/7z2408-linux-x64.tar.xz
-  ref: 9b3a2edf0644a2b00b0a39ab6843f426128e4a6f6f98c40f8c02a668e5b5b59b
+  - kind: tar
+    url: github:ip7z/7zip/releases/download/25.01/7z2501-linux-x86.tar.xz
+    ref: 4ca3b7c6f2f67866b92622818b58233dc70367be2f36b498eb0bdeaaa44b53f4
