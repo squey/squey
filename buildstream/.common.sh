@@ -46,7 +46,7 @@ if [[ "$IS_TRUE_LINUX" -eq 1 ]]; then # Enable GPU acceleration
     GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/25.08/active/files"
     GL_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_HOST_DIR"
     GL_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_HOST_DIR"
-    GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/25.08extra/active/files"
+    GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/25.08-extra/active/files"
     GL_EXTRA_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_EXTRA_HOST_DIR"
     GL_EXTRA_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_EXTRA_HOST_DIR"
     NVIDIA_VERSION_NAME=$(flatpak --gl-drivers|grep "nvidia") || true
