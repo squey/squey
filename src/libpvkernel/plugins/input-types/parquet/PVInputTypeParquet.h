@@ -44,11 +44,22 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 	PVInputTypeParquet();
 
   public:
-	bool createWidget(hash_formats& formats,
-	                  list_inputs& inputs,
-	                  QString& format,
-	                  PVCore::PVArgumentList& args_ext,
-	                  QWidget* parent = nullptr) const override;
+	bool create_widget(
+	    hash_formats& formats,
+        list_inputs& inputs,
+        QString& format,
+        PVCore::PVArgumentList& args_ext,
+        QWidget* parent = nullptr
+	) const override;
+
+	bool create_widget_with_input_files(
+	    const QStringList& input_paths,
+	    hash_formats& formats,
+        list_inputs& inputs,
+        QString& format,
+        PVCore::PVArgumentList& args_ext,
+        QWidget* parent = nullptr
+	) const override;
 
 	bool create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const override;
 
@@ -63,6 +74,7 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 	QString human_name() const override;
 	QString human_name_serialize() const override;
 	QString internal_name() const override;
+	QStringList get_supported_extensions() const override;
 	QString menu_input_name() const override;
 	QString tab_name_of_inputs(list_inputs const& in) const override;
 	bool get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const override { return false; }

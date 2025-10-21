@@ -36,3 +36,8 @@ PVPcapsicum::PVPcapParamsWidget::PVPcapParamsWidget(QWidget* parent)
 	connect(_selection_widget, &SelectionWidget::closed, this, &QDialog::accept);
 	connect(_selection_widget, &SelectionWidget::canceled, this, &QDialog::reject);
 }
+
+PVPcapsicum::PVPcapParamsWidget::PVPcapParamsWidget(const QStringList& pcap_paths, QWidget* parent) : PVPcapParamsWidget(parent)
+{
+    _selection_widget->add_files(pcap_paths);
+}

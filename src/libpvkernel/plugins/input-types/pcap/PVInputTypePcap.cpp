@@ -132,15 +132,27 @@ bool PVPcapsicum::PVInputTypePcap::load_files(pvpcap::splitted_files_t&& splitte
 	return inputs.size() > 0;
 }
 
-bool PVPcapsicum::PVInputTypePcap::createWidget(PVRush::hash_formats& formats,
-                                                PVRush::PVInputType::list_inputs& inputs,
-                                                QString& format,
-                                                PVCore::PVArgumentList& /*args_ext*/,
-                                                QWidget* parent) const
+bool PVPcapsicum::PVInputTypePcap::create_widget(
+    PVRush::hash_formats& formats,
+    PVRush::PVInputType::list_inputs& inputs,
+    QString& format,
+    PVCore::PVArgumentList& args_ext,
+    QWidget* parent) const
 {
-	connect_parent(parent);
+	return create_widget_with_input_files({}, formats, inputs, format, args_ext, parent);
+}
 
-	std::unique_ptr<PVPcapParamsWidget> params(new PVPcapParamsWidget(parent));
+bool PVPcapsicum::PVInputTypePcap::create_widget_with_input_files(
+    const QStringList& input_paths,
+    PVRush::hash_formats& formats,
+    PVRush::PVInputType::list_inputs& inputs,
+    QString& format,
+    PVCore::PVArgumentList& /*args_ext*/,
+    QWidget* parent) const
+{
+    connect_parent(parent);
+
+	std::unique_ptr<PVPcapParamsWidget> params(new PVPcapParamsWidget(input_paths, parent));
 
 	auto res = params->exec();
 
@@ -216,6 +228,11 @@ QString PVPcapsicum::PVInputTypePcap::get_exporter_filter_string(const list_inpu
 	} else {
 		return ".pcap files (*.pcap)";
 	}
+}
+
+QStringList PVPcapsicum::PVInputTypePcap::get_supported_extensions() const
+{
+    return { "pcap", "pcapng" };
 }
 
 QString PVPcapsicum::PVInputTypePcap::name() const

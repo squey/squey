@@ -38,7 +38,7 @@ namespace PVRush
 class PVInputTypeElasticsearch : public PVInputTypeDesc<PVElasticsearchQuery>
 {
   public:
-	bool createWidget(hash_formats& formats,
+	bool create_widget(hash_formats& formats,
 	                  list_inputs& inputs,
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,

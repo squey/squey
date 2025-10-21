@@ -110,8 +110,8 @@ class PVMainWindow : public QMainWindow
 	                 PVRush::PVInputType::list_inputs const& inputs,
 	                 PVRush::hash_formats& formats,
 	                 PVRush::hash_format_creator& format_creator,
-	                 QString const& choosenFormat);
-	void load_files(std::vector<QString> const& files, QString format);
+	                 QString const& choosenFormat,
+					 bool concatenation = false);
 	/* void import_type(); */
 
 	QString get_solution_path() const { return get_root().get_path(); }
@@ -127,6 +127,7 @@ class PVMainWindow : public QMainWindow
 	bool event(QEvent* event) override;
 
   public Q_SLOTS:
+  	void load_files(QStringList const& files, QString format = "");
 	void about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab);
 	void commit_selection_to_new_layer_Slot();
 	void move_selection_to_new_layer_Slot();

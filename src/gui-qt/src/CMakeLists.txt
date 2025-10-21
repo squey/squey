@@ -11,6 +11,7 @@ include_directories(AFTER SYSTEM ${ICU_INCLUDE})
 set(SQUEY_ICON "resources////squey.ico")
 
 SET(MOC_HEADERS
+../include/PVSingleInstanceApplication.h
 ../include/PVFilesTypesSelWidget.h
 ../include/PVMainWindow.h
 ../include/PVStringListChooserWidget.h

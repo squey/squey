@@ -58,6 +58,7 @@ class PVFileDescription : public PVInputDescription
 	QString human_name() const override { return _path; }
 	QString path() const { return _path; }
 	bool multi_inputs() const { return _multi_inputs; }
+	void set_multi_inputs(bool multi_inputs) { _multi_inputs = multi_inputs; }
 
   public:
 	void save_to_qsettings(QSettings& settings) const override

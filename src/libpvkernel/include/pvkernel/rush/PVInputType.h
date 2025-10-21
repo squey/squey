@@ -56,19 +56,28 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	typedef list_inputs list_inputs_desc;
 
   public:
-	virtual bool createWidget(hash_formats& formats,
-	                          list_inputs& inputs,
-	                          QString& format,
-	                          PVCore::PVArgumentList& args_ext,
-	                          QWidget* parent = nullptr) const = 0;
+	virtual bool create_widget(
+	    hash_formats& formats,
+        list_inputs& inputs,
+        QString& format,
+        PVCore::PVArgumentList& args_ext,
+        QWidget* parent = nullptr
+	) const = 0;
+
+    virtual bool create_widget_with_input_files(
+        const QStringList& /*input_paths*/,
+        hash_formats& /*formats*/,
+        list_inputs& /*inputs*/,
+        QString& /*format*/,
+        PVCore::PVArgumentList& /*args_ext*/,
+        QWidget* /*parent = nullptr*/
+    ) const { return false; }
 
 	virtual bool create_source_description_params(
-		const QString& /*params_json*/,
-		list_inputs& /*inputs*/,
-		PVFormat& /*format*/
-	) const
-	{ return false; }
-
+        const QString& /*params_json*/,
+        list_inputs& /*inputs*/,
+        PVFormat& /*format*/
+	) const { return false; }
 
 	/* exporter */
 	virtual std::unique_ptr<PVRush::PVExporterBase>
@@ -89,6 +98,7 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	virtual QString internal_name() const = 0;
 	// Warning: the "human name" of an input must be *unique* accross all the possible inputs
 	virtual QString human_name_of_input(PVInputDescription_p in) const { return in->human_name(); };
+	virtual QStringList get_supported_extensions() const { return {}; }
 	virtual QString menu_input_name() const = 0;
 	virtual QKeySequence menu_shortcut() const { return QKeySequence(); }
 	virtual QString tab_name_of_inputs(list_inputs const& in) const = 0;

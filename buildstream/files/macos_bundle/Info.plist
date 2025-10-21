@@ -46,17 +46,208 @@
         <key>ITSEncryptionExportComplianceCode</key>
 	    <string>8fbf994e-95b5-4a79-9b9c-01f114ce7760</string>
 
+        <key>UTExportedTypeDeclarations</key>
+        <array>
+            <!-- CSV -->
+            <dict>
+                <key>UTTypeIdentifier</key>
+                <string>org.squey.csvcompressed</string>
+                <key>UTTypeDescription</key>
+                <string>Compressed CSV file</string>
+                <key>UTTypeConformsTo</key>
+                <array>
+                    <string>public.data</string>
+                    <string>public.comma-separated-values-text</string>
+                </array>
+                <key>UTTypeTagSpecification</key>
+                <dict>
+                    <key>public.filename-extension</key>
+                    <array>
+                        <string>csv.zip</string>
+                        <string>csv.gz</string>
+                        <string>csv.bz2</string>
+                        <string>csv.xz</string>
+                        <string>csv.zst</string>
+                    </array>
+                </dict>
+            </dict>
+
+            <!-- TSV -->
+            <dict>
+                <key>UTTypeIdentifier</key>
+                <string>org.squey.csvcompressed</string>
+                <key>UTTypeDescription</key>
+                <string>Compressed TSV file</string>
+                <key>UTTypeConformsTo</key>
+                <array>
+                    <string>public.data</string>
+                    <string>public.tab-separated-values-text</string>
+                </array>
+                <key>UTTypeTagSpecification</key>
+                <dict>
+                    <key>public.filename-extension</key>
+                    <array>
+                        <string>tsv.zip</string>
+                        <string>tsv.gz</string>
+                        <string>tsv.bz2</string>
+                        <string>tsv.xz</string>
+                        <string>tsv.zst</string>
+                    </array>
+                </dict>
+            </dict>
+
+            <!-- PARQUET -->
+            <dict>
+                <key>UTTypeIdentifier</key>
+                <string>org.squey.parquet</string>
+                <key>UTTypeDescription</key>
+                <string>Apache Parquet file</string>
+                <key>UTTypeConformsTo</key>
+                <array>
+                    <string>public.data</string>
+                </array>
+                <key>UTTypeTagSpecification</key>
+                <dict>
+                    <key>public.filename-extension</key>
+                    <array>
+                        <string>parquet</string>
+                    </array>
+                    <key>public.mime-type</key>
+                    <string>application/vnd.apache.parquet</string>
+                </dict>
+            </dict>
+
+            <!-- PCAP -->
+            <dict>
+                <key>UTTypeIdentifier</key>
+                <string>org.squey.pcap</string>
+                <key>UTTypeDescription</key>
+                <string>PCAP file</string>
+                <key>UTTypeConformsTo</key>
+                <array>
+                    <string>public.data</string>
+                </array>
+                <key>UTTypeTagSpecification</key>
+                <dict>
+                    <key>public.filename-extension</key>
+                    <array>
+                        <string>pcap</string>
+                    </array>
+                    <key>public.mime-type</key>
+                    <string>application/vnd.tcpdump.pcap</string>
+                </dict>
+            </dict>
+
+            <!-- PCAPNG -->
+            <dict>
+                <key>UTTypeIdentifier</key>
+                <string>org.squey.pcapng</string>
+                <key>UTTypeDescription</key>
+                <string>PCAPNG file</string>
+                <key>UTTypeConformsTo</key>
+                <array>
+                    <string>public.data</string>
+                </array>
+                <key>UTTypeTagSpecification</key>
+                <dict>
+                    <key>public.filename-extension</key>
+                    <array>
+                        <string>pcapng</string>
+                    </array>
+                    <key>public.mime-type</key>
+                    <string>application/vnd.tcpdump.pcapng</string>
+                </dict>
+            </dict>
+        </array>
+
         <key>CFBundleDocumentTypes</key>
         <array>
+            <!-- PVI -->
             <dict>
-                <key>CFBundleTypeExtensions</key>
-                <array>
-                    <string>squey</string>
-                </array>
                 <key>CFBundleTypeName</key>
-                <string>Squey Project File</string>
+                <string>Squey investigation</string>
                 <key>CFBundleTypeRole</key>
                 <string>Editor</string>
+                <key>CFBundleTypeExtensions</key>
+                <array>
+                    <string>pvi</string>
+                </array>
+            </dict>
+
+            <!-- CSV -->
+            <dict>
+                <key>CFBundleTypeName</key>
+                <string>CSV file</string>
+                <key>CFBundleTypeRole</key>
+                <string>Viewer</string>
+                <key>LSItemContentTypes</key>
+                <array>
+                    <string>public.comma-separated-values-text</string>
+                    <string>org.squey.csvcompressed</string>
+                </array>
+            </dict>
+
+            <!-- TSV -->
+            <dict>
+                <key>CFBundleTypeName</key>
+                <string>TSV file</string>
+                <key>CFBundleTypeRole</key>
+                <string>Viewer</string>
+                <key>LSItemContentTypes</key>
+                <array>
+                    <string>public.tab-separated-values-text</string>
+                    <string>org.squey.tsvcompressed</string>
+                </array>
+            </dict>
+
+            <!-- PARQUET -->
+            <dict>
+                <key>CFBundleTypeName</key>
+                <string>Parquet file</string>
+                <key>CFBundleTypeRole</key>
+                <string>Viewer</string>
+                <key>LSItemContentTypes</key>
+                <array>
+                    <string>org.squey.parquet</string>
+                </array>
+                <key>CFBundleTypeExtensions</key>
+                <array>
+                    <string>parquet</string>
+                </array>
+            </dict>
+
+            <!-- PCAP -->
+            <dict>
+                <key>CFBundleTypeName</key>
+                <string>PCAP file</string>
+                <key>CFBundleTypeRole</key>
+                <string>Viewer</string>
+                <key>LSItemContentTypes</key>
+                <array>
+                    <string>org.squey.pcap</string>
+                    <string>org.squey.pcapng</string>
+                </array>
+                <key>CFBundleTypeExtensions</key>
+                <array>
+                    <string>pcap</string>
+                    <string>pcapng</string>
+                </array>
+            </dict>
+
+            <!-- PCAPNG -->
+            <dict>
+                <key>CFBundleTypeName</key>
+                <string>PCAPNG file</string>
+                <key>CFBundleTypeRole</key>
+                <string>Viewer</string>
+                <key>LSItemContentTypes</key>
+                <array>
+                    <string>org.squey.pcapng</string>
+                </array>
+                <key>CFBundleTypeExtensions</key>
+                <array>
+                    <string>pcapng</string>
+                </array>
             </dict>
         </array>
     </dict>
