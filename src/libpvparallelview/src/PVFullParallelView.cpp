@@ -107,9 +107,9 @@ void PVParallelView::PVFullParallelView::drawForeground(QPainter* painter, const
 
 	QRectF rect_view = mapFromScene(rect).boundingRect();
 
-	const QString sel_text = QString("%L1").arg(_selected_events_number);
+	const QString sel_text = QLocale(QLocale::English).toString(_selected_events_number);
 	const QString sep_text = QString(" /");
-	const QString total_text = QString(" %L1 Rows").arg(_total_events_number);
+	const QString total_text = QString(" %1 Rows").arg(QLocale(QLocale::English).toString(_total_events_number));
 	const QString percent_prefix_text(" (");
 	const QString percent_suffix_text(" %)");
 	const QString percent_text = QString("%1").arg(

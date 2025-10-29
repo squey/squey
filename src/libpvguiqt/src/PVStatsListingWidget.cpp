@@ -153,7 +153,7 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 
 	resize_panel();
 	refresh();
-	
+
 }
 
 void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
