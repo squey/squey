@@ -95,8 +95,7 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 		case 1:
 			return lib_layer_stack().get_layer_n(lib_index).get_name();
 		case 2:
-			return QString("%L3").arg(
-			    lib_layer_stack().get_layer_n(lib_index).get_selectable_count());
+			return QLocale(QLocale::English).toString(lib_layer_stack().get_layer_n(lib_index).get_selectable_count());
 		}
 		break;
 

@@ -944,9 +944,9 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 				bool monitor_memory_consumption = true;
 			    while (job_import->running()) {
 				    pbox.set_extended_status(
-				        QString("Number of extracted events: %L1\nNumber of rejected events: %L2")
-				            .arg(job_import->status())
-				            .arg(job_import->rejected_elements())
+				        QString("Number of extracted events: %1\nNumber of rejected events: %2")
+				            .arg(QLocale(QLocale::English).toString(job_import->status()))
+				            .arg(QLocale(QLocale::English).toString(job_import->rejected_elements()))
 						);
 				        if (job_import->get_value() > 0) {
 				            // setting a maximum put the progress bar out of the undeterminate state

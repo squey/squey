@@ -215,8 +215,8 @@ class PVStatsModel : public PVAbstractTableModel
 		double intpart;
 		bool integer = std::modf(occurence_count, &intpart) == (double)0;
 
-		return integer ? QString("%L1").arg((int64_t)occurence_count)
-		               : QString("%L1").arg(occurence_count, 0, 'f', 3);
+		return integer ? QString("%1").arg(QLocale(QLocale::English).toString((int64_t)occurence_count))
+		               : QString("%1").arg(occurence_count, 0, 'f', 3);
 	};
 	static inline QString format_percentage(double ratio)
 	{

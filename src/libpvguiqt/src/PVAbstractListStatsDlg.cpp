@@ -1053,7 +1053,7 @@ void PVGuiQt::PVAbstractListStatsDlg::update_stats_column_width()
 			                         : relative_min_count();
 			double v = converting_digits_to_nines_at_given_precision(longest_val);
 			size_t precision = _counts_are_integers ? 0 : 3;
-			_field_size_count = fm.horizontalAdvance(QLocale::system().toString(v, 'f', precision));
+			_field_size_count = fm.horizontalAdvance(QLocale(QLocale::English).toString(v, 'f', precision));
 		}
 	} else {
 		_field_size_count = 0;
