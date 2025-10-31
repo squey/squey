@@ -33,5 +33,4 @@ if [ -d ${DCV_GL_FLATPAK_DIR} ]; then
     export LD_LIBRARY_PATH=${DCV_GL_FLATPAK_DIR}:$LD_LIBRARY_PATH
 fi
 
-eval $@
-
+"$@"
