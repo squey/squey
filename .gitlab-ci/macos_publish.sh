@@ -116,6 +116,12 @@ sign()
 {
     bundlename="$1"
     CERT_IDENTITY="$2"
+    USE_ENTITLEMENTS="$3"
+
+    ENTITLEMENTS=""
+    if [ "$USE_ENTITLEMENTS" = "true" ]; then
+        ENTITLEMENTS="--entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist"
+    fi
 
     # Sign binaries
     find "$bundlename/Contents" -type f | while read bin; do
@@ -133,7 +139,7 @@ sign()
         fi
     done)
     for exe in $EXECUTABLES; do
-        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist --options runtime --sign "$CERT_IDENTITY" "$exe"
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force "$ENTITLEMENTS" --options runtime --sign "$CERT_IDENTITY" "$exe"
     done
 
     # Sign frameworks
@@ -151,9 +157,10 @@ sign_and_notarize()
     NOARCH_BUNDLENAME="$BUNDLENAME"
     bundlename="$1"
     CERT_IDENTITY="$2"
+    USE_ENTITLEMENTS="$3"
     DMGNAME="${bundlename%.app}.dmg"
     ROOT_DIR="${bundlename}_root"
-    sign "$bundlename" "$CERT_IDENTITY"
+    sign "$bundlename" "$CERT_IDENTITY" "$USE_ENTITLEMENTS"
     mkdir -p "$ROOT_DIR" "$CI_PROJECT_DIR/public"
     mv $bundlename $ROOT_DIR/$NOARCH_BUNDLENAME
     hdiutil create -volname "$APPNAME" \
@@ -169,8 +176,8 @@ sign_and_notarize()
     xcrun stapler staple "$CI_PROJECT_DIR/public/$DMGNAME"
     rm -rf "$ROOT_DIR"
 }
-sign_and_notarize "$BUNDLENAME_ARM" "$APPLE_DEVELOPER_CERT_IDENTITY"
-sign_and_notarize "$BUNDLENAME_X86" "$APPLE_DEVELOPER_CERT_IDENTITY"
+sign_and_notarize "$BUNDLENAME_ARM" "$APPLE_DEVELOPER_CERT_IDENTITY" false
+sign_and_notarize "$BUNDLENAME_X86" "$APPLE_DEVELOPER_CERT_IDENTITY" false
 
 # Sign and deliver the app to the App Store
 SUBMISSION_INFO='{"export_compliance_uses_encryption": true,
@@ -181,7 +188,7 @@ SUBMISSION_INFO='{"export_compliance_uses_encryption": true,
                   "export_compliance_available_on_french_store": true,
                   "export_compliance_is_exempt": false,
                   "add_id_info_uses_idfa": false }'
-sign "$BUNDLENAME" "$APPLE_DISTRIBUTION_CERT_IDENTITY"
+sign "$BUNDLENAME" "$APPLE_DISTRIBUTION_CERT_IDENTITY" true
 codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist --options runtime --sign "$APPLE_DISTRIBUTION_CERT_IDENTITY" "$BUNDLENAME"
 productbuild --component "$BUNDLENAME" /Applications --sign "$APPLE_INSTALLER_CERT_IDENTITY" "$PKGNAME"
 fastlane deliver --force --pkg "$PKGNAME" --app_identifier "$BUNDLE_ID" --api_key_path "$APPLE_API_KEY_JSON" --skip_screenshots --skip_metadata --run_precheck_before_submit false --submission_information "$SUBMISSION_INFO" --submit_for_review || true
