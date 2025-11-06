@@ -94,7 +94,7 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 	std::shared_ptr<arrow::Schema> schema;
 	arrow::Status status = _api.arrow_reader()->GetSchema(&schema);
 	std::shared_ptr<arrow::Table> table = arrow::Table::FromRecordBatches(schema, {record_batch}).ValueOrDie();
-	std::shared_ptr<arrow::Table> flat_table = table->Flatten().ValueOrDie();
+	std::shared_ptr<arrow::Table> flat_table = _api.flatten_table(table);
 
 	PVRush::PVParquetBinaryChunk* chunk = new PVRush::PVParquetBinaryChunk(
 		multi_inputs,

@@ -80,6 +80,7 @@ class PVParquetAPI
 	bool is_bit_optimizable() const;
 	bool same_schemas() const;
 	static std::shared_ptr<arrow::Schema> flatten_schema(const std::shared_ptr<arrow::Schema>& schema);
+	static std::shared_ptr<arrow::Table> flatten_table(const std::shared_ptr<arrow::Table>& table);
 
   public:
 	QDomDocument get_format();
