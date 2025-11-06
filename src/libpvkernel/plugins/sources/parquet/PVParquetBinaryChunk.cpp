@@ -70,6 +70,23 @@ void* convert_bool(const std::shared_ptr<arrow::Array>& column_array, void* data
 	return data;
 }
 
+void* convert_string(const std::shared_ptr<arrow::Array>& column_array, pvcop::db::index_t* values, pvcop::db::write_dict* dict)
+{
+    auto& str_array = static_cast<arrow::StringArray&>(*column_array);
+
+    for (int64_t i = 0; i < str_array.length(); ++i) {
+        if (str_array.IsNull(i)) {
+            values[i] = dict->insert("");
+        } else {
+            std::string value = str_array.GetString(i);
+            boost::replace_all(value, "\n", "\\n"); // escape end of lines
+            values[i] = dict->insert(value.c_str());
+        }
+    }
+
+	return values;
+}
+
 void* convert_dictionnary(const std::shared_ptr<arrow::Array>& column_array, pvcop::db::write_dict* dict)
 {
 	auto& dict_array = static_cast<arrow::DictionaryArray&>(*column_array);
@@ -188,6 +205,75 @@ void* convert_time64(const std::shared_ptr<arrow::Array>& column_array, void* da
 	return data;
 }
 
+void* convert_complex_type_as_string(
+    const std::shared_ptr<arrow::Array>& column_array,
+    pvcop::db::index_t* values,
+    pvcop::db::write_dict* dict)
+{
+    std::stringstream ss;
+
+    for (int64_t i = 0; i < column_array->length(); ++i) {
+        if (column_array->IsNull(i)) {
+            values[i] = dict->insert(""); // empty string for null
+            continue;
+        }
+
+        ss.str("");
+        ss.clear();
+
+        switch (column_array->type_id()) {
+
+            case arrow::Type::LIST: {
+                auto& list_array = static_cast<arrow::ListArray&>(*column_array);
+                auto start = list_array.value_offset(i);
+                auto end = list_array.value_offset(i + 1);
+                auto values_array = list_array.values();
+
+                ss << "[";
+                for (int64_t j = start; j < end; ++j) {
+                    if (j != start) ss << ", ";
+                    auto val = values_array->GetScalar(j).ValueOrDie();
+                    ss << val->ToString();
+                }
+                ss << "]";
+                break;
+            }
+
+            case arrow::Type::MAP: {
+                auto& map_array = static_cast<arrow::MapArray&>(*column_array);
+                auto start = map_array.value_offset(i);
+                auto end = map_array.value_offset(i + 1);
+                auto key_array = map_array.keys();
+                auto item_array = map_array.items();
+
+                ss << "{";
+                for (int64_t j = start; j < end; ++j) {
+                    if (j != start) ss << ",";
+                    auto key = key_array->GetScalar(j).ValueOrDie();
+                    auto val = item_array->GetScalar(j).ValueOrDie();
+
+                    if (key_array->type()->id() == arrow::Type::STRING) {
+                        ss << "\"" << key->ToString() << "\":" << val->ToString();
+                    } else {
+                        ss << key->ToString() << ":" << val->ToString();
+                    }
+                }
+                ss << "}";
+                break;
+            }
+
+            default:
+                // fallback: treat as string
+                ss << column_array->GetScalar(i).ValueOrDie()->ToString();
+                break;
+        }
+
+        values[i] = dict->insert(ss.str().c_str());
+    }
+
+    return values;
+}
+
 PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
     bool multi_inputs,
     bool is_bit_optimizable,
@@ -210,8 +296,10 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 
 #pragma omp parallel for schedule(dynamic)
 		for (size_t i = 0 ; i < column_indexes.size(); i++) {
+
 			const size_t column_index = column_indexes[i];
-			const std::shared_ptr<arrow::Array>& column_array = table->column(column_index)->chunk(0);
+			const auto& column = table->column(column_index);
+			const std::shared_ptr<arrow::Array>& column_array = column->chunk(0);
 
 			if (column_array == nullptr) {
 				continue;
@@ -224,6 +312,9 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 			void* data = ((void*)column_array->data()->buffers[1]->data());
 			if (column_array->type_id() == arrow::Type::type::BOOL) {
 				data = convert_bool(column_array, _values[i].data(), dicts[i]);
+			}
+			if (column_array->type_id() == arrow::Type::type::STRING) {
+				data = convert_string(column_array, (pvcop::db::index_t*)_values[i].data(), dicts[i]);
 			}
 			if (column_array->type_id() == arrow::Type::type::DICTIONARY) {
 				data = convert_dictionnary(column_array, dicts[i]);
@@ -248,6 +339,11 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 			else if (column_array->type_id() == arrow::Type::type::TIME64) {
 				data = convert_time64(column_array, _values[i].data());
 			}
+			else if (column_array->type_id() == arrow::Type::LIST ||
+                     column_array->type_id() == arrow::Type::MAP)
+            {
+                data = convert_complex_type_as_string(column_array, (pvcop::db::index_t*)_values[i].data(), dicts[i]);
+            }
 
 			// handle null values (optimized)
 			if (is_bit_optimizable and column_array->null_count() > 0) {

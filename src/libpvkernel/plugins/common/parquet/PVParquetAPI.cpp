@@ -29,6 +29,8 @@
 #include <parquet/schema.h>
 #include <arrow/result.h>
 #include <arrow/status.h>
+#include <arrow/api.h>
+#include <arrow/table.h>
 #include <parquet/properties.h>
 #include <stdint.h>
 #include <boost/date_time/posix_time/posix_time_config.hpp>
@@ -62,7 +64,10 @@ const std::unordered_map<arrow::Type::type, PVRush::PVParquetAPI::pvcop_type_inf
 	{ arrow::Type::type::STRING,			{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::FIXED_SIZE_BINARY,	{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::BINARY,			{ sizeof(pvcop::db::index_t),	"string" }},
-	{ arrow::Type::type::DICTIONARY,		{ sizeof(pvcop::db::index_t),	"string" }}
+	{ arrow::Type::type::DICTIONARY,		{ sizeof(pvcop::db::index_t),	"string" }},
+	{ arrow::Type::type::LIST,              { sizeof(pvcop::db::index_t),	"string" }},
+    { arrow::Type::type::MAP,               { sizeof(pvcop::db::index_t),	"string" }},
+    { arrow::Type::type::STRUCT,            { 0,	                        ""       }},
 	// Note : "DATE64" and "DURATION" are not supported by Apache Parquet
 };
 
@@ -77,29 +82,81 @@ PVRush::PVParquetAPI::PVParquetAPI(const PVRush::PVParquetFileDescription* input
 
 std::shared_ptr<arrow::Schema> PVRush::PVParquetAPI::flatten_schema(const std::shared_ptr<arrow::Schema>& schema)
 {
-	arrow::SchemaBuilder schema_builder;
+    arrow::SchemaBuilder builder;
 
-	for (int i = 0; i < schema->num_fields(); ++i) {
-		const std::shared_ptr<arrow::Field>& field = schema->field(i);
-		if (field->type()->id() == arrow::Type::STRUCT) {
-			const auto& struct_type = std::static_pointer_cast<arrow::StructType>(field->type());
-			for (int j = 0; j < struct_type->num_fields(); ++j) {
-				const auto& sub_field = struct_type->field(j);
-				arrow::Status status = schema_builder.AddField(arrow::field(
-					field->name() + "." + sub_field->name(),
-					sub_field->type(),
-					sub_field->nullable(),
-					sub_field->metadata()
-				));
-			}
-		} else {
-			arrow::Status status = schema_builder.AddField(field);
-		}
-	}
+    std::stack<std::pair<std::shared_ptr<arrow::Field>, std::string>> field_stack;
 
-	std::shared_ptr<arrow::Schema> flattened_schema = schema_builder.Finish().ValueOrDie();
+    for (int i = schema->num_fields() - 1; i >= 0; --i) {
+        field_stack.push({schema->field(i), ""});
+    }
 
-	return flattened_schema;
+    while (!field_stack.empty()) {
+        auto [field, prefix] = field_stack.top();
+        field_stack.pop();
+
+        std::string current_name = prefix.empty() ? field->name() : prefix + "." + field->name();
+
+        if (field->type()->id() == arrow::Type::STRUCT) {
+            auto struct_type = std::static_pointer_cast<arrow::StructType>(field->type());
+            for (int j = struct_type->num_fields() - 1; j >= 0; --j) {
+                field_stack.push({struct_type->field(j), current_name});
+            }
+        } else {
+            (void) builder.AddField(arrow::field(
+                current_name,
+                field->type(),
+                field->nullable(),
+                field->metadata()
+            ));
+        }
+    }
+
+    return builder.Finish().ValueOrDie();
+}
+
+std::shared_ptr<arrow::Table> PVRush::PVParquetAPI::flatten_table(const std::shared_ptr<arrow::Table>& table)
+{
+    std::vector<std::shared_ptr<arrow::Array>> flat_arrays;
+    std::vector<std::shared_ptr<arrow::Field>> flat_fields;
+    std::stack<std::pair<std::shared_ptr<arrow::Field>, std::shared_ptr<arrow::Array>>> stack;
+    for (int i = table->num_columns() - 1; i >= 0; --i) {
+        const auto& col = table->column(i);
+        auto array = arrow::Concatenate(col->chunks()).ValueOrDie();
+        stack.push({table->schema()->field(i), array});
+    }
+    while (!stack.empty()) {
+        auto [field, array] = stack.top();
+        stack.pop();
+        if (field->type()->id() == arrow::Type::STRUCT) {
+            auto struct_type = std::static_pointer_cast<arrow::StructType>(field->type());
+            for (int j = struct_type->num_fields() - 1; j >= 0; --j) {
+                auto sub_field = struct_type->field(j);
+                std::shared_ptr<arrow::Array> sub_array;
+                if (array->type()->id() == arrow::Type::STRUCT) {
+                    auto struct_array = std::static_pointer_cast<arrow::StructArray>(array);
+                    auto struct_type = std::static_pointer_cast<arrow::StructType>(struct_array->type());
+                    int idx = struct_type->GetFieldIndex(sub_field->name());
+                    if (idx >= 0) {
+                        sub_array = struct_array->field(idx);
+                    }
+                    else {
+                        sub_array = std::make_shared<arrow::NullArray>(array->length());
+                    }
+                }
+                else {
+                    sub_array = std::make_shared<arrow::NullArray>(array->length());
+                }
+                std::string name = field->name() + "." + sub_field->name();
+                stack.push({arrow::field(name, sub_field->type(), sub_field->nullable(), sub_field->metadata()), sub_array});
+            }
+        }
+        else {
+            flat_fields.push_back(field);
+            flat_arrays.push_back(array);
+        }
+    }
+    auto flat_schema = arrow::schema(flat_fields);
+    return arrow::Table::Make(flat_schema, flat_arrays);
 }
 
 bool PVRush::PVParquetAPI::next_file()
@@ -212,7 +269,7 @@ QDomDocument PVRush::PVParquetAPI::get_format()
 				_column_indexes.emplace_back(i);
 			}
 			else {
-				pvlogger::warn() << "type '"  << data_type->name() << "' for column '" << field->name() << "' is not supported" << std::endl;
+				pvlogger::warn() << "type '"  << data_type->name() << "/" << type << "' for column '" << field->name() << "' is not supported" << std::endl;
 			}
 		}
 	}
