@@ -3,7 +3,20 @@
     "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+    <!-- Enable sandboxing -->
     <key>com.apple.security.app-sandbox</key>
+    <true/>
+
+    <!-- Allow internal binaries execution -->
+    <key>com.apple.security.inherit</key>
+    <true/>
+
+    <!-- Allow network access -->
+    <key>com.apple.security.network.client</key>
+    <true/>
+
+    <!-- Allow access to user files -->
+    <key>com.apple.security.files.user-selected.read-write</key>
     <true/>
 </dict>
 </plist>
