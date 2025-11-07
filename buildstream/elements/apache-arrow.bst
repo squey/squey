@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:apache/arrow/releases/download/apache-arrow-21.0.0/apache-arrow-21.0.0.tar.gz
-  ref: 5d3f8db7e72fb9f65f4785b7a1634522e8d8e9657a445af53d4a34a3849857b5
+  url: github:apache/arrow/releases/download/apache-arrow-22.0.0/apache-arrow-22.0.0.tar.gz
+  ref: 131250cd24dec0cddde04e2ad8c9e2bc43edc5e84203a81cf71cf1a33a6e7e0f
 
 (@): buildstream/elements/base/target.yml
 
