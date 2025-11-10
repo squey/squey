@@ -74,5 +74,11 @@ QStringList PVRush::PVImportFileDialog::getFileNames(QString& treat_as)
 	/* The user didn't press the Cancel button */
 	treat_as = treat_as_combobox->currentText();
 
-	return selectedFiles();
+	QStringList files = selectedFiles();
+	files.erase(std::remove_if(files.begin(), files.end(), [](const QString& f) {
+		QString ext = QFileInfo(f).suffix().toLower();
+		return ext == "format" or ext == "pvi";
+	}), files.end());
+
+    return files;
 }
