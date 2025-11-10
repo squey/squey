@@ -1,5 +1,3 @@
 #!/bin/bash
 
-run_cmd.sh squey $@
-
-
+run_cmd.sh squey "$@"
