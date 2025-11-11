@@ -71,7 +71,10 @@ Or install it using [Apple silicon (arm64)](https://squey.gitlab.io/squey/Squey-
 
 ### Linux
 
-[<img src="https://flathub.org/assets/badges/flathub-badge-en.png" width="200"/>](https://flathub.org/apps/details/org.squey.Squey)
+<a href="https://flathub.org/apps/details/org.squey.Squey">
+    <img width='200' alt='Get it on Flathub' src='https://flathub.org/api/badge?locale=en'/>
+</a>
+<br/>
 
 ```
 flatpak install --user -y https://dl.flathub.org/repo/appstream/org.squey.Squey.flatpakref
