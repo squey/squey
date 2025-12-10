@@ -274,7 +274,7 @@ extract_csv(splitted_files_t files,
 							nullptr,
 							nullptr,
 							TRUE,
-							CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_PROCESS_GROUP,
+							CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
 							/*env_vars.data()*/ nullptr, // FIXME
 							nullptr,
 							&si,
