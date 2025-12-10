@@ -1143,7 +1143,7 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 				    tr("It appears that the %1 splitter can process '%2' and create %3 fields.\n\n")
 				        .arg(sp->registered_name())
 				        .arg(first_input_name)
-				        .arg(naxes);
+				        .arg((int)naxes);
 				msg += tr("Do you want to automatically add that splitter to the format ?");
 				QMessageBox ask_auto(QMessageBox::Question, tr("Filter automatically found"), msg,
 				                     QMessageBox::Yes | QMessageBox::No, this);
