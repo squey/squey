@@ -6,6 +6,7 @@
 # openssl pkcs12 -legacy -export -out cert.p12 -inkey cert.key -in cert.cer
 
 set -e
+set -x
 
 PACKAGEDIR_X86="export/x86_64-apple-darwin"
 PACKAGEDIR_ARM="export/aarch64-apple-darwin"
