@@ -17,7 +17,7 @@ config:
     [Desktop Entry]
     Type=Application
     Name=Squey
-    Exec=squey_launcher.sh
+    Exec=squey_launcher.sh %F
     Icon=org.squey.Squey
     Categories=Science;Graphics;Network;
     MimeType=application/org.squey.investigation;text/csv;text/tab-separated-values;application/vnd.apache.parquet;application/vnd.tcpdump.pcap;application/vnd.tcpdump.pcapng;

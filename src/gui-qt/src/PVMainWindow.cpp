@@ -661,7 +661,7 @@ void App::PVMainWindow::load_files(QStringList const& files, QString format_str 
 			);
 		}
 		else {
-            const QString& ext = fi.completeSuffix();
+            const QString& ext = fi.suffix();
             if (not ext.isEmpty()) {
                 exts.insert(ext);
             }
