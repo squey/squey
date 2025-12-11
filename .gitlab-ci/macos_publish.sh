@@ -139,9 +139,9 @@ sign()
             echo "$f"
         fi
     done)
-    for exe in $EXECUTABLES; do
-        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force "$ENTITLEMENTS" --options runtime --sign "$CERT_IDENTITY" "$exe"
-    done
+    while IFS= read -r exe; do
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force $ENTITLEMENTS --options runtime --sign "$CERT_IDENTITY" "$exe"
+    done <<< "$EXECUTABLES"
 
     # Sign frameworks
     find "$bundlename/Contents/Frameworks" -type d -name "*.framework" | while read fw; do
