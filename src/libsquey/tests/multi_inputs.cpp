@@ -70,7 +70,8 @@ int main()
 		pvlogger::info() << exports[i] << " - " << out_path << std::endl;
 		bool same_content = PVRush::PVUtils::files_have_same_content(exports[i], out_path);
 		if (not same_content) {
-		    pvlogger::error() << std::ifstream(out_path).rdbuf() << std::endl;
+		    pvlogger::error() << std::ifstream(exports[i]).rdbuf() << std::endl;
+			pvlogger::error() << std::ifstream(out_path).rdbuf() << std::endl;
 		}
 
 		std::remove(out_path.c_str());

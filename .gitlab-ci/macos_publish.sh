@@ -35,9 +35,6 @@ hdiutil detach "$MOUNTED_VOLUME"
 hdiutil attach -nobrowse $PACKAGEDIR_ARM/*.dmg
 ditto "$MOUNTED_BUNDLEDIR" "$BUNDLENAME"
 hdiutil detach "$MOUNTED_VOLUME"
-hdiutil attach -nobrowse $PACKAGEDIR_X86/*.dmg
-ditto "$MOUNTED_BUNDLEDIR" "$BUNDLENAME_X86"
-hdiutil detach "$MOUNTED_VOLUME"
 find "$BUNDLENAME" -type f | while read arm_file; do
     if file "$arm_file" | grep -q "Mach-O"; then
         rel_path="${arm_file#$BUNDLENAME/}"
@@ -63,11 +60,17 @@ for cert in APPLE_DISTRIBUTION_CERT_B64 APPLE_INSTALLER_CERT_B64 APPLE_DEVELOPER
     CERT_NAME="${cert}.p12"
     base64 -d -i "${!cert}" -o "$CERT_NAME"
 done
+
 security delete-keychain "$KEYCHAINNAME" &> /dev/null || true
 security create-keychain -p "" "$KEYCHAINNAME"
-security unlock-keychain -p "" "$KEYCHAINNAME"
-security list-keychains -d user -s "$KEYCHAINPATH" "$HOME/Library/Keychains/login.keychain-db"
-security default-keychain -d user -s "$KEYCHAINPATH"
+
+unlock_keychain()
+{
+    security unlock-keychain -p "" "$KEYCHAINNAME"
+    security list-keychains -d user -s "$KEYCHAINPATH" "$HOME/Library/Keychains/login.keychain-db"
+    security default-keychain -d user -s "$KEYCHAINPATH"
+}
+unlock_keychain()
 
 # Download and add Apple certificates
 ALLOWED_TOOLS=" \
@@ -123,23 +126,26 @@ sign()
         ENTITLEMENTS="--entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist"
     fi
 
+    # re-unlock keychain to avoid timeout issues
+    unlock_keychain()
+
     # Sign binaries
     find "$bundlename/Contents" -type f | while read bin; do
         TYPE=$(file "$bin")
         if echo "$TYPE" | grep -q "Mach-O"; then
-            codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
+            codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --force --options runtime --sign "$CERT_IDENTITY" "$bin"
         fi
     done
 
     # Sign executables with sandbox entitlement
-    EXECUTABLES=$(find "$bundlename" -type f -perm +111 | while read -r f; do
+    EXECUTABLES=$(find "$bundlename" -type f -perm /111 | while read -r f; do
         TYPE=$(file "$f")
         if echo "$TYPE" | grep -q "Mach-O .*executable"; then
             echo "$f"
         fi
     done)
     while IFS= read -r exe; do
-        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force $ENTITLEMENTS --options runtime --sign "$CERT_IDENTITY" "$exe"
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --force $ENTITLEMENTS --options runtime --sign "$CERT_IDENTITY" "$exe"
     done <<< "$EXECUTABLES"
 
     # Sign frameworks
@@ -160,6 +166,7 @@ sign_and_notarize()
     USE_ENTITLEMENTS="$3"
     DMGNAME="${bundlename%.app}.dmg"
     ROOT_DIR="${bundlename}_root"
+
     sign "$bundlename" "$CERT_IDENTITY" "$USE_ENTITLEMENTS"
     mkdir -p "$ROOT_DIR" "$CI_PROJECT_DIR/public"
     mv $bundlename $ROOT_DIR/$NOARCH_BUNDLENAME
@@ -168,7 +175,7 @@ sign_and_notarize()
         -format ULMO \
         -ov \
         "$CI_PROJECT_DIR/public/$DMGNAME"
-    codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$CI_PROJECT_DIR/public/$DMGNAME"
+    codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --preserve-metadata=entitlements --options runtime --sign "$CERT_IDENTITY" "$CI_PROJECT_DIR/public/$DMGNAME"
     xcrun notarytool submit "$CI_PROJECT_DIR/public/$DMGNAME" --wait --timeout 10m \
         --key "$APPLE_AUTH_KEY_PATH" \
         --key-id "$APPLE_KEY_ID" \
@@ -189,6 +196,6 @@ SUBMISSION_INFO='{"export_compliance_uses_encryption": true,
                   "export_compliance_is_exempt": false,
                   "add_id_info_uses_idfa": false }'
 sign "$BUNDLENAME" "$APPLE_DISTRIBUTION_CERT_IDENTITY" true
-codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --entitlements buildstream/files/macos_bundle/sandbox_entitlement.plist --options runtime --sign "$APPLE_DISTRIBUTION_CERT_IDENTITY" "$BUNDLENAME"
+codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --preserve-metadata=entitlements --options runtime --sign "$APPLE_DISTRIBUTION_CERT_IDENTITY" "$BUNDLENAME"
 productbuild --component "$BUNDLENAME" /Applications --sign "$APPLE_INSTALLER_CERT_IDENTITY" "$PKGNAME"
 fastlane deliver --force --pkg "$PKGNAME" --app_identifier "$BUNDLE_ID" --api_key_path "$APPLE_API_KEY_JSON" --skip_screenshots --skip_metadata --run_precheck_before_submit false --submission_information "$SUBMISSION_INFO" --submit_for_review || true
