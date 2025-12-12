@@ -139,7 +139,7 @@ sign()
     done
 
     # Sign executables with sandbox entitlement
-    EXECUTABLES=$(find "$bundlename" -type f -perm /111 | while read -r f; do
+    EXECUTABLES=$(find "$bundlename" -type f -perm +111 | while read -r f; do
         TYPE=$(file "$f")
         if echo "$TYPE" | grep -q "Mach-O .*executable"; then
             echo "$f"
