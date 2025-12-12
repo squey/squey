@@ -30,6 +30,7 @@ config:
           cd "%{install-root}/%{libdir}" && ln -s Python.framework/Versions/Current/lib/libpython3.*.dylib && cd -
           cd "%{install-root}/%{libdir}"
           rm -rf Python.framework/Versions/Current/lib/libtk* # Useless and using non-public or deprecated macOS API that prevents publishing on the App Store
+          rm -rf Python.framework/Versions/Current/Frameworks/Tcl.framework Python.framework/Versions/Current/Frameworks/Tk.framework
           sed "s/, 'itms-services'//" -i Python.framework/Versions/Current/lib/python*/urllib/parse.py && rm -rf Python.framework/Versions/Current/lib/python*/test # Remove 'itms-services' occurences
           find "Python.framework" -type f \( -name "*.dylib" -o -name "Python" \) \
             -exec echo "{}" \; \
