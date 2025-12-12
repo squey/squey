@@ -63,6 +63,7 @@ done
 
 security delete-keychain "$KEYCHAINNAME" &> /dev/null || true
 security create-keychain -p "" "$KEYCHAINNAME"
+security set-keychain-settings "$KEYCHAINPATH"
 
 unlock_keychain()
 {
@@ -134,7 +135,7 @@ sign()
     find "$bundlename/Contents" -type f | while read bin; do
         TYPE=$(file "$bin")
         if echo "$TYPE" | grep -q "Mach-O"; then
-            codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --force --options runtime --sign "$CERT_IDENTITY" "$bin"
+            codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
         fi
     done
 
@@ -146,7 +147,7 @@ sign()
         fi
     done)
     while IFS= read -r exe; do
-        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --force $ENTITLEMENTS --options runtime --sign "$CERT_IDENTITY" "$exe"
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force $ENTITLEMENTS --options runtime --sign "$CERT_IDENTITY" "$exe"
     done <<< "$EXECUTABLES"
 
     # Sign frameworks
