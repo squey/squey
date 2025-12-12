@@ -70,7 +70,7 @@ unlock_keychain()
     security list-keychains -d user -s "$KEYCHAINPATH" "$HOME/Library/Keychains/login.keychain-db"
     security default-keychain -d user -s "$KEYCHAINPATH"
 }
-unlock_keychain()
+unlock_keychain
 
 # Download and add Apple certificates
 ALLOWED_TOOLS=" \
@@ -92,7 +92,8 @@ sha256sum *.cer
 security find-identity -v
 security find-certificate -a
 
-codesign_retry() {
+codesign_retry()
+{
   cmd=( "$@" )
   max=5
   delay=60
@@ -127,7 +128,7 @@ sign()
     fi
 
     # re-unlock keychain to avoid timeout issues
-    unlock_keychain()
+    unlock_keychain
 
     # Sign binaries
     find "$bundlename/Contents" -type f | while read bin; do
