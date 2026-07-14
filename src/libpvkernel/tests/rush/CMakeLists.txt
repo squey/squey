@@ -227,6 +227,8 @@ add_squey_test(Trush_apache_parquet_offset Trush_apache_parquet_import_export ${
 add_squey_test(Trush_apache_parquet_import_export Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïchunks.csv)
 add_squey_test(Trush_apache_parquet_offset Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.csv)
 add_squey_test(Trush_apache_parquet_nested_complex_types Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.csv)
+add_squey_compile_test(Trush_apache_parquet_extended_types LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_extended_types.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet_extended_types Trush_apache_parquet_extended_types)
 
 file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

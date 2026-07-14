@@ -50,6 +50,58 @@ static std::shared_ptr<arrow::Array> array_from_indexes(
     return out;
 }
 
+/**
+ * Parquet has no native view type, and arrow::compute::Take still has no kernel for them as of
+ * Arrow 25 (see https://github.com/apache/arrow/issues/43010), so view columns are exported as
+ * their non-view counterpart. Their content is left untouched.
+ */
+static std::shared_ptr<arrow::DataType> viewless_type(const std::shared_ptr<arrow::DataType>& type)
+{
+    switch (type->id()) {
+        case arrow::Type::STRING_VIEW:
+            return arrow::utf8();
+        case arrow::Type::BINARY_VIEW:
+            return arrow::binary();
+        default:
+            return type;
+    }
+}
+
+static std::shared_ptr<arrow::Schema> viewless_schema(const std::shared_ptr<arrow::Schema>& schema)
+{
+    arrow::FieldVector fields;
+    fields.reserve(schema->num_fields());
+
+    for (const std::shared_ptr<arrow::Field>& field : schema->fields()) {
+        fields.push_back(field->WithType(viewless_type(field->type())));
+    }
+
+    return arrow::schema(fields, schema->metadata());
+}
+
+static std::shared_ptr<arrow::RecordBatch> viewless_record_batch(
+    const std::shared_ptr<arrow::RecordBatch>& batch,
+    const std::shared_ptr<arrow::Schema>& schema
+)
+{
+    if (batch->schema()->Equals(*schema)) {
+        return batch;
+    }
+
+    arrow::ArrayVector columns;
+    columns.reserve(batch->num_columns());
+
+    for (int i = 0; i < batch->num_columns(); i++) {
+        const std::shared_ptr<arrow::Array>& column = batch->column(i);
+        const std::shared_ptr<arrow::DataType>& type = schema->field(i)->type();
+        columns.push_back(column->type()->Equals(*type)
+                              ? column
+                              : arrow::compute::Cast(*column, type).ValueOrDie());
+    }
+
+    return arrow::RecordBatch::Make(schema, batch->num_rows(), columns);
+}
+
 PVRush::PVParquetExporter::PVParquetExporter(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw)
     : _inputs(inputs), _nraw(nraw)
 {
@@ -78,11 +130,13 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
     const size_t rows_count_to_export = sel.bit_count();
     PVRush::PVParquetAPI api(input_desc);
     size_t selection_current_index = 0;
+    std::shared_ptr<arrow::Schema> exported_schema;
     api.visit_files([&](){
         if (writer == nullptr) {
             std::shared_ptr<arrow::Schema> schema;
             arrow::Status status = api.arrow_reader()->GetSchema(&schema);
-            writer = parquet::arrow::FileWriter::Open(*schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props).ValueOrDie();
+            exported_schema = viewless_schema(schema);
+            writer = parquet::arrow::FileWriter::Open(*exported_schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props).ValueOrDie();
         }
 
         auto recordbatch_reader = api.arrow_reader()->GetRecordBatchReader().ValueOrDie();
@@ -90,7 +144,8 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
         size_t total_rows = api.arrow_reader()->parquet_reader()->metadata()->num_rows();
         size_t batch_current_index = 0;
         while (batch_current_index < total_rows and exported_rows_count < rows_count_to_export) {
-            std::shared_ptr<arrow::RecordBatch> batch = recordbatch_reader->Next().ValueOrDie();
+            std::shared_ptr<arrow::RecordBatch> batch =
+                viewless_record_batch(recordbatch_reader->Next().ValueOrDie(), exported_schema);
 
             size_t selected_record_batch_indexes_size = pvcop::core::algo::bit_count(selected_rows, selection_current_index + batch_current_index, selection_current_index + batch_current_index + batch->num_rows() -1);
 
