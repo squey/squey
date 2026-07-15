@@ -63,46 +63,6 @@
  * @todo make a nice configuration panel
  */
 
-#define print_m(R) __print_mat(#R, R)
-#define print_mat(R) __print_mat(#R, R)
-
-template <typename M>
-void __print_mat(const char* text, const M& m)
-{
-	std::cout << text << ": " << std::endl
-	          << "  " << m.m11() << " " << m.m12() << " " << m.m13() << std::endl
-	          << "  " << m.m21() << " " << m.m22() << " " << m.m23() << std::endl
-	          << "  " << m.m31() << " " << m.m32() << " " << m.m33() << std::endl;
-}
-
-#define print_r(R) __print_rect(#R, R)
-#define print_rect(R) __print_rect(#R, R)
-
-template <typename R>
-void __print_rect(const char* text, const R& r)
-{
-	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
-	          << std::endl;
-}
-
-#define print_v(R) __print_vect(#R, R)
-#define print_vect(R) __print_vect(#R, R)
-
-template <typename R>
-void __print_vect(const char* text, const R& r)
-{
-	std::cout << text << ": " << r.x() << " " << r.y() << std::endl;
-}
-
-#define print_s(V) print_scalar(V)
-#define print_scalar(V) __print_scalar(#V, V)
-
-template <typename V>
-void __print_scalar(const char* text, const V& v)
-{
-	std::cout << text << ": " << v << std::endl;
-}
-
 /*****************************************************************************
  * PVParallelView::PVHitCountView::PVHitCountView
  *****************************************************************************/

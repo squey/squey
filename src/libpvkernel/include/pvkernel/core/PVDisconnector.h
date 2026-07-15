@@ -22,6 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#ifndef __PVCORE_PVDISCONNECTOR_H__
+#define __PVCORE_PVDISCONNECTOR_H__
+
 #include <sigc++/sigc++.h>
 
 namespace PVCore
@@ -41,3 +44,5 @@ struct PVDisconnector : public sigc::connection {
 };
 
 } // namespace PVCore
+
+#endif // __PVCORE_PVDISCONNECTOR_H__

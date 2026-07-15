@@ -106,6 +106,14 @@ inline static simde__m128i squey_mm256_cvttpd_epu32(simde__m256d const v)
 #ifdef __GNUC__
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wuninitialized"
+// Deep -O3 inlining (as happens in unity builds) makes GCC emit its
+// flow-sensitive -Wmaybe-uninitialized variant instead of -Wuninitialized; it
+// is the same false positive (the two 64-bit inserts below fully define
+// mask_sse). Guarded to real GCC: Clang has no such warning and would trip
+// -Wunknown-warning-option under -Werror.
+#if !defined(__clang__)
+#pragma GCC diagnostic ignored "-Wmaybe-uninitialized"
+#endif
 #endif
 	simde__m128i mask_sse;
 	mask_sse = simde_mm_insert_epi64(mask_sse, ((bitmask & 1U) << 31) | ((bitmask & 2U) << 62), 0);

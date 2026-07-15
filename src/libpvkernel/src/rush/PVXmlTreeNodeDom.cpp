@@ -44,11 +44,6 @@
 #include "pvkernel/filter/PVFieldsFilterParamWidget.h"
 #include "type_safe/strong_typedef.hpp"
 
-#define dbg                                                                                        \
-	{                                                                                              \
-		qDebug() << __FILE__ << ":" << __LINE__;                                                   \
-	}
-
 /******************************************************************************
  *
  * PVRush::PVXmlTreeNodeDom::PVXmlTreeNodeDom

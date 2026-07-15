@@ -47,6 +47,7 @@ if (WIN32)
 endif()
 
 add_executable(squey ${EXE_OPTIONS} ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS} ${RC_FILES_SRCS})
+squey_speedup_compilation(squey QT)
 
 set_property(TARGET squey APPEND PROPERTY LINK_FLAGS)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Widgets_EXECUTABLE_COMPILE_FLAGS}")

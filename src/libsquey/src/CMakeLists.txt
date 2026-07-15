@@ -88,6 +88,7 @@ set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets)
 add_library(pvsquey SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${MOC_SRC})
 target_compile_definitions(pvsquey PRIVATE PVSQUEY_LIBRARY)
 set_target_properties(pvsquey PROPERTIES SOVERSION 1)
+squey_speedup_compilation(pvsquey QT)
 
 target_link_libraries(pvsquey pvkernel ${QT6_LIBS} ${TBB_LIBRARIES}
 			     ${Boost_LIBRARIES} ${ICU_LIBRARY}

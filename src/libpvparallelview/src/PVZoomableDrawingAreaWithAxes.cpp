@@ -46,25 +46,6 @@
 
 #define AXIS_MARGIN 0
 
-#define print_r(R) print_rect(R)
-#define print_rect(R) __print_rect(#R, R)
-
-template <typename R>
-void __print_rect(const char* text, const R& r)
-{
-	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
-	          << std::endl;
-}
-
-#define print_s(V) print_scalar(V)
-#define print_scalar(V) __print_scalar(#V, V)
-
-template <typename V>
-void __print_scalar(const char* text, const V& v)
-{
-	std::cout << text << ": " << v << std::endl;
-}
-
 /**
  * NOTE:
  * * do not forget the scene is defined in (0, -N, N, N), the screen's top value

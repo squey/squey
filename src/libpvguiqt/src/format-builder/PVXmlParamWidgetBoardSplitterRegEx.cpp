@@ -26,11 +26,6 @@
 #include <PVXmlParamWidgetBoardSplitterRegEx.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
-#define dbg                                                                                        \
-	{                                                                                              \
-		qDebug() << __FILE__ << ":" << __LINE__;                                                   \
-	}
-
 /******************************************************************************
  *
  * App::PVXmlParamWidgetBoardSplitterRegEx::PVXmlParamWidgetBoardSplitterRegEx

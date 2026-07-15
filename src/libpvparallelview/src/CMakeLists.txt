@@ -163,6 +163,7 @@ set(LINK_LIBRARIES pvkernel pvsquey pvdisplays ${QT6_LIBS}
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
+squey_speedup_compilation(pvparallelview QT)
 
 target_link_libraries(pvparallelview ${LINK_LIBRARIES})
 

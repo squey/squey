@@ -74,3 +74,17 @@ add_definitions(-DSQUEY_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 set(EMAIL_ADDRESS_CONTACT "contact@squey.org")
 
 add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
+
+###############################################################################
+# Compilation speed-up (from-scratch builds, no cache required)
+###############################################################################
+
+# Unity (jumbo) builds: group several source files into a single translation
+# unit so the heavy Qt/Boost/Arrow headers are parsed once per batch instead of
+# once per file.
+OPTION(SQUEY_UNITY_BUILD "Group source files into unity (jumbo) builds to speed up compilation" ON)
+set(SQUEY_UNITY_BUILD_BATCH_SIZE "16" CACHE STRING "Number of source files merged per unity build batch")
+
+# Precompiled headers: pre-parse the heaviest standard/Qt headers once per
+# target and reuse the result for every translation unit.
+OPTION(SQUEY_PCH "Use precompiled headers to speed up compilation" ON)

@@ -22,6 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#ifndef PVSTRINGLISTCHOOSERWIDGET_H
+#define PVSTRINGLISTCHOOSERWIDGET_H
+
 #include <QWidget>
 #include <QDialog>
 #include <QStringList>
@@ -50,3 +53,5 @@ class PVStringListChooserWidget : public QDialog
 	QStringList _final_list;
 };
 } // namespace App
+
+#endif // PVSTRINGLISTCHOOSERWIDGET_H

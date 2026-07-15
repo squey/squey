@@ -39,11 +39,6 @@
 #include <qglobal.h>
 #include <QDragMoveEvent>
 
-#define dbg()                                                                                      \
-	{                                                                                              \
-		qDebug() << __FILE__ << __LINE__;                                                          \
-	}
-
 /******************************************************************************
  *
  * App::PVXmlTreeView::PVXmlTreeView
