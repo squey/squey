@@ -418,10 +418,15 @@ void PVSeriesViewZoomer::leaveEvent(QEvent*)
 
 void PVSeriesViewZoomer::wheelEvent(QWheelEvent* event)
 {
-	if (event->angleDelta().y() > 0) {
-		zoom_in(event->position(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
-	} else if (event->angleDelta().y() < 0) {
-		zoom_out(event->position(), event->modifiers() & Qt::ControlModifier, _centered_zoom_factor);
+	const int steps = _wheel_accumulator.steps(event->angleDelta().y());
+	const bool ctrl = event->modifiers() & Qt::ControlModifier;
+	const int notches = steps > 0 ? steps : -steps;
+	for (int i = 0; i < notches; ++i) {
+		if (steps > 0) {
+			zoom_in(event->position(), ctrl, _centered_zoom_factor);
+		} else {
+			zoom_out(event->position(), ctrl, _centered_zoom_factor);
+		}
 	}
 }
 

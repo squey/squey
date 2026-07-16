@@ -139,13 +139,13 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
 	}
 
 	PVHitCountView* hcv = get_hit_count_view(zda);
-	int inc = (event->angleDelta().y() > 0) ? 1 : -1;
+	int inc = _wheel_accumulator.steps(event->angleDelta().y());
 
 	if (mask & PVZoomableDrawingAreaConstraints::X) {
 
 		event->setAccepted(true);
 
-		if (increment_zoom_value(hcv, mask, inc)) {
+		if (inc != 0 && increment_zoom_value(hcv, mask, inc)) {
 			QPointF scene_pos = hcv->map_margined_to_scene(QPointF(0, 0));
 
 			hcv->reconfigure_view();
@@ -155,20 +155,19 @@ bool PVParallelView::PVHitCountViewInteractor::wheelEvent(PVZoomableDrawingArea*
 
 			hcv->get_viewport()->update();
 			zoom_has_changed(hcv, mask);
-			return true;
 		}
+		return true;
 	} else if (mask != 0) {
-		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
 
 		event->setAccepted(true);
 
-		if (increment_zoom_value(zda, mask, inc)) {
+		if (inc != 0 && increment_zoom_value(zda, mask, inc)) {
 			hcv->request_auto_scale();
 			zda->reconfigure_view();
 			zda->get_viewport()->update();
 			zoom_has_changed(zda, mask);
-			return true;
 		}
+		return true;
 	}
 
 	return false;

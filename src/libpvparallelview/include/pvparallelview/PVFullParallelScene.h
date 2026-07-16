@@ -30,6 +30,8 @@
 #include <QGraphicsSceneMouseEvent>
 #include <QGraphicsSceneWheelEvent>
 
+#include <pvkernel/widgets/PVWheelEventAccumulator.h>
+
 #include <sigc++/sigc++.h>
 
 #include <squey/PVAxis.h>
@@ -269,6 +271,9 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	bool _show_min_max_values;
 	bool _density_on_axes_enabled = false;
+
+	// Only zoom once per whole physical wheel notch (ignore high-resolution sub-notch events).
+	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;
 };
 } // namespace PVParallelView
 

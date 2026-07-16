@@ -108,11 +108,11 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorMajorY::wheelEvent(
 	}
 
 	if (mask != 0) {
-		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
+		int inc = _wheel_accumulator.steps(event->angleDelta().y());
 
 		event->setAccepted(true);
 
-		if (increment_zoom_value(zda, mask, inc)) {
+		if (inc != 0 && increment_zoom_value(zda, mask, inc)) {
 			zda->reconfigure_view();
 			zda->get_viewport()->update();
 			zoom_has_changed(zda, mask);

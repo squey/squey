@@ -26,6 +26,7 @@
 #define PVPARALLELVIEW_PVZOOMABLEDRAWINGAREAINTERACTOR_H
 
 #include <pvkernel/widgets/PVGraphicsViewInteractor.h>
+#include <pvkernel/widgets/PVWheelEventAccumulator.h>
 #include <pvparallelview/PVZoomableDrawingArea.h>
 
 namespace PVParallelView
@@ -105,6 +106,11 @@ class PVZoomableDrawingAreaInteractor
 	{
 		Q_EMIT zda->pan_has_changed();
 	}
+
+  protected:
+	// Accumulates wheel deltas so that zooming only steps once per whole physical wheel
+	// notch (ignoring high-resolution sub-notch events).
+	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;
 };
 } // namespace PVParallelView
 

@@ -28,6 +28,8 @@
 #include <pvguiqt/PVTableView.h>
 #include <pvbase/types.h>
 
+#include <pvkernel/widgets/PVWheelEventAccumulator.h>
+
 #include <QStyledItemDelegate>
 #include <QTextDocument>
 
@@ -200,7 +202,8 @@ class PVAbstractTableView : public PVTableView
 	void validate_selection();
 
   private:
-	double _scroll_accumulator_y = 0.0;
+	// Only scroll once per whole physical wheel notch (ignore high-resolution sub-notch events).
+	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;
 	PVHyperlinkDelegate* _hyperlink_delegate = nullptr;
 	size_t _hyperlink_delegate_max_index = 0;
 

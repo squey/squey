@@ -29,6 +29,8 @@
 #include <QLabel>
 #include <QBasicTimer>
 
+#include <pvkernel/widgets/PVWheelEventAccumulator.h>
+
 namespace Squey
 {
 class PVRangeSubSampler;
@@ -171,6 +173,9 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	const zoom_f _centered_zoom_factor = 0.8;
 	bool _selecting_mode_disabled = false;
+
+	// Only zoom once per whole physical wheel notch (ignore high-resolution sub-notch events).
+	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;
 };
 } // namespace PVParallelView
 

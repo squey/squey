@@ -564,21 +564,12 @@ void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 void PVAbstractTableView::wheelEvent(QWheelEvent* e)
 {
-	// delta is wheel movement in degree. QtWheelEvent doc give this formule
-	// to convert it to "wheel step"
-	// http://doc.qt.io/qt-5/qwheelevent.html
-	double complete_scroll_angle = 120.0;
-	double delta_y = e->angleDelta().y() / 8.0 * 15.0;
-
-	// anti-sticky : reset accumulator when changing scrolling direction
-	if (delta_y * _scroll_accumulator_y < 0) {
-		_scroll_accumulator_y = 0;
-	}
-	_scroll_accumulator_y += delta_y;
-
-	if (std::abs(_scroll_accumulator_y) >= complete_scroll_angle) {
-		move_by(_scroll_accumulator_y > 0 ? -1 : 1);
-		_scroll_accumulator_y += _scroll_accumulator_y > 0 ? -complete_scroll_angle : complete_scroll_angle;
+	// Only move once per whole physical wheel notch, so high-resolution mice/touchpads
+	// don't scroll several rows per notch.
+	const int steps = _wheel_accumulator.steps(e->angleDelta().y());
+	if (steps != 0) {
+		// wheeling up (positive) scrolls towards the previous rows
+		move_by(-steps);
 	}
 	e->accept(); // I am the one who handle event
 }
