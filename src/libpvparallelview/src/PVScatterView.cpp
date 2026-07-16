@@ -117,9 +117,9 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 
 	/* axis zoom
 	 */
-	get_x_axis_zoom().set_range(zoom_min, zoom_extra);
+	get_x_axis_zoom().set_range(zoom_out_limit, zoom_extra);
 	get_x_axis_zoom().set_default_value(zoom_min);
-	get_y_axis_zoom().set_range(zoom_min, zoom_extra);
+	get_y_axis_zoom().set_range(zoom_out_limit, zoom_extra);
 	get_y_axis_zoom().set_default_value(zoom_min);
 
 	set_zoom_value(PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
@@ -567,17 +567,29 @@ void PVParallelView::PVScatterView::update_labels_cache()
  *****************************************************************************/
 void PVParallelView::PVScatterView::do_update_all()
 {
-	QRectF view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
-
 	uint64_t y1_min, y1_max, y2_min, y2_max;
 	int64_t zoom;
 	double alpha;
 
 	_sel_rect->set_handles_scale(1. / get_transform().m11(), 1. / get_transform().m22());
 
-	if (get_y_axis_zoom().get_clamped_value() < zoom_min) {
-		get_viewport()->update();
-		return;
+	const int zoom_value = get_y_axis_zoom().get_clamped_value();
+
+	// zoom_min is the coarsest level the backend can render (the quadtree root, where the
+	// whole scene maps to a fixed-size image). When zooming out further, the backend can't
+	// produce anything coarser, so we keep rendering the *whole* scene at the root level and
+	// rescale that complete image down. Rendering the visible region instead would leave
+	// unrendered (black) areas, because below zoom_min the scene becomes smaller than the
+	// viewport (and the render zoom value would even go negative, which the backend, taking
+	// an unsigned zoom, cannot handle).
+	const bool below_root = zoom_value < zoom_min;
+	const int render_zoom_value = below_root ? zoom_min : zoom_value;
+
+	QRectF view_rect;
+	if (below_root) {
+		view_rect = get_scene_rect();
+	} else {
+		view_rect = get_scene_rect().intersected(map_to_scene(get_margined_viewport_rect()));
 	}
 
 	// Hack to revert scaling inversion
@@ -586,13 +598,36 @@ void PVParallelView::PVScatterView::do_update_all()
 	y2_min = view_rect.y();
 	y2_max = view_rect.y() + view_rect.height();
 
-	zoom = (get_y_axis_zoom().get_clamped_value() - zoom_min);
+	zoom = (render_zoom_value - zoom_min);
 	alpha = 0.5 * _zoom_converter->zoom_to_scale_decimal(zoom);
 	zoom = (zoom / zoom_steps) + 1;
 
-	_last_image_margined_viewport = QRectF(0.0, 0.0, get_x_axis_length(), get_y_axis_length());
+	const QTransform mv2s = get_transform_from_margined_viewport() * get_transform_to_scene();
 
-	_last_image_mv2s = get_transform_from_margined_viewport() * get_transform_to_scene();
+	if (below_root) {
+		// The root image always occupies the same fixed size in the render buffer (the whole
+		// scene at the zoom_min scale). Copy that whole region and pre-scale it so that
+		// re-projection by get_transform_from_scene() (using the current, smaller scale)
+		// shrinks the *complete* scene image down to its on-screen size.
+		const qreal ratio_x = x_zoom_to_scale(zoom_value) / x_zoom_to_scale(zoom_min);
+		const qreal ratio_y = y_zoom_to_scale(zoom_value) / y_zoom_to_scale(zoom_min);
+		const qreal w_min = get_scene_rect().width() * x_zoom_to_scale(zoom_min);
+		const qreal h_min = get_scene_rect().height() * y_zoom_to_scale(zoom_min);
+
+		QTransform scale_to_root;
+		scale_to_root.scale(ratio_x, ratio_y);
+
+		_last_image_margined_viewport = QRectF(0.0, 0.0, w_min, h_min);
+		_last_image_mv2s = scale_to_root * mv2s;
+
+		// The backend image is only re-rendered once below zoom_min (its parameters are
+		// constant), so keep the displayed images' placement in sync on every frame.
+		_image_bg.set_mv2s(_last_image_mv2s);
+		_image_sel.set_mv2s(_last_image_mv2s);
+	} else {
+		_last_image_margined_viewport = QRectF(0.0, 0.0, get_x_axis_length(), get_y_axis_length());
+		_last_image_mv2s = mv2s;
+	}
 
 	if (_backend) {
 		// PVLOG_INFO("y1_min: %u / y2_min: %u\n", y1_min, y2_min);
