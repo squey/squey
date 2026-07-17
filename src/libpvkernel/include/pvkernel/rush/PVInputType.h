@@ -79,6 +79,9 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
         PVFormat& /*format*/
 	) const { return false; }
 
+	virtual bool has_generated_format() const { return false; }
+	virtual PVFormat get_format_from_inputs(list_inputs const& /*inputs*/) const { return {}; }
+
 	/* exporter */
 	virtual std::unique_ptr<PVRush::PVExporterBase>
 	create_exporter(const list_inputs& /*inputs*/, PVRush::PVNraw const& /*nraw*/) const

@@ -39,8 +39,6 @@ struct PVSerializedSource {
 	std::string sc_name;
 	std::string format_name;
 	std::string format_path;
-
-	bool need_credential() const { return sc_name != "text_file"; }
 };
 } // namespace PVCore
 

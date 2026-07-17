@@ -51,8 +51,15 @@ class PVSourceDescription
 	explicit PVSourceDescription(PVCore::PVSerializedSource const& s)
 	    : _source_creator_p(LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(
 	          QString::fromStdString(s.sc_name)))
-	    , _format(QString::fromStdString(s.format_name), QString::fromStdString(s.format_path))
 	{
+		// A format generated from the data (e.g. Parquet) is not stored on disk: it
+		// can't be loaded from a path (PVFormat would throw) and is left empty here,
+		// to be regenerated from the inputs when the source is actually loaded.
+		if (not s.format_path.empty()) {
+			_format = PVRush::PVFormat(QString::fromStdString(s.format_name),
+			                           QString::fromStdString(s.format_path));
+		}
+
 		PVRush::PVInputType_p input_type_p = _source_creator_p->supported_type_lib();
 		for (auto const& p : s.input_desc) {
 			_inputs << input_type_p->load_input_from_string(p, s.input_desc.size() > 1);

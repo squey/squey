@@ -32,6 +32,12 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/pointer.h>
 
+#include <QSettings>
+
+#include <memory>
+#include <string>
+#include <vector>
+
 namespace PVRush
 {
 
@@ -53,6 +59,43 @@ class PVParquetFileDescription : public PVFileDescription
 
   private:
   	QStringList _paths;
+
+  public:
+
+	bool operator==(const PVInputDescription& other) const override
+	{
+		auto const* o = dynamic_cast<const PVParquetFileDescription*>(&other);
+		return o != nullptr and _paths == o->_paths;
+	}
+
+	void save_to_qsettings(QSettings& settings) const override
+	{
+		settings.setValue("paths", _paths);
+	}
+
+	static std::vector<std::string> desc_from_qsetting(QSettings const& s)
+	{
+		QStringList paths = s.value("paths").toStringList();
+		if (paths.isEmpty()) { // repli sur l'ancienne clé mono-fichier
+			paths << s.value("path").toString();
+		}
+		std::vector<std::string> res;
+		res.reserve(paths.size());
+		for (const QString& path : paths) {
+			res.push_back(path.toStdString());
+		}
+		return res;
+	}
+
+	static std::unique_ptr<PVInputDescription> load_from_string(pvcop::db::format const& fields,
+	                                                            bool /*multi_inputs*/)
+	{
+		QStringList paths;
+		for (const std::string& field : fields) {
+			paths << QString::fromStdString(field);
+		}
+		return std::unique_ptr<PVParquetFileDescription>(new PVParquetFileDescription(paths));
+	}
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const override

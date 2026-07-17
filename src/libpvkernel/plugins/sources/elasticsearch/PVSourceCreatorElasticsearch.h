@@ -41,6 +41,7 @@ class PVSourceCreatorElasticsearch : public PVSourceCreator
 	source_p create_source_from_input(PVInputDescription_p input) const override;
 	QString supported_type() const override;
 	QString name() const override;
+	bool need_credential() const override { return true; }
 
 	CLASS_REGISTRABLE(PVSourceCreatorElasticsearch)
 };

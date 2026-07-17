@@ -383,7 +383,10 @@ void PVGuiQt::PVStartScreenWidget::dispatch_action(const QString& id)
 	}
 	case PVCore::Category::SOURCES: {
 		auto ss = var.value<PVCore::PVSerializedSource>();
-		if (ss.need_credential()) {
+		PVRush::PVSourceCreator_p source_creator =
+		    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(
+		        QString::fromStdString(ss.sc_name));
+		if (source_creator and source_creator->need_credential()) {
 			PVGuiQt::CredentialDialog dial;
 			if (dial.exec() != QDialog::Accepted) {
 				break;
@@ -499,12 +502,15 @@ PVGuiQt::__impl::PVListWidgetItem::PVListWidgetItem(
 	QString short_string;
 	switch (cat) {
 	case PVCore::Category::SOURCES: {
-		size_t brac_open_pos = long_string.indexOf("[");
-		size_t brac_close_pos = long_string.indexOf("]");
-		QString format_name = long_string.mid(brac_open_pos, brac_close_pos);
+		// Sources with a generated format (e.g. Parquet) have no "[format]" part.
+		qsizetype brac_open_pos = long_string.indexOf("[");
+		qsizetype brac_close_pos = long_string.indexOf("]");
+		QString format_name =
+		    (brac_open_pos >= 0) ? long_string.mid(brac_open_pos, brac_close_pos) : QString();
+		QString path_part = (brac_open_pos >= 0) ? long_string.left(brac_open_pos) : long_string;
 		if (filenames.size() == 1) {
 			short_string =
-			    PVWidgets::PVUtils::shorten_path(long_string.left(brac_open_pos),
+			    PVWidgets::PVUtils::shorten_path(path_part,
 			                                     *PVGuiQt::PVStartScreenWidget::_item_font,
 			                                     PVGuiQt::PVStartScreenWidget::_item_width) +
 			    format_name;

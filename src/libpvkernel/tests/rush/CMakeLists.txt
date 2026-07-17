@@ -229,6 +229,10 @@ add_squey_test(Trush_apache_parquet_offset Trush_apache_parquet_import_export ${
 add_squey_test(Trush_apache_parquet_nested_complex_types Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.csv)
 add_squey_compile_test(Trush_apache_parquet_extended_types LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_extended_types.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_extended_types Trush_apache_parquet_extended_types)
+add_squey_compile_test(Trush_recent_items LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES recent_items.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/tiny.csv ${PVRUSH_TEST_FILES}/formats/tiny-with-ac-v10.csv.format ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/../../pvconfig.ini)
+# Isolate the recent items file (recents.ini) from the real user configuration.
+set_tests_properties(SQUEY_TEST_Trush_recent_items PROPERTIES ENVIRONMENT "SQUEY_CONFIG_DIR=${CMAKE_CURRENT_BINARY_DIR}/recent_items_test_config")
 
 file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)
