@@ -470,7 +470,7 @@ void App::PVFormatBuilderWidget::slotSetAxesName()
 	tr("Space separated column names:"), QLineEdit::Normal, "", &ok);
 	if (ok) {
 		axes_name_text.replace("\n", "");
-		QStringList axes_name_list = axes_name_text.split(" ");
+		QStringList axes_name_list = axes_name_text.split(" ", Qt::SkipEmptyParts);
 		myTreeModel->setAxesNames(axes_name_list);
 	}
 }

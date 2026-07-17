@@ -407,10 +407,18 @@ void App::PVXmlDomModel::deleteSelection(QModelIndex const& index)
 	if (index.isValid()) {
 		PVRush::PVXmlTreeNodeDom* nodeASupprimer = nodeFromIndex(index);
 		if (nodeASupprimer != rootNode.get()) {
+			// Notify the view *before* the removal so that Qt invalidates the
+			// persistent indexes (including the current index) pointing at the node
+			// we are about to free, which prevents a use-after-free on repaint.
+			beginRemoveRows(parent(index), index.row(), index.row());
 			nodeASupprimer->deleteFromTree();
+			// deleteFromTree() only detaches the node from the DOM and from its
+			// parent's children list; it is never reparented to a QObject owner, so
+			// it (and its whole subtree) must be freed explicitly to avoid a leak.
+			delete nodeASupprimer;
+			endRemoveRows();
 			Q_EMIT layoutChanged();
 		}
-	} else {
 	}
 }
 
@@ -609,6 +617,10 @@ PVRush::PVXmlTreeNodeDom* App::PVXmlDomModel::addSplitterWithAxes(
     QStringList axesName)
 {
 	PVRush::PVXmlTreeNodeDom* splitter_node = addSplitter(index, splitterPlugin);
+	if (splitter_node == nullptr) {
+		// addSplitter refused to add the splitter (wrong selected node or conflict).
+		return nullptr;
+	}
 
 	for (auto & i : axesName) {
 		// TODO: we should be able to create a field and/or an axis from separate functions !!!!!
@@ -815,13 +827,13 @@ void App::PVXmlDomModel::openXml(QDomDocument& doc)
 		xmlRootDom.removeChild(axes_cb_elt);
 	}
 
+	// beginResetModel() must be emitted *before* mutating the model's data.
+	beginResetModel();
 	rootNode = std::make_unique<PVRush::PVXmlTreeNodeDom>(PVRush::PVXmlTreeNodeDom::Type::field, "root",
 	                                            xmlRootDom, xmlFile);
-
-	beginResetModel();
 	endResetModel();
 
-	Q_EMIT layoutChanged(); // to resfresh screen
+	Q_EMIT layoutChanged(); // to refresh screen (also triggers the format preview)
 }
 
 bool App::PVXmlDomModel::hasFormatChanged() const

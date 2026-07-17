@@ -1051,9 +1051,18 @@ QString PVRush::PVXmlTreeNodeDom::getScalingProperties(PVCore::PVArgumentList co
 
 void PVRush::PVXmlTreeNodeDom::deleteAllAttributes(QDomElement& elt)
 {
+	// 'map_attrs' is a live view over the element's attributes: removing an
+	// attribute shrinks it and shifts the remaining indices, so iterating with
+	// an increasing index while removing would skip every other attribute.
+	// Gather the names first, then remove them.
 	QDomNamedNodeMap map_attrs = elt.attributes();
+	QStringList attr_names;
+	attr_names.reserve(map_attrs.size());
 	for (int i = 0; i < map_attrs.size(); i++) {
-		elt.removeAttribute(map_attrs.item(i).toAttr().name());
+		attr_names << map_attrs.item(i).toAttr().name();
+	}
+	for (QString const& name : attr_names) {
+		elt.removeAttribute(name);
 	}
 }
 

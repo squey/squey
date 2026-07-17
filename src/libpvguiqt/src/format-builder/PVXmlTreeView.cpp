@@ -248,7 +248,9 @@ void App::PVXmlTreeView::deleteSelection()
 			}
 		}
 		getModel()->deleteSelection(index);
-		parent = index.parent();
+		// Reuse the parent index captured *before* the deletion: the deleted node is
+		// now freed, so re-deriving index.parent() would dereference freed memory.
+		parent = parentIndex;
 	}
 
 	if (!parent.isValid()) {

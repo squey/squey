@@ -82,7 +82,7 @@ void App::PVXmlParamWidgetBoardFilter::allocBoardFields()
 void App::PVXmlParamWidgetBoardFilter::disableConnexion()
 {
 	disconnect(name, &QLineEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
-	disconnect(exp, SIGNAL(textChanged()), validWidget, SLOT(setRegEx(const QString&)));
+	disconnect(exp, SIGNAL(textChanged()), validWidget, SLOT(setRegEx()));
 	disconnect(exp, &QTextEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
 	disconnect(validWidget, &QTextEdit::textChanged, this,
 	           &PVXmlParamWidgetBoardFilter::slotSetValues);
@@ -147,7 +147,8 @@ void App::PVXmlParamWidgetBoardFilter::initConnexion()
 	connect(exp, &QTextEdit::textChanged, this, &PVXmlParamWidgetBoardFilter::slotSetValues);
 	connect(validWidget, &QTextEdit::textChanged, this,
 	        &PVXmlParamWidgetBoardFilter::slotSetValues);
-	connect(typeOfFilter, SIGNAL(currentIndexChanged(const QString&)), this, SLOT(slotSetValues()));
+	connect(typeOfFilter, QOverload<int>::of(&QComboBox::currentIndexChanged), this,
+	        &PVXmlParamWidgetBoardFilter::slotSetValues);
 	connect(buttonNext, &QAbstractButton::clicked, this,
 	        &PVXmlParamWidgetBoardFilter::slotEmitNext);
 }

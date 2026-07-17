@@ -34,7 +34,9 @@
 App::PVXmlParamComboBox::PVXmlParamComboBox(QString name) : QComboBox()
 {
 	setObjectName(name);
-	setModel(new PVComboBoxModel(_dis_elt));
+	// QComboBox::setModel() does not take ownership of the model, so parent it to
+	// the combo box to avoid leaking it when the combo box is destroyed.
+	setModel(new PVComboBoxModel(_dis_elt, this));
 }
 
 /******************************************************************************

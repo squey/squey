@@ -154,7 +154,7 @@ void App::PVNrawListingWidget::set_last_input(PVRush::PVInputType_p in_t,
 
 void App::PVNrawListingWidget::resize_columns_content()
 {
-	for (int col = 1; col < _nraw_table->model()->columnCount(); col++) {
+	for (int col = 0; col < _nraw_table->model()->columnCount(); col++) {
 		_nraw_table->resizeColumnToContents(col);
 	}
 }

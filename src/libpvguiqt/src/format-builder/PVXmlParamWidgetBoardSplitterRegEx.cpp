@@ -241,14 +241,18 @@ void App::PVXmlParamWidgetBoardSplitterRegEx::initConnexion()
 	        &PVXmlParamWidgetBoardSplitterRegEx::slotVerifRegExpInName); // to verify if regexp is
 	                                                                     // write in name.
 	// tab regexp
-	connect(exp, SIGNAL(textChanged(const QString&)), validWidget,
-	        SLOT(setRegEx(const QString&))); // to update regexp
+	// NB: 'exp' is a QTextEdit, whose only textChanged() signal takes no argument.
+	// Connecting to textChanged(const QString&) silently failed at runtime (Qt6), so
+	// the highlighter and the field count were never refreshed while typing.
+	connect(exp, SIGNAL(textChanged()), validWidget,
+	        SLOT(setRegEx())); // to update regexp
 	connect(exp, &QTextEdit::textChanged, this,
 	        &PVXmlParamWidgetBoardSplitterRegEx::slotNoteConfirmationNeeded); // to note that we
 	                                                                          // need to confirm
 	                                                                          // change
-	connect(exp, SIGNAL(textChanged(const QString&)), this,
-	        SLOT(regExCount(const QString&))); // to update the numbre of field which are detected
+	connect(exp, &QTextEdit::textChanged, this, [this]() {
+		regExCount(exp->toPlainText());
+	}); // to update the number of fields which are detected
 	// connect(validWidget, SIGNAL(textChanged()), this, SLOT(slotNoteConfirmationNeeded()));//to
 	// note that we need to confirm change
 	connect(validWidget, &QTextEdit::textChanged, this,
@@ -464,7 +468,9 @@ void App::PVXmlParamWidgetBoardSplitterRegEx::slotUpdateTable()
 	updateHeaderTable();
 	for (int line = 0; line < myText.count(); line++) { // for each line...
 		QString myLine = myText.at(line);
-		if (reg.indexIn(myLine, 0)) {
+		// indexIn() returns the match position (>= 0) or -1 when there is no match.
+		// The previous 'if (indexIn(...))' skipped lines matching at position 0.
+		if (reg.indexIn(myLine, 0) != -1) {
 			for (int cap = 0; cap < reg.captureCount();
 			     cap++) { // for each column (regexp selection)...
 				reg.indexIn(myLine, 0);

@@ -80,8 +80,10 @@ void App::PVXmlRegValidatorHighLight::highlightBlock(const QString& text)
 		setFormat(0, text.size(), formatMacthLine); // set text color black
 		regExp.indexIn(text, 0);
 
-		// selection coloring
-		for (int i = 1; i <= regExp.matchedLength(); i++) {
+		// selection coloring: iterate over capture groups, not over the matched
+		// text length (matchedLength() is a character count, unrelated to the
+		// number of capturing groups).
+		for (int i = 1; i <= regExp.captureCount(); i++) {
 			setFormat(regExp.pos(i), regExp.cap(i).length(),
 			          formatMacthLineSelection); // underline each selection
 		}

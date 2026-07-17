@@ -392,6 +392,6 @@ void App::PVXmlParamWidgetBoardAxis::updateScalingParams()
 
 void App::PVXmlParamWidgetBoardAxis::slotShowTypeFormatHelp()
 {
-	auto dlg = new PVWidgets::PVTimeFormatHelpDlg(_type_format, parentWidget());
-	dlg->exec();
+	PVWidgets::PVTimeFormatHelpDlg dlg(_type_format, parentWidget());
+	dlg.exec();
 }
