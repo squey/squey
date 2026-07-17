@@ -206,6 +206,18 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	QObject::connect(toggle_zombies_shortcut, &QShortcut::activated, this, &App::PVMainWindow::events_display_unselected_zombies_parallelview_Slot);
 }
 
+App::PVMainWindow::~PVMainWindow()
+{
+	// View widgets (workspaces, PVViewDisplay) and their Qt models
+	// (PVLayerStackModel...) hold references to the PVView objects owned by
+	// _root. As a value member, _root is destroyed BEFORE the child widgets
+	// (destroyed by the base ~QWidget). During that teardown Qt may query a
+	// model (QEvent::StyleChange emitted while reparenting a QDockWidget),
+	// dereferencing an already-destroyed PVView -> SIGSEGV. Destroy the widget
+	// tree while _root is still alive.
+	delete takeCentralWidget();
+}
+
 bool App::PVMainWindow::event(QEvent* event)
 {
 	QString mime_type = "application/x-squey_workspace";
