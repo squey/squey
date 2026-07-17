@@ -88,6 +88,21 @@ add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp help
 add_squey_test(Trush_splitter_csv2 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv.out 7)
 add_squey_test(Trush_splitter_csv3 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv.out 2)
 add_squey_test(Trush_splitter_csv4 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv.out 20)
+# tshark -Tfields escape mode: escaped separators must not shift columns (argv[4]=92 is '\')
+add_squey_test(Trush_splitter_csv_tshark Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv.out 3 92)
+
+# End-to-end pcap import: a crafted pcap whose DNS TXT payloads embed the
+# pipeline's own CSV separator (0x7F) and a real newline, driven through the
+# real tshark invocation (requires tshark on PATH).
+# pvpcap (pcap_splitter.cpp) uses htons/ntohs, which on Windows live in ws2_32.
+if (WIN32)
+	set(PCAP_TEST_WINSOCK_LIBRARY "ws2_32")
+endif()
+add_squey_compile_test(Trush_pcap_tshark_escape LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_tshark_escape.cpp helpers.cpp)
+add_squey_test(Trush_pcap_tshark_escape Trush_pcap_tshark_escape ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
+# The test returns 77 to report itself skipped when tshark cannot be run (e.g. CI
+# outside a packaged install, where tshark_path() is not resolvable).
+set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_escape PROPERTIES SKIP_RETURN_CODE 77)
 
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)

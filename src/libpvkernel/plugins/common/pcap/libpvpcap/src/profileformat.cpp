@@ -71,6 +71,10 @@ PVRush::PVXmlTreeNodeDom* create_csv_spliter_format_root(QDomDocument& format_do
 	// Set csv quote and separator
 	csv_splitter_dom.setAttribute("quote", QString::fromStdString(ws_map_quote.at(pvpcap::QUOTE)));
 	csv_splitter_dom.setAttribute("sep", pvpcap::SEPARATOR);
+	// tshark's -Tfields output backslash-escapes any separator byte occurring in a
+	// value (and control bytes); tell the CSV splitter to unescape it so such bytes
+	// no longer shift the columns.
+	csv_splitter_dom.setAttribute("escape", "\\");
 	format_root->getDom().appendChild(csv_splitter_dom);
 
 	// create and attach splitter node

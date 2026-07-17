@@ -49,7 +49,7 @@ int main(int argc, char** argv)
 #endif
 
 	size_t n = 15;
-	if (argc == 4) {
+	if (argc >= 4) {
 		log_file = argv[1];
 #ifndef SQUEY_BENCH
 		ref_file = argv[2];
@@ -66,6 +66,11 @@ int main(int argc, char** argv)
 
 	PVCore::PVArgumentList args = sp_lib_p->get_args();
 	args["sep"] = QVariant(QChar(','));
+	// Optional argv[4]: ASCII code of the escape character (enables tshark-style
+	// escape-aware splitting). Passed as a number to avoid shell-escaping a backslash.
+	if (argc >= 5) {
+		args["escape"] = QVariant(QChar((char)std::atoi(argv[4])));
+	}
 	sp_lib_p->set_args(args);
 
 	auto ff =

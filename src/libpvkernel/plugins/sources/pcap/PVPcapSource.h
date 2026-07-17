@@ -61,6 +61,13 @@ class PVPcapSource : public PVUnicodeSource<>
   public:
 	void add_element(char* begin, char* end) override
 	{
+		// tshark emits \r\n line endings on Windows. PVUnicodeSource::add_element
+		// normally strips the trailing \r of a \r\n, but we override it, so do it
+		// here too: otherwise the CR stays glued to the packet's last field.
+		if (end > begin and *(end - 1) == '\r') {
+			--end;
+		}
+
 		size_t element_size = std::distance(begin, end);
 
 		const std::string& global_frame_number =
