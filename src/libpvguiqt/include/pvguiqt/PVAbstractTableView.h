@@ -168,6 +168,16 @@ class PVAbstractTableView : public PVTableView
 	void move_to_row(PVRow row);
 
 	/**
+	 * Move the current row, scrolling the listing only when the new current row
+	 * would fall out of the shown rows.
+	 *
+	 * @param[in] inc_rows : Number of rows to move by
+	 * @param[in] extend_selection : Whether the range selection is extended up to the
+	 *            new current row instead of being restarted on it
+	 */
+	void move_current_row_by(int inc_rows, bool extend_selection);
+
+	/**
 	 * Move the pagination information to be on a given page and update view.
 	 *
 	 * @param[in] page : Page to move on

@@ -103,6 +103,24 @@ class PVAbstractTableModel : public QAbstractTableModel
 	void end_selection(int row);
 
 	/**
+	 * Start a selection at a given position in the sorted and filtered display.
+	 *
+	 * @param[in] pos : Where we start the selection
+	 *
+	 * @note Unlike start_selection, it is not restricted to the shown rows.
+	 */
+	void start_selection_at_pos(ssize_t pos);
+
+	/**
+	 * Finish a selection at a given position in the sorted and filtered display.
+	 *
+	 * @param[in] pos : Where the selection is over
+	 *
+	 * @note Unlike end_selection, it is not restricted to the shown rows.
+	 */
+	void end_selection_at_pos(ssize_t pos);
+
+	/**
 	 * Commit the "in progress" selection in the current selection.
 	 *
 	 *
@@ -177,6 +195,12 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/// Accessors
 	size_t current_page() const { return _current_page; }
 	size_t& pos_in_page() { return _pos_in_page; }
+	/**
+	 * Position, in the sorted and filtered display, of the current row, that is the
+	 * one the keyboard navigation moves, or -1 when there is none.
+	 */
+	ssize_t current_row_pos() const { return _current_row_pos; }
+
 	/**
 	 * Move pagination information for many elements.
 	 *
@@ -296,6 +320,7 @@ class PVAbstractTableModel : public QAbstractTableModel
 	Squey::PVSelection _current_selection; //!< The current "visual" selection
 	ssize_t _start_sel;                     //!< Begin of the "in progress" selection
 	ssize_t _end_sel;                       //!< End of the "in progress" selection
+	ssize_t _current_row_pos; //!< Row moved by the keyboard navigation, -1 when there is none
 	bool _in_select_mode; //!< Whether elements should be selected of unselected from "in progress"
 	// selection to current selection.
 	selection_mode_t _selection_mode; //!< the selection mode

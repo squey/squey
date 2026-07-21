@@ -48,6 +48,7 @@ PVAbstractTableModel::PVAbstractTableModel(int row_count, QObject* parent)
     , _current_selection(row_count)
     , _start_sel(-1)
     , _end_sel(-1)
+    , _current_row_pos(-1)
     , _in_select_mode(true)
     , _selection_mode(SET)
 	, _sorted_col(-1)
@@ -86,6 +87,7 @@ void PVAbstractTableModel::reset_selection()
 void PVAbstractTableModel::clear_selection()
 {
 	_start_sel = _end_sel = -1;
+	_current_row_pos = -1;
 }
 
 /******************************************************************************
@@ -96,7 +98,18 @@ void PVAbstractTableModel::clear_selection()
 void PVAbstractTableModel::start_selection(int row)
 {
 	assert(row != -1 && "Should be called only on checked row");
-	_end_sel = _start_sel = row_pos(row);
+	start_selection_at_pos(row_pos(row));
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableModel::start_selection_at_pos
+ *
+ *****************************************************************************/
+void PVAbstractTableModel::start_selection_at_pos(ssize_t pos)
+{
+	_end_sel = _start_sel = pos;
+	_current_row_pos = pos;
 	_in_select_mode = not _current_selection.get_line_fast(_display.row_pos_to_index(_end_sel));
 }
 
@@ -108,18 +121,29 @@ void PVAbstractTableModel::start_selection(int row)
 void PVAbstractTableModel::end_selection(int row)
 {
 	if (row != -1) {
-		if (_start_sel == -1) {
-			/* if the range selection has been previously reset, doing a shift+left
-			 * mouse button
-			 * in PVAbstractTableView will call this method; _start_sel must also be
-			 * initialized
-			 * to 0 to have a valid range selection in compliance with QTableView
-			 * behaviour.
-			 */
-			_start_sel = 0;
-		}
-		_end_sel = row_pos(row);
+		end_selection_at_pos(row_pos(row));
 	}
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableModel::end_selection_at_pos
+ *
+ *****************************************************************************/
+void PVAbstractTableModel::end_selection_at_pos(ssize_t pos)
+{
+	if (_start_sel == -1) {
+		/* if the range selection has been previously reset, doing a shift+left
+		 * mouse button
+		 * in PVAbstractTableView will call this method; _start_sel must also be
+		 * initialized
+		 * to 0 to have a valid range selection in compliance with QTableView
+		 * behaviour.
+		 */
+		_start_sel = 0;
+	}
+	_end_sel = pos;
+	_current_row_pos = pos;
 }
 
 /******************************************************************************
@@ -409,7 +433,7 @@ void PVAbstractTableModel::sorted(PVCombCol col, Qt::SortOrder order)
 	// Commit the range selection to make the selected rows persistent
 	commit_selection();
 	// And reset the range selection which does not have sense anymore.
-	_end_sel = _start_sel = -1;
+	clear_selection();
 	_sorted_col = col;
 	_sort_order = order;
 }
