@@ -105,7 +105,7 @@ if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
 fi
 
 if [ "$EXPORT_BUILD" = false ]; then
-  bst $BUILD_OPTIONS build squey.bst
+  bst $BUILD_OPTIONS build --retry-failed squey.bst
 elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak repository
 
   if [[ ! -z "$GPG_PRIVATE_KEY_PATH" ]]; then
