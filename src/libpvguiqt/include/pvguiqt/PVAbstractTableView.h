@@ -26,6 +26,7 @@
 #define PVGUIQT_PVABSTRACTTABLEVIEW_H
 
 #include <pvguiqt/PVTableView.h>
+#include <pvguiqt/export.h>
 #include <pvbase/types.h>
 
 #include <pvkernel/widgets/PVWheelEventAccumulator.h>
@@ -66,7 +67,7 @@ private:
  * It has to be used with the PVAbstractTableModel to handle
  * huge tables.
  */
-class PVAbstractTableView : public PVTableView
+class PVGUIQT_EXPORT PVAbstractTableView : public PVTableView
 {
 	Q_OBJECT;
 

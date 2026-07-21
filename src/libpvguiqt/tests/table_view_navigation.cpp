@@ -70,6 +70,20 @@ class PVTestTableModel : public PVGuiQt::PVAbstractTableModel
 	QString export_line(int row, const QString&) const override { return QString::number(row); }
 };
 
+/**
+ * Counts the selection_commited signals emitted by a PVAbstractTableView.
+ */
+class PVSelectionCommitedCounter : public QObject
+{
+  public:
+	void on_selection_commited() { _count++; }
+
+	size_t count() const { return _count; }
+
+  private:
+	size_t _count = 0;
+};
+
 } // namespace
 
 static void press(QWidget& view, int key, Qt::KeyboardModifiers modifiers = Qt::NoModifier)
@@ -108,9 +122,10 @@ int main(int argc, char** argv)
 	QApplication::processEvents();
 
 	// Moving the current row must commit and notify as a mouse click does
-	size_t commited_count = 0;
-	QObject::connect(&view, &PVGuiQt::PVAbstractTableView::selection_commited,
-	                 [&commited_count]() { commited_count++; });
+	PVSelectionCommitedCounter commited;
+	PV_ASSERT_VALID(
+	    bool(QObject::connect(&view, &PVGuiQt::PVAbstractTableView::selection_commited, &commited,
+	                          &PVSelectionCommitedCounter::on_selection_commited)));
 
 	const ssize_t shown_rows = view.verticalScrollBar()->pageStep();
 	PV_ASSERT_VALID(shown_rows > 1, "shown_rows", shown_rows);
@@ -124,7 +139,7 @@ int main(int argc, char** argv)
 	PV_VALID(model.current_row_pos(), ssize_t(0));
 	PV_VALID(first_shown_pos(view, model), ssize_t(0));
 	// The current row is commited in the current selection and notified as a click is
-	PV_VALID(commited_count, size_t(1));
+	PV_VALID(commited.count(), size_t(1));
 	PV_ASSERT_VALID(model.current_selection().get_line(model.row_pos_to_index(0)));
 
 	// Moving down within the shown rows does not scroll the listing
@@ -175,11 +190,11 @@ int main(int argc, char** argv)
 	PV_VALID(model.current_selection().bit_count(), size_t(3));
 
 	// Control scrolls the listing without moving the current row nor touching the selection
-	const size_t commited_before_scroll = commited_count;
+	const size_t commited_before_scroll = commited.count();
 	press(view, Qt::Key_Down, Qt::ControlModifier);
 	PV_VALID(model.current_row_pos(), ssize_t(2));
 	PV_VALID(first_shown_pos(view, model), ssize_t(1));
-	PV_VALID(commited_count, commited_before_scroll);
+	PV_VALID(commited.count(), commited_before_scroll);
 
 	// The current row is brought back into the shown rows on the next move
 	press(view, Qt::Key_Up);
