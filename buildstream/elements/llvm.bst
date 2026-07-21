@@ -11,4 +11,4 @@ sources:
     - kind: ostree
       url: flathub:repo/
       track: org.freedesktop.Sdk.Extension.llvm21/x86_64/25.08
-      ref: 735476d3b5061b8d2cf45871b0331f8d0089b04b0db4799bec62927506b5d99e
+      ref: 28ae7e36dead6805e413a7959689ddf19c7fb9dfd8c4d59c251a34a35fb3088a

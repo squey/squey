@@ -6,8 +6,8 @@ description: |
 
 sources:
 - kind: tar
-  url: fossies:linux/privat/old/lbzip2-2.5.tar.gz
-  ref: 46c75ee93cc95eedc6005625442b2b8e59a2bef3ba80987d0491f055185650e9
+  url: github:/kjn/lbzip2/releases/download/v2.5/lbzip2-2.5.tar.bz2
+  ref: eec4ff08376090494fa3710649b73e5412c3687b4b9b758c93f73aa7be27555b
 
 - kind: patch
   path: buildstream/patches/lbzip2/lbzip2-2.5-glibc-2.28.patch

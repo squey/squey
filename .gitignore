@@ -12,6 +12,11 @@ buildstream/files/org.squey.Squey.metainfo.xml
 .bst/
 .bst2/
 
+#Ignore code quality analysis reports
+cppcheck.xml
+gl-code-quality-report.json
+code_quality_report/
+
 #Ignore doxygen compile documentation
 collection.qhc
 doxygen_sqlite3.db
