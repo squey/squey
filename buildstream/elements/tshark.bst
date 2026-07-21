@@ -6,8 +6,8 @@ description: |
 
 sources:
 - kind: tar
-  url: gitlab:wireshark/wireshark/-/archive/wireshark-4.4.9/wireshark-wireshark-4.4.9.tar.bz2
-  ref: a476c3435bbd5254840ad8c860cf55c853ac9c955f220984813c2ac677735cb5
+  url: gitlab:wireshark/wireshark/-/archive/v4.6.4/wireshark-v4.6.4.tar.bz2
+  ref: 51607771f25d80a70a83a1d6086dfcb36876c92b95782788c63f25c057ee2e01
 
 variables:
   cmake-local: >-
