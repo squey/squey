@@ -195,8 +195,10 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	 *
 	 * @param sel the new selection
 	 * @param update_ls a flag to tell to update the layer-stack or the post filter layer
+	 * @param emit_signal a flag to tell whether the views are notified. Set it to false for
+	 *        intermediate selections the views must not flicker through.
 	 */
-	void set_selection_view(PVSelection const& sel, bool update_ls = false);
+	void set_selection_view(PVSelection const& sel, bool update_ls = false, bool emit_signal = true);
 
 	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);

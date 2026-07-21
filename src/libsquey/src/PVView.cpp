@@ -561,14 +561,14 @@ void Squey::PVView::set_selection_from_layer(PVLayer const& layer)
  * Squey::PVView::set_selection_view
  *
  *****************************************************************************/
-void Squey::PVView::set_selection_view(PVSelection const& sel, bool update_ls)
+void Squey::PVView::set_selection_view(PVSelection const& sel, bool update_ls, bool emit_signal)
 {
 	_view_selection = sel;
 
 	if (update_ls) {
-		process_layer_stack();
+		process_layer_stack(emit_signal);
 	} else {
-		process_post_filter_layer();
+		process_post_filter_layer(emit_signal);
 	}
 }
 
