@@ -45,6 +45,9 @@ PVParallelView::PVViewRenderingContext::PVViewRenderingContext(Squey::PVView& vi
 	view_sp.get_parent<Squey::PVScaled>()._scaled_updated.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVViewRenderingContext::on_scaling_updated));
 
+	view_sp._selection_view_changed.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVViewRenderingContext::on_selection_view_changed));
+
 	view_sp._update_output_selection.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVViewRenderingContext::on_selection_updated));
 
@@ -110,6 +113,19 @@ void PVParallelView::PVViewRenderingContext::on_view_about_to_be_deleted()
 	view_about_to_be_deleted.emit();
 
 	PVParallelView::common::remove_rendering_context(*lib_view());
+}
+
+void PVParallelView::PVViewRenderingContext::on_selection_view_changed()
+{
+	if (_sliders_manager.is_committing_selection()) {
+		// the axis sliders are the ones defining the new selection
+		return;
+	}
+
+	/* the sliders no longer reflect the view's selection, keeping them visible
+	 * would wrongly suggest that they do
+	 */
+	_sliders_manager.del_all_selection_sliders();
 }
 
 void PVParallelView::PVViewRenderingContext::on_selection_updated()

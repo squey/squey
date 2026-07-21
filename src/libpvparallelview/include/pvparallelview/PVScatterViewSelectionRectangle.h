@@ -40,6 +40,8 @@ class PVScatterViewSelectionRectangle : public PVSelectionRectangle
 	explicit PVScatterViewSelectionRectangle(PVScatterView* sv);
 
   public:
+	void clear() override;
+
 	void set_scaleds(const uint32_t* y1_scaled, const uint32_t* y2_scaled, const PVRow nrows);
 
   protected:

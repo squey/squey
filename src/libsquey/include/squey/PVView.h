@@ -330,6 +330,13 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	sigc::signal<void()> _layer_stack_refreshed;
 	sigc::signal<void()> _toggle_unselected_zombie_visibility;
 	sigc::signal<void()> _update_layer_stack_output_layer;
+	/**
+	 * Emitted when the user selection is explicitly redefined (as opposed to
+	 * _update_output_selection which is also emitted whenever the layer stack
+	 * is reprocessed). It lets the views know that any selection widget still
+	 * displaying a previous selection has become stale.
+	 */
+	sigc::signal<void()> _selection_view_changed;
 	sigc::signal<void()> _update_output_selection;
 	sigc::signal<void()> _update_output_layer;
 	sigc::signal<void()> _toggle_unselected;

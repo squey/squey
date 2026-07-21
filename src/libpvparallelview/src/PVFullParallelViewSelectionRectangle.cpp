@@ -39,7 +39,7 @@
 
 PVParallelView::PVFullParallelViewSelectionRectangle::PVFullParallelViewSelectionRectangle(
     PVFullParallelScene* fps)
-    : PVSelectionRectangle(fps), _fps(fps)
+    : PVSelectionRectangle(fps, fps->lib_view()), _fps(fps)
 {
 }
 

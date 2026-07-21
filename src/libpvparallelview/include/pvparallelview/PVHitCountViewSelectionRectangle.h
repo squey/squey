@@ -53,6 +53,9 @@ class PVHitCountViewSelectionRectangle : public PVParallelView::PVSelectionRecta
 	 */
 	explicit PVHitCountViewSelectionRectangle(PVHitCountView* hcv);
 
+  public:
+	void clear() override;
+
   protected:
 	/**
 	 * selection commit for hit-count view

@@ -881,7 +881,12 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVC
 		}
 	}
 
+	/* while committing, the selection change notification which will be emitted
+	 * downstream must not discard the very sliders defining that selection
+	 */
+	_sm_p->set_committing_selection(true);
 	PVSelectionGenerator::process_selection(_lib_view, sel);
+	_sm_p->set_committing_selection(false);
 }
 
 /******************************************************************************
