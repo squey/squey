@@ -24,8 +24,6 @@ if [ "$GITLAB_CI" != "true" ]; then
     BST_PATH=".venv/bin/bst"
     if [ ! -x "${BST_PATH}" ] || [ $("${BST_PATH}" --version) != "${BST_VERSION}" ]; then
         pip install -r requirements_bst.txt
-        # Patch BuildStream to expose CAS socket in order to use recc from the build sandbox
-        sed '122 i \            buildbox_command.append("--bind-mount={}:/tmp/casd.sock".format(casd._socket_path))\n' -i .venv/lib/python*/site-packages/buildstream/sandbox/_sandboxbuildboxrun.py
     fi
 fi
 

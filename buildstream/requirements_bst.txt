@@ -1,7 +1,7 @@
-BuildStream==2.5.0
-dulwich==0.24.2
-click==8.2.1
-requests==2.32.5
-packaging==25.0
-protobuf==5.29.5
-tomlkit==0.13.3
+BuildStream==2.7.0
+dulwich==0.24.10
+click==8.4.2
+requests==2.34.2
+packaging==26.2
+protobuf==7.35.1
+tomlkit==0.15.1

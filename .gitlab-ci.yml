@@ -1,5 +1,5 @@
 variables:
-  BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:166ed698
+  BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:3937dd44
   GIT_SUBMODULE_STRATEGY: recursive
   CACHE_COMPRESSION_LEVEL: "fastest"
   CODE_COVERAGE:
