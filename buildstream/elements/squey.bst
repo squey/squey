@@ -255,13 +255,13 @@ depends:
         - gperftools.bst
         - numpy.bst
         - python3-pip.bst
-        - gcovr.bst
   - target_triple == "x86_64-linux-gnu":
       build-depends:
         (>):
         #- clang-tools-extra.bst
         - llvm.bst
         - iwyu.bst
+        - gcovr.bst
   - target_triple != "x86_64-linux-gnu":
       depends:
         (>):
