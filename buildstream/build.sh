@@ -155,6 +155,13 @@ elif [ "$TARGET_TRIPLE" == "x86_64-w64-mingw32" ]; then # Generate Windows MSIX 
   bst $BUILD_OPTIONS shell -b --mount "$EXPORT_DIR/$TARGET_TRIPLE" /output msix_package/msix-package.bst bash "buildstream/files/msix_package/make-msix-package.sh"
 fi
 
+# BuildStream only records the output of the build commands in the per-element build
+# log, and only prints it on failure, so the testsuite results have to be surfaced
+# explicitly. The code coverage case is skipped as it already dumps the whole log.
+if [ "$CODE_COVERAGE_ENABLED" = false ]; then
+  bst $BUILD_OPTIONS artifact log squey.bst | sed -n '/Test project/,/Total Test time/p' || true
+fi
+
 # Push artifacts
 if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
   bst $BUILD_OPTIONS --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true

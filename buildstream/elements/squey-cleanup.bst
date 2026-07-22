@@ -21,6 +21,13 @@ config:
       rm -rf %{prefix}/compilation_build
       rm -rf %{prefix}/junit.xml
       rm -rf %{prefix}/code_coverage_report
+      # The installed testsuite is only needed by the macOS and Windows packaging,
+      # which turns %{prefix}/tests into testsuite.zip to be run on the target
+      # platform. Linux runs its tests from the build tree, so keep them out of
+      # the published package.
+      if [ "%{target-platform}" = "linux" ]; then
+        rm -rf %{prefix}/tests %{prefix}/lib/debug/tests
+      fi
       rm -rf %{includedir}
       rm -rf %{prefix}/lib/cmake
       rm -rf %{prefix}/sbin

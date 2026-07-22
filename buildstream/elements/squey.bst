@@ -152,10 +152,12 @@ config:
       build-commands:
         - cd "%{build-dir}" && ninja
       install-commands:
+      # No testsuite to embed here: the test executables are EXCLUDE_FROM_ALL and this
+      # branch only builds the default target. Cross-compiled testsuites are packaged
+      # from the 'disable_testsuite == False' branch, whose regular install already
+      # lays them out under %{prefix}/tests, which is what testsuite.zip is built from.
       - |
         %{install-all}
-        # embed cross-compiled testsuites
-        [ "%{target_triple}" != "x86_64-linux-gnu" ] && cmake --install "%{build-dir}" --component tests --prefix "%{install-root}%{prefix}/tests"
 
   strip-commands:
     - |
