@@ -76,7 +76,10 @@ function(add_squey_compile_test test_exe)
 	# All of this will be done on the already defined squey_testsuite target
 	add_dependencies(squey_testsuite SQUEY_TEST_${test_exe})
 	file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
-	install(TARGETS SQUEY_TEST_${test_exe} DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)
+	# OPTIONAL because the test executables are EXCLUDE_FROM_ALL: a build that only
+	# runs the default target legitimately leaves them unbuilt, and the install must
+	# not fail over it. When they are built, they are installed as usual.
+	install(TARGETS SQUEY_TEST_${test_exe} DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests OPTIONAL)
 endfunction()
 
 function(add_squey_test test_exe test_name)

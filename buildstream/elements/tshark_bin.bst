@@ -4,17 +4,11 @@ description: |
     TShark
 
 (?):
-  - target_triple == "x86_64-apple-darwin":
+  - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       sources:
         - kind: remote
-          url: wireshark:download/osx/all-versions/Wireshark%204.6.4s%20Intel%2064.dmg
-          ref: f7e742a6cd42f13c81ad63a99764262c7e15bd66c8b48eb9bf879803150d5b7d
-          filename: wireshark.dmg
-  - target_triple == "aarch64-apple-darwin":
-      sources:
-        - kind: remote
-          url: wireshark:download/osx/all-versions/Wireshark%204.6.4%20Arm%2064.dmg
-          ref: 6623f789646c6a64735d2179fd9333a05606f83f7946d897448eea2074e8654b
+          url: wireshark:download/osx/all-versions/Wireshark%204.6.4.dmg
+          ref: 08150f79cfc5828820f991b6d944c68536db9595b1c3052982bbde79fb2053df
           filename: wireshark.dmg
   - target_triple == "x86_64-w64-mingw32":
       sources:
@@ -35,6 +29,10 @@ config:
           cd Wireshark*/Wireshark.app/Contents
           install -D Frameworks/*.dylib -t "%{install-root}%{libdir}"
           install -m 755 -D MacOS/tshark -t "%{install-root}%{bindir}"
+          # Upstream ships a universal binary: keep only the slice we are building for
+          find "%{install-root}%{libdir}" "%{install-root}%{bindir}" -type f \( -name "*.dylib" -o -name "tshark" \) \
+            -exec %{toolchain-dir}/%{host}-lipo -extract "%{macho-arch}" "{}" -output "{}" \; \
+            -exec %{toolchain-dir}/%{host}-codesign_allocate -r -i "{}" -o "{}" \;
   - target_triple == "x86_64-w64-mingw32":
       configure-commands:
         - |

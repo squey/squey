@@ -106,6 +106,8 @@ class PVSortFilter
 	void set_filter_as_sort()
 	{
 		auto const& sort = _sort.to_core_array();
+		// A previous set_filter() may have shrunk the filter to the selected lines only
+		_filter.resize(sort.size());
 		if (_sort_order != Qt::DescendingOrder) {
 			std::copy(sort.begin(), sort.end(), _filter.begin());
 		} else {
@@ -123,7 +125,7 @@ class PVSortFilter
 	std::vector<PVRow> _filter; //!< Lines to use, map listing_row_id to nraw_row_id unsorted
 	pvcop::db::indexes _sort;  //!< Sorted lines, map listing not filtered position to nraw position
 	PVCombCol _sorted_column;  //!< The current sorted column
-	Qt::SortOrder _sort_order; //!< The sort order of the current sorted column
+	Qt::SortOrder _sort_order = Qt::AscendingOrder; //!< The sort order of the current sorted column
 };
 } // namespace PVGuiQt
 
