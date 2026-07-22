@@ -76,6 +76,9 @@ builder appstream-linter:
     pull_policy: [if-not-present]
   tags:
     - privileged-docker
+  needs:
+    - job: cancel_scheduled_pipeline_if_already_ran_for_this_commit
+      optional: true
   before_script:
     - |
       export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
@@ -408,9 +411,8 @@ code_quality:
   stage: static_analysis
   image:
     name: "$BASE_IMAGE_NAME"
-    pull_policy: [if-not-present]
   tags:
-    - privileged-docker
+    - saas-linux-medium-amd64
   needs: []
   variables:
     # Only fetch the submodules holding source code we analyze, the test suite
@@ -443,7 +445,8 @@ sast:
       pmd-apex, security-code-scan, sobelow, spotbugs, flawfinder
   stage: static_analysis
   tags:
-    - privileged-docker
+    - saas-linux-medium-amd64
+  needs: []
 include:
   - template: Security/SAST.gitlab-ci.yml
   #- template: Jobs/Secret-Detection.latest.gitlab-ci.yml
@@ -451,7 +454,6 @@ include:
 
 semgrep-sast:
   variables:
-    # Submodules hold code which is analyzed by their own project pipeline
     GIT_SUBMODULE_STRATEGY: none
   rules:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
