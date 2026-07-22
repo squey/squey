@@ -31,11 +31,32 @@ sources:
 
 environment:
   LC_ALL: "C.UTF-8"
-  RECC_PROJECT_ROOT: ".."
+  # Cache individual compile commands through the REAPI socket exposed by
+  # BuildStream in the sandbox (see the 'sandbox' section below). Actions
+  # missing from the cache are built locally and their result uploaded.
   RECC_CACHE_ONLY: 1
   RECC_CACHE_UPLOAD_LOCAL_BUILD: 1
-  RECC_CAS_SERVER: unix:/tmp/casd.sock
+  RECC_SERVER: unix:/tmp/reapi.sock
+  # Include headers found in absolute paths (/usr/include, /app/include) in the
+  # action key, otherwise a dependency update would silently yield stale hits
+  RECC_DEPS_GLOBAL_PATHS: 1
+  # The sandbox build directory is stable across builds, no need to make the
+  # paths relative (which would break the global dependency paths above)
+  RECC_NO_PATH_REWRITE: 1
+  # recc detects dependencies by appending '-M -v' to the compile command, which
+  # makes '-c' unused. Combined with the -Werror of the release build, clang turns
+  # that warning into an error and recc silently falls back to uncached local
+  # compilation. Only the dependency command is patched here, the actual
+  # compilation keeps -Werror untouched. GCC does not need this.
+  RECC_DEPS_ENV_CCC_OVERRIDE_OPTIONS: "+-Wno-error=unused-command-line-argument"
   RECC_MAX_THREADS: -1
+
+sandbox:
+  remote-apis-socket:
+    path: /tmp/reapi.sock
+    # Required to let recc upload the results of locally built actions,
+    # as it can not go through remote execution in cache-only mode
+    action-cache-enable-update: true
 
 variables:
   build-dir: "build/%{target_triple}/%{cxx_compiler}/build"
@@ -44,12 +65,22 @@ variables:
     -DUSER_TARGET=%{user_target}
     -DCODE_COVERAGE=%{code_coverage}
     %{cmake-local-extra}
+  # recc only recognizes plain compiler basenames (cc, c++, gcc, g++, clang, clang++):
+  # a cross compilation prefix makes it report "not a compiler command" and silently
+  # skip caching. The substitution is done in the compiler launcher rather than in
+  # CMAKE_<LANG>_COMPILER, so that CMake still sees the prefixed compiler and keeps
+  # deriving the matching binutils from it (windres, dlltool, nm, objcopy...).
+  recc-bin: "%{build-root}/recc-bin"
   (?):
   - target_triple == "x86_64-linux-gnu":
       cmake-local-extra: >-
         -DCMAKE_CXX_COMPILER="/usr/bin/%{cxx_compiler}"
+      recc-c-launcher: "recc"
+      recc-cxx-launcher: "recc"
   - target_triple != "x86_64-linux-gnu":
       cmake-local-extra: ""
+      recc-c-launcher: "%{recc-bin}/launch-cc"
+      recc-cxx-launcher: "%{recc-bin}/launch-c++"
 
   install-linux-launchers: 'bash -c "cp -r buildstream/files/flatpak/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"'
   install-linux-deps:
@@ -74,7 +105,22 @@ config:
     - |
       WARNINGS_AS_ERRORS=$([ "%{code_coverage}" = "1" ] && echo 0 || echo 1)
       CMAKE_BUILD_TYPE=$([ "%{code_coverage}" = "1" ] && echo "Debug" || echo "RelWithDebInfo")
+      # CMake runs '<launcher> <compiler> <flags>'. The launcher replaces the compiler
+      # by a wrapper whose basename recc accepts, and passes the real one along: the
+      # wrapper execs it, so it keeps its own argv[0]. The osxcross drivers need that,
+      # as they are all symlinks to a single wrapper binary that parses argv[0] to
+      # know its target. See the 'recc-bin' variable.
+      if [ "%{target_triple}" != "x86_64-linux-gnu" ]; then
+        mkdir -p "%{recc-bin}"
+        for lang in cc c++; do
+          printf '#!/bin/sh\nexec "$SQUEY_REAL_COMPILER" "$@"\n' > "%{recc-bin}/$lang"
+          printf '#!/bin/sh\nSQUEY_REAL_COMPILER="$1"; export SQUEY_REAL_COMPILER; shift\nexec recc "%{recc-bin}/%s" "$@"\n' "$lang" > "%{recc-bin}/launch-$lang"
+          chmod +x "%{recc-bin}/$lang" "%{recc-bin}/launch-$lang"
+        done
+      fi
       %{cmake} "%{source-dir}" \
+        -DCMAKE_C_COMPILER_LAUNCHER="%{recc-c-launcher}" \
+        -DCMAKE_CXX_COMPILER_LAUNCHER="%{recc-cxx-launcher}" \
         -DCMAKE_BUILD_TYPE=$CMAKE_BUILD_TYPE \
         -DCMAKE_COMPILE_WARNING_AS_ERROR=$WARNINGS_AS_ERRORS
 
@@ -129,7 +175,11 @@ config:
        objcopy --add-gnu-debuglink "$debugfile" "$1"' - {} ';'
 
 build-depends:
-- sdk.bst
+# The digest of the toolchain and of the base environment is part of the recc
+# action key: recc hashes neither the compiler nor the libraries it links against
+- filename: sdk.bst
+  config:
+    digest-environment: RECC_REMOTE_PLATFORM_chrootRootDigest
 - freedesktop-sdk.bst:bootstrap/gcc.bst
 - freedesktop-sdk.bst:bootstrap/zlib.bst
 - freedesktop-sdk.bst:bootstrap/glibc.bst
