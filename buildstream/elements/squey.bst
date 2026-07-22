@@ -134,7 +134,9 @@ config:
         [ "%{target_triple}" != "x86_64-linux-gnu" ] && exit 0
         if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
         TESTS="-R SQUEY_TEST"
-        if [ "%{code_coverage}" = "1" ]; then CODE_COVERAGE_COMMAND="-T coverage"; TESTS="-R 'SQUEY_TEST|PVCOP_TEST'"; fi
+        # No quotes around the regex: the expansion of ${TESTS} below is not
+        # subject to quote removal, so ctest would receive them as part of it
+        if [ "%{code_coverage}" = "1" ]; then CODE_COVERAGE_COMMAND="-T coverage"; TESTS="-R SQUEY_TEST|PVCOP_TEST"; fi
         mkdir -p /tmp/.squey/squey/tmp-squey/tomjon && cp $SOURCE_DIR/pvconfig.ini /tmp/.squey/squey/config.ini && sed 's|\(nraw_tmp=\)/srv/tmp-squey|\1/tmp/.squey/squey/tmp-squey|' -i /tmp/.squey/squey/config.ini
         $SOURCE_DIR/buildstream/files/flatpak/run_cmd.sh ctest -j $(nproc) --output-junit junit.xml --output-on-failure -T test ${CODE_COVERAGE_COMMAND} ${TESTS} || if [ "%{code_coverage}" = "0" ]; then exit 1; fi
         # Generate code coverage report
@@ -253,8 +255,7 @@ depends:
         - gperftools.bst
         - numpy.bst
         - python3-pip.bst
-        - lcov.bst
-        - lcov-cobertura.bst
+        - gcovr.bst
   - target_triple == "x86_64-linux-gnu":
       build-depends:
         (>):

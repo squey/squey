@@ -1,13 +1,26 @@
 #!/bin/bash
 
-DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+# A missing report has to fail the build, otherwise it only surfaces much later
+# as an unrelated error in the job publishing it
+set -e
 
-# Run code coverage analysis
-python $DIR/fastcov.py --lcov -o main_coverage.info \
-    --exclude /usr/ /app/ third_party/ squey-utils/ external/ build/ /moc_
+SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 
-# Generate HTML report
-SOURCE_DATE_EPOCH=$(date +%s) genhtml main_coverage.info --output-directory code_coverage_report --dark-mode
-
-# Generate Cobertura XML report
-python /usr/lib/python3.*/site-packages/lcov_cobertura/lcov_cobertura.py main_coverage.info --output code_coverage_report/cobertura-coverage.xml --demangle
+# Run from the build directory, where the .gcda files sit next to their objects.
+# Anything outside of the source tree is filtered out by --root.
+# The coverage threshold is a safety net rather than a quality gate: gcovr exits
+# with 0 when it finds no .gcda at all, which would yield an empty report.
+mkdir -p code_coverage_report
+gcovr \
+    --root "$SOURCE_DIR" \
+    -j "$(nproc)" \
+    --exclude '.*/build/.*' \
+    --exclude '.*/external/.*' \
+    --exclude '.*/squey-utils/.*' \
+    --exclude '.*/third_party/.*' \
+    --exclude '.*/moc_.*' \
+    --fail-under-line 1 \
+    --html-nested code_coverage_report/index.html \
+    --cobertura code_coverage_report/cobertura-coverage.xml \
+    --txt-summary \
+    .
