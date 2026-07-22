@@ -23,6 +23,8 @@ set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wall -Wextra -fPIC")
 if (CODE_COVERAGE)
 	set(CODE_COVERAGE_FLAGS "-O0 --coverage")
     set(CTEST_COVERAGE_COMMAND "gcov")
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
     message(STATUS "Code coverage instrumentation enabled")
 endif()
 
