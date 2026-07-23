@@ -80,6 +80,25 @@ PVParallelView::PVLibView::PVLibView(Squey::PVView& view_sp)
 PVParallelView::PVLibView::~PVLibView()
 {
 	PVLOG_DEBUG("In PVLibView destructor\n");
+
+	// Any scene still attached at this point (e.g. when the whole parallel-view
+	// subsystem is torn down while its widgets are still alive) can have
+	// renderings in flight -- queued in the pipeline or painting on a detached
+	// backend thread -- that reference this object's zones manager. Cancel and
+	// drain them before the zones manager is destroyed, and mark the scenes as
+	// detached so they do not deregister against a dead PVLibView later.
+	for (PVFullParallelScene* scene : _parallel_scenes) {
+		scene->about_to_be_deleted();
+	}
+	for (PVZoomedParallelScene* scene : _zoomed_parallel_scenes) {
+		scene->about_to_be_deleted();
+	}
+	for (PVHitCountView* view : _hit_count_views) {
+		view->about_to_be_deleted();
+	}
+	for (PVScatterView* view : _scatter_views) {
+		view->about_to_be_deleted();
+	}
 }
 
 PVParallelView::PVFullParallelView* PVParallelView::PVLibView::create_view(QWidget* parent)
@@ -182,21 +201,25 @@ void PVParallelView::PVLibView::view_about_to_be_deleted()
 		view->about_to_be_deleted();
 		delete view->graphics_view();
 	}
+	_parallel_scenes.clear();
 
 	for (PVZoomedParallelScene* view : _zoomed_parallel_scenes) {
 		view->about_to_be_deleted();
 		delete view;
 	}
+	_zoomed_parallel_scenes.clear();
 
 	for (PVHitCountView* view : _hit_count_views) {
 		view->about_to_be_deleted();
 		delete view;
 	}
+	_hit_count_views.clear();
 
 	for (PVScatterView* view : _scatter_views) {
 		view->about_to_be_deleted();
 		delete view;
 	}
+	_scatter_views.clear();
 
 	PVParallelView::common::remove_lib_view(*lib_view());
 }
