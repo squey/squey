@@ -59,7 +59,6 @@ static constexpr const char* PVCONFIG_FORMATS_SHOW_INVALID = "formats/invalid/wa
 
 static constexpr const uint32_t SQUEY_ARCHIVES_VERSION = 3;
 
-#define SQUEY_PATH_SEPARATOR "/"
 static constexpr const char SQUEY_PATH_SEPARATOR_CHAR = '/';
 
 static constexpr const char* SQUEY_DLL_EXTENSION = ".so";

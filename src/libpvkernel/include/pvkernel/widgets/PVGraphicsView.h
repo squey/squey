@@ -796,19 +796,6 @@ class PVGraphicsView : public QWidget
 
 	void wheelEvent(QWheelEvent* event) override;
 
-#if 0
-	// needed or not?
-	virtual void dragEnterEvent(QDragEnterEvent *event);
-	virtual void dragLeaveEvent(QDragLeaveEvent *event);
-	virtual void dragMoveEvent(QDragMoveEvent *event);
-	virtual void dropEvent(QDropEvent *event);
-	virtual void inputMethodEvent(QInputMethodEvent *event);
-	virtual void showEvent(QShowEvent *event);
-	virtual bool viewportEvent(QEvent *event);
-
-	virtual void scrollContentsBy(int dx, int dy);
-#endif
-
   protected:
 	/**
 	 * Draws scene's background.

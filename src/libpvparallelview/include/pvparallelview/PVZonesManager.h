@@ -90,7 +90,6 @@ class PVZonesManager : public QObject
 
   public:
 	void update_all(bool reinit_zones = true);
-	void reset_axes_comb();
 	void update_from_axes_comb(std::vector<PVCol> const& ac);
 	void update_from_axes_comb(Squey::PVView const& view);
 	void update_zone(PVZoneID zone);

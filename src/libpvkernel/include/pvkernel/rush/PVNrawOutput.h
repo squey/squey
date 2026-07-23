@@ -59,8 +59,6 @@ class PVNrawOutput : public PVRush::PVOutput
 	// It *must* call PVChunk->free() in the end !!
 	void operator()(PVCore::PVChunk* out) override;
 
-	void set_nraw_dest(PVNraw& nraw) { _nraw_dest = &nraw; }
-
   public:
 	PVRow get_rows_count() override;
 

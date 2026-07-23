@@ -78,10 +78,6 @@ class PVStartScreenWidget : public QWidget, public sigc::trackable
 	 */
 	void refresh_all_recent_items();
 
-	/*! \brief Refresh the recent sources items.
-	 */
-	void refresh_recent_sources_items();
-
 	/*! \brief Refresh the recent items of a given category.
 	*/
 	template <PVCore::Category category>

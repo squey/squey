@@ -31,7 +31,6 @@
 #include <atomic>
 #include <cstddef> // for size_t
 #include <cstdint> // for uint64_t
-#include <cstring> // for strerror
 #include <fstream> // for ifstream
 #include <string>  // for allocator, operator+, etc
 #include <thread>
@@ -64,15 +63,6 @@ class PVInputFile : public PVInput
 	PVCore::PVStreamingDecompressor _decompressor;
 
 	CLASS_INPUT(PVRush::PVInputFile)
-};
-
-class PVInputFileOpenException : public PVInputException
-{
-  public:
-	PVInputFileOpenException(std::string const& path, int err)
-	    : PVInputException("Unable to open file " + path + ": " + strerror(err))
-	{
-	}
 };
 } // namespace PVRush
 

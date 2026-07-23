@@ -49,11 +49,9 @@ class PVAxisFormat
 	QString get_mapping() const { return mapping; }
 	const QString& get_name() const { return name; }
 	QString get_scaling() const { return scaling; }
-	QString get_titlecolor_str() const { return titlecolor.toQColor().name(); }
 	PVCore::PVColor const& get_titlecolor() const { return titlecolor; }
 	QString get_type() const { return type; }
 	QString get_type_format() const { return type_format; }
-	QString get_str_format() const { return _str_format; }
 	node_args_t const& get_args_mapping_string() const { return args_mapping; }
 	node_args_t const& get_args_scaling_string() const { return args_scaling; }
 	PVCol get_index() const { return index; }
@@ -62,7 +60,6 @@ class PVAxisFormat
 	void set_color(QString str);
 	void set_color(PVCore::PVColor color_);
 	void set_mapping(QString str);
-	void set_str_format(QString const& str_format) { _str_format = str_format; }
 	void set_name(const QString& str);
 	void set_scaling(QString str);
 	void set_titlecolor(QString str);

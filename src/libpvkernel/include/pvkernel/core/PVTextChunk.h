@@ -167,8 +167,6 @@ class PVTextChunk : public PVChunk
 		nelts_org = _nelts_org;
 		nelts_valid = _nelts_valid;
 	}
-	inline size_t get_nelts_valid() const { return _nelts_valid; }
-
 	size_t size() const { return (size_t)((uintptr_t)_logical_end - (uintptr_t)begin()); };
 	size_t avail() const { return (size_t)((uintptr_t)_physical_end - (uintptr_t)_logical_end); };
 

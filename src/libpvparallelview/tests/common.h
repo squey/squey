@@ -57,11 +57,6 @@ class PVLibView;
 inline namespace pvtest
 {
 
-bool create_scaled_table_from_args(
-    Squey::PVScaled::scaleds_t& norm_scaled, PVRow& nrows, PVCol& ncols, int argc, char** argv);
-int extra_param_start_at();
-bool input_is_a_file();
-void set_extra_param(int num, const char* usage_text);
 void usage(const char* path);
 
 /**

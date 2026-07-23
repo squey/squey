@@ -100,12 +100,6 @@ depend of the client's windows settings. */
 	void set_decoration_color(const QColor& color);
 
 	/**
-	 * Return the color used when drawing scales & legends
-	 *
-	 */
-	QColor get_decoration_color() const { return _decoration_color; }
-
-	/**
 	 * Set the legend for the horizontal axis
 	 *
 	 * @param legend the text to use
@@ -115,11 +109,6 @@ depend of the client's windows settings. */
 	void set_x_legend(PVWidgets::PVAxisComboBox* legend);
 
 	/**
-	 * Return the legend of the horizontal axis
-	 */
-	const QString& get_x_legend() const { return _x_legend; }
-
-	/**
 	 * Set the legend for the vertical axis
 	 *
 	 * @param legend the text to use
@@ -127,11 +116,6 @@ depend of the client's windows settings. */
 	void set_y_legend(const QString& legend);
 
 	void set_y_legend(PVWidgets::PVAxisComboBox* legend);
-
-	/**
-	 * Return the legend of the vertical axis
-	 */
-	const QString& get_y_legend() const { return _y_legend; }
 
 	/**
 	 * Set the ticks count per level

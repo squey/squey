@@ -87,13 +87,6 @@ inline static int squey_mm_getpos_lastnonzero_epi8(simde__m128i const ssev)
 	return pos64 << 3 | pos32 << 2 | pos16 << 1 | ((v & 0xFF00ULL) != 0);
 }
 
-inline static int mm_popcnt_u128(simde__m128i const v)
-{
-	const uint64_t b0 = simde_mm_extract_epi64(v, 0);
-	const uint64_t b1 = simde_mm_extract_epi64(v, 1);
-	return __builtin_popcountll(b0) + __builtin_popcountll(b1);
-}
-
 inline static simde__m256d squey_mm256_cvtepu32_pd(simde__m128i const v)
 {
 	const simde__m128i mask_carry_sse = simde_mm_set1_epi32(0x7fffffff);
@@ -165,16 +158,6 @@ inline simde__m128i squey_mm_cmprange_in_epi32(simde__m128i const v, simde__m128
 	// same logic as previous function
 	return simde_mm_andnot_si128(simde_mm_cmplt_epi32(v, a),
 	       simde_mm_or_si128(simde_mm_cmplt_epi32(v, b), simde_mm_cmpeq_epi32(v, b)));
-}
-
-/*! \brief This intrinsics emulation compare packed unsigned 32-bit integers for inclusive within a
- *range [a, b[
- *
- * res[i] = (v[i] >= a[i]) && (v[i] < b[i])
- */
-inline static simde__m128i squey_mm_cmprange_epu32(simde__m128i const v, simde__m128i const a, simde__m128i const b)
-{
-	return simde_mm_andnot_si128(squey_mm_cmplt_epu32(v, a), squey_mm_cmplt_epu32(v, b));
 }
 
 /*! \brief This intrinsics emulation compare packed unsigned 32-bit integers for inclusive within a

@@ -490,12 +490,6 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 			}
 		}
 
-		void cancel_all()
-		{
-			cancel_last_sel();
-			cancel_last_bg();
-		}
-
 		void cancel_and_wait_all()
 		{
 			PVZoneRenderingBCIBase_p zr = last_zr_sel;

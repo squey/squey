@@ -33,7 +33,6 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputDescription.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/core/serialize_numbers.h>
 #include <arrow/record_batch.h>
 #include <qcontainerfwd.h>
 #include <qlist.h>

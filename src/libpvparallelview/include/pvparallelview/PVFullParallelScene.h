@@ -102,11 +102,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	 */
 	void reset_zones_layout_to_default();
 
-	QRectF axis_scene_bounding_box(int axis) const
-	{
-		QRectF ret = _axes[axis]->sceneBoundingRect();
-		return ret;
-	}
 	size_t axes_count() const { return _axes.size(); }
 
 	QRectF axes_scene_bounding_box() const;
@@ -139,10 +134,6 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	inline QPointF map_to_axis(size_t zone_index, QPointF p) const
 	{
 		return _axes[zone_index]->mapFromScene(p);
-	}
-	inline QPointF map_from_axis(size_t zone_index, QPointF p) const
-	{
-		return _axes[zone_index]->mapToScene(p);
 	}
 	QRect map_to_axis(size_t zone_index, QRectF rect) const
 	{

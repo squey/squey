@@ -38,7 +38,6 @@
 
 #define ZZT_MAX_VALUE (1 << (32 - NBITS_INDEX))
 
-#define SEC_COORD_COUNT 2048
 
 void merge_tlr(PVParallelView::PVZoomedZoneTree::context_t::tls_set_t& tls)
 {

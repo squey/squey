@@ -43,9 +43,6 @@
 
 #include "pvkernel/core/PVHSVColor.h"
 
-#define CROSS_HEIGHT 20
-#define CROSS_WIDTH 20
-#define CROSS_THICK 3
 #define HEIGHT_TRIANGLE 6
 #define WIDTH_TRIANGLE 13
 #define VERT_MARGIN 5

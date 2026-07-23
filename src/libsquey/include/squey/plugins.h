@@ -27,7 +27,6 @@
 
 #include <string>
 
-#define SQUEY_PLUGINSLIST_MAXSIZE 32768
 
 std::string squey_plugins_get_layer_filters_dir();
 std::string squey_plugins_get_mapping_filters_dir();

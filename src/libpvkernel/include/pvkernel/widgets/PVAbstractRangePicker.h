@@ -382,27 +382,6 @@ class PVAbstractRangePicker : public QWidget
 	 */
 	void set_limits(const double& min_limit, const double& max_limit);
 
-	/**
-	 * get the lower bound limit
-	 *
-	 * @return the widget's lower bound limit
-	 */
-	double get_limit_min() const { return _limit_min; }
-
-	/**
-	 * get the uper bound limit
-	 *
-	 * @return the widget's uper bound limit
-	 */
-	double get_limit_max() const { return _limit_max; }
-
-	/**
-	 * get the limit's range
-	 *
-	 * @return the widget's limit's range
-	 */
-	double get_limit_range() const { return _limit_range; }
-
   protected:
 	/**
 	 * Redefinition of QWidget::resizeEvent

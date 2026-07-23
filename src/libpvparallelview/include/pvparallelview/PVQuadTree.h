@@ -715,59 +715,6 @@ class PVQuadTree
 
 #ifdef SQUEY_DEVELOPER_MODE
 
-	/**
-	 * Clear the chronometer used to measure the whole extraction process time.
-	 */
-	static void all_clear() { extract_stat::all_dt = 0; }
-
-	/**
-	 * Read the chronometer used to measure the whole extraction process time.
-	 *
-	 * For test purpose only.
-	 */
-	static double all_get() { return extract_stat::all_dt; }
-
-	/**
-	 * Clear the parsed events counter used while extraction.
-	 *
-	 * For test purpose only.
-	 */
-	static void all_count_clear() { extract_stat::all_cnt = 0; }
-
-	/**
-	 * Read the parsed events counter used while extraction.
-	 *
-	 * For test purpose only.
-	 */
-	static size_t all_count_get() { return extract_stat::all_cnt; }
-
-	/**
-	 * Clear the tested events counter used while extraction.
-	 *
-	 * For test purpose only.
-	 */
-	static void test_count_clear() { extract_stat::test_cnt = 0; }
-
-	/**
-	 * Read the tested events counter used while extraction.
-	 *
-	 * For test purpose only.
-	 */
-	static size_t test_count_get() { return extract_stat::test_cnt; }
-
-	/**
-	 * Clear the inserted events counter used while extraction.
-	 *
-	 * For test purpose only.
-	 */
-	static void insert_count_clear() { extract_stat::insert_cnt = 0; }
-
-	/**
-	 * Read the inserted events counter used while extraction.
-	 *
-	 * For test purpose only.
-	 */
-	static size_t insert_count_get() { return extract_stat::insert_cnt; }
 #endif
 
   private:
@@ -828,17 +775,6 @@ class PVQuadTree
 			_nodes[compute_index(e)]._datas.push_back(e);
 		}
 		_datas.clear();
-	}
-
-	uint32_t get_first_elt_index() const
-	{
-		if (_index_min_bg != PVROW_INVALID_VALUE) {
-			return _index_min_bg;
-		}
-		if (_datas.size() > 0) {
-			return _datas.at(0).idx;
-		}
-		return PVROW_INVALID_VALUE;
 	}
 
   private:

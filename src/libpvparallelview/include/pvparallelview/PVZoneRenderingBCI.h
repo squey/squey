@@ -75,12 +75,6 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
 
-	inline void set_dst_img(PVBCIBackendImage_p& dst_img)
-	{
-		assert(finished());
-		_dst_img = dst_img;
-	}
-
 	inline bool valid() const
 	{
 		return PVZoneRendering::valid() && _width != 0 && _dst_img != nullptr;

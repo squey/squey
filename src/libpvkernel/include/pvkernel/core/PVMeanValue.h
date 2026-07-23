@@ -56,14 +56,6 @@ class PVMeanValue
 		_n_values++;
 	}
 
-	inline T compute_mean() const
-	{
-		if (_n_values == 0) {
-			return 0;
-		}
-		return (T)(_cur_sum / _n_values);
-	}
-
   protected:
 	Tsum _cur_sum;
 	size_t _n_values;

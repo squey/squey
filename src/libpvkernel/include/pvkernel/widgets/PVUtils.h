@@ -33,7 +33,6 @@
 class QFont;
 class QWidget;
 
-#define SQUEY_TOOLTIP_MAX_WIDTH 800
 
 namespace PVWidgets
 {

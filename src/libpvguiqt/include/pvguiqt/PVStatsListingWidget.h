@@ -208,7 +208,6 @@ class PVCellWidgetBase : public QWidget
 	~PVCellWidgetBase() override {}
 
   public:
-	inline int get_widget_cell_row() { return _table->row(_item); }
 	inline PVCombCol get_widget_cell_col() { return PVCombCol(_table->column(_item)); }
 
 	inline int get_real_axis_row() { return _table->row(_item); }

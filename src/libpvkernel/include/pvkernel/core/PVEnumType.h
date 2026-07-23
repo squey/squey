@@ -67,15 +67,6 @@ class PVEnumType : public PVArgumentType<PVEnumType>
 		assert(index < _list.count() && index >= 0);
 		_sel = index;
 	};
-	bool set_sel_from_str(QString const& s)
-	{
-		int r = _list.indexOf(s);
-		if (r == -1)
-			return false;
-		_sel = r;
-		return true;
-	}
-
 	QString to_string() const override { return QString::number(_sel); }
 	PVArgument from_string(QString const& str, bool* ok /*= 0*/) const override
 	{

@@ -103,12 +103,6 @@ class PVZoneRendering
 
   public:
 	inline PVZoneID get_zone_id() const { return _zone_id; }
-	inline void set_zone_id(PVZoneID const zone_id)
-	{
-		assert(_finished);
-		_zone_id = zone_id;
-	}
-
 	virtual bool cancel() { return _should_cancel.exchange(true); }
 	inline bool should_cancel() const { return _should_cancel; }
 	void cancel_and_add_job(PVZonesProcessor& zp, p_type const& zr);

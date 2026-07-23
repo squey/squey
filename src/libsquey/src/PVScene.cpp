@@ -37,7 +37,6 @@
 #include <memory> // for __shared_ptr
 #include <string> // for string
 
-#define ARCHIVE_SCENE_DESC (QObject::tr("Workspace"))
 /******************************************************************************
  *
  * Squey::PVScene::PVScene

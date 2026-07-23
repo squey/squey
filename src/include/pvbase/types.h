@@ -68,14 +68,6 @@ DEFINE_STRONG_TYPEDEF(PVCombCol, int)
 Q_DECLARE_METATYPE(PVCol)
 Q_DECLARE_METATYPE(PVCombCol)
 
-#if 0
-template <class Stream>
-Stream& operator<<(Stream& stream, PVCol col)
-{
-	return stream << static_cast<PVCol::value_type>(col);
-}
-#endif
-
 template <class Stream>
 Stream& operator>>(Stream& stream, PVCol col)
 {

@@ -60,7 +60,6 @@
  *
  */
 
-#define FORMAT_CUSTOM_NAME "custom"
 
 namespace PVRush
 {

@@ -69,12 +69,6 @@ class PVNrawListingWidget : public QWidget
 	}
 
 	template <typename T, typename F>
-	void connect_axes_type(T* receiver, const F& slot)
-	{
-		connect(this, &PVNrawListingWidget::set_axes_type_from_nraw, receiver, slot);
-	}
-
-	template <typename T, typename F>
 	void connect_table_header(T* receiver, const F& slot)
 	{
 		connect(_nraw_table->horizontalHeader(), &QHeaderView::sectionClicked,

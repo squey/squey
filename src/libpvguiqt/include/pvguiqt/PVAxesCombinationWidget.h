@@ -64,7 +64,6 @@ class PVAxesCombinationWidget : public QWidget, Ui::PVAxesCombinationWidget
 	QVector<PVCol> get_used_axes_selected();
 	bool is_used_axis_selected();
 	bool is_original_axis_selected();
-	static QVector<PVCol> get_list_selection(QListWidget* widget);
 	void set_selection_from_cols(QList<PVCol> const& cols);
 	void update_combination();
 	void enable_drop(bool enable);

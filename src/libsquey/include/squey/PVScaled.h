@@ -192,8 +192,6 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
 	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
 
-	inline QList<PVCol> const& last_updated_cols() const { return _last_updated_cols; }
-
 	PVRow get_col_min_row(PVCol const c) const;
 	PVRow get_col_max_row(PVCol const c) const;
 
@@ -210,19 +208,6 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
 
   protected:
 	int create_table();
-
-	/**
-	 * Computes the offset between the scaling's base address and a column's base address
-	 *
-	 * @param nrows the rows number
-	 * @param colo the wanted column index
-	 *
-	 * @return the offset of the @a col in the scaled's buffer
-	 */
-	static inline size_t get_scaled_col_offset(PVRow nrows, PVCol col)
-	{
-		return (size_t)get_aligned_row_count(nrows) * (size_t)col;
-	}
 
   public:
 	sigc::signal<void(QList<PVCol>)> _scaled_updated;

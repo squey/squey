@@ -56,7 +56,6 @@
  *
  *****************************************************************************/
 uint64_t PVGuiQt::PVWorkspaceBase::_z_order_counter = 0;
-bool PVGuiQt::PVWorkspaceBase::_drag_started = false;
 
 PVGuiQt::PVWorkspaceBase::~PVWorkspaceBase() = default;
 

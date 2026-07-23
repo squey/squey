@@ -177,20 +177,6 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 		return current_project() ? (PVWorkspaceBase*)current_project()->current_widget() : nullptr;
 	}
 	inline Squey::PVView* current_view() const { return _root->current_view(); }
-	inline int projects_count() { return _tab_widget->count() - FIRST_PROJECT_INDEX; }
-	inline const QStringList get_projects_list()
-	{
-		QStringList projects_list;
-		for (int i = FIRST_PROJECT_INDEX; i < _tab_widget->count(); i++) {
-			projects_list << _tab_widget->tabText(i);
-		}
-		return projects_list;
-	}
-	inline int get_current_project_index()
-	{
-		return _current_workspace_tab_widget_index - FIRST_PROJECT_INDEX;
-	}
-	Squey::PVScene* get_scene_from_path(const QString& path);
 	PVSceneWorkspacesTabWidget* get_workspace_tab_widget_from_scene(const Squey::PVScene* scene);
 
 	Squey::PVScene& project_new();

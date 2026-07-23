@@ -54,9 +54,6 @@ class PVAxisIndexCheckBoxType : public PVArgumentType<PVAxisIndexCheckBoxType>
 
 	inline PVCol get_original_index() { return _origin_axis_index; }
 
-	inline bool get_checked() { return _is_checked; }
-	inline void set_checked(const bool checked) { _is_checked = checked; }
-
 	QString to_string() const override
 	{
 		return QString::number(_origin_axis_index) + ":" + QString(_is_checked ? "true" : "false");
