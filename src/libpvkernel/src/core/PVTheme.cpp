@@ -70,6 +70,11 @@ PVCore::PVTheme::PVTheme()
         _color_scheme = system_color_scheme();
     }
 
+    // system_color_scheme() returns UNKNOWN when it cannot probe the system
+    if (_color_scheme == EColorScheme::UNKNOWN) {
+        _color_scheme = EColorScheme::DARK;
+    }
+
     // Monitor system theme scheme changes
 #ifdef __linux__
     QDBusConnection::sessionBus().connect(
