@@ -8,6 +8,8 @@ third-party/*
 buildstream/.venv
 buildstream/flatpak_repo/
 buildstream/repo/
+buildstream/squey_mac/
+buildstream/squey_win/
 buildstream/files/org.squey.Squey.metainfo.xml
 .bst/
 
