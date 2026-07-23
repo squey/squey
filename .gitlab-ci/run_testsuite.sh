@@ -14,6 +14,9 @@ export PATH="$appdir:/opt/homebrew/bin:$PATH"
 export DYLD_LIBRARY_PATH="$appdir/../Frameworks"
 export PVKERNEL_PLUGIN_PATH="$appdir/../Frameworks/squey/plugins"
 export SQUEY_PLUGIN_PATH="$PVKERNEL_PLUGIN_PATH"
+# Qt platform plugins ship inside the bundle while the test binaries are extracted outside
+# of it, so Qt does not find them next to the running executable.
+export QT_QPA_PLATFORM_PLUGIN_PATH="$appdir/../PlugIns/platforms"
 export SQUEY_PYTHONHOME="$appdir/../Frameworks/Python.framework/Versions/Current"
 export SQUEY_PYTHONPATH="$appdir/../Resources/python/site-packages"
 
