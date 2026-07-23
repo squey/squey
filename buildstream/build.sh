@@ -96,6 +96,9 @@ fi
 if  [ "$TESTSUITE_DISABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option disable_testsuite True"
 fi
+if  [ "$GITLAB_CI" = true ]; then
+  BUILD_OPTIONS="$BUILD_OPTIONS --option quiet_compilation True"
+fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
   pushd .
