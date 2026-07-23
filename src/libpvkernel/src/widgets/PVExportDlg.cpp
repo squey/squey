@@ -112,7 +112,7 @@ PVWidgets::PVExportDlg::PVExportDlg(
 
 		// force filters to reset as setting 'QFileDialog::Directory' erase them
 		setNameFilters(_name_filters);
-		selectNameFilter(filter);		
+		selectNameFilter(filter);
 	};
 	_conn = QObject::connect(this, &QFileDialog::filterSelected, _filter_selected_f);
 	_filter_selected_f(_name_filters.at(default_filter_index));

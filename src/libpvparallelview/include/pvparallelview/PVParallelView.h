@@ -99,7 +99,7 @@ class PVParallelViewImpl
 
 	// This is used in developer mode to tell whether bounding boxes should be visible
 	// This is let even if non developer mode not to change the size of this structure...
-	bool _show_bboxes;
+	[[maybe_unused]] bool _show_bboxes;
 
   private:
 	static PVParallelViewImpl* _s; //<! Instance of the singleton
