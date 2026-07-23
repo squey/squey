@@ -425,7 +425,7 @@ bool is_directory(const std::string& path_name)
 
 	if (stat(path_name.c_str(), &info) != 0) {
 		std::cerr << "cannot access " << path_name << std::endl;
-		exit(EXIT_FAILURE);
+		return false;
 	} else if (info.st_mode & S_IFDIR)
 		return true;
 	else
@@ -451,9 +451,7 @@ std::vector<std::string> get_directory_files(const std::string& path_name)
 		}
 		closedir(dir);
 	} else {
-		/* could not open directory */
 		std::cerr << "Error: could not open directory \"" << path_name << "\"" << std::endl;
-		exit(EXIT_FAILURE);
 	}
 
 	return files;
@@ -492,9 +490,9 @@ std::string get_user_conf_dir()
 	// we should do this at install time
 	// create if not exists
 	if (not QDir().mkpath(user_conf_dir)) {
+		/* Report and carry on, as get_user_profile_dir() below does. */
 		std::cerr << "Can't create user configuration directory: " << user_conf_dir.toStdString()
 		          << std::endl;
-		exit(EXIT_FAILURE);
 	}
 
 	return user_conf_dir.toStdString();
@@ -516,7 +514,6 @@ std::string get_user_profile_dir()
 	if (not QDir().mkpath(user_profile_dir)) {
 		std::cerr << "Can't create user profile directory: " << user_profile_dir.toStdString()
 		          << std::endl;
-		exit(EXIT_FAILURE);
 	}
 
 	return user_profile_dir.toStdString();
