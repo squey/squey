@@ -4,9 +4,16 @@ TMP_ARTIFACT_DIR="$(mktemp -d)"
 
 function cleanup {
   rm -rf -- "${TMP_ARTIFACT_DIR}"
-  rm -rf $HOME/.cache/buildstream/artifacts/extract/squey/squey
-  rm -rf $HOME/.cache/buildstream/build
-  rm -rf /srv/tmp-squey/tomjon/*
+  # The BuildStream cache location honors XDG_CACHE_HOME, which CI sets per
+  # runner slot: only ever clean the cache of our own slot, never the shared
+  # one (a job finishing used to wipe directories still in use by concurrent
+  # jobs). Falls back to ~/.cache for local builds.
+  local bst_cache="${XDG_CACHE_HOME:-$HOME/.cache}/buildstream"
+  rm -rf "${bst_cache}/artifacts/extract/squey/squey"
+  rm -rf "${bst_cache}/build"
+  # Same per-slot isolation as MOUNT_OPTS in .common.sh ("tomjon" is the
+  # default sandbox user of BuildStream, see its projectconfig.yaml).
+  rm -rf "/srv/tmp-squey${CI_CONCURRENT_ID:+/slot-$CI_CONCURRENT_ID}/tomjon"/*
 }
 
 trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT

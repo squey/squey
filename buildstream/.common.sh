@@ -72,4 +72,9 @@ if [[ "$IS_TRUE_LINUX" -eq 1 ]]; then # Enable GPU acceleration
 fi
 
 #MOUNT_OPTS="$GL_MOUNT_OPTS --mount opencl_vendors /etc/opencl_vendors --mount /srv/tmp-squey /srv/tmp-squey"
-MOUNT_OPTS="$GL_MOUNT_OPTS --mount /srv/tmp-squey /srv/tmp-squey"
+# In CI, /srv/tmp-squey is a host volume shared by concurrent jobs: mount a
+# per-slot subdirectory at the canonical sandbox path so jobs can never step
+# on each other's files. Outside CI (no CI_CONCURRENT_ID) this is unchanged.
+TMP_SQUEY_DIR="/srv/tmp-squey${CI_CONCURRENT_ID:+/slot-$CI_CONCURRENT_ID}"
+mkdir -p "$TMP_SQUEY_DIR" 2>/dev/null || true
+MOUNT_OPTS="$GL_MOUNT_OPTS --mount $TMP_SQUEY_DIR /srv/tmp-squey"

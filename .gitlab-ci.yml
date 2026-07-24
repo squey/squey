@@ -105,6 +105,12 @@ builder appstream-linter:
       optional: true
   before_script:
     - |
+      # Isolate the BuildStream cache per runner slot: concurrent jobs on the same
+      # runner must never share a local CAS directory, otherwise their independent
+      # buildbox-casd LRU cleanups race and evict each other's blobs mid-staging.
+      # Durable artifacts live in the shared casd daemon (storage-service);
+      # these per-slot caches are purgeable pass-through.
+      export XDG_CACHE_HOME="$HOME/.cache/bst-slots/bst-slot-${CI_CONCURRENT_ID:-0}"
       export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
       # git lfs pull
       for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
