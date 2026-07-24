@@ -53,12 +53,14 @@
 
 #include <QApplication>
 #include <QEventLoop>
+#include <QPointer>
 #include <QWidget>
 
 #include <algorithm>
 #include <any>
 #include <set>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include "common.h"
@@ -130,18 +132,14 @@ int main(int argc, char** argv)
 	};
 
 	// Build and show every registered view display against the computed view.
+	// The parallelview widgets are tracked through QPointer for the
+	// model-teardown oracle below.
 	std::set<std::string> seen_view_displays;
+	std::vector<std::pair<std::string, QPointer<QWidget>>> parallelview_widgets;
 	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 	    [&](PVDisplays::PVDisplayViewIf& obj) {
 		    const std::string name = obj.registered_name().toStdString();
 		    seen_view_displays.insert(name);
-
-		    // The scatter, hit-count and time-series views are left out for now;
-		    // only the full-parallel and zoomed views are exercised here.
-		    if (name == "parallelview_scatterview" or name == "parallelview_hitcountview" or
-		        name == "parallelview_timeseriesview") {
-			    return;
-		    }
 
 		    QWidget* w = PVDisplays::get_widget(obj, &view, nullptr, view_params);
 		    PV_ASSERT_VALID(w != nullptr, "view_display", name);
@@ -152,6 +150,7 @@ int main(int argc, char** argv)
 			    w->resize(1024, 1024);
 			    w->show();
 			    drain_render();
+			    parallelview_widgets.emplace_back(name, QPointer<QWidget>(w));
 		    } else {
 			    w->show();
 			    QApplication::processEvents();
@@ -173,6 +172,18 @@ int main(int argc, char** argv)
 		    w->show();
 		    QApplication::processEvents();
 	    });
+
+	// Model-teardown oracle: destroying the source -- hence the Squey::PVView,
+	// exactly what closing a source tab does -- while display widgets are
+	// still open must synchronously tear down every parallelview widget (they
+	// must not outlive the model they render) without crashing. This exercises
+	// the whole drain-then-delete path of the per-view rendering context.
+	src.get_parent<Squey::PVScene>().remove_child(src);
+	QApplication::processEvents();
+
+	for (auto const& [name, widget] : parallelview_widgets) {
+		PV_ASSERT_VALID(widget.isNull(), "widget_alive_after_model_teardown", name);
+	}
 
 	return 0;
 }

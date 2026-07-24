@@ -25,7 +25,7 @@
 
 #include <pvkernel/core/squey_assert.h>
 
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedZoneTree.h>
 #include <pvparallelview/PVParallelView.h>
@@ -44,7 +44,7 @@ int main()
 
 	TestEnv env(filename, fileformat);
 
-	PVParallelView::PVLibView* pv = env.get_lib_view();
+	PVParallelView::PVViewRenderingContext* pv = env.get_rendering_context();
 
 	PVParallelView::PVZonesManager& zm = pv->get_zones_manager();
 

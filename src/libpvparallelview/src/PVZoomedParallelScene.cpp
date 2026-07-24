@@ -33,7 +33,7 @@
 
 #include <pvparallelview/PVAbstractAxisSlider.h>
 #include <pvparallelview/PVParallelView.h>
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoomedSelectionAxisSliders.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
@@ -73,26 +73,24 @@
 PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
     PVParallelView::PVZoomedParallelView* zpview,
     Squey::PVView& pvview_sp,
-    PVParallelView::PVSlidersManager* sliders_manager_p,
-    PVZonesProcessor& zp_sel,
-    PVZonesProcessor& zp_bg,
-    PVZonesManager const& zm,
+    PVViewRenderingContext& context,
     PVCombCol axis_index)
     : QGraphicsScene(zpview)
     , _zpview(zpview)
     , _pvview(pvview_sp)
-    , _sliders_manager_p(sliders_manager_p)
+    , _context(&context)
+    , _sliders_manager_p(&context.sliders_manager())
     , _axis_index(axis_index)
     , _nraw_col(_pvview.get_axes_combination().get_nraw_axis(_axis_index))
-    , _zm(zm)
+    , _zm(context.get_zones_manager())
     , _pending_deletion(false)
     , _left_zone(nullptr)
     , _right_zone(nullptr)
     , _show_bg(true)
-    , _zp_sel(zp_sel)
-    , _zp_bg(zp_bg)
+    , _zp_sel(context.processor_sel())
+    , _zp_bg(context.processor_bg())
     , _selection_sliders(nullptr)
-    , _view_deleted(false)
+    , _detached(false)
 {
 	_zpview->set_viewport_cursor(Qt::CrossCursor);
 
@@ -139,12 +137,42 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 	pvview_sp._toggle_unselected_zombie_visibility.connect(sigc::mem_fun(
 	    *this, &PVParallelView::PVZoomedParallelScene::toggle_unselected_zombie_visibility));
 
-	sliders_manager_p->_update_zoom_sliders.connect(
+	_sliders_manager_p->_update_zoom_sliders.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_update));
-	sliders_manager_p->_del_zoom_sliders.connect(
+	_sliders_manager_p->_del_zoom_sliders.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::on_zoom_sliders_del));
-	sliders_manager_p->_del_zoomed_selection_sliders.connect(
+	_sliders_manager_p->_del_zoomed_selection_sliders.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::on_zoomed_sel_sliders_del));
+
+	// Rendering-context subscriptions (see PVViewRenderingContext signals documentation):
+	// every event tied to the zones manager / processors state goes through
+	// the context, which invalidates its shared state before emitting.
+	// Disconnection is automatic (sigc::trackable).
+	context.selection_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::update_new_selection_async));
+
+	context.axes_combination_about_to_change.connect(sigc::bind(
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::set_enabled), false));
+
+	context.axes_combination_changed.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVZoomedParallelScene::on_axes_combination_changed));
+
+	context.zones_about_to_be_updated.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVZoomedParallelScene::on_zones_about_to_be_updated));
+
+	context.zones_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::on_zones_updated));
+
+	context.view_about_to_be_deleted.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVZoomedParallelScene::on_view_about_to_be_deleted));
+
+	context.about_to_be_deleted.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVZoomedParallelScene::on_context_about_to_be_deleted));
+
+	// The output-layer refresh does not depend on the shared rendering state:
+	// observe it directly on the model.
+	pvview_sp._update_output_layer.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVZoomedParallelScene::update_all_async));
 
 	_updateall_timer.setInterval(150);
 	_updateall_timer.setSingleShot(true);
@@ -163,9 +191,87 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 		_zpview = nullptr;
 	}
 
-	if (!_view_deleted) {
-		common::get_lib_view(_pvview)->remove_zoomed_view(this);
+	if (_selection_sliders) {
+		_selection_sliders->remove_from_axis();
+		_selection_sliders = nullptr;
 	}
+
+	if (_pending_deletion == false) {
+		_pending_deletion = true;
+		_sliders_manager_p->del_zoom_sliders(_axis_index, _sliders_group.get());
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene rendering-context signal handlers
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::on_axes_combination_changed(bool async)
+{
+	if (!update_zones()) {
+		/* no axis to reattach this scene to: close the containing dock, which
+		 * deletes the widget (and this scene) once back to the event loop.
+		 */
+		if (_zpview != nullptr && _zpview->parentWidget() != nullptr) {
+			_zpview->parentWidget()->close();
+		}
+		return;
+	}
+
+	set_enabled(true);
+	// The zoomed zone trees were already rebuilt under a progress box by
+	// configure_axis(), called from update_zones().
+	if (async) {
+		update_all_async();
+	} else {
+		update_all();
+	}
+}
+
+void PVParallelView::PVZoomedParallelScene::on_zones_about_to_be_updated(
+    std::unordered_set<PVZoneID> const& zones)
+{
+	for (PVZoneID z : zones) {
+		if (is_zone_rendered(z)) {
+			set_enabled(false);
+			_zones_update_pending = true;
+			break;
+		}
+	}
+}
+
+void PVParallelView::PVZoomedParallelScene::on_zones_updated(
+    std::unordered_set<PVZoneID> const& /*zones*/)
+{
+	if (!_zones_update_pending) {
+		return;
+	}
+	_zones_update_pending = false;
+
+	set_enabled(true);
+	if (_context != nullptr) {
+		_context->request_zoomed_zone_trees(_axis_index);
+	}
+	update_zones();
+	update_all_async();
+}
+
+void PVParallelView::PVZoomedParallelScene::on_view_about_to_be_deleted()
+{
+	// The Squey::PVView is being destroyed: its memory is released right
+	// after this emission, so the widget (which owns this scene) must not
+	// outlive it.
+	about_to_be_deleted();
+	delete _zpview;
+}
+
+void PVParallelView::PVZoomedParallelScene::on_context_about_to_be_deleted()
+{
+	// The rendering context (zones manager, sliders manager, processors) is
+	// going away while this scene is still alive: drain in-flight renderings
+	// and release every resource borrowed from the context while it is still
+	// valid. The widget stays alive, inert, until its Qt parent destroys it.
+	about_to_be_deleted();
 
 	if (_selection_sliders) {
 		_selection_sliders->remove_from_axis();
@@ -176,6 +282,13 @@ PVParallelView::PVZoomedParallelScene::~PVZoomedParallelScene()
 		_pending_deletion = true;
 		_sliders_manager_p->del_zoom_sliders(_axis_index, _sliders_group.get());
 	}
+
+	// ~PVSlidersGroup deregisters against the sliders manager: destroy it now,
+	// while the manager is still alive.
+	_sliders_group.reset();
+
+	_sliders_manager_p = nullptr;
+	_context = nullptr;
 }
 
 /*****************************************************************************
@@ -437,12 +550,14 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 
 	/* get the needed zones
 	 */
-	PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_enable_cancel(false);
-		    common::get_lib_view(_pvview)->request_zoomed_zone_trees(_axis_index);
-		},
-	    "Initializing zoomed parallel view...", nullptr);
+	if (_context != nullptr) {
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    pbox.set_enable_cancel(false);
+			    _context->request_zoomed_zone_trees(_axis_index);
+			},
+		    "Initializing zoomed parallel view...", nullptr);
+	}
 
 	/* the zones
 	 */

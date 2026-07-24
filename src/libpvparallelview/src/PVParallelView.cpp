@@ -29,7 +29,7 @@
 #include <pvparallelview/PVBCIDrawingBackend.h>
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
 #include <pvparallelview/PVBCIDrawingBackendQPainter.h>
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoneRendering.h>
@@ -58,10 +58,9 @@ PVParallelView::PVParallelViewImpl::~PVParallelViewImpl()
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
-	map_lib_views::iterator it;
-	for (it = _lib_views.begin(); it != _lib_views.end(); it++) {
-		delete it->second;
-	}
+	// Destroy the remaining rendering contexts (their subscribed views drain
+	// and detach, see PVViewRenderingContext::about_to_be_deleted) before the pipeline.
+	_rendering_contexts.clear();
 
 	if (_pipeline) {
 		delete _pipeline;
@@ -93,29 +92,24 @@ PVParallelView::PVParallelViewImpl& PVParallelView::PVParallelViewImpl::get()
 	return *_s;
 }
 
-PVParallelView::PVLibView* PVParallelView::PVParallelViewImpl::get_lib_view(Squey::PVView& view)
+PVParallelView::PVViewRenderingContext* PVParallelView::PVParallelViewImpl::get_rendering_context(Squey::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
-	auto it = _lib_views.find(&view);
-	if (it != _lib_views.end()) {
-		return it->second;
+	auto it = _rendering_contexts.find(&view);
+	if (it != _rendering_contexts.end()) {
+		return it->second.get();
 	}
 
-	auto* new_view = new PVLibView(view);
-	_lib_views.insert(std::make_pair(&view, new_view));
-	return new_view;
+	auto new_view = std::make_unique<PVViewRenderingContext>(view);
+	return _rendering_contexts.emplace(&view, std::move(new_view)).first->second.get();
 }
 
-void PVParallelView::PVParallelViewImpl::remove_lib_view(Squey::PVView& view)
+void PVParallelView::PVParallelViewImpl::remove_rendering_context(Squey::PVView& view)
 {
 	tbb::mutex::scoped_lock lock(_mutex);
 
-	auto it = _lib_views.find(&view);
-	if (it != _lib_views.end()) {
-		delete it->second;
-		_lib_views.erase(it);
-	}
+	_rendering_contexts.erase(&view);
 }
 
 namespace PVParallelView::common

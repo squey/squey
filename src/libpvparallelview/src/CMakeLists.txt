@@ -27,7 +27,7 @@ PVHitGraphBuffer.cpp
 PVHitGraphDataInterface.cpp
 PVHitGraphDataOMP.cpp
 PVHitGraphSSEHelpers.cpp
-PVLibView.cpp
+PVViewRenderingContext.cpp
 PVLinesView.cpp
 PVParallelView.cpp
 PVRenderingPipeline.cpp

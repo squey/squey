@@ -33,11 +33,12 @@
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelView.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <pvbase/general.h>
 
@@ -63,8 +64,11 @@ int main(int argc, char** argv)
 
 	TestEnv env(filename, fileformat);
 
-	PVParallelView::PVLibView* plib_view = env.get_lib_view();
-	PVParallelView::PVZoomedParallelView* zpview = plib_view->create_zoomed_view(PVCombCol(1));
+	PVParallelView::PVViewRenderingContext* context = env.get_rendering_context();
+	Squey::PVView& view = *context->lib_view();
+	auto* zpview = new PVParallelView::PVZoomedParallelView(view.get_axes_combination());
+	auto* scene = new PVParallelView::PVZoomedParallelScene(zpview, view, *context, PVCombCol(1));
+	zpview->set_scene(scene);
 	zpview->resize(1024, 1024);
 	zpview->show();
 

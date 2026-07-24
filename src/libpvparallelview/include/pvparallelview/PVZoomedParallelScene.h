@@ -48,11 +48,13 @@
 
 #include <atomic>
 #include <cmath>
+#include <unordered_set>
 
 namespace PVParallelView
 {
 
 // forward declaration
+class PVViewRenderingContext;
 class PVZoomedSelectionAxisSliders;
 class PVZonesProcessor;
 class PVZoomedParallelViewSelectionLine;
@@ -111,10 +113,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	 */
 	PVZoomedParallelScene(PVParallelView::PVZoomedParallelView* zpview,
 	                      Squey::PVView& pvview_sp,
-	                      PVSlidersManager* sliders_manager_p,
-	                      PVZonesProcessor& zp_sel,
-	                      PVZonesProcessor& zp_bg,
-	                      PVZonesManager const& zm,
+	                      PVViewRenderingContext& context,
 	                      PVCombCol axis_index);
 
 	/**
@@ -241,12 +240,14 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	}
 
 	/**
-	 * Prepare the zoomed view to be deleted.
+	 * Prepare the zoomed view to be deleted: cancel and drain every pending
+	 * rendering so nothing references the shared rendering state anymore.
 	 */
 	inline void about_to_be_deleted()
 	{
-		_view_deleted = true;
+		_detached = true;
 		_zpview->setDisabled(true);
+		_updateall_timer.stop();
 		cancel_and_wait_all_rendering();
 	}
 
@@ -302,6 +303,13 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	void change_to_col(PVCombCol index);
 
   private:
+	// Rendering-context (PVViewRenderingContext) signal handlers
+	void on_axes_combination_changed(bool async);
+	void on_zones_about_to_be_updated(std::unordered_set<PVZoneID> const& zones);
+	void on_zones_updated(std::unordered_set<PVZoneID> const& zones);
+	void on_view_about_to_be_deleted();
+	void on_context_about_to_be_deleted();
+
 	/**
 	 * Get the zoom level corresponding to the current mouse wheel state.
 	 */
@@ -518,6 +526,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
   private:
 	PVZoomedParallelView* _zpview;
 	Squey::PVView& _pvview;
+	PVViewRenderingContext* _context;
 	PVSlidersManager* _sliders_manager_p;
 	std::unique_ptr<PVSlidersGroup> _sliders_group;
 	PVCombCol _axis_index;
@@ -526,6 +535,10 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 
 	// this flag helps not killing twice through the hive and the destructor
 	bool _pending_deletion;
+
+	// set between zones_about_to_be_updated and zones_updated when one of the
+	// rendered zones is part of the rebuilt set
+	bool _zones_update_pending = false;
 
 	// about mouse
 	int _wheel_value;
@@ -553,7 +566,9 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	render_t _render_type;
 	int _renderable_zone_number;
 
-	std::atomic_bool _view_deleted;
+	// Set once this scene is detached from its rendering context or model
+	// (teardown): late rendering callbacks must then be ignored.
+	std::atomic_bool _detached;
 };
 } // namespace PVParallelView
 

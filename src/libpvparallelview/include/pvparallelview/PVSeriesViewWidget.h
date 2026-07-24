@@ -110,6 +110,7 @@ class PVSeriesViewWidget : public QWidget
 
 	PVCore::PVDisconnector _scaling_change_connection;
 	PVCore::PVDisconnector _selection_change_connection;
+	PVCore::PVDisconnector _view_deleted_connection;
 
 	PVSeriesViewParamsWidget* _params_widget = nullptr;
 	PVWidgets::PVHelpWidget _help_widget;

@@ -57,6 +57,7 @@
 #include <pvkernel/widgets/PVColorDialog.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
+#include <squey/PVScaled.h>
 #include <squey/PVSelection.h>
 #include <squey/PVStateMachine.h>
 #include <squey/PVSource.h>

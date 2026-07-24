@@ -96,7 +96,11 @@ class PVZonesManager : public QObject
 	[[nodiscard]] auto acquire_zone(PVZoneID zone) -> ZoneRetainer;
 	void release_zone(PVZoneID zone);
 
-	std::unordered_set<PVZoneID> list_cols_to_zones_indices(QSet<PVCombCol> const& comb_cols) const;
+	/**
+	 * List every alive zone (axes-combination and retained ones) having one of
+	 * its columns in @p cols.
+	 */
+	std::unordered_set<PVZoneID> list_zones_for_columns(QList<PVCol> const& cols) const;
 
 	void request_zoomed_zone(PVZoneID zone);
 

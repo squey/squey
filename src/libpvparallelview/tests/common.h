@@ -31,6 +31,7 @@
 
 #include <squey/common.h>
 #include <squey/PVRoot.h>
+#include <squey/PVScaled.h>
 #include <squey/PVScene.h>
 #include <squey/PVSource.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
@@ -51,7 +52,7 @@ class PVView;
 
 namespace PVParallelView
 {
-class PVLibView;
+class PVViewRenderingContext;
 }
 
 inline namespace pvtest
@@ -299,9 +300,9 @@ class TestEnv
   public:
 	Squey::PVRoot root;
 
-	PVParallelView::PVLibView* get_lib_view()
+	PVParallelView::PVViewRenderingContext* get_rendering_context()
 	{
-		return PVParallelView::common::get_lib_view(*root.current_view());
+		return PVParallelView::common::get_rendering_context(*root.current_view());
 	}
 
   private:

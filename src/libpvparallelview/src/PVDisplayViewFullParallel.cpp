@@ -27,9 +27,10 @@
 
 #include <squey/PVView.h>
 
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelView.h>
+#include <pvparallelview/PVFullParallelScene.h>
 
 #include <pvparallelview/PVDisplayViewFullParallel.h>
 
@@ -49,16 +50,21 @@ QWidget* PVDisplays::PVDisplayViewFullParallel::create_widget(Squey::PVView* vie
                                                               QWidget* parent,
                                                               Params const&) const
 {
-	PVParallelView::PVLibView* lib_view = nullptr;
+	PVParallelView::PVViewRenderingContext* context = nullptr;
 
 	PVCore::PVProgressBox::progress(
 	    [&](PVCore::PVProgressBox& pbox) {
 		    pbox.set_enable_cancel(false);
-		    lib_view = PVParallelView::common::get_lib_view(*view);
+		    // May build the zone trees on first use for this Squey::PVView.
+		    context = PVParallelView::common::get_rendering_context(*view);
 		},
 	    "Initializing parallel coordinates view...", parent);
 
-	auto w = lib_view->create_view(parent);
+	auto w = new PVParallelView::PVFullParallelView(parent);
+	auto* scene = new PVParallelView::PVFullParallelScene(w, *view, *context,
+	                                                      PVParallelView::common::backend());
+	w->setScene(scene);
+	scene->first_render();
 	QObject::connect(w, &PVParallelView::PVFullParallelView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
 		_set_status_bar_mouse_legend.emit(w, legend);
 	});

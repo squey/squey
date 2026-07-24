@@ -101,6 +101,9 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 			    QObject::tr("Sampling..."), this);
 		}
 	});
+	// The Squey::PVView model is being destroyed: its memory is released right
+	// after this emission, so this widget must not outlive it.
+	_view_deleted_connection = _view->_about_to_be_delete.connect([this] { delete this; });
 
 	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Zoom (horizontal)", "Pan view", "Zoom (horizontal)");
 	_mouse_buttons_current_legend = _mouse_buttons_default_legend;

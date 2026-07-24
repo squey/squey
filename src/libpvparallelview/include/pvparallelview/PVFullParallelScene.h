@@ -42,9 +42,12 @@
 #include <pvparallelview/PVSlidersManager.h>
 
 #include <atomic>
+#include <unordered_set>
 
 namespace PVParallelView
 {
+
+class PVViewRenderingContext;
 
 class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 {
@@ -57,11 +60,8 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
   public:
 	PVFullParallelScene(PVFullParallelView* full_parallel_view,
 	                    Squey::PVView& view_sp,
-	                    PVParallelView::PVSlidersManager* sm_p,
-	                    PVBCIDrawingBackend& backend,
-	                    PVZonesManager const& zm,
-	                    PVZonesProcessor& zp_sel,
-	                    PVZonesProcessor& zp_bg);
+	                    PVViewRenderingContext& context,
+	                    PVBCIDrawingBackend& backend);
 	~PVFullParallelScene() override;
 
 	void first_render();
@@ -120,6 +120,13 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void axis_hover_entered(PVCombCol col, bool entered);
 
   private:
+	// Rendering-context (PVViewRenderingContext) signal handlers
+	void on_axes_combination_changed(bool async);
+	void on_zones_about_to_be_updated(std::unordered_set<PVZoneID> const& zones);
+	void on_zones_updated(std::unordered_set<PVZoneID> const& zones);
+	void on_view_about_to_be_deleted();
+	void on_context_about_to_be_deleted();
+
 	void update_number_of_visible_zones();
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();
@@ -241,6 +248,7 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	axes_list_t _axes;
 
 	Squey::PVView& _lib_view;
+	PVViewRenderingContext* _context;
 
 	PVFullParallelView* _full_parallel_view;
 
@@ -255,7 +263,9 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	QTimer* _timer_render;
 
-	std::atomic<bool> _view_deleted;
+	// Set once this scene is detached from its rendering context or model
+	// (teardown): pending render-finished callbacks must then be ignored.
+	std::atomic<bool> _detached;
 
 	bool _show_min_max_values;
 	bool _density_on_axes_enabled = false;

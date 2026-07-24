@@ -23,9 +23,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvparallelview/PVLibView.h>
-#include <pvparallelview/PVParallelView.h>
-
 #include <pvparallelview/PVDisplayViewTimeseries.h>
 #include <pvparallelview/PVSeriesViewWidget.h>
 
