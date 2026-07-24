@@ -35,6 +35,9 @@
 #include <QLabel>
 #include <QWidget>
 #include <QMessageBox>
+#include <QTimer>
+
+#include <atomic>
 
 #include <boost/thread.hpp>  // IWYU pragma: keep
 
@@ -282,15 +285,32 @@ PVCore::PVProgressBox::CancelState PVCore::PVProgressBox::progress(
 		Q_EMIT pbox.canceled_sig();
 	});
 
+	std::atomic<bool> worker_done{false};
 	boost::thread th([&]() {
 		try {
 			f(pbox);
 		} catch (boost::thread_interrupted) {
 		}
+		worker_done.store(true);
 		Q_EMIT pbox.finished_sig();
 	});
 
 	if (!th.timed_join(boost::posix_time::milliseconds(250))) {
+		// finished_sig reaches accept() through a queued connection. On some platforms
+		// (the offscreen QPA plugin) QDialog::show() can pump the posted event queue
+		// before exec() installs its own event loop, so a finished_sig that fired in
+		// that window is consumed while exec() has no loop to exit: exec() then blocks
+		// forever and the whole operation hangs (reproduced under the offscreen platform
+		// of the test suite). A short timer polled from *inside* exec()'s loop re-checks
+		// the worker and closes the dialog robustly, whatever happened to finished_sig.
+		QTimer done_poll;
+		QObject::connect(&done_poll, &QTimer::timeout, &pbox, [&pbox, &worker_done]() {
+			if (worker_done.load()) {
+				pbox.accept();
+			}
+		});
+		done_poll.start(30);
+
 		if (pbox.exec() != QDialog::Accepted) {
 			pbox.set_extended_status_slot("Canceling");
 			pbox.update();
