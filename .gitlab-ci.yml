@@ -181,7 +181,7 @@ build testsuite macos:
   extends: .build
   script:
     - ./build.sh
-      --target_triple="aarch64-apple-darwin"
+      --target_triple="${TARGET_TRIPLE}"
       --macos-sdk-dir="/srv/macos_sdk"
       --user-target=customer
       --branch="${CI_COMMIT_REF_NAME}"
@@ -202,6 +202,7 @@ build testsuite macos:
       - export
     reports:
       junit: junit.xml
+  parallel: !reference [.archs, macos-arm64]
 
 build release macos:
   extends: .build
@@ -263,11 +264,11 @@ run testsuite windows:
     - !reference [.run testsuite windows]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
-      when: always
+      when: on_success
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
-      when: always
+      when: on_success
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
-      when: always
+      when: on_success
     - when: never
   needs:
     - job: build testsuite windows
@@ -280,11 +281,11 @@ run testsuite macos:
     - !reference [.run testsuite macos]
   rules:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
-      when: always
+      when: on_success
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
-      when: always
+      when: on_success
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
-      when: always
+      when: on_success
     - when: never
   needs:
     - job: build testsuite macos
