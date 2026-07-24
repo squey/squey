@@ -32,6 +32,24 @@ cancel_scheduled_pipeline_if_already_ran_for_this_commit:
     - privileged-docker
   script:
     - |
+      # --- Token diagnostics (temporary) ---
+      if [ -z "$GITLAB_API_TOKEN" ]; then
+        echo "DIAG: GITLAB_API_TOKEN is EMPTY in this job (not exposed - check 'Protected' flag)."
+      else
+        echo "DIAG: GITLAB_API_TOKEN is set (length: ${#GITLAB_API_TOKEN})."
+      fi
+      # Who is this token? (also validates the token itself against the API)
+      echo "DIAG: /user response:"
+      curl --silent --write-out "\nDIAG_HTTP_CODE=%{http_code}\n" \
+        --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+        "$CI_API_V4_URL/user" | jq '{id, username, state} // .' 2>/dev/null || true
+      # What access level does this token's user have on THIS project?
+      echo "DIAG: project membership / permissions:"
+      curl --silent --write-out "\nDIAG_HTTP_CODE=%{http_code}\n" \
+        --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+        "$CI_API_V4_URL/projects/$CI_PROJECT_ID?simple=false" | jq '.permissions // .' 2>/dev/null || true
+      # --- End diagnostics ---
+
       # Only look at scheduled pipelines, otherwise the merge request pipeline which
       # already ran on this commit would be enough to cancel this one
       existing_pipeline=$(curl --silent --get \
@@ -40,8 +58,14 @@ cancel_scheduled_pipeline_if_already_ran_for_this_commit:
         "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines" | jq ".[] | select(.id != $CI_PIPELINE_ID)")
       if [ -n "$existing_pipeline" ]; then
         echo "Already built, skipping pipeline."
-        if ! curl --silent --fail --request POST --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-             "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel" > /dev/null; then
+        # Print the raw HTTP code and body instead of hiding them, so we can tell
+        # a token problem (401/403) apart from a pipeline-state problem (405/409).
+        cancel_body=$(curl --silent --request POST --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+          --write-out "\nDIAG_HTTP_CODE=%{http_code}\n" \
+          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel")
+        echo "DIAG: cancel response:"
+        echo "$cancel_body"
+        if ! echo "$cancel_body" | grep -q "DIAG_HTTP_CODE=20"; then
           echo "Could not cancel the pipeline, check that GITLAB_API_TOKEN is set with the 'api' scope"
         fi
       fi
