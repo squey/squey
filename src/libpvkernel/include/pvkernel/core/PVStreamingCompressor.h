@@ -33,7 +33,6 @@
 #include <thread>
 #include <vector>
 #include <stdexcept>
-#include <tuple>
 #include <utility>
 #ifdef _WIN32
 #include <windows.h>
@@ -78,11 +77,14 @@ class PVStreamingBase
 	const std::string& path() const { return _path; }
 
   public:
-	static std::tuple<std::vector<std::string>, std::vector<char*>> executable(const std::string& extension, EExecType type, const std::string& output_name = "-");
+	static std::vector<std::string> executable(const std::string& extension, EExecType type, const std::string& output_name = "-");
 
   protected:
 	int return_status(std::string* status_message = nullptr);
 	virtual void do_wait_finished() = 0;
+#if defined(__linux__) || defined(__APPLE__)
+	void build_argv();
+#endif
 
   protected:
 	std::string _path;
@@ -91,8 +93,8 @@ class PVStreamingBase
 	std::string _status_msg;
 	std::string _extension;
 	bool _passthrough;
-	bool _canceled = false;
-	bool _finished = false;
+	std::atomic<bool> _canceled = false;
+	std::atomic<bool> _finished = false;
 
 	int _status_fd = -1;
 	int _output_fd = -1;
@@ -154,6 +156,8 @@ class PVStreamingDecompressor : public __impl::PVStreamingBase
 	std::atomic<size_t> _compressed_chunk_size;
 	bool _init = false;
 	int _write_fd = -1;
+	std::mutex _thread_error_mutex;
+	std::string _thread_error;
 };
 
 } // namespace PVCore

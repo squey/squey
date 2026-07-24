@@ -95,14 +95,14 @@ UNICODE_MAIN()
 
 #ifndef SQUEY_BENCH
 	std::string file_extension = input_file.substr(input_file.rfind('.') + 1);
-	const auto& [args, argv_] = PVCore::PVStreamingDecompressor::executable(file_extension, PVCore::PVStreamingDecompressor::EExecType::DECOMPRESSOR);
+	const std::vector<std::string> args = PVCore::PVStreamingDecompressor::executable(file_extension, PVCore::PVStreamingDecompressor::EExecType::DECOMPRESSOR);
 	std::string uncompressed_file = output_file;
 	std::string cmd = boost::algorithm::join(args, " ");
 	if (not cmd.empty()) {
 		std::string output_file2 = import_export(output_file, format, test_selection);
 		output_file2 = std::filesystem::path(output_file2).make_preferred().string();
 		uncompressed_file = output_file2.substr(0, output_file2.find_last_of("."));
-		if (cmd == "funzip") {
+		if (cmd == "funzip" or cmd == "bsdtar -xOf -") {
 #ifdef _WIN32
 			cmd = "7z x -y -o" + boost::filesystem::path(output_file2).parent_path().string();
 #else
