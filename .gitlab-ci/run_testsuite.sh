@@ -53,12 +53,29 @@ sed -i '' "s|\(nraw_tmp=\).*|\1${TMPDIR}|" "$inifile"
 # Increase file descriptors limit to avoid "Too many open files" error
 ulimit -n 1048576
 
-# Run testsuite
+# Run testsuite. ctest only reports "SEGFAULT" for a crashed test, and these
+# runners are the only arm64 machines available, so print the crash reports macOS
+# writes: they carry the symbolicated stack the log otherwise never shows.
+set +e
+ctest_status=0
 ctest_cmd=(ctest --test-dir "$testsuitedir" -j $(nproc) --output-junit "$CI_PROJECT_DIR/junit.xml" --output-on-failure -T test -R 'SQUEY_TEST')
 if [ "$TARGET_TRIPLE" = "aarch64-apple-darwin" ]; then
     "${ctest_cmd[@]}"
+    ctest_status=$?
 elif [ "$TARGET_TRIPLE" = "x86_64-apple-darwin" ]; then
     softwareupdate --install-rosetta --agree-to-license || true
     arch -x86_64 bash -c "/usr/sbin/sysctl -a" | grep machdep.cpu.features
     arch -x86_64 bash -c '"$@"' _ "${ctest_cmd[@]}"
+    ctest_status=$?
 fi
+set -e
+
+if [ "$ctest_status" -ne 0 ]; then
+    for report in "$HOME/Library/Logs/DiagnosticReports/"SQUEY_TEST*; do
+        [ -e "$report" ] || continue
+        echo "===== crash report: $report ====="
+        cat "$report"
+    done
+fi
+
+exit "$ctest_status"
