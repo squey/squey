@@ -19,6 +19,11 @@ export SQUEY_PLUGIN_PATH="$PVKERNEL_PLUGIN_PATH"
 export QT_QPA_PLATFORM_PLUGIN_PATH="$appdir/../PlugIns/platforms"
 export SQUEY_PYTHONHOME="$appdir/../Frameworks/Python.framework/Versions/Current"
 export SQUEY_PYTHONPATH="$appdir/../Resources/python/site-packages"
+# Same reason as the Qt plugins above: tshark_path() falls back to looking next to
+# the running executable, which holds for the application but not for a test binary
+# extracted outside the bundle. Without this the pcap import spawns a tshark that is
+# not there, produces no csv, and import_pcap sits until the 300 s test timeout.
+export SQUEY_TSHARK_PATH="$appdir/tshark"
 
 # Install dependencies
 export HOMEBREW_NO_INSTALL_CLEANUP=1
