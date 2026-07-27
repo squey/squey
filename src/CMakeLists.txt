@@ -28,6 +28,14 @@ include(CMakeOptions.txt)
 # Define compilation option such CPP/CXXFLAGS, libs ...
 include(CMakeCompilers.txt)
 
+# windres does not understand the compiler flags CMake feeds a resource file by
+# default (-fopenmp among them, which makes it bail out printing its usage), so
+# reduce the command to what it actually needs. Set here rather than per
+# directory: both the application and the test executables compile a .rc.
+if (WIN32)
+	set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff -F pe-x86-64 -o <OBJECT> <SOURCE>")
+endif()
+
 # Define folder for find_package macro
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${squey_SOURCE_DIR}/cmake)
 

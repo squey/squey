@@ -249,15 +249,24 @@ extract_csv(splitted_files_t files,
 						sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 						sa.lpSecurityDescriptor = NULL;
 						sa.bInheritHandle = TRUE;
+						// Give up on this file rather than spawning tshark on a handle that
+						// could not be opened: it would inherit an invalid stdin, fail with
+						// "The file "-" could not be opened", and leave the caller with a
+						// missing csv it then waits for -- an obscure hang instead of an error.
 						std::wstring pcap_wpath = std::filesystem::path(pcap.path()).wstring();
 						HANDLE hStdin = CreateFileW(pcap_wpath.c_str(), GENERIC_READ, FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 						if (hStdin == INVALID_HANDLE_VALUE) {
-							pvlogger::error() << "Failed to open input file: " << GetLastError() << std::endl;
+							pvlogger::error() << "Failed to open input file '" << pcap.path()
+							                  << "': " << GetLastError() << std::endl;
+							return;
 						}
 						std::wstring csv_wpath = std::filesystem::path(csv_path).wstring();
 						HANDLE hStdout = CreateFileW(csv_wpath.c_str(), GENERIC_WRITE, 0, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 						if (hStdout == INVALID_HANDLE_VALUE) {
-							pvlogger::error() << "Failed to open output file: " << GetLastError() << std::endl;
+							pvlogger::error() << "Failed to open output file '" << csv_path
+							                  << "': " << GetLastError() << std::endl;
+							CloseHandle(hStdin);
+							return;
 						}
 
 						si.cb = sizeof(STARTUPINFOA);

@@ -46,6 +46,39 @@
 #include <QFileInfo>
 #include <QString>
 
+/* libarchive resolves a narrow filename through the C locale rather than the
+ * process code page, so it is the one place that does not follow the UTF-8 code
+ * page declared in utf8.manifest: a path holding a non-ASCII character would be
+ * decoded as one character per byte and miss the file. Hand it the wide API on
+ * Windows, where these three entry points expect a filesystem path.
+ */
+static int squey_archive_read_open(struct archive* a, QString const& path, size_t block_size)
+{
+#ifdef _WIN32
+	return archive_read_open_filename_w(a, path.toStdWString().c_str(), block_size);
+#else
+	return archive_read_open_filename(a, path.toLocal8Bit().constData(), block_size);
+#endif
+}
+
+static int squey_archive_write_open(struct archive* a, QString const& path)
+{
+#ifdef _WIN32
+	return archive_write_open_filename_w(a, path.toStdWString().c_str());
+#else
+	return archive_write_open_filename(a, path.toLocal8Bit().constData());
+#endif
+}
+
+static void squey_archive_entry_set_pathname(struct archive_entry* entry, QString const& path)
+{
+#ifdef _WIN32
+	archive_entry_copy_pathname_w(entry, path.toStdWString().c_str());
+#else
+	archive_entry_set_pathname(entry, path.toLocal8Bit().constData());
+#endif
+}
+
 static void squey_archive_read_support(struct archive* a)
 {
 	// Support all formats
@@ -114,7 +147,6 @@ void PVCore::PVArchive::extract(QString const& path,
 	int flags;
 	int r;
 	QString path_extract;
-	QByteArray path_extract_local;
 
 	// Parse the destination directory
 	QDir qdir_dest(dir_dest);
@@ -138,7 +170,7 @@ void PVCore::PVArchive::extract(QString const& path,
 	ext = archive_write_disk_new();
 	archive_write_disk_set_options(ext, flags);
 	archive_write_disk_set_standard_lookup(ext);
-	if ((r = archive_read_open_filename(a, filename, 10240)) != 0) {
+	if ((r = squey_archive_read_open(a, path, 10240)) != 0) {
 		throw PVCore::ArchiveUncompressFail(std::string(archive_error_string(a)) +
 		                                    std::string(filename));
 	}
@@ -148,7 +180,7 @@ void PVCore::PVArchive::extract(QString const& path,
 		archive_read_close(a);
 		a = archive_read_new();
 		squey_archive_read_support_noformat(a);
-		archive_read_open_filename(a, filename, 10240);
+		squey_archive_read_open(a, path, 10240);
 		r = archive_read_next_header(a, &entry);
 		read_raw = true;
 	}
@@ -173,12 +205,10 @@ void PVCore::PVArchive::extract(QString const& path,
 				qentry = qentry.mid(1, -1);
 			}
 			path_extract = qdir_dest.cleanPath(qdir_dest.absoluteFilePath(qentry));
-			path_extract_local = path_extract.toLocal8Bit();
-			const char* filename_ext = path_extract_local.constData();
-
 			// PVLOG_INFO("Extract %s from %s to %s...\n", archive_entry_pathname(entry), filename,
-			// filename_ext);
-			archive_entry_set_pathname(entry, filename_ext);
+			// qPrintable(path_extract));
+			// This is where the entry lands on disk, so it goes through the wide API too.
+			squey_archive_entry_set_pathname(entry, path_extract);
 			if (read_raw) {
 				archive_entry_set_perm(entry, 0400);
 			}
@@ -240,7 +270,7 @@ void PVCore::PVArchive::create_tarbz2(QString const& ar_path, QString const& dir
 		throw PVCore::ArchiveCreationFail(error_message.c_str());
 	}
 	QByteArray ar_path_ba = ar_path.toLocal8Bit();
-	if (archive_write_open_filename(a, ar_path_ba.constData()) != ARCHIVE_OK) {
+	if (squey_archive_write_open(a, ar_path) != ARCHIVE_OK) {
 		throw PVCore::ArchiveCreationFail("Unable to open file " +
 		                                  std::string(ar_path_ba.constData()) + ": " +
 		                                  std::string(archive_error_string(a)) + ".");

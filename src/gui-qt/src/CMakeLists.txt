@@ -41,7 +41,9 @@ QT6_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
 if (WIN32)
     set(EXE_OPTIONS WIN32)
     set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff -F pe-x86-64 -o <OBJECT> <SOURCE>")
-    set(RC_FILES_SRCS "squey_resource.rc")
+    # utf8_manifest.rc sets the process code page to UTF-8, without which the
+    # narrow file APIs mangle every path holding a non-ASCII character.
+    set(RC_FILES_SRCS "squey_resource.rc" "${CMAKE_SOURCE_DIR}/utf8_manifest.rc")
 endif()
 
 add_executable(squey ${EXE_OPTIONS} ${SRC_FILES} ${MOC_SRC} ${MOC_HEADERS} ${QRC_FILES_SRCS} ${RC_FILES_SRCS})

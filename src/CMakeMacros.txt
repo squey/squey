@@ -68,6 +68,13 @@ function(add_squey_compile_test test_exe)
 	set(files ${_WRAP_TEST_FILES})
 	set(links ${_WRAP_TEST_LINKS})
 
+	# Tests exercise the same path handling as the application, so they need the
+	# same UTF-8 active code page (see utf8.manifest): without it, a test whose
+	# paths hold a non-ASCII character silently reads and writes elsewhere.
+	if (WIN32)
+		list(APPEND files "${CMAKE_SOURCE_DIR}/utf8_manifest.rc")
+	endif()
+
 	# Now, we have all arguments, compile the executable
 	add_executable(SQUEY_TEST_${test_exe} EXCLUDE_FROM_ALL ${files})
 	target_compile_definitions(SQUEY_TEST_${test_exe} PRIVATE TEST_FOLDER=\"${TESTS_FILES_DIR}\" TESTS_FILES_DIR=\"${TESTS_FILES_DIR}\" TESTS_SOURCE_DIR=\"${TESTS_SOURCE_DIR}\")

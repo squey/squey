@@ -192,6 +192,12 @@ function(compile_and_install_tool tool_exe)
 	set(files ${_WRAP_TEST_FILES})
 	set(links ${_WRAP_TEST_LINKS})
 
+	# Same UTF-8 active code page as the application (see utf8.manifest): the
+	# crash reporter walks user paths that may hold non-ASCII characters.
+	if (WIN32)
+		list(APPEND files "${CMAKE_SOURCE_DIR}/utf8_manifest.rc")
+	endif()
+
 	add_executable(${tool_exe} ${files})
 	target_link_libraries(${tool_exe} ${links})
 	INSTALL(TARGETS ${tool_exe} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)

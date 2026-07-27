@@ -1,0 +1,3 @@
+/* Embeds utf8.manifest as the process manifest of an executable.
+ * 1 is CREATEPROCESS_MANIFEST_RESOURCE_ID, 24 is RT_MANIFEST. */
+1 24 "utf8.manifest"
