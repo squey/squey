@@ -240,7 +240,12 @@ inline static simde__m128i squey_mm_slli_epi32(simde__m128i value, int count)
 		case 29: return simde_mm_slli_epi32(value, 29);
 		case 30: return simde_mm_slli_epi32(value, 30);
 		case 31: return simde_mm_slli_epi32(value, 31);
-		default: throw std::invalid_argument("Invalid shift value");
+		// Intel defines a count past the element width as producing zero rather
+		// than as an error, and callers rely on it: the hit graph shifts by
+		// 32 - zoom, which is exactly 32 at zoom 0. Throwing here aborted the
+		// application on arm64, where these replace the simde macros, while the
+		// same code was fine everywhere else.
+		default: return simde_mm_setzero_si128();
     }
 }
 
@@ -279,7 +284,12 @@ inline static simde__m128i squey_mm_srli_epi32(simde__m128i value, int count)
 		case 29: return simde_mm_srli_epi32(value, 29);
 		case 30: return simde_mm_srli_epi32(value, 30);
 		case 31: return simde_mm_srli_epi32(value, 31);
-		default: throw std::invalid_argument("Invalid shift value");
+		// Intel defines a count past the element width as producing zero rather
+		// than as an error, and callers rely on it: the hit graph shifts by
+		// 32 - zoom, which is exactly 32 at zoom 0. Throwing here aborted the
+		// application on arm64, where these replace the simde macros, while the
+		// same code was fine everywhere else.
+		default: return simde_mm_setzero_si128();
     }
 }
 
@@ -350,7 +360,12 @@ inline static simde__m128i squey_mm_slli_epi64(simde__m128i value, int count)
 		case 61: return simde_mm_slli_epi64(value, 61);
 		case 62: return simde_mm_slli_epi64(value, 62);
 		case 63: return simde_mm_slli_epi64(value, 63);
-		default: throw std::invalid_argument("Invalid shift value");
+		// Intel defines a count past the element width as producing zero rather
+		// than as an error, and callers rely on it: the hit graph shifts by
+		// 32 - zoom, which is exactly 32 at zoom 0. Throwing here aborted the
+		// application on arm64, where these replace the simde macros, while the
+		// same code was fine everywhere else.
+		default: return simde_mm_setzero_si128();
     }
 }
 

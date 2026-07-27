@@ -43,6 +43,7 @@
 #include <qstring.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cstring>
 #include <unistd.h>
 #include <atomic>
 #include <numeric>
@@ -365,7 +366,11 @@ extract_csv(splitted_files_t files,
 						close(fd_out);
 
 						if (status != 0) {
-							perror("posix_spawnp failed");
+							// posix_spawnp returns the error number instead of setting errno,
+							// so perror() reported a stale "Undefined error: 0" and hid what
+							// actually went wrong.
+							pvlogger::error() << "Unable to execute '" << cmd_opts[0]
+							                  << "': " << std::strerror(status) << std::endl;
 							return;
 						}
 
