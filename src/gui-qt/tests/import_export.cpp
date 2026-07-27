@@ -114,7 +114,10 @@ ImportExportTest::ImportExportTest()
     PVCore::setenv("QTWEBENGINE_CHROMIUM_FLAGS", "--no-sandbox", 1); // see  https://bugs.chromium.org/p/chromium/issues/detail?id=638180
     PVCore::setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
     PVCore::setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
-    PVCore::setenv("SQUEY_PCAP_PROFILES_PATH", SQUEY_SOURCE_DIRECTORY "/libpvkernel/plugins/common/pcap/profiles", 0);
+    // TESTS_SOURCE_DIR, not SQUEY_SOURCE_DIRECTORY: the latter is the absolute
+    // source path of the build sandbox, which does not exist on the machine
+    // running a cross-compiled test.
+    PVCore::setenv("SQUEY_PCAP_PROFILES_PATH", TESTS_SOURCE_DIR "/libpvkernel/plugins/common/pcap/profiles", 0);
 
     Squey::common::load_filters();
     PVGuiQt::common::register_displays();

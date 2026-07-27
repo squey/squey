@@ -27,6 +27,18 @@ if (NOT DEFINED TESTS_FILES_DIR)
 	endif()
 endif()
 
+# Source tree root as seen by a running test. Cross-compiled tests are built
+# inside the BuildStream sandbox but run on the target machine, where the
+# absolute source path of SQUEY_SOURCE_DIRECTORY does not exist: use a path
+# relative to the test working directory there, like TESTS_FILES_DIR does.
+if (NOT DEFINED TESTS_SOURCE_DIR)
+	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+		set(TESTS_SOURCE_DIR "${CMAKE_SOURCE_DIR}")
+	else()
+		set(TESTS_SOURCE_DIR "../../../../../../src")
+	endif()
+endif()
+
 # Default values for tests kind
 if (DEFINED TESTS_LONG)
 	add_definitions(-DTESTS_LONG)
