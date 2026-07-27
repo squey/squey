@@ -172,10 +172,12 @@ if [ "$CODE_COVERAGE_ENABLED" = false ]; then
   bst $BUILD_OPTIONS artifact log squey.bst | sed -n '/Test project/,/Total Test time/p' || true
 fi
 
-# Push artifacts
-if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
-  bst $BUILD_OPTIONS --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
-fi
+# Re-enable once a separate public artifact cache is back in service: pushing a
+# curated subset there (no squey*.bst, no freedesktop-sdk.bst) is meaningful again
+# when the remote is metered, unlike the local pool reached over a unix socket.
+#if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
+#  bst $BUILD_OPTIONS --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
+#fi
 
 # Extract testsuite and code coverage reports out of the build sandbox
 if [ "$GITLAB_CI" = true ]; then
