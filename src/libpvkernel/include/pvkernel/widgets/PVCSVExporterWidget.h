@@ -25,6 +25,7 @@
 #ifndef __PVKERNEL_WIDGETS_PVCSVEXPORTERWIDGET_H__
 #define __PVKERNEL_WIDGETS_PVCSVEXPORTERWIDGET_H__
 
+#include <pvkernel/export.h>
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/widgets/PVExporterWidgetInterface.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
@@ -35,7 +36,7 @@
 namespace PVWidgets
 {
 
-class PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
+class PVKERNEL_EXPORT PVCSVExporterWidget : public PVWidgets::PVExporterWidgetInterface
 {
 	Q_OBJECT
 
