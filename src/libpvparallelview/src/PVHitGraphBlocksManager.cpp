@@ -251,7 +251,6 @@ simde__m128i PVParallelView::PVHitGraphBlocksManager::get_count_for(simde__m128i
 	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
 
 	const simde__m128i base_y_sse = simde_mm_set1_epi32(base_y);
-	const simde__m256d alpha_sse = simde_mm256_set1_pd(last_alpha());
 
 	const simde__m128i zoom_mask_sse = simde_mm_set1_epi32(zoom_mask);
 	const simde__m128i y_min_ref_sse = simde_mm_set1_epi32(y_min_ref);
@@ -270,7 +269,7 @@ simde__m128i PVParallelView::PVHitGraphBlocksManager::get_count_for(simde__m128i
 	}
 
 	const simde__m128i idx_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
-	    value, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift, nbits);
+	    value, p_sse, y_min_ref_sse, last_alpha(), zoom_mask_sse, idx_shift, zoom_shift, nbits);
 
 	const uint32_t* buffer = data.buffer_all().buffer();
 

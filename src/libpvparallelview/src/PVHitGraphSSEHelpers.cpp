@@ -30,12 +30,14 @@ simde__m128i PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
     simde__m128i y_sse,
     simde__m128i p_sse,
     const simde__m128i y_min_ref_sse,
-    const HCSSE_ALPHA_DOUBLE_VEC alpha_sse,
+    double alpha,
     const simde__m128i zoom_mask_sse,
     uint32_t idx_shift,
     uint32_t zoom_shift,
     size_t nbits)
 {
+	const simde__m256d alpha_sse = simde_mm256_set1_pd(alpha);
+
 	y_sse = simde_mm_sub_epi32(y_sse, y_min_ref_sse);
 	const simde__m256d tmp1_avx = squey_mm256_cvtepu32_pd(y_sse);
 	const simde__m256d tmp2_avx = simde_mm256_mul_pd(tmp1_avx, alpha_sse);

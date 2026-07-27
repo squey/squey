@@ -25,16 +25,21 @@
 #ifndef PVPARALLELVIEW_PVHITGRAPHSSEHELPERS_H
 #define PVPARALLELVIEW_PVHITGRAPHSSEHELPERS_H
 
-#define HCSSE_ALPHA_DOUBLE_VEC simde__m256d
-
 namespace PVParallelView
 {
 
 struct PVHitGraphSSEHelpers {
+	/**
+	 * @param alpha is taken as a scalar and broadcast inside on purpose. Passing the
+	 * 256-bit vector instead makes the caller stage it in its outgoing argument area
+	 * with vmovapd, which needs a 32-byte aligned stack. On Windows the functions GCC
+	 * outlines from "#pragma omp parallel" -- and every caller here is inside such a
+	 * region -- keep only the 16 bytes the ABI guarantees, so that store faults.
+	 */
 	static simde__m128i buffer_offset_from_y_sse(simde__m128i y_sse,
 	                                        simde__m128i p_sse,
 	                                        const simde__m128i y_min_ref_sse,
-	                                        const HCSSE_ALPHA_DOUBLE_VEC alpha_sse,
+	                                        double alpha,
 	                                        const simde__m128i zoom_mask_sse,
 	                                        uint32_t idx_shift,
 	                                        uint32_t zoom_shift,
