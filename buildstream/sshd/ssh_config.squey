@@ -1,7 +1,24 @@
 
-Host Squey
+# One host entry per target platform, matching the ports set by run_ssh_server.sh
+# (sandboxes built for different targets can run side by side).
+
+Host SqueyLinux
   HostName localhost
   Port 6666
+  RemoteForward /tmp/squey-waypipe-socket-server /tmp/squey-waypipe-socket-client
+  NoHostAuthenticationForLocalhost yes
+  SendEnv XDG_RUNTIME_DIR
+
+Host SqueyWin
+  HostName localhost
+  Port 6667
+  RemoteForward /tmp/squey-waypipe-socket-server /tmp/squey-waypipe-socket-client
+  NoHostAuthenticationForLocalhost yes
+  SendEnv XDG_RUNTIME_DIR
+
+Host SqueyMac
+  HostName localhost
+  Port 6668
   RemoteForward /tmp/squey-waypipe-socket-server /tmp/squey-waypipe-socket-client
   NoHostAuthenticationForLocalhost yes
   SendEnv XDG_RUNTIME_DIR

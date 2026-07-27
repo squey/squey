@@ -46,7 +46,9 @@ Just append the [preconfigured SSH host configuration](sshd/ssh_config.squey) to
 cat buildstream/sshd/ssh_config.squey | tee -a ~/.ssh/config
 ```
 
-Then use the vscode `Remote Explorer` extension to connect to the `Squey` hostname using a ssh key (note: password login is not supported).
+Then use the vscode `Remote Explorer` extension to connect to the `SqueyLinux` hostname using a ssh key (note: password login is not supported).
+
+Each target platform uses its own port, so sandboxes for several targets can run at the same time: connect to `SqueyLinux` for a native Linux sandbox (port 6666), `SqueyWin` when it was started with `--target_triple=x86_64-w64-mingw32` (port 6667), and `SqueyMac` for an `*-apple-darwin` one (port 6668).
 
 Remote Explorer            | Open folder
 :-------------------------:|:-------------------------:
