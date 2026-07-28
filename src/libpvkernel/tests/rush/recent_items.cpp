@@ -96,9 +96,19 @@ UNICODE_MAIN()
 
 	// Without a user config file, PVConfig tries to copy the (absent) system one
 	// and throws: provide one in the isolated dir before anything reads PVConfig.
-	QDir().mkpath(PVCore::PVConfig::user_dir());
-	if (not QFile::exists(PVCore::PVConfig::user_path())) {
-		QFile::copy(QString::fromStdString(pvconfig_template), PVCore::PVConfig::user_path());
+	// Report a failure here rather than letting it surface as PVConfig's opaque
+	// "No config file found" three steps later.
+	if (not QDir().mkpath(PVCore::PVConfig::user_dir())) {
+		std::cerr << "Can't create config dir '" << PVCore::PVConfig::user_dir().toStdString()
+		          << "'" << std::endl;
+		return 1;
+	}
+	if (not QFile::exists(PVCore::PVConfig::user_path()) and
+	    not QFile::copy(QString::fromStdString(pvconfig_template),
+	                    PVCore::PVConfig::user_path())) {
+		std::cerr << "Can't copy '" << pvconfig_template << "' to '"
+		          << PVCore::PVConfig::user_path().toStdString() << "'" << std::endl;
+		return 1;
 	}
 
 	// Start from a clean recent items file, before the manager (a singleton) reads
