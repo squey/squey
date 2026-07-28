@@ -132,6 +132,13 @@ class PVStatsListingWidget : public QWidget, public sigc::trackable
   public:
 	void sync_vertical_headers();
 
+  private:
+	/**
+	 * Destroys this widget, the listing it wraps rendering from a view that is
+	 * about to be freed.
+	 */
+	void on_view_about_to_be_deleted();
+
   private Q_SLOTS:
 	void toggle_stats_panel_visibility();
 	void update_header_width(int column, int old_width, int new_width);
