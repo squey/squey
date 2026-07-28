@@ -152,6 +152,24 @@ bool App::PVMainWindow::load_source_from_description_Slot(
 
 	PVRush::PVFormat format = src_desc.get_format();
 
+	// Sources whose format is generated from the inputs (e.g. Parquet) are stored
+	// in the recent items without a format on disk: regenerate it from the inputs.
+	if (format.get_full_path().isEmpty() and format.get_axes().size() == 0) {
+		try {
+			PVRush::PVInputType_p input_type =
+			    src_desc.get_source_creator()->supported_type_lib();
+			PVRush::PVFormat regenerated_format =
+			    input_type->get_format_from_inputs(src_desc.get_inputs());
+			if (regenerated_format.get_axes().size() > 0) {
+				src_desc.set_format(regenerated_format);
+				format = regenerated_format;
+			}
+		} catch (const std::exception& e) {
+			QMessageBox::critical(this, tr("Error while loading source..."), e.what());
+			return false;
+		}
+	}
+
 	const size_t axes_count = format.get_axes().size();
 
 	if (axes_count < 2) {

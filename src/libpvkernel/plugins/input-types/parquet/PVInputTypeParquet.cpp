@@ -128,6 +128,21 @@ bool PVRush::PVInputTypeParquet::create_source_description_params(const QStringL
 	return true;
 }
 
+PVRush::PVFormat PVRush::PVInputTypeParquet::get_format_from_inputs(list_inputs const& inputs) const
+{
+	if (inputs.isEmpty()) {
+		return {};
+	}
+
+	auto* input_desc = dynamic_cast<PVParquetFileDescription*>(inputs.front().get());
+	if (input_desc == nullptr) {
+		return {};
+	}
+
+	PVParquetAPI api(input_desc);
+	return PVRush::PVFormat(api.get_format().documentElement());
+}
+
 PVWidgets::PVExporterWidgetInterface*
 PVRush::PVInputTypeParquet::create_exporter_widget(const list_inputs& inputs,
                                                    PVRush::PVNraw const& nraw) const

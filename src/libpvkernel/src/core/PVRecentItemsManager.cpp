@@ -319,15 +319,20 @@ std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_e
 	if (src_desc.input_desc.size() == 1) {
 		PVRush::PVSourceDescription input(src_desc);
 		QString source_path = input.get_inputs()[0]->human_name();
-		long_string = source_path + " [" + QString::fromStdString(src_desc.format_name) + "]";
+		long_string = source_path;
+		if (not src_desc.format_name.empty()) {
+			long_string += " [" + QString::fromStdString(src_desc.format_name) + "]";
+		}
 		filenames << source_path;
 	} else {
 		PVRush::PVSourceDescription desc(src_desc);
 		for (auto const& input : desc.get_inputs()) {
 			filenames << input->human_name();
 		}
-		long_string =
-		    "[" + QString::fromStdString(src_desc.format_name) + "]\n" + filenames.join("\n");
+		if (not src_desc.format_name.empty()) {
+			long_string = "[" + QString::fromStdString(src_desc.format_name) + "]\n";
+		}
+		long_string += filenames.join("\n");
 	}
 
 	return std::make_tuple(long_string, filenames);

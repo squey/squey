@@ -29,6 +29,8 @@
 
 #include <squey/PVAxesCombination.h>
 
+#include <pvkernel/widgets/PVWheelEventAccumulator.h>
+
 #include <pvparallelview/common.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVSlidersGroup.h>
@@ -543,6 +545,9 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	// about mouse
 	int _wheel_value;
 	qint64 _pan_reference_y;
+
+	// Only zoom once per whole physical wheel notch (ignore high-resolution sub-notch events).
+	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;
 
 	// about zones rendering/display
 	std::unique_ptr<zone_desc_t> _left_zone;

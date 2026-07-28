@@ -101,14 +101,24 @@ class PVMapped : public PVCore::PVDataTreeParent<PVScaled, PVMapped>,
 	{
 		assert((size_t)col < columns.size());
 		auto it = columns.begin();
-		std::advance(it, col);
+		// Unsigned walk instead of std::advance(it, col): std::advance converts
+		// the distance to a signed difference_type, and with a bound the compiler
+		// can't see it flags a -Waggressive-loop-optimizations false positive once
+		// this is inlined into an -O3 unity build (seen with MinGW GCC 14).
+		for (size_t n = (size_t)col; n-- != 0;) {
+			++it;
+		}
 		return *it;
 	}
 	PVMappingProperties& get_properties_for_col(PVCol col)
 	{
 		assert((size_t)col < columns.size());
 		auto it = columns.begin();
-		std::advance(it, col);
+		// See the const overload above: unsigned walk avoids a
+		// -Waggressive-loop-optimizations false positive under -O3 unity builds.
+		for (size_t n = (size_t)col; n-- != 0;) {
+			++it;
+		}
 		return *it;
 	}
 

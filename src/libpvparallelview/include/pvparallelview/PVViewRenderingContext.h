@@ -125,6 +125,7 @@ class PVViewRenderingContext : public sigc::trackable
 
   protected:
 	void on_selection_updated();
+	void on_selection_view_changed();
 	void on_layer_stack_output_layer_updated();
 	void on_view_about_to_be_deleted();
 	void on_axes_comb_about_to_be_updated();

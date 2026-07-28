@@ -88,6 +88,21 @@ add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp help
 add_squey_test(Trush_splitter_csv2 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv.out 7)
 add_squey_test(Trush_splitter_csv3 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv.out 2)
 add_squey_test(Trush_splitter_csv4 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv.out 20)
+# tshark -Tfields escape mode: escaped separators must not shift columns (argv[4]=92 is '\')
+add_squey_test(Trush_splitter_csv_tshark Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv.out 3 92)
+
+# End-to-end pcap import: a crafted pcap whose DNS TXT payloads embed the
+# pipeline's own CSV separator (0x7F) and a real newline, driven through the
+# real tshark invocation (requires tshark on PATH).
+# pvpcap (pcap_splitter.cpp) uses htons/ntohs, which on Windows live in ws2_32.
+if (WIN32)
+	set(PCAP_TEST_WINSOCK_LIBRARY "ws2_32")
+endif()
+add_squey_compile_test(Trush_pcap_tshark_escape LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_tshark_escape.cpp helpers.cpp)
+add_squey_test(Trush_pcap_tshark_escape Trush_pcap_tshark_escape ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
+# The test returns 77 to report itself skipped when tshark cannot be run (e.g. CI
+# outside a packaged install, where tshark_path() is not resolvable).
+set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_escape PROPERTIES SKIP_RETURN_CODE 77)
 
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)
@@ -227,6 +242,15 @@ add_squey_test(Trush_apache_parquet_offset Trush_apache_parquet_import_export ${
 add_squey_test(Trush_apache_parquet_import_export Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïchunks.csv)
 add_squey_test(Trush_apache_parquet_offset Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.csv)
 add_squey_test(Trush_apache_parquet_nested_complex_types Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.csv)
+add_squey_compile_test(Trush_apache_parquet_extended_types LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_extended_types.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet_extended_types Trush_apache_parquet_extended_types)
+add_squey_compile_test(Trush_recent_items LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES recent_items.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/tiny.csv ${PVRUSH_TEST_FILES}/formats/tiny-with-ac-v10.csv.format ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/../../pvconfig.ini)
+# Isolate the recent items file (recents.ini) from the real user configuration.
+# CMAKE_CURRENT_BINARY_DIR is the build sandbox path, which does not exist on the
+# machine running a cross-compiled test: use a path relative to the test working
+# directory, as TESTS_FILES_DIR already does for the test data.
+set_tests_properties(SQUEY_TEST_Trush_recent_items PROPERTIES ENVIRONMENT "SQUEY_CONFIG_DIR=recent_items_test_config")
 
 file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

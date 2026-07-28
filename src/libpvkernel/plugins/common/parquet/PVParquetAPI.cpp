@@ -57,18 +57,35 @@ const std::unordered_map<arrow::Type::type, PVRush::PVParquetAPI::pvcop_type_inf
 	{ arrow::Type::type::UINT64,			{ sizeof(uint64_t),	"number_uint64" }},
 	{ arrow::Type::type::DOUBLE,			{ sizeof(double),	"number_double" }},
 	{ arrow::Type::type::FLOAT,				{ sizeof(float),	"number_float" }},
+	// Half floats are widened to 32 bits floats as pvcop has no 16 bits floating point type
+	{ arrow::Type::type::HALF_FLOAT,		{ sizeof(float),	"number_float" }},
+	// Decimals are converted to doubles as pvcop has no fixed-point type :
+	// values needing more than 15 significant digits are rounded.
+	{ arrow::Type::type::DECIMAL32,			{ sizeof(double),	"number_double" }},
+	{ arrow::Type::type::DECIMAL64,			{ sizeof(double),	"number_double" }},
+	{ arrow::Type::type::DECIMAL128,		{ sizeof(double),	"number_double" }},
+	{ arrow::Type::type::DECIMAL256,		{ sizeof(double),	"number_double" }},
 	{ arrow::Type::type::TIMESTAMP,			{ sizeof(boost::posix_time::ptime),	"time" }},
 	{ arrow::Type::type::DATE32,			{ sizeof(uint64_t),	"time" }},
 	{ arrow::Type::type::TIME32,			{ sizeof(boost::posix_time::time_duration),	"duration" }},
 	{ arrow::Type::type::TIME64,			{ sizeof(boost::posix_time::time_duration),	"duration" }},
+	// Note : negative durations are not properly displayed by the pvcop "duration" formatter,
+	// although they are stored, sorted and filtered correctly.
+	{ arrow::Type::type::DURATION,			{ sizeof(boost::posix_time::time_duration),	"duration" }},
 	{ arrow::Type::type::STRING,			{ sizeof(pvcop::db::index_t),	"string" }},
+	{ arrow::Type::type::LARGE_STRING,		{ sizeof(pvcop::db::index_t),	"string" }},
+	{ arrow::Type::type::STRING_VIEW,		{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::FIXED_SIZE_BINARY,	{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::BINARY,			{ sizeof(pvcop::db::index_t),	"string" }},
+	{ arrow::Type::type::LARGE_BINARY,		{ sizeof(pvcop::db::index_t),	"string" }},
+	{ arrow::Type::type::BINARY_VIEW,		{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::DICTIONARY,		{ sizeof(pvcop::db::index_t),	"string" }},
 	{ arrow::Type::type::LIST,              { sizeof(pvcop::db::index_t),	"string" }},
+	{ arrow::Type::type::LARGE_LIST,        { sizeof(pvcop::db::index_t),	"string" }},
+	{ arrow::Type::type::FIXED_SIZE_LIST,   { sizeof(pvcop::db::index_t),	"string" }},
     { arrow::Type::type::MAP,               { sizeof(pvcop::db::index_t),	"string" }},
     { arrow::Type::type::STRUCT,            { 0,	                        ""       }},
-	// Note : "DATE64" and "DURATION" are not supported by Apache Parquet
+	// Note : "DATE64" is always read back as a "DATE32" by Apache Arrow, so it never reaches us
 };
 
 constexpr const char input_column_name[] = "filename";

@@ -107,6 +107,8 @@ add_subdirectory(libpvcop)
 include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
 SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop/src/libpvcop${CMAKE_SHARED_LIBRARY_SUFFIX})
 
+squey_speedup_compilation(pvcop)
+
 declare_internal_library(pvkernel)
 declare_internal_library(squey)
 declare_internal_library(pvdisplays)

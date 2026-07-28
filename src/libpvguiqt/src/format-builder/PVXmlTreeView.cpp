@@ -39,11 +39,6 @@
 #include <qglobal.h>
 #include <QDragMoveEvent>
 
-#define dbg()                                                                                      \
-	{                                                                                              \
-		qDebug() << __FILE__ << __LINE__;                                                          \
-	}
-
 /******************************************************************************
  *
  * App::PVXmlTreeView::PVXmlTreeView
@@ -253,7 +248,9 @@ void App::PVXmlTreeView::deleteSelection()
 			}
 		}
 		getModel()->deleteSelection(index);
-		parent = index.parent();
+		// Reuse the parent index captured *before* the deletion: the deleted node is
+		// now freed, so re-deriving index.parent() would dereference freed memory.
+		parent = parentIndex;
 	}
 
 	if (!parent.isValid()) {

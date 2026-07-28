@@ -45,7 +45,10 @@ App::PVXmlParamWidgetEditorBox::PVXmlParamWidgetEditorBox(QString pName, QVarian
  * App::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox
  *
  *****************************************************************************/
-App::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox() = default;
+App::PVXmlParamWidgetEditorBox::~PVXmlParamWidgetEditorBox()
+{
+	delete variable;
+}
 
 /******************************************************************************
  *
@@ -64,6 +67,7 @@ QVariant App::PVXmlParamWidgetEditorBox::val()
  *****************************************************************************/
 void App::PVXmlParamWidgetEditorBox::setVal(const QVariant& val)
 {
+	delete variable;
 	variable = new QVariant(val);
 	setText(variable->toString());
 	Q_EMIT textChanged(variable->toString());

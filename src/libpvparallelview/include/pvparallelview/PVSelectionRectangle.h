@@ -31,6 +31,8 @@
 #include <QTimer>
 #include <QColor>
 
+#include <sigc++/sigc++.h>
+
 #include <vector>
 
 #include <pvparallelview/PVSelectionRectangleItem.h>
@@ -55,7 +57,7 @@ namespace PVParallelView
  *
  * a wrapper and an helper for PVSelectionRectangleItem
  */
-class PVSelectionRectangle : public QObject
+class PVSelectionRectangle : public QObject, public sigc::trackable
 {
 	Q_OBJECT;
 
@@ -71,7 +73,13 @@ class PVSelectionRectangle : public QObject
 	static const int delay_msec;
 
   public:
-	explicit PVSelectionRectangle(QGraphicsScene* scene);
+	/**
+	 * create a selection rectangle
+	 *
+	 * @param scene the scene owning the rectangle
+	 * @param view the view whose selection is driven by the rectangle
+	 */
+	PVSelectionRectangle(QGraphicsScene* scene, Squey::PVView& view);
 	~PVSelectionRectangle() override = default;
 	;
 
@@ -309,10 +317,19 @@ class PVSelectionRectangle : public QObject
 	void move_by(qreal hstep, qreal vstep);
 	void grow_by(qreal hratio, qreal vratio);
 
+	/**
+	 * discard the rectangle when the selection has been redefined by somebody else
+	 *
+	 * the rectangle no longer reflects the view's selection, keeping it visible
+	 * would wrongly suggest that it does.
+	 */
+	void view_selection_changed();
+
   private:
 	PVSelectionRectangleItem* _rect;
 	QTimer* _timer;
 	bool _use_selection_modifiers;
+	bool _committing = false; //!< true while this rectangle is defining the view's selection
 };
 } // namespace PVParallelView
 

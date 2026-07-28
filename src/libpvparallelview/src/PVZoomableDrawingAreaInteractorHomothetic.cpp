@@ -86,12 +86,13 @@ bool PVParallelView::PVZoomableDrawingAreaInteractorHomothetic::wheelEvent(
     PVParallelView::PVZoomableDrawingArea* zda, QWheelEvent* event)
 {
 	if (event->modifiers() == Qt::NoModifier) {
-		int inc = (event->angleDelta().y() > 0) ? 1 : -1;
-		bool ret = increment_zoom_value(
-		    zda, PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y, inc);
+		int inc = _wheel_accumulator.steps(event->angleDelta().y());
 		event->setAccepted(true);
 
-		if (ret) {
+		if (inc != 0 &&
+		    increment_zoom_value(
+		        zda, PVZoomableDrawingAreaConstraints::X | PVZoomableDrawingAreaConstraints::Y,
+		        inc)) {
 			zda->reconfigure_view();
 			zoom_has_changed(zda, PVZoomableDrawingAreaConstraints::X |
 			                          PVZoomableDrawingAreaConstraints::Y);

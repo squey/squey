@@ -561,14 +561,18 @@ void Squey::PVView::set_selection_from_layer(PVLayer const& layer)
  * Squey::PVView::set_selection_view
  *
  *****************************************************************************/
-void Squey::PVView::set_selection_view(PVSelection const& sel, bool update_ls)
+void Squey::PVView::set_selection_view(PVSelection const& sel, bool update_ls, bool emit_signal)
 {
 	_view_selection = sel;
 
+	if (emit_signal) {
+		_selection_view_changed.emit();
+	}
+
 	if (update_ls) {
-		process_layer_stack();
+		process_layer_stack(emit_signal);
 	} else {
-		process_post_filter_layer();
+		process_post_filter_layer(emit_signal);
 	}
 }
 
@@ -606,18 +610,21 @@ void Squey::PVView::move_selected_layer_to(int new_index)
 void Squey::PVView::select_all()
 {
 	_view_selection.select_all();
+	_selection_view_changed.emit();
 	process_post_filter_layer();
 }
 
 void Squey::PVView::select_none()
 {
 	_view_selection.select_none();
+	_selection_view_changed.emit();
 	process_post_filter_layer();
 }
 
 void Squey::PVView::select_inverse()
 {
 	_view_selection.select_inverse();
+	_selection_view_changed.emit();
 	process_post_filter_layer();
 }
 

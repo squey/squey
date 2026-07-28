@@ -37,8 +37,22 @@
 
 PVParallelView::PVHitCountViewSelectionRectangle::PVHitCountViewSelectionRectangle(
     PVHitCountView* hcv)
-    : PVSelectionRectangle(hcv->get_scene()), _hcv(hcv)
+    : PVSelectionRectangle(hcv->get_scene(), hcv->lib_view()), _hcv(hcv)
 {
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountViewSelectionRectangle::clear
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountViewSelectionRectangle::clear()
+{
+	PVSelectionRectangle::clear();
+
+	// the view does not listen to its scene's changes, it must be redrawn explicitly
+	if (QWidget* viewport = _hcv->get_viewport()) {
+		viewport->update();
+	}
 }
 
 /*****************************************************************************

@@ -95,6 +95,28 @@ void PVParallelView::PVSlidersManager::del_zoomed_selection_sliders(PVCombCol co
 }
 
 /*****************************************************************************
+ * PVParallelView::PVSlidersManager::del_all_selection_sliders
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersManager::del_all_selection_sliders()
+{
+	// the deletion handlers alter the geometry sets, iterate over copies of them
+	const range_geometry_set_t selections = _selection_geometries;
+	for (const auto& [col, sliders] : selections) {
+		for (const auto& slider : sliders) {
+			del_selection_sliders(col, slider.first);
+		}
+	}
+
+	const range_geometry_set_t zoomed_selections = _zoomed_selection_geometries;
+	for (const auto& [col, sliders] : zoomed_selections) {
+		for (const auto& slider : sliders) {
+			del_zoomed_selection_sliders(col, slider.first);
+		}
+	}
+}
+
+/*****************************************************************************
  * PVParallelView::PVSlidersManager::update_selection_sliders
  *****************************************************************************/
 

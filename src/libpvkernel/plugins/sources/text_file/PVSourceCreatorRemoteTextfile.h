@@ -37,6 +37,7 @@ class PVSourceCreatorRemoteTextfile : public PVSourceCreatorTextfile
 {
   public:
 	QString supported_type() const override;
+	bool need_credential() const override { return true; }
 
 	CLASS_REGISTRABLE(PVSourceCreatorRemoteTextfile)
 };

@@ -195,8 +195,10 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	 *
 	 * @param sel the new selection
 	 * @param update_ls a flag to tell to update the layer-stack or the post filter layer
+	 * @param emit_signal a flag to tell whether the views are notified. Set it to false for
+	 *        intermediate selections the views must not flicker through.
 	 */
-	void set_selection_view(PVSelection const& sel, bool update_ls = false);
+	void set_selection_view(PVSelection const& sel, bool update_ls = false, bool emit_signal = true);
 
 	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
@@ -328,6 +330,13 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	sigc::signal<void()> _layer_stack_refreshed;
 	sigc::signal<void()> _toggle_unselected_zombie_visibility;
 	sigc::signal<void()> _update_layer_stack_output_layer;
+	/**
+	 * Emitted when the user selection is explicitly redefined (as opposed to
+	 * _update_output_selection which is also emitted whenever the layer stack
+	 * is reprocessed). It lets the views know that any selection widget still
+	 * displaying a previous selection has become stale.
+	 */
+	sigc::signal<void()> _selection_view_changed;
 	sigc::signal<void()> _update_output_selection;
 	sigc::signal<void()> _update_output_layer;
 	sigc::signal<void()> _toggle_unselected;

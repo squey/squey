@@ -37,6 +37,9 @@
 #include <QTextCharFormat>
 #include <QAbstractTextDocumentLayout>
 #include <QTextCursor>
+
+#include <algorithm>
+
 namespace PVGuiQt
 {
 
@@ -333,6 +336,66 @@ void PVAbstractTableView::move_to_row(PVRow row)
 
 /******************************************************************************
  *
+ * PVAbstractTableView::move_current_row_by
+ *
+ *****************************************************************************/
+void PVAbstractTableView::move_current_row_by(int inc_rows, bool extend_selection)
+{
+	PVAbstractTableModel* m = table_model();
+	if (m == nullptr or m->size() == 0) {
+		return;
+	}
+
+	const int first_shown_row = rowAt(0);
+	if (first_shown_row < 0) {
+		// No row is shown, there is nothing to move to
+		return;
+	}
+
+	// Rows are addressed by their position in the sorted and filtered display and not
+	// by their view index, as the view only knows about the currently shown page.
+	const ssize_t first_pos = m->row_pos(PVRow(first_shown_row));
+	const ssize_t current_pos = m->current_row_pos();
+	// Without a current row, the navigation starts on the first shown one
+	const ssize_t pos = current_pos < 0 ? first_pos
+	                                    : std::clamp<ssize_t>(current_pos + inc_rows, 0,
+	                                                          ssize_t(m->size()) - 1);
+
+	// Scroll only when the new current row falls out of the fully shown rows
+	if (pos < first_pos) {
+		move_by(pos - first_pos);
+	} else if (const int last_shown_row = rowAt(viewport()->height() - 1); last_shown_row >= 0) {
+		ssize_t last_pos = m->row_pos(PVRow(last_shown_row));
+		if (rowViewportPosition(last_shown_row) + rowHeight(last_shown_row) >
+		    viewport()->height()) {
+			// The last row is only partially shown
+			last_pos--;
+		}
+		if (pos > last_pos) {
+			move_by(pos - last_pos);
+		}
+	}
+
+	if (extend_selection) {
+		m->set_selection_mode(PVAbstractTableModel::SET);
+		m->end_selection_at_pos(pos);
+	} else {
+		m->reset_selection();
+		m->set_selection_mode(PVAbstractTableModel::SET);
+		m->start_selection_at_pos(pos);
+	}
+
+	verticalHeader()->viewport()->update();
+	viewport()->update();
+
+	// Commit and notify as a mouse click does, so that moving the current row has the
+	// very same effect on the listeners as selecting that row with the mouse.
+	m->commit_selection();
+	Q_EMIT selection_commited();
+}
+
+/******************************************************************************
+ *
  * PVAbstractTableView::move_to_page
  *
  *****************************************************************************/
@@ -520,10 +583,19 @@ void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
 		scrollclick(QAbstractSlider::SliderPageStepAdd);
 		break;
 	case Qt::Key_Up:
-		scrollclick(QAbstractSlider::SliderSingleStepSub);
+		if (event->modifiers() & Qt::ControlModifier) {
+			// Scroll without moving the current row
+			scrollclick(QAbstractSlider::SliderSingleStepSub);
+		} else {
+			move_current_row_by(-1, event->modifiers() & Qt::ShiftModifier);
+		}
 		break;
 	case Qt::Key_Down:
-		scrollclick(QAbstractSlider::SliderSingleStepAdd);
+		if (event->modifiers() & Qt::ControlModifier) {
+			scrollclick(QAbstractSlider::SliderSingleStepAdd);
+		} else {
+			move_current_row_by(1, event->modifiers() & Qt::ShiftModifier);
+		}
 		break;
 	case Qt::Key_Home:
 		scrollclick(QAbstractSlider::SliderToMinimum);
@@ -564,21 +636,12 @@ void PVAbstractTableView::keyPressEvent(QKeyEvent* event)
  *****************************************************************************/
 void PVAbstractTableView::wheelEvent(QWheelEvent* e)
 {
-	// delta is wheel movement in degree. QtWheelEvent doc give this formule
-	// to convert it to "wheel step"
-	// http://doc.qt.io/qt-5/qwheelevent.html
-	double complete_scroll_angle = 120.0;
-	double delta_y = e->angleDelta().y() / 8.0 * 15.0;
-
-	// anti-sticky : reset accumulator when changing scrolling direction
-	if (delta_y * _scroll_accumulator_y < 0) {
-		_scroll_accumulator_y = 0;
-	}
-	_scroll_accumulator_y += delta_y;
-
-	if (std::abs(_scroll_accumulator_y) >= complete_scroll_angle) {
-		move_by(_scroll_accumulator_y > 0 ? -1 : 1);
-		_scroll_accumulator_y += _scroll_accumulator_y > 0 ? -complete_scroll_angle : complete_scroll_angle;
+	// Only move once per whole physical wheel notch, so high-resolution mice/touchpads
+	// don't scroll several rows per notch.
+	const int steps = _wheel_accumulator.steps(e->angleDelta().y());
+	if (steps != 0) {
+		// wheeling up (positive) scrolls towards the previous rows
+		move_by(-steps);
 	}
 	e->accept(); // I am the one who handle event
 }

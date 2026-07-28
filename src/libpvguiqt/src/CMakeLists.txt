@@ -161,6 +161,7 @@ PV_QT6_WRAP_UI(UI_SRC pvguiqt ${UI_FILES})
 add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES})
 target_compile_definitions(pvguiqt PRIVATE PVGUIQT_LIBRARY)
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
+squey_speedup_compilation(pvguiqt QT)
 
 find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
 set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6Core5Compat)

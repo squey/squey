@@ -382,16 +382,16 @@ void PVParallelView::PVZoomedParallelScene::wheelEvent(QGraphicsSceneWheelEvent*
 {
 	if (event->modifiers() == ZOOM_MODIFIER) {
 		// zoom
-		if (event->delta() > 0) {
-			if (_wheel_value < max_wheel_value) {
-				++_wheel_value;
-				update_zoom();
-			}
-		} else {
-			if (_wheel_value > 0) {
-				--_wheel_value;
-				update_zoom();
-			}
+		const int steps = _wheel_accumulator.steps(event->delta());
+		int new_value = _wheel_value + steps;
+		if (new_value < 0) {
+			new_value = 0;
+		} else if (new_value > max_wheel_value) {
+			new_value = max_wheel_value;
+		}
+		if (new_value != _wheel_value) {
+			_wheel_value = new_value;
+			update_zoom();
 		}
 	} else if (event->modifiers() == SLOW_PAN_MODIFIER) {
 		// precise panning

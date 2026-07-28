@@ -241,6 +241,7 @@ PV_QT6_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
 add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})
 target_compile_definitions(pvkernel PRIVATE PVKERNEL_LIBRARY)
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
+squey_speedup_compilation(pvkernel QT)
 
 # Define third_part=y libs we have to link with for the library
 find_package(Qt6 COMPONENTS Core5Compat REQUIRED)

@@ -82,8 +82,15 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	// the "digital" zoom level (to space consecutive values)
 	constexpr static int zoom_extra_level = 0;
 	constexpr static int zoom_extra = zoom_extra_level * zoom_steps;
-	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window
+	// -22 because we want a scale factor of 1 when the view fits in a 1024x1024 window.
+	// This is also the coarsest image the backend can render (the quadtree root image),
+	// so the view opens at this level.
 	constexpr static int zoom_min = -22 * zoom_steps;
+	// Furthest zoom-out allowed (lower bound of the visual zoom range). Below zoom_min
+	// the backend image is no longer re-rendered (see the guard in do_update_all()): the
+	// quadtree root image is simply scaled down, which lets the user pull back for more
+	// context. -27 shrinks the whole 2^32 scene down to 2^(32-27) = 32 pixels.
+	constexpr static int zoom_out_limit = -27 * zoom_steps;
 
 	/*! \brief This class represent an image that has been rendered, with its
 	 * associated scene and viewport rect.
@@ -100,6 +107,13 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 		 * This function assumes that \a painter uses the margined viewport coordinate system.
 		 */
 		void draw(PVGraphicsView* view, QPainter* painter);
+
+		/*! \brief Update the placement transformation without swapping the image.
+		 *
+		 * Used when zooming out below zoom_min: the (already complete) root image is kept
+		 * but must be re-projected at the current scale on every frame.
+		 */
+		void set_mv2s(QTransform const& mv2s) { _mv2s = mv2s; }
 
 	  private:
 		QImage _img;

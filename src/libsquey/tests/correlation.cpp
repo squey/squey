@@ -58,6 +58,13 @@ void run_multiplesearch_filter(Squey::PVView* view1, PVCore::PVOriginalAxisIndex
 	args["axis"].setValue(ait);
 	args["exps"].setValue(text_values);
 
+	auto case_arg = args["case"].value<PVCore::PVEnumType>();
+	case_arg.set_sel(1); // "Match case"
+	args["case"].setValue(case_arg);
+	auto entire_arg = args["entire"].value<PVCore::PVEnumType>();
+	entire_arg.set_sel(1); // "The entire field"
+	args["entire"].setValue(entire_arg);
+
 	plugin->set_view(view1);
 	plugin->set_output(&out);
 

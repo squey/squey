@@ -44,7 +44,7 @@ class PVXmlParamWidgetEditorBox : public QLineEdit
 	void setVal(const QVariant& val);
 
   private:
-	QVariant* variable;
+	QVariant* variable = nullptr;
 };
 } // namespace App
 #endif /* PVXMLPARAMWIDGETEDITORBOX_H */

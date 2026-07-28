@@ -47,8 +47,16 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 	void set_args(PVCore::PVArgumentList const& args) override;
 
   private:
+	/// Escape-aware splitting used for tshark's -Tfields output. A separator byte
+	/// preceded by the escape character is kept as data, and backslash sequences
+	/// are C-style unescaped in place.
+	PVCore::list_fields::size_type one_to_many_escaped(PVCore::list_fields& l,
+	                                                   PVCore::list_fields::iterator it_ins,
+	                                                   PVCore::PVField& field);
+
 	char _sep = ',';
 	char _quote = '"';
+	char _escape = '\0'; ///< escape character (0 = disabled, i.e. plain CSV split)
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterCSV)
 };

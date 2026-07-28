@@ -63,6 +63,9 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 
 	bool create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const override;
 
+	bool has_generated_format() const override { return true; }
+	PVFormat get_format_from_inputs(list_inputs const& inputs) const override;
+
 	/* exporter */
 	std::unique_ptr<PVRush::PVExporterBase>
 	create_exporter(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;

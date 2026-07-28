@@ -42,6 +42,8 @@ App::PVXmlParamTextEdit::PVXmlParamTextEdit(QString pName, QVariant var) : QText
 
 	typeOfTextEdit = text;
 	editing = true;
+	highlight = nullptr;
+	timeValid = nullptr;
 
 	QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 	sp.setHeightForWidth(sizePolicy().hasHeightForWidth());
@@ -69,10 +71,9 @@ void App::PVXmlParamTextEdit::setRegEx()
 
 void App::PVXmlParamTextEdit::setRegEx(const QString& regExp)
 {
-	if (editing) {
+	if (highlight == nullptr) {
 		highlight = new PVXmlRegValidatorHighLight(
 		    (PVXmlParamTextEdit*)this); // we are in regexp validator case
-		editing = false;
 	}
 	typeOfTextEdit = regexpValid; // define type as a regexp validator
 	highlight->setRegExp(regExp);
@@ -121,9 +122,8 @@ void App::PVXmlParamTextEdit::setVal(const QString& val)
  *****************************************************************************/
 void App::PVXmlParamTextEdit::validDateFormat(const QStringList& pFormat)
 {
-	if (editing) {
+	if (timeValid == nullptr) {
 		timeValid = new PVXmlTimeValidatorHighLight(this, format); // we are in time validator case
-		editing = false;
 	}
 	typeOfTextEdit = dateValid; // define type as a date validator.
 	format = pFormat;

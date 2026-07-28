@@ -24,6 +24,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#ifndef __PVGUIQT_PVPROGRESSBOXPYTHON_H__
+#define __PVGUIQT_PVPROGRESSBOXPYTHON_H__
+
 #include <pvkernel/core/PVProgressBox.h>
 #include <squey/PVView.h>
 #include <squey/PVScaled.h>
@@ -59,3 +62,5 @@ Q_SIGNALS:
 };
 
 }
+
+#endif // __PVGUIQT_PVPROGRESSBOXPYTHON_H__

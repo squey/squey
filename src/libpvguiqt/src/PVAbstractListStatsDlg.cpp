@@ -699,8 +699,17 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 		_ctxt_process->show();
 	} else {
 		_selection_change_connection.block();
-		lib_view()->set_selection_view(_old_sel, false);
+		/* The selection the search has to be applied on is an intermediate state: notifying
+		 * it would make the views flicker through it while the filter is being computed,
+		 * as computations longer than a few hundred milliseconds spin the event loop.
+		 * save_Slot notifies the resulting selection on success.
+		 */
+		lib_view()->set_selection_view(_old_sel, false, false);
 		_ctxt_process->save_Slot();
+		if (_ctxt_process->result() != QDialog::Accepted) {
+			// The filter has been canceled, tell the views about the restored selection
+			lib_view()->set_selection_view(_old_sel, false);
+		}
 		_selection_change_connection.unblock();
 	}
 }

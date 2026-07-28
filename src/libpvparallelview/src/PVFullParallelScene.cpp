@@ -881,7 +881,12 @@ void PVParallelView::PVFullParallelScene::update_selection_from_sliders_Slot(PVC
 		}
 	}
 
+	/* while committing, the selection change notification which will be emitted
+	 * downstream must not discard the very sliders defining that selection
+	 */
+	_sm_p->set_committing_selection(true);
 	PVSelectionGenerator::process_selection(_lib_view, sel);
+	_sm_p->set_committing_selection(false);
 }
 
 /******************************************************************************
@@ -1132,7 +1137,6 @@ void PVParallelView::PVFullParallelScene::helpEvent(QGraphicsSceneHelpEvent* eve
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* event)
 {
-	const int delta = event->delta();
 	const int old_view_x = graphics_view()->horizontalScrollBar()->value();
 
 	// Get the zone_id of the zone under mouse cursor
@@ -1154,10 +1158,17 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 	} else if (event->modifiers() == Qt::ControlModifier) {
 		// Local zoom when the 'Ctrl' key is pressed
 
-		if (delta < 0) {
-			_lines_view.decrease_base_zoom_level_of_zone(zmouse);
-		} else {
-			_lines_view.increase_base_zoom_level_of_zone(zmouse);
+		const int steps = _wheel_accumulator.steps(event->delta());
+		if (steps == 0) {
+			event->accept();
+			return;
+		}
+		for (int i = 0, n = (steps > 0 ? steps : -steps); i < n; ++i) {
+			if (steps < 0) {
+				_lines_view.decrease_base_zoom_level_of_zone(zmouse);
+			} else {
+				_lines_view.increase_base_zoom_level_of_zone(zmouse);
+			}
 		}
 
 		update_viewport();
@@ -1188,10 +1199,17 @@ void PVParallelView::PVFullParallelScene::wheelEvent(QGraphicsSceneWheelEvent* e
 		    (double)(mouse_scene_x - zmouse_x) / ((double)_lines_view.get_zone_width(zmouse));
 
 		// Global zoom
-		if (delta < 0) {
-			_lines_view.decrease_global_zoom_level();
-		} else if (delta > 0) {
-			_lines_view.increase_global_zoom_level();
+		const int steps = _wheel_accumulator.steps(event->delta());
+		if (steps == 0) {
+			event->accept();
+			return;
+		}
+		for (int i = 0, n = (steps > 0 ? steps : -steps); i < n; ++i) {
+			if (steps < 0) {
+				_lines_view.decrease_global_zoom_level();
+			} else {
+				_lines_view.increase_global_zoom_level();
+			}
 		}
 
 		update_viewport();

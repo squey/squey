@@ -33,23 +33,13 @@
 
 #include <iostream>
 
-#define print_r(R) __print_rect(#R, R)
-#define print_rect(R) __print_rect(#R, R)
-
-template <typename R>
-void __print_rect(const char* text, const R& r)
-{
-	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
-	          << std::endl;
-}
-
 /*****************************************************************************
  * PVParallelView::PVFullParallelViewSelectionRectangle::PVFullParallelViewSelectionRectangle
  *****************************************************************************/
 
 PVParallelView::PVFullParallelViewSelectionRectangle::PVFullParallelViewSelectionRectangle(
     PVFullParallelScene* fps)
-    : PVSelectionRectangle(fps), _fps(fps)
+    : PVSelectionRectangle(fps, fps->lib_view()), _fps(fps)
 {
 }
 

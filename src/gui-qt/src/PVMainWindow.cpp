@@ -206,6 +206,23 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	QObject::connect(toggle_zombies_shortcut, &QShortcut::activated, this, &App::PVMainWindow::events_display_unselected_zombies_parallelview_Slot);
 }
 
+App::PVMainWindow::~PVMainWindow()
+{
+	// View widgets (workspaces, PVViewDisplay) and their Qt models
+	// (PVLayerStackModel...) hold references to the PVView objects owned by
+	// _root. As a value member, _root is destroyed BEFORE the child widgets
+	// (destroyed by the base ~QWidget), so those widgets would outlive the views
+	// they render and dereference freed memory.
+	//
+	// Tear the model down explicitly rather than the widget tree: every PVView
+	// emits _about_to_be_delete, which is what makes the parallel views cancel
+	// and drain their in-flight renderings before synchronously deleting their
+	// own widget. Deleting the widgets directly skips that protocol -- a
+	// background BCI rendering stays queued on the pipeline and dereferences
+	// freed state from its own thread, which is how this crashed on macOS.
+	get_root().clear();
+}
+
 bool App::PVMainWindow::event(QEvent* event)
 {
 	QString mime_type = "application/x-squey_workspace";
@@ -1084,14 +1101,21 @@ void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_i
 	}
 
 	/**
-	 * For the moment we can't add sources that have an auto generated format
-	 * not saved to disk.
+	 * A source can be added to the recent items as soon as its format can be
+	 * retrieved on reload: either it is saved on disk, or it is generated from
+	 * the inputs (e.g. Parquet) and can be regenerated when reloading.
 	 */
-	if (update_recent_items and not src.get_original_format().get_full_path().isEmpty() and
+	const QString format_path = src.get_original_format().get_full_path();
+	const bool format_reloadable =
+	    not format_path.isEmpty() or
+	    src.get_source_creator()->supported_type_lib()->has_generated_format();
+
+	if (update_recent_items and format_reloadable and
 	    src.get_source_creator()->name() != "pcap") {
-		// Add format as recent format
-		PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(
-		    src.get_original_format().get_full_path());
+		// Add format as recent format (only relevant when saved on disk)
+		if (not format_path.isEmpty()) {
+			PVCore::PVRecentItemsManager::get().add<PVCore::Category::USED_FORMATS>(format_path);
+		}
 
 		// Add source as recent source
 		PVCore::PVRecentItemsManager::get().add_source(src.get_source_creator(), src.get_inputs(),

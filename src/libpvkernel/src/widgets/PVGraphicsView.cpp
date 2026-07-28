@@ -62,37 +62,6 @@ static inline qint64 sb_round(const qreal& d)
 	return (d > (qreal)0.0) ? floor(d + (qreal)0.5) : ceil(d - (qreal)0.5);
 }
 
-#define print_r(R) print_rect(R)
-#define print_rect(R) __print_rect(#R, R)
-
-template <typename R>
-void __print_rect(const char* text, const R& r)
-{
-	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
-	          << std::endl;
-}
-
-#define print_p(P) print_point(P)
-#define print_point(P) __print_point(#P, P)
-
-template <typename P>
-void __print_point(const char* text, const P& p)
-{
-	std::cout << text << ": " << p.x() << " " << p.y() << std::endl;
-}
-
-#define print_t(T) print_transform(T)
-#define print_transform(T) __print_transform(#T, T)
-
-template <typename T>
-void __print_transform(const char* text, const T& t)
-{
-	std::cout << text << ": " << std::endl
-	          << t.m11() << " " << t.m21() << " " << t.m31() << std::endl
-	          << t.m12() << " " << t.m22() << " " << t.m32() << std::endl
-	          << t.m13() << " " << t.m23() << " " << t.m33() << std::endl;
-}
-
 namespace PVWidgets::__impl
 {
 

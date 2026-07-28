@@ -31,7 +31,7 @@
 #include <QFontMetrics>
 
 App::PVNrawListingModel::PVNrawListingModel(QObject* parent)
-    : QAbstractTableModel(parent), _nraw(nullptr), _col_tosel(0), _show_sel(false)
+    : QAbstractTableModel(parent), _nraw(nullptr), _col_tosel(0), _show_sel(false), _starting_row(0)
 {
 }
 

@@ -61,6 +61,10 @@ class PVSourceCreator : public PVCore::PVRegistrableClass<PVSourceCreator>
 	}
 	virtual QString name() const = 0;
 	virtual bool custom_multi_inputs() const { return false; }
+
+	// Whether reloading this source from the recent items requires credentials
+	// (login / password). Local file sources don't; remote sources do.
+	virtual bool need_credential() const { return false; }
 };
 
 typedef PVSourceCreator::p_type PVSourceCreator_p;

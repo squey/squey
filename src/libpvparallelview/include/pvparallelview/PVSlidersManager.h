@@ -94,6 +94,21 @@ class PVSlidersManager
 	void del_zoomed_selection_sliders(PVCombCol col, const id_t id);
 
 	/**
+	 * Remove every selection sliders pair, zoomed ones included, from every axis
+	 */
+	void del_all_selection_sliders();
+
+	/**
+	 * Tell whether the selection sliders are currently defining the view's selection
+	 *
+	 * While they do, they must not be discarded by del_all_selection_sliders()
+	 *
+	 * @param committing the new state
+	 */
+	void set_committing_selection(bool committing) { _committing_selection = committing; }
+	bool is_committing_selection() const { return _committing_selection; }
+
+	/**
 	 * Function to observe (in PVHive way) to be notified when a
 	 * range sliders pair is changed
 	 *
@@ -165,6 +180,7 @@ class PVSlidersManager
 	range_geometry_set_t _zoom_geometries;
 	range_geometry_set_t _selection_geometries;
 	range_geometry_set_t _zoomed_selection_geometries;
+	bool _committing_selection = false;
 };
 } // namespace PVParallelView
 

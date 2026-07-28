@@ -33,28 +33,32 @@
 
 #include <iostream>
 
-#define print_r(R) __print_rect(#R, R)
-#define print_rect(R) __print_rect(#R, R)
-
-template <typename R>
-void __print_rect(const char* text, const R& r)
-{
-	std::cout << text << ": " << r.x() << " " << r.y() << ", " << r.width() << " " << r.height()
-	          << std::endl;
-}
-
 /*****************************************************************************
  * PVParallelView::PVScatterViewSelectionRectangle::PVScatterViewSelectionRectangle
  *****************************************************************************/
 
 PVParallelView::PVScatterViewSelectionRectangle::PVScatterViewSelectionRectangle(
     PVParallelView::PVScatterView* sv)
-    : PVSelectionRectangle(sv->get_scene())
+    : PVSelectionRectangle(sv->get_scene(), sv->lib_view())
     , _y1_scaled(nullptr)
     , _y2_scaled(nullptr)
     , _nrows(0)
     , _sv(sv)
 {
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterViewSelectionRectangle::clear
+ *****************************************************************************/
+
+void PVParallelView::PVScatterViewSelectionRectangle::clear()
+{
+	PVSelectionRectangle::clear();
+
+	// the view does not listen to its scene's changes, it must be redrawn explicitly
+	if (QWidget* viewport = _sv->get_viewport()) {
+		viewport->update();
+	}
 }
 
 /*****************************************************************************

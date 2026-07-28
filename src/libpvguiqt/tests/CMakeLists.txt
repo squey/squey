@@ -27,5 +27,8 @@ add_squey_compile_test(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort
 add_squey_test(Tpvguiqt_sort_filter Tpvguiqt_sort_filter)
 add_bench(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
 
+add_squey_compile_test(Tpvguiqt_table_view_navigation LINKS ${COMMON_LIBRARIES} FILES table_view_navigation.cpp)
+add_squey_test(Tpvguiqt_table_view_navigation Tpvguiqt_table_view_navigation)
+
 file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

@@ -26,7 +26,10 @@
 #define PVGUIQT_PVABSTRACTTABLEVIEW_H
 
 #include <pvguiqt/PVTableView.h>
+#include <pvguiqt/export.h>
 #include <pvbase/types.h>
+
+#include <pvkernel/widgets/PVWheelEventAccumulator.h>
 
 #include <QStyledItemDelegate>
 #include <QTextDocument>
@@ -64,7 +67,7 @@ private:
  * It has to be used with the PVAbstractTableModel to handle
  * huge tables.
  */
-class PVAbstractTableView : public PVTableView
+class PVGUIQT_EXPORT PVAbstractTableView : public PVTableView
 {
 	Q_OBJECT;
 
@@ -166,6 +169,16 @@ class PVAbstractTableView : public PVTableView
 	void move_to_row(PVRow row);
 
 	/**
+	 * Move the current row, scrolling the listing only when the new current row
+	 * would fall out of the shown rows.
+	 *
+	 * @param[in] inc_rows : Number of rows to move by
+	 * @param[in] extend_selection : Whether the range selection is extended up to the
+	 *            new current row instead of being restarted on it
+	 */
+	void move_current_row_by(int inc_rows, bool extend_selection);
+
+	/**
 	 * Move the pagination information to be on a given page and update view.
 	 *
 	 * @param[in] page : Page to move on
@@ -200,7 +213,8 @@ class PVAbstractTableView : public PVTableView
 	void validate_selection();
 
   private:
-	double _scroll_accumulator_y = 0.0;
+	// Only scroll once per whole physical wheel notch (ignore high-resolution sub-notch events).
+	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;
 	PVHyperlinkDelegate* _hyperlink_delegate = nullptr;
 	size_t _hyperlink_delegate_max_index = 0;
 

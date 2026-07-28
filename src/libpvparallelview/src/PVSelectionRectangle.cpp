@@ -29,6 +29,8 @@
 
 #include <pvkernel/widgets/PVModdedIcon.h>
 
+#include <squey/PVView.h>
+
 #include <QGraphicsScene>
 #include <QActionGroup>
 #include <QSignalMapper>
@@ -45,9 +47,13 @@ const int PVParallelView::PVSelectionRectangle::delay_msec = 300;
  * PVParallelView::PVSelectionRectangle::PVSelectionRectangle
  *****************************************************************************/
 
-PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene)
+PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene,
+                                                           Squey::PVView& view)
     : QObject(static_cast<QObject*>(scene)), _use_selection_modifiers(true)
 {
+	view._selection_view_changed.connect(
+	    sigc::mem_fun(*this, &PVSelectionRectangle::view_selection_changed));
+
 	_rect = new PVParallelView::PVSelectionRectangleItem();
 	scene->addItem(_rect);
 	_rect->clear();
@@ -221,7 +227,27 @@ void PVParallelView::PVSelectionRectangle::timeout()
 
 	_timer->stop();
 
+	/* while committing, the selection change notification which will be emitted
+	 * downstream must not discard this very rectangle
+	 */
+	_committing = true;
 	Q_EMIT commit_volatile_selection(_use_selection_modifiers);
+	_committing = false;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::view_selection_changed
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangle::view_selection_changed()
+{
+	if (_committing || get_rect().isNull()) {
+		// this rectangle either defines the new selection or is already hidden
+		return;
+	}
+
+	_timer->stop();
+	clear();
 }
 
 /*****************************************************************************

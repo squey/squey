@@ -113,10 +113,10 @@ DEFAULT_ARGS_FILTER(Squey::PVLayerFilterMultipleSearch)
 	    PVCore::PVEnumType(QStringList() << QString("include") << QString("exclude"), 0));
 	args[PVCore::PVArgumentKey(ARG_NAME_CASE, QObject::tr(ARG_DESC_CASE))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("Does not match case") << QString("Match case"),
-	                       1));
+	                       0));
 	args[PVCore::PVArgumentKey(ARG_NAME_ENTIRE, QObject::tr(ARG_DESC_ENTIRE))].setValue(
 	    PVCore::PVEnumType(
-	        QStringList() << QString("Part of the field") << QString("The entire field"), 1));
+	        QStringList() << QString("Part of the field") << QString("The entire field"), 0));
 	args[PVCore::PVArgumentKey(ARG_NAME_INTERPRET, QObject::tr(ARG_DESC_INTERPRET))].setValue(
 	    PVCore::PVEnumType(QStringList() << QString("Plain text") << QString("Regular expressions"),
 	                       0));

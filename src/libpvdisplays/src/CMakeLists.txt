@@ -32,6 +32,7 @@ include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
 add_library(pvdisplays SHARED ${SRC_FILES} ${MOC_SRC})
 
 set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
+squey_speedup_compilation(pvdisplays QT)
 
 set(QT6_LIBS Qt6Core Qt6Xml Qt6Widgets)
 

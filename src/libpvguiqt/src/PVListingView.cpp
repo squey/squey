@@ -63,6 +63,7 @@
 
 #define TBB_PREVIEW_DETERMINISTIC_REDUCE 1
 #include <tbb/global_control.h>
+#undef TBB_PREVIEW_DETERMINISTIC_REDUCE
 
 #include <boost/thread.hpp>
 

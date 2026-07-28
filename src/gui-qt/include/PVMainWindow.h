@@ -85,6 +85,7 @@ class PVMainWindow : public QMainWindow
 
   public:
 	PVMainWindow(QWidget* parent = 0);
+	~PVMainWindow() override;
 
 	PVGuiQt::PVProjectsTabWidget* _projects_tab_widget;
 

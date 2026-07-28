@@ -113,6 +113,72 @@ function(strcasecmp res str1 str2)
 	string(COMPARE EQUAL str1_lower str2_lower res)
 endfunction()
 
+###############################################################################
+# Speed up from-scratch compilation of a target via unity (jumbo) builds and
+# precompiled headers. Both are controlled by the SQUEY_UNITY_BUILD / SQUEY_PCH
+# options so they can be toggled off globally if needed.
+#
+# Syntax: squey_speedup_compilation(<target> [QT])
+#   QT : also precompile the heaviest Qt headers (only pass it for targets that
+#        actually use Qt, otherwise the PCH would fail to compile).
+###############################################################################
+function(squey_speedup_compilation target)
+	cmake_parse_arguments(_SPD "QT" "" "SKIP_UNITY" ${ARGN})
+
+	if (SQUEY_UNITY_BUILD)
+		set_target_properties(${target} PROPERTIES
+			UNITY_BUILD ON
+			UNITY_BUILD_MODE BATCH
+			UNITY_BUILD_BATCH_SIZE ${SQUEY_UNITY_BUILD_BATCH_SIZE})
+
+		# Bundled third-party code and generated uic/rcc sources are prone to ODR
+		# clashes (duplicated static tables, generated symbols such as the
+		# qInitResources helpers) when merged, so keep them out of the jumbo
+		# units. moc sources are the exception: merging them is safe (it is what
+		# Qt's own mocs_compilation.cpp does) and there are many small ones, so
+		# folding them in noticeably cuts the translation-unit count.
+		get_target_property(_srcs ${target} SOURCES)
+		foreach (_src ${_srcs})
+			get_source_file_property(_generated "${_src}" GENERATED)
+			if ((_generated AND NOT "${_src}" MATCHES "moc_") OR "${_src}" MATCHES "third_party/")
+				set_source_files_properties("${_src}"
+					PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+			endif()
+		endforeach()
+
+		# Files listed by the caller define file-local debug macros (dbg,
+		# print_*) or duplicated global helpers (__print_*) that leak into or
+		# clash with the rest of a jumbo unit; compile them on their own.
+		foreach (_src ${_SPD_SKIP_UNITY})
+			set_source_files_properties("${_src}"
+				PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
+		endforeach()
+	endif()
+
+	# Each target compiles its own PCH: the Qt headers bake in per-target defines
+	# (e.g. QT_NO_OPENGL, set for some libraries but not the OpenGL-using views),
+	# so a shared PCH (REUSE_FROM) is rejected as invalid for the mismatching
+	# targets -- silently under -Winvalid-pch, fatally under -Werror.
+	if (SQUEY_PCH)
+		# Clang records the mtime of cmake_pch.hxx.cxx inside the PCH and refuses
+		# it when they diverge. CMake rewrites that file on every configure, while
+		# the build cache restores a PCH built from an earlier one -- so any
+		# CMakeLists change turned the next cached build into "file has been
+		# modified since the precompiled header was built". Compare contents only,
+		# as ccache does for the same reason.
+		if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+			target_compile_options(${target} PRIVATE -Xclang -fno-pch-timestamp)
+		endif()
+		target_precompile_headers(${target} PRIVATE
+			<algorithm> <functional> <memory> <string> <vector>
+			<unordered_map> <map> <cstdint>)
+		if (_SPD_QT)
+			target_precompile_headers(${target} PRIVATE
+				<QString> <QObject> <QVariant> <QWidget>)
+		endif()
+	endif()
+endfunction()
+
 # GCC version
 macro(GET_GCC_VERSION major minor)
 	execute_process(COMMAND ${CMAKE_C_COMPILER} -dumpversion
