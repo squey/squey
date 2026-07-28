@@ -160,6 +160,15 @@ function(squey_speedup_compilation target)
 	# so a shared PCH (REUSE_FROM) is rejected as invalid for the mismatching
 	# targets -- silently under -Winvalid-pch, fatally under -Werror.
 	if (SQUEY_PCH)
+		# Clang records the mtime of cmake_pch.hxx.cxx inside the PCH and refuses
+		# it when they diverge. CMake rewrites that file on every configure, while
+		# the build cache restores a PCH built from an earlier one -- so any
+		# CMakeLists change turned the next cached build into "file has been
+		# modified since the precompiled header was built". Compare contents only,
+		# as ccache does for the same reason.
+		if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+			target_compile_options(${target} PRIVATE -Xclang -fno-pch-timestamp)
+		endif()
 		target_precompile_headers(${target} PRIVATE
 			<algorithm> <functional> <memory> <string> <vector>
 			<unordered_map> <map> <cstdint>)
