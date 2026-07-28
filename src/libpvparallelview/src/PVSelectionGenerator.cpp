@@ -336,7 +336,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 	const simde__m128i base_y_sse = simde_mm_set1_epi32((uint64_t)(manager.last_y_min()) >> zoom_shift);
 	const simde__m128i y_min_ref_sse = simde_mm_slli_epi32(base_y_sse, zoom_shift);
 	const simde__m128i nblocks_sse = simde_mm_set1_epi32(data.nblocks());
-	const simde__m256d alpha_sse = simde_mm256_set1_pd(manager.last_alpha());
+	const double alpha = manager.last_alpha();
 
 	uint32_t nb_selected = 0;
 
@@ -369,7 +369,7 @@ uint32_t PVParallelView::__impl::compute_selection_from_hit_count_view_rect_sse_
 				if (!simde_mm_test_all_zeros(res_sse, simde_mm_set1_epi32(0xFFFFFFFFU))) {
 					const simde__m128i idx_sse =
 					    PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
-					        y_sse, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift,
+					        y_sse, p_sse, y_min_ref_sse, alpha, zoom_mask_sse, idx_shift,
 					        zoom_shift, nbits);
 
 					simde__m128i count_sse = simde_mm_setzero_si128();

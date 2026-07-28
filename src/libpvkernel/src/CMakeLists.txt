@@ -11,7 +11,6 @@
 #########################################################################
 set(CORE_SRC_FILES
 core/network.cpp
-core/serialize_numbers.cpp
 
 core/PVArchive.cpp
 core/PVArgument.cpp

@@ -78,7 +78,6 @@ class PVHitGraphBlocksManager : boost::noncopyable
 
   public:
 	inline int last_zoom() const { return _data_params.zoom; }
-	inline int last_nbits() const { return _data_params.nbits; }
 	inline double last_alpha() const { return _data_params.alpha; }
 	inline uint32_t last_y_min() const { return _data_params.y_min; }
 	inline uint32_t size_block() const { return _data.size_block(); }

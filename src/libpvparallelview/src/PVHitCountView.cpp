@@ -28,10 +28,9 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
 
-#include <pvparallelview/PVParallelView.h>
-#include <pvparallelview/PVLibView.h>
 #include <pvparallelview/PVHitCountView.h>
 #include <pvparallelview/PVHitGraphData.h>
 
@@ -109,13 +108,10 @@ void __print_scalar(const char* text, const V& v)
  *****************************************************************************/
 
 PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
-                                               create_backend_t create_backend,
                                                const PVCol axis,
                                                QWidget* parent)
     : PVParallelView::PVZoomableDrawingAreaWithAxes(parent)
     , _pvview(pvview_sp)
-    , _create_backend(create_backend)
-    , _view_deleted(false)
     , _show_bg(true)
     , _auto_x_zoom_sel(false)
     , _do_auto_scale(false)
@@ -125,7 +121,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 	set_gl_viewport();
 
 	if (axis != PVCol()) {
-		_backend = _create_backend(axis, this);
+		_backend = create_backend(axis);
 
 		/* computing the highest scene width to setup it... and do the first
 		 * run to initialize the manager's buffers :-)
@@ -190,7 +186,7 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 	y_legend->set_current_axis(axis);
 	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
 	        [this](PVCol axis, PVCombCol) {
-		        _backend = _create_backend(axis, this);
+		        _backend = create_backend(axis);
 
 		        /* computing the highest scene width to setup it... and do the first
 		         * run to initialize the manager's buffers :-)
@@ -258,6 +254,26 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 	pvview_sp._toggle_unselected_zombie_visibility.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVHitCountView::toggle_unselected_zombie_visibility));
 
+	// React to model updates directly (see header note): disconnection is
+	// automatic through sigc::trackable when this widget is destroyed.
+	pvview_sp._update_output_selection.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVHitCountView::update_new_selection_async));
+
+	pvview_sp._update_output_layer.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVHitCountView::update_all_async));
+
+	pvview_sp._axis_combination_about_to_update.connect(
+	    sigc::bind(sigc::mem_fun(*this, &PVParallelView::PVHitCountView::set_enabled), false));
+
+	pvview_sp._axis_combination_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVHitCountView::on_axes_combination_changed));
+
+	pvview_sp.get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVHitCountView::on_scaling_updated));
+
+	pvview_sp._about_to_be_delete.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVHitCountView::on_view_about_to_be_deleted));
+
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);
 	set_background_color(color_view_bg);
@@ -275,10 +291,6 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 
 PVParallelView::PVHitCountView::~PVHitCountView()
 {
-	if (!_view_deleted) {
-		common::get_lib_view(_pvview)->remove_hit_count_view(this);
-	}
-
 	delete get_constraints();
 	delete _my_interactor;
 	delete _hcv_interactor;
@@ -287,12 +299,66 @@ PVParallelView::PVHitCountView::~PVHitCountView()
 }
 
 /*****************************************************************************
- * PVParallelView::PVHitCountView::about_to_be_deleted
+ * PVParallelView::PVHitCountView::create_backend
  *****************************************************************************/
 
-void PVParallelView::PVHitCountView::about_to_be_deleted()
+PVParallelView::PVHitCountView::backend_unique_ptr_t
+PVParallelView::PVHitCountView::create_backend(PVCol axis)
 {
-	_view_deleted = true;
+	backend_unique_ptr_t backend;
+
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(false);
+		    backend = std::make_unique<PVHitCountViewBackend>(_pvview, axis);
+	    },
+	    "Initializing hit-count view...", this);
+
+	return backend;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::on_axes_combination_changed
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::on_axes_combination_changed(bool async)
+{
+	set_enabled(true);
+
+	if (async) {
+		PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& /*pbox*/) { update_all(); }, "Updating hit-count view...",
+		    this);
+	} else {
+		update_all();
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::on_scaling_updated
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::on_scaling_updated(QList<PVCol> const& cols_updated)
+{
+	if (cols_updated.empty()) {
+		return;
+	}
+
+	// The hit-count backend reads the scaled column directly; no zone rebuild
+	// is involved, an asynchronous full refresh is enough.
+	update_all_async();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVHitCountView::on_view_about_to_be_deleted
+ *****************************************************************************/
+
+void PVParallelView::PVHitCountView::on_view_about_to_be_deleted()
+{
+	// The Squey::PVView is being destroyed: its memory is released right after
+	// this emission, so this widget must not outlive it.
+	_update_all_timer.stop();
+	delete this;
 }
 
 void PVParallelView::PVHitCountView::set_x_axis_zoom()
@@ -327,18 +393,6 @@ void PVParallelView::PVHitCountView::update_all_async()
 {
 	// QMetaObject::invokeMethod(this, &PVHitCountView::update_all, Qt::QueuedConnection);
 	PVCore::invokeMethod(this, &PVHitCountView::update_all, Qt::QueuedConnection);
-}
-
-/*****************************************************************************
- * PVParallelView::PVHitCountView::update_zones
- *****************************************************************************/
-
-bool PVParallelView::PVHitCountView::update_zones()
-{
-	/* RH: no need to follows the axis_id yet. We need informations to
-	 * retrieve the scaled pointer...
-	 */
-	return true;
 }
 
 /*****************************************************************************

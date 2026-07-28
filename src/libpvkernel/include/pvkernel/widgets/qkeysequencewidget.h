@@ -27,6 +27,8 @@
 
 #include "qkeysequencewidget_p.h"
 
+#include <pvkernel/export.h>
+
 #include <QWidget>
 #include <QIcon>
 
@@ -61,7 +63,7 @@ class QKeySequenceWidgetPrivate;
   SLOT(slotKeySequenceChanged(QKeySequence)));
   \endcode
 */
-class QKeySequenceWidget : public QWidget
+class PVKERNEL_EXPORT QKeySequenceWidget : public QWidget
 {
 	Q_OBJECT
 	Q_DECLARE_PRIVATE(QKeySequenceWidget);

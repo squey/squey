@@ -43,7 +43,6 @@
 //#include <QtWebEngineWidgets/QWebEngineView>
 #include <QDebug>
 
-//#include <pvparallelview/PVSeriesRendererOffscreen.h>
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/core/PVTheme.h>
 

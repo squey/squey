@@ -25,8 +25,6 @@
 
 #include <pvparallelview/PVSeriesView.h>
 
-//#include <pvparallelview/PVSeriesRendererOffscreen.h>
-//#include <pvparallelview/PVSeriesRendererOpenGL.h>
 #include <pvparallelview/PVSeriesRendererQPainter.h>
 
 #include <cassert>

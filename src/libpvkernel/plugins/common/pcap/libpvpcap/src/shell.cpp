@@ -43,6 +43,7 @@
 #include <qstring.h>
 #include <stdlib.h>
 #include <string.h>
+#include <cstring>
 #include <unistd.h>
 #include <atomic>
 #include <numeric>
@@ -249,15 +250,24 @@ extract_csv(splitted_files_t files,
 						sa.nLength = sizeof(SECURITY_ATTRIBUTES);
 						sa.lpSecurityDescriptor = NULL;
 						sa.bInheritHandle = TRUE;
+						// Give up on this file rather than spawning tshark on a handle that
+						// could not be opened: it would inherit an invalid stdin, fail with
+						// "The file "-" could not be opened", and leave the caller with a
+						// missing csv it then waits for -- an obscure hang instead of an error.
 						std::wstring pcap_wpath = std::filesystem::path(pcap.path()).wstring();
 						HANDLE hStdin = CreateFileW(pcap_wpath.c_str(), GENERIC_READ, FILE_SHARE_READ, &sa, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 						if (hStdin == INVALID_HANDLE_VALUE) {
-							pvlogger::error() << "Failed to open input file: " << GetLastError() << std::endl;
+							pvlogger::error() << "Failed to open input file '" << pcap.path()
+							                  << "': " << GetLastError() << std::endl;
+							return;
 						}
 						std::wstring csv_wpath = std::filesystem::path(csv_path).wstring();
 						HANDLE hStdout = CreateFileW(csv_wpath.c_str(), GENERIC_WRITE, 0, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
 						if (hStdout == INVALID_HANDLE_VALUE) {
-							pvlogger::error() << "Failed to open output file: " << GetLastError() << std::endl;
+							pvlogger::error() << "Failed to open output file '" << csv_path
+							                  << "': " << GetLastError() << std::endl;
+							CloseHandle(hStdin);
+							return;
 						}
 
 						si.cb = sizeof(STARTUPINFOA);
@@ -356,7 +366,11 @@ extract_csv(splitted_files_t files,
 						close(fd_out);
 
 						if (status != 0) {
-							perror("posix_spawnp failed");
+							// posix_spawnp returns the error number instead of setting errno,
+							// so perror() reported a stale "Undefined error: 0" and hid what
+							// actually went wrong.
+							pvlogger::error() << "Unable to execute '" << cmd_opts[0]
+							                  << "': " << std::strerror(status) << std::endl;
 							return;
 						}
 
@@ -425,7 +439,7 @@ bool is_directory(const std::string& path_name)
 
 	if (stat(path_name.c_str(), &info) != 0) {
 		std::cerr << "cannot access " << path_name << std::endl;
-		exit(EXIT_FAILURE);
+		return false;
 	} else if (info.st_mode & S_IFDIR)
 		return true;
 	else
@@ -451,9 +465,7 @@ std::vector<std::string> get_directory_files(const std::string& path_name)
 		}
 		closedir(dir);
 	} else {
-		/* could not open directory */
 		std::cerr << "Error: could not open directory \"" << path_name << "\"" << std::endl;
-		exit(EXIT_FAILURE);
 	}
 
 	return files;
@@ -492,9 +504,9 @@ std::string get_user_conf_dir()
 	// we should do this at install time
 	// create if not exists
 	if (not QDir().mkpath(user_conf_dir)) {
+		/* Report and carry on, as get_user_profile_dir() below does. */
 		std::cerr << "Can't create user configuration directory: " << user_conf_dir.toStdString()
 		          << std::endl;
-		exit(EXIT_FAILURE);
 	}
 
 	return user_conf_dir.toStdString();
@@ -516,7 +528,6 @@ std::string get_user_profile_dir()
 	if (not QDir().mkpath(user_profile_dir)) {
 		std::cerr << "Can't create user profile directory: " << user_profile_dir.toStdString()
 		          << std::endl;
-		exit(EXIT_FAILURE);
 	}
 
 	return user_profile_dir.toStdString();

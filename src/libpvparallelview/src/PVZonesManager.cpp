@@ -268,22 +268,18 @@ void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone
 
 /******************************************************************************
  *
- * PVParallelView::PVZonesManager::list_cols_to_zones_indices
+ * PVParallelView::PVZonesManager::list_zones_for_columns
  *
  *****************************************************************************/
 std::unordered_set<PVZoneID>
-PVParallelView::PVZonesManager::list_cols_to_zones_indices(QSet<PVCombCol> const& comb_cols) const
+PVParallelView::PVZonesManager::list_zones_for_columns(QList<PVCol> const& cols) const
 {
 	std::unordered_set<PVZoneID> ret;
-	for (PVCombCol comb_col : comb_cols) {
-		if (comb_col == 0) {
-			ret.emplace(_axes_comb[comb_col], _axes_comb[comb_col + 1]);
-		} else if (comb_col == PVCombCol(get_number_of_axes_comb_zones())) {
-			ret.emplace(_axes_comb[comb_col - 1], _axes_comb[comb_col]);
-		} else {
-			ret.emplace(_axes_comb[comb_col], _axes_comb[comb_col + 1]);
-			ret.emplace(_axes_comb[comb_col - 1], _axes_comb[comb_col]);
+	for (auto const& [zone_id, zone] : _zones) {
+		if (cols.contains(zone_id.first) or cols.contains(zone_id.second)) {
+			ret.insert(zone_id);
 		}
 	}
 	return ret;
 }
+

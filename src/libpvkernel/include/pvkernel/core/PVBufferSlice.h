@@ -109,10 +109,6 @@ class PVBufferSlice
 	 */
 	size_t size() const;
 
-	/*! \brief Return the physical size of this slice.
-	 */
-	inline size_t physical_size() const { return (uintptr_t)_physical_end - (uintptr_t)_begin; }
-
 	/*! \brief Change the beginning of this slice.
 	 *  \param[in] p Pointer to the beginning of the slice.
 	 *

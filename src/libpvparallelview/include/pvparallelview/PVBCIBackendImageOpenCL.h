@@ -66,10 +66,6 @@ class PVBCIBackendImageOpenCL : public PVParallelView::PVBCIBackendImage
 	inline size_t width() const { return _width; }
 
   public:
-	const pixel_t* host_img() const { return _host_addr; }
-
-	const cl::Buffer& host_buffer() const { return _host_buffer; }
-
 	const cl::Buffer& device_buffer() const { return _device_buffer; }
 
 	void copy_device_to_host_async(cl::Event* event = nullptr) const;

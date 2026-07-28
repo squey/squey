@@ -99,7 +99,6 @@ class PVXmlParamWidgetBoardSplitterRegEx : public QWidget
 	QLabel* labelNbr;
 	int nbr;
 	QPushButton* btnApply;
-	bool useTableVerifie();
 	PVXmlParamWidget* _parent;
 
 	// editing node

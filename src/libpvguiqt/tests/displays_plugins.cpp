@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// © ESI Group, 2015
+// © Squey, 2026
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -23,14 +23,27 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvkernel/core/squey_intrin.h>
-#include <pvkernel/core/squey_intrin.h>
+// Headless smoke test for the whole display-widget catalog. Every view kind that
+// Squey can open (listing, layer-stack, distinct-values, the group-by family,
+// axes-combination, correlation, mapping-scaling, filters -- from libpvguiqt --
+// and the full-parallel, zoomed, hit-count, scatter and timeseries views -- from
+// libpvparallelview) is instantiated against a real, fully-computed view and
+// shown offscreen. It guards three things:
+//   1. the import pipeline produced the expected shape (rows x columns);
+//   2. the display catalog stays complete (no display silently dropped);
+//   3. every display still builds a non-null widget that actually becomes visible.
+// Runs under FORCE_CPU=1 + "-platform offscreen" (see CMakeLists.txt), so the
+// parallelview widgets fall back to the software backend instead of the GPU.
 
 #include <squey/PVMapped.h>
 #include <squey/PVScaled.h>
 #include <squey/PVSource.h>
 #include <squey/PVView.h>
 #include <squey/PVRoot.h>
+
+#include <pvkernel/core/squey_assert.h>
+
+#include <pvbase/types.h>
 
 #include <pvdisplays/PVDisplayIf.h>
 
@@ -39,48 +52,174 @@
 #include <pvparallelview/PVParallelView.h>
 
 #include <QApplication>
+#include <QEventLoop>
+#include <QPointer>
+#include <QWidget>
 
-#include <iostream>
+#include <algorithm>
+#include <any>
+#include <set>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "common.h"
 #include "test-env.h"
 
+#if defined(__linux__) || defined(__APPLE__)
+#include <csignal>
+#include <cstdio>
+#include <execinfo.h>
+#include <unistd.h>
+
+// This test crashes on the arm64 macOS CI and nowhere else, so it cannot be
+// reproduced on the x86_64 development VM. ctest reports no more than
+// "SEGFAULT", and no crash report reaches the job log, which leaves the failure
+// undiagnosable. Print the faulting stack ourselves, as the streaming
+// compressor test had to for SIGPIPE.
+static void report_crash(int sig)
+{
+	static const char msg[] = "\n*** fatal signal, backtrace follows ***\n";
+	ssize_t ignored = write(STDERR_FILENO, msg, sizeof(msg) - 1);
+	(void)ignored;
+	void* frames[64];
+	int count = backtrace(frames, 64);
+	backtrace_symbols_fd(frames, count, STDERR_FILENO);
+	std::signal(sig, SIG_DFL);
+	std::raise(sig); // let the platform report the signal as it would have
+}
+#endif
+
 int main(int argc, char** argv)
 {
-	if (argc <= 2) {
-		std::cerr << "Usage: " << argv[0] << " file format" << std::endl;
-		return 1;
-	}
+	// Unbuffered: a signal death drops whatever is still buffered, and under
+	// ctest stdout is a pipe, so the display named just before the crash would
+	// otherwise never reach the log.
+	std::cout << std::unitbuf;
+#if defined(__linux__) || defined(__APPLE__)
+	std::signal(SIGSEGV, report_crash);
+	std::signal(SIGBUS, report_crash);
+#endif
+
 	init_env();
 
-	// Get a SQUEY tree from the given file/format
 	Squey::PVRoot root;
-	Squey::PVSource& src = get_src_from_file(root, argv[1], argv[2]);
-	src.emplace_add_child()   // Mapped
-	    .emplace_add_child()  // Scaled
-	    .emplace_add_child(); // View
-	Squey::PVView* view = src.current_view();
+	const QString file = QString(TEST_FOLDER) + "/picviz/heat_line.csv";
+	const QString format = file + ".format";
+	Squey::PVSource& src = get_src_from_file(root, file, format);
 
-	QApplication app(argc, argv);
+	// emplace_add_child() computes each stage in turn:
+	// Mapped (mapping) -> Scaled (scaling) -> View. The resulting view therefore
+	// carries real scaled data, which the parallelview widgets need to render.
+	Squey::PVView& view = src.emplace_add_child().emplace_add_child().emplace_add_child();
+
+	// Import oracle: the format's shape survived the full extraction pipeline.
+	PV_VALID(size_t(src.get_row_count()), size_t(50000));
+	PV_VALID(size_t(view.get_column_count()), size_t(2));
+
+	QApplication app(argc, argv); // argv carries "-platform offscreen"
 
 	PVParallelView::common::RAII_backend_init backend_resources;
-	// Will also register displays
+	// Registers the libpvguiqt view displays; RAII_backend_init above already
+	// registered the libpvparallelview ones.
 	PVGuiQt::common::register_displays();
 
-	// Display all the possible Qt displays of this view and source
+	// The view displays that must always be available. If any of these stops
+	// being registered, the catalog oracle below fails.
+	std::set<std::string> expected_view_displays = {
+	    "guiqt_axes-combination",
+	    "guiqt_correlation",
+	    "guiqt_mapping-scaling",
+	    "guiqt_filters",
+	    "guiqt_distinct-values",
+	    "guiqt_count-by",
+	    "guiqt_sum-by",
+	    "guiqt_min-by",
+	    "guiqt_max-by",
+	    "guiqt_average-by",
+	    "guiqt_layer-stack",
+	    "guiqt_listing",
+	    "parallelview_fullparallelview",
+	    "parallelview_zoomedparallelview",
+	    "parallelview_hitcountview",
+	    "parallelview_scatterview",
+	    "parallelview_timeseriesview",
+	};
+#ifdef PYTHON_SUPPORT
+	expected_view_displays.insert("guiqt_pythonconsole");
+#endif
+
+	// The column-oriented displays (distinct values, the group-by family and the
+	// parallelview axis views) read their target column(s) from the parameter
+	// pack; the view-level ones ignore it. Two valid comb columns therefore
+	// satisfy every create_widget contract at once.
+	const std::vector<std::any> view_params = {std::any(PVCombCol(0)), std::any(PVCombCol(1))};
+
+	// The parallelview widgets render asynchronously on a TBB pool; pumping the
+	// event loop lets that background render actually run (and its result be
+	// consumed) so the render path is exercised, not merely constructed.
+	const auto drain_render = []() {
+		for (int i = 0; i < 100; ++i) {
+			QApplication::processEvents(QEventLoop::AllEvents, 10);
+		}
+	};
+
+	// Build and show every registered view display against the computed view.
+	// The parallelview widgets are tracked through QPointer for the
+	// model-teardown oracle below.
+	std::set<std::string> seen_view_displays;
+	std::vector<std::pair<std::string, QPointer<QWidget>>> parallelview_widgets;
 	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplayViewIf>(
 	    [&](PVDisplays::PVDisplayViewIf& obj) {
-		    QWidget* w = PVDisplays::get_widget(obj, view);
-		    w->show();
-		});
+		    const std::string name = obj.registered_name().toStdString();
+		    seen_view_displays.insert(name);
+		    std::cout << "view display " << name << std::endl;
 
+		    QWidget* w = PVDisplays::get_widget(obj, &view, nullptr, view_params);
+		    PV_ASSERT_VALID(w != nullptr, "view_display", name);
+
+		    if (name.starts_with("parallelview_")) {
+			    // The render maps the viewport onto the zone tree, so give it a real
+			    // size and let the background render run.
+			    w->resize(1024, 1024);
+			    w->show();
+			    drain_render();
+			    parallelview_widgets.emplace_back(name, QPointer<QWidget>(w));
+		    } else {
+			    w->show();
+			    QApplication::processEvents();
+		    }
+		    PV_ASSERT_VALID(w->isVisible(), "view_display", name);
+	    });
+
+	// Catalog oracle: every expected display was actually visited.
+	PV_ASSERT_VALID(std::includes(seen_view_displays.begin(), seen_view_displays.end(),
+	                              expected_view_displays.begin(), expected_view_displays.end()),
+	                "seen_count", seen_view_displays.size(), "expected_count",
+	                expected_view_displays.size());
+
+	// Source displays (the data-tree view) must build against the source too.
 	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
+		    std::cout << "source display " << obj.registered_name().toStdString() << std::endl;
 		    QWidget* w = PVDisplays::get_widget(obj, &src);
+		    PV_ASSERT_VALID(w != nullptr, "source_display", obj.registered_name().toStdString());
 		    w->show();
-		});
+		    QApplication::processEvents();
+	    });
 
-	app.exec();
+	// Model-teardown oracle: destroying the source -- hence the Squey::PVView,
+	// exactly what closing a source tab does -- while display widgets are
+	// still open must synchronously tear down every parallelview widget (they
+	// must not outlive the model they render) without crashing. This exercises
+	// the whole drain-then-delete path of the per-view rendering context.
+	std::cout << "tearing down the source" << std::endl;
+	src.get_parent<Squey::PVScene>().remove_child(src);
+	QApplication::processEvents();
+
+	for (auto const& [name, widget] : parallelview_widgets) {
+		PV_ASSERT_VALID(widget.isNull(), "widget_alive_after_model_teardown", name);
+	}
 
 	return 0;
 }

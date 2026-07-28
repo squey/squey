@@ -123,6 +123,12 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 	view_sp._update_output_selection.connect(
 	    sigc::mem_fun(*this, &PVGuiQt::PVStatsListingWidget::selection_changed));
 
+	// Do not outlive the view we render, as the parallelview widgets already do:
+	// the listing reads it while painting, down to its header sections, so a
+	// repaint delivered after the view is gone dereferences freed memory.
+	view_sp._about_to_be_delete.connect(
+	    sigc::mem_fun(*this, &PVGuiQt::PVStatsListingWidget::on_view_about_to_be_deleted));
+
 	// Observe layerstack to handle automatic refresh mode
 	view_sp._update_output_layer.connect(
 	    sigc::mem_fun(*this, &PVGuiQt::PVStatsListingWidget::selection_changed));
@@ -295,6 +301,22 @@ void PVGuiQt::PVStatsListingWidget::update_scrollbar_position()
 	}
 	_stats_panel->horizontalScrollBar()->setSliderPosition(
 	    _listing_view->horizontalScrollBar()->sliderPosition());
+}
+
+void PVGuiQt::PVStatsListingWidget::on_view_about_to_be_deleted()
+{
+	// The Squey::PVView is released right after this emission, and a paint event
+	// already queued would reach PVHorizontalHeaderView::paintSection(), which
+	// reads the view to decide whether a column carries a correlation.
+	//
+	// Hiding is what stops that: Qt delivers no paint event to a hidden widget and
+	// drops the ones already posted. Deleting outright is not an option here --
+	// this signal also fires while the application tears its widget tree down, so
+	// the widget can already be under destruction by its Qt parent, and deleting it
+	// again crashed the import/export test on Windows. deleteLater() is dropped in
+	// that case and disposes of the widget in the ordinary one.
+	hide();
+	deleteLater();
 }
 
 void PVGuiQt::PVStatsListingWidget::selection_changed()

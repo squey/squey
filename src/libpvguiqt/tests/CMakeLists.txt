@@ -20,6 +20,8 @@ add_squey_compile_test(Tqt_layerstack LINKS ${COMMON_LIBRARIES} FILES layerstack
 add_squey_compile_test(Tqt_layerstack_widget LINKS ${COMMON_LIBRARIES} FILES layerstack-widget.cpp common.cpp)
 add_squey_compile_test(Tqt_vertical_tabs LINKS ${COMMON_LIBRARIES} FILES vertical_tabs.cpp common.cpp)
 add_squey_compile_test(Tqt_displays_plugins LINKS ${COMMON_LIBRARIES} FILES displays_plugins.cpp common.cpp)
+add_squey_test(Tqt_displays_plugins Tqt_displays_plugins -platform offscreen)
+set_property(TEST SQUEY_TEST_Tqt_displays_plugins PROPERTY ENVIRONMENT "FORCE_CPU=1")
 
 add_squey_compile_test(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
 add_squey_test(Tpvguiqt_sort_filter Tpvguiqt_sort_filter)

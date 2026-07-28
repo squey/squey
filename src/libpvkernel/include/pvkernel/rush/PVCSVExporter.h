@@ -85,11 +85,8 @@ class PVCSVExporter : public PVRush::PVExporterBase
 	void set_export_header(bool export_header) { _export_header = export_header; }
 	void set_export_rows_index(bool export_rows_index) { _export_rows_index = export_rows_index; }
 
-	const PVCore::PVColumnIndexes& get_column_indexes() const { return _column_indexes; }
-	PVRow get_total_row_count() const { return _total_row_count; }
 	const std::string& get_sep_char() const { return _sep_char; }
 	const std::string& get_quote_char() const { return _quote_char; }
-	const std::string& get_header() const { return _header; }
 	bool get_export_internal_values() const { return _export_internal_values; }
 	bool get_export_header() const { return _export_header; }
 	bool get_export_rows_index() const { return _export_rows_index; }

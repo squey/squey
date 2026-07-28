@@ -85,9 +85,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 		}
 		PVViewWidgets() { _axes_combination_editor = nullptr; }
 		~PVViewWidgets(){};
-
-	  protected:
-		void delete_widgets() { _axes_combination_editor->deleteLater(); }
 	};
 
   public:
@@ -145,7 +142,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	static PVWorkspaceBase* workspace_under_mouse();
 
   public:
-	static bool drag_started() { return _drag_started; }
 	inline int z_order() { return _z_order_index; }
 
   protected:
@@ -197,7 +193,6 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	QList<PVViewDisplay*> _displays;
 	int _z_order_index = 0;
 	static uint64_t _z_order_counter;
-	static bool _drag_started;
 	QHash<Squey::PVView const*, PVViewWidgets> _view_widgets;
 };
 

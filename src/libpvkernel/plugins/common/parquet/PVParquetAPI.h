@@ -27,7 +27,6 @@
 
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
-#include <pvkernel/core/serialize_numbers.h>
 #include <parquet/arrow/reader.h>
 #include <arrow/type.h>
 #include <parquet/file_reader.h>

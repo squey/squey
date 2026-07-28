@@ -118,16 +118,6 @@ struct PVBCIPatterns {
 
 	static int get_number_patterns() { return NUMBER_BCI_PATTERNS; }
 
-	static int pattern_string_to_id(const char* str)
-	{
-		for (int i = 0; i < get_number_patterns(); i++) {
-			if (strcasecmp(str, _patterns_str[i]) == 0) {
-				return i;
-			}
-		}
-		return -1;
-	}
-
 	static const char* const* get_patterns_string() { return _patterns_str; }
 
   private:

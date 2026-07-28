@@ -166,14 +166,18 @@ void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	_start_screen_widget = new PVGuiQt::PVStartScreenWidget();
 	_tab_widget->addTab(new QWidget(), "");
 	_tab_widget->setTabPosition(QTabWidget::West);
-	QTabBar::ButtonPosition button_pos = // See https://bugreports.qt.io/browse/QTBUG-134919
-#ifdef __APPLE__
-	QTabBar::LeftSide;
-#else
-	QTabBar::RightSide;
-#endif
-	_tab_widget->tabBar()->tabButton(0, button_pos)->deleteLater();
-	_tab_widget->tabBar()->setTabButton(0, button_pos, nullptr);
+	// The close button position depends on the widget style, not on the OS: the
+	// native macOS style puts it on the left but Fusion — used by the offscreen
+	// platform of the test suite, even on macOS — puts it on the right. Hardcoding
+	// LeftSide per OS made tabButton() return null under offscreen on macOS, and
+	// null->deleteLater() crashed. Sweep both sides and guard against a missing
+	// button instead. See https://bugreports.qt.io/browse/QTBUG-134919
+	for (QTabBar::ButtonPosition button_pos : {QTabBar::LeftSide, QTabBar::RightSide}) {
+		if (QWidget* close_button = _tab_widget->tabBar()->tabButton(0, button_pos)) {
+			close_button->deleteLater();
+		}
+		_tab_widget->tabBar()->setTabButton(0, button_pos, nullptr);
+	}
 
 	QPixmap pm(":/squey");
 	QTransform trans;

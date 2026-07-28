@@ -80,10 +80,6 @@ class PVRecentItemsManager
 		return recent_items_manager;
 	}
 
-	/*! \brief Return the serializable name of a given category.
-	 */
-	const QString get_key(Category category) { return _recents_items_keys[category]; }
-
 	/*! \brief Add an item (path) for a given category.
 	 */
 	template <Category category>

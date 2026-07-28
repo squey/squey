@@ -177,8 +177,6 @@ class PVAbstractTableModel : public QAbstractTableModel
 	/// Accessors
 	size_t current_page() const { return _current_page; }
 	size_t& pos_in_page() { return _pos_in_page; }
-	bool have_selection() const { return _start_sel != -1; }
-
 	/**
 	 * Move pagination information for many elements.
 	 *

@@ -23,8 +23,6 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvparallelview/PVLibView.h>
-#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVHitCountView.h>
 
 #include <pvparallelview/PVDisplayViewHitCount.h>
@@ -43,8 +41,7 @@ QWidget* PVDisplays::PVDisplayViewHitCount::create_widget(Squey::PVView* view,
                                                           QWidget* parent,
                                                           Params const& params) const
 {
-	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	auto w = lib_view->create_hit_count_view(col_param(view, params, 0), parent);
+	auto w = new PVParallelView::PVHitCountView(*view, col_param(view, params, 0), parent);
 
 	QObject::connect(w, &PVParallelView::PVHitCountView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
 		_set_status_bar_mouse_legend.emit(w, legend);

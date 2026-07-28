@@ -140,8 +140,6 @@ static void count_y1_omp_sse_v4(const PVRow row_count,
 	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
 	const simde__m128i y_min_ref_sse = simde_mm_set1_epi32(y_min_ref);
 
-	const simde__m256d alpha_sse = simde_mm256_set1_pd(alpha);
-
 	PVRow packed_row_count = row_count & ~3;
 
 #pragma omp parallel num_threads(ctx.get_core_num())
@@ -165,7 +163,7 @@ static void count_y1_omp_sse_v4(const PVRow row_count,
 			}
 
 			const simde__m128i off_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
-			    y_sse, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift,
+			    y_sse, p_sse, y_min_ref_sse, alpha, zoom_mask_sse, idx_shift, zoom_shift,
 			    nbits);
 
 			if (simde_mm_extract_epi32(res_sse, 0)) {
@@ -226,8 +224,6 @@ static void count_y1_omp_sse_v4(const PVRow row_count,
 	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
 	const simde__m128i y_min_ref_sse = simde_mm_set1_epi32(y_min_ref);
 
-	const simde__m256d alpha_sse = simde_mm256_set1_pd(alpha);
-
 	PVRow packed_row_count = row_count & ~3;
 
 #pragma omp parallel num_threads(ctx.get_core_num())
@@ -253,7 +249,7 @@ static void count_y1_omp_sse_v4(const PVRow row_count,
 			}
 
 			const simde__m128i off_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
-			    y_sse, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift,
+			    y_sse, p_sse, y_min_ref_sse, alpha, zoom_mask_sse, idx_shift, zoom_shift,
 			    nbits);
 
 			if (simde_mm_extract_epi32(res_sse, 0)) {
@@ -324,8 +320,6 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count,
 	const uint32_t y_min_ref = (uint64_t)base_y << zoom_shift;
 	const simde__m128i y_min_ref_sse = simde_mm_set1_epi32(y_min_ref);
 
-	const simde__m256d alpha_sse = simde_mm256_set1_pd(alpha);
-
 	PVRow packed_row_count = row_count & ~3;
 
 #pragma omp parallel num_threads(ctx.get_core_num())
@@ -356,7 +350,7 @@ void count_y1_sel_omp_sse_v4(const PVRow row_count,
 			}
 
 			const simde__m128i off_sse = PVParallelView::PVHitGraphSSEHelpers::buffer_offset_from_y_sse(
-			    y_sse, p_sse, y_min_ref_sse, alpha_sse, zoom_mask_sse, idx_shift, zoom_shift,
+			    y_sse, p_sse, y_min_ref_sse, alpha, zoom_mask_sse, idx_shift, zoom_shift,
 			    nbits);
 
 			if (simde_mm_extract_epi32(res_sse, 0)) {

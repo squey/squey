@@ -35,9 +35,6 @@
 
 #include <squey/widgets/editors/PVAxisIndexEditor.h>
 
-#include <pvparallelview/PVParallelView.h>
-#include <pvparallelview/PVLibView.h>
-
 #include <pvguiqt/PVAxesCombinationDialog.h>
 #include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>

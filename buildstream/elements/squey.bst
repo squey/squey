@@ -61,6 +61,7 @@ sandbox:
 variables:
   build-dir: "build/%{target_triple}/%{cxx_compiler}/build"
   source-dir: "."
+  quiet-flag: ""
   cmake-local: >-
     -DUSER_TARGET=%{user_target}
     -DCODE_COVERAGE=%{code_coverage}
@@ -72,6 +73,8 @@ variables:
   # deriving the matching binutils from it (windres, dlltool, nm, objcopy...).
   recc-bin: "%{build-root}/recc-bin"
   (?):
+  - quiet_compilation == True:
+      quiet-flag: "--quiet"
   - target_triple == "x86_64-linux-gnu":
       cmake-local-extra: >-
         -DCMAKE_CXX_COMPILER="/usr/bin/%{cxx_compiler}"
@@ -130,9 +133,9 @@ config:
       - |
         export PYTHONPATH=$(bash -c "echo /app/lib/python*/site-packages")
         SOURCE_DIR=$(pwd)
-        cd "%{build-dir}" && (ninja && ninja squey_testsuite) || exit 1
+        cd "%{build-dir}" && (ninja %{quiet-flag} && ninja %{quiet-flag} squey_testsuite) || exit 1
         [ "%{target_triple}" != "x86_64-linux-gnu" ] && exit 0
-        if [ "%{code_coverage}" = "1" ]; then ninja pvcop_testsuite; fi
+        if [ "%{code_coverage}" = "1" ]; then ninja %{quiet-flag} pvcop_testsuite; fi
         TESTS="-R SQUEY_TEST"
         # No quotes around the regex: the expansion of ${TESTS} below is not
         # subject to quote removal, so ctest would receive them as part of it
@@ -152,7 +155,7 @@ config:
         cp -r %{build-dir}/junit.xml %{build-dir}/code_coverage_report %{install-root} || true
   - disable_testsuite == True:
       build-commands:
-        - cd "%{build-dir}" && ninja
+        - cd "%{build-dir}" && ninja %{quiet-flag}
       install-commands:
       # No testsuite to embed here: the test executables are EXCLUDE_FROM_ALL and this
       # branch only builds the default target. Cross-compiled testsuites are packaged

@@ -28,6 +28,4 @@
 #include <pvkernel/core/PVTextChunk.h>
 
 void dump_chunk_csv(PVCore::PVTextChunk& c, std::ostream& out);
-void dump_chunk_raw(PVCore::PVTextChunk const& c);
-
 #endif

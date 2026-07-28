@@ -106,8 +106,6 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 
 	PVCol get_original_axis_column() const { return _axis_fmt.index; }
 
-	QString get_axis_type() const { return _axis_fmt.get_type(); }
-
 	QRectF get_top_decoration_scene_bbox() const;
 	QRectF get_bottom_decoration_scene_bbox() const;
 

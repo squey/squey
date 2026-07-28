@@ -27,6 +27,9 @@ try {
     $env:PATH = "$appdir" + ";" + $env:PATH
     $env:PVKERNEL_PLUGIN_PATH = "$appdir\plugins"
     $env:SQUEY_PLUGIN_PATH = "$appdir\plugins"
+    # Qt platform plugins sit at the root of the unpacked MSIX while the test binaries live
+    # in subdirectories of it, so Qt does not find them next to the running executable.
+    $env:QT_QPA_PLATFORM_PLUGIN_PATH = "$appdir\platforms"
     $env:SQUEY_PYTHONHOME="$appdir\python"
     $env:SQUEY_PYTHONPATH="$env:SQUEY_PYTHONHOME\site-packages"
     $env:LIBRARY_PATH="-L$appdir"
@@ -36,6 +39,14 @@ try {
     New-Item -ItemType Directory -Path "$appdir" -Force
     Get-ChildItem -Path export/x86_64-w64-mingw32/*.msix | ForEach-Object { makeappx unpack /p $_.FullName /d "$appdir" > $null }
     Expand-Archive -Path "export\x86_64-w64-mingw32\testsuite.zip" -DestinationPath "$appdir" -Force
+
+    # tshark ships zipped at the root of the package and is normally unpacked on first
+    # run by PVUtilitiesDecompressor, which looks for archives next to the running
+    # executable and unpacks them into a cache directory named after it. Test binaries
+    # satisfy neither condition -- they live in subdirectories of the package and are
+    # named after the test -- so unpack it here and point them at it explicitly.
+    Expand-Archive -Path "$appdir\tshark.zip" -DestinationPath "$appdir\tshark" -Force
+    $env:SQUEY_TSHARK_PATH = "$appdir\tshark\tshark.exe"
 
     # Setup Squey config file
     $squey_unicode = "Squëy" # Validate unicode support

@@ -25,22 +25,18 @@
 #include <cstdlib>
 #include <pvbase/general.h>
 #include <pvkernel/core/PVUtils.h>
+#include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVPluginsLoad.h>
 #include <squey/common.h>
 
-void init_env()
+inline void init_env()
 {
-	PVCore::setenv("PVFILTER_NORMALIZE_DIR", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins/normalize", 0);
-	PVCore::setenv("PVRUSH_NORMALIZE_HELPERS_DIR",
-	       SQUEY_SOURCE_DIRECTORY "/libpvkernel/plugins/normalize-helpers:./test-formats", 0);
-	PVCore::setenv("SQUEY_CACHE_DIR", "./cache", 0);
-	PVCore::setenv("PVRUSH_INPUTTYPE_DIR", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins/input_types", 0);
-	PVCore::setenv("PVRUSH_SOURCE_DIR", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins/sources", 0);
-	PVCore::setenv("SQUEY_MAPPING_FILTERS_DIR",
-	       SQUEY_BUILD_DIRECTORY "/libsquey/plugins/mapping-filters", 0);
-	PVCore::setenv("SQUEY_SCALING_FILTERS_DIR",
-	       SQUEY_BUILD_DIRECTORY "/libsquey/plugins/scaling-filters", 0);
-	PVCore::setenv("SQUEY_LAYER_FILTERS_DIR", SQUEY_BUILD_DIRECTORY "/libsquey/plugins/layer-filters",
-	       0);
+	PVCore::setenv("PVKERNEL_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libpvkernel/plugins", 0);
+	PVCore::setenv("SQUEY_PLUGIN_PATH", SQUEY_BUILD_DIRECTORY "/libsquey/plugins", 0);
 	PVCore::setenv("OMP_TOOL", "disabled", 1); // Disable OMP_TOOL to avoid "Unable to find TSan function" errors
+
+	PVFilter::PVPluginsLoad::load_all_plugins(); // Splitters
+	PVRush::PVPluginsLoad::load_all_plugins();   // Sources
+
 	Squey::common::load_filters();
 }

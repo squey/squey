@@ -120,8 +120,6 @@ class PVVector
 		}
 	}
 
-	value_type* get_pointer() const { return _array; }
-
 	void set_index(unsigned index) { _index = index; }
 
   private:

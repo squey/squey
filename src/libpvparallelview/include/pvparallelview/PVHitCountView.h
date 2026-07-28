@@ -88,26 +88,15 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
   private:
 	using zoom_converter_t = PVZoomConverterScaledPowerOfTwo<zoom_steps>;
 	using backend_unique_ptr_t = std::unique_ptr<PVHitCountViewBackend>;
-	using create_backend_t = std::function<backend_unique_ptr_t(PVCol, QWidget*)>;
 
   public:
-	PVHitCountView(Squey::PVView& pvview_sp,
-	               create_backend_t create_backend,
-	               const PVCol axis,
-	               QWidget* parent = nullptr);
+	PVHitCountView(Squey::PVView& pvview_sp, const PVCol axis, QWidget* parent = nullptr);
 
 	~PVHitCountView() override;
 
 	QSize sizeHint() const override { return QSize(800, 200); }
 
   public:
-	void about_to_be_deleted();
-	void update_new_selection_async();
-	void update_all_async();
-	void update_all();
-	bool update_zones();
-	void set_enabled(const bool value);
-
 	inline uint32_t get_max_count() const { return _max_count; }
 
 	inline Squey::PVView& lib_view() { return _pvview; }
@@ -189,6 +178,21 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	void toggle_show_labels();
 
   private:
+	backend_unique_ptr_t create_backend(PVCol axis);
+
+	void update_new_selection_async();
+	void update_all_async();
+	void update_all();
+	void set_enabled(const bool value);
+
+	// Model (Squey::PVView) sigc handlers. The hit-count view does not use any
+	// per-view shared rendering resource (zones manager, zones processors), so
+	// it subscribes directly to the model instead of going through the
+	// rendering context shared by the other parallel-view widgets.
+	void on_axes_combination_changed(bool async);
+	void on_scaling_updated(QList<PVCol> const& cols_updated);
+	void on_view_about_to_be_deleted();
+
 	void reset_view();
 
 	void draw_lines(QPainter* painter,
@@ -229,8 +233,6 @@ class PVHitCountView : public PVZoomableDrawingAreaWithAxes, public sigc::tracka
 	QTimer _update_all_timer;
 
 	backend_unique_ptr_t _backend;
-	create_backend_t _create_backend;
-	bool _view_deleted;
 	uint64_t _max_count;
 	int _block_zoom_value;
 	bool _show_bg;

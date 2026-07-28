@@ -275,12 +275,7 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	 */
 	std::string get_data(PVRow row, PVCombCol column) const;
 
-	/***********
-	 * FILTERS
-	 ***********/
-	inline QString const& get_last_used_filter() const { return _last_filter_name; }
 	inline void set_last_used_filter(QString const& name) { _last_filter_name = name; }
-	inline bool is_last_filter_used_valid() const { return !_last_filter_name.isEmpty(); }
 	inline PVCore::PVArgumentList& get_last_args_filter(QString const& name)
 	{
 		return filters_args[name];

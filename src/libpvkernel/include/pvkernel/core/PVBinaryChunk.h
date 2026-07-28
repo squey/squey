@@ -29,7 +29,6 @@
 #include <pvkernel/core/PVChunk.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h> // for EChunkType
 
-#define DISABLE_STD_HASH_UINT128 ON
 #include <pvcop/db/sink.h>
 #include <pvcop/types/number.h>
 
@@ -88,8 +87,6 @@ class PVBinaryChunk : public PVChunk
 	{
 		return _null_bitmaps[col].get();
 	}
-
-	void set_rows_count(size_t rows_count) { _rows_count = rows_count; }
 
 	const pvcop::db::sink::columns_chunk_t& columns_chunk() const { return _columns_chunk; }
 

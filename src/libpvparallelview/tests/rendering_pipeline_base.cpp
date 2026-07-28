@@ -26,7 +26,7 @@
 #include <pvkernel/core/PVHSVColor.h>
 
 #include <pvkernel/core/PVUtils.h>
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVZoneRendering.h>
@@ -106,7 +106,7 @@ int main(int argc, char** argv)
 
 	PVParallelView::common::RAII_backend_init resources;
 	TestEnv env(filename, fileformat);
-	PVParallelView::PVLibView* pv = env.get_lib_view();
+	PVParallelView::PVViewRenderingContext* pv = env.get_rendering_context();
 	PVParallelView::PVZonesManager& zm = pv->get_zones_manager();
 
 	auto& backend = PVParallelView::common::backend();

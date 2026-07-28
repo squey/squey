@@ -65,9 +65,6 @@ class PVLinesView
 		{
 		}
 
-		int16_t get_base_width() const { return _base_width; }
-		int16_t get_base_zoom_level() const { return _base_zoom_level; }
-
 		void set_base_width(int16_t base_width);
 		void set_base_zoom_level(int16_t base_zoom_level);
 

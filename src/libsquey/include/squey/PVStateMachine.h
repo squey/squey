@@ -48,15 +48,6 @@ class PVStateMachine
 
 	bool are_listing_all() const { return listing_unselected_visible && listing_zombie_visible; }
 
-	bool are_listing_no_nu_nz() const
-	{
-		return !(listing_unselected_visible || listing_zombie_visible);
-	}
-
-	bool are_listing_no_nz() const { return listing_unselected_visible && !listing_zombie_visible; }
-
-	bool are_listing_no_nu() const { return !listing_unselected_visible && listing_zombie_visible; }
-
 	bool are_listing_unselected_visible() const { return listing_unselected_visible; }
 
 	bool are_listing_zombie_visible() const { return listing_zombie_visible; }
@@ -64,15 +55,6 @@ class PVStateMachine
 	bool& are_view_unselected_zombie_visible() { return view_unselected_zombie_visible; }
 
 	QString get_string();
-
-	void set_listing_unselected_visible(bool visible) { listing_unselected_visible = visible; }
-
-	void set_listing_zombie_visible(bool visible) { listing_zombie_visible = visible; }
-
-	void set_view_unselected_zombie_visible(bool visible)
-	{
-		view_unselected_zombie_visible = visible;
-	}
 
 	void toggle_listing_unselected_visibility()
 	{

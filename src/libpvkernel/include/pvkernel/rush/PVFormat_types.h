@@ -51,12 +51,9 @@ typedef QMap<QString, PVRush::PVFormat> hash_formats;
 #define PVFORMAT_AXIS_TYPE_DEFAULT "string"
 #define PVFORMAT_AXIS_MAPPING_DEFAULT "default"
 #define PVFORMAT_AXIS_SCALING_DEFAULT "default"
-#define PVFORMAT_AXIS_KEY_DEFAULT "false"
 #define PVFORMAT_AXIS_COLOR_DEFAULT "#1a72bb"
 #define PVFORMAT_AXIS_TITLECOLOR_DEFAULT PVFORMAT_AXIS_COLOR_DEFAULT
 #define PVFORMAT_AXIS_TYPE_FORMAT_DEFAULT ""
-#define PVFORMAT_AXIS_TIMESAMPLE_DEFAULT ""
-#define PVFORMAT_AXES_COMBINATION_DEFAULT ""
 
 // Filters properties' name
 #define PVFORMAT_FILTER_TYPE_STR "type"
@@ -84,7 +81,6 @@ typedef QMap<QString, PVRush::PVFormat> hash_formats;
 // Format version
 #define PVFORMAT_CURRENT_VERSION "9"
 
-#define PVFORMAT_NUMBER_FIELD_URL 6
 } // namespace PVRush
 
 #endif

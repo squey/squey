@@ -12,13 +12,18 @@ SOURCE_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 # paths, and prepends the current directory to the ones that do not.
 # The coverage threshold is a safety net rather than a quality gate: gcovr exits
 # with 0 when it finds no .gcda at all, which would yield an empty report.
+#
+# --merge-lines collapses the one entry gcov emits per template instantiation
+# into a single line.
 mkdir -p code_coverage_report
 gcovr \
     --root "$SOURCE_DIR" \
     -j "$(nproc)" \
+    --merge-lines \
     --exclude '/.*/build/.*' \
     --exclude '/.*/external/.*' \
     --exclude '/.*/squey-utils/.*' \
+    --exclude '/.*/tests/.*' \
     --exclude '/.*/third_party/.*' \
     --exclude '/.*/moc_.*' \
     --fail-under-line 1 \

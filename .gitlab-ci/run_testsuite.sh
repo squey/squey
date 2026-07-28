@@ -14,8 +14,16 @@ export PATH="$appdir:/opt/homebrew/bin:$PATH"
 export DYLD_LIBRARY_PATH="$appdir/../Frameworks"
 export PVKERNEL_PLUGIN_PATH="$appdir/../Frameworks/squey/plugins"
 export SQUEY_PLUGIN_PATH="$PVKERNEL_PLUGIN_PATH"
+# Qt platform plugins ship inside the bundle while the test binaries are extracted outside
+# of it, so Qt does not find them next to the running executable.
+export QT_QPA_PLATFORM_PLUGIN_PATH="$appdir/../PlugIns/platforms"
 export SQUEY_PYTHONHOME="$appdir/../Frameworks/Python.framework/Versions/Current"
 export SQUEY_PYTHONPATH="$appdir/../Resources/python/site-packages"
+# Same reason as the Qt plugins above: tshark_path() falls back to looking next to
+# the running executable, which holds for the application but not for a test binary
+# extracted outside the bundle. Without this the pcap import spawns a tshark that is
+# not there, produces no csv, and import_pcap sits until the 300 s test timeout.
+export SQUEY_TSHARK_PATH="$appdir/tshark"
 
 # Install dependencies
 export HOMEBREW_NO_INSTALL_CLEANUP=1
@@ -45,12 +53,29 @@ sed -i '' "s|\(nraw_tmp=\).*|\1${TMPDIR}|" "$inifile"
 # Increase file descriptors limit to avoid "Too many open files" error
 ulimit -n 1048576
 
-# Run testsuite
+# Run testsuite. ctest only reports "SEGFAULT" for a crashed test, and these
+# runners are the only arm64 machines available, so print the crash reports macOS
+# writes: they carry the symbolicated stack the log otherwise never shows.
+set +e
+ctest_status=0
 ctest_cmd=(ctest --test-dir "$testsuitedir" -j $(nproc) --output-junit "$CI_PROJECT_DIR/junit.xml" --output-on-failure -T test -R 'SQUEY_TEST')
 if [ "$TARGET_TRIPLE" = "aarch64-apple-darwin" ]; then
     "${ctest_cmd[@]}"
+    ctest_status=$?
 elif [ "$TARGET_TRIPLE" = "x86_64-apple-darwin" ]; then
     softwareupdate --install-rosetta --agree-to-license || true
     arch -x86_64 bash -c "/usr/sbin/sysctl -a" | grep machdep.cpu.features
     arch -x86_64 bash -c '"$@"' _ "${ctest_cmd[@]}"
+    ctest_status=$?
 fi
+set -e
+
+if [ "$ctest_status" -ne 0 ]; then
+    for report in "$HOME/Library/Logs/DiagnosticReports/"SQUEY_TEST*; do
+        [ -e "$report" ] || continue
+        echo "===== crash report: $report ====="
+        cat "$report"
+    done
+fi
+
+exit "$ctest_status"

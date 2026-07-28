@@ -87,13 +87,6 @@ inline static int squey_mm_getpos_lastnonzero_epi8(simde__m128i const ssev)
 	return pos64 << 3 | pos32 << 2 | pos16 << 1 | ((v & 0xFF00ULL) != 0);
 }
 
-inline static int mm_popcnt_u128(simde__m128i const v)
-{
-	const uint64_t b0 = simde_mm_extract_epi64(v, 0);
-	const uint64_t b1 = simde_mm_extract_epi64(v, 1);
-	return __builtin_popcountll(b0) + __builtin_popcountll(b1);
-}
-
 inline static simde__m256d squey_mm256_cvtepu32_pd(simde__m128i const v)
 {
 	const simde__m128i mask_carry_sse = simde_mm_set1_epi32(0x7fffffff);
@@ -165,16 +158,6 @@ inline simde__m128i squey_mm_cmprange_in_epi32(simde__m128i const v, simde__m128
 	// same logic as previous function
 	return simde_mm_andnot_si128(simde_mm_cmplt_epi32(v, a),
 	       simde_mm_or_si128(simde_mm_cmplt_epi32(v, b), simde_mm_cmpeq_epi32(v, b)));
-}
-
-/*! \brief This intrinsics emulation compare packed unsigned 32-bit integers for inclusive within a
- *range [a, b[
- *
- * res[i] = (v[i] >= a[i]) && (v[i] < b[i])
- */
-inline static simde__m128i squey_mm_cmprange_epu32(simde__m128i const v, simde__m128i const a, simde__m128i const b)
-{
-	return simde_mm_andnot_si128(squey_mm_cmplt_epu32(v, a), squey_mm_cmplt_epu32(v, b));
 }
 
 /*! \brief This intrinsics emulation compare packed unsigned 32-bit integers for inclusive within a
@@ -257,7 +240,12 @@ inline static simde__m128i squey_mm_slli_epi32(simde__m128i value, int count)
 		case 29: return simde_mm_slli_epi32(value, 29);
 		case 30: return simde_mm_slli_epi32(value, 30);
 		case 31: return simde_mm_slli_epi32(value, 31);
-		default: throw std::invalid_argument("Invalid shift value");
+		// Intel defines a count past the element width as producing zero rather
+		// than as an error, and callers rely on it: the hit graph shifts by
+		// 32 - zoom, which is exactly 32 at zoom 0. Throwing here aborted the
+		// application on arm64, where these replace the simde macros, while the
+		// same code was fine everywhere else.
+		default: return simde_mm_setzero_si128();
     }
 }
 
@@ -296,7 +284,12 @@ inline static simde__m128i squey_mm_srli_epi32(simde__m128i value, int count)
 		case 29: return simde_mm_srli_epi32(value, 29);
 		case 30: return simde_mm_srli_epi32(value, 30);
 		case 31: return simde_mm_srli_epi32(value, 31);
-		default: throw std::invalid_argument("Invalid shift value");
+		// Intel defines a count past the element width as producing zero rather
+		// than as an error, and callers rely on it: the hit graph shifts by
+		// 32 - zoom, which is exactly 32 at zoom 0. Throwing here aborted the
+		// application on arm64, where these replace the simde macros, while the
+		// same code was fine everywhere else.
+		default: return simde_mm_setzero_si128();
     }
 }
 
@@ -367,7 +360,12 @@ inline static simde__m128i squey_mm_slli_epi64(simde__m128i value, int count)
 		case 61: return simde_mm_slli_epi64(value, 61);
 		case 62: return simde_mm_slli_epi64(value, 62);
 		case 63: return simde_mm_slli_epi64(value, 63);
-		default: throw std::invalid_argument("Invalid shift value");
+		// Intel defines a count past the element width as producing zero rather
+		// than as an error, and callers rely on it: the hit graph shifts by
+		// 32 - zoom, which is exactly 32 at zoom 0. Throwing here aborted the
+		// application on arm64, where these replace the simde macros, while the
+		// same code was fine everywhere else.
+		default: return simde_mm_setzero_si128();
     }
 }
 

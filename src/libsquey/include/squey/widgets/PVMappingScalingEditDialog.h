@@ -60,8 +60,6 @@ class PVMappingScalingEditDialog : public QDialog
 	void init_layout();
 	void finish_layout();
 	void load_settings();
-	void reset_settings_with_format();
-
 	static QLabel* create_label(QString const& text, Qt::Alignment align = Qt::AlignCenter);
 
   private Q_SLOTS:

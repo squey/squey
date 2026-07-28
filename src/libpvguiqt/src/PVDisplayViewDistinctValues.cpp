@@ -48,7 +48,7 @@ QWidget* PVDisplays::PVDisplayViewDistinctValues::create_widget(Squey::PVView* v
                                                                 QWidget* parent,
                                                                 Params const& params) const
 {
-	auto* dlg = new PVGuiQt::PVListUniqStringsDlg(*view, std::any_cast<PVCol>(params.at(0)), &distinct_values_create_model, parent);
+	auto* dlg = new PVGuiQt::PVListUniqStringsDlg(*view, col_param(view, params, 0), &distinct_values_create_model, parent);
 	delete dlg->findChild<QWidget*>("buttonBox");
 	return dlg;
 }

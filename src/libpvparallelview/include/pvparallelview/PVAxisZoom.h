@@ -78,23 +78,6 @@ class PVAxisZoom
 	int get_clamped_value() const { return PVCore::clamp(_value, _value_min, _value_max); }
 
 	/**
-	 * Returns the value relative to the lower bound
-	 *
-	 * @return the relative value
-	 */
-	int get_relative_value() const { return _value - _value_min; }
-
-	/**
-	 * Returns the clamped value relative to the lower bound.
-	 *
-	 * @return the relative value
-	 */
-	int get_clamped_relative_value() const
-	{
-		return PVCore::clamp(_value, _value_min, _value_max) - _value_min;
-	}
-
-	/**
 	 * set range
 	 *
 	 * @param vmin the lower bound
@@ -119,27 +102,6 @@ class PVAxisZoom
 	 * @param vdefault the default value
 	 */
 	void set_zoom_converter(PVZoomConverter* zoom_converter) { _zoom_converter = zoom_converter; }
-
-	/**
-	 * Returns the lower bound.
-	 *
-	 * @return the lower bound
-	 */
-	int get_min() const { return _value_min; }
-
-	/**
-	 * Returns the upper bound.
-	 *
-	 * @return the upper bound
-	 */
-	int get_max() const { return _value_max; }
-
-	/**
-	 * Returns the default value.
-	 *
-	 * @return the default value
-	 */
-	int get_default() const { return _value_default; }
 
 	/**
 	 * Returns the zoom converter associated with this PVAxisZoom.

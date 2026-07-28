@@ -50,9 +50,6 @@ class PVLayerStackWidget : public QWidget
   public:
 	explicit PVLayerStackWidget(Squey::PVView& lib_view, QWidget* parent = nullptr);
 
-  public:
-	PVLayerStackView* get_layer_stack_view() const { return _layer_stack_view; }
-
   private:
 	void create_actions(QToolBar* toolbar);
 	PVLayerStackModel* ls_model();

@@ -29,7 +29,7 @@
 #include <pvkernel/widgets/PVFilterableMenu.h>
 
 #include <pvparallelview/PVDisplayViewScatter.h>
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVScatterView.h>
 
@@ -47,9 +47,9 @@ QWidget* PVDisplays::PVDisplayViewScatter::create_widget(Squey::PVView* view,
                                                          QWidget* parent,
                                                          Params const& params) const
 {
-	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	auto widget = lib_view->create_scatter_view(col_param(view, params, 0),
-	                                                col_param(view, params, 1), parent);
+	PVParallelView::PVViewRenderingContext* context = PVParallelView::common::get_rendering_context(*view);
+	PVZoneID zone_id{col_param(view, params, 0), col_param(view, params, 1)};
+	auto widget = new PVParallelView::PVScatterView(*view, *context, zone_id, parent);
 
 	QObject::connect(widget, &PVParallelView::PVScatterView::set_status_bar_mouse_legend, [this,widget](PVWidgets::PVMouseButtonsLegend legend){
 		_set_status_bar_mouse_legend.emit(widget, legend);

@@ -61,14 +61,6 @@ public:
         _stdout_buffer.attr("truncate")(0);
         _stdout_buffer.attr("seek")(0);
     }
-    std::string stderrString() {
-        _stderr_buffer.attr("seek")(0);
-        return pybind11::str(_stderr_buffer.attr("read")());
-    }
-    void clearStderr() {
-        _stderr_buffer.attr("truncate")(0);
-        _stderr_buffer.attr("seek")(0);
-    }
     ~PyStdErrOutStreamRedirect() {
         auto sysm = pybind11::module::import("sys");
         sysm.attr("stdout") = _stdout;

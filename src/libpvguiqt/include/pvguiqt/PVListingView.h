@@ -143,11 +143,6 @@ class PVListingView : public PVAbstractTableView, public sigc::trackable
 
   private:
 	/**
-	 * Save the QSelection in the current PVSelection and reset the QSelection
-	 */
-	void extract_selection();
-
-	/**
 	 * Apply the current selection and notify others views about this update.
 	 *
 	 * Normal selection : replace the old one

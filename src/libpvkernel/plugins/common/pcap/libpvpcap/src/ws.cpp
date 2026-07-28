@@ -71,6 +71,17 @@ namespace pvpcap
 
 // https://github.com/wireshark/wireshark/blob/29d48ec873e8a17280b9295159f7a946cf5ad558/wsutil/filesystem.c#L1230
 
+/* getenv() returns nullptr for a variable that is not set, and building a
+ * std::string out of it throws std::logic_error ("basic_string: construction
+ * from null is not valid"), which used to abort the whole process. Windows CI
+ * runners are a real case of this: they leave HOMEDRIVE and HOMEPATH unset.
+ */
+static std::string getenv_or_empty(const char* name)
+{
+	const char* value = std::getenv(name);
+	return value != nullptr ? std::string(value) : std::string();
+}
+
 std::string get_wireshark_profiles_dir()
 {
 	std::string wireshark_profile_dir;
@@ -78,12 +89,26 @@ std::string get_wireshark_profiles_dir()
 	struct stat info;
 	std::string homedir;
 #ifndef _WIN32
-	if ((homedir = std::getenv("HOME")) == std::string()) {
-		homedir = getpwuid(getuid())->pw_dir;
+	homedir = getenv_or_empty("HOME");
+	if (homedir.empty()) {
+		// getpwuid() itself returns nullptr when the uid has no passwd entry
+		const struct passwd* pw = getpwuid(getuid());
+		if (pw != nullptr and pw->pw_dir != nullptr) {
+			homedir = pw->pw_dir;
+		}
 	}
 #else
-	homedir = std::string(std::getenv("HOMEDRIVE")) + "/" + std::getenv("HOMEPATH");
+	// HOMEDRIVE ("C:") and HOMEPATH ("\Users\someone") are meant to be concatenated
+	homedir = getenv_or_empty("HOMEDRIVE") + getenv_or_empty("HOMEPATH");
+	if (homedir.empty()) {
+		homedir = getenv_or_empty("USERPROFILE");
+	}
 #endif
+
+	if (homedir.empty()) {
+		// no home directory to look into: no wireshark profile can be found
+		return wireshark_profile_dir;
+	}
 
 	// Check if "$XDG_CONFIG_HOME/wireshark" exists (but don't use env var in flatpak)
 	wireshark_profile_dir = homedir + "/.config/wireshark/profiles";

@@ -245,6 +245,13 @@ class PacketSplitter
 	{
 		auto open_file = [](const std::string& fname, const char* opts) {
 			FILE* pcap_file = fopen(fname.c_str(), opts);
+			if (pcap_file == nullptr) {
+				// Used to go unnoticed until the extraction downstream failed to find
+				// the split captures, which made a path the narrow file API could not
+				// decode look like a tshark bug. Report it where it happens.
+				pvlogger::error() << "Can't open split capture file '" << fname
+				                  << "' for writing" << std::endl;
+			}
 			pcap_t* dumpfilehandle = pcap_open_dead(1, 65535);
 			return pcap_dump_fopen(dumpfilehandle, pcap_file);
 		};
@@ -413,6 +420,13 @@ class FlowSplitter : public PacketSplitter
 	{
 		auto open_file = [](const std::string& fname, const char* opts) {
 			FILE* pcap_file = fopen(fname.c_str(), opts);
+			if (pcap_file == nullptr) {
+				// Used to go unnoticed until the extraction downstream failed to find
+				// the split captures, which made a path the narrow file API could not
+				// decode look like a tshark bug. Report it where it happens.
+				pvlogger::error() << "Can't open split capture file '" << fname
+				                  << "' for writing" << std::endl;
+			}
 			pcap_t* dumpfilehandle = pcap_open_dead(1, 65535);
 			return pcap_dump_fopen(dumpfilehandle, pcap_file);
 		};

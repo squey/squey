@@ -114,16 +114,6 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	virtual std::vector<std::string> load_input_descr_from_qsettings(QSettings const& v) = 0;
 
   public:
-	QStringList human_name_of_inputs(list_inputs const& in) const
-	{
-		QStringList ret;
-		list_inputs::const_iterator it;
-		for (it = in.begin(); it != in.end(); it++) {
-			ret << human_name_of_input(*it);
-		}
-		return ret;
-	}
-
   public:
 	void edit_format(QString const& path, QWidget* parent) const
 	{

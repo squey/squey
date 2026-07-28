@@ -4,9 +4,16 @@ TMP_ARTIFACT_DIR="$(mktemp -d)"
 
 function cleanup {
   rm -rf -- "${TMP_ARTIFACT_DIR}"
-  rm -rf $HOME/.cache/buildstream/artifacts/extract/squey/squey
-  rm -rf $HOME/.cache/buildstream/build
-  rm -rf /srv/tmp-squey/tomjon/*
+  # The BuildStream cache location honors XDG_CACHE_HOME, which CI sets per
+  # runner slot: only ever clean the cache of our own slot, never the shared
+  # one (a job finishing used to wipe directories still in use by concurrent
+  # jobs). Falls back to ~/.cache for local builds.
+  local bst_cache="${XDG_CACHE_HOME:-$HOME/.cache}/buildstream"
+  rm -rf "${bst_cache}/artifacts/extract/squey/squey"
+  rm -rf "${bst_cache}/build"
+  # Same per-slot isolation as MOUNT_OPTS in .common.sh ("tomjon" is the
+  # default sandbox user of BuildStream, see its projectconfig.yaml).
+  rm -rf "/srv/tmp-squey${CI_CONCURRENT_ID:+/slot-$CI_CONCURRENT_ID}/tomjon"/*
 }
 
 trap cleanup EXIT SIGKILL SIGQUIT SIGSEGV SIGABRT
@@ -96,6 +103,9 @@ fi
 if  [ "$TESTSUITE_DISABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option disable_testsuite True"
 fi
+if  [ "$GITLAB_CI" = true ]; then
+  BUILD_OPTIONS="$BUILD_OPTIONS --option quiet_compilation True"
+fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"
   pushd .
@@ -162,10 +172,12 @@ if [ "$CODE_COVERAGE_ENABLED" = false ]; then
   bst $BUILD_OPTIONS artifact log squey.bst | sed -n '/Test project/,/Total Test time/p' || true
 fi
 
-# Push artifacts
-if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
-  bst $BUILD_OPTIONS --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
-fi
+# Re-enable once a separate public artifact cache is back in service: pushing a
+# curated subset there (no squey*.bst, no freedesktop-sdk.bst) is meaningful again
+# when the remote is metered, unlike the local pool reached over a unix socket.
+#if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
+#  bst $BUILD_OPTIONS --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
+#fi
 
 # Extract testsuite and code coverage reports out of the build sandbox
 if [ "$GITLAB_CI" = true ]; then

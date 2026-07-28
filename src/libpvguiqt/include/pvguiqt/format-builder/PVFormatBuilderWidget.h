@@ -137,10 +137,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	 */
 	void update_table(PVRow start, PVRow end);
 
-	/**
-	 * Try to find a matching splitter when we import a file without format.
-	 */
-	void guess_first_splitter();
 	bool is_dom_empty();
 
   private:

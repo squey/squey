@@ -27,6 +27,7 @@
 
 #include <libpvpcap/shell.h>
 #include <rapidjson/encodings.h>
+#include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <filesystem>
@@ -215,6 +216,16 @@ std::vector<std::string> get_system_profile_list()
 
 std::string tshark_path()
 {
+	// Same override mechanism as SQUEY_PCAP_PROFILES_PATH in get_system_profile_dir().
+	// The default locations below only work for the application itself: on Windows
+	// tshark is unpacked by PVUtilitiesDecompressor from an archive sitting next to
+	// squey.exe, into a cache directory named after the running executable. A test
+	// binary has neither, so it needs to be told where tshark is.
+	const char* tshark_env = std::getenv("SQUEY_TSHARK_PATH");
+	if (tshark_env != nullptr and *tshark_env != '\0') {
+		return tshark_env;
+	}
+
 #ifdef _WIN32
     return QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath("tshark/tshark.exe").toStdString();
 #elifdef __APPLE__

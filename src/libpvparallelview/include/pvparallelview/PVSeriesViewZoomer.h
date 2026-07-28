@@ -108,15 +108,6 @@ class PVSeriesViewZoomer : public PVViewZoomer
 		}
 	}
 
-	QColor get_selector_color(SelectorMode mode) const { return _selector_colors[size_t(mode)]; }
-	void set_selector_color(SelectorMode mode, QColor color)
-	{
-		_selector_colors[size_t(mode)] = color;
-	}
-
-	int get_cross_hairs_radius() const { return _cross_hairs_radius; }
-	void set_cross_hairs_radius(int radius) { _cross_hairs_radius = radius; }
-
   Q_SIGNALS:
 	void selector_mode_changed(SelectorMode previous_mode, SelectorMode current_mode);
 	void selection_commit(Zoom selection);

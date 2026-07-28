@@ -164,17 +164,6 @@ class PVScatterViewDataInterface : boost::noncopyable
 		}
 	}
 
-	inline void process_all_images(ProcessParams const& params,
-	                               Squey::PVSelection const& sel,
-	                               tbb::task_group_context* ctxt = nullptr)
-	{
-		process_all(params, image_bg_processing(), image_sel_processing(), sel, ctxt);
-		if (!is_ctxt_cancelled(ctxt)) {
-			_image_bg.swap(params);
-			_image_sel.swap(params);
-		}
-	}
-
   public:
 	PVScatterViewImage const& image_bg() const { return _image_bg.image_processed(); }
 	PVScatterViewImage const& image_sel() const { return _image_sel.image_processed(); }
@@ -192,12 +181,6 @@ class PVScatterViewDataInterface : boost::noncopyable
 	{
 		_image_bg.set_zoomed_zone_tree(zzt);
 		_image_sel.set_zoomed_zone_tree(zzt);
-	}
-
-	void clear_processing()
-	{
-		image_bg_processing().clear();
-		image_sel_processing().clear();
 	}
 
   protected:

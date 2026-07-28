@@ -41,6 +41,7 @@
 #include <sigc++/sigc++.h>
 
 #include <memory>
+#include <unordered_set>
 
 class QPainter;
 
@@ -59,6 +60,7 @@ class PVView;
 namespace PVParallelView
 {
 
+class PVViewRenderingContext;
 class PVZoneTree;
 class PVZoomedZoneTree;
 class PVZonesManager;
@@ -106,16 +108,14 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   public:
 	using backend_unique_ptr_t = std::unique_ptr<PVScatterViewBackend>;
-	using create_backend_t = std::function<backend_unique_ptr_t(PVZoneID, QWidget*)>;
 
 	PVScatterView(Squey::PVView& pvview_sp,
-	              create_backend_t create_backend,
+	              PVViewRenderingContext& context,
 	              PVZoneID const zone_id,
 	              QWidget* parent = nullptr);
 	~PVScatterView() override;
 
   public:
-	void about_to_be_deleted();
 	void update_new_selection_async();
 	void update_all_async();
 
@@ -123,8 +123,6 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	inline Squey::PVView const& lib_view() const { return _view; }
 
 	PVZoneID get_zone_id() const { return _zone_id; }
-
-	bool update_zones();
 
 	void set_enabled(bool en);
 
@@ -168,6 +166,15 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 	void toggle_show_labels();
 
   private:
+	backend_unique_ptr_t create_backend(PVZoneID zone_id);
+
+	// Rendering-context (PVViewRenderingContext) signal handlers
+	void on_axes_combination_changed(bool async);
+	void on_zones_about_to_be_updated(std::unordered_set<PVZoneID> const& zones);
+	void on_zones_updated(std::unordered_set<PVZoneID> const& zones);
+	void on_view_about_to_be_deleted();
+	void on_context_about_to_be_deleted();
+
 	void update_labels_cache();
 
 	PVZoneTree const& get_zone_tree() const;
@@ -181,9 +188,13 @@ class PVScatterView : public PVZoomableDrawingAreaWithAxes, public sigc::trackab
 
   private:
 	Squey::PVView& _view;
+	PVViewRenderingContext* _context;
 	backend_unique_ptr_t _backend;
-	create_backend_t _create_backend;
-	bool _view_deleted;
+
+	// set between zones_about_to_be_updated and zones_updated when the
+	// displayed zone is part of the rebuilt set
+	bool _zones_update_pending = false;
+
 	std::unique_ptr<PVZoomConverterScaledPowerOfTwo<zoom_steps>> _zoom_converter;
 
 	std::unique_ptr<PVZoomableDrawingAreaInteractor> _h_interactor;

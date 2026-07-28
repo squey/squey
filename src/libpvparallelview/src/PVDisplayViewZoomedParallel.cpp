@@ -23,9 +23,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZoomedParallelView.h>
+#include <pvparallelview/PVZoomedParallelScene.h>
 
 #include <pvparallelview/PVDisplayViewZoomedParallel.h>
 
@@ -45,8 +46,11 @@ QWidget* PVDisplays::PVDisplayViewZoomedParallel::create_widget(Squey::PVView* v
                                                                 Params const& data) const
 {
 	auto axis_comb = data.size() > 0 ? std::any_cast<PVCombCol>(data.at(0)) : PVCombCol();
-	PVParallelView::PVLibView* lib_view = PVParallelView::common::get_lib_view(*view);
-	auto w = lib_view->create_zoomed_view(axis_comb, parent);
+	PVParallelView::PVViewRenderingContext* context = PVParallelView::common::get_rendering_context(*view);
+
+	auto w = new PVParallelView::PVZoomedParallelView(view->get_axes_combination(), parent);
+	auto* scene = new PVParallelView::PVZoomedParallelScene(w, *view, *context, axis_comb);
+	w->set_scene(scene);
 	QObject::connect(w, &PVParallelView::PVZoomedParallelView::set_status_bar_mouse_legend, [this,w](PVWidgets::PVMouseButtonsLegend legend){
 		_set_status_bar_mouse_legend.emit(w, legend);
 	});

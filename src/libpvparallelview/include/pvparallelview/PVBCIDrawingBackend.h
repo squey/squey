@@ -77,17 +77,6 @@ class PVBCIDrawingBackend
 };
 
 /**
- * Interface for synchronous backend
- *
- * TODO : Remove, it is not use anyway!!!
- */
-class PVBCIDrawingBackendSync : public PVBCIDrawingBackend
-{
-  public:
-	bool is_sync() const override { return true; }
-};
-
-/**
  * Interface for asynchronous Drawing Backend.
  */
 class PVBCIDrawingBackendAsync : public PVBCIDrawingBackend

@@ -46,7 +46,7 @@ class PVSeriesView : public QWidget
 
 	enum class DrawMode { Lines, Points, LinesAlways, Default = Lines };
 
-	enum class Backend { QPainter, OpenGL, OffscreenOpenGL, Default = QPainter };
+	enum class Backend { QPainter, Default = QPainter };
 
 	explicit PVSeriesView(Squey::PVRangeSubSampler& rss,
 	                      Backend backend = Backend::Default,

@@ -82,8 +82,6 @@ class PVSeriesViewWidget : public QWidget
 	void setup_series_tree(PVCol abscissa);
 	void setup_selected_series_tree(PVCol abscissa);
 	void update_selected_series();
-	void synchro_list(QTreeWidget* list_src, QTreeWidget* list_dest);
-	void semi_synchro_list(QTreeWidget* list_src, QTreeWidget* list_dest);
 	bool is_in_region(const QRect region, PVCol col) const;
 	void minmax_changed(const pvcop::db::array& minmax);
 	void select_all_series(bool use_axes_combination = true);
@@ -112,6 +110,7 @@ class PVSeriesViewWidget : public QWidget
 
 	PVCore::PVDisconnector _scaling_change_connection;
 	PVCore::PVDisconnector _selection_change_connection;
+	PVCore::PVDisconnector _view_deleted_connection;
 
 	PVSeriesViewParamsWidget* _params_widget = nullptr;
 	PVWidgets::PVHelpWidget _help_widget;

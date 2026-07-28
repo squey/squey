@@ -36,7 +36,7 @@
 
 #include <squey/widgets/editors/PVAxisIndexEditor.h>
 
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVRenderingPipeline.h>
@@ -65,21 +65,23 @@
  *****************************************************************************/
 PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* full_parallel_view,
                                                          Squey::PVView& view_sp,
-                                                         PVParallelView::PVSlidersManager* sm_p,
-                                                         PVBCIDrawingBackend& backend,
-                                                         PVZonesManager const& zm,
-                                                         PVZonesProcessor& zp_sel,
-                                                         PVZonesProcessor& zp_bg)
+                                                         PVViewRenderingContext& context,
+                                                         PVBCIDrawingBackend& backend)
     : QGraphicsScene()
-    , _lines_view(backend, zm, zp_sel, zp_bg, this)
+    , _lines_view(backend,
+                  context.get_zones_manager(),
+                  context.processor_sel(),
+                  context.processor_bg(),
+                  this)
     , _lib_view(view_sp)
+    , _context(&context)
     , _full_parallel_view(full_parallel_view)
     , _sel_rect(this)
     , _zoom_y(1.0)
-    , _sm_p(sm_p)
+    , _sm_p(&context.sliders_manager())
     , _show_min_max_values(false)
 {
-	_view_deleted = false;
+	_detached = false;
 
 	graphics_view()->setMouseTracking(true);
 	graphics_view()->viewport()->setMouseTracking(true);
@@ -104,6 +106,36 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 
 	view_sp._update_current_min_max.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_axes_layer_min_max));
+
+	// Rendering-context subscriptions (see PVViewRenderingContext signals documentation):
+	// every event tied to the zones manager / processors state goes through
+	// the context, which invalidates its shared state before emitting.
+	// Disconnection is automatic (sigc::trackable).
+	context.selection_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_new_selection_async));
+
+	context.axes_combination_about_to_change.connect(sigc::bind(
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::set_enabled), false));
+
+	context.axes_combination_changed.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVFullParallelScene::on_axes_combination_changed));
+
+	context.zones_about_to_be_updated.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVFullParallelScene::on_zones_about_to_be_updated));
+
+	context.zones_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::on_zones_updated));
+
+	context.view_about_to_be_deleted.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVFullParallelScene::on_view_about_to_be_deleted));
+
+	context.about_to_be_deleted.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVFullParallelScene::on_context_about_to_be_deleted));
+
+	// The output-layer refresh does not depend on the shared rendering state:
+	// observe it directly on the model.
+	view_sp._update_output_layer.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_all_async));
 
 	setBackgroundBrush(QBrush(color_view_bg));
 
@@ -172,9 +204,6 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 {
 	PVLOG_DEBUG("In PVFullParallelScene destructor\n");
-	if (!_view_deleted) {
-		common::get_lib_view(_lib_view)->remove_view(this);
-	}
 }
 
 /******************************************************************************
@@ -184,10 +213,54 @@ PVParallelView::PVFullParallelScene::~PVFullParallelScene()
  *****************************************************************************/
 void PVParallelView::PVFullParallelScene::about_to_be_deleted()
 {
-	_view_deleted = true;
+	_detached = true;
 	graphics_view()->setDisabled(true);
 	// Cancel everything!
 	_lines_view.cancel_and_wait_all_rendering();
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene rendering-context signal handlers
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::on_axes_combination_changed(bool /*async*/)
+{
+	set_enabled(true);
+	update_number_of_zones();
+}
+
+void PVParallelView::PVFullParallelScene::on_zones_about_to_be_updated(
+    std::unordered_set<PVZoneID> const& /*zones*/)
+{
+	// This scene displays every axes-combination zone: disable it whatever
+	// the updated zones are.
+	set_enabled(false);
+}
+
+void PVParallelView::PVFullParallelScene::on_zones_updated(
+    std::unordered_set<PVZoneID> const& /*zones*/)
+{
+	set_enabled(true);
+	update_all_async();
+}
+
+void PVParallelView::PVFullParallelScene::on_view_about_to_be_deleted()
+{
+	// The Squey::PVView is being destroyed: its memory is released right
+	// after this emission, so the widget (which owns this scene) must not
+	// outlive it.
+	about_to_be_deleted();
+	delete graphics_view();
+}
+
+void PVParallelView::PVFullParallelScene::on_context_about_to_be_deleted()
+{
+	// The rendering context (zones manager, processors) is going away while
+	// this scene is still alive: drain in-flight renderings and detach. The
+	// widget stays alive, inert, until its Qt parent destroys it.
+	about_to_be_deleted();
+	_context = nullptr;
 }
 
 /******************************************************************************
@@ -1177,7 +1250,7 @@ void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRendering_p zr, 
 void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, size_t zone_index)
 {
 	assert(QThread::currentThread() == this->thread());
-	if (_view_deleted) {
+	if (_detached) {
 		return;
 	}
 
@@ -1213,7 +1286,7 @@ void PVParallelView::PVFullParallelScene::zr_bg_finished(PVZoneRendering_p zr, s
 void PVParallelView::PVFullParallelScene::zr_sel_finished(PVZoneRendering_p zr, size_t zone_index)
 {
 	assert(QThread::currentThread() == this->thread());
-	if (_view_deleted) {
+	if (_detached) {
 		return;
 	}
 

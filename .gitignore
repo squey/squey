@@ -8,6 +8,8 @@ third-party/*
 buildstream/.venv
 buildstream/flatpak_repo/
 buildstream/repo/
+buildstream/squey_mac/
+buildstream/squey_win/
 buildstream/files/org.squey.Squey.metainfo.xml
 .bst/
 
@@ -31,13 +33,13 @@ doxygen_sqlite3.db
 .settings/
 /external/
 
-buildstream/sshd/sshd_config
+buildstream/sshd/sshd_config*
 buildstream/sshd/ssh_host_dsa_key
 buildstream/sshd/ssh_host_dsa_key.pub
 buildstream/sshd/ssh_host_rsa_key
 buildstream/sshd/ssh_host_rsa_key.pub
-buildstream/sshd/sshd.log
-buildstream/sshd/sshd.pid
+buildstream/sshd/sshd.log*
+buildstream/sshd/sshd.pid*
 
 .vscode/*
 !.vscode/settings.json

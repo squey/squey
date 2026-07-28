@@ -301,15 +301,6 @@ class PVSelBitField
 	 */
 	void set_line(PVRow line_index, bool bool_value);
 
-	/**
-	 * Sets the state of line N in the PVSelBitField only if bool_value is true
-	 *
-	 * @param line_index The index of the line we are interested in
-	 * @param bool_value The boolean value we want to set for that line_index
-	 *
-	 */
-	void set_line_select_only(PVRow line_index, bool bool_value);
-
 	inline void set_bit_fast(PVRow const line_index) { _selection[line_index] = 1; }
 	inline void clear_bit_fast(PVRow const line_index) { _selection[line_index] = 0; }
 

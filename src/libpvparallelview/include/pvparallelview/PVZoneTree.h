@@ -199,11 +199,6 @@ class PVZoneTree : public PVZoneTreeBase
 		return _treeb[branch_id].p[i];
 	}
 
-	inline uint32_t set_branch_element(uint32_t branch_id, uint32_t i, uint32_t value)
-	{
-		return _treeb[branch_id].p[i] = value;
-	}
-
 	void dump_branches() const;
 
 	/**

@@ -38,7 +38,6 @@
 
 #include "common.h"
 
-#define FILES_DIR "../../tests/files/pvkernel/run/tickets/28/"
 
 int main(int argc, char** argv)
 {

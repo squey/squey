@@ -111,30 +111,16 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 		const QString& name = field.name.GetString();
 		PVRush::PVXmlTreeNodeDom* node = csv_format->addOneField(name, type);
 		if (type == "time") {
-			node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR),
-			                   "MMM d, yyyy HH:m:ss.S 'UTC'");
-
-			/* Use a converter substitution to workaround a parsing bug in
-			 * pvcop::types::formater_datetime_us (boost::posix::date_time)
-			 * when days of month do not have a leading zero ("  " -> " 0")
+			/* tshark emits absolute times as ISO 8601 in UTC, e.g.
+			 * "2011-05-03T23:43:01.545400000+0000". The nanoseconds are truncated to the
+			 * microsecond resolution of datetime_us, and the zone is matched as the literal
+			 * "+0000" rather than a timezone token on purpose: a token would route the axis
+			 * to the millisecond-precision datetime_ms, and packet captures need the
+			 * microsecond. tshark always prints UTC here, as the previous 'UTC' literal
+			 * already relied on.
 			 */
-			PVFilter::PVFieldsConverterParamWidget_p in_t =
-			    LIB_CLASS(PVFilter::PVFieldsConverterParamWidget)::get().get_class_by_name(
-			        "substitution");
-
-			QDomElement converter_elt = profile_format_doc.createElement(in_t->type_name());
-			converter_elt.setAttribute("type", in_t->registered_name());
-			PVRush::PVXmlTreeNodeDom child(converter_elt);
-
-			PVCore::PVArgumentList args;
-			args["modes"] = 2; // substring
-			QStringList l;
-			l << "  "
-			  << " 0";
-			args["substrings_map"] = PVCore::serialize_base64(l);
-
-			child.setFromArgumentList(args);
-			node->getParent()->getDom().appendChild(converter_elt);
+			node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR),
+			                   "yyyy-MM-dd'T'HH:mm:ss.S'+0000'");
 		} else if (type == "mac_address") {
 			node->setMappingProperties("mac_address-uni-lin", {}, {});
 		}

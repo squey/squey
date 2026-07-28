@@ -24,7 +24,7 @@
 //
 
 #include <pvparallelview/PVBCode.h>
-#include <pvparallelview/PVLibView.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVScatterView.h>
 #include <pvparallelview/PVScatterViewInteractor.h>
@@ -68,14 +68,13 @@ using PVScatterViewZoomConverter = PVZoomConverterScaledPowerOfTwo<STEPS>;
 bool PVParallelView::PVScatterView::_show_quadtrees = false;
 
 PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
-                                             create_backend_t create_backend,
+                                             PVViewRenderingContext& context,
                                              PVZoneID const zone_id,
                                              QWidget* parent /*= nullptr*/
                                              )
     : PVZoomableDrawingAreaWithAxes(parent)
     , _view(pvview_sp)
-    , _create_backend(create_backend)
-    , _view_deleted(false)
+    , _context(&context)
     , _zone_id(zone_id)
     , _show_bg(true)
     , _show_labels(false)
@@ -204,6 +203,36 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 	pvview_sp._toggle_unselected_zombie_visibility.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::toggle_unselected_zombie_visibility));
 
+	// Rendering-context subscriptions (see PVViewRenderingContext signals documentation):
+	// every event tied to the zones manager / processors state goes through
+	// the context, which invalidates its shared state before emitting.
+	// Disconnection is automatic (sigc::trackable).
+	context.selection_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::update_new_selection_async));
+
+	context.axes_combination_about_to_change.connect(
+	    sigc::bind(sigc::mem_fun(*this, &PVParallelView::PVScatterView::set_enabled), false));
+
+	context.axes_combination_changed.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::on_axes_combination_changed));
+
+	context.zones_about_to_be_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::on_zones_about_to_be_updated));
+
+	context.zones_updated.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::on_zones_updated));
+
+	context.view_about_to_be_deleted.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::on_view_about_to_be_deleted));
+
+	context.about_to_be_deleted.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::on_context_about_to_be_deleted));
+
+	// The output-layer refresh does not depend on the shared rendering state:
+	// observe it directly on the model.
+	pvview_sp._update_output_layer.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVScatterView::update_all_async));
+
 	_sel_rect->set_default_cursor(Qt::CrossCursor);
 	set_viewport_cursor(Qt::CrossCursor);
 	set_background_color(color_view_bg);
@@ -221,10 +250,6 @@ PVParallelView::PVScatterView::PVScatterView(Squey::PVView& pvview_sp,
 
 PVParallelView::PVScatterView::~PVScatterView()
 {
-	if (!_view_deleted) {
-		common::get_lib_view(_view)->remove_scatter_view(this);
-	}
-
 	delete get_constraints();
 }
 
@@ -234,11 +259,90 @@ PVParallelView::PVZoneTree const& PVParallelView::PVScatterView::get_zone_tree()
 }
 
 /*****************************************************************************
- * PVParallelView::PVScatterView::about_to_be_deleted
+ * PVParallelView::PVScatterView::create_backend
  *****************************************************************************/
-void PVParallelView::PVScatterView::about_to_be_deleted()
+PVParallelView::PVScatterView::backend_unique_ptr_t
+PVParallelView::PVScatterView::create_backend(PVZoneID zone_id)
 {
-	_view_deleted = true;
+	backend_unique_ptr_t backend;
+
+	PVCore::PVProgressBox::progress(
+	    [&](PVCore::PVProgressBox& pbox) {
+		    pbox.set_enable_cancel(false);
+		    PVZonesManager::ZoneRetainer zretainer = _context->acquire_zoomed_zone(zone_id);
+		    backend = std::make_unique<PVScatterViewBackend>(
+		        _view, _context->get_zones_manager(), std::move(zretainer), zone_id,
+		        _context->processor_bg(), _context->processor_sel());
+	    },
+	    "Initializing scatter view...", this);
+
+	return backend;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVScatterView rendering-context signal handlers
+ *****************************************************************************/
+
+void PVParallelView::PVScatterView::on_axes_combination_changed(bool async)
+{
+	set_enabled(true);
+	// The displayed zone is retained, so it was preserved (with its zoomed
+	// zone tree) across the axes-combination update; this request is a no-op
+	// unless the zone was invalidated in-between.
+	if (_context != nullptr) {
+		_context->get_zones_manager().request_zoomed_zone(_zone_id);
+	}
+	if (async) {
+		update_all_async();
+	} else {
+		update_all();
+	}
+}
+
+void PVParallelView::PVScatterView::on_zones_about_to_be_updated(
+    std::unordered_set<PVZoneID> const& zones)
+{
+	if (zones.contains(_zone_id)) {
+		set_enabled(false);
+		_zones_update_pending = true;
+	}
+}
+
+void PVParallelView::PVScatterView::on_zones_updated(std::unordered_set<PVZoneID> const& /*zones*/)
+{
+	if (!_zones_update_pending) {
+		return;
+	}
+	_zones_update_pending = false;
+
+	set_enabled(true);
+	if (_context != nullptr) {
+		_context->get_zones_manager().request_zoomed_zone(_zone_id);
+	}
+	update_all_async();
+}
+
+void PVParallelView::PVScatterView::on_view_about_to_be_deleted()
+{
+	// The Squey::PVView is being destroyed: its memory is released right
+	// after this emission, so this widget must not outlive it. The backend
+	// destructor drains the pending renderings.
+	delete this;
+}
+
+void PVParallelView::PVScatterView::on_context_about_to_be_deleted()
+{
+	// The rendering context (zones manager, processors) is going away while
+	// this widget is still alive: drain in-flight renderings and release the
+	// backend (and its zone retainer) while the zones manager is still valid.
+	// This widget stays alive, inert (every rendering path is guarded on
+	// _backend), until its Qt parent destroys it.
+	setDisabled(true);
+	if (_backend) {
+		_backend->get_images_manager().cancel_all_and_wait();
+	}
+	_backend.reset();
+	_context = nullptr;
 }
 
 /*****************************************************************************
@@ -497,17 +601,12 @@ void PVParallelView::PVScatterView::do_update_all()
 	get_viewport()->update();
 }
 
-bool PVParallelView::PVScatterView::update_zones()
-{
-	return true;
-}
-
 void PVParallelView::PVScatterView::set_scatter_view_zone(PVZoneID const zid)
 {
 	_zone_id = zid;
 
 	if (_zone_id.is_valid()) {
-		_backend = _create_backend(_zone_id, this);
+		_backend = create_backend(_zone_id);
 		auto& img_manager = _backend->get_images_manager();
 		img_manager.set_img_update_receiver(this);
 		img_manager.set_zone(zid);

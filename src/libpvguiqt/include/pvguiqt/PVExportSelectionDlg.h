@@ -29,6 +29,7 @@
 #include <QCheckBox>
 #include <QRadioButton>
 
+#include <pvguiqt/export.h>
 #include <pvkernel/rush/PVExporter.h>
 #include <pvkernel/widgets/PVExportDlg.h>
 
@@ -52,8 +53,14 @@ class PVAxesCombinationWidget;
 /** Specific widget to export a selection to csv.
  *
  * Pop a file dialog to specify filename and the kind of export and do it.
+ *
+ * PVGUIQT_EXPORT is required for connecting to selection_exported() from another
+ * binary: without Q_DECL_IMPORT, taking &PVExportSelectionDlg::selection_exported
+ * outside this library yields the address of a local thunk on Windows, which
+ * matches no entry of the metaobject built here. Qt then just warns "signal not
+ * found" and the connection silently does nothing.
  */
-class PVExportSelectionDlg : public PVWidgets::PVExportDlg
+class PVGUIQT_EXPORT PVExportSelectionDlg : public PVWidgets::PVExportDlg
 {
 	Q_OBJECT;
 

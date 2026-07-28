@@ -27,7 +27,7 @@ PVHitGraphBuffer.cpp
 PVHitGraphDataInterface.cpp
 PVHitGraphDataOMP.cpp
 PVHitGraphSSEHelpers.cpp
-PVLibView.cpp
+PVViewRenderingContext.cpp
 PVLinesView.cpp
 PVParallelView.cpp
 PVRenderingPipeline.cpp
@@ -92,8 +92,6 @@ PVScatterViewDataImpl.cpp
 PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
 
-#PVSeriesRendererOpenGL.cpp
-#PVSeriesRendererOffscreen.cpp
 PVSeriesView.cpp
 PVSeriesViewWidget.cpp
 PVSeriesViewParamsWidget.cpp

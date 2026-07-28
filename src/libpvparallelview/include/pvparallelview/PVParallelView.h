@@ -25,21 +25,27 @@
 #ifndef PVPARALLELVIEW_PVPARALLELVIEW_H
 #define PVPARALLELVIEW_PVPARALLELVIEW_H
 
-#include <squey/PVScaled.h>
-
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
 #include <tbb/mutex.h>
 
+#include <map>
+#include <memory>
+
+namespace Squey
+{
+class PVView;
+} // namespace Squey
+
 namespace PVParallelView
 {
 
-class PVLibView;
+class PVViewRenderingContext;
 class PVRenderingPipeline;
 
 class PVParallelViewImpl
 {
-	typedef std::map<Squey::PVView*, PVLibView*> map_lib_views;
+	typedef std::map<Squey::PVView*, std::unique_ptr<PVViewRenderingContext>> map_rendering_contexts;
 
   private:
 	PVParallelViewImpl();
@@ -60,13 +66,9 @@ class PVParallelViewImpl
 		register_displays();
 	}
 
-	PVLibView* get_lib_view(Squey::PVView& view);
-	PVLibView* get_lib_view(Squey::PVView& view,
-	                        Squey::PVScaled::scaleds_t const& scaleds,
-	                        PVRow nrows,
-	                        PVCol ncols);
+	PVViewRenderingContext* get_rendering_context(Squey::PVView& view);
 
-	void remove_lib_view(Squey::PVView& view);
+	void remove_rendering_context(Squey::PVView& view);
 
 	PVBCIDrawingBackend& backend() const
 	{
@@ -94,12 +96,12 @@ class PVParallelViewImpl
 	// This is just done once, so no real issue here.. !
 	PVParallelView::PVRenderingPipeline* _pipeline;
 
-	map_lib_views _lib_views;
+	map_rendering_contexts _rendering_contexts;
 	tbb::mutex _mutex;
 
 	// This is used in developer mode to tell whether bounding boxes should be visible
 	// This is let even if non developer mode not to change the size of this structure...
-	bool _show_bboxes;
+	[[maybe_unused]] bool _show_bboxes;
 
   private:
 	static PVParallelViewImpl* _s; //<! Instance of the singleton
@@ -127,20 +129,13 @@ class RAII_backend_init
 };
 
 // Proxy functions
-inline void remove_lib_view(Squey::PVView& view)
+inline void remove_rendering_context(Squey::PVView& view)
 {
-	PVParallelView::PVParallelViewImpl::get().remove_lib_view(view);
+	PVParallelView::PVParallelViewImpl::get().remove_rendering_context(view);
 }
-inline PVLibView* get_lib_view(Squey::PVView& view)
+inline PVViewRenderingContext* get_rendering_context(Squey::PVView& view)
 {
-	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view);
-}
-inline PVLibView* get_lib_view(Squey::PVView& view,
-                               Squey::PVScaled::scaleds_t const& scaleds,
-                               PVRow nrows,
-                               PVCol ncols)
-{
-	return PVParallelView::PVParallelViewImpl::get().get_lib_view(view, scaleds, nrows, ncols);
+	return PVParallelView::PVParallelViewImpl::get().get_rendering_context(view);
 }
 inline PVBCIDrawingBackend& backend()
 {
