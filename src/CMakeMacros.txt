@@ -89,8 +89,16 @@ function(add_squey_compile_test test_exe)
 	install(TARGETS SQUEY_TEST_${test_exe} DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests OPTIONAL)
 endfunction()
 
+# ctest only falls back to its own 1500 s default when DartConfiguration.tcl sits next
+# to CTestTestfile.cmake, and the CI runs the testsuite from an artifact that does not
+# carry that file. A test hanging there kept the whole job running until the CI killed
+# it after its timeout, discarding the test output -- and with it any clue as to what hung.
+# The slowest test observed on the Windows CI takes about two minutes.
+set(SQUEY_TEST_TIMEOUT 600 CACHE STRING "Timeout in seconds after which a test is killed and reported as failed")
+
 function(add_squey_test test_exe test_name)
 	add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX} ${ARGN})
+	set_tests_properties(SQUEY_TEST_${test_exe} PROPERTIES TIMEOUT ${SQUEY_TEST_TIMEOUT})
 endfunction()
 
 function(add_bench bench_name)
