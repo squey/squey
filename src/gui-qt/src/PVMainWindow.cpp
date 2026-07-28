@@ -211,11 +211,16 @@ App::PVMainWindow::~PVMainWindow()
 	// View widgets (workspaces, PVViewDisplay) and their Qt models
 	// (PVLayerStackModel...) hold references to the PVView objects owned by
 	// _root. As a value member, _root is destroyed BEFORE the child widgets
-	// (destroyed by the base ~QWidget). During that teardown Qt may query a
-	// model (QEvent::StyleChange emitted while reparenting a QDockWidget),
-	// dereferencing an already-destroyed PVView -> SIGSEGV. Destroy the widget
-	// tree while _root is still alive.
-	delete takeCentralWidget();
+	// (destroyed by the base ~QWidget), so those widgets would outlive the views
+	// they render and dereference freed memory.
+	//
+	// Tear the model down explicitly rather than the widget tree: every PVView
+	// emits _about_to_be_delete, which is what makes the parallel views cancel
+	// and drain their in-flight renderings before synchronously deleting their
+	// own widget. Deleting the widgets directly skips that protocol -- a
+	// background BCI rendering stays queued on the pipeline and dereferences
+	// freed state from its own thread, which is how this crashed on macOS.
+	get_root().clear();
 }
 
 bool App::PVMainWindow::event(QEvent* event)
