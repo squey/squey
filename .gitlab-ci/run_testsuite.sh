@@ -71,6 +71,17 @@ fi
 set -e
 
 if [ "$ctest_status" -ne 0 ]; then
+    # ReportCrash writes the report asynchronously, well after the crashed process
+    # is reaped: globbing right here found nothing every time, which is why a
+    # SEGFAULT so far reached the log with no stack at all. Give it a chance.
+    i=0
+    while [ "$i" -lt 30 ]; do
+        if ls "$HOME/Library/Logs/DiagnosticReports/"SQUEY_TEST* >/dev/null 2>&1; then
+            break
+        fi
+        sleep 1
+        i=$((i + 1))
+    done
     for report in "$HOME/Library/Logs/DiagnosticReports/"SQUEY_TEST*; do
         [ -e "$report" ] || continue
         echo "===== crash report: $report ====="
