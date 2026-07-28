@@ -71,22 +71,46 @@ fi
 set -e
 
 if [ "$ctest_status" -ne 0 ]; then
-    # ReportCrash writes the report asynchronously, well after the crashed process
-    # is reaped: globbing right here found nothing every time, which is why a
-    # SEGFAULT so far reached the log with no stack at all. Give it a chance.
-    i=0
-    while [ "$i" -lt 30 ]; do
-        if ls "$HOME/Library/Logs/DiagnosticReports/"SQUEY_TEST* >/dev/null 2>&1; then
-            break
-        fi
-        sleep 1
-        i=$((i + 1))
-    done
-    for report in "$HOME/Library/Logs/DiagnosticReports/"SQUEY_TEST*; do
-        [ -e "$report" ] || continue
-        echo "===== crash report: $report ====="
-        cat "$report"
-    done
+    # These runners write no DiagnosticReports at all -- waiting 30 s for one to
+    # appear yielded nothing -- and this Qt prints no backtrace of its own, so a
+    # SEGFAULT reaches the log as that single word. Replay each failed test under
+    # lldb instead: it is the only way to get a symbolicated arm64 stack, and the
+    # tests are short enough to afford a second run.
+    # -n: never prompt, a password prompt here would hang the job.
+    sudo -n DevToolsSecurity -enable > /dev/null 2>&1 || true
+    # "-T test" writes a timestamped variant, so take the newest of both forms.
+    failed_log=$(ls -t "$testsuitedir/Testing/Temporary/"LastTestsFailed*.log 2>/dev/null | head -1)
+    if [ -n "$failed_log" ] && [ -r "$failed_log" ]; then
+        # Lines read "<index>:<test name>"; keep the crashed ones affordable.
+        for test_name in $(sed 's/^[0-9]*://' "$failed_log" | head -3); do
+            echo "===== lldb backtrace: $test_name ====="
+            # The command and working directory come from ctest itself, so the
+            # test is replayed exactly as it ran, environment included.
+            ctest --test-dir "$testsuitedir" -R "^${test_name}\$" --show-only=json-v1 \
+                > /tmp/test_def.json 2>/dev/null || continue
+            python3 - "$test_name" <<'PY' > /tmp/replay.sh || continue
+import json, shlex, sys
+with open("/tmp/test_def.json") as f:
+    tests = json.load(f).get("tests", [])
+if not tests:
+    raise SystemExit(1)
+t = tests[0]
+cwd, env = None, []
+for p in t.get("properties", []):
+    if p["name"] == "WORKING_DIRECTORY":
+        cwd = p["value"]
+    elif p["name"] == "ENVIRONMENT":
+        env = p["value"] if isinstance(p["value"], list) else [p["value"]]
+if cwd:
+    print("cd %s" % shlex.quote(cwd))
+for e in env:
+    print("export %s" % shlex.quote(e))
+print("lldb -b -o run -o 'bt all' -o quit -- %s"
+      % " ".join(shlex.quote(a) for a in t["command"]))
+PY
+            sh /tmp/replay.sh 2>&1 | tail -80 || true
+        done
+    fi
 fi
 
 exit "$ctest_status"
