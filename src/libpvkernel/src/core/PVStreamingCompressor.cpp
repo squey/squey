@@ -48,6 +48,7 @@
 #include <cassert>
 #include <algorithm>
 #include <memory>
+#include <vector>
 #include <QString>
 #include <filesystem>
 
@@ -59,6 +60,44 @@ static constexpr int PIPE_WRITE = 1;
 #define OUTPUT_FILENAME_PLACEHOLDER "{{filename}}"
 
 extern char **environ;
+
+#ifdef _WIN32
+/**
+ * Builds the attribute list that limits what a child process inherits to the handles it
+ * is actually given.
+ *
+ * CreateProcess with bInheritHandles=TRUE otherwise hands the child every inheritable
+ * handle the process holds -- a few hundred of them here, including the pipes of every
+ * other stream in flight. Returns the storage backing the list, or an empty vector if it
+ * could not be built, in which case the caller is left with plain inheritance.
+ */
+template <size_t N>
+static std::vector<char> inheritable_handle_list(HANDLE (&handles)[N])
+{
+	// a handle named in the list must be inheritable, or CreateProcess rejects it
+	for (HANDLE handle : handles) {
+		SetHandleInformation(handle, HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT);
+	}
+
+	SIZE_T size = 0;
+	InitializeProcThreadAttributeList(nullptr, 1, 0, &size); // expected to fail, sets size
+	if (size == 0) {
+		return {};
+	}
+
+	std::vector<char> storage(size);
+	auto* list = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(storage.data());
+	if (not InitializeProcThreadAttributeList(list, 1, 0, &size)) {
+		return {};
+	}
+	if (not UpdateProcThreadAttribute(list, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST, handles,
+	                                  sizeof(handles), nullptr, nullptr)) {
+		DeleteProcThreadAttributeList(list);
+		return {};
+	}
+	return storage;
+}
+#endif
 
 const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
     PVCore::__impl::PVStreamingBase::_supported_compressors = {
@@ -319,38 +358,60 @@ PVCore::PVStreamingCompressor::PVStreamingCompressor(const std::string& path)
         throw PVStreamingCompressorError("Failed to create error pipe");
     }
     SetHandleInformation(err_pipe_read, HANDLE_FLAG_INHERIT, 0);
+    // Read end kept as the status descriptor, as the decompressor does: leaving it
+    // unowned leaked a handle per compression and dropped whatever the compression
+    // process had to say about a failure.
+    _status_fd = _open_osfhandle(reinterpret_cast<intptr_t>(err_pipe_read), _O_RDONLY);
 
     // Setup process startup attributes
-    STARTUPINFO si = {};
-    si.cb = sizeof(STARTUPINFOA);
-    si.hStdInput = in_pipe_read;
-    si.hStdOutput = (HANDLE)_get_osfhandle(_fd);
-    si.hStdError = err_pipe_write;
-    si.dwFlags |= STARTF_USESTDHANDLES;
+    STARTUPINFOEXW si = {};
+    si.StartupInfo.cb = sizeof(si);
+    si.StartupInfo.hStdInput = in_pipe_read;
+    si.StartupInfo.hStdOutput = (HANDLE)_get_osfhandle(_fd);
+    si.StartupInfo.hStdError = err_pipe_write;
+    si.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    HANDLE inherited[] = {in_pipe_read, si.StartupInfo.hStdOutput, err_pipe_write};
+    std::vector<char> attrs = inheritable_handle_list(inherited);
+    if (not attrs.empty()) {
+        si.lpAttributeList = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(attrs.data());
+    }
 
     PROCESS_INFORMATION pi = {};
 
     // Start new process
 	_args = executable(_extension, EExecType::COMPRESSOR, output_name);
 	_cmdline = QString::fromStdString(boost::algorithm::join(_args, " ")).toStdWString();
-    if (not CreateProcessW(
+    bool spawned = CreateProcessW(
 		nullptr,
 		_cmdline.data(),
 		nullptr,
 		nullptr,
 		TRUE,
-		CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
+		EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
 		nullptr,
 		nullptr,
-		&si,
-		&pi)
-	) {
+		&si.StartupInfo,
+		&pi);
+    if (si.lpAttributeList != nullptr) {
+        DeleteProcThreadAttributeList(si.lpAttributeList);
+    }
+    if (not spawned) {
+        CloseHandle(in_pipe_read);
+        CloseHandle(in_pipe_write);
+        CloseHandle(err_pipe_write);
+        _output_fd = -1; // still referenced by _fd, closed by the base destructor
         throw PVStreamingCompressorError("Failed to create process");
     }
 	_child_pid = pi.hProcess; // closed by do_wait_finished()
-	_fd = _open_osfhandle(reinterpret_cast<intptr_t>(in_pipe_write), _O_RDONLY);
+	// write end of the child's stdin, hence _O_WRONLY: write() is the only thing
+	// this descriptor is ever used for
+	_fd = _open_osfhandle(reinterpret_cast<intptr_t>(in_pipe_write), _O_WRONLY);
 
-    // Close handles
+    // Close the child's ends of the pipes in the parent process: keeping the read end
+    // of the input pipe open would prevent the child from ever seeing an end of file,
+    // and keeping the write end of the error pipe open would make return_status()
+    // block forever waiting for EOF.
     CloseHandle(pi.hThread);
     CloseHandle(in_pipe_read);
     CloseHandle(err_pipe_write);
@@ -470,6 +531,14 @@ void PVCore::PVStreamingCompressor::do_wait_finished()
 			throw std::runtime_error("Failed to terminate process");
 		}
 	}
+
+	// Drain the child's error output before waiting on it. Nothing reads that pipe
+	// while the compression runs, so a child writing more than the pipe holds would
+	// block on it and never reach its own exit -- and the wait below would then never
+	// return. Reading to EOF cannot deadlock in turn: the parent already closed its
+	// own write end, so the read ends as soon as the child does.
+	std::string status_msg;
+	return_status(&status_msg);
 
 	WaitForSingleObject(_child_pid, INFINITE);
     DWORD status = 0;
@@ -623,12 +692,18 @@ void PVCore::PVStreamingDecompressor::init()
     _status_fd = _open_osfhandle(reinterpret_cast<intptr_t>(err_pipe_read), _O_RDONLY); // Used to read error messages
 
     // Set up the process startup information
-    STARTUPINFOW si{};
-    si.cb = sizeof(STARTUPINFOW);
-    si.hStdInput = in_pipe_read;
-    si.hStdOutput = out_pipe_write;
-    si.hStdError = err_pipe_write;
-    si.dwFlags |= STARTF_USESTDHANDLES;
+    STARTUPINFOEXW si{};
+    si.StartupInfo.cb = sizeof(si);
+    si.StartupInfo.hStdInput = in_pipe_read;
+    si.StartupInfo.hStdOutput = out_pipe_write;
+    si.StartupInfo.hStdError = err_pipe_write;
+    si.StartupInfo.dwFlags |= STARTF_USESTDHANDLES;
+
+    HANDLE inherited[] = {in_pipe_read, out_pipe_write, err_pipe_write};
+    std::vector<char> attrs = inheritable_handle_list(inherited);
+    if (not attrs.empty()) {
+        si.lpAttributeList = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>(attrs.data());
+    }
 
     PROCESS_INFORMATION pi{};
 
@@ -636,18 +711,25 @@ void PVCore::PVStreamingDecompressor::init()
 	auto it = _supported_compressors.find(_extension);
 	assert(it != _supported_compressors.end());
 	_cmdline = QString::fromStdString(it->value().second).toStdWString(); // decompressor
-    if (not CreateProcessW(
+    bool spawned = CreateProcessW(
         nullptr,
 		_cmdline.data(),
 		nullptr,
 		nullptr,
 		TRUE,
-        CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
+        EXTENDED_STARTUPINFO_PRESENT | CREATE_UNICODE_ENVIRONMENT | CREATE_NO_WINDOW,
 		nullptr,
 		nullptr,
-		&si,
-		&pi)
-	) {
+		&si.StartupInfo,
+		&pi);
+    if (si.lpAttributeList != nullptr) {
+        DeleteProcThreadAttributeList(si.lpAttributeList);
+    }
+    if (not spawned) {
+        CloseHandle(in_pipe_read);
+        CloseHandle(out_pipe_write);
+        CloseHandle(err_pipe_write);
+        close(input_fd);
         throw PVStreamingDecompressorError("Failed to create decompression process");
     }
 	_child_pid = pi.hProcess; // closed by do_wait_finished()
