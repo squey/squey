@@ -66,8 +66,41 @@
 #include "common.h"
 #include "test-env.h"
 
+#if defined(__linux__) || defined(__APPLE__)
+#include <csignal>
+#include <cstdio>
+#include <execinfo.h>
+#include <unistd.h>
+
+// This test crashes on the arm64 macOS CI and nowhere else, so it cannot be
+// reproduced on the x86_64 development VM. ctest reports no more than
+// "SEGFAULT", and no crash report reaches the job log, which leaves the failure
+// undiagnosable. Print the faulting stack ourselves, as the streaming
+// compressor test had to for SIGPIPE.
+static void report_crash(int sig)
+{
+	static const char msg[] = "\n*** fatal signal, backtrace follows ***\n";
+	ssize_t ignored = write(STDERR_FILENO, msg, sizeof(msg) - 1);
+	(void)ignored;
+	void* frames[64];
+	int count = backtrace(frames, 64);
+	backtrace_symbols_fd(frames, count, STDERR_FILENO);
+	std::signal(sig, SIG_DFL);
+	std::raise(sig); // let the platform report the signal as it would have
+}
+#endif
+
 int main(int argc, char** argv)
 {
+	// Unbuffered: a signal death drops whatever is still buffered, and under
+	// ctest stdout is a pipe, so the display named just before the crash would
+	// otherwise never reach the log.
+	std::cout << std::unitbuf;
+#if defined(__linux__) || defined(__APPLE__)
+	std::signal(SIGSEGV, report_crash);
+	std::signal(SIGBUS, report_crash);
+#endif
+
 	init_env();
 
 	Squey::PVRoot root;
@@ -140,6 +173,7 @@ int main(int argc, char** argv)
 	    [&](PVDisplays::PVDisplayViewIf& obj) {
 		    const std::string name = obj.registered_name().toStdString();
 		    seen_view_displays.insert(name);
+		    std::cout << "view display " << name << std::endl;
 
 		    QWidget* w = PVDisplays::get_widget(obj, &view, nullptr, view_params);
 		    PV_ASSERT_VALID(w != nullptr, "view_display", name);
@@ -167,6 +201,7 @@ int main(int argc, char** argv)
 	// Source displays (the data-tree view) must build against the source too.
 	PVDisplays::visit_displays_by_if<PVDisplays::PVDisplaySourceIf>(
 	    [&](PVDisplays::PVDisplaySourceIf& obj) {
+		    std::cout << "source display " << obj.registered_name().toStdString() << std::endl;
 		    QWidget* w = PVDisplays::get_widget(obj, &src);
 		    PV_ASSERT_VALID(w != nullptr, "source_display", obj.registered_name().toStdString());
 		    w->show();
@@ -178,6 +213,7 @@ int main(int argc, char** argv)
 	// still open must synchronously tear down every parallelview widget (they
 	// must not outlive the model they render) without crashing. This exercises
 	// the whole drain-then-delete path of the per-view rendering context.
+	std::cout << "tearing down the source" << std::endl;
 	src.get_parent<Squey::PVScene>().remove_child(src);
 	QApplication::processEvents();
 
