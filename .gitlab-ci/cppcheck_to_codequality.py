@@ -45,7 +45,8 @@ def parse_report(xml_path):
     if b"<!DOCTYPE" in content:
         sys.exit(f"{xml_path}: unexpected DTD in a cppcheck report")
 
-    # nosemgrep: the DTD rejected above is what makes entity expansion possible
+    # The DTD rejected above is what makes entity expansion possible
+    # nosemgrep
     return ET.fromstring(content)
 
 

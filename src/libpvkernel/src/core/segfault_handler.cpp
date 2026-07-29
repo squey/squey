@@ -54,6 +54,8 @@ static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
 		/* we are in the child process
 		 */
 
+		// Absolute path resolved at startup, no shell and no PATH lookup
+		// nosemgrep
 		execl(g_crash_reporter_path.data(), g_crash_reporter_path.data(), descriptor.path(),
 		      nullptr);
 
