@@ -172,12 +172,21 @@ if [ "$CODE_COVERAGE_ENABLED" = false ]; then
   bst $BUILD_OPTIONS artifact log squey.bst | sed -n '/Test project/,/Total Test time/p' || true
 fi
 
-# Re-enable once a separate public artifact cache is back in service: pushing a
-# curated subset there (no squey*.bst, no freedesktop-sdk.bst) is meaningful again
-# when the remote is metered, unlike the local pool reached over a unix socket.
-#if [ "$PUSH_ARTIFACTS" = true ] && [ "$CODE_COVERAGE_ENABLED" = false ]; then
-#  bst $BUILD_OPTIONS --option push_artifacts True artifact push `ls elements -p -I "base.bst" -I "freedesktop-sdk.bst" -I "squey*.bst" |grep -v / | tr '\n' ' '` || true
-#fi
+# Hand over to the shared artifact cache (ARTIFACT_CACHE_URL, the pool the CI
+# runner hosts) what a later build can reuse. Its remotes are declared pull-only
+# in the runner configuration, so a build never uploads anything by itself: this
+# is the only place that pushes, and it leaves squey.bst out. That one is the
+# largest artifact of the build and the next commit makes it obsolete, whereas
+# its dependencies are worth the room they take, the freedesktop-sdk included:
+# once upstream retention drops them, the alternative is to build them from
+# source again. Sources stay out of the pool altogether, they are quick to fetch
+# and stable enough to not be worth the room.
+# A failure here costs a redundant rebuild later on, never a job.
+if [ "$PUSH_ARTIFACTS" = true ] && [ -n "$ARTIFACT_CACHE_URL" ]; then
+  # "--deps build" is the whole build plan of squey.bst, minus the element itself
+  DEPENDENCIES=$(bst $BUILD_OPTIONS show --deps build --format '%{name}' squey.bst)
+  bst $BUILD_OPTIONS artifact push --artifact-remote "$ARTIFACT_CACHE_URL" $DEPENDENCIES || true
+fi
 
 # Extract testsuite and code coverage reports out of the build sandbox
 if [ "$GITLAB_CI" = true ]; then

@@ -5,6 +5,13 @@ variables:
   CODE_COVERAGE:
     value: "false"
     description: "Only update the code coverage report"
+  FORCE_PUSH_ARTIFACTS:
+    value: "false"
+    description: "Push the build dependencies to the shared cache, even when the buildstream directory is unchanged"
+  # Shared artifact pool the runner hosts, served by the buildbox-casd-artifacts
+  # service. The path is the one seen from inside the job container, where the
+  # /home/gitlab-runner/cache volume is mounted on /root/.cache.
+  ARTIFACT_CACHE_URL: "unix:/root/.cache/artifact-cas.sock"
 
 stages:
   - check
@@ -150,7 +157,23 @@ builder appstream-linter:
       # Durable artifacts live in the shared casd daemon (storage-service);
       # these per-slot caches are purgeable pass-through.
       export XDG_CACHE_HOME="$HOME/.cache/bst-slots/bst-slot-${CI_CONCURRENT_ID:-0}"
-      export PUSH_ARTIFACTS=$([ `git diff --name-only $CI_COMMIT_BEFORE_SHA $CI_COMMIT_SHA buildstream | wc -l` -ne 0 ] && echo "true" || echo "false")
+      # Only offer the build dependencies to the shared pool when this pipeline
+      # can bring new ones: an untouched buildstream directory means they are
+      # all there already (squey.bst itself is never pushed, see build.sh). The
+      # comparison point is the target branch of a merge request, the previous
+      # commit of a push, and the parent commit for scheduled and web pipelines
+      # (they carry no "before" sha at all). A base commit the shallow clone
+      # does not have falls back to pushing rather than starving the pool.
+      base_sha="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}"
+      git cat-file -e "${base_sha}^{commit}" 2> /dev/null || base_sha="${CI_COMMIT_SHA}~1"
+      if [ "$FORCE_PUSH_ARTIFACTS" = "true" ] || ! git cat-file -e "${base_sha}^{commit}" 2> /dev/null; then
+        export PUSH_ARTIFACTS=true
+      elif git diff --quiet "$base_sha" "$CI_COMMIT_SHA" -- buildstream project.conf; then
+        export PUSH_ARTIFACTS=false
+      else
+        export PUSH_ARTIFACTS=true
+      fi
+      echo "Pushing artifacts to the shared cache: $PUSH_ARTIFACTS"
       # git lfs pull
       for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
       cd buildstream
@@ -206,6 +229,7 @@ build testsuite windows:
       --branch="${CI_COMMIT_REF_NAME}"
       --export=true
       --export-dir="$CI_PROJECT_DIR/export"
+      --push-artifacts="${PUSH_ARTIFACTS}"
   rules:
     - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
@@ -234,6 +258,7 @@ build testsuite macos:
       --branch="${CI_COMMIT_REF_NAME}"
       --export=true
       --export-dir="$CI_PROJECT_DIR/export"
+      --push-artifacts="${PUSH_ARTIFACTS}"
   rules:
     - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
@@ -265,6 +290,7 @@ build release macos:
       --branch="${CI_COMMIT_REF_NAME}"
       --export=true
       --export-dir="$CI_PROJECT_DIR/export"
+      --push-artifacts="${PUSH_ARTIFACTS}"
   rules:
     - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
