@@ -33,11 +33,27 @@ CATEGORIES = {
 }
 
 
+def parse_report(xml_path):
+    """Read a cppcheck report, refusing any DTD.
+
+    ElementTree expands internal entities, so a report carrying a DTD could
+    exhaust the memory of the job. cppcheck never emits one.
+    """
+    with open(xml_path, "rb") as report:
+        content = report.read()
+
+    if b"<!DOCTYPE" in content:
+        sys.exit(f"{xml_path}: unexpected DTD in a cppcheck report")
+
+    # nosemgrep: the DTD rejected above is what makes entity expansion possible
+    return ET.fromstring(content)
+
+
 def convert(xml_path):
     issues = []
     occurrences = {}
 
-    for error in ET.parse(xml_path).getroot().iter("error"):
+    for error in parse_report(xml_path).iter("error"):
         # cppcheck lists the primary location first, the following ones only
         # describe how the code flows up to it
         location = error.find("location")
@@ -53,7 +69,7 @@ def convert(xml_path):
         # unique for identical messages reported several times in a file
         key = f"{path}:{check_name}:{description}"
         occurrences[key] = occurrences.get(key, 0) + 1
-        fingerprint = hashlib.md5(f"{key}:{occurrences[key]}".encode()).hexdigest()
+        fingerprint = hashlib.sha256(f"{key}:{occurrences[key]}".encode()).hexdigest()
 
         issues.append(
             {
