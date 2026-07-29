@@ -25,6 +25,8 @@
 
 #include "PVFieldSplitterDnsFqdn.h"
 
+#include <algorithm>
+
 const char* PVFilter::PVFieldSplitterDnsFqdn::TLD1 = "tld1";
 const char* PVFilter::PVFieldSplitterDnsFqdn::TLD2 = "tld2";
 const char* PVFilter::PVFieldSplitterDnsFqdn::TLD3 = "tld3";
@@ -213,40 +215,34 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterDnsFqdn::one_to_many(
 				 * copy it, find the second, copy it...
 				 *
 				 * how boring O:-)
+				 *
+				 * Only a well formed reverse IPv4 holds four octets of at most
+				 * three digits; anything else is arbitrary input whose labels
+				 * would overflow rev_str, so the copy is bounded and gives up
+				 * on the inversion rather than truncating it.
 				 */
 				pos = tld2_pos - 2;
-				int len = 0;
-				int rpos;
 				int wpos = 0;
-				// 1st octet
-				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, len);
-				wpos += len;
-				rev_str[wpos] = '.';
-				wpos++;
+				for (int octet = 0; octet < 4; ++octet) {
+					const int separator_len = (octet < 3) ? 1 : 0;
+					int rpos;
+					int len = 0;
+					str_rscan(str, pos, rpos, len);
 
-				// 2nd octet
-				len = 0;
-				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, len);
-				wpos += len;
-				rev_str[wpos] = '.';
-				wpos++;
+					if (wpos + len + separator_len > (int)sizeof(rev_str)) {
+						wpos = 0;
+						break;
+					}
 
-				// 3rd octet
-				len = 0;
-				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, len);
-				wpos += len;
-				rev_str[wpos] = '.';
-				wpos++;
+					memcpy(rev_str + wpos, str + rpos, len);
+					wpos += len;
+					if (separator_len != 0) {
+						rev_str[wpos] = '.';
+						wpos++;
+					}
+				}
 
-				// 4th octet
-				len = 0;
-				str_rscan(str, pos, rpos, len);
-				memcpy(rev_str + wpos, str + rpos, len);
-
-				rev_len = wpos + len;
+				rev_len = wpos;
 			} else {
 				/* more simple for IPv6: each octet is
 				 * represented as "X.Y" where X and Y are the
@@ -255,8 +251,11 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterDnsFqdn::one_to_many(
 				 * separated by a '.' => 32 quartets and 31
 				 * '.'.
 				 * trivial to invert :-]
+				 *
+				 * Those 63 characters are what a well formed address holds, so
+				 * read whichever part of them the field actually carries.
 				 */
-				rev_len = 63;
+				rev_len = std::min(tld2_pos - 1, (int)sizeof(rev_str) - 1);
 				std::reverse_copy(str, str + rev_len, rev_str);
 			}
 		}
