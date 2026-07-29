@@ -48,11 +48,6 @@ replace(std::string& init, std::string const& from, std::string const& to, size_
  */
 std::string file_content(const std::string& file_path);
 
-/**
- * Execute a command and return the content of the standard output
- */
-std::string exec_cmd(const char* cmd);
-
 template <typename T>
 QString serialize_base64(const T& container)
 {
