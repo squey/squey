@@ -52,11 +52,15 @@ environment:
   RECC_MAX_THREADS: -1
 
 sandbox:
-  remote-apis-socket:
-    path: /tmp/reapi.sock
-    # Required to let recc upload the results of locally built actions,
-    # as it can not go through remote execution in cache-only mode
-    action-cache-enable-update: true
+  (?):
+  # A code coverage build does not go through recc (see the compiler launchers
+  # below), so it has nothing to serve on the REAPI socket.
+  - code_coverage == False:
+      remote-apis-socket:
+        path: /tmp/reapi.sock
+        # Required to let recc upload the results of locally built actions,
+        # as it can not go through remote execution in cache-only mode
+        action-cache-enable-update: true
 
 variables:
   build-dir: "build/%{target_triple}/%{cxx_compiler}/build"
@@ -84,6 +88,16 @@ variables:
       cmake-local-extra: ""
       recc-c-launcher: "%{recc-bin}/launch-cc"
       recc-cxx-launcher: "%{recc-bin}/launch-c++"
+  # The nightly code coverage build compiles without recc: its Debug and gcov
+  # instrumented objects are of no use to any other build, and would evict from
+  # the shared recc pool the ones that are reused. Caching them is a hazard for
+  # the report itself, too: a cache hit does not run the compiler, so the .gcno
+  # note files gcov expects beside each object are only there if the cache
+  # handles them explicitly. Must come last, an empty launcher overrides the
+  # ones set above.
+  - code_coverage == True:
+      recc-c-launcher: ""
+      recc-cxx-launcher: ""
 
   install-linux-launchers: 'bash -c "cp -r buildstream/files/flatpak/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"'
   install-linux-deps:
