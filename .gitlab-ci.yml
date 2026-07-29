@@ -3,6 +3,7 @@ variables:
   GIT_SUBMODULE_STRATEGY: normal
   GIT_SUBMODULE_PATHS: src/external/type_safe src/furl src/squey-utils src/libpvcop
   GIT_SUBMODULE_DEPTH: 1
+  GIT_STRATEGY: fetch
   CACHE_COMPRESSION_LEVEL: "fastest"
   CODE_COVERAGE:
     value: "false"
@@ -148,6 +149,9 @@ builder appstream-linter:
   stage: static_analysis
   tags:
     - privileged-docker
+  variables:
+    # Two merge request pipelines can reach this job at once, see ".build".
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
   before_script:
     - pip install jinja2-cli
   script:
@@ -169,6 +173,9 @@ builder appstream-linter:
   tags:
     - privileged-docker
   needs: [] # start as soon as the pipeline does, do not wait for the earlier stages
+  variables:
+    # Give every runner slot its own clone to avoid collisions
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
   before_script:
     - |
       # Isolate the BuildStream cache per runner slot: concurrent jobs on the same
@@ -470,6 +477,7 @@ pages:
   variables:
     # Repackages artifacts and reads VERSION.txt, never a submodule.
     GIT_SUBMODULE_STRATEGY: none
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
   before_script:
     - mkdir -p $CI_PROJECT_DIR/public
   script:
@@ -531,6 +539,7 @@ flathub:
   variables:
     # Only needs VERSION.txt and buildstream/flathub.
     GIT_SUBMODULE_STRATEGY: none
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
   before_script:
     - |
       export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
