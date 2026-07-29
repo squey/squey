@@ -1,6 +1,8 @@
 variables:
   BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:3937dd44
-  GIT_SUBMODULE_STRATEGY: recursive
+  GIT_SUBMODULE_STRATEGY: normal
+  GIT_SUBMODULE_PATHS: src/external/type_safe src/furl src/squey-utils src/libpvcop
+  GIT_SUBMODULE_DEPTH: 1
   CACHE_COMPRESSION_LEVEL: "fastest"
   CODE_COVERAGE:
     value: "false"
@@ -192,6 +194,20 @@ builder appstream-linter:
         export PUSH_ARTIFACTS=true
       fi
       echo "Pushing artifacts to the shared cache: $PUSH_ARTIFACTS"
+      # The nested submodules the top-level GIT_SUBMODULE_PATHS cannot reach:
+      # GIT_SUBMODULE_PATHS only ever matches top-level paths, so anything below
+      # src/libpvcop has to be restored by hand. squey-utils is needed by every
+      # build (add_subdirectory), the test files only by the job that runs the
+      # matching test suite. These run before the token rewrite below, while the
+      # CI token in the submodule remotes is still the one that can fetch.
+      git -C src/libpvcop submodule update --init --depth 1 squey-utils
+      if [ "$TEST_FILES" = "true" ]; then
+        git submodule update --init --depth 1 src/tests
+        # ninja pvcop_testsuite, hence PVCOP_TEST, only runs under code coverage.
+        if [ "$CODE_COVERAGE" = "true" ]; then
+          git -C src/libpvcop submodule update --init --depth 1 tests/files
+        fi
+      fi
       # git lfs pull
       for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
       cd buildstream
@@ -217,6 +233,9 @@ builder appstream-linter:
 
 build and run testsuite linux:
   extends: .build
+  variables:
+    # Runs ctest, unlike the cross-compiled builds which stop before it.
+    TEST_FILES: "true"
   script:
     - ./build.sh
       --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
@@ -336,7 +355,7 @@ build release macos:
   tags:
     - $TARGET_TAG
   before_script: |
-    git submodule update --init --recursive src/tests # src/libpvcop
+    git submodule update --init --depth 1 src/tests # src/libpvcop
   needs:
     - job: build testsuite
       artifacts: true
@@ -389,6 +408,9 @@ run testsuite macos:
 
 build release linux:
   extends: .build
+  variables:
+    # Native build, so squey.bst runs ctest here too.
+    TEST_FILES: "true"
   script:
     - ./build.sh
       --user-target=customer
@@ -445,6 +467,9 @@ pages:
     pull_policy: [if-not-present]
   tags:
     - privileged-docker
+  variables:
+    # Repackages artifacts and reads VERSION.txt, never a submodule.
+    GIT_SUBMODULE_STRATEGY: none
   before_script:
     - mkdir -p $CI_PROJECT_DIR/public
   script:
@@ -503,6 +528,9 @@ flathub:
     - privileged-docker
   needs:
     - pages
+  variables:
+    # Only needs VERSION.txt and buildstream/flathub.
+    GIT_SUBMODULE_STRATEGY: none
   before_script:
     - |
       export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
