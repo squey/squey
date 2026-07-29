@@ -142,7 +142,9 @@ std::vector<std::string> execute_cmd(const std::string& cmd)
 #else
 	if (!(output = popen(cmd.c_str(), "r"))) {
 #endif
+		// Reading from the pipe below would dereference a null FILE*
 		pvlogger::error() << "Can't execute '" << cmd << "'" << std::endl;
+		return result;
 	}
 
 	while (fgets(buffer, sizeof(buffer), output) != nullptr) {
