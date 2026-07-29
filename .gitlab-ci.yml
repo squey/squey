@@ -72,8 +72,26 @@ nightly_skipped:
   variables:
     GIT_STRATEGY: none
     GIT_SUBMODULE_STRATEGY: none
+  # Carry over the coverage of the pipeline that really built this commit: the
+  # project badge reads the coverage of the latest successful pipeline of the
+  # branch, and falls back to "unknown" as soon as that pipeline has none of its
+  # own. Passing "?job=" to the badge does not help, it looks the job up in those
+  # same latest pipelines.
+  coverage: '/Coverage: (\d+(?:\.\d+)?)%/'
   script:
-    - echo "$CI_COMMIT_BRANCH is still at $CI_COMMIT_SHA, already built by a previous scheduled pipeline, nothing to do."
+    - |
+      echo "$CI_COMMIT_BRANCH is still at $CI_COMMIT_SHA, already built by a previous scheduled pipeline, nothing to do."
+      api_url="$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines"
+      for id in $(curl --silent --get --data-urlencode "ref=$CI_COMMIT_BRANCH" \
+        --data-urlencode "status=success" --data-urlencode "per_page=20" "$api_url" \
+        | jq -r ".[] | select(.id != $CI_PIPELINE_ID) | .id"); do
+        coverage=$(curl --silent "$api_url/$id" | jq -r '.coverage // empty')
+        if [ -n "$coverage" ]; then
+          echo "Coverage: $coverage% (reused from pipeline $id)"
+          break
+        fi
+      done
+      [ -n "$coverage" ] || echo "No coverage found in the last 20 successful pipelines of $CI_COMMIT_BRANCH, the badge will show 'unknown'"
   rules:
     - if: *already_built
 
