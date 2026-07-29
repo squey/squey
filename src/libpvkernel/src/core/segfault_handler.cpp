@@ -30,23 +30,34 @@
 #include <client/linux/handler/exception_handler.h>
 #include <client/linux/handler/minidump_descriptor.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <memory>
+#include <array>
+#include <string>
+
+#include <boost/dll/runtime_symbol_info.hpp>
 
 #include <pvbase/general.h> // IWYU pragma: keep
 
 #define BREAKPAD_MINIDUMP_FOLDER "/tmp/squey_" SQUEY_CURRENT_VERSION_STR "_coredumps"
 
+// Absolute path of the crash reporter, resolved once at startup. execlp() used to
+// look the binary up in PATH, which any writable entry there could hijack, and
+// building the path from the handler would allocate, which is not signal safe.
+static std::array<char, PATH_MAX> g_crash_reporter_path{};
+
 static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
                           void* /*context*/,
                           bool succeeded)
 {
-	if (fork() == 0) {
+	if (g_crash_reporter_path[0] != '\0' and fork() == 0) {
 		/* we are in the child process
 		 */
 
-		execlp("squey-crashreport", "squey-crashreport", descriptor.path(), nullptr);
+		execl(g_crash_reporter_path.data(), g_crash_reporter_path.data(), descriptor.path(),
+		      nullptr);
 
-		// if execlp returns (i.e. it has failed), we print the message in the log
+		// if execl returns (i.e. it has failed), we print the message in the log
 		PVLOG_ERROR("Crash report file: %s\n", descriptor.path());
 	}
 
@@ -55,6 +66,14 @@ static bool dump_callback(const google_breakpad::MinidumpDescriptor& descriptor,
 
 void init_segfault_handler()
 {
+	const std::string reporter_path =
+	    boost::dll::program_location().parent_path().string() + "/squey-crashreport";
+	if (reporter_path.size() < g_crash_reporter_path.size()) {
+		reporter_path.copy(g_crash_reporter_path.data(), reporter_path.size());
+	} else {
+		PVLOG_ERROR("Crash reporter path is too long: %s\n", reporter_path.c_str());
+	}
+
 	mkdir(BREAKPAD_MINIDUMP_FOLDER, S_IRWXU | S_IRGRP | S_IXGRP);
 	static google_breakpad::MinidumpDescriptor descriptor(BREAKPAD_MINIDUMP_FOLDER);
 	static google_breakpad::ExceptionHandler eh(descriptor, nullptr, dump_callback, nullptr, true,
