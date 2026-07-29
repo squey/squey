@@ -16,62 +16,102 @@ stages:
   - flathub_publish
   - stop
 
+# A scheduled pipeline whose commit was already fully built by a previous
+# scheduled pipeline of the same kind has nothing to rebuild. The SHA of the last
+# successful run is recorded by the "record_last_scheduled_sha" job into a project
+# CI/CD variable, which is the only kind of state a "rules:if" clause can read at
+# pipeline creation time. Nightly and code coverage schedules run different sets of
+# jobs on the same commit, so each one gets its own marker. Set FORCE_REBUILD to
+# "true" on the schedule to rebuild an unchanged commit anyway.
+.ci_conditions:
+  already_built: &already_built >-
+    $CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH &&
+    $FORCE_REBUILD != "true" &&
+    (($CODE_COVERAGE != "true" && $CI_COMMIT_SHA == $LAST_NIGHTLY_SHA) ||
+    ($CODE_COVERAGE == "true" && $CI_COMMIT_SHA == $LAST_COVERAGE_SHA))
+
 workflow:
   rules:
+    # Keep creating the pipeline so that it shows up as successful, but strip it
+    # down to the "nightly_skipped" sentinel job. container_scanning comes from an
+    # included template whose rules we do not own, so it is turned off through the
+    # variable the template itself provides.
+    - if: *already_built
+      variables:
+        CONTAINER_SCANNING_DISABLED: "true"
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
 
-cancel_scheduled_pipeline_if_already_ran_for_this_commit:
+# Filters a job out of a scheduled pipeline that has nothing to rebuild. Must come
+# first in the "rules" list of every job that can run in a scheduled pipeline.
+.skip_if_already_built:
+  rules:
+    - if: *already_built
+      when: never
+
+# Sentinel job of a skipped scheduled pipeline: a pipeline whose jobs are all
+# filtered out is not created at all, which the schedule reports as an error
+# instead of a success. This one keeps the pipeline valid, green and free.
+nightly_skipped:
   image:
     name: "$BASE_IMAGE_NAME"
     pull_policy: [if-not-present]
   stage: check
   tags:
     - privileged-docker
+  needs: []
+  variables:
+    GIT_STRATEGY: none
+    GIT_SUBMODULE_STRATEGY: none
+  script:
+    - echo "$CI_COMMIT_BRANCH is still at $CI_COMMIT_SHA, already built by a previous scheduled pipeline, nothing to do."
+  rules:
+    - if: *already_built
+
+# Records the commit a scheduled pipeline just built, so that the next scheduled
+# run on the same commit skips straight to "nightly_skipped". Writing a project
+# CI/CD variable requires GITLAB_API_TOKEN to hold the 'api' scope and the
+# Maintainer role; a failure here only costs a redundant rebuild next time.
+record_last_scheduled_sha:
+  image:
+    name: "$BASE_IMAGE_NAME"
+    pull_policy: [if-not-present]
+  stage: .post
+  tags:
+    - privileged-docker
+  variables:
+    GIT_STRATEGY: none
+    GIT_SUBMODULE_STRATEGY: none
   script:
     - |
-      # --- Token diagnostics (temporary) ---
-      if [ -z "$GITLAB_API_TOKEN" ]; then
-        echo "DIAG: GITLAB_API_TOKEN is EMPTY in this job (not exposed - check 'Protected' flag)."
+      if [ "$CODE_COVERAGE" = "true" ]; then
+        marker="LAST_COVERAGE_SHA"
       else
-        echo "DIAG: GITLAB_API_TOKEN is set (length: ${#GITLAB_API_TOKEN})."
+        marker="LAST_NIGHTLY_SHA"
       fi
-      # Who is this token? (also validates the token itself against the API)
-      echo "DIAG: /user response:"
-      curl --silent --write-out "\nDIAG_HTTP_CODE=%{http_code}\n" \
-        --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-        "$CI_API_V4_URL/user" | jq '{id, username, state} // .' 2>/dev/null || true
-      # What access level does this token's user have on THIS project?
-      echo "DIAG: project membership / permissions:"
-      curl --silent --write-out "\nDIAG_HTTP_CODE=%{http_code}\n" \
-        --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID?simple=false" | jq '.permissions // .' 2>/dev/null || true
-      # --- End diagnostics ---
-
-      # Only look at scheduled pipelines, otherwise the merge request pipeline which
-      # already ran on this commit would be enough to cancel this one
-      existing_pipeline=$(curl --silent --get \
-        --data-urlencode "sha=$CI_COMMIT_SHA" \
-        --data-urlencode "source=schedule" \
-        "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines" | jq ".[] | select(.id != $CI_PIPELINE_ID)")
-      if [ -n "$existing_pipeline" ]; then
-        echo "Already built, skipping pipeline."
-        # Print the raw HTTP code and body instead of hiding them, so we can tell
-        # a token problem (401/403) apart from a pipeline-state problem (405/409).
-        cancel_body=$(curl --silent --request POST --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
-          --write-out "\nDIAG_HTTP_CODE=%{http_code}\n" \
-          "$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines/$CI_PIPELINE_ID/cancel")
-        echo "DIAG: cancel response:"
-        echo "$cancel_body"
-        if ! echo "$cancel_body" | grep -q "DIAG_HTTP_CODE=20"; then
-          echo "Could not cancel the pipeline, check that GITLAB_API_TOKEN is set with the 'api' scope"
-        fi
-      fi
+      api_url="$CI_API_V4_URL/projects/$CI_PROJECT_ID/variables"
+      http_code=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+        --request PUT --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+        --data-urlencode "value=$CI_COMMIT_SHA" "$api_url/$marker")
+      case "$http_code" in # anything but a success means the variable is missing
+        2*) ;;
+        *)  http_code=$(curl --silent --output /dev/null --write-out "%{http_code}" \
+              --request POST --header "PRIVATE-TOKEN: $GITLAB_API_TOKEN" \
+              --data-urlencode "key=$marker" --data-urlencode "value=$CI_COMMIT_SHA" \
+              --data "protected=true" --data "masked=false" "$api_url") ;;
+      esac
+      case "$http_code" in
+        2*) echo "$marker set to $CI_COMMIT_SHA" ;;
+        *)  echo "Could not record $marker (HTTP $http_code), check that GITLAB_API_TOKEN has the 'api' scope and the Maintainer role"
+            exit 1 ;;
+      esac
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
-      when: always
+      when: on_success
+  allow_failure: true
 
 builder appstream-linter:
   image:
@@ -100,9 +140,7 @@ builder appstream-linter:
     pull_policy: [if-not-present]
   tags:
     - privileged-docker
-  needs:
-    - job: cancel_scheduled_pipeline_if_already_ran_for_this_commit
-      optional: true
+  needs: [] # start as soon as the pipeline does, do not wait for the earlier stages
   before_script:
     - |
       # Isolate the BuildStream cache per runner slot: concurrent jobs on the same
@@ -147,6 +185,7 @@ build and run testsuite linux:
       --push-artifacts="${PUSH_ARTIFACTS}"
   coverage: '/lines: (\d+\.\d+)% \(\d+ out of \d+\)/'
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_COMMIT_TAG =~ "/^$/"'
   artifacts:
     when: always
@@ -167,6 +206,7 @@ build testsuite windows:
       --export=true
       --export-dir="$CI_PROJECT_DIR/export"
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
@@ -194,6 +234,7 @@ build testsuite macos:
       --export=true
       --export-dir="$CI_PROJECT_DIR/export"
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
@@ -224,6 +265,7 @@ build release macos:
       --export=true
       --export-dir="$CI_PROJECT_DIR/export"
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
@@ -269,6 +311,7 @@ run testsuite windows:
   script:
     - !reference [.run testsuite windows]
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: on_success
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
@@ -286,6 +329,7 @@ run testsuite macos:
   script:
     - !reference [.run testsuite macos]
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: on_success
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
@@ -383,6 +427,7 @@ pages:
     when: on_success
     expire_in: 1 day
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/ || $CODE_COVERAGE == "true"'
   # Release and code coverage pipelines do not run the same set of jobs, so every
   # dependency has to be optional for the pipeline to be created in both cases
@@ -462,6 +507,7 @@ code_quality:
       - code_quality_report
     expire_in: 1 week
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CODE_COVERAGE == "true"'
@@ -487,6 +533,7 @@ semgrep-sast:
   variables:
     GIT_SUBMODULE_STRATEGY: none
   rules:
+    - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
   interruptible: true
