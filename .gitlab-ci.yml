@@ -81,6 +81,7 @@ record_last_scheduled_sha:
   stage: .post
   tags:
     - privileged-docker
+  dependencies: [] # a ".post" job otherwise downloads every artifact of the pipeline
   variables:
     GIT_STRATEGY: none
     GIT_SUBMODULE_STRATEGY: none
