@@ -215,18 +215,21 @@ bool PVRush::PVParquetAPI::next_file()
 	}
 
 	{
-		// expose string column dictionnaries
-		std::unique_ptr<parquet::arrow::FileReader> reader;
-		status = parquet::arrow::FileReader::Make(arrow::default_memory_pool(), parquet::ParquetFileReader::OpenFile(parquet_file_path), &reader);
-		if (not status.ok()) {
-			pvlogger::error() << status.ToString() << std::endl;
-			return false;
-		}
-		std::shared_ptr<arrow::Schema> schema;
-		status = reader->GetSchema(&schema);
-		std::shared_ptr<arrow::Schema> flattened_schema = flatten_schema(schema);
-		for (int i = 0; i < flattened_schema->num_fields(); ++i) {
-			if (flattened_schema->field(i)->type()->id() == arrow::Type::STRING) {
+		// Expose string column dictionnaries.
+		//
+		// set_read_dictionary() indexes the parquet leaf columns, which stop matching the
+		// flattened arrow fields as soon as a list or a map contributes several leaves, as
+		// flatten_schema() only expands structs. Walking the parquet schema keeps both sides
+		// aligned. Leaves held by a list or a map (repetition level above zero) are rebuilt
+		// as text by convert_complex_type_as_string and are left alone.
+		const std::unique_ptr<parquet::ParquetFileReader> reader =
+		    parquet::ParquetFileReader::OpenFile(parquet_file_path);
+		const parquet::SchemaDescriptor* parquet_schema = reader->metadata()->schema();
+		for (int i = 0; i < parquet_schema->num_columns(); ++i) {
+			const parquet::ColumnDescriptor* column = parquet_schema->Column(i);
+			if (column->physical_type() == parquet::Type::BYTE_ARRAY and
+			    column->logical_type()->is_string() and
+			    column->max_repetition_level() == 0) {
 				arrow_reader_props.set_read_dictionary(i, true);
 			}
 		}
