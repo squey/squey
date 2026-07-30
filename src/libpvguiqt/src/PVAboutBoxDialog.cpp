@@ -332,11 +332,10 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	software_layout->addLayout(_view3D_layout);
 	software_layout->addWidget(_software_info_label);
 
-#ifdef __linux__
 	auto* crash = new QPushButton("&Crash ☠");
 	crash->setToolTip("Generates a crash of the application in order to test the crash reporter");
 	connect(crash, &QPushButton::clicked, [](){
-		// taken from Google Breakpad
+		// Dereferencing a null pointer, which the handler captures out of process.
 		volatile int* a = reinterpret_cast<volatile int*>(NULL);
   		*a = 1;
 	});
@@ -345,7 +344,6 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	crash_layout->addStretch();
 	crash_layout->addWidget(crash);
 	software_layout->addLayout(crash_layout);
-#endif
 
 	auto* tab_software = new QWidget;
 	tab_software->setLayout(software_layout);
