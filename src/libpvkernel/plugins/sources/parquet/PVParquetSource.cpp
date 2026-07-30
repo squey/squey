@@ -78,6 +78,9 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 			return nullptr;
 		} else { // load next file
 			_api.next_file();
+			if (_api.arrow_reader() == nullptr) { // the next file could not be opened
+				return nullptr;
+			}
 			arrow::Status status = _api.arrow_reader()->GetRecordBatchReader().Value(&_recordbatch_reader);
 			if (not status.ok()) {
 				pvlogger::error() << status.ToString() << std::endl;

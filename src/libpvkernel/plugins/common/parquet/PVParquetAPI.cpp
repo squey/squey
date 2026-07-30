@@ -38,6 +38,7 @@
 #include <algorithm>
 #include <limits>
 #include <ostream>
+#include <stdexcept>
 #include <string>
 
 #include "pvcop/db/types.h"
@@ -94,6 +95,15 @@ PVRush::PVParquetAPI::PVParquetAPI(const PVRush::PVParquetFileDescription* input
 	: _input_desc(input_desc)
 {
 	next_file();
+
+	// An unreadable file leaves the reader unset : report it to the caller, which turns it
+	// into an error message, rather than letting get_format() dereference a null reader.
+	if (_arrow_reader == nullptr) {
+		const QStringList& paths = _input_desc->paths();
+		const std::string& path = paths.isEmpty() ? std::string() : paths.first().toStdString();
+		throw std::runtime_error("Unable to read parquet file '" + path + "'");
+	}
+
 	get_format();
 }
 
@@ -181,6 +191,11 @@ bool PVRush::PVParquetAPI::next_file()
 	if (_next_input_file >= files_count()) {
 		return false;
 	}
+
+	// Drop the previous reader first, so that any failure below leaves it null instead of
+	// silently keeping the previously opened file as the current one.
+	_arrow_reader.reset();
+
 	arrow::Status status = arrow::Status::OK();
 
 	// Configure general Parquet reader settings
@@ -232,6 +247,11 @@ bool PVRush::PVParquetAPI::next_file()
 void PVRush::PVParquetAPI::visit_files(const std::function<void()>& f)
 {
 	for (auto path : _input_desc->paths()) {
+		// next_file() leaves no reader behind when a file cannot be opened : stop the visit
+		// rather than handing the visitor a null reader
+		if (arrow_reader() == nullptr) {
+			break;
+		}
 		f();
 		next_file();
 	}
@@ -240,8 +260,16 @@ void PVRush::PVParquetAPI::visit_files(const std::function<void()>& f)
 QDomDocument PVRush::PVParquetAPI::get_format()
 {
 	if (_format == QDomDocument()) {
+		if (arrow_reader() == nullptr) {
+			return _format;
+		}
+
     	std::shared_ptr<arrow::Schema> arrow_schema;
 		arrow::Status status = const_cast<PVRush::PVParquetAPI*>(this)->arrow_reader()->GetSchema(&arrow_schema);
+		if (not status.ok()) {
+			pvlogger::error() << status.ToString() << std::endl;
+			return _format;
+		}
 
 		std::shared_ptr<arrow::Schema> flattened_schema = flatten_schema(arrow_schema);
 		const arrow::FieldVector& fields = flattened_schema->fields();
