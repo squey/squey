@@ -204,8 +204,9 @@ builder appstream-linter:
       # The nested submodules the top-level GIT_SUBMODULE_PATHS cannot reach:
       # GIT_SUBMODULE_PATHS only ever matches top-level paths, so anything below
       # src/libpvcop has to be restored by hand. squey-utils is needed by every
-      # build (add_subdirectory), the test files only by the job that runs the
-      # matching test suite. These run before the token rewrite below, while the
+      # build (add_subdirectory), the test files by every job that builds the test
+      # suite, as building it copies and installs test files, not only by the ones
+      # that run it. These run before the token rewrite below, while the
       # CI token in the submodule remotes is still the one that can fetch.
       git -C src/libpvcop submodule update --init --depth 1 squey-utils
       if [ "$TEST_FILES" = "true" ]; then
@@ -266,6 +267,11 @@ build and run testsuite linux:
 
 build testsuite windows:
   extends: .build
+  variables:
+    # ctest does not run here, but building the test suite copies test files next to
+    # the test binaries and installs them into the exported package, which the matching
+    # 'run testsuite' job unpacks to run ctest from.
+    TEST_FILES: "true"
   script:
     - ./build.sh
       --target_triple="${TARGET_TRIPLE}"
@@ -294,6 +300,9 @@ build testsuite windows:
 
 build testsuite macos:
   extends: .build
+  variables:
+    # Same as the windows build above : the test files are needed at build time.
+    TEST_FILES: "true"
   script:
     - ./build.sh
       --target_triple="${TARGET_TRIPLE}"
@@ -323,6 +332,9 @@ build testsuite macos:
 
 build release macos:
   extends: .build
+  variables:
+    # Same as the windows build above : the test files are needed at build time.
+    TEST_FILES: "true"
   needs:
     - job: build testsuite macos
       artifacts: true

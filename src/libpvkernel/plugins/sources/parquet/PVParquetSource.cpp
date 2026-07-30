@@ -78,6 +78,9 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 			return nullptr;
 		} else { // load next file
 			_api.next_file();
+			if (_api.arrow_reader() == nullptr) { // the next file could not be opened
+				return nullptr;
+			}
 			arrow::Status status = _api.arrow_reader()->GetRecordBatchReader().Value(&_recordbatch_reader);
 			if (not status.ok()) {
 				pvlogger::error() << status.ToString() << std::endl;
@@ -88,12 +91,31 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 		}
 	}
 
-	std::shared_ptr<arrow::RecordBatch> record_batch = _recordbatch_reader->Next().ValueOrDie();
+	// A damaged file makes Next() fail, and a file holding fewer rows than its metadata
+	// announces ends the stream early : neither must abort through ValueOrDie().
+	std::shared_ptr<arrow::RecordBatch> record_batch;
+	arrow::Status status = _recordbatch_reader->Next().Value(&record_batch);
+	if (not status.ok()) {
+		pvlogger::error() << status.ToString() << std::endl;
+		return nullptr;
+	}
+	if (record_batch == nullptr) {
+		return nullptr;
+	}
 	const size_t record_row_count = record_batch->num_rows();
 
 	std::shared_ptr<arrow::Schema> schema;
-	arrow::Status status = _api.arrow_reader()->GetSchema(&schema);
-	std::shared_ptr<arrow::Table> table = arrow::Table::FromRecordBatches(schema, {record_batch}).ValueOrDie();
+	status = _api.arrow_reader()->GetSchema(&schema);
+	if (not status.ok()) {
+		pvlogger::error() << status.ToString() << std::endl;
+		return nullptr;
+	}
+	std::shared_ptr<arrow::Table> table;
+	status = arrow::Table::FromRecordBatches(schema, {record_batch}).Value(&table);
+	if (not status.ok()) {
+		pvlogger::error() << status.ToString() << std::endl;
+		return nullptr;
+	}
 	std::shared_ptr<arrow::Table> flat_table = _api.flatten_table(table);
 
 	PVRush::PVParquetBinaryChunk* chunk = new PVRush::PVParquetBinaryChunk(

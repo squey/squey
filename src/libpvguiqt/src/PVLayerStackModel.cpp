@@ -77,6 +77,12 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 	/* We create and store the true index of the layer in the lib */
 	int lib_index = lib_index_from_model_index(index.row());
 
+	// The view can still query rows of a layer stack that shrank behind its back, which
+	// turns into a negative index here and an out of bounds access in get_layer_n().
+	if (lib_index < 0 or lib_index >= lib_layer_stack().get_layer_count()) {
+		return {};
+	}
+
 	switch (role) {
 	case Qt::DecorationRole:
 		switch (index.column()) {
