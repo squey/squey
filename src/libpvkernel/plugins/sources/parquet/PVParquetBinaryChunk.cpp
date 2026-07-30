@@ -124,8 +124,24 @@ void* convert_dictionnary(const std::shared_ptr<arrow::Array>& column_array, pvc
 			? map_dictionary_values<arrow::LargeStringArray>(*dictionary, dict)
 			: map_dictionary_values<arrow::StringArray>(*dictionary, dict);
 
+	// Arrow leaves the index of a null entry unspecified, and an all-null column comes with
+	// an empty dictionary : both must be mapped to the empty string, as convert_string does,
+	// instead of being used to index dict_index_map out of its bounds.
+	std::optional<pvcop::db::index_t> null_index;
+	auto index_of_null = [&]() {
+		if (not null_index) {
+			null_index = dict->insert("");
+		}
+		return *null_index;
+	};
+
 	std::span<int32_t> rw_indices{(int32_t*)indices.raw_values(), (size_t)indices.length()};
-	std::for_each(rw_indices.begin(), rw_indices.end(), [&dict_index_map](int32_t& index) { index = dict_index_map[index]; });
+	for (int64_t i = 0; i < indices.length(); i++) {
+		const int32_t index = rw_indices[i];
+		const bool usable = not indices.IsNull(i) and index >= 0 and
+		                    (size_t)index < dict_index_map.size();
+		rw_indices[i] = usable ? dict_index_map[index] : index_of_null();
+	}
 
 	return ((void*)indices.raw_values());
 }
