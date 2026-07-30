@@ -1,0 +1,26 @@
+Use a constant offsetof() argument in PEImageReader
+
+offsetof() with a non-constant array subscript is a Microsoft extension.
+GCC rejects it with "'index' is not a constant expression", which breaks
+the mingw-w64 cross build. Compute the data directory entry offset from
+the array base instead, which is equivalent and standard C++.
+
+Upstream (getsentry/crashpad) only builds this file with MSVC and clang-cl.
+
+--- a/snapshot/win/pe_image_reader.cc
++++ b/snapshot/win/pe_image_reader.cc
+@@ -424,9 +424,12 @@ bool PEImageReader::ImageDataDirectoryEntryT(
+     return false;
+   }
+
++  // offsetof() with a non-constant array subscript is a Microsoft extension:
++  // GCC requires a constant expression, so compute the entry offset by hand.
+   if (nt_headers.FileHeader.SizeOfOptionalHeader <
+-          offsetof(decltype(nt_headers.OptionalHeader), DataDirectory[index]) +
+-              sizeof(nt_headers.OptionalHeader.DataDirectory[index]) ||
++          offsetof(decltype(nt_headers.OptionalHeader), DataDirectory) +
++              (index + 1) *
++                  sizeof(nt_headers.OptionalHeader.DataDirectory[0]) ||
+       nt_headers.OptionalHeader.NumberOfRvaAndSizes <= index) {
+     return false;
+   }

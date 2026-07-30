@@ -1,0 +1,25 @@
+Import the exported targets before configuring crashpad::zlib
+
+With CRASHPAD_ZLIB_SYSTEM=ON, crashpad-config.cmake configures crashpad::zlib
+before including crashpad-targets.cmake, which is what creates that target. Any
+find_package(crashpad) then fails with "Cannot specify include directories for
+target crashpad::zlib which is not built by this project".
+
+diff --git a/crashpad-config.cmake.in b/crashpad-config.cmake.in
+index dcc3717..f6ae0f2 100644
+--- a/crashpad-config.cmake.in
++++ b/crashpad-config.cmake.in
+@@ -1,3 +1,5 @@
++include("${CMAKE_CURRENT_LIST_DIR}/crashpad-targets.cmake")
++
+ if(@CRASHPAD_ZLIB_SYSTEM@)
+     include(CMakeFindDependencyMacro)
+     find_dependency(ZLIB)
+@@ -6,6 +8,4 @@ if(@CRASHPAD_ZLIB_SYSTEM@)
+     target_link_libraries(crashpad::zlib INTERFACE ${ZLIB_LIBRARIES})
+ endif()
+ 
+-include("${CMAKE_CURRENT_LIST_DIR}/crashpad-targets.cmake")
+-
+ @PACKAGE_INIT@
+\ No newline at end of file
