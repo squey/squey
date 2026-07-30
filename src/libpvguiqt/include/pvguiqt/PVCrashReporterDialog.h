@@ -26,6 +26,7 @@
 #define __PVGUIQT_PVCRASHREPORTER_H__
 
 #include <pvkernel/core/PVCrashReportSender.h>
+#include <pvkernel/core/segfault_handler.h>
 #include <pvbase/general.h>
 
 #include <QDialog>
@@ -58,6 +59,11 @@ class PVCrashReporterDialog : public QDialog
 
 		connect(button_box, &QDialogButtonBox::accepted, this, &PVCrashReporterDialog::send_crash);
 		connect(button_box, &QDialogButtonBox::rejected, this, &QDialog::reject);
+		// Hooked on the dialog rather than on the button, so that closing the
+		// window or pressing Escape counts as a refusal too. Otherwise the report
+		// stays in the database without ever being offered again, since only the
+		// most recent one is: it would pile up silently until Crashpad prunes it.
+		connect(this, &QDialog::rejected, this, &PVCrashReporterDialog::decline_crash);
 
 		QVBoxLayout* main_layout = new QVBoxLayout(this);
 
@@ -96,6 +102,9 @@ class PVCrashReporterDialog : public QDialog
 			    this, "Error sending crash report",
 			    QString("Please, check your Internet connection (HTTP status %1) ").arg(ret));
 		} else {
+			// Only a report that made it to the server is dropped: one that could
+			// not be sent is offered again on the next start-up.
+			discard_crash_report(_minidump_path);
 			QMessageBox::information(this, "Crash report sent with success",
 			                         "Your crash report was properly sent.<br/>"
 			                         "Thank you for your support, we will do our best to fix this "
@@ -103,6 +112,13 @@ class PVCrashReporterDialog : public QDialog
 		}
 
 		accept();
+	}
+
+	void decline_crash()
+	{
+		// Dropped as well, otherwise a declined report would be offered on every
+		// start-up.
+		discard_crash_report(_minidump_path);
 	}
 
   private:

@@ -24,8 +24,11 @@
 //
 
 #include <pvguiqt/PVCrashReporterDialog.h>
-#include <stdlib.h>
+#include <pvkernel/core/segfault_handler.h>
 #include <QApplication>
+#include <QFile>
+#include <QFileInfo>
+#include <QString>
 #include <iostream>
 #include <string>
 
@@ -33,11 +36,30 @@ int main(int argc, char* argv[])
 {
 	QApplication app(argc, argv);
 
-	if (argc < 2) {
-		std::cerr << "usage: " << argv[0] << " <minidump_path>" << std::endl;
-		exit(1);
+	// Spawned by the Crashpad handler right after a crash, with the envelope as
+	// its argument, or by squey at start-up when a report from a previous run is
+	// still waiting. The envelope is a Sentry format the crash server does not
+	// take, so it is discarded and the minidump is read from the database. An
+	// explicit minidump path is still accepted, which is what makes a report
+	// sendable by hand.
+	std::string minidump_path;
+	if (argc > 1) {
+		const QString argument = QString::fromLocal8Bit(argv[1]);
+		if (argument.endsWith(".dmp") and QFileInfo(argument).isFile()) {
+			minidump_path = argument.toStdString();
+		} else {
+			QFile::remove(argument);
+		}
 	}
-	std::string minidump_path = argv[1];
+	if (minidump_path.empty()) {
+		minidump_path = pending_crash_report_path();
+	}
+
+	if (minidump_path.empty()) {
+		std::cerr << "usage: " << argv[0] << " [minidump_path]" << std::endl;
+		std::cerr << "no crash report waiting to be sent" << std::endl;
+		return 1;
+	}
 
 	PVGuiQt::PVCrashReporterDialog crash_reporter(minidump_path);
 	crash_reporter.show();

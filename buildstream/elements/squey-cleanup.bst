@@ -7,8 +7,11 @@ description: |
 (@): buildstream/elements/base/target.yml
 
 environment:
-  common_bin_files: "squey tshark lbzip2 funzip pigz zstd xz pip3 pip3.13"
-  linux_bin_files: "ld 7zzs run_cmd.sh squey_sh squey_launcher.sh squey-crashreport squey-logstats"
+  # crashpad_handler and squey-crashreport are needed on the three platforms:
+  # the handler captures the minidump out of process, the reporter asks for
+  # consent and uploads it.
+  common_bin_files: "squey tshark lbzip2 funzip pigz zstd xz pip3 pip3.13 crashpad_handler squey-crashreport"
+  linux_bin_files: "ld 7zzs run_cmd.sh squey_sh squey_launcher.sh squey-logstats"
   darwin_bin_files: "lld ld64.lld 7zz"
   windows_bin_files: "ld 7z pbzip2 python pocl \"*.dll\""
 

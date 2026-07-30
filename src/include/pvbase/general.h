@@ -74,4 +74,16 @@ static constexpr const char* ESCAPE_PERCENT = "\%";
 #endif
 #define SQUEY_SQUEY_CONFDIR "squey"
 
+/* Crash reporting. The database lives under the user configuration directory so
+ * that a report which could not be sent right after the crash survives until the
+ * next start-up. The product name is the one the crash server groups reports by.
+ */
+#define SQUEY_CRASH_REPORTS_DIRNAME "crash_reports"
+#define SQUEY_CRASH_REPORT_PRODUCT "Squey"
+/* The handler only spawns the crash reporter when it also has an envelope to
+ * fill up. That envelope is a Sentry format the crash server does not take, so
+ * it is written next to the database and discarded by the reporter.
+ */
+#define SQUEY_CRASH_ENVELOPE_FILENAME "crash_envelope.bin"
+
 #endif /* PVBASE_GENERAL_H */

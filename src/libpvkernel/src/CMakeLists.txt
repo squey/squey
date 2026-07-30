@@ -47,11 +47,11 @@ core/PVTheme.cpp
 core/PVSingleton.cpp
 )
 
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-	set(CORE_SRC_FILES ${CORE_SRC_FILES}
-		core/segfault_handler.cpp
-	)
-endif()
+# Crashpad supports all three targets, unlike the Breakpad setup it replaced
+# which was Linux only.
+set(CORE_SRC_FILES ${CORE_SRC_FILES}
+	core/segfault_handler.cpp
+)
 
 SET(CORE_MOC_HEADERS
 ../include/pvkernel/core/PVProgressBox.h
@@ -241,7 +241,10 @@ PV_QT6_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
 add_library(pvkernel SHARED ${SRC_FILES} ${MOC_SRC} ${UI_SRC})
 target_compile_definitions(pvkernel PRIVATE PVKERNEL_LIBRARY)
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
-squey_speedup_compilation(pvkernel QT)
+# segfault_handler.cpp is kept out of the jumbo units: mini_chromium defines a
+# CHECK macro of its own, which clashes with the one of squey_bench.h as soon as
+# both land in the same translation unit.
+squey_speedup_compilation(pvkernel QT SKIP_UNITY core/segfault_handler.cpp)
 
 # Define third_part=y libs we have to link with for the library
 find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
@@ -250,7 +253,7 @@ include_directories(AFTER SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
 
 set(PVKERNEL_LINK_LIBRARIES ${QT6_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
 	${OpenMP_LIBRARIES} ${Boost_LIBRARIES}
-	${ARCHIVE_LIBRARIES} ${BREAKPAD_LIBRARIES} ${WINSOCK_LIB} ${PVHWLOC_LIBRARIES}
+	${ARCHIVE_LIBRARIES} ${CRASHPAD_LIBRARIES} ${WINSOCK_LIB} ${PVHWLOC_LIBRARIES}
 	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES})
 
 if (PYTHON_SUPPORT)

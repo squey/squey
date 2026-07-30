@@ -112,10 +112,22 @@ variables:
     find /usr/lib/gcc/%{triplet} -name libgcc.a -exec install -D \{\} -t %{install-root}%{libdir} \; &&
     find /usr/lib/gcc/%{triplet} -name crtbeginS.o -exec install -D \{\} -t %{install-root}%{libdir} \; &&
     find /usr/lib/gcc/%{triplet} -name crtendS.o -exec install -D \{\} -t %{install-root}%{libdir} \;
+  # The dylibs land in Contents/Frameworks of the bundle, while the executables
+  # keep the rpath of the build sysroot. Every executable needs the fix, not just
+  # squey: squey-crashreport is spawned after a crash and would die on a missing
+  # libQt6Core. Executables that hold no such rpath, and files that are not
+  # Mach-O at all, make install_name_tool complain, which is harmless here.
+  fix-darwin-rpaths: |
+    for executable in "%{install-root}%{bindir}"/*; do
+      [ -f "$executable" ] || continue
+      %{toolchain-dir}/%{host}-install_name_tool -rpath %{libdir} \
+        @executable_path/../Frameworks "$executable" 2> /dev/null || true
+    done
+
   install-all: |
     %{make-install} &&
     if [ "%{target_triple}" = "x86_64-linux-gnu" ]; then %{install-linux-deps} && %{install-linux-launchers} ; fi &&
-    if [ "%{target-platform}" = "darwin" ]; then mkdir -p "%{install-root}%{libdir}" && cp libSystemStub.tbd "%{install-root}%{libdir}/libSystem.tbd" && %{toolchain-dir}/%{host}-install_name_tool -rpath %{libdir} @executable_path/../Frameworks %{install-root}%{bindir}/squey ; fi
+    if [ "%{target-platform}" = "darwin" ]; then mkdir -p "%{install-root}%{libdir}" && cp libSystemStub.tbd "%{install-root}%{libdir}/libSystem.tbd" && %{fix-darwin-rpaths} ; fi
 
 config:
   configure-commands:
@@ -204,6 +216,8 @@ build-depends:
 - freedesktop-sdk.bst:bootstrap/gcc.bst
 - freedesktop-sdk.bst:bootstrap/zlib.bst
 - freedesktop-sdk.bst:bootstrap/glibc.bst
+# dump_syms for the three binary formats, used by build.sh to feed the crash server
+- breakpad-tools.bst
 - freedesktop-sdk.bst:components/openssl.bst
 - freedesktop-sdk.bst:components/zip.bst
 - freedesktop-sdk.bst:components/unzip.bst
@@ -248,7 +262,7 @@ depends:
 - mm-common.bst
 - libsigcplusplus.bst
 - rapidjson.bst
-- google-breakpad.bst ###
+- crashpad.bst
 - portablecl.bst
 - opencl-headers.bst
 - libpcap.bst
