@@ -128,6 +128,14 @@ namespace pvpcap
  * execute_cmd
  *
  ******************************************************************************/
+/**
+ * Runs a command through a shell and returns its output lines.
+ *
+ * Only ever called with tshark and a constant set of options ("-v", "-G fields",
+ * "-G protocols"). The files the user imports go through extract_csv(), which
+ * builds an argv and execs it directly, so no user supplied path is handed to a
+ * shell here.
+ */
 std::vector<std::string> execute_cmd(const std::string& cmd)
 {
 	// TODO: cmd size limite
@@ -138,11 +146,13 @@ std::vector<std::string> execute_cmd(const std::string& cmd)
 
 #ifdef _WIN32
 	std::string cmd_wrapper = std::string("cmd.exe /C ") + cmd;
-	if (!(output = _popen(cmd_wrapper.c_str(), "r"))) {
+	if (!(output = _popen(cmd_wrapper.c_str(), "r"))) { // nosemgrep
 #else
-	if (!(output = popen(cmd.c_str(), "r"))) {
+	if (!(output = popen(cmd.c_str(), "r"))) { // nosemgrep
 #endif
+		// Reading from the pipe below would dereference a null FILE*
 		pvlogger::error() << "Can't execute '" << cmd << "'" << std::endl;
+		return result;
 	}
 
 	while (fgets(buffer, sizeof(buffer), output) != nullptr) {

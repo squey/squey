@@ -34,9 +34,8 @@
 
 #include <rapidjson/document.h>
 
-#include <QFileInfo>
-
-#include <sys/stat.h>
+#include <QProcess>
+#include <QString>
 
 #include <pvlogger.h>
 
@@ -58,10 +57,6 @@ class PVCrashReportSender
 	static int send(const std::string& minidump_path,
 	                const std::string& version)
 	{
-		struct stat file_info;
-		FILE* fd = fopen(minidump_path.c_str(), "rb");
-		fstat(fileno(fd), &file_info);
-
 		std::unique_ptr<CURL, std::function<void(CURL*)>> curl(
 		    curl_easy_init(), [](CURL* curl) { curl_easy_cleanup(curl); });
 
@@ -156,10 +151,18 @@ class PVCrashReportSender
 		#define SQUEY_BUGSPLAT_DATABASE "squey"
 		#define SQUEY_BUGSPLAT_API_ENDPOINT "https://" SQUEY_BUGSPLAT_DATABASE ".bugsplat.com/post/bp/crash/crashpad.php"
 
-		// Compress minidump file to speed upload
-		std::string compressed_minidump_path(minidump_path + ".zip");
-		std::string zip_cmd = std::string("zip ") + compressed_minidump_path + " " + minidump_path;
-		system(zip_cmd.c_str());
+		// Compress minidump file to speed upload. Spawned without a shell so that
+		// the paths cannot be interpreted as commands, and fall back on the raw
+		// minidump when the archiver is missing or fails.
+		std::string uploaded_path(minidump_path);
+		const std::string compressed_minidump_path(minidump_path + ".zip");
+		if (QProcess::execute("zip", {QString::fromStdString(compressed_minidump_path),
+		                              QString::fromStdString(minidump_path)}) == 0) {
+			uploaded_path = compressed_minidump_path;
+		} else {
+			pvlogger::warn() << "Could not compress crash report '" << minidump_path
+			                 << "', uploading it as is" << std::endl;
+		}
 
 		curl_easy_setopt(curl.get(), CURLOPT_ACCEPT_ENCODING, "zstd, br, gzip, deflate");
 		curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_callback);
@@ -173,7 +176,7 @@ class PVCrashReportSender
 
 		curl_mimepart* part = curl_mime_addpart(multipart.get());
 		curl_mime_name(part, "upload_file_minidump");
-		curl_mime_filedata(part, compressed_minidump_path.c_str());
+		curl_mime_filedata(part, uploaded_path.c_str());
 
 		part = curl_mime_addpart(multipart.get());
 		curl_mime_name(part, "product");

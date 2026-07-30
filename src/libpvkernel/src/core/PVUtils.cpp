@@ -24,19 +24,15 @@
 //
 
 #include <pvkernel/core/PVUtils.h>
-#include <stdio.h>
 #include <boost/algorithm/string/classification.hpp>
 #include <boost/algorithm/string/detail/classification.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/algorithm/string/split.hpp>
 #include <boost/iterator/iterator_facade.hpp>
 #include <fstream>
-#include <memory>
 #include <algorithm>
-#include <array>
 #include <iterator>
 #include <limits>
-#include <stdexcept>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 
@@ -70,24 +66,6 @@ std::string PVCore::file_content(const std::string& file_path)
 	std::ifstream stream(std::filesystem::path{file_path});
 
 	return {std::istreambuf_iterator<char>(stream), std::istreambuf_iterator<char>()};
-}
-
-std::string PVCore::exec_cmd(const char* cmd)
-{
-	static constexpr const size_t MAX_LINE_SIZE = 128;
-
-	std::array<char, MAX_LINE_SIZE> buffer;
-	std::string result;
-	std::shared_ptr<FILE> pipe(popen(cmd, "r"), pclose);
-	if (not pipe)
-		throw std::runtime_error(std::string("running command '") + std::string(cmd) +
-		                         "'  failed!");
-	while (not feof(pipe.get())) {
-		if (fgets(buffer.data(), MAX_LINE_SIZE, pipe.get()) != nullptr) {
-			result += buffer.data();
-		}
-	}
-	return result;
 }
 
 void PVCore::remove_common_folders(std::vector<std::string>& paths)

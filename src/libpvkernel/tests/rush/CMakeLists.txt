@@ -61,6 +61,9 @@ add_squey_compile_test(Trush_splitter_dns_fqdn LINKS ${LINK_LIBRARIES} FILES spl
 add_squey_test(Trush_splitter_dns_fqdn Trush_splitter_dns_fqdn)
 add_bench(Trush_splitter_dns_fqdn LINKS ${LINK_LIBRARIES} FILES splitter_dns_fqdn.cpp helpers.cpp)
 
+add_squey_compile_test(Trush_splitter_dns_fqdn_rev LINKS ${LINK_LIBRARIES} FILES splitter_dns_fqdn_rev.cpp helpers.cpp)
+add_squey_test(Trush_splitter_dns_fqdn_rev Trush_splitter_dns_fqdn_rev)
+
 add_squey_compile_test(Trush_splitter_mac LINKS ${LINK_LIBRARIES} FILES splitter_mac.cpp helpers.cpp)
 add_squey_test(Trush_splitter_mac Trush_splitter_mac)
 add_bench(Trush_splitter_mac LINKS ${LINK_LIBRARIES} FILES splitter_mac.cpp helpers.cpp)

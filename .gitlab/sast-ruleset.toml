@@ -1,0 +1,77 @@
+# Predefined SAST rules turned off for this code base.
+#
+# The semgrep analyzer bundles the rules that used to belong to the flawfinder
+# analyzer, so listing flawfinder in SAST_EXCLUDED_ANALYZERS is not enough to
+# opt out of them: that variable only stops the flawfinder job from being
+# created. The rules below match on a function name alone, with no data flow
+# analysis, so on a C++ code base built around buffer manipulation they report
+# every call site rather than the dangerous ones. Each of them was reviewed
+# once, site by site, before being turned off.
+#
+# Rules deliberately left enabled, because they caught real defects and are
+# cheap to keep as a safety net for new code: flawfinder.system-1,
+# flawfinder.execl-*.popen-*, flawfinder.strncpy-1, flawfinder.snprintf-* and
+# every bandit rule. The few legitimate call sites they report carry an inline
+# "nosemgrep" comment explaining why they are safe.
+#
+# See https://docs.gitlab.com/user/application_security/sast/customize_rulesets/
+
+[semgrep]
+
+  # "Function does not check for buffer overflows when copying". Reported on all
+  # 19 memcpy call sites; the four unbounded ones, in the DNS FQDN splitter,
+  # were fixed. The rest copy a length that was just used to size the
+  # destination, or a compile time constant.
+  [[semgrep.ruleset]]
+    disable = true
+    [semgrep.ruleset.identifier]
+      type = "semgrep_id"
+      value = "flawfinder.memcpy-1.CopyMemory-1.bcopy-1"
+
+  # "Function does not handle null terminated strings properly". Our call sites
+  # pass a pvcop dictionary key, a rapidjson GetString() or a literal, which are
+  # all null terminated. Fields of the import pipeline, which are not, are
+  # handled through their explicit size and never reach strlen().
+  [[semgrep.ruleset]]
+    disable = true
+    [semgrep.ruleset.identifier]
+      type = "semgrep_id"
+      value = "flawfinder.strlen-1.wcslen-1._tcslen-1._mbslen-1"
+
+  # "sscanf() functions may allow format string based overflows". Every format
+  # string is a literal, and the conversions are bounded numeric ones (%2x, %4X,
+  # %llx) writing into integers, never %s into a buffer.
+  [[semgrep.ruleset]]
+    disable = true
+    [semgrep.ruleset.identifier]
+      type = "semgrep_id"
+      value = "flawfinder.fscanf-1.sscanf-1.vsscanf-1.vfscanf-1._ftscanf-1.fwscanf-1.vfwscanf-1.vswscanf-1"
+
+  # "Potential time of check time of use vulnerability (open/fopen)". Reported on
+  # every file being opened. Squey opens the files its own user picked, with that
+  # user's privileges, so winning the race grants an attacker nothing they did
+  # not already have.
+  [[semgrep.ruleset]]
+    disable = true
+    [semgrep.ruleset.identifier]
+      type = "semgrep_id"
+      value = "flawfinder.fopen-1.open-1"
+
+  # "Easily misused function may lead to buffer overflows". All of our Windows
+  # conversions use the documented two step form: a first call to size the
+  # output, a check that it did not return 0, then the conversion itself.
+  [[semgrep.ruleset]]
+    disable = true
+    [semgrep.ruleset.identifier]
+      type = "semgrep_id"
+      value = "flawfinder.MultiByteToWideChar-1"
+
+  # "Reliance on untrusted inputs in a security decision". The variables we read
+  # (PVKERNEL_PLUGIN_PATH, FORCE_CPU, SQUEY_PCAP_PROFILES_PATH, PATH, ...) tune a
+  # desktop application that runs as the user who sets them, so they are not a
+  # privilege boundary.
+  [[semgrep.ruleset]]
+    disable = true
+    [semgrep.ruleset.identifier]
+      type = "semgrep_id"
+      value = "flawfinder.getenv-1.curl_getenv-1"
