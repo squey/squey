@@ -114,6 +114,23 @@ if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   popd
 fi
 
+# Dump the symbols of the freshly built binaries and send them to the crash
+# server, so that the minidumps Crashpad captures can be symbolized. The build
+# directory is only kept around when UPLOAD_DEBUG_SYMBOLS is set, and the
+# symbols have to be read before squey-cleanup.bst strips the binaries.
+# The script is fed through stdin as it lives in the source tree, which is not
+# staged in a non-build shell.
+upload_debug_symbols() {
+  local target_platform="$1"
+  if [ "$UPLOAD_DEBUG_SYMBOLS" != true ]; then
+    return 0
+  fi
+  local version="$(cat ../VERSION.txt)"
+  bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- \
+    bash -s -- "$target_platform" /compilation_build "$version" \
+    < files/upload_symbols.sh
+}
+
 if [ "$EXPORT_BUILD" = false ]; then
   bst $BUILD_OPTIONS build --retry-failed squey.bst
 elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak repository
@@ -125,17 +142,7 @@ elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak r
 
   # Export flatpak Release image
   bst $BUILD_OPTIONS build flatpak/org.squey.Squey.bst
-  if  [ "$UPLOAD_DEBUG_SYMBOLS" = true ] ; then   # Upload debug symbols
-    VERSION="$(cat ../VERSION.txt)"
-    bst $BUILD_OPTIONS shell $MOUNT_OPTS squey.bst -- bash -c " \
-        SYM_DIR=\"/tmp/squey.sym.d\"
-        rm -rf \"\$SYM_DIR\" && mkdir -p \"\$SYM_DIR\"
-        cd /compilation_build
-        find . -type f \( -name *.so* -o -name \"squey\" \) -exec sh -c 'dump_syms \"\$0\" > \"\$1\"/\"\$(basename \"\$0\").sym\"' \"{}\" \"\$SYM_DIR\" \;
-        find \"\$SYM_DIR\" -type f -exec sed 's|/buildstream/squey/squey.bst/||' -i \"{}\" \;
-        find \"\$SYM_DIR\" -type f -exec sym_upload \"{}\" \"https://squey.bugsplat.com/post/bp/symbol/breakpadsymbols.php?appName=Squey&appVer=$VERSION\" \;
-        "
-  fi
+  upload_debug_symbols linux
   bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$TMP_ARTIFACT_DIR/flatpak_files"
   mkdir -p "$EXPORT_DIR" &> /dev/null || true
   if [[ ! -z "$GPG_SIGN_KEY" ]]; then
@@ -155,11 +162,13 @@ elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak r
   #fi
 elif [ "$TARGET_TRIPLE" == "x86_64-apple-darwin" ] || [ "$TARGET_TRIPLE" == "aarch64-apple-darwin" ]; then # Generate MacOS app bundle
   bst $BUILD_OPTIONS build macos_bundle/dmg-image.bst
+  upload_debug_symbols darwin
   rm -rf "$EXPORT_DIR/$TARGET_TRIPLE"
   mkdir -p "$EXPORT_DIR/$TARGET_TRIPLE"
   bst $BUILD_OPTIONS shell -b --mount "$EXPORT_DIR/$TARGET_TRIPLE" /output macos_bundle/dmg-image.bst bash "buildstream/files/macos_bundle/make-dmg-image.sh"
 elif [ "$TARGET_TRIPLE" == "x86_64-w64-mingw32" ]; then # Generate Windows MSIX package
   bst $BUILD_OPTIONS build msix_package/msix-package.bst
+  upload_debug_symbols windows
   rm -rf "$EXPORT_DIR/$TARGET_TRIPLE"
   mkdir -p "$EXPORT_DIR/$TARGET_TRIPLE"
   bst $BUILD_OPTIONS shell -b --mount "$EXPORT_DIR/$TARGET_TRIPLE" /output msix_package/msix-package.bst bash "buildstream/files/msix_package/make-msix-package.sh"

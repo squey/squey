@@ -50,7 +50,10 @@ config:
       cd %{prefix}/bin && eval $cmd
 
       if [ "%{target-platform}" = "windows" ] ; then
-        find %{libdir} %{bindir} -name "*.dll" ! -name "cygwin1.dll" | xargs %{host}-strip -s # cygwin1.dll doesn't support symbols stripping
+        # The executables used to be stripped at link time by a '-s' in
+        # CMakeCompilers.txt, which left no symbols to dump. They are stripped
+        # here instead, after build.sh has sent the symbols to the crash server.
+        find %{libdir} %{bindir} \( -name "*.dll" -o -name "*.exe" \) ! -name "cygwin1.dll" | xargs %{host}-strip -s # cygwin1.dll doesn't support symbols stripping
       fi
 
       cp -r %{prefix} %{install-root}
