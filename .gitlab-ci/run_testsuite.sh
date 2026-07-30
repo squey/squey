@@ -39,9 +39,14 @@ unzip -qq "$packagedir/testsuite.zip" -d "$testsuitedir"
 
 # Sign libraries and binaries
 find "$testsuitedir" -name "SQUEY_TEST*" -exec install_name_tool -rpath "/mac/lib" "$appdir/../Frameworks" "{}" \; 2> /dev/null
+# The crash report generation test spawns crashpad_handler, which is installed
+# next to it rather than in the bundle: it needs the dylibs of the bundle just
+# like the test binaries do, and macOS will not run it unsigned.
+find "$testsuitedir" -name "crashpad_handler" -exec install_name_tool -add_rpath "$appdir/../Frameworks" "{}" \; 2> /dev/null
 find "$appdir/../Frameworks" -name "*.dylib" -exec codesign --force --deep --sign - "{}" \; 2> /dev/null
 find "$appdir" -exec codesign --force --deep --sign - "{}" \; 2> /dev/null
 find "$testsuitedir" -name "SQUEY_TEST*" -exec codesign --force --deep --sign - "{}" \; 2> /dev/null
+find "$testsuitedir" -name "crashpad_handler" -exec codesign --force --deep --sign - "{}" \; 2> /dev/null
 
 # Setup Squey config file
 configdir="$HOME/.squey"
