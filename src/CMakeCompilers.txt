@@ -40,7 +40,14 @@ if (USE_LD_MOLD)
     if ("${LD_VERSION}" MATCHES "mold")
         message(STATUS "using mold linker as it is available.")
         set(CMAKE_LINKER "mold")
-        set(MOLD_LINKER_FLAGS "-fuse-ld=mold -Wl,--separate-debug-file")
+        # --separate-debug-file leaves the debug file with a .text holding no
+        # content, so the hash Breakpad falls back on to identify a module has
+        # nothing to read and dump_syms gives up with "unable to generate file
+        # identifier". A build id spares it that fallback, and ties the symbols
+        # to the binary the minidump names. The gcc driver asks for one already,
+        # clang does not, which is why the symbols of the released builds were
+        # empty.
+        set(MOLD_LINKER_FLAGS "-fuse-ld=mold -Wl,--build-id -Wl,--separate-debug-file")
         set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MOLD_LINKER_FLAGS}")
         set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MOLD_LINKER_FLAGS}")
     else ()
