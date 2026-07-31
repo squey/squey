@@ -1,3 +1,33 @@
+5.1.1 (2026-07-31)
+------------------
+
+This minor release fixes or improves:
+* support more Apache Parquet types: large strings and lists, string and binary views,
+  fixed size lists, half floats, decimals and durations
+* allow Apache Parquet files to be listed in recently opened sources
+* set better default search parameters: case insensitive + part of the field
+* support keyboard navigation in listings
+* hide selection rectangles when invalidated by another selection
+* allow zooming out below the initial zoom level in the scatter view
+* step wheel-driven zoom and scrolling once per physical notch
+* support reporting crashes on Windows and macOS in addition to Linux
+* fix a crash with Apache Parquet dictionary columns containing null values
+* fix crashes at application shutdown and when removing a source with open views
+* fix views flickering effect when changing selection
+* improve compressed files handling reliability
+* improve PCAP parsing reliability
+* fix an uninitialized sort order in listings
+* fix several FormatBuilder bugs
+* fix an out of bounds access in the layer stack
+* fix the reverse IP handling of the DNS FQDN splitter
+* fix a potential hang of the progress dialog
+* report an error instead of crashing when a Parquet file cannot be read
+* update tshark from 4.4.9 to 4.6.4
+* [windows] fix non-ASCII paths decoding when importing PCAPs
+* [windows] fix the field separator and quote character being ignored in the CSV export dialog
+* [windows] fix a crash in the hit-count view
+* [macos] fix a crash in the hit-count view on Apple Silicon
+
 5.1 (2025-12-11)
 ----------------
 
