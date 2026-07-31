@@ -216,8 +216,6 @@ build-depends:
 - freedesktop-sdk.bst:bootstrap/gcc.bst
 - freedesktop-sdk.bst:bootstrap/zlib.bst
 - freedesktop-sdk.bst:bootstrap/glibc.bst
-# dump_syms for the three binary formats, used by build.sh to feed the crash server
-- breakpad-tools.bst
 - freedesktop-sdk.bst:components/openssl.bst
 - freedesktop-sdk.bst:components/zip.bst
 - freedesktop-sdk.bst:components/unzip.bst
@@ -263,6 +261,11 @@ depends:
 - libsigcplusplus.bst
 - rapidjson.bst
 - crashpad.bst
+# dump_syms for the three binary formats. A runtime dependency, not a build one:
+# build.sh reaches it through 'bst shell squey.bst', which stages the artifact
+# and its runtime dependencies only. squey-cleanup.bst drops the tools from the
+# package afterwards, as it keeps none of the executables it does not list.
+- breakpad-tools.bst
 - portablecl.bst
 - opencl-headers.bst
 - libpcap.bst
