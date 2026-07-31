@@ -173,7 +173,19 @@ class PVCrashReportSender
 			                 << "', uploading it as is" << std::endl;
 		}
 
-		curl_easy_setopt(curl.get(), CURLOPT_ACCEPT_ENCODING, "zstd, br, gzip, deflate");
+#ifdef _WIN32
+		// curl is built against OpenSSL, whose CA store does not exist on
+		// Windows: without this, verifying the certificate of the server fails
+		// and no report is ever uploaded. OpenSSL only honours this on Windows,
+		// so the other platforms need their own answer.
+		curl_easy_setopt(curl.get(), CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif
+
+		// An empty string advertises the encodings curl was actually built with.
+		// Naming them by hand advertised zstd and brotli, which this curl cannot
+		// decode: the server then answered with one of them and the transfer
+		// failed with "Unrecognized or bad HTTP Content or Transfer-Encoding".
+		curl_easy_setopt(curl.get(), CURLOPT_ACCEPT_ENCODING, "");
 		curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_callback);
 		std::string result;
 		curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &result);

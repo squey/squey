@@ -204,6 +204,29 @@ function(compile_and_install_tool tool_exe)
 	INSTALL(TARGETS ${tool_exe} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
 endfunction()
 
-compile_and_install_tool(squey-crashreport LINKS ${LINK_LIBRARIES} ${QT6_LIBS} pvkernel curl FILES crash_report.cpp)
+# On macOS the crash reporter links against the libcurl of the system rather than
+# the one of the prefix. Ours is built against OpenSSL with no CA bundle, and
+# macOS provides no store for it, so verifying the certificate of the crash
+# server always fails. The libcurl of the system goes through the keychain, which
+# macOS keeps up to date -- as Windows does through CURLSSLOPT_NATIVE_CA and
+# Linux through the certificates of the flatpak runtime. The reporter is a
+# program of its own and loads neither libsquey nor the elasticsearch plugins, so
+# no second libcurl ends up in the same process.
+if (APPLE)
+	# A native build names the SDK through CMAKE_OSX_SYSROOT, while the osxcross
+	# toolchain leaves that empty and exposes OSXCROSS_SDK instead.
+	if (CMAKE_OSX_SYSROOT)
+		set(MACOS_SDK_DIR "${CMAKE_OSX_SYSROOT}")
+	else()
+		set(MACOS_SDK_DIR "${OSXCROSS_SDK}")
+	endif()
+	set(CRASH_REPORTER_CURL "${MACOS_SDK_DIR}/usr/lib/libcurl.tbd")
+	if (NOT EXISTS "${CRASH_REPORTER_CURL}")
+		message(FATAL_ERROR "libcurl of the macOS SDK not found: ${CRASH_REPORTER_CURL}")
+	endif()
+else()
+	set(CRASH_REPORTER_CURL curl)
+endif()
+compile_and_install_tool(squey-crashreport LINKS ${LINK_LIBRARIES} ${QT6_LIBS} pvkernel ${CRASH_REPORTER_CURL} FILES crash_report.cpp)
 
 
