@@ -118,6 +118,8 @@ fi
 # server, so that the minidumps Crashpad captures can be symbolized. The build
 # directory is only kept around when UPLOAD_DEBUG_SYMBOLS is set, and the
 # symbols have to be read before squey-cleanup.bst strips the binaries.
+# The symbols are checked before being sent and the release fails rather than
+# publish symbols no minidump could ever be matched against.
 # The script is fed through stdin as it lives in the source tree, which is not
 # staged in a non-build shell.
 upload_debug_symbols() {
