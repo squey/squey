@@ -25,6 +25,29 @@
 #ifndef PVCORE_PRINTBACKTRACE_H
 #define PVCORE_PRINTBACKTRACE_H
 
-void init_segfault_handler();
+#include <pvkernel/export.h>
+
+#include <string>
+
+/**
+ * Start the out-of-process Crashpad handler. Uploads stay disabled: the handler
+ * spawns squey-crashreport, which asks for consent before sending anything.
+ */
+PVKERNEL_EXPORT void init_segfault_handler();
+
+/**
+ * Path of the crash report database, shared by squey and squey-crashreport.
+ */
+PVKERNEL_EXPORT std::string crash_report_database_path();
+
+/**
+ * Path of the most recent minidump waiting to be sent, empty if there is none.
+ */
+PVKERNEL_EXPORT std::string pending_crash_report_path();
+
+/**
+ * Drop a report from the database, once it has been sent or declined.
+ */
+PVKERNEL_EXPORT void discard_crash_report(const std::string& minidump_path);
 
 #endif

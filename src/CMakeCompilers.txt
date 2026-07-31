@@ -98,7 +98,12 @@ list(APPEND CMAKE_EXE_LINKER_FLAGS_DISTRIB ${LTO_LINK_FLAGS})
 
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -ffast-math -ggdb -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
 if (WIN32)
-set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -s")
+	# '-s' used to strip at link time, which left nothing for dump_syms to read
+	# and made the Windows crash reports unsymbolizable. The binaries are
+	# stripped by squey-cleanup.bst instead, once the symbols have been dumped.
+	# DWARF 4 is forced because dump_syms does not read the .debug_rnglists
+	# section that GCC emits for DWARF 5, and silently drops those functions.
+	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gdwarf-4")
 endif()
 list(APPEND CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
 list(APPEND CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})

@@ -109,14 +109,21 @@ endif()
 pkg_check_modules(ARCHIVE REQUIRED libarchive)
 
 ###############################################################################
-# Google Breakpad
+# Google Crashpad
 ###############################################################################
-if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(BREAKPAD_INCLUDE_DIRS ${CMAKE_INSTALL_PREFIX}/include/breakpad)
-  pkg_check_modules(BREAKPAD REQUIRED breakpad-client)
-  message(STATUS "Google Breakpad libraries: ${BREAKPAD_LIBRARIES}")
-  message(STATUS "Google Breakpad include: ${BREAKPAD_INCLUDE_DIRS}")
-endif()
+# Crashpad exports a CMake package. Only the client side is linked in: the
+# out-of-process handler is a separate executable shipped next to squey.
+# The include directories are set by hand rather than taken from the imported
+# targets: those point inside include/crashpad/<component>, while the sources
+# are included as <client/...> and <base/...>.
+find_package(crashpad REQUIRED CONFIG)
+get_target_property(MINI_CHROMIUM_INCLUDE_DIR crashpad::mini_chromium
+                    INTERFACE_INCLUDE_DIRECTORIES)
+get_filename_component(CRASHPAD_ROOT_INCLUDE_DIR "${MINI_CHROMIUM_INCLUDE_DIR}" DIRECTORY)
+set(CRASHPAD_INCLUDE_DIRS ${CRASHPAD_ROOT_INCLUDE_DIR} ${MINI_CHROMIUM_INCLUDE_DIR})
+set(CRASHPAD_LIBRARIES crashpad::client crashpad::util crashpad::mini_chromium)
+message(STATUS "Google Crashpad libraries: ${CRASHPAD_LIBRARIES}")
+message(STATUS "Google Crashpad include: ${CRASHPAD_INCLUDE_DIRS}")
 
 ###############################################################################
 # OpenGL

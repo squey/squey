@@ -1,0 +1,50 @@
+Keep the crash report in the database when a crash reporter is configured
+
+The fork deletes the report as soon as a --crash-reporter is given, on the
+assumption that the reporter reads the minidump back from the Sentry envelope it
+also writes. Squey posts the minidump to BugSplat, which does not take that
+format, so its reporter reads the report from the database instead: deleting it
+leaves the reporter with nothing to send.
+
+Note that the Linux version used the report ID after new_report had been moved
+from by FinishedWritingCrashReport(), which this removes as well.
+
+diff --git a/handler/linux/crash_report_exception_handler.cc b/handler/linux/crash_report_exception_handler.cc
+index 11f0f47..2a6c198 100644
+--- a/handler/linux/crash_report_exception_handler.cc
++++ b/handler/linux/crash_report_exception_handler.cc
+@@ -328,7 +328,7 @@ bool CrashReportExceptionHandler::WriteMinidumpToDatabase(
+   }
+ 
+   if (has_crash_reporter) {
+-    database_->DeleteReport(new_report->ReportID());
++    // The report is kept in the database for the crash reporter to pick up.
+   } else if (upload_thread_) {
+     upload_thread_->ReportPending(uuid);
+   }
+diff --git a/handler/mac/crash_report_exception_handler.cc b/handler/mac/crash_report_exception_handler.cc
+index a6341ab..fceb01e 100644
+--- a/handler/mac/crash_report_exception_handler.cc
++++ b/handler/mac/crash_report_exception_handler.cc
+@@ -234,7 +234,7 @@ kern_return_t CrashReportExceptionHandler::CatchMachException(
+     }
+ 
+     if (has_crash_reporter) {
+-      database_->DeleteReport(uuid);
++      // The report is kept in the database for the crash reporter to pick up.
+     } else if (upload_thread_) {
+       if (wait_for_upload_) {
+         upload_thread_->ReportPendingSync(uuid);
+diff --git a/handler/win/crash_report_exception_handler.cc b/handler/win/crash_report_exception_handler.cc
+index 334e66b..b659042 100644
+--- a/handler/win/crash_report_exception_handler.cc
++++ b/handler/win/crash_report_exception_handler.cc
+@@ -202,7 +202,7 @@ unsigned int CrashReportExceptionHandler::ExceptionHandlerServerException(
+     }
+ 
+     if (has_crash_reporter) {
+-      database_->DeleteReport(uuid);
++      // The report is kept in the database for the crash reporter to pick up.
+     } else if (upload_thread_) {
+       if (wait_for_upload_) {
+         upload_thread_->ReportPendingSync(uuid);

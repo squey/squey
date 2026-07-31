@@ -50,9 +50,7 @@
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/squey_intrin.h>
-#ifdef __linux__
 #include <pvkernel/core/segfault_handler.h>
-#endif
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/opencl/common.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -322,9 +320,7 @@ int main(int argc, char* argv[])
 	PVCore::setenv("TZ", "GMT", 1);
 	tzset();
 
-#ifdef __linux__
 	init_segfault_handler();
-#endif
 
 	// Set the soft limit same as hard limit for number of possible files opened
 #ifndef _WIN32

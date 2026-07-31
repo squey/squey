@@ -54,8 +54,17 @@ namespace PVCore
 class PVCrashReportSender
 {
   public:
+	/**
+	 * Post the minidump to the crash server.
+	 *
+	 * Returns 0 on success, the HTTP status when the server refused the report,
+	 * and a negative CURLcode when it could not be reached at all. Whatever went
+	 * wrong is spelled out in error_details, for the reporter to show: a status
+	 * code alone tells the user nothing.
+	 */
 	static int send(const std::string& minidump_path,
-	                const std::string& version)
+	                const std::string& version,
+	                std::string* error_details = nullptr)
 	{
 		std::unique_ptr<CURL, std::function<void(CURL*)>> curl(
 		    curl_easy_init(), [](CURL* curl) { curl_easy_cleanup(curl); });
@@ -164,7 +173,19 @@ class PVCrashReportSender
 			                 << "', uploading it as is" << std::endl;
 		}
 
-		curl_easy_setopt(curl.get(), CURLOPT_ACCEPT_ENCODING, "zstd, br, gzip, deflate");
+#ifdef _WIN32
+		// curl is built against OpenSSL, whose CA store does not exist on
+		// Windows: without this, verifying the certificate of the server fails
+		// and no report is ever uploaded. OpenSSL only honours this on Windows,
+		// so the other platforms need their own answer.
+		curl_easy_setopt(curl.get(), CURLOPT_SSL_OPTIONS, CURLSSLOPT_NATIVE_CA);
+#endif
+
+		// An empty string advertises the encodings curl was actually built with.
+		// Naming them by hand advertised zstd and brotli, which this curl cannot
+		// decode: the server then answered with one of them and the transfer
+		// failed with "Unrecognized or bad HTTP Content or Transfer-Encoding".
+		curl_easy_setopt(curl.get(), CURLOPT_ACCEPT_ENCODING, "");
 		curl_easy_setopt(curl.get(), CURLOPT_WRITEFUNCTION, write_callback);
 		std::string result;
 		curl_easy_setopt(curl.get(), CURLOPT_WRITEDATA, &result);
@@ -190,7 +211,19 @@ class PVCrashReportSender
 
 
 		// Upload crash report
-		curl_easy_perform(curl.get());
+		const CURLcode curl_ret = curl_easy_perform(curl.get());
+
+		// A transport that never reached the server leaves the response code at
+		// zero, which used to be returned as a success: the user was told the
+		// report had been sent while it had gone nowhere.
+		if (curl_ret != CURLE_OK) {
+			const std::string reason = curl_easy_strerror(curl_ret);
+			pvlogger::error() << "Could not send the crash report: " << reason << std::endl;
+			if (error_details != nullptr) {
+				*error_details = reason;
+			}
+			return -curl_ret;
+		}
 
 		long http_code = 0;
 		curl_easy_getinfo(curl.get(), CURLINFO_RESPONSE_CODE, &http_code);
@@ -198,6 +231,12 @@ class PVCrashReportSender
 		if (http_code == 200) {
 			return 0;
 		} else {
+			pvlogger::error() << "The crash server rejected the report with HTTP status "
+			                  << http_code << std::endl;
+			if (error_details != nullptr) {
+				*error_details = "The server answered with HTTP status " +
+				                 std::to_string(http_code);
+			}
 			return http_code;
 		}
 #endif

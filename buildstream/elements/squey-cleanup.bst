@@ -7,8 +7,11 @@ description: |
 (@): buildstream/elements/base/target.yml
 
 environment:
-  common_bin_files: "squey tshark lbzip2 funzip pigz zstd xz pip3 pip3.13"
-  linux_bin_files: "ld 7zzs run_cmd.sh squey_sh squey_launcher.sh squey-crashreport squey-logstats"
+  # crashpad_handler and squey-crashreport are needed on the three platforms:
+  # the handler captures the minidump out of process, the reporter asks for
+  # consent and uploads it.
+  common_bin_files: "squey tshark lbzip2 funzip pigz zstd xz pip3 pip3.13 crashpad_handler squey-crashreport"
+  linux_bin_files: "ld 7zzs run_cmd.sh squey_sh squey_launcher.sh squey-logstats"
   darwin_bin_files: "lld ld64.lld 7zz"
   windows_bin_files: "ld 7z pbzip2 python pocl \"*.dll\""
 
@@ -47,7 +50,10 @@ config:
       cd %{prefix}/bin && eval $cmd
 
       if [ "%{target-platform}" = "windows" ] ; then
-        find %{libdir} %{bindir} -name "*.dll" ! -name "cygwin1.dll" | xargs %{host}-strip -s # cygwin1.dll doesn't support symbols stripping
+        # The executables used to be stripped at link time by a '-s' in
+        # CMakeCompilers.txt, which left no symbols to dump. They are stripped
+        # here instead, after build.sh has sent the symbols to the crash server.
+        find %{libdir} %{bindir} \( -name "*.dll" -o -name "*.exe" \) ! -name "cygwin1.dll" | xargs %{host}-strip -s # cygwin1.dll doesn't support symbols stripping
       fi
 
       cp -r %{prefix} %{install-root}
