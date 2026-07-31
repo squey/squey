@@ -29,6 +29,7 @@
 
 #include <client/crash_report_database.h>
 #include <client/crashpad_client.h>
+#include <client/crashpad_info.h>
 #include <client/settings.h>
 #include <base/files/file_path.h>
 #ifdef _WIN32
@@ -188,6 +189,12 @@ void init_segfault_handler()
 	// Crashpad never uploads on its own: squey-crashreport asks for consent
 	// first and posts the minidump itself.
 	database->GetSettings()->SetUploadsEnabled(false);
+
+	// Left alone, Crashpad also hands the exception over to the crash reporter of
+	// the system, which on macOS puts its own "Squey quit unexpectedly" window
+	// next to ours. One report and one dialog are enough.
+	crashpad::CrashpadInfo::GetCrashpadInfo()->set_system_crash_reporter_forwarding(
+	    crashpad::TriState::kDisabled);
 
 	// Annotations end up as fields of the crash report, which is what lets the
 	// server group reports per product and version.

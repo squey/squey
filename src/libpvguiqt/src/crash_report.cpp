@@ -62,7 +62,16 @@ int main(int argc, char* argv[])
 	}
 
 	PVGuiQt::PVCrashReporterDialog crash_reporter(minidump_path);
+
+	// The reporter is spawned by the crash handler, a process that never held
+	// the focus: Windows then refuses it the foreground and only blinks its
+	// taskbar button, leaving the dialog behind the other windows. Staying on
+	// top is what gets it seen, and asking for the focus is still worth it where
+	// the window manager grants it.
+	crash_reporter.setWindowFlags(crash_reporter.windowFlags() | Qt::WindowStaysOnTopHint);
 	crash_reporter.show();
+	crash_reporter.raise();
+	crash_reporter.activateWindow();
 
 	return app.exec();
 }
