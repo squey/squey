@@ -91,16 +91,22 @@ class PVCrashReporterDialog : public QDialog
   private:
 	void send_crash()
 	{
-		std::string locking_code = "";
-		int ret = PVCore::PVCrashReportSender::send(_minidump_path, SQUEY_CURRENT_VERSION_STR);
+		std::string error_details;
+		int ret = PVCore::PVCrashReportSender::send(_minidump_path, SQUEY_CURRENT_VERSION_STR,
+		                                           &error_details);
 		if (ret == 413) { // Payload Too Large
 			QMessageBox::critical(this, "Error sending crash report",
 			                      "The crash report size exceeded the server accepted "
 			                      "size.<br>Please, send it by file sharing.");
 		} else if (ret != 0) {
+			// What actually went wrong is shown: a bare status code leaves the
+			// user with nothing to act on, and a failed upload used to be
+			// reported as a success.
 			QMessageBox::critical(
 			    this, "Error sending crash report",
-			    QString("Please, check your Internet connection (HTTP status %1) ").arg(ret));
+			    QString("The crash report could not be sent.<br/><br/>%1<br/><br/>"
+			            "It is kept and will be offered again the next time Squey starts.")
+			        .arg(QString::fromStdString(error_details)));
 		} else {
 			// Only a report that made it to the server is dropped: one that could
 			// not be sent is offered again on the next start-up.
