@@ -48,7 +48,10 @@ while IFS= read -r binary; do
     rm -f "$sym_file"
     failed=$((failed + 1))
   fi
-done < <(find "$BINARIES_DIR" -type f \( "${BINARY_PATTERN[@]}" \))
+# Matching on the executable bit also catches the test binaries and the probes
+# CMake leaves behind, whose symbols are of no use to anyone looking at a crash.
+done < <(find "$BINARIES_DIR" -type f ! -name "SQUEY_TEST_*" ! -name "CMake*" \
+              \( "${BINARY_PATTERN[@]}" \))
 
 echo "symbols: $dumped file(s) dumped, $failed skipped"
 
