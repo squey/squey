@@ -200,4 +200,22 @@ SUBMISSION_INFO='{"export_compliance_uses_encryption": true,
 sign "$BUNDLENAME" "$APPLE_DISTRIBUTION_CERT_IDENTITY" true
 codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --preserve-metadata=entitlements --options runtime --sign "$APPLE_DISTRIBUTION_CERT_IDENTITY" "$BUNDLENAME"
 productbuild --component "$BUNDLENAME" /Applications --sign "$APPLE_INSTALLER_CERT_IDENTITY" "$PKGNAME"
-fastlane deliver --force --pkg "$PKGNAME" --app_identifier "$BUNDLE_ID" --api_key_path "$APPLE_API_KEY_JSON" --skip_screenshots --skip_metadata --run_precheck_before_submit false --submission_information "$SUBMISSION_INFO" --submit_for_review || true
+
+# Turn the latest changelog entry into the release notes, as the App Store requires
+# a "What's New" text for every version but the very first one
+METADATA_DIR="$CI_PROJECT_DIR/appstore_metadata"
+RELEASE_NOTES_PATH="$METADATA_DIR/en-US/release_notes.txt"
+mkdir -p "$(dirname "$RELEASE_NOTES_PATH")"
+awk '
+    /^[0-9][0-9.]* \(/ { if (section++) exit; next }  # only keep the topmost version section
+    !section || /^-+$/ { next }                       # skip the version header underline
+    /^[[:space:]]/ && entry != "" { sub(/^[[:space:]]+/, " "); entry = entry $0; next } # unwrap
+    { if (entry != "") print entry; sub(/^\* /, "- "); entry = $0 }
+    END { if (entry != "") print entry }
+' "$CI_PROJECT_DIR/CHANGELOG" > "$RELEASE_NOTES_PATH"
+cat "$RELEASE_NOTES_PATH"
+if [ ! -s "$RELEASE_NOTES_PATH" ]; then
+    echo "Empty release notes, the App Store will refuse to review this version" >&2
+fi
+
+fastlane deliver --force --pkg "$PKGNAME" --app_identifier "$BUNDLE_ID" --api_key_path "$APPLE_API_KEY_JSON" --skip_screenshots --metadata_path "$METADATA_DIR" --run_precheck_before_submit false --submission_information "$SUBMISSION_INFO" --submit_for_review || true
