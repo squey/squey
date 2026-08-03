@@ -598,7 +598,7 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 		bind_data->columns.emplace_back(std::move(binding));
 	}
 
-	return std::move(bind_data);
+	return bind_data;
 }
 
 /**
@@ -806,7 +806,7 @@ scan_init_global(duckdb::ClientContext& context, duckdb::TableFunctionInitInput&
 		state->dictionaries[id - 1] = std::move(values);
 	}
 
-	return std::move(state);
+	return state;
 }
 
 duckdb::unique_ptr<duckdb::LocalTableFunctionState>
@@ -824,7 +824,7 @@ scan_init_local(duckdb::ExecutionContext& context, duckdb::TableFunctionInitInpu
 		    duckdb::make_uniq<duckdb::ExpressionExecutor>(context.client, *gstate.residual);
 	}
 
-	return std::move(state);
+	return state;
 }
 
 /**
