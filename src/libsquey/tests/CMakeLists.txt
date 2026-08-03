@@ -9,9 +9,72 @@ set(COMMON_FILES "common.cpp")
 add_squey_compile_test(Tsquey_scaling_not_a_number LINKS ${LINK_LIBRARIES} FILES scaling_not_a_number.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_scaling_not_a_number Tsquey_scaling_not_a_number)
 
+add_squey_compile_test(Tsquey_duckdb_stats LINKS ${LINK_LIBRARIES} FILES duckdb_stats.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_stats Tsquey_duckdb_stats)
+
+add_squey_compile_test(Tsquey_duckdb_query LINKS ${LINK_LIBRARIES} FILES duckdb_query.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_query Tsquey_duckdb_query)
+
+add_squey_compile_test(Tsquey_duckdb_query_types LINKS ${LINK_LIBRARIES} FILES duckdb_query_types.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_query_types Tsquey_duckdb_query_types)
+
+# Ordering is where a wrong type mapping hides: the rows still come back, just
+# in the wrong order. One run per business type that claims an order-preserving
+# encoding.
+add_squey_compile_test(Tsquey_duckdb_dictionary LINKS ${LINK_LIBRARIES} FILES duckdb_dictionary.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_dictionary Tsquey_duckdb_dictionary)
+
+add_squey_compile_test(Tsquey_duckdb_pushdown LINKS ${LINK_LIBRARIES} FILES duckdb_pushdown.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_pushdown Tsquey_duckdb_pushdown)
+
+# Cells the format could not read: what SQL answers about them has to be what
+# the search filter answers, which is what the user sees.
+add_squey_compile_test(Tsquey_duckdb_invalid_values LINKS ${LINK_LIBRARIES} FILES duckdb_invalid_values.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_invalid_values Tsquey_duckdb_invalid_values)
+
+# The names a query reads rows by -- selection, layers, layer('...') -- and their
+# text form, which is the only way to see a cell the format could not read.
+add_squey_compile_test(Tsquey_duckdb_scopes LINKS ${LINK_LIBRARIES} FILES duckdb_scopes.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_scopes Tsquey_duckdb_scopes)
+
+# What a query typed into the console may reach: the source, and nothing else.
+add_squey_compile_test(Tsquey_duckdb_confinement LINKS ${LINK_LIBRARIES} FILES duckdb_confinement.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_confinement Tsquey_duckdb_confinement)
+
+# The scan holds pointers into the columns for the length of a query, so adding
+# or removing one has to wait.
+add_squey_compile_test(Tsquey_duckdb_concurrency LINKS ${LINK_LIBRARIES} FILES duckdb_concurrency.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_concurrency Tsquey_duckdb_concurrency)
+
+# An address is exposed as the integer it is stored as, so the conversions that
+# bridge the two have to agree with pvcop's own formatter -- in both directions.
+add_squey_compile_test(Tsquey_duckdb_business_types LINKS ${LINK_LIBRARIES} FILES duckdb_business_types.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_ipv4_conversion Tsquey_duckdb_business_types ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv.format ipv4_1 ipv4)
+add_squey_test(Tsquey_duckdb_mac_conversion Tsquey_duckdb_business_types ${TESTS_FILES_DIR}/picviz/mac_address.csv ${TESTS_FILES_DIR}/picviz/mac_address_lin_mapping.format "MAC address" mac_address)
+
+# A pushed constant reaches pvcop as text, so it has to be checked once per type
+# whose SQL form is not that text: an IPv6 seen as a 128-bit integer, a datetime
+# seen as an epoch.
+add_squey_compile_test(Tsquey_duckdb_pushdown_types LINKS ${LINK_LIBRARIES} FILES duckdb_pushdown_types.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_pushdown_ipv6 Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/ipv6_10000.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format col1)
+add_squey_test(Tsquey_duckdb_pushdown_datetime Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/time_mapping.csv ${TESTS_FILES_DIR}/picviz/datetime_default_mapping.csv.format datetime)
+# Floating point for the other reason: the text has to carry every bit back, and
+# these values are near the top of the double range where that is hardest.
+add_squey_test(Tsquey_duckdb_pushdown_double Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/double_default_mapping.csv ${TESTS_FILES_DIR}/picviz/double_default_mapping.csv.format col1)
+add_squey_test(Tsquey_duckdb_pushdown_float Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/timeserie_fusion.csv ${TESTS_FILES_DIR}/picviz/timeserie_fusion.csv.format "F41 - Mesure tension inducteur 1")
+
+add_squey_compile_test(Tsquey_duckdb_query_order LINKS ${LINK_LIBRARIES} FILES duckdb_query_order.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_order_ipv6 Tsquey_duckdb_query_order ${TESTS_FILES_DIR}/picviz/ipv6_10000.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format ipv6)
+add_squey_test(Tsquey_duckdb_order_datetime Tsquey_duckdb_query_order ${TESTS_FILES_DIR}/picviz/time_mapping.csv ${TESTS_FILES_DIR}/picviz/datetime_default_mapping.csv.format datetime)
+
 add_squey_compile_test(Tsquey_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_heat_line Tsquey_heat_line)
 add_bench(Tsquey_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp ${COMMON_FILES})
+
+# Doubles as an agreement oracle between the search filter and the SQL engine at
+# its default size; pass a duplication factor to use it as a benchmark.
+add_squey_compile_test(Tsquey_search_vs_sql LINKS ${LINK_LIBRARIES} FILES search_vs_sql.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_search_vs_sql Tsquey_search_vs_sql)
 
 add_squey_compile_test(Tsquey_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_multiple_search Tsquey_multiple_search)
