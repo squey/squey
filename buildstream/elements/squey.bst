@@ -282,6 +282,7 @@ depends:
 - kitemmodels.bst
 - ksyntaxhighlighting.bst
 - apache-arrow.bst
+- duckdb.bst
 - simde.bst
 - 7zip_host.bst
 

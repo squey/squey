@@ -88,6 +88,22 @@ set(TBB_LIBRARIES TBB::tbb TBB::tbbmalloc)
 add_compile_definitions(TBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 
 ###############################################################################
+# Check for DuckDB
+###############################################################################
+# Used to expose the pvcop columns as a virtual table and turn SQL queries into
+# selections. Looked up by hand rather than through find_package: the upstream
+# CMake package is not installed by every platform of the build.
+find_path(DUCKDB_INCLUDE_DIR duckdb.hpp)
+find_library(DUCKDB_LIBRARY duckdb)
+if (DUCKDB_INCLUDE_DIR AND DUCKDB_LIBRARY)
+  set(DUCKDB_LIBRARIES ${DUCKDB_LIBRARY})
+  include_directories(SYSTEM ${DUCKDB_INCLUDE_DIR})
+  message(STATUS " DuckDB library: ${DUCKDB_LIBRARY}")
+else()
+  message(FATAL_ERROR " DuckDB not found!")
+endif()
+
+###############################################################################
 # Check for rapidjson
 ###############################################################################
 find_package(RapidJSON CONFIG REQUIRED)
