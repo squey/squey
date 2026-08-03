@@ -28,6 +28,8 @@ PVStateMachine.cpp
 PVView.cpp
 PVCorrelationEngine.cpp
 PVRangeSubSampler.cpp
+PVDuckDBQuery.cpp
+PVDuckDBQuerySource.cpp
 
 plugins.cpp
 )
@@ -88,17 +90,41 @@ target_compile_definitions(pvsquey PRIVATE PVSQUEY_LIBRARY)
 set_target_properties(pvsquey PROPERTIES SOVERSION 1)
 squey_speedup_compilation(pvsquey QT)
 
+# DuckDB's profiling_utils.hpp holds a unique_ptr<ActiveTimer> member in a class
+# whose constructor is defined inline, while ActiveTimer is only defined further
+# down the same header. Clang instantiates that destructor eagerly in C++23 and
+# rejects the incomplete type; below that it accepts it. The pimpl in
+# PVDuckDBQuery keeps duckdb.hpp out of every other translation unit, so this
+# single file is compiled against an older standard -- its public interface only
+# exposes std:: and Squey types, which are ABI-compatible across both.
+#
+# C++20 and not older: pvcop's headers reach for std::countr_zero and the rest
+# of <bit>. So the floor is C++20 and the ceiling is C++23, which leaves exactly
+# one standard this file can be built with.
+#
+# It must stay out of the jumbo unit and of the shared PCH for that to hold: a
+# per-file standard has no effect once the file is concatenated into a unit
+# compiled as C++26. Set after squey_speedup_compilation(), which turns the
+# unity build on.
+# CXX_STANDARD is a target property only, so the standard is overridden through
+# a compile option: it lands after the target-wide -std and therefore wins.
+set_source_files_properties(PVDuckDBQuery.cpp PROPERTIES
+	COMPILE_OPTIONS "-std=c++20"
+	SKIP_UNITY_BUILD_INCLUSION ON
+	SKIP_PRECOMPILE_HEADERS ON)
+
 target_include_directories(pvsquey PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
 
+# DuckDB is PRIVATE: the pimpl keeps duckdb.hpp out of the public headers.
 target_link_libraries(pvsquey
 	PUBLIC
 		pvkernel
 		Qt6::Core Qt6::Xml Qt6::Gui Qt6::Widgets
 		${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${SIGCPP_LIBRARIES}
 	PRIVATE
-		${Boost_LIBRARIES} ${ICU_LIBRARY})
+		${Boost_LIBRARIES} ${ICU_LIBRARY} ${DUCKDB_LIBRARIES})
 
 ###############################################################################
 # Install files

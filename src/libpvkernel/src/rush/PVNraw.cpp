@@ -137,12 +137,17 @@ bool PVRush::PVNraw::append_column(const pvcop::db::type_t& column_type,
                                    std::span<const std::byte> values)
 {
 	assert(_collection && "A collection must be open");
+	// Exclusive: emplace_back may move the vector, which would leave a reader
+	// holding a reference handed out by column() pointing at freed memory.
+	const std::unique_lock<std::shared_mutex> held(_structure_lock);
 	return map_appended_column(_collection->append_column(column_type, values));
 }
 
 bool PVRush::PVNraw::append_column(std::span<const std::string_view> values)
 {
 	assert(_collection && "A collection must be open");
+	// Exclusive, for the same reason.
+	const std::unique_lock<std::shared_mutex> held(_structure_lock);
 	return map_appended_column(_collection->append_column(values));
 }
 
@@ -162,6 +167,10 @@ bool PVRush::PVNraw::map_appended_column(bool appended)
 
 void PVRush::PVNraw::delete_column(PVCol col)
 {
+	// Exclusive: the collection unmaps the column's storage, and pvcop's arrays
+	// hand out pointers into it.
+	const std::unique_lock<std::shared_mutex> held(_structure_lock);
+
 	// Our own array of that column goes first: this vector has to stay lined up
 	// with the collection, or column() and at_string() answer for the neighbour of
 	// every column past this one. The array is also what holds the column's storage
