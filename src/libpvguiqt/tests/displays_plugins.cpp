@@ -139,6 +139,7 @@ int main(int argc, char** argv)
 	    "guiqt_average-by",
 	    "guiqt_layer-stack",
 	    "guiqt_listing",
+	    "guiqt_sql-console",
 	    "parallelview_fullparallelview",
 	    "parallelview_zoomedparallelview",
 	    "parallelview_hitcountview",

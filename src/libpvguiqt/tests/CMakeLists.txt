@@ -17,6 +17,18 @@ add_squey_compile_test(Tqt_displays_plugins LINKS ${COMMON_LIBRARIES} FILES disp
 add_squey_test(Tqt_displays_plugins Tqt_displays_plugins -platform offscreen)
 set_property(TEST SQUEY_TEST_Tqt_displays_plugins APPEND PROPERTY ENVIRONMENT "FORCE_CPU=1")
 
+add_squey_compile_test(Tqt_sql_console_result LINKS ${COMMON_LIBRARIES} FILES sql_console_result.cpp common.cpp)
+add_squey_test(Tqt_sql_console_result Tqt_sql_console_result -platform offscreen)
+
+# Simulated mouse events: the click is the feature, so it is what the test has
+# to send.
+find_package(Qt6Test REQUIRED)
+include_directories(SYSTEM ${Qt6Test_INCLUDE_DIRS})
+# Qt6::Widgets explicitly: QTest's widget overloads are compiled in by
+# QT_WIDGETS_LIB, which only linking that target defines.
+add_squey_compile_test(Tqt_sql_completion LINKS ${COMMON_LIBRARIES} Qt6::Test Qt6::Widgets FILES sql_completion.cpp)
+add_squey_test(Tqt_sql_completion Tqt_sql_completion -platform offscreen)
+
 add_squey_compile_test(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
 add_squey_test(Tpvguiqt_sort_filter Tpvguiqt_sort_filter)
 add_bench(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
