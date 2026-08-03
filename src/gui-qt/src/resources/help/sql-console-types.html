@@ -1,0 +1,30 @@
+<!-- @file -->
+<p>Addresses and dates</p>
+<table>
+<tr>
+  <td colspan="2" style="padding-bottom: 6px;">An address, a MAC and a date are
+      each stored as the number whose order is their own — which is what makes
+      ORDER BY right. A query therefore reads 3232235777 where the listing
+      shows 192.168.1.10.</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>ipv4('…')</b>&nbsp;:</td>
+  <td>to compare a column against, and the fast direction</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>ipv4_text(col)</b>&nbsp;:</td>
+  <td>to read one. It builds a string per row, so keep it out of a WHERE</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>mac_address(…)</b>&nbsp;:</td>
+  <td>the same pair for a MAC, with mac_address_text(col)</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>to_timestamp(col)</b>&nbsp;:</td>
+  <td>reads a date, stored as an epoch in seconds</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>which is which</b>&nbsp;:</td>
+  <td>the completion says, beside each column name, what it really holds</td>
+</tr>
+</table>

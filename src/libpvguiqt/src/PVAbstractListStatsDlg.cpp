@@ -345,7 +345,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 			_select_groupbox->setVisible(false);
 			groupBox_2->setVisible(false);
 		} else {
-			_select_groupbox->setVisible(true);
+			_select_groupbox->setVisible(_selection_actions_enabled);
 			groupBox_2->setVisible(true);
 			_select_picker->set_relative_max_count(model().relative_max_count());
 			_select_picker->set_relative_min_count(model().relative_min_count());
@@ -495,6 +495,29 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 	_values_view->horizontalHeader()->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	_select_groupbox->setVisible(true);
+}
+
+/******************************************************************************
+ * disable_selection_actions
+ *****************************************************************************/
+
+void PVGuiQt::PVAbstractListStatsDlg::disable_selection_actions()
+{
+	_selection_actions_enabled = false;
+
+	// Removed rather than greyed out: an entry that can never apply is noise.
+	// Only the copy entry the base class installed is kept -- the others are
+	// the search-multiple ones and the two layer creations, all of which read a
+	// value back into a column of the source.
+	for (QAction* act : _ctxt_menu->actions()) {
+		if (act != _copy_values_act) {
+			_ctxt_menu->removeAction(act);
+		}
+	}
+
+	// The range picker selects the values whose count falls in an interval,
+	// which is that same search reached by another route.
+	_select_groupbox->setVisible(false);
 }
 
 /******************************************************************************
@@ -651,6 +674,14 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
                                                       const QStringList& sl,
                                                       bool hide_dialog)
 {
+	// Every route from a listed value to a view selection ends here -- the
+	// context menu, the range picker, the layer creations and committing rows
+	// in the listing -- so this is where the whole behaviour is switched off.
+	// Guarding here rather than on the signal keeps committing rows working,
+	// since that is also how values are copied.
+	if (not _selection_actions_enabled) {
+		return;
+	}
 
 	// Get the filter associated with that menu entry
 	QString filter_name = act->data().toString();

@@ -136,6 +136,19 @@ class PVDisplayDataTreeIf : public PVDisplayIf
 		return w;
 	}
 
+	/**
+	 * The widget already built for @a obj, or null.
+	 *
+	 * Unlike get_unique_widget(), this builds nothing and detaches nothing: it
+	 * answers "is there one" for a caller that wants to show or hide the dock
+	 * holding it rather than to re-dock it.
+	 */
+	QWidget* existing_widget(value_type* obj) const
+	{
+		const auto it = _widgets.find(obj);
+		return it == _widgets.end() ? nullptr : it->second;
+	}
+
 	virtual QWidget*
 	create_widget(value_type* obj, QWidget* parent = nullptr, Params const& data = {}) const = 0;
 

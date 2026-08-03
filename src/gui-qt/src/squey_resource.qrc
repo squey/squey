@@ -169,6 +169,11 @@
 	<file alias="help-style-dark">resources/help/style-dark.css</file>
   <file alias="help-style-light">resources/help/style-light.css</file>
 	<file alias="help-application">resources/help/application.html</file>
+	<file alias="help-sql-console-example">resources/help/sql-console-example.html</file>
+	<file alias="help-sql-console-tables">resources/help/sql-console-tables.html</file>
+	<file alias="help-sql-console-writing">resources/help/sql-console-writing.html</file>
+	<file alias="help-sql-console-types">resources/help/sql-console-types.html</file>
+	<file alias="help-sql-console-shortcuts">resources/help/sql-console-shortcuts.html</file>
 	<file alias="help-selection">resources/help/selection.html</file>
 	<file alias="help-layers">resources/help/layers.html</file>
 	<file alias="help-lines">resources/help/lines.html</file>
@@ -593,6 +598,22 @@
     <file>rc.dark/count-by_focus@2x.png</file>
     <file>rc.dark/count-by_pressed.png</file>
     <file>rc.dark/count-by_pressed@2x.png</file>
+    <file>rc.dark/play.png</file>
+    <file>rc.dark/play@2x.png</file>
+    <file>rc.dark/play_disabled.png</file>
+    <file>rc.dark/play_disabled@2x.png</file>
+    <file>rc.dark/play_focus.png</file>
+    <file>rc.dark/play_focus@2x.png</file>
+    <file>rc.dark/play_pressed.png</file>
+    <file>rc.dark/play_pressed@2x.png</file>
+    <file>rc.dark/database-play.png</file>
+    <file>rc.dark/database-play@2x.png</file>
+    <file>rc.dark/database-play_disabled.png</file>
+    <file>rc.dark/database-play_disabled@2x.png</file>
+    <file>rc.dark/database-play_focus.png</file>
+    <file>rc.dark/database-play_focus@2x.png</file>
+    <file>rc.dark/database-play_pressed.png</file>
+    <file>rc.dark/database-play_pressed@2x.png</file>
     <file>rc.dark/database.png</file>
     <file>rc.dark/database@2x.png</file>
     <file>rc.dark/database_disabled.png</file>
@@ -1636,6 +1657,22 @@
     <file>rc.light/count-by_focus@2x.png</file>
     <file>rc.light/count-by_pressed.png</file>
     <file>rc.light/count-by_pressed@2x.png</file>
+    <file>rc.light/play.png</file>
+    <file>rc.light/play@2x.png</file>
+    <file>rc.light/play_disabled.png</file>
+    <file>rc.light/play_disabled@2x.png</file>
+    <file>rc.light/play_focus.png</file>
+    <file>rc.light/play_focus@2x.png</file>
+    <file>rc.light/play_pressed.png</file>
+    <file>rc.light/play_pressed@2x.png</file>
+    <file>rc.light/database-play.png</file>
+    <file>rc.light/database-play@2x.png</file>
+    <file>rc.light/database-play_disabled.png</file>
+    <file>rc.light/database-play_disabled@2x.png</file>
+    <file>rc.light/database-play_focus.png</file>
+    <file>rc.light/database-play_focus@2x.png</file>
+    <file>rc.light/database-play_pressed.png</file>
+    <file>rc.light/database-play_pressed@2x.png</file>
     <file>rc.light/database.png</file>
     <file>rc.light/database@2x.png</file>
     <file>rc.light/database_disabled.png</file>

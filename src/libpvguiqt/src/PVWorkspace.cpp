@@ -157,6 +157,12 @@ PVGuiQt::PVWorkspaceBase::add_view_display(Squey::PVView* view,
 		addDockWidget(area, view_display, Qt::Horizontal);
 	}
 	resizeDocks({view_display}, {500}, Qt::Horizontal); // Hack to fix children widgets sizes
+	if (area == Qt::BottomDockWidgetArea) {
+		// A strip under the views rather than a second half of the window: the
+		// widget's own height hint, which for the SQL console is a single line.
+		// Without this the bottom area keeps whatever the layout left it.
+		resizeDocks({view_display}, {view_display->sizeHint().height()}, Qt::Vertical);
+	}
 	connect(view_display, &PVViewDisplay::try_automatic_tab_switch, this,
 	        &PVWorkspaceBase::try_automatic_tab_switch);
 	_displays.append(view_display);
@@ -239,6 +245,45 @@ void PVGuiQt::PVWorkspaceBase::display_destroyed(QObject* object /*= 0*/)
 {
 	auto* display = (PVGuiQt::PVViewDisplay*)object;
 	_displays.removeAll(display);
+}
+
+void PVGuiQt::PVWorkspaceBase::toggle_unique_view_widget(
+    QToolButton* button, PVDisplays::PVDisplayViewIf& display_if, Squey::PVView* view)
+{
+	if (view == nullptr) {
+		return;
+	}
+
+	// Asked for without building: get_widget() would detach the dock holding the
+	// existing widget in order to hand it back, which is the opposite of what a
+	// second press should do.
+	QWidget* existing = display_if.existing_widget(view);
+	PVViewDisplay* dock = nullptr;
+	for (PVViewDisplay* display : _displays) {
+		if (existing != nullptr && display->widget() == existing) {
+			dock = display;
+			break;
+		}
+	}
+
+	if (dock != nullptr) {
+		dock->setVisible(not dock->isVisible());
+		button->setChecked(dock->isVisible());
+		return;
+	}
+
+	QWidget* w = PVDisplays::get_widget(display_if, view);
+	if (w == nullptr) {
+		return;
+	}
+	// Not deleted when closed: hiding it has to keep what it holds, since the
+	// button is a state and pressing it twice should return to where one was.
+	const Qt::DockWidgetArea area = display_if.default_position_hint();
+	dock = add_view_display(view, w, display_if, false,
+	                        area != Qt::NoDockWidgetArea ? area : Qt::TopDockWidgetArea);
+	button->setChecked(true);
+	// The dock's own close button is the other way to put it away.
+	connect(dock, &QDockWidget::visibilityChanged, button, &QToolButton::setChecked);
 }
 
 void PVGuiQt::PVWorkspaceBase::toggle_unique_source_widget(
@@ -439,11 +484,20 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 		    btn->setPopupMode(QToolButton::InstantPopup);
 		    btn->setIcon(obj.toolbar_icon());
 		    btn->setToolTip(obj.tooltip_str());
+		    // A display a view has only one of is a state, so its button reads as
+		    // one: pressed while it shows, and a second press puts it away rather
+		    // than adding a second copy beside the first.
+		    const bool unique = obj.match_flags(PVDisplays::PVDisplayIf::UniquePerParameters);
+		    btn->setCheckable(unique);
 		    _toolbar->addWidget(btn);
 
-		    connect(btn, &QToolButton::released, [this, &obj]() {
-			    create_view_widget(obj,
-			                       _toolbar_combo_views->currentData().value<Squey::PVView*>());
+		    connect(btn, &QToolButton::released, [this, &obj, btn, unique]() {
+			    auto* view = _toolbar_combo_views->currentData().value<Squey::PVView*>();
+			    if (unique) {
+				    toggle_unique_view_widget(btn, obj, view);
+			    } else {
+				    create_view_widget(obj, view);
+			    }
 		    });
 		    //}
 	    },

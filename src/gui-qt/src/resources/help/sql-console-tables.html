@@ -1,0 +1,27 @@
+<!-- @file -->
+<p>Which rows a query reads</p>
+<table>
+<tr>
+  <td class="shortcuts"><b>selection</b>&nbsp;:</td>
+  <td>what is selected right now. A condition written on its own reads this,
+      so asking narrows what you already have</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>layers</b>&nbsp;:</td>
+  <td>everything the layer stack lets through — what the listing shows</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>layer('name')</b>&nbsp;:</td>
+  <td>one layer, by the name it carries in the layer stack</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>layer('All events')</b>&nbsp;:</td>
+  <td>every row of the source: the base layer cannot be removed, so this is
+      how a query reaches past everything else</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>(text := true)</b>&nbsp;:</td>
+  <td>on any of the three — every column as it was written. The only way to
+      see a cell the format could not read, which is NULL otherwise</td>
+</tr>
+</table>
