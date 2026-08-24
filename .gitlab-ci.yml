@@ -204,18 +204,26 @@ builder appstream-linter:
         export PUSH_ARTIFACTS=true
       fi
       echo "Pushing artifacts to the shared cache: $PUSH_ARTIFACTS"
-      # The nested submodules the top-level GIT_SUBMODULE_PATHS cannot reach:
-      # GIT_SUBMODULE_PATHS only ever matches top-level paths, so anything below
-      # src/libpvcop has to be restored by hand. squey-utils is needed by every
-      # build (add_subdirectory), the test files by every job that builds the test
+      # The submodules the top-level GIT_SUBMODULE_PATHS does not update: the ones
+      # it leaves out entirely, and, as it only ever matches top-level paths,
+      # anything below src/libpvcop. squey-utils is needed by every build
+      # (add_subdirectory), the test files by every job that builds the test
       # suite, as building it copies and installs test files, not only by the ones
       # that run it. These run before the token rewrite below, while the
       # CI token in the submodule remotes is still the one that can fetch.
+      # Each update is preceded by a sync, which the runner only performs for the
+      # paths it updates itself: without it the remote of a submodule already
+      # cloned in the working directory keeps the relative URL of .gitmodules,
+      # and fetching a newly referenced commit dies on "transport 'file' not
+      # allowed", leaving the submodule on its previous commit.
+      git -C src/libpvcop submodule sync squey-utils
       git -C src/libpvcop submodule update --init --depth 1 squey-utils
       if [ "$TEST_FILES" = "true" ]; then
+        git submodule sync src/tests
         git submodule update --init --depth 1 src/tests
         # ninja pvcop_testsuite, hence PVCOP_TEST, only runs under code coverage.
         if [ "$CODE_COVERAGE" = "true" ]; then
+          git -C src/libpvcop submodule sync tests/files
           git -C src/libpvcop submodule update --init --depth 1 tests/files
         fi
       fi
@@ -411,6 +419,7 @@ build release macos:
   tags:
     - $TARGET_TAG
   before_script: |
+    git submodule sync src/tests
     git submodule update --init --depth 1 src/tests # src/libpvcop
   needs:
     - job: build testsuite
