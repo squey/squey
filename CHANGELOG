@@ -1,3 +1,15 @@
+5.1.2 (2026-08-24)
+------------------
+
+This minor release fixes or improves:
+* support processors without AVX2
+* fix a memory corruption on some selections
+* fix a memory corruption in some case when importing numbers
+* speed up numbers import/export
+* fix a crash when picking the axes combination in the CSV export dialog
+* fix successive mouse wheel notches not adding up when scrolling or zooming
+* fix a crash at application exit after the statistics were refreshed
+
 5.1.1 (2026-07-31)
 ------------------
 
