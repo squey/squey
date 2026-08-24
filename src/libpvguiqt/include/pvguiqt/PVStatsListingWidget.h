@@ -206,6 +206,37 @@ class PVLoadingLabel : public QLabel
 	void clicked();
 };
 
+/**
+ * A std::thread joining in its destructor.
+ *
+ * std::jthread is still gated behind _LIBCPP_ENABLE_EXPERIMENTAL in the libc++
+ * shipped with the macOS SDK, so provide the only part of it we need here.
+ */
+class joining_thread : public std::thread
+{
+  public:
+	using std::thread::thread;
+
+	joining_thread() noexcept = default;
+	joining_thread(joining_thread&&) noexcept = default;
+
+	joining_thread& operator=(joining_thread&& other) noexcept
+	{
+		if (joinable()) {
+			join();
+		}
+		std::thread::operator=(std::move(other));
+		return *this;
+	}
+
+	~joining_thread()
+	{
+		if (joinable()) {
+			join();
+		}
+	}
+};
+
 class PVCellWidgetBase : public QWidget
 {
 	Q_OBJECT;
@@ -276,7 +307,9 @@ class PVCellWidgetBase : public QWidget
 	QLabel* _text;
 	QMenu* _ctxt_menu;
 
-	static std::thread _thread;
+	// A joining thread : a plain thread left joinable by refreshed() would call
+	// std::terminate() when this static is destroyed at exit.
+	static joining_thread _thread;
 	static tbb::task_group_context* _ctxt;
 	static bool _thread_running;
 

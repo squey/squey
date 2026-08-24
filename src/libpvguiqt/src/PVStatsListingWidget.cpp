@@ -422,7 +422,7 @@ PVGuiQt::__impl::PVVerticalHeaderView::PVVerticalHeaderView(PVStatsListingWidget
  *
  *****************************************************************************/
 QMovie* PVGuiQt::__impl::PVCellWidgetBase::_loading_movie = nullptr;
-std::thread PVGuiQt::__impl::PVCellWidgetBase::_thread = std::thread();
+PVGuiQt::__impl::joining_thread PVGuiQt::__impl::PVCellWidgetBase::_thread;
 tbb::task_group_context* PVGuiQt::__impl::PVCellWidgetBase::_ctxt = new tbb::task_group_context();
 bool PVGuiQt::__impl::PVCellWidgetBase::_thread_running = false;
 
