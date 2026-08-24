@@ -10,7 +10,11 @@ set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
-    set(ARCH_TYPE "x86-64-v3")
+    # x86-64-v3 requires AVX2/BMI2/FMA, introduced by Haswell in 2013: binaries built
+    # against it die with SIGILL on the very first vector instruction on any older CPU,
+    # before reaching main(). v2 only asks for SSE4.2/POPCNT (Nehalem, 2009), and simde
+    # emulates the wider intrinsics the code uses.
+    set(ARCH_TYPE "x86-64-v2")
     set(CMAKE_CXX_ARCH_FLAGS "-march=${ARCH_TYPE}")
 endif()
 
@@ -18,7 +22,10 @@ if (WIN32)
     set(CMAKE_CXX_COMMON_FLAGS "-Wa,-mbig-obj -Wl,--export-all-symbols -Wl,--enable-auto-import -DWIN32_LEAN_AND_MEAN")
     add_definitions(-DUNICODE -D_UNICODE)
 endif()
-set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wall -Wextra -fPIC")
+# Passing a 256 bits simde vector by value uses a different calling convention when AVX
+# is off, which -Wpsabi reports. Those types never cross a library boundary here: they
+# only appear in inline static helpers and local variables, so the warning has no bearing.
+set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wall -Wextra -fPIC -Wno-psabi")
 
 if (CODE_COVERAGE)
 	set(CODE_COVERAGE_FLAGS "-O0 --coverage")
