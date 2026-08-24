@@ -9,12 +9,18 @@ set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace distrib)
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-if(${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64")
+# ARCH_TYPE is the baseline the whole tree is built against : the submodules read it
+# rather than picking their own default, and dependencies with a hand written baseline
+# (google-snappy.bst) are expected to match it. Override it with -DARCH_TYPE=x86-64-v3
+# for a build targeting a known machine, or set it empty to leave -march out entirely.
+if("${CMAKE_SYSTEM_PROCESSOR}" STREQUAL "x86_64" AND NOT DEFINED ARCH_TYPE)
     # x86-64-v3 requires AVX2/BMI2/FMA, introduced by Haswell in 2013: binaries built
     # against it die with SIGILL on the very first vector instruction on any older CPU,
     # before reaching main(). v2 only asks for SSE4.2/POPCNT (Nehalem, 2009), and simde
     # emulates the wider intrinsics the code uses.
     set(ARCH_TYPE "x86-64-v2")
+endif()
+if(ARCH_TYPE)
     set(CMAKE_CXX_ARCH_FLAGS "-march=${ARCH_TYPE}")
 endif()
 
