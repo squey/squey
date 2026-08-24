@@ -35,7 +35,31 @@ if (CODE_COVERAGE)
     message(STATUS "Code coverage instrumentation enabled")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")
+if (ADDRESS_SANITIZER)
+    set(ADDRESS_SANITIZER_FLAGS "-fsanitize=address -fno-omit-frame-pointer")
+    # clang looks up its runtime libraries under -print-resource-dir, but the sysroot
+    # installs them under the install prefix instead, which leaves the link step unable
+    # to find libclang_rt.asan. Point at them explicitly when they are missing. This is
+    # clang-only: gcc ships libasan alongside the compiler and rejects -resource-dir.
+    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+        execute_process(COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
+                        OUTPUT_VARIABLE CLANG_RESOURCE_DIR
+                        OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+        file(GLOB ASAN_RUNTIME "${CLANG_RESOURCE_DIR}/lib/*/libclang_rt.asan*")
+        if (NOT ASAN_RUNTIME)
+            file(GLOB ASAN_RESOURCE_DIRS "${CMAKE_INSTALL_PREFIX}/lib/clang/*")
+            if (ASAN_RESOURCE_DIRS)
+                list(GET ASAN_RESOURCE_DIRS 0 ASAN_RESOURCE_DIR)
+                set(ADDRESS_SANITIZER_FLAGS "-resource-dir=${ASAN_RESOURCE_DIR} ${ADDRESS_SANITIZER_FLAGS}")
+            endif()
+        endif()
+    endif()
+    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ADDRESS_SANITIZER_FLAGS}")
+    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${ADDRESS_SANITIZER_FLAGS}")
+    message(STATUS "Address sanitizer instrumentation enabled")
+endif()
+
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS} ${ADDRESS_SANITIZER_FLAGS}")
 
 ###############################################################################
 # Configure linker

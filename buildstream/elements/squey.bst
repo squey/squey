@@ -69,6 +69,7 @@ variables:
   cmake-local: >-
     -DUSER_TARGET=%{user_target}
     -DCODE_COVERAGE=%{code_coverage}
+    -DADDRESS_SANITIZER=%{address_sanitizer}
     %{cmake-local-extra}
   # recc only recognizes plain compiler basenames (cc, c++, gcc, g++, clang, clang++):
   # a cross compilation prefix makes it report "not a compiler command" and silently
@@ -166,6 +167,15 @@ config:
         # No quotes around the regex: the expansion of ${TESTS} below is not
         # subject to quote removal, so ctest would receive them as part of it
         if [ "%{code_coverage}" = "1" ]; then CODE_COVERAGE_COMMAND="-T coverage"; TESTS="-R SQUEY_TEST|PVCOP_TEST"; fi
+        # Qt leaks a lot at exit and would drown the report. Two tests are left out:
+        # the crash reporter one segfaults on purpose, and the type discovery one walks
+        # into libistrconv, a prebuilt third-party archive whose SSE4 parser reads its
+        # input 16 bytes at a time and therefore past the terminating NUL. That read is
+        # real but cannot be fixed here, and ASAN suppressions do not cover SEGV.
+        if [ "%{address_sanitizer}" = "1" ]; then
+          export ASAN_OPTIONS=detect_leaks=0:detect_stack_use_after_return=1
+          TESTS="${TESTS} -E Tcore_crash_report_generation|Trush_axes_types_discovery"
+        fi
         mkdir -p /tmp/.squey/squey/tmp-squey/tomjon && cp $SOURCE_DIR/pvconfig.ini /tmp/.squey/squey/config.ini && sed 's|\(nraw_tmp=\)/srv/tmp-squey|\1/tmp/.squey/squey/tmp-squey|' -i /tmp/.squey/squey/config.ini
         $SOURCE_DIR/buildstream/files/flatpak/run_cmd.sh ctest -j $(nproc) --output-junit junit.xml --output-on-failure -T test ${CODE_COVERAGE_COMMAND} ${TESTS} || if [ "%{code_coverage}" = "0" ]; then exit 1; fi
         # Generate code coverage report

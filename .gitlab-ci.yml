@@ -8,6 +8,9 @@ variables:
   CODE_COVERAGE:
     value: "false"
     description: "Only update the code coverage report"
+  ADDRESS_SANITIZER:
+    value: "false"
+    description: "Run the test suite under the address sanitizer"
   FORCE_PUSH_ARTIFACTS:
     value: "false"
     description: "Push the build dependencies to the shared cache, even when the buildstream directory is unchanged"
@@ -245,13 +248,44 @@ build and run testsuite linux:
     # Runs ctest, unlike the cross-compiled builds which stop before it.
     TEST_FILES: "true"
   script:
-    - ./build.sh
-      --cxx-compiler=$([ "$CODE_COVERAGE" == true ] && echo "g++" || echo "clang++")
-      --branch="${CI_COMMIT_REF_NAME}"
-      --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "export_linux_package" && echo true || echo false)
-      --export-dir="/srv/flatpak_repo"
-      --code-coverage=$CODE_COVERAGE
-      --push-artifacts="${PUSH_ARTIFACTS}"
+    - |
+      # Both instrumentations are opt-in through their own pipeline variable, so every
+      # schedule picks what it runs, and a single one can ask for both: the builds then
+      # follow each other in this very job, sharing a warm BuildStream cache instead of
+      # waiting for another schedule to get a runner slot. They stay two distinct builds
+      # on purpose, as ASAN aborts the process on the first error it finds, which would
+      # truncate the coverage data gcov only writes at exit.
+      run_testsuite=true; run_coverage=false; sanitize=false
+      [ "$ADDRESS_SANITIZER" = "true" ] && sanitize=true
+      if [ "$CODE_COVERAGE" = "true" ]; then
+        run_coverage=true
+        # A coverage-only pipeline has no test suite build of its own to run
+        [ "$sanitize" = "true" ] || run_testsuite=false
+      fi
+
+      # A sanitizer failure must not cost the coverage report below: remember it instead
+      # of letting the shell stop here, and fail the job at the very end.
+      status=0
+      if [ "$run_testsuite" = "true" ]; then
+        ./build.sh \
+          --cxx-compiler=clang++ \
+          --branch="${CI_COMMIT_REF_NAME}" \
+          --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "export_linux_package" && echo true || echo false) \
+          --export-dir="/srv/flatpak_repo" \
+          --code-coverage=false \
+          --address-sanitizer=$sanitize \
+          --push-artifacts="${PUSH_ARTIFACTS}" || status=$?
+      fi
+      if [ "$run_coverage" = "true" ]; then
+        # Keep the sanitized run's test report, the coverage build overwrites junit.xml
+        mv junit.xml junit-sanitized.xml 2> /dev/null || true
+        ./build.sh \
+          --cxx-compiler=g++ \
+          --branch="${CI_COMMIT_REF_NAME}" \
+          --code-coverage=true \
+          --push-artifacts="${PUSH_ARTIFACTS}" || status=$?
+      fi
+      exit $status
   coverage: '/lines: (\d+\.\d+)% \(\d+ out of \d+\)/'
   rules:
     - !reference [.skip_if_already_built, rules]
@@ -260,10 +294,13 @@ build and run testsuite linux:
     when: always
     paths:
       - junit.xml
+      - junit-sanitized.xml
       - code_coverage_report
       - export
     reports:
-      junit: junit.xml
+      junit:
+        - junit.xml
+        - junit-sanitized.xml
 
 build testsuite windows:
   extends: .build
