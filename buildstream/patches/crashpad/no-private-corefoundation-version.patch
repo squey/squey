@@ -1,0 +1,171 @@
+Read the macOS version through sysctl rather than private CoreFoundation
+
+MacOSVersionComponents() read the system version from
+_CFCopySystemVersionDictionary() and its _kCFSystemVersion*Key constants. Those
+are private CoreFoundation interfaces, and although they are declared as weak
+imports, referencing them is enough to leave their symbols in every binary that
+links crashpad. App Store review rejects such binaries under guideline 2.5.1.
+
+kern.osproductversion and kern.osversion carry the same values and are public;
+MacOSVersionNumber() right above already reads the former. The product name has
+no sysctl counterpart and only feeds the human readable version string, so it is
+derived from the version itself. The product version extra is dropped, being
+absent from sysctl and normally unset anyway.
+
+diff --git a/util/mac/mac_util.cc b/util/mac/mac_util.cc
+index 6b2666c..e09ddf0 100644
+--- a/util/mac/mac_util.cc
++++ b/util/mac/mac_util.cc
+@@ -31,49 +31,8 @@
+ #include "build/build_config.h"
+ #include "util/mac/sysctl.h"
+ 
+-extern "C" {
+-// Private CoreFoundation internals. See 10.9.2 CF-855.14/CFPriv.h and
+-// CF-855.14/CFUtilities.c. These are marked for weak import because they’re
+-// private and subject to change.
+-
+-#define WEAK_IMPORT __attribute__((weak_import))
+-
+-// Don’t call these functions directly, call them through the
+-// TryCFCopy*VersionDictionary() helpers to account for the possibility that
+-// they may not be present at runtime.
+-CFDictionaryRef _CFCopySystemVersionDictionary() WEAK_IMPORT;
+-
+-// Don’t use these constants with CFDictionaryGetValue() directly, use them with
+-// the TryCFDictionaryGetValue() wrapper to account for the possibility that
+-// they may not be present at runtime.
+-extern const CFStringRef _kCFSystemVersionProductNameKey WEAK_IMPORT;
+-extern const CFStringRef _kCFSystemVersionProductVersionKey WEAK_IMPORT;
+-extern const CFStringRef _kCFSystemVersionProductVersionExtraKey WEAK_IMPORT;
+-extern const CFStringRef _kCFSystemVersionBuildVersionKey WEAK_IMPORT;
+-
+-#undef WEAK_IMPORT
+-
+-}  // extern "C"
+-
+ namespace {
+ 
+-// Helpers for the weak-imported private CoreFoundation internals.
+-
+-CFDictionaryRef TryCFCopySystemVersionDictionary() {
+-  if (_CFCopySystemVersionDictionary) {
+-    return _CFCopySystemVersionDictionary();
+-  }
+-  return nullptr;
+-}
+-
+-const void* TryCFDictionaryGetValue(CFDictionaryRef dictionary,
+-                                    const void* value) {
+-  if (value) {
+-    return CFDictionaryGetValue(dictionary, value);
+-  }
+-  return nullptr;
+-}
+-
+ // Converts |version| to a triplet of version numbers on behalf of
+ // MacOSVersionNumber() and MacOSVersionComponents(). Returns true on success.
+ // If |version| does not have the expected format, returns false. |version| must
+@@ -172,77 +131,42 @@ bool MacOSVersionComponents(int* major,
+                             int* bugfix,
+                             std::string* build,
+                             std::string* version_string) {
+-  base::apple::ScopedCFTypeRef<CFDictionaryRef> dictionary(
+-      TryCFCopySystemVersionDictionary());
+-  if (!dictionary) {
+-    LOG(ERROR) << "_CFCopySystemVersionDictionary failed";
+-    return false;
+-  }
+-
+   bool success = true;
+ 
+-  CFStringRef version_cf =
+-      base::apple::CFCast<CFStringRef>(TryCFDictionaryGetValue(
+-          dictionary.get(), _kCFSystemVersionProductVersionKey));
+-  std::string version;
+-  if (!version_cf) {
+-    LOG(ERROR) << "version_cf not found";
++  // kern.osproductversion and kern.osversion are the public counterparts of the
++  // _CFCopySystemVersionDictionary() entries this used to read. That function and
++  // its key constants are private CoreFoundation interfaces, and merely referencing
++  // them, even as weak imports, leaves their symbols in the binary, which the App
++  // Store rejects. MacOSVersionNumber() above already reads the former.
++  std::string version = ReadStringSysctlByName("kern.osproductversion", true);
++  if (version.empty()) {
++    LOG(ERROR) << "kern.osproductversion not found";
+     success = false;
+-  } else {
+-    version = base::SysCFStringRefToUTF8(version_cf);
+-    if (!StringToVersionNumbers(version, major, minor, bugfix)) {
+-      success = false;
+-    } else {
+-      DCHECK_GE(*major, 10);
+-      DCHECK_LE(*major, 99);
+-      DCHECK_GE(*minor, 0);
+-      DCHECK_LE(*minor, 99);
+-      DCHECK_GE(*bugfix, 0);
+-      DCHECK_LE(*bugfix, 99);
+-    }
+-  }
+-
+-  CFStringRef build_cf =
+-      base::apple::CFCast<CFStringRef>(TryCFDictionaryGetValue(
+-          dictionary.get(), _kCFSystemVersionBuildVersionKey));
+-  if (!build_cf) {
+-    LOG(ERROR) << "build_cf not found";
++  } else if (!StringToVersionNumbers(version, major, minor, bugfix)) {
+     success = false;
+   } else {
+-    build->assign(base::SysCFStringRefToUTF8(build_cf));
++    DCHECK_GE(*major, 10);
++    DCHECK_LE(*major, 99);
++    DCHECK_GE(*minor, 0);
++    DCHECK_LE(*minor, 99);
++    DCHECK_GE(*bugfix, 0);
++    DCHECK_LE(*bugfix, 99);
+   }
+ 
+-  CFStringRef product_cf =
+-      base::apple::CFCast<CFStringRef>(TryCFDictionaryGetValue(
+-          dictionary.get(), _kCFSystemVersionProductNameKey));
+-  std::string product;
+-  if (!product_cf) {
+-    LOG(ERROR) << "product_cf not found";
++  build->assign(ReadStringSysctlByName("kern.osversion", true));
++  if (build->empty()) {
++    LOG(ERROR) << "kern.osversion not found";
+     success = false;
+-  } else {
+-    product = base::SysCFStringRefToUTF8(product_cf);
+   }
+ 
+-  // This key is not required, and in fact is normally not present.
+-  CFStringRef extra_cf =
+-      base::apple::CFCast<CFStringRef>(TryCFDictionaryGetValue(
+-          dictionary.get(), _kCFSystemVersionProductVersionExtraKey));
+-  std::string extra;
+-  if (extra_cf) {
+-    extra = base::SysCFStringRefToUTF8(extra_cf);
+-  }
++  // No sysctl exposes the product name, which only feeds the human readable string
++  // below. It has read "macOS" since 10.12, and "Mac OS X" or "OS X" before that.
++  // The product version extra, absent from sysctl too, is normally unset anyway.
++  const char* product = *major > 10 || *minor >= 12 ? "macOS" : "Mac OS X";
+ 
+-  if (!product.empty() || !version.empty() || !build->empty()) {
+-    if (!extra.empty()) {
+-      version_string->assign(base::StringPrintf("%s %s %s (%s)",
+-                                                product.c_str(),
+-                                                version.c_str(),
+-                                                extra.c_str(),
+-                                                build->c_str()));
+-    } else {
+-      version_string->assign(base::StringPrintf(
+-          "%s %s (%s)", product.c_str(), version.c_str(), build->c_str()));
+-    }
++  if (!version.empty() || !build->empty()) {
++    version_string->assign(base::StringPrintf(
++        "%s %s (%s)", product, version.c_str(), build->c_str()));
+   }
+ 
+   return success;
