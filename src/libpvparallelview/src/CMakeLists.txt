@@ -167,9 +167,17 @@ set(LINK_LIBRARIES pvkernel pvsquey pvdisplays ${QT6_LIBS}
 # own instruction set, and neither may be folded into a unity blob that would drag the
 # wider flags onto unrelated sources. The shared PCH is built without avx2, so it
 # cannot be reused by the avx2 unit either.
-set_source_files_properties(PVHitGraphDataOMP_kernels_avx2.cpp
-    PROPERTIES COMPILE_OPTIONS "-mavx2" SKIP_UNITY_BUILD_INCLUSION ON
-               SKIP_PRECOMPILE_HEADERS ON)
+#
+# Off x86 there is no second instruction set to build for, and -mavx2 is not even a
+# valid flag there : only the baseline unit is compiled, and PVHitGraphDataOMP.cpp
+# aliases the avx2 namespace onto it so the dispatch still links.
+if(SQUEY_TARGET_X86_64)
+    set_source_files_properties(PVHitGraphDataOMP_kernels_avx2.cpp
+        PROPERTIES COMPILE_OPTIONS "-mavx2" SKIP_UNITY_BUILD_INCLUSION ON
+                   SKIP_PRECOMPILE_HEADERS ON)
+else()
+    list(REMOVE_ITEM SRC_FILES PVHitGraphDataOMP_kernels_avx2.cpp)
+endif()
 set_source_files_properties(PVHitGraphDataOMP_kernels_baseline.cpp
     PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON SKIP_PRECOMPILE_HEADERS ON)
 

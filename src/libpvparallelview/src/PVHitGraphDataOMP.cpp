@@ -97,12 +97,19 @@ void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const ui
 void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const Squey::PVSelection& selection, const uint64_t y_min, const int zoom, const double& alpha, uint32_t* buffer, int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx, size_t nbits, size_t size_block_int);
 }
 
+// Off x86 the avx2 unit is not built at all, as there is no wider instruction set to
+// build it for. has_avx2() is a compile time false there, so the branches below are
+// dead, but they still have to name something : alias the namespace onto the baseline.
+#if defined(__x86_64__) || defined(_M_X64)
 namespace hitgraph_avx2
 {
 void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min, const int zoom, const double alpha, uint32_t* buffer, PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx, size_t nbits, size_t size_block_int);
 void count_y1_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const uint64_t y_min, const int zoom, const double alpha, uint32_t* buffer, int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx, size_t nbits, size_t size_block_int);
 void count_y1_sel_omp_sse_v4(const PVRow row_count, const uint32_t* col_y1, const Squey::PVSelection& selection, const uint64_t y_min, const int zoom, const double& alpha, uint32_t* buffer, int block_count, PVParallelView::PVHitGraphDataOMP::omp_ctx_t& ctx, size_t nbits, size_t size_block_int);
 }
+#else
+namespace hitgraph_avx2 = hitgraph_baseline;
+#endif
 
 
 //
