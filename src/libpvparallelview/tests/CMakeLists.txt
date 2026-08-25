@@ -20,6 +20,9 @@ add_squey_test(Tquadtree_impl Tquadtree_impl 10 10)
 add_squey_compile_test(Thitgraph-buffer LINKS ${LINK_LIBRARIES} FILES hitgraph-buffer.cpp)
 add_squey_test(Thitgraph-buffer Thitgraph-buffer)
 
+add_squey_compile_test(Thitgraph_kernels_agree LINKS ${LINK_LIBRARIES} FILES hitgraph_kernels_agree.cpp)
+add_squey_test(Thitgraph_kernels_agree Thitgraph_kernels_agree)
+
 add_squey_compile_test(Tpview_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zone_tree_dump_load.cpp)
 add_squey_test(Tpview_zone_tree_dump_load Tpview_zone_tree_dump_load 0 50 2)
 

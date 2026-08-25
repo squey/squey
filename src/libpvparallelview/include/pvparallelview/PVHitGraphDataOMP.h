@@ -36,6 +36,18 @@ class PVHitGraphDataOMP : public PVHitGraphDataInterface
   public:
 	PVHitGraphDataOMP(uint32_t nbits, uint32_t nblocks);
 
+  public:
+	/**
+	 * The counting kernels are compiled twice, once for the baseline instruction set
+	 * and once with AVX2, and PVCore::has_avx2() picks between them. These pin the
+	 * choice instead, so the test suite can check both fill the buffer identically.
+	 */
+	void process_all_with(ProcessParams const& params, PVHitGraphBuffer& buf, bool avx2) const;
+	void process_sel_with(ProcessParams const& params,
+	                      PVHitGraphBuffer& buf,
+	                      Squey::PVSelection const& sel,
+	                      bool avx2) const;
+
   protected:
 	void process_all(ProcessParams const& params, PVHitGraphBuffer& buf) const override;
 	void process_sel(ProcessParams const& params,
