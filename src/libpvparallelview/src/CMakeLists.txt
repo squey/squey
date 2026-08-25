@@ -26,6 +26,8 @@ PVHitGraphBlocksManager.cpp
 PVHitGraphBuffer.cpp
 PVHitGraphDataInterface.cpp
 PVHitGraphDataOMP.cpp
+PVHitGraphDataOMP_kernels_baseline.cpp
+PVHitGraphDataOMP_kernels_avx2.cpp
 PVHitGraphSSEHelpers.cpp
 PVViewRenderingContext.cpp
 PVLinesView.cpp
@@ -160,6 +162,24 @@ list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
 set(LINK_LIBRARIES pvkernel pvsquey pvdisplays ${QT6_LIBS}
 	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES}
 	${PVHWLOC_LIBRARIES} KF6::ItemModels)
+
+# The hit graph kernels are built twice from the same .ipp : the avx2 unit needs its
+# own instruction set, and neither may be folded into a unity blob that would drag the
+# wider flags onto unrelated sources. The shared PCH is built without avx2, so it
+# cannot be reused by the avx2 unit either.
+#
+# Off x86 there is no second instruction set to build for, and -mavx2 is not even a
+# valid flag there : only the baseline unit is compiled, and PVHitGraphDataOMP.cpp
+# aliases the avx2 namespace onto it so the dispatch still links.
+if(SQUEY_TARGET_X86_64)
+    set_source_files_properties(PVHitGraphDataOMP_kernels_avx2.cpp
+        PROPERTIES COMPILE_OPTIONS "-mavx2" SKIP_UNITY_BUILD_INCLUSION ON
+                   SKIP_PRECOMPILE_HEADERS ON)
+else()
+    list(REMOVE_ITEM SRC_FILES PVHitGraphDataOMP_kernels_avx2.cpp)
+endif()
+set_source_files_properties(PVHitGraphDataOMP_kernels_baseline.cpp
+    PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON SKIP_PRECOMPILE_HEADERS ON)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)

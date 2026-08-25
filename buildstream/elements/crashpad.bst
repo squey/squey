@@ -28,6 +28,10 @@ sources:
   path: buildstream/patches/crashpad/keep-report-for-crash-reporter.patch
   strip-level: 1
 
+- kind: patch
+  path: buildstream/patches/crashpad/no-private-corefoundation-version.patch
+  strip-level: 1
+
 (@): buildstream/elements/base/target.yml
 
 variables:

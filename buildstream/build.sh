@@ -25,6 +25,7 @@ echo "Usage: $0"
   echo "--code-coverage=<true/false>"
   echo "--cxx_compiler=<g++/clang++>"
   echo "--disable-testsuite=<true/false>"
+  echo "--address-sanitizer=<true/false>"
   echo "--export=<true/false>"
   echo "--export-dir=<repository_path>"
   echo "--macos-sdk-dir=<macos_sdk_dir>"
@@ -50,11 +51,12 @@ TESTSUITE_DISABLED=false
 GPG_PRIVATE_KEY_PATH=
 GPG_SIGN_KEY=
 CODE_COVERAGE_ENABLED=false
+ADDRESS_SANITIZER_ENABLED=false
 UPLOAD_DEBUG_SYMBOLS=false
 PUSH_ARTIFACTS=false
 
 # Override default options with user provided options
-OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a,t,s --long help,target_triple:,export:,export-dir:,macos-sdk-dir:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx-compiler:,user-target:,disable-testsuite:,code-coverage:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
+OPTS=`getopt -o h:r:m:b:t:d:g:k:e:p,l,u,a,t,s --long help,target_triple:,export:,export-dir:,macos-sdk-dir:,gpg-private-key-path:,gpg-sign-key:,branch:,build-type:,cxx-compiler:,user-target:,disable-testsuite:,code-coverage:,address-sanitizer:,upload-debug-symbols:,push-artifacts: -n 'parse-options' -- "$@"`
 if [ $? != 0 ] ; then usage >&2 ; exit 1 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -66,6 +68,7 @@ while true; do
     -p | --cxx-compiler ) CXX_COMPILER="$2"; shift 2 ;;
     -m | --user-target ) USER_TARGET_SPECIFIED=true; USER_TARGET="$2"; shift 2 ;;
     -d | --disable-testsuite ) TESTSUITE_DISABLED="$2"; shift 2 ;;
+    --address-sanitizer ) ADDRESS_SANITIZER_ENABLED="$2"; shift 2 ;;
     -e | --export ) EXPORT_BUILD="$2"; shift 2 ;;
     -r | --export-dir ) EXPORT_DIR="$2"; shift 2 ;;
     -s | --macos-sdk-dir ) MACOS_SDK_DIR="$2"; shift 2 ;;
@@ -105,6 +108,9 @@ if  [ "$TESTSUITE_DISABLED" = true ]; then
 fi
 if  [ "$GITLAB_CI" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option quiet_compilation True"
+fi
+if  [ "$ADDRESS_SANITIZER_ENABLED" = true ]; then
+  BUILD_OPTIONS="$BUILD_OPTIONS --option address_sanitizer True"
 fi
 if  [ "$CODE_COVERAGE_ENABLED" = true ]; then
   BUILD_OPTIONS="$BUILD_OPTIONS --option code_coverage True"

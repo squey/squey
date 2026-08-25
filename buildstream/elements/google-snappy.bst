@@ -10,19 +10,16 @@ sources:
 
 (@): buildstream/elements/base/target.yml
 
-(?):
-  - (target_triple == "x86_64-linux-gnu" or target_triple == "x86_64-apple-darwin"):
-      variables:
-        cmake-local-extra: >-
-          -DSNAPPY_REQUIRE_AVX=ON
-          -DSNAPPY_REQUIRE_AVX2=ON
-
+# SNAPPY_REQUIRE_AVX2 adds -mavx -mbmi2, which lets snappy.cc take its __BMI2__
+# path : the bzhi and shrx it emits in DecompressAllTags and FindMatchLength are
+# Haswell instructions, so every Parquet file read with the default codec died with
+# SIGILL on the Sandy Bridge and Ivy Bridge machines the crash reports came from.
+# Keeping them off leaves snappy on the x86-64-v2 baseline the rest of the build uses.
 variables:
   cmake-local: >-
     -DSNAPPY_BUILD_TESTS=OFF
     -DBUILD_SHARED_LIBS=ON
     -DSNAPPY_BUILD_BENCHMARKS=OFF
-    %{cmake-local-extra}
 
 depends:
 - sdk.bst

@@ -71,7 +71,10 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		// Use all axes combination
 		QRadioButton* all_axis = new QRadioButton("Use all axes combination");
 		button_group->addButton(all_axis);
-		QObject::connect(all_axis, &QRadioButton::toggled, [&](bool checked) {
+		// all_axis and current_axis below are local pointers : they must be captured by
+		// value, as a by-reference capture would read dead stack once this constructor
+		// returns, and store garbage into _selected_radio_button.
+		QObject::connect(all_axis, &QRadioButton::toggled, [&, all_axis](bool checked) {
 			if (checked) {
 				PVCore::PVColumnIndexes column_indexes;
 				for (PVCol a(0); a < view.get_parent<Squey::PVSource>().get_nraw_column_count();
@@ -88,7 +91,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		// Use current axes combination
 		QRadioButton* current_axis = new QRadioButton("Use current axes combination");
 		button_group->addButton(current_axis);
-		QObject::connect(current_axis, &QRadioButton::toggled, [&](bool checked) {
+		QObject::connect(current_axis, &QRadioButton::toggled, [&, current_axis](bool checked) {
 			if (checked) {
 				_exporter.set_column_indexes(view.get_axes_combination().get_combination());
 				_exporter.set_header(view.get_axes_combination().get_combined_names());

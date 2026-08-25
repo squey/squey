@@ -33,9 +33,10 @@ static constexpr const char* csv_win2 = TEST_FOLDER "/sources/windows_endings2.c
 static constexpr const char* csv_win3 = TEST_FOLDER "/sources/windows_endings3.csv";
 static constexpr const char* csv_win_format = TEST_FOLDER "/formats/windows_endings.format";
 static constexpr const char* exported_win_csv_file =
-#if __APPLE__
-    TEST_FOLDER "/exports/multi_inputs_windows_endings_macos.csv";
-#elif _WIN32
+// macOS used to need an export of its own, back when linux parsed floats through
+// libistrconv and rounded them off by one ULP. Both now use the standard conversion
+// and produce the very same file, unlike windows.
+#if _WIN32
 	TEST_FOLDER "/exports/multi_inputs_windows_endings_win.csv";
 #else
     TEST_FOLDER "/exports/multi_inputs_windows_endings.csv";
