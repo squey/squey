@@ -99,8 +99,12 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 	// Generate format file for this profile file
 	// PVPcapTypeMap_p type_map = PVPcapTypeMap::get_map("ws");
 	QDomDocument profile_format_doc;
-	std::unique_ptr<PVRush::PVXmlTreeNodeDom> csv_format(
-	    create_csv_spliter_format_root(profile_format_doc));
+	PVRush::PVXmlTreeNodeDom* csv_format = create_csv_spliter_format_root(profile_format_doc);
+	// The splitter node returned above is a child of the format root, and it is the root
+	// that owns the whole tree through its qDeleteAll(children). Holding the child instead
+	// left the root behind, and would have double freed the child had anyone ever deleted
+	// the root.
+	std::unique_ptr<PVRush::PVXmlTreeNodeDom> format_root(csv_format->getParent());
 
 	// create "frame.global_number",  "stream_id" and "pcap_path" columns
 	csv_format->addOneField("frame.global_number", "number_uint32");
