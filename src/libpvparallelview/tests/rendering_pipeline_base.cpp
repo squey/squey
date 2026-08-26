@@ -112,7 +112,10 @@ int main(int argc, char** argv)
 	auto& backend = PVParallelView::common::backend();
 	auto& pipeline = PVParallelView::common::pipeline();
 
-	PVCore::PVHSVColor* colors = std::allocator<PVCore::PVHSVColor>().allocate(n);
+	// Owns the buffer for the whole run: the processor declared below keeps reading it
+	// until the last job has ended, and the raw allocation this replaces was never freed.
+	std::vector<PVCore::PVHSVColor> colors_storage(n);
+	PVCore::PVHSVColor* colors = colors_storage.data();
 	for (size_t i = 0; i < n; i++) {
 		colors[i] = PVCore::PVHSVColor((i % (HSV_COLOR_RED.h() - HSV_COLOR_GREEN.h())) +
 		                               HSV_COLOR_GREEN.h());
