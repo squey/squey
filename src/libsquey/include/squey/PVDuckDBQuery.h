@@ -306,6 +306,15 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	std::vector<std::string> column_names() const;
 
 	/**
+	 * The layers layer('name') can be given, as the view holds them now.
+	 *
+	 * Read per call rather than kept: a layer is created, renamed and dropped
+	 * while a console stays open, so a list taken once would offer names that
+	 * no longer resolve.
+	 */
+	std::vector<std::string> layer_names() const;
+
+	/**
 	 * A source a query can name, and what it holds.
 	 *
 	 * What a completer needs in order to offer more than the console's own

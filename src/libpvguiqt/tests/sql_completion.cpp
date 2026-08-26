@@ -71,6 +71,18 @@ QStringList labels(const QStandardItemModel& model)
 	return shown;
 }
 
+//! The category headings the popup currently shows, in order.
+QStringList sections(const QStandardItemModel& model)
+{
+	QStringList titles;
+	for (int row = 0; row < model.rowCount(); ++row) {
+		if (model.item(row)->data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
+			titles << model.item(row)->data(PVGuiQt::PVSqlCodeEditor::NameRole).toString();
+		}
+	}
+	return titles;
+}
+
 //! Accept @a wanted from the popup, the way Enter does.
 void pick(QCompleter* completer, const QString& wanted)
 {
@@ -233,6 +245,82 @@ int main(int argc, char** argv)
 		pick(completer, "port_dst");
 		PV_VALID(runs, 1);
 		PV_VALID(editor.toPlainText().toStdString(), std::string("port_dst = 80"));
+	}
+
+	// --- The layers are offered by name ---------------------------------------
+	// A layer is named by a string, so what a query needs is the whole call:
+	// the name alone is not something that can be written where a table goes.
+	{
+		editor.set_layer_provider(
+		    []() { return QStringList{"All events", "Night traffic"}; });
+		editor.setPlainText("SELECT rowid FROM ");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+
+		const QStringList names = offered(*model);
+		PV_ASSERT_VALID(names.contains("layer('All events')"), "a layer is offered whole", 0);
+		PV_ASSERT_VALID(names.contains("layer('Night traffic')"), "every layer is offered", 0);
+		// The heading is what tells them from the scopes above.
+		PV_ASSERT_VALID(sections(*model).contains("Layers"), "the layers are under a heading", 0);
+
+		pick(completer, "layer('Night traffic')");
+		PV_VALID(editor.toPlainText().toStdString(),
+		         std::string("SELECT rowid FROM layer('Night traffic')"));
+	}
+
+	// --- And from inside the call ----------------------------------------------
+	// What is being typed there is a string, which the word under the cursor
+	// does not span: a name holding a space would otherwise be replaced from
+	// its last word only.
+	{
+		editor.setPlainText("SELECT rowid FROM layer('Night tr");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+
+		// Matched on the whole literal, so the name with the space is the one
+		// left standing.
+		const QStringList names = offered(*model);
+		PV_ASSERT_VALID(names.contains("Night traffic"), "the name is offered bare in the call",
+		                0);
+		PV_ASSERT_VALID(not names.contains("All events"), "filtered", "on the whole literal");
+
+		pick(completer, "Night traffic");
+		PV_VALID(editor.toPlainText().toStdString(),
+		         std::string("SELECT rowid FROM layer('Night traffic')"));
+	}
+
+	// --- Categories are headings, not entries ----------------------------------
+	{
+		editor.setPlainText("");
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+
+		const QStringList titles = sections(*model);
+		PV_ASSERT_VALID(titles.contains("Clauses") && titles.contains("Operators"),
+		                "the keywords are grouped", titles.join(", ").toStdString());
+		// A heading is not something one can pick: it carries nothing to insert
+		// and the arrow keys have to step over it.
+		for (int row = 0; row < model->rowCount(); ++row) {
+			if (not model->item(row)->data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
+				continue;
+			}
+			PV_ASSERT_VALID(
+			    model->item(row)->data(PVGuiQt::PVSqlCodeEditor::InsertRole).toString().isEmpty(),
+			    "a heading inserts nothing", row);
+			PV_ASSERT_VALID(not model->item(row)->isSelectable(), "a heading is not selectable",
+			                row);
+		}
+		// And the first thing selected is a real entry rather than a heading.
+		const QModelIndex current = completer->popup()->currentIndex();
+		PV_ASSERT_VALID(current.isValid(), "something is selected", 0);
+		PV_ASSERT_VALID(not current.data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool(),
+		                "a heading is not what gets selected", current.row());
 	}
 
 	// --- A business type says what it is, and how to reach it -----------------

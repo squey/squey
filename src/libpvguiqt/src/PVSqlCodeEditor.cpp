@@ -33,6 +33,8 @@
 #include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/syntaxhighlighter.h>
 #include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/theme.h>
 
+#include <algorithm>
+
 #include <QAbstractItemView>
 #include <QCompleter>
 #include <QKeyEvent>
@@ -100,6 +102,23 @@ class completion_delegate : public QStyledItemDelegate
 		painter->save();
 		painter->setRenderHint(QPainter::Antialiasing, true);
 
+		if (index.data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
+			QFont heading_font = option.font;
+			heading_font.setBold(true);
+			heading_font.setCapitalization(QFont::AllUppercase);
+			heading_font.setPointSizeF(std::max(6.5, option.font.pointSizeF() - 1.5));
+			heading_font.setLetterSpacing(QFont::PercentageSpacing, 108);
+			painter->setFont(heading_font);
+			painter->setPen(colors.detail);
+			painter->drawText(
+			    QRect(option.rect.left() + PADDING_X, option.rect.top(),
+			          option.rect.width() - 2 * PADDING_X, option.rect.height()),
+			    Qt::AlignVCenter | Qt::AlignLeft,
+			    index.data(PVGuiQt::PVSqlCodeEditor::NameRole).toString());
+			painter->restore();
+			return;
+		}
+
 		// Inset, so that consecutive highlights read as separate pills rather
 		// than as one band split by a hairline.
 		const QRectF row = QRectF(option.rect).adjusted(3, 1, -3, -1);
@@ -145,6 +164,17 @@ class completion_delegate : public QStyledItemDelegate
 	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override
 	{
 		const QString name = index.data(PVGuiQt::PVSqlCodeEditor::NameRole).toString();
+		if (index.data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
+			QFont heading_font = option.font;
+			heading_font.setBold(true);
+			heading_font.setCapitalization(QFont::AllUppercase);
+			heading_font.setPointSizeF(std::max(6.5, option.font.pointSizeF() - 1.5));
+			const QFontMetrics metrics(heading_font);
+			// Taller than the text: a heading needs air above it to read as the
+			// start of a group rather than as another row.
+			return QSize(2 * PADDING_X + metrics.horizontalAdvance(name),
+			             metrics.height() + 3 * PADDING_Y);
+		}
 		const QString detail = index.data(PVGuiQt::PVSqlCodeEditor::DetailRole).toString();
 
 		QFont name_font = option.font;
@@ -244,12 +274,22 @@ static const QHash<QString, int> FOLLOWED_BY = {
     {"HAVING", 2}, {"ON", 2},    {"NOT", 2},    {"COUNT", 2}, {"SUM", 2},
     {"AVG", 2},    {"MIN", 2},   {"MAX", 2},    {"DISTINCT", 2}};
 
-static const QStringList KEYWORDS = {
-    "SELECT", "FROM",   "WHERE",  "AND",    "OR",     "NOT",   "IN",     "BETWEEN",
-    "LIKE",   "ILIKE",  "IS",     "NULL",   "ORDER",  "BY",    "GROUP",  "HAVING",
-    "LIMIT",  "OFFSET", "DISTINCT", "COUNT", "SUM",   "AVG",   "MIN",    "MAX",
-    "AS",     "ASC",    "DESC",   "CASE",   "WHEN",   "THEN",  "ELSE",   "END",
-    "WITH",   "UNION",  "EXCEPT", "INTERSECT"};
+// The keywords, under the heading each belongs to. Grouped rather than listed
+// flat because the list is read while writing: what one looks for is a way to
+// order, or to compare, and scanning an alphabet for it is what a heading
+// spares. The order is the order of a query -- clauses, then what goes in them.
+static const QVector<QPair<QString, QStringList>> KEYWORD_GROUPS = {
+    {QT_TRANSLATE_NOOP("PVGuiQt::PVSqlCodeEditor", "Clauses"),
+     {"SELECT", "FROM", "WHERE", "GROUP", "BY", "HAVING", "ORDER", "LIMIT", "OFFSET", "WITH",
+      "AS", "DISTINCT"}},
+    {QT_TRANSLATE_NOOP("PVGuiQt::PVSqlCodeEditor", "Operators"),
+     {"AND", "OR", "NOT", "IN", "BETWEEN", "LIKE", "ILIKE", "IS", "NULL"}},
+    {QT_TRANSLATE_NOOP("PVGuiQt::PVSqlCodeEditor", "Aggregates"),
+     {"COUNT", "SUM", "AVG", "MIN", "MAX"}},
+    {QT_TRANSLATE_NOOP("PVGuiQt::PVSqlCodeEditor", "Conditions"),
+     {"CASE", "WHEN", "THEN", "ELSE", "END"}},
+    {QT_TRANSLATE_NOOP("PVGuiQt::PVSqlCodeEditor", "Sorting"), {"ASC", "DESC"}},
+    {QT_TRANSLATE_NOOP("PVGuiQt::PVSqlCodeEditor", "Sets"), {"UNION", "EXCEPT", "INTERSECT"}}};
 
 /**
  * Whether @a c belongs to the name under the cursor.
@@ -306,6 +346,9 @@ PVGuiQt::PVSqlCodeEditor::PVSqlCodeEditor(QWidget* parent /* = nullptr */) : QTe
 	_completer->setModel(_model);
 	_completer->setCompletionMode(QCompleter::PopupCompletion);
 	_completer->setCaseSensitivity(Qt::CaseInsensitive);
+	// The headings take rows of their own, so the default seven would show four
+	// entries under two of them and hide the rest behind a scroll.
+	_completer->setMaxVisibleItems(14);
 	// Match on the displayed line, which begins with the name: typing "por"
 	// reaches "port — UINTEGER". What gets inserted is held apart, under
 	// InsertRole, since it is not what is worth reading.
@@ -470,6 +513,11 @@ void PVGuiQt::PVSqlCodeEditor::set_sources(const QVector<SourceCompletion>& sour
 	}
 }
 
+void PVGuiQt::PVSqlCodeEditor::set_layer_provider(std::function<QStringList()> provider)
+{
+	_layer_provider = std::move(provider);
+}
+
 QString PVGuiQt::PVSqlCodeEditor::column_label(int index) const
 {
 	const QString& name = _column_names.at(index);
@@ -548,62 +596,98 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force)
 
 void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, const QString& match)
 {
-	const QString prefix = current_prefix();
+	const int literal = layer_literal_start();
+	if (literal >= 0) {
+		// Inside layer('...'): what is being typed is a layer name, which the
+		// prefix does not span, so both the context and what to match on are
+		// taken from the literal instead.
+		context = Context::Layers;
+	}
+	const QString typed =
+	    literal >= 0 ? toPlainText().mid(literal, textCursor().position() - literal) : match;
 
-	if (not force && prefix.length() < 2) {
+	if (not force && literal < 0 && current_prefix().length() < 2) {
 		_completer->popup()->hide();
 		return;
 	}
 
-	// Rebuilt per keystroke so the offered set follows the context. The lists
-	// are small enough that this costs nothing next to the popup itself.
-	_model->clear();
-	// The display role stays the whole line: it is what the completer filters
-	// on, so typing "por" has to reach "port — UINTEGER". The halves are held
-	// beside it for the delegate, which paints them differently.
-	const auto add = [&](const QString& insert, const QString& label) {
-		auto* item = new QStandardItem(label);
-		item->setData(insert, InsertRole);
-		// Split on the em dash the labels are built with; a label without one
-		// is a name on its own, like a keyword.
+	// One category at a time, so that a heading is only written for a category
+	// that has something under it. Filtered here rather than by the completer:
+	// a heading matches no prefix, and would be the first thing dropped.
+	struct entry {
+		QString insert;
+		QString label;
+	};
+	QVector<QPair<QString, QVector<entry>>> sections;
+	const auto section = [&](const QString& title) -> QVector<entry>& {
+		sections.append({title, {}});
+		return sections.last().second;
+	};
+	const auto offer = [&](QVector<entry>& into, const QString& insert, const QString& label) {
+		// On the name, which is what one types: matching the description would
+		// offer entries whose beginning bears no relation to the keystrokes.
 		const int dash = label.indexOf(" — ");
-		item->setData(dash < 0 ? label : label.left(dash), NameRole);
-		item->setData(dash < 0 ? QString() : label.mid(dash + 3), DetailRole);
-		_model->appendRow(item);
+		const QString name = dash < 0 ? label : label.left(dash);
+		if (typed.isEmpty() || name.startsWith(typed, Qt::CaseInsensitive)) {
+			into.append({insert, label});
+		}
 	};
 
-	if (context == Context::Tables || context == Context::Any) {
-		for (const auto& [table, label] : TABLES) {
-			add(table, label);
+	if (context == Context::Layers) {
+		QVector<entry>& layers = section(tr("Layers"));
+		if (_layer_provider) {
+			for (const QString& name : _layer_provider()) {
+				offer(layers, name, name);
+			}
 		}
-		// The scopes of the other sources, which a query can only name once it
-		// knows they are there. The short form first where it exists, since it
-		// is the one worth writing.
+	}
+
+	if (context == Context::Tables || context == Context::Any) {
+		QVector<entry>& scopes = section(tr("Scopes"));
+		for (const auto& [table, label] : TABLES) {
+			offer(scopes, table, label);
+		}
+
+		// A layer is named by a string, so the whole call is offered rather
+		// than the bare name: picking one writes a scope, not a fragment.
+		QVector<entry>& layers = section(tr("Layers"));
+		if (_layer_provider) {
+			for (const QString& name : _layer_provider()) {
+				const QString call = "layer('" + QString(name).replace("'", "''") + "')";
+				offer(layers, call, call);
+			}
+		}
+
+		QVector<entry>& others = section(tr("Sources"));
 		for (const SourceCompletion& source : _sources) {
 			if (source.current) {
 				continue;
 			}
 			const QString from = source_reference(source);
-			add(from, from + " — " + tr("the selection of %1").arg(source.name));
-			add(source_reference(source, "layers"),
-			    source_reference(source, "layers") + " — " +
-			        tr("every row %1 lets through").arg(source.name));
+			offer(others, from, from + " — " + tr("the selection of %1").arg(source.name));
+			const QString all = source_reference(source, "layers");
+			offer(others, all, all + " — " + tr("every row %1 lets through").arg(source.name));
 		}
 	}
+
 	if (context == Context::Columns || context == Context::Any) {
-		add("rowid", "rowid — physical row index");
+		QVector<entry>& columns = section(tr("Columns"));
+		offer(columns, "rowid", "rowid — " + tr("physical row index"));
 		for (int i = 0; i < _column_names.size(); ++i) {
 			const QString& name = _column_names.at(i);
 			if (name == "rowid") {
 				continue;
 			}
-			add(name, column_label(i));
+			offer(columns, name, column_label(i));
 		}
+
 		// After the columns: they are what a position expects, and these are what
 		// one wraps around them.
+		QVector<entry>& conversions = section(tr("Conversions"));
 		for (const auto& [call, label] : _conversions) {
-			add(call, label);
+			offer(conversions, call, label);
 		}
+
 		// Then the columns of the other sources. What gets inserted is the bare
 		// name: in a join it is written against an alias, which only the query
 		// knows -- so the source is said in the description rather than guessed
@@ -612,29 +696,66 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 			if (source.current) {
 				continue;
 			}
+			QVector<entry>& theirs = section(source.name);
 			for (int i = 0; i < source.column_names.size(); ++i) {
 				const QString& name = source.column_names.at(i);
 				if (name == "rowid") {
 					continue;
 				}
 				const QString type = source.column_types.value(i);
-				add(name,
-				    name + " — " + (type.isEmpty() ? source.name : type + ", " + source.name));
+				offer(theirs, name,
+				      name + " — " + (type.isEmpty() ? source.name : type + ", " + source.name));
 			}
 		}
 	}
+
 	if (context == Context::Any) {
-		for (const QString& keyword : KEYWORDS) {
-			add(keyword, keyword);
+		for (const auto& [title, words] : KEYWORD_GROUPS) {
+			QVector<entry>& group = section(title);
+			for (const QString& keyword : words) {
+				offer(group, keyword, keyword);
+			}
 		}
 	}
 
-	_completer->setCompletionPrefix(match);
-	if (_completer->completionCount() == 0) {
+	_model->clear();
+	int first_selectable = -1;
+	for (const auto& [title, entries] : sections) {
+		if (entries.isEmpty()) {
+			continue;
+		}
+		auto* heading = new QStandardItem(title);
+		heading->setData(title, NameRole);
+		heading->setData(true, SectionRole);
+		// Neither selectable nor enabled, which is also what makes the arrow
+		// keys step over it.
+		heading->setFlags(Qt::NoItemFlags);
+		_model->appendRow(heading);
+
+		for (const entry& item : entries) {
+			auto* row = new QStandardItem(item.label);
+			row->setData(item.insert, InsertRole);
+			const int dash = item.label.indexOf(" — ");
+			row->setData(dash < 0 ? item.label : item.label.left(dash), NameRole);
+			row->setData(dash < 0 ? QString() : item.label.mid(dash + 3), DetailRole);
+			_model->appendRow(row);
+			if (first_selectable < 0) {
+				first_selectable = _model->rowCount() - 1;
+			}
+		}
+	}
+
+	if (first_selectable < 0) {
 		_completer->popup()->hide();
 		return;
 	}
-	_completer->popup()->setCurrentIndex(_completer->completionModel()->index(0, 0));
+
+	// Everything offered has already been filtered against what was typed, so
+	// the completer is given an empty prefix: anything else would drop the
+	// headings, which match no prefix at all.
+	_completer->setCompletionPrefix(QString());
+	_completer->popup()->setCurrentIndex(
+	    _completer->completionModel()->index(first_selectable, 0));
 
 	QRect rect = cursorRect();
 	// sizeHintForColumn() measures the items alone: the padding and border the
@@ -644,6 +765,58 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 	rect.setWidth(_completer->popup()->sizeHintForColumn(0) + frame.left() + frame.right() +
 	              _completer->popup()->verticalScrollBar()->sizeHint().width());
 	_completer->complete(rect);
+}
+
+/**
+ * Whether the cursor sits inside the string layer() takes, and where that
+ * string starts.
+ *
+ * Read backwards from the cursor: an unmatched quote opens a literal, and the
+ * word before its parenthesis says whether the literal is a layer name. Only
+ * the current line is walked -- a query is written on one, and a quote left
+ * open on an earlier one is a mistake rather than a context.
+ */
+int PVGuiQt::PVSqlCodeEditor::layer_literal_start() const
+{
+	const QString text = toPlainText();
+	const int cursor = textCursor().position();
+
+	int quote = -1;
+	for (int i = 0; i < cursor; ++i) {
+		if (text.at(i) == '\n') {
+			quote = -1;
+			continue;
+		}
+		if (text.at(i) != '\'') {
+			continue;
+		}
+		// A doubled quote is an escaped one and closes nothing.
+		if (quote >= 0 && i + 1 < cursor && text.at(i + 1) == '\'') {
+			++i;
+			continue;
+		}
+		quote = quote < 0 ? i : -1;
+	}
+	if (quote < 0) {
+		return -1;
+	}
+
+	int pos = quote;
+	while (pos > 0 && text.at(pos - 1).isSpace()) {
+		--pos;
+	}
+	if (pos == 0 || text.at(pos - 1) != '(') {
+		return -1;
+	}
+	--pos;
+	while (pos > 0 && text.at(pos - 1).isSpace()) {
+		--pos;
+	}
+	int start = pos;
+	while (start > 0 && text.at(start - 1).isLetterOrNumber()) {
+		--start;
+	}
+	return text.mid(start, pos - start).compare("layer", Qt::CaseInsensitive) == 0 ? quote + 1 : -1;
 }
 
 void PVGuiQt::PVSqlCodeEditor::insert_completion(const QModelIndex& index)
@@ -660,8 +833,21 @@ void PVGuiQt::PVSqlCodeEditor::insert_completion(const QModelIndex& index)
 
 	_inserting = true;
 	QTextCursor cursor = textCursor();
-	cursor.setPosition(cursor.position() - current_prefix().length(), QTextCursor::KeepAnchor);
+	// Inside layer('...') what is replaced is the literal, which the prefix does
+	// not span: a layer name may hold spaces, and stopping at one would leave
+	// half of the old name in front of the new.
+	const int literal = layer_literal_start();
+	cursor.setPosition(literal >= 0 ? literal : cursor.position() - current_prefix().length(),
+	                   QTextCursor::KeepAnchor);
 	cursor.insertText(inserted);
+	if (literal >= 0) {
+		// Close what was opened, unless the query already carries the closing
+		// quote -- typing inside a complete call is how a name gets corrected.
+		const QString rest = toPlainText().mid(cursor.position());
+		if (not rest.startsWith('\'')) {
+			cursor.insertText("')");
+		}
+	}
 
 	// A keyword that expects a follow-up gets its separating space and opens
 	// the next list straight away, so a query is written by picking rather than

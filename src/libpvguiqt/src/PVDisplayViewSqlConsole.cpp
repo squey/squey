@@ -300,6 +300,16 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 	}
 	editor->set_sources(sources);
 
+	// Asked per list rather than captured: layers are created, renamed and
+	// dropped while the console stays open.
+	editor->set_layer_provider([query]() {
+		QStringList names;
+		for (const std::string& name : query->layer_names()) {
+			names << QString::fromStdString(name);
+		}
+		return names;
+	});
+
 	// Seed with a condition alone rather than a full statement: that is the form
 	// worth teaching, and it puts a correctly quoted string literal in front of
 	// the user -- SQL quoting being the reverse of most languages, that is the

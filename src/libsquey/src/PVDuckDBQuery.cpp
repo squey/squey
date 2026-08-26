@@ -1771,6 +1771,12 @@ std::vector<std::string> Squey::PVDuckDBQuery::column_types() const
 	return types;
 }
 
+std::vector<std::string> Squey::PVDuckDBQuery::layer_names() const
+{
+	const Source& primary = _d->primary();
+	return primary.scopes.layer_names ? primary.scopes.layer_names() : std::vector<std::string>();
+}
+
 std::vector<Squey::PVDuckDBQuery::SourceInfo> Squey::PVDuckDBQuery::sources() const
 {
 	const auto held = _d->hold_sources();
