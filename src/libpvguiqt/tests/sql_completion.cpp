@@ -271,6 +271,29 @@ int main(int argc, char** argv)
 		         std::string("SELECT rowid FROM layer('Night traffic')"));
 	}
 
+	// --- Picking layer() offers the layers rather than choosing one ------------
+	// The generic entry is a shape to fill: naming a layer there would pick for
+	// the user, and pick wrong as soon as the view holds more than one.
+	{
+		editor.setPlainText("SELECT rowid FROM ");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+
+		pick(completer, "layer('')");
+		PV_VALID(editor.toPlainText().toStdString(),
+		         std::string("SELECT rowid FROM layer('')"));
+		// Between the quotes, which is where the name goes.
+		PV_VALID(editor.textCursor().position(), 25);
+		// And the layers are on offer without another keystroke.
+		PV_ASSERT_VALID(completer->popup()->isVisible(), "the layers did not open", 0);
+		const QStringList names = offered(*model);
+		PV_ASSERT_VALID(names.contains("All events") && names.contains("Night traffic"),
+		                "the layers are offered", names.join(", ").toStdString());
+	}
+
 	// --- And from inside the call ----------------------------------------------
 	// What is being typed there is a string, which the word under the cursor
 	// does not span: a name holding a space would otherwise be replaced from

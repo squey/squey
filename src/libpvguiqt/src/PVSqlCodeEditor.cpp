@@ -48,6 +48,7 @@
 #include <QScrollBar>
 #include <QStandardItemModel>
 #include <QStyledItemDelegate>
+#include <QTimer>
 #include <QVector>
 
 static const char* THEME_NAMES[] = {"ayu Light", "ayu Dark"};
@@ -262,7 +263,7 @@ QString source_reference(const PVGuiQt::PVSqlCodeEditor::SourceCompletion& sourc
 static const QVector<QPair<QString, QString>> TABLES = {
     {"layers", "layers — every row the layer stack lets through"},
     {"selection", "selection — the current selection only"},
-    {"layer('All events')", "layer('name') — one layer, by name"},
+    {"layer('')", "layer('name') — one layer, by name"},
     {"layers(text := true)", "layers(text := true) — every column as written, unparsed cells included"},
     {"selection(text := true)", "selection(text := true) — the selection, as written"}};
 
@@ -861,11 +862,25 @@ void PVGuiQt::PVSqlCodeEditor::insert_completion(const QModelIndex& index)
 	if (inserted.endsWith("()")) {
 		cursor.setPosition(cursor.position() - 1);
 	}
+	// layer('') is offered as a shape to fill rather than a layer: naming one
+	// of them there would be picking for the user, and picking wrong as soon as
+	// the view holds more than the base layer. The caret goes between the
+	// quotes and the layers are offered straight away.
+	const bool wants_layer = inserted.endsWith("('')");
+	if (wants_layer) {
+		cursor.setPosition(cursor.position() - 2);
+	}
 	setTextCursor(cursor);
 	_inserting = false;
 
 	if (opens_next) {
 		show_completions(true);
+	}
+	if (wants_layer) {
+		// Deferred by one turn of the loop: the popup is being hidden as part of
+		// accepting this completion, and a list opened before that lands would
+		// be shut again the moment it appeared.
+		QTimer::singleShot(0, this, [this]() { show_completions(true); });
 	}
 }
 
