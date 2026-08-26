@@ -318,6 +318,31 @@ int main(int argc, char** argv)
 		         std::string("SELECT rowid FROM layer('Night traffic')"));
 	}
 
+	// --- The case that was typed says which of two it is -----------------------
+	// "selection" and SELECT share a beginning, and both stay on offer: what
+	// tells them apart is how they were spelt, so that is what the selection
+	// follows.
+	{
+		const auto typed_selection = [&](const QString& text) {
+			editor.setPlainText(text);
+			QTextCursor at_end = editor.textCursor();
+			at_end.movePosition(QTextCursor::End);
+			editor.setTextCursor(at_end);
+			QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+			QApplication::processEvents();
+			return completer->popup()
+			    ->currentIndex()
+			    .data(PVGuiQt::PVSqlCodeEditor::InsertRole)
+			    .toString();
+		};
+
+		PV_VALID(typed_selection("sele").toStdString(), std::string("selection"));
+		PV_VALID(typed_selection("SELE").toStdString(), std::string("SELECT"));
+		// Both are there either way: the case picks, it does not filter.
+		PV_ASSERT_VALID(offered(*model).contains("selection"),
+		                "an upper-case prefix still offers the scope", 0);
+	}
+
 	// --- Categories are headings, not entries ----------------------------------
 	{
 		editor.setPlainText("");

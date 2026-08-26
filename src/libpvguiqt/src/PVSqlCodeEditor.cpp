@@ -721,6 +721,10 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 
 	_model->clear();
 	int first_selectable = -1;
+	// What the case that was typed points at: "sel" reaches selection and
+	// SELECT alike, but only one of them is spelt that way, and that is the one
+	// the keystrokes asked for.
+	int first_cased = -1;
 	for (const auto& [title, entries] : sections) {
 		if (entries.isEmpty()) {
 			continue;
@@ -740,8 +744,16 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 			row->setData(dash < 0 ? item.label : item.label.left(dash), NameRole);
 			row->setData(dash < 0 ? QString() : item.label.mid(dash + 3), DetailRole);
 			_model->appendRow(row);
+			const int at = _model->rowCount() - 1;
 			if (first_selectable < 0) {
-				first_selectable = _model->rowCount() - 1;
+				first_selectable = at;
+			}
+			if (first_cased < 0 && not typed.isEmpty()) {
+				const int dash = item.label.indexOf(" — ");
+				const QString name = dash < 0 ? item.label : item.label.left(dash);
+				if (name.startsWith(typed, Qt::CaseSensitive)) {
+					first_cased = at;
+				}
 			}
 		}
 	}
@@ -755,8 +767,10 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 	// the completer is given an empty prefix: anything else would drop the
 	// headings, which match no prefix at all.
 	_completer->setCompletionPrefix(QString());
-	_completer->popup()->setCurrentIndex(
-	    _completer->completionModel()->index(first_selectable, 0));
+	// The entry whose own case matches goes first in line; without one, the
+	// list is still offered whole and its first entry stands.
+	_completer->popup()->setCurrentIndex(_completer->completionModel()->index(
+	    first_cased >= 0 ? first_cased : first_selectable, 0));
 
 	QRect rect = cursorRect();
 	// sizeHintForColumn() measures the items alone: the padding and border the
