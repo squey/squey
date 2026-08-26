@@ -65,6 +65,11 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 	 */
 	static constexpr int InsertRole = Qt::UserRole + 1;
 
+	//! The name alone, which the popup shows first and in full strength.
+	static constexpr int NameRole = Qt::UserRole + 2;
+	//! What the name holds -- a type, a source -- shown beside it, dimmed.
+	static constexpr int DetailRole = Qt::UserRole + 3;
+
 	explicit PVSqlCodeEditor(QWidget* parent = nullptr);
 
   public:
@@ -81,6 +86,35 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 	void set_columns(const QStringList& names,
 	                 const QStringList& types = {},
 	                 const QStringList& axis_types = {});
+
+	/**
+	 * A source a query can name, as the completer needs to offer it.
+	 *
+	 * Held apart from set_columns(): those are the columns of the console's own
+	 * source, the ones a bare name reaches, whereas these have to be written
+	 * with the source they come from.
+	 */
+	struct SourceCompletion {
+		QString name;
+		//! Which one among its namesakes, for source_position :=.
+		int position = 0;
+		//! True while "name.selection" resolves; a namesake has no schema.
+		bool has_schema = false;
+		//! True for the source the console sits on, whose columns are bare.
+		bool current = false;
+		QStringList column_names;
+		QStringList column_types;
+	};
+
+	/**
+	 * Replace the sources offered by the completer.
+	 *
+	 * What this adds over set_columns() is everything a query cannot guess: the
+	 * names of the other sources, which of them the short schema form reaches,
+	 * and the columns each holds -- a listing shows the names, nothing shows
+	 * the columns.
+	 */
+	void set_sources(const QVector<SourceCompletion>& sources);
 
 	/**
 	 * One line tall.
@@ -108,6 +142,9 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
   private:
 	//! What makes sense at the cursor, derived from the preceding keyword.
 	enum class Context { Any, Tables, Columns };
+
+	//! Paint the popup the way the rest of the console looks, in either theme.
+	void restyle_popup();
 
 	Context context_at_cursor() const;
 	//! What the popup shows for a column: its name, and what it really holds.
@@ -140,6 +177,8 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 	QStringList _column_axis_types;
 	//! The conversions worth offering, derived from the axis types present.
 	QVector<QPair<QString, QString>> _conversions;
+	//! The other sources a query can name. Empty while there is only one.
+	QVector<SourceCompletion> _sources;
 	//! Bare name -> quoted form, for the names a query cannot carry as-is.
 	QHash<QString, QString> _quoted_form;
 	//! Set while inserting a completion, to keep that edit from re-triggering.

@@ -281,6 +281,25 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 	auto* editor = new PVGuiQt::PVSqlCodeEditor(console_widget);
 	editor->set_columns(columns, types, axis_types);
 
+	// And the other sources of the project, which a query can name but nothing
+	// in the console otherwise shows: the completer is where they are found.
+	QVector<PVGuiQt::PVSqlCodeEditor::SourceCompletion> sources;
+	for (const Squey::PVDuckDBQuery::SourceInfo& info : query->sources()) {
+		PVGuiQt::PVSqlCodeEditor::SourceCompletion described;
+		described.name = QString::fromStdString(info.name);
+		described.position = int(info.position);
+		described.has_schema = info.has_schema;
+		described.current = info.current;
+		for (const std::string& name : info.column_names) {
+			described.column_names << QString::fromStdString(name);
+		}
+		for (const std::string& type : info.column_types) {
+			described.column_types << QString::fromStdString(type);
+		}
+		sources.append(described);
+	}
+	editor->set_sources(sources);
+
 	// Seed with a condition alone rather than a full statement: that is the form
 	// worth teaching, and it puts a correctly quoted string literal in front of
 	// the user -- SQL quoting being the reverse of most languages, that is the

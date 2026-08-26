@@ -1121,7 +1121,6 @@ void scan_function(duckdb::ClientContext&, duckdb::TableFunctionInput& input,
 	const auto& bind_data = input.bind_data->Cast<scan_bind_data>();
 	auto& gstate = input.global_state->Cast<scan_global_state>();
 	auto& lstate = input.local_state->Cast<scan_local_state>();
-	const scan_context& ctx = *bind_data.ctx;
 
 	// Set once per query: the input selection, narrowed by whatever the pushed
 	// filters resolved.
@@ -1770,6 +1769,46 @@ std::vector<std::string> Squey::PVDuckDBQuery::column_types() const
 		types.emplace_back(type.ToString());
 	}
 	return types;
+}
+
+std::vector<Squey::PVDuckDBQuery::SourceInfo> Squey::PVDuckDBQuery::sources() const
+{
+	const auto held = _d->hold_sources();
+
+	std::vector<SourceInfo> described;
+	described.reserve(_d->sources.size());
+	for (size_t i = 0; i < _d->sources.size(); ++i) {
+		const Source& src = _d->sources[i];
+
+		SourceInfo info;
+		info.name = src.name;
+		info.position = src.position;
+		info.current = (i == 0);
+		// The same test create_source_schemas() applied, so that a completer
+		// offers the short form exactly where it resolves.
+		info.has_schema = not src.name.empty() && _d->unique_source_name(src.name) &&
+		                  not impl::reserved_schema(src.name);
+
+		// Bound rather than read off the nraw: what a query sees is the schema
+		// the scan emits, rowid included, and its types are DuckDB's names for
+		// them rather than pvcop's.
+		const std::string from =
+		    i == 0 ? std::string("layers")
+		           : "layers(source := " + quote_literal(src.name) +
+		                 ", source_position := " + std::to_string(src.position) + ")";
+		auto result = _d->con.Query("SELECT * FROM " + from + " LIMIT 0");
+		if (result->HasError()) {
+			throw std::runtime_error(result->GetError());
+		}
+		for (const auto& name : result->names) {
+			info.column_names.emplace_back(name);
+		}
+		for (const auto& type : result->types) {
+			info.column_types.emplace_back(type.ToString());
+		}
+		described.emplace_back(std::move(info));
+	}
+	return described;
 }
 
 size_t Squey::PVDuckDBQuery::dropped_optional_filters() const

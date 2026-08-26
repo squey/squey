@@ -36,14 +36,193 @@
 #include <QAbstractItemView>
 #include <QCompleter>
 #include <QKeyEvent>
+#include <QListView>
 #include <QMimeData>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPainterPath>
 #include <QPair>
+#include <QFrame>
 #include <QScrollBar>
 #include <QStandardItemModel>
+#include <QStyledItemDelegate>
 #include <QVector>
 
 static const char* THEME_NAMES[] = {"ayu Light", "ayu Dark"};
+
+namespace
+{
+
+//! What the popup is painted with, per theme. Everything else derives from these.
+struct popup_palette {
+	QColor background;
+	QColor border;
+	QColor selection;
+	QColor name;
+	QColor detail;
+};
+
+popup_palette palette_of_theme()
+{
+	if (PVCore::PVTheme::is_color_scheme_dark()) {
+		return {QColor(0x1f, 0x24, 0x30), QColor(0x39, 0x41, 0x50),
+		        QColor(0x39, 0x8b, 0xf5, 0x59), QColor(0xe6, 0xe9, 0xef),
+		        QColor(0x8b, 0x94, 0xa6)};
+	}
+	return {QColor(0xff, 0xff, 0xff), QColor(0xd4, 0xd9, 0xe1),
+	        QColor(0x39, 0x8b, 0xf5, 0x33), QColor(0x1c, 0x21, 0x2b),
+	        QColor(0x78, 0x82, 0x94)};
+}
+
+/**
+ * Draws a completion as a name and, dimmed beside it, what that name holds.
+ *
+ * A style sheet cannot do this: the two halves need different colours within
+ * one line, and the row needs a rounded highlight rather than the square band a
+ * view paints. Painted rather than laid out through QTextDocument, which would
+ * parse markup per row for a result no richer than two runs of text.
+ */
+class completion_delegate : public QStyledItemDelegate
+{
+  public:
+	using QStyledItemDelegate::QStyledItemDelegate;
+
+	static constexpr int RADIUS = 6;
+	static constexpr int PADDING_X = 10;
+	static constexpr int PADDING_Y = 5;
+	static constexpr int GAP = 12;
+
+	void paint(QPainter* painter,
+	           const QStyleOptionViewItem& option,
+	           const QModelIndex& index) const override
+	{
+		const popup_palette colors = palette_of_theme();
+		painter->save();
+		painter->setRenderHint(QPainter::Antialiasing, true);
+
+		// Inset, so that consecutive highlights read as separate pills rather
+		// than as one band split by a hairline.
+		const QRectF row = QRectF(option.rect).adjusted(3, 1, -3, -1);
+		if (option.state & QStyle::State_Selected) {
+			QPainterPath path;
+			path.addRoundedRect(row, RADIUS, RADIUS);
+			painter->fillPath(path, colors.selection);
+		}
+
+		const QString name = index.data(PVGuiQt::PVSqlCodeEditor::NameRole).toString();
+		const QString detail = index.data(PVGuiQt::PVSqlCodeEditor::DetailRole).toString();
+
+		QFont name_font = option.font;
+		name_font.setBold(true);
+		painter->setFont(name_font);
+		painter->setPen(colors.name);
+		const QFontMetrics name_metrics(name_font);
+		const int text_top = option.rect.top();
+		const int height = option.rect.height();
+		painter->drawText(
+		    QRect(option.rect.left() + PADDING_X, text_top,
+		          option.rect.width() - 2 * PADDING_X, height),
+		    Qt::AlignVCenter | Qt::AlignLeft, name);
+
+		if (not detail.isEmpty()) {
+			QFont detail_font = option.font;
+			detail_font.setBold(false);
+			painter->setFont(detail_font);
+			painter->setPen(colors.detail);
+			const int offset = name_metrics.horizontalAdvance(name) + GAP;
+			const QRect area(option.rect.left() + PADDING_X + offset, text_top,
+			                 option.rect.width() - 2 * PADDING_X - offset, height);
+			if (area.width() > 0) {
+				const QString elided =
+				    QFontMetrics(detail_font).elidedText(detail, Qt::ElideRight, area.width());
+				painter->drawText(area, Qt::AlignVCenter | Qt::AlignLeft, elided);
+			}
+		}
+
+		painter->restore();
+	}
+
+	QSize sizeHint(const QStyleOptionViewItem& option, const QModelIndex& index) const override
+	{
+		const QString name = index.data(PVGuiQt::PVSqlCodeEditor::NameRole).toString();
+		const QString detail = index.data(PVGuiQt::PVSqlCodeEditor::DetailRole).toString();
+
+		QFont name_font = option.font;
+		name_font.setBold(true);
+		const QFontMetrics name_metrics(name_font);
+		const QFontMetrics detail_metrics(option.font);
+
+		int width = 2 * PADDING_X + name_metrics.horizontalAdvance(name);
+		if (not detail.isEmpty()) {
+			width += GAP + detail_metrics.horizontalAdvance(detail);
+		}
+		return QSize(width, name_metrics.height() + 2 * PADDING_Y);
+	}
+};
+
+/**
+ * The completion list, painting its own rounded background.
+ *
+ * A translucent window is what makes the corners actually round -- an opaque
+ * one repaints the square the radius cut away -- but translucency also means
+ * nothing fills the widget any more: neither the style sheet's background-color
+ * nor the viewport, which has to stay unfilled for the corners to show through.
+ * So the background is drawn here, under the items, and the style sheet is left
+ * with the scroll bar alone.
+ */
+class completion_popup : public QListView
+{
+  public:
+	using QListView::QListView;
+
+	static constexpr int RADIUS = 8;
+
+  protected:
+	void paintEvent(QPaintEvent* event) override
+	{
+		const popup_palette colors = palette_of_theme();
+		{
+			QPainter painter(viewport());
+			painter.setRenderHint(QPainter::Antialiasing, true);
+			// Half a pixel in, so the one-pixel border lands inside the widget
+			// rather than straddling its edge and coming out blurred.
+			const QRectF area = QRectF(viewport()->rect()).adjusted(0.5, 0.5, -0.5, -0.5);
+			QPainterPath path;
+			path.addRoundedRect(area, RADIUS, RADIUS);
+			painter.fillPath(path, colors.background);
+			painter.setPen(QPen(colors.border, 1));
+			painter.drawPath(path);
+		}
+		// The items go on top: QListView opens its own painter on the same
+		// viewport, which is why the one above is closed first.
+		QListView::paintEvent(event);
+	}
+};
+
+/**
+ * How a query writes a scope of @a source.
+ *
+ * The schema form where it exists, since that is the one worth teaching, and
+ * the argument form otherwise -- a namesake has no schema, and its position is
+ * the only thing telling it from the others.
+ */
+QString source_reference(const PVGuiQt::PVSqlCodeEditor::SourceCompletion& source,
+                         const QString& scope = QStringLiteral("selection"))
+{
+	if (source.has_schema) {
+		return QString::fromStdString(
+		           Squey::PVDuckDBQuery::quote_identifier(source.name.toStdString())) +
+		       "." + scope;
+	}
+	QString call = scope + "(source := '" + QString(source.name).replace("'", "''") + "'";
+	if (source.position != 0) {
+		call += ", source_position := " + QString::number(source.position);
+	}
+	return call + ")";
+}
+
+} // namespace
+
 
 // The tables a query can read, and what each stands for. "layers" first: it is
 // what the listing shows, so it is the one a query is usually written about.
@@ -135,6 +314,68 @@ PVGuiQt::PVSqlCodeEditor::PVSqlCodeEditor(QWidget* parent /* = nullptr */) : QTe
 	// description, and what has to be inserted is beside it.
 	QObject::connect(_completer, QOverload<const QModelIndex&>::of(&QCompleter::activated), this,
 	                 &PVSqlCodeEditor::insert_completion);
+
+	// Set before the delegate: setPopup() drops the one the previous view held.
+	_completer->setPopup(new completion_popup);
+	_completer->popup()->setItemDelegate(new completion_delegate(_completer->popup()));
+	restyle_popup();
+	// The scheme can change while the console is open, and a popup painted for
+	// the other one would be unreadable rather than merely out of place.
+	QObject::connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this,
+	                 [this]() { restyle_popup(); });
+}
+
+/**
+ * The popup is a window of its own, so the console's own style sheet does not
+ * reach it and its corners are the ones the platform draws.
+ *
+ * Rounding them takes both halves: a translucent frameless window, so that what
+ * falls outside the radius is not painted over by an opaque square, and a style
+ * sheet drawing the rounded background inside it.
+ */
+void PVGuiQt::PVSqlCodeEditor::restyle_popup()
+{
+	QAbstractItemView* popup = _completer->popup();
+	const popup_palette colors = palette_of_theme();
+
+	popup->setWindowFlags(popup->windowFlags() | Qt::FramelessWindowHint |
+	                      Qt::NoDropShadowWindowHint);
+	popup->setAttribute(Qt::WA_TranslucentBackground);
+	// Both have to stay unfilled for the corners to show through; what would
+	// otherwise be left is a bare window, so completion_popup paints the
+	// rounded background itself.
+	popup->viewport()->setAutoFillBackground(false);
+	popup->viewport()->setAttribute(Qt::WA_TranslucentBackground);
+	popup->setFrameShape(QFrame::NoFrame);
+	popup->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	if (auto* list = qobject_cast<QListView*>(popup)) {
+		// The delegate paints the highlight itself, as a pill; the view's own
+		// alternating and hover bands would show through underneath.
+		list->setAlternatingRowColors(false);
+		list->setUniformItemSizes(false);
+		list->setSpacing(0);
+	}
+
+	// Room for the painted border and radius, which the items must not sit on.
+	popup->setContentsMargins(completion_popup::RADIUS / 2, completion_popup::RADIUS / 2,
+	                          completion_popup::RADIUS / 2, completion_popup::RADIUS / 2);
+
+	// No background here: it is painted, and a colour set through the style
+	// sheet would be a square one laid outside the radius.
+	popup->setStyleSheet(
+	    QString("QAbstractItemView { background: transparent; border: none; outline: none; }"
+	            "QAbstractItemView::item { border: none; }"
+	            "QScrollBar:vertical {"
+	            "  background: transparent; width: 8px; margin: 6px 3px 6px 0;"
+	            "}"
+	            "QScrollBar::handle:vertical {"
+	            "  background: %1; border-radius: 4px; min-height: 24px;"
+	            "}"
+	            "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
+	            "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
+	            "  background: transparent;"
+	            "}")
+	        .arg(colors.detail.name(QColor::HexArgb)));
 }
 
 // What a business type is stored as, and how to get back and forth. A query
@@ -205,6 +446,26 @@ void PVGuiQt::PVSqlCodeEditor::set_columns(const QStringList& names,
 		    QString::fromStdString(Squey::PVDuckDBQuery::quote_identifier(name.toStdString()));
 		if (quoted != name) {
 			_quoted_form.insert(name, quoted);
+		}
+	}
+}
+
+void PVGuiQt::PVSqlCodeEditor::set_sources(const QVector<SourceCompletion>& sources)
+{
+	_sources = sources;
+
+	// Their columns are inserted the same way the console's own are: bare in
+	// the popup, quoted in the query where the name needs it.
+	for (const SourceCompletion& source : _sources) {
+		if (source.current) {
+			continue;
+		}
+		for (const QString& name : source.column_names) {
+			const QString quoted =
+			    QString::fromStdString(Squey::PVDuckDBQuery::quote_identifier(name.toStdString()));
+			if (quoted != name) {
+				_quoted_form.insert(name, quoted);
+			}
 		}
 	}
 }
@@ -297,15 +558,36 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 	// Rebuilt per keystroke so the offered set follows the context. The lists
 	// are small enough that this costs nothing next to the popup itself.
 	_model->clear();
+	// The display role stays the whole line: it is what the completer filters
+	// on, so typing "por" has to reach "port — UINTEGER". The halves are held
+	// beside it for the delegate, which paints them differently.
 	const auto add = [&](const QString& insert, const QString& label) {
 		auto* item = new QStandardItem(label);
 		item->setData(insert, InsertRole);
+		// Split on the em dash the labels are built with; a label without one
+		// is a name on its own, like a keyword.
+		const int dash = label.indexOf(" — ");
+		item->setData(dash < 0 ? label : label.left(dash), NameRole);
+		item->setData(dash < 0 ? QString() : label.mid(dash + 3), DetailRole);
 		_model->appendRow(item);
 	};
 
 	if (context == Context::Tables || context == Context::Any) {
 		for (const auto& [table, label] : TABLES) {
 			add(table, label);
+		}
+		// The scopes of the other sources, which a query can only name once it
+		// knows they are there. The short form first where it exists, since it
+		// is the one worth writing.
+		for (const SourceCompletion& source : _sources) {
+			if (source.current) {
+				continue;
+			}
+			const QString from = source_reference(source);
+			add(from, from + " — " + tr("the selection of %1").arg(source.name));
+			add(source_reference(source, "layers"),
+			    source_reference(source, "layers") + " — " +
+			        tr("every row %1 lets through").arg(source.name));
 		}
 	}
 	if (context == Context::Columns || context == Context::Any) {
@@ -322,6 +604,24 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 		for (const auto& [call, label] : _conversions) {
 			add(call, label);
 		}
+		// Then the columns of the other sources. What gets inserted is the bare
+		// name: in a join it is written against an alias, which only the query
+		// knows -- so the source is said in the description rather than guessed
+		// at in the insertion.
+		for (const SourceCompletion& source : _sources) {
+			if (source.current) {
+				continue;
+			}
+			for (int i = 0; i < source.column_names.size(); ++i) {
+				const QString& name = source.column_names.at(i);
+				if (name == "rowid") {
+					continue;
+				}
+				const QString type = source.column_types.value(i);
+				add(name,
+				    name + " — " + (type.isEmpty() ? source.name : type + ", " + source.name));
+			}
+		}
 	}
 	if (context == Context::Any) {
 		for (const QString& keyword : KEYWORDS) {
@@ -337,7 +637,11 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 	_completer->popup()->setCurrentIndex(_completer->completionModel()->index(0, 0));
 
 	QRect rect = cursorRect();
-	rect.setWidth(_completer->popup()->sizeHintForColumn(0) +
+	// sizeHintForColumn() measures the items alone: the padding and border the
+	// style sheet draws around them are not in it, and a popup sized without
+	// them elides the very description it exists to show.
+	const QMargins frame = _completer->popup()->contentsMargins();
+	rect.setWidth(_completer->popup()->sizeHintForColumn(0) + frame.left() + frame.right() +
 	              _completer->popup()->verticalScrollBar()->sizeHint().width());
 	_completer->complete(rect);
 }

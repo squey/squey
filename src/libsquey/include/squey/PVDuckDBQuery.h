@@ -305,6 +305,33 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	 */
 	std::vector<std::string> column_names() const;
 
+	/**
+	 * A source a query can name, and what it holds.
+	 *
+	 * What a completer needs in order to offer more than the console's own
+	 * columns: the names to write, and whether the short schema form reaches
+	 * this one -- a namesake is only reachable through source :=.
+	 */
+	struct SourceInfo {
+		std::string name;
+		//! Which one among its namesakes, for source_position :=.
+		size_t position = 0;
+		//! True while "name.selection" resolves, i.e. the sugar exists for it.
+		bool has_schema = false;
+		//! True for the source this query object speaks for.
+		bool current = false;
+		std::vector<std::string> column_names;
+		std::vector<std::string> column_types;
+	};
+
+	/**
+	 * Every source a query can read, the console's own first.
+	 *
+	 * Reading the columns of each costs one bind per source, so this is meant
+	 * to be called when a console is built rather than per keystroke.
+	 */
+	std::vector<SourceInfo> sources() const;
+
   private:
 	/**
 	 * Shared constructor. @a name_of returns the SQL name of a column, and is
