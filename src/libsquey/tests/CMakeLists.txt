@@ -37,6 +37,9 @@ add_squey_test(Tsquey_duckdb_invalid_values Tsquey_duckdb_invalid_values)
 add_squey_compile_test(Tsquey_duckdb_scopes LINKS ${LINK_LIBRARIES} FILES duckdb_scopes.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_scopes Tsquey_duckdb_scopes)
 
+add_squey_compile_test(Tsquey_duckdb_sources LINKS ${LINK_LIBRARIES} FILES duckdb_sources.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_sources Tsquey_duckdb_sources)
+
 # What a query typed into the console may reach: the source, and nothing else.
 add_squey_compile_test(Tsquey_duckdb_confinement LINKS ${LINK_LIBRARIES} FILES duckdb_confinement.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_confinement Tsquey_duckdb_confinement)

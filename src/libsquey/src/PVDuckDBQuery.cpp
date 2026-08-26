@@ -51,9 +51,13 @@
 #include <cctype>
 #include <cstring>
 #include <mutex>
+#include <set>
+#include <shared_mutex>
 #include <stdexcept>
 #include <unordered_map>
 #include <unordered_set>
+#include <utility>
+#include <vector>
 
 namespace
 {
@@ -205,26 +209,145 @@ enum class scan_scope {
  * of the query that is running.
  */
 struct scan_context : public duckdb::TableFunctionInfo {
-	const PVRush::PVNraw* nraw = nullptr;
 	scan_scope scope = scan_scope::selection;
-	// What the scopes stand for. Asked when a query runs rather than read once:
-	// a console outlives any particular selection.
-	const Squey::PVDuckDBQuery::Scopes* scopes = nullptr;
+	// Every source a query may name, owned by the impl. Entry 0 is the one this
+	// query object speaks for: what a bare scope reads when no source argument
+	// says otherwise. The others are reachable by name, which is what lets a
+	// join cross sources.
+	//
+	// Each carries its own column naming and its own scopes, queried when a
+	// query runs rather than read once: a console outlives any particular
+	// selection, and each source follows its own current view.
+	//
+	// Neither pvcop nor the nraw carries a column name: pvcop::db::collection
+	// addresses everything by index, and axis names live in the Squey format.
+	// That indirection is what lets this code stay free of the Squey headers
+	// that would pull in a newer C++ standard than it can be built with.
+	const std::vector<Squey::PVDuckDBQuery::Source>* sources = nullptr;
 	// Overrides the "selection" scope for the duration of one query, for a
 	// caller holding the selection it means rather than reading the view's.
+	// It speaks for the query object's own source, so it applies to entry 0
+	// alone: a joined source has its own selection and no caller named it.
 	const PVCore::PVSelBitField* input = nullptr;
 	// Where to count the optional filters this scan let go. Owned by the impl
 	// and shared by its three contexts, since one query may read several.
 	std::atomic<size_t>* dropped_optional = nullptr;
-	// Queried at bind time rather than stored, so names cannot drift from
-	// whatever holds them. Empty means "name columns by position".
-	//
-	// Neither pvcop nor the nraw carries a column name: pvcop::db::collection
-	// addresses everything by index, and axis names live in the Squey format.
-	// This indirection is what lets the DuckDB code stay free of the Squey
-	// headers that would pull in a newer C++ standard than it can be built with.
-	std::function<std::string(size_t)> name_of;
+
+	//! The source a bare scope reads. Never null once the impl is built.
+	const Squey::PVDuckDBQuery::Source* primary() const
+	{
+		return sources != nullptr && not sources->empty() ? &(*sources)[0] : nullptr;
+	}
 };
+
+/**
+ * @a text as an SQL string literal: single quotes, doubled inside.
+ *
+ * A source is named by whoever imported it, so its name can hold a quote;
+ * writing one into a generated query unescaped would end the literal early and
+ * turn the rest of the name into syntax.
+ */
+std::string quote_literal(const std::string& text)
+{
+	std::string quoted = "'";
+	for (char c : text) {
+		if (c == '\'') {
+			quoted += '\'';
+		}
+		quoted += c;
+	}
+	return quoted + "'";
+}
+
+/**
+ * The source names a query could have meant, to turn a typo into an error that
+ * says what exists. Namesakes are counted rather than repeated, since what
+ * tells them apart is a position and not another name.
+ */
+std::string known_sources(const scan_context& ctx)
+{
+	if (ctx.sources == nullptr || ctx.sources->size() <= 1) {
+		return ". This console exposes a single source.";
+	}
+	std::vector<std::pair<std::string, size_t>> counted;
+	for (const Squey::PVDuckDBQuery::Source& src : *ctx.sources) {
+		auto it = std::find_if(counted.begin(), counted.end(),
+		                       [&src](const std::pair<std::string, size_t>& seen) {
+			                       return seen.first == src.name;
+		                       });
+		if (it == counted.end()) {
+			counted.emplace_back(src.name, 1);
+		} else {
+			++it->second;
+		}
+	}
+	std::string known = ". Known sources: ";
+	for (size_t i = 0; i < counted.size(); ++i) {
+		known += (i == 0 ? "'" : ", '") + counted[i].first + "'";
+		if (counted[i].second > 1) {
+			known += " (" + std::to_string(counted[i].second) + ")";
+		}
+	}
+	return known + ".";
+}
+
+/**
+ * Which source a scan reads, from the "source" and "source_position" arguments.
+ *
+ * No argument means the source this query object speaks for, so every query
+ * written before sources could be named keeps its meaning.
+ *
+ * Source names are not unique -- a project may hold two sources called the
+ * same -- so "source_position" tells namesakes apart, the way the Python
+ * API's source(name, position) already does. Naming a source that does not exist is
+ * an error listing the ones that do: a query that silently read the wrong rows
+ * would answer with a plausible selection, which is worse than not answering.
+ */
+const Squey::PVDuckDBQuery::Source*
+resolve_source(const scan_context& ctx,
+               const duckdb::named_parameter_map_t& named_parameters)
+{
+	const auto name_param = named_parameters.find("source");
+	if (name_param == named_parameters.end() || name_param->second.IsNull()) {
+		const auto position_param = named_parameters.find("source_position");
+		if (position_param != named_parameters.end() && not position_param->second.IsNull()) {
+			throw duckdb::BinderException(
+			    "source_position := takes a source := to disambiguate");
+		}
+		return ctx.primary();
+	}
+
+	const std::string wanted = name_param->second.ToString();
+	size_t position = 0;
+	const auto position_param = named_parameters.find("source_position");
+	if (position_param != named_parameters.end() && not position_param->second.IsNull()) {
+		const int64_t asked = position_param->second.GetValue<int64_t>();
+		if (asked < 0) {
+			throw duckdb::BinderException("source_position := must not be negative");
+		}
+		position = size_t(asked);
+	}
+
+	size_t seen = 0;
+	for (const Squey::PVDuckDBQuery::Source& candidate : *ctx.sources) {
+		if (candidate.name == wanted) {
+			if (seen == position) {
+				return &candidate;
+			}
+			++seen;
+		}
+	}
+
+	if (seen == 0) {
+		throw duckdb::BinderException("no source named '" + wanted + "'" +
+		                              known_sources(ctx));
+	}
+	throw duckdb::BinderException("source '" + wanted + "' has no source_position " +
+	                              std::to_string(position) + ": there " +
+	                              (seen == 1 ? "is 1 source" : "are " + std::to_string(seen) +
+	                                                               " sources") +
+	                              " by that name");
+}
 
 /**
  * Add a hint to a query error when its cause is a common mistake.
@@ -284,10 +407,10 @@ std::string wrap_predicate(const std::string& input, const std::string& scope)
 	return "SELECT rowid FROM " + scope + " WHERE (" + input + ")";
 }
 
-std::string column_name(const scan_context& ctx, PVCol col)
+std::string column_name(const Squey::PVDuckDBQuery::Source& src, PVCol col)
 {
-	if (ctx.name_of) {
-		const std::string name = ctx.name_of(size_t(col));
+	if (src.name_of) {
+		const std::string name = src.name_of(size_t(col));
 		if (not name.empty()) {
 			return name;
 		}
@@ -301,12 +424,12 @@ std::string column_name(const scan_context& ctx, PVCol col)
  * A layer name is typed by hand and is whatever the user called it, so the list
  * is the answer to the question the error raises.
  */
-std::string known_layers(const scan_context& ctx)
+std::string known_layers(const Squey::PVDuckDBQuery::Source& src)
 {
-	if (ctx.scopes == nullptr || not ctx.scopes->layer_names) {
+	if (not src.scopes.layer_names) {
 		return ". This source exposes no layers.";
 	}
-	const std::vector<std::string> names = ctx.scopes->layer_names();
+	const std::vector<std::string> names = src.scopes.layer_names();
 	if (names.empty()) {
 		return ". This source exposes no layers.";
 	}
@@ -319,6 +442,9 @@ std::string known_layers(const scan_context& ctx)
 
 struct scan_bind_data : public duckdb::TableFunctionData {
 	scan_context* ctx = nullptr;
+	// Which source this scan reads, resolved once when the query was bound.
+	// Points into the impl's registry, which outlives every query.
+	const Squey::PVDuckDBQuery::Source* src = nullptr;
 	size_t row_count = 0;
 	// Indexed by nraw column, offset by one against the emitted schema because
 	// column 0 is rowid.
@@ -492,13 +618,14 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
                                                    duckdb::vector<duckdb::string>& names)
 {
 	auto* ctx = dynamic_cast<scan_context*>(input.info.get());
-	if (ctx == nullptr || ctx->nraw == nullptr) {
+	if (ctx == nullptr || ctx->primary() == nullptr || ctx->primary()->nraw == nullptr) {
 		throw duckdb::BinderException("pvcop scan is not bound to a source");
 	}
 
 	auto bind_data = duckdb::make_uniq<scan_bind_data>();
 	bind_data->ctx = ctx;
-	bind_data->row_count = ctx->nraw->row_count();
+	bind_data->src = resolve_source(*ctx, input.named_parameters);
+	bind_data->row_count = bind_data->src->nraw->row_count();
 
 	const auto text_param = input.named_parameters.find("text");
 	if (text_param != input.named_parameters.end() && not text_param->second.IsNull()) {
@@ -515,10 +642,10 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 		// between planning and execution. Checked here so that the ordinary
 		// case, a typo, is an error naming what does exist rather than an empty
 		// result that reads like an answer.
-		if (ctx->scopes == nullptr || not ctx->scopes->layer ||
-		    ctx->scopes->layer(bind_data->layer) == nullptr) {
+		if (not bind_data->src->scopes.layer ||
+		    bind_data->src->scopes.layer(bind_data->layer) == nullptr) {
 			throw duckdb::BinderException("no layer named '" + bind_data->layer + "'" +
-			                              known_layers(*ctx));
+			                              known_layers(*bind_data->src));
 		}
 	}
 
@@ -531,10 +658,10 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 	return_types.emplace_back(duckdb::LogicalType::BIGINT);
 	names.emplace_back("rowid");
 
-	const PVCol column_count = ctx->nraw->column_count();
+	const PVCol column_count = bind_data->src->nraw->column_count();
 	std::unordered_map<std::string, int> used_names;
 	for (PVCol col(0); col < column_count; ++col) {
-		const pvcop::db::array& array = ctx->nraw->column(col);
+		const pvcop::db::array& array = bind_data->src->nraw->column(col);
 
 		column_binding binding;
 		// A text scan renders every column through pvcop's own formatter, which
@@ -586,7 +713,7 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 			}
 		}
 
-		std::string name = column_name(*ctx, col);
+		std::string name = column_name(*bind_data->src, col);
 		const int seen = used_names[name]++;
 		if (seen > 0) {
 			name += "_" + std::to_string(col);
@@ -610,22 +737,25 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 const PVCore::PVSelBitField* resolve_scope(const scan_context& ctx,
                                            const scan_bind_data& bind_data)
 {
-	const Squey::PVDuckDBQuery::Scopes* scopes = ctx.scopes;
+	const Squey::PVDuckDBQuery::Scopes& scopes = bind_data.src->scopes;
 	const PVCore::PVSelBitField* rows = nullptr;
 
 	switch (ctx.scope) {
 	case scan_scope::selection:
 		// A caller holding the selection it means says so; otherwise the scope
-		// reads whatever is selected now.
-		rows = ctx.input != nullptr
+		// reads whatever is selected now. The override speaks for the query
+		// object's own source, so a joined one keeps reading its own view --
+		// otherwise "filter within what I have" would silently narrow the
+		// other side of the join by a selection taken from this one.
+		rows = (ctx.input != nullptr && bind_data.src == ctx.primary())
 		           ? ctx.input
-		           : (scopes != nullptr && scopes->selection ? scopes->selection() : nullptr);
+		           : (scopes.selection ? scopes.selection() : nullptr);
 		break;
 	case scan_scope::layers:
-		rows = scopes != nullptr && scopes->layers ? scopes->layers() : nullptr;
+		rows = scopes.layers ? scopes.layers() : nullptr;
 		break;
 	case scan_scope::layer:
-		rows = scopes != nullptr && scopes->layer ? scopes->layer(bind_data.layer) : nullptr;
+		rows = scopes.layer ? scopes.layer(bind_data.layer) : nullptr;
 		// The name was checked when the query was bound, so getting here means
 		// the layer was removed in between. Reading every row instead would
 		// answer a question nobody asked.
@@ -710,7 +840,8 @@ scan_init_global(duckdb::ClientContext& context, duckdb::TableFunctionInitInput&
 			if (id != 0 && id <= bind_data.columns.size() && bind_data.columns[id - 1].pushdown) {
 				const PVCol col(static_cast<PVCol::value_type>(id - 1));
 				PVCore::PVSelBitField narrowed(bind_data.row_count);
-				if (select_with_pvcop(ctx.nraw->column(col), filter, kept, narrowed)) {
+				if (select_with_pvcop(bind_data.src->nraw->column(col), filter, kept,
+				                      narrowed)) {
 					kept = std::move(narrowed);
 					taken = taken_any = true;
 				}
@@ -1020,7 +1151,7 @@ void scan_function(duckdb::ClientContext&, duckdb::TableFunctionInput& input,
 					continue;
 				}
 				const PVCol col(static_cast<PVCol::value_type>(id - 1));
-				emit_dense_column(bind_data.columns[id - 1], ctx.nraw->column(col),
+				emit_dense_column(bind_data.columns[id - 1], bind_data.src->nraw->column(col),
 				                  gstate.dictionaries[id - 1].get(), offset, count,
 				                  output.data[i]);
 			}
@@ -1042,7 +1173,7 @@ void scan_function(duckdb::ClientContext&, duckdb::TableFunctionInput& input,
 					continue;
 				}
 				const PVCol col(static_cast<PVCol::value_type>(id - 1));
-				emit_sparse_column(bind_data.columns[id - 1], ctx.nraw->column(col),
+				emit_sparse_column(bind_data.columns[id - 1], bind_data.src->nraw->column(col),
 				                   gstate.dictionaries[id - 1].get(), lstate.rows,
 				                   output.data[i]);
 			}
@@ -1070,15 +1201,11 @@ void scan_function(duckdb::ClientContext&, duckdb::TableFunctionInput& input,
 } // namespace
 
 struct Squey::PVDuckDBQuery::impl {
-	impl(const PVRush::PVNraw& nraw_p,
-	     std::function<std::string(size_t)> name_of,
-	     Squey::PVDuckDBQuery::Scopes scopes_p)
-	    : db(nullptr), con(db), scopes(std::move(scopes_p))
+	explicit impl(std::vector<Squey::PVDuckDBQuery::Source> sources_p)
+	    : db(nullptr), con(db), sources(std::move(sources_p))
 	{
 		for (scan_context* ctx : {&sel_ctx, &layers_ctx, &layer_ctx}) {
-			ctx->nraw = &nraw_p;
-			ctx->name_of = name_of;
-			ctx->scopes = &scopes;
+			ctx->sources = &sources;
 			ctx->dropped_optional = &dropped_optional;
 		}
 		sel_ctx.scope = scan_scope::selection;
@@ -1101,6 +1228,8 @@ struct Squey::PVDuckDBQuery::impl {
 		expect_success(con.Query("CREATE VIEW selection AS SELECT * FROM selection()"));
 		expect_success(con.Query("CREATE VIEW layers AS SELECT * FROM layers()"));
 
+		create_source_schemas();
+		create_source_listing();
 		create_conversions();
 		confine();
 	}
@@ -1237,6 +1366,15 @@ struct Squey::PVDuckDBQuery::impl {
 		// were written with, so the argument belongs on all of them rather than
 		// on a fourth name.
 		fn.named_parameters["text"] = duckdb::LogicalType::BOOLEAN;
+		// Which source the scope reads. Absent means the one this query object
+		// speaks for, so a query written when a console showed a single source
+		// keeps meaning what it did. "source_position" tells namesakes apart: source
+		// names are not unique, and the Python API indexes them by that same
+		// pair rather than by name alone.
+		fn.named_parameters["source"] = duckdb::LogicalType::VARCHAR;
+		// Not "position": POSITION(x IN y) is SQL, so the parser reads a named
+		// parameter of that name as the start of that call and stops at the ":=".
+		fn.named_parameters["source_position"] = duckdb::LogicalType::BIGINT;
 		fn.projection_pushdown = true;
 		// Taking filters is a commitment: DuckDB drops the operator that would
 		// have applied them (verified -- with the flag set and the filters
@@ -1254,6 +1392,119 @@ struct Squey::PVDuckDBQuery::impl {
 		con.Commit();
 	}
 
+	/**
+	 * A schema per source, so that a join can read "ventes.selection" rather
+	 * than "selection(source := 'ventes')".
+	 *
+	 * Sugar over the argument form, not a replacement: only a source whose name
+	 * is unique gets one, since a schema cannot tell namesakes apart -- and
+	 * inventing a suffix for them would put a name in queries that nothing in
+	 * the interface ever shows. Names colliding with a schema DuckDB already
+	 * has are left out for the same reason: what "main.selection" would mean is
+	 * then ambiguous, and the argument form still reaches the source.
+	 *
+	 * The views are what carry the sugar; layer() stays a function, reached as
+	 * "ventes.layer('...')".
+	 */
+	void create_source_schemas()
+	{
+		for (const Squey::PVDuckDBQuery::Source& src : sources) {
+			if (src.name.empty() || not unique_source_name(src.name) ||
+			    reserved_schema(src.name)) {
+				continue;
+			}
+			const std::string schema = Squey::PVDuckDBQuery::quote_identifier(src.name);
+			const std::string source_arg = quote_literal(src.name);
+			expect_success(con.Query("CREATE SCHEMA " + schema));
+			expect_success(con.Query("CREATE VIEW " + schema +
+			                         ".selection AS SELECT * FROM selection(source := " +
+			                         source_arg + ")"));
+			expect_success(con.Query("CREATE VIEW " + schema +
+			                         ".layers AS SELECT * FROM layers(source := " +
+			                         source_arg + ")"));
+		}
+	}
+
+	//! True while @a name belongs to exactly one source.
+	bool unique_source_name(const std::string& name) const
+	{
+		size_t seen = 0;
+		for (const Squey::PVDuckDBQuery::Source& src : sources) {
+			seen += size_t(src.name == name);
+		}
+		return seen == 1;
+	}
+
+	//! Schemas DuckDB defines itself, which a source must not shadow.
+	static bool reserved_schema(const std::string& name)
+	{
+		static const std::set<std::string> RESERVED = {"main", "temp", "system", "pg_catalog",
+		                                               "information_schema"};
+		return RESERVED.count(name) != 0;
+	}
+
+	/**
+	 * A "sources" table naming what a query can read.
+	 *
+	 * Without it the names have to be guessed: a Python script can loop over
+	 * the sources it reaches, whereas a query can only name one it already
+	 * knows. Built as a literal VALUES list rather than a scan: it describes
+	 * the registry, which does not change while this object lives.
+	 */
+	void create_source_listing()
+	{
+		std::string rows;
+		size_t position = 0;
+		std::string previous;
+		for (size_t i = 0; i < sources.size(); ++i) {
+			const Squey::PVDuckDBQuery::Source& src = sources[i];
+			// Position counts namesakes, in registration order, which is the
+			// order resolve_source() walks.
+			position = 0;
+			for (size_t j = 0; j < i; ++j) {
+				position += size_t(sources[j].name == src.name);
+			}
+			rows += (i == 0 ? "" : ", ");
+			rows += "(" + quote_literal(src.name) + ", " + std::to_string(position) + ", " +
+			        std::to_string(src.nraw != nullptr ? src.nraw->row_count() : 0) + ", " +
+			        std::to_string(src.nraw != nullptr ? size_t(src.nraw->column_count()) : 0) +
+			        ", " + (i == 0 ? "true" : "false") + ")";
+		}
+		expect_success(con.Query("CREATE VIEW sources AS SELECT * FROM (VALUES " + rows +
+		                         ") AS t(name, position, rows, columns, current)"));
+	}
+
+	/**
+	 * Hold every source still for the length of a query.
+	 *
+	 * A join reads more than one, and any of them may have a column appended
+	 * or removed under it. Ordered by address rather than by registration, so
+	 * two queries taking the same pair take it in the same order and cannot
+	 * deadlock against each other; deduplicated because locking the same mutex
+	 * twice would.
+	 */
+	[[nodiscard]] std::vector<std::shared_lock<std::shared_mutex>> hold_sources() const
+	{
+		std::vector<const PVRush::PVNraw*> ordered;
+		for (const Squey::PVDuckDBQuery::Source& src : sources) {
+			if (src.nraw != nullptr) {
+				ordered.push_back(src.nraw);
+			}
+		}
+		std::sort(ordered.begin(), ordered.end());
+		ordered.erase(std::unique(ordered.begin(), ordered.end()), ordered.end());
+
+		std::vector<std::shared_lock<std::shared_mutex>> held;
+		held.reserve(ordered.size());
+		for (const PVRush::PVNraw* nraw : ordered) {
+			held.emplace_back(nraw->lock_structure());
+		}
+		return held;
+	}
+
+	//! The source this query object speaks for. Never null.
+	const Squey::PVDuckDBQuery::Source& primary() const { return sources.front(); }
+
 	static void expect_success(duckdb::unique_ptr<duckdb::MaterializedQueryResult> result)
 	{
 		if (result->HasError()) {
@@ -1263,7 +1514,10 @@ struct Squey::PVDuckDBQuery::impl {
 
 	duckdb::DuckDB db;
 	duckdb::Connection con;
-	Squey::PVDuckDBQuery::Scopes scopes;
+	// Owns what every scan reads. Entry 0 is the source this query object
+	// speaks for; the rest are the ones a join can name. Never empty, and never
+	// resized after construction: the scan holds pointers into it.
+	std::vector<Squey::PVDuckDBQuery::Source> sources;
 	scan_context sel_ctx;
 	scan_context layers_ctx;
 	scan_context layer_ctx;
@@ -1277,7 +1531,13 @@ struct Squey::PVDuckDBQuery::impl {
 Squey::PVDuckDBQuery::PVDuckDBQuery(const PVRush::PVNraw& nraw,
                                     std::function<std::string(size_t)> name_of,
                                     Scopes scopes)
-    : _d(std::make_unique<impl>(nraw, std::move(name_of), std::move(scopes)))
+    : PVDuckDBQuery(std::vector<Source>{
+          Source{&nraw, std::move(name_of), std::move(scopes), std::string(), 0}})
+{
+}
+
+Squey::PVDuckDBQuery::PVDuckDBQuery(std::vector<Source> sources)
+    : _d(std::make_unique<impl>(std::move(sources)))
 {
 }
 
@@ -1331,7 +1591,7 @@ void Squey::PVDuckDBQuery::run(const std::string& sql,
 	// Held for the whole query: the scan hands DuckDB pointers into the columns
 	// and walks them from several threads, so the set of columns has to stay
 	// where it is until the last chunk has been read.
-	const auto held = _d->sel_ctx.nraw->lock_structure();
+	const auto held = _d->hold_sources();
 
 	_d->sel_ctx.input = in;
 	auto result = _d->con.Query(statement);
@@ -1355,7 +1615,7 @@ void Squey::PVDuckDBQuery::run(const std::string& sql,
 		    "e.g. port = 80.");
 	}
 
-	const size_t row_count = _d->sel_ctx.nraw->row_count();
+	const size_t row_count = _d->primary().nraw->row_count();
 	if (out != nullptr) {
 		out->select_none();
 	}
@@ -1426,7 +1686,7 @@ Squey::PVDuckDBQuery::Table Squey::PVDuckDBQuery::run_tabular(const std::string&
 	_d->require_read_only(statement);
 	_d->dropped_optional.store(0, std::memory_order_relaxed);
 
-	const auto held = _d->sel_ctx.nraw->lock_structure();
+	const auto held = _d->hold_sources();
 
 	_d->sel_ctx.input = in;
 	auto result = _d->con.Query(statement);
@@ -1499,7 +1759,7 @@ bool Squey::PVDuckDBQuery::yields_selection(const std::string& sql) const
 
 std::vector<std::string> Squey::PVDuckDBQuery::column_types() const
 {
-	const auto held = _d->sel_ctx.nraw->lock_structure();
+	const auto held = _d->hold_sources();
 	auto result = _d->con.Query("SELECT * FROM layers LIMIT 0");
 	if (result->HasError()) {
 		throw std::runtime_error(result->GetError());
@@ -1519,7 +1779,7 @@ size_t Squey::PVDuckDBQuery::dropped_optional_filters() const
 
 std::vector<std::string> Squey::PVDuckDBQuery::column_axis_types() const
 {
-	const PVRush::PVNraw& nraw = *_d->sel_ctx.nraw;
+	const PVRush::PVNraw& nraw = *_d->primary().nraw;
 	const auto held = nraw.lock_structure();
 
 	std::vector<std::string> types;
@@ -1533,7 +1793,7 @@ std::vector<std::string> Squey::PVDuckDBQuery::column_axis_types() const
 
 std::vector<std::string> Squey::PVDuckDBQuery::column_names() const
 {
-	const auto held = _d->sel_ctx.nraw->lock_structure();
+	const auto held = _d->hold_sources();
 	auto result = _d->con.Query("SELECT * FROM layers LIMIT 0");
 	if (result->HasError()) {
 		throw std::runtime_error(result->GetError());

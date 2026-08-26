@@ -113,6 +113,25 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	};
 
 	/**
+	 * One source a query can read, with everything needed to name and scope it.
+	 *
+	 * A query object exposes several so that a join can reach across sources,
+	 * the way a Python script reaching for squey.source() already can. The
+	 * first one is what a bare "selection" resolves to; the others are named.
+	 *
+	 * @a name is the source name as Squey shows it, and @a position tells it
+	 * apart from its namesakes -- source names are not unique, which is why
+	 * the Python API indexes them by that same pair.
+	 */
+	struct Source {
+		const PVRush::PVNraw* nraw = nullptr;
+		std::function<std::string(size_t)> name_of;
+		Scopes scopes;
+		std::string name;
+		size_t position = 0;
+	};
+
+	/**
 	 * Expose the source a view reads, with the scopes that view defines.
 	 *
 	 * This is the constructor to reach for wherever a view is at hand: a
@@ -302,6 +321,15 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	PVDuckDBQuery(const PVRush::PVNraw& nraw,
 	              std::function<std::string(size_t)> name_of,
 	              Scopes scopes);
+
+	/**
+	 * Same, for the several sources a query may name at once.
+	 *
+	 * @a sources must not be empty: its first entry is the one this object
+	 * speaks for -- the source a bare scope reads, the row count a selection
+	 * is sized against, and the columns a completer is offered.
+	 */
+	explicit PVDuckDBQuery(std::vector<Source> sources);
 
 	void run(const std::string& sql,
 	         const PVCore::PVSelBitField* in,
