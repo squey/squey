@@ -47,8 +47,10 @@
 
 #include <QGridLayout>
 #include <QKeyEvent>
+#include <QLayout>
 #include <QLabel>
 #include <QPushButton>
+#include <QTimer>
 
 #include <algorithm>
 #include <memory>
@@ -163,6 +165,54 @@ class console_widget : public QWidget
 		return QWidget::eventFilter(watched, event);
 	}
 
+  public:
+	/**
+	 * Put @a error under the console, or take the line away when it is empty.
+	 *
+	 * A dock keeps whatever height it was given, so the room the message needed
+	 * stays taken once the message is gone: the console would creep up a line
+	 * at every mistake and never come back down. The height it had before the
+	 * first error is therefore kept, and given back once the errors stop.
+	 */
+	void set_error(QLabel* label, const QString& error)
+	{
+		const bool had = label->isVisible();
+		const bool has = not error.isEmpty();
+
+		auto* dock = PVCore::get_qobject_parent_of_type<PVGuiQt::PVViewDisplay*>(this);
+		// Read before the line is put up: showing it is what makes the dock
+		// grow, so afterwards there is no height left to remember.
+		if (has && not had && dock != nullptr) {
+			_height_without_error = dock->height();
+		}
+
+		label->setText(error);
+		label->setVisible(has);
+
+		if (has || not had || _height_without_error <= 0) {
+			return;
+		}
+
+		const int height = _height_without_error;
+		_height_without_error = 0;
+		// Deferred, and only after the layout has been told to recompute: a
+		// dock cannot be resized below what its contents still demand, and the
+		// widget goes on demanding room for the line until its layout has been
+		// activated with the line hidden.
+		QTimer::singleShot(0, this, [this, height]() {
+			if (layout() != nullptr) {
+				layout()->activate();
+			}
+			updateGeometry();
+			auto* workspace =
+			    PVCore::get_qobject_parent_of_type<PVGuiQt::PVWorkspaceBase*>(this);
+			auto* target = PVCore::get_qobject_parent_of_type<PVGuiQt::PVViewDisplay*>(this);
+			if (workspace != nullptr && target != nullptr) {
+				workspace->resizeDocks({target}, {height}, Qt::Vertical);
+			}
+		});
+	}
+
   private:
 	void show_help()
 	{
@@ -228,6 +278,8 @@ class console_widget : public QWidget
 	PVWidgets::PVHelpWidget* _help = nullptr;
 	//! The dock's height with the page down, kept while it is up. 0 when it is.
 	int _closed_height = 0;
+	//! Its height before an error took room. 0 while no error is shown.
+	int _height_without_error = 0;
 };
 
 } // namespace
@@ -379,8 +431,7 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 		    },
 		    "Running SQL query...", console_widget);
 
-		status->setText(error);
-		status->setVisible(not error.isEmpty());
+		console_widget->set_error(status, error);
 		if (not error.isEmpty()) {
 			return;
 		}
