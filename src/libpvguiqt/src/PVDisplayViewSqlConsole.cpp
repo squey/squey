@@ -310,20 +310,14 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 		return names;
 	});
 
-	// Seed with a condition alone rather than a full statement: that is the form
-	// worth teaching, and it puts a correctly quoted string literal in front of
-	// the user -- SQL quoting being the reverse of most languages, that is the
-	// first thing people get wrong.
-	// columns[0] is rowid, so the first real column is at index 1.
-	{
-		const QString first = columns.value(1, "column_name");
-		editor->setPlainText(
-		    QString("%1 = 'value'")
-		        .arg(QString::fromStdString(
-		            Squey::PVDuckDBQuery::quote_identifier(first.toStdString()))));
-		editor->setPlaceholderText(
-		    "A condition, e.g. port = 80 AND host LIKE '%.fr' — or a full SELECT rowid FROM ...");
-	}
+	// The form worth teaching, said rather than written: a seeded query has to
+	// be cleared before anything else can be typed, and one that is run as it
+	// stands answers about a column nobody asked about. The hint carries the
+	// same lesson -- SQL quoting being the reverse of most languages, a quoted
+	// literal in front of the user is the thing worth showing -- and it costs
+	// no keystrokes to be rid of.
+	editor->setPlaceholderText(
+	    "A condition, e.g. port = 80 AND host LIKE '%.fr' — or a full SELECT rowid FROM ...");
 
 	// Only errors are shown, and only while there is one: a row count and a
 	// duration are what the rest of the window already tells, and a line that is
