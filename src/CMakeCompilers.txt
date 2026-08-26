@@ -49,11 +49,25 @@ if (CODE_COVERAGE)
 endif()
 
 if (ADDRESS_SANITIZER)
-    set(ADDRESS_SANITIZER_FLAGS "-fsanitize=address -fno-omit-frame-pointer")
+    # Everything below is attached to the C++ language alone rather than to the flag
+    # variables, which are shared by every language:
+    #  - only the C++ compiler is selected by the build, the C one stays whatever
+    #    /usr/bin/cc is, that is gcc. gcc has its own libasan, so a C target linked
+    #    through it pulls in a second runtime and the binaries die on startup with
+    #    "Your application is linked against incompatible ASan runtimes".
+    #  - -resource-dir is clang-only, and gcc stops on it as an unrecognized option.
+    #    In the linker flags it broke every try_compile of the configure step, and Qt6
+    #    was then reported missing because its Threads check could no longer link.
+    # CMAKE_CXX_FLAGS is no safer than the linker flags here: the furl targets copy it
+    # into their COMPILE_FLAGS even though their sources are C.
+    # Leaving furl uninstrumented is not a loss worth compiling it with a mismatched
+    # runtime for: the sanitizer still watches every allocation it makes, since the
+    # executables it is linked into carry the runtime themselves.
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fsanitize=address;-fno-omit-frame-pointer>")
+    add_link_options("$<$<LINK_LANGUAGE:CXX>:-fsanitize=address;-fno-omit-frame-pointer>")
     # clang looks up its runtime libraries under -print-resource-dir, but the sysroot
     # installs them under the install prefix instead, which leaves the link step unable
-    # to find libclang_rt.asan. Point at them explicitly when they are missing. This is
-    # clang-only: gcc ships libasan alongside the compiler and rejects -resource-dir.
+    # to find libclang_rt.asan. Point at them explicitly when they are missing.
     if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
         execute_process(COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
                         OUTPUT_VARIABLE CLANG_RESOURCE_DIR
@@ -63,16 +77,15 @@ if (ADDRESS_SANITIZER)
             file(GLOB ASAN_RESOURCE_DIRS "${CMAKE_INSTALL_PREFIX}/lib/clang/*")
             if (ASAN_RESOURCE_DIRS)
                 list(GET ASAN_RESOURCE_DIRS 0 ASAN_RESOURCE_DIR)
-                set(ADDRESS_SANITIZER_FLAGS "-resource-dir=${ASAN_RESOURCE_DIR} ${ADDRESS_SANITIZER_FLAGS}")
+                add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-resource-dir=${ASAN_RESOURCE_DIR}>")
+                add_link_options("$<$<LINK_LANGUAGE:CXX>:-resource-dir=${ASAN_RESOURCE_DIR}>")
             endif()
         endif()
     endif()
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${ADDRESS_SANITIZER_FLAGS}")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${ADDRESS_SANITIZER_FLAGS}")
     message(STATUS "Address sanitizer instrumentation enabled")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS} ${ADDRESS_SANITIZER_FLAGS}")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")
 
 ###############################################################################
 # Configure linker
