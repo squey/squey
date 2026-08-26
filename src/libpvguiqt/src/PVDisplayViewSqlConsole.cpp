@@ -184,6 +184,8 @@ class console_widget : public QWidget
 			_help->newColumn();
 			_help->addTextFromFile(":help-sql-console-shortcuts");
 			_help->newTable();
+			_help->addTextFromFile(":help-sql-console-completion");
+			_help->newTable();
 			_help->addTextFromFile(":help-sql-console-example");
 			_help->finalizeText();
 			_help->installEventFilter(this);
