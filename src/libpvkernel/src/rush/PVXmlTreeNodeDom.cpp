@@ -615,6 +615,12 @@ PVRush::PVXmlTreeNodeDom* PVRush::PVXmlTreeNodeDom::addOneField(QString const& n
 	newNodeField->setParent(this);                      // modif du parent
 	// node axis (we add an axis in each field)
 	auto newAxis = new PVXmlTreeNodeDom(newAxisDom);
+	// The axis node has to be listed among the children of the field: that list is
+	// what the destructor deletes, what getOutName()/getOutWidget() look the axis up
+	// in, and what explore() would otherwise rebuild -- leaking this node and leaving
+	// a second one for the very same DOM element.
+	newNodeField->children.push_back(newAxis);
+	newNodeField->isAlreadyExplored = true;
 	newAxis->setParent(newNodeField);
 	newAxis->setName(name);
 

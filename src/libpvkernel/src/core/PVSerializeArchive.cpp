@@ -87,12 +87,15 @@ void PVCore::PVSerializeArchive::open(QString const& dir, archive_mode mode)
 
 PVCore::PVSerializeArchive::~PVSerializeArchive()
 {
-	if (_is_opened) {
-		for (auto it = _objs_attributes.constBegin(); it != _objs_attributes.constEnd(); it++) {
-			delete it.value();
-		}
-		_root_obj.reset();
+	// Not gated on _is_opened: PVSerializeArchiveZip::close_zip() clears that flag from
+	// the derived destructor, which runs before this one, so a zipped archive used to
+	// leave every one of its QSettings behind -- hundreds of them per investigation
+	// loaded or saved.
+	for (auto it = _objs_attributes.constBegin(); it != _objs_attributes.constEnd(); it++) {
+		delete it.value();
 	}
+	_objs_attributes.clear();
+	_root_obj.reset();
 }
 
 PVCore::PVSerializeObject_p PVCore::PVSerializeArchive::allocate_object(QString const& name,

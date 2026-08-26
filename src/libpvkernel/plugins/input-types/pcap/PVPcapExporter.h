@@ -109,6 +109,9 @@ class PVPcapExporter : public PVExporterBase
 		pcap_t* dumpfilehandle = pcap_open_dead(1, 65535);
 		FILE* pcap_file = fopen(file_path.c_str(), "wb");
 		pcap_dumper_t* dumpfile = pcap_dump_fopen(dumpfilehandle, pcap_file);
+		// pcap_dump_fopen() only reads the link type and the snapshot length off the handle
+		// to write the capture header, so it is of no use past this point.
+		pcap_close(dumpfilehandle);
 
 		char error_buffer[PCAP_ERRBUF_SIZE];
 		pcap_pkthdr* header;
