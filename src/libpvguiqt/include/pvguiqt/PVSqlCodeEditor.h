@@ -25,6 +25,8 @@
 #ifndef __PVGUIQT_PVSQLCODEEDITOR_H__
 #define __PVGUIQT_PVSQLCODEEDITOR_H__
 
+#include <pvguiqt/export.h>
+
 #include <QHash>
 #include <QPair>
 #include <QString>
@@ -48,7 +50,7 @@ namespace PVGuiQt
  * a query is a sequence of choices rather than something to be recalled --
  * which is what the plain everything-in-one-list completion failed to give.
  */
-class PVSqlCodeEditor : public QTextEdit
+class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 {
 	Q_OBJECT
 
