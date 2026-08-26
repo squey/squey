@@ -93,10 +93,40 @@ add_compile_definitions(TBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 # Used to expose the pvcop columns as a virtual table and turn SQL queries into
 # selections. Looked up by hand rather than through find_package: the upstream
 # CMake package is not installed by every platform of the build.
+# Windows ships no shared DuckDB to link against -- duckdb.bst drops it, see
+# there for why -- so duckdb_static is the only name that resolves on that
+# platform, while the shared library keeps winning everywhere else.
 find_path(DUCKDB_INCLUDE_DIR duckdb.hpp)
-find_library(DUCKDB_LIBRARY duckdb)
+find_library(DUCKDB_LIBRARY NAMES duckdb duckdb_static)
 if (DUCKDB_INCLUDE_DIR AND DUCKDB_LIBRARY)
   set(DUCKDB_LIBRARIES ${DUCKDB_LIBRARY})
+  if (WIN32)
+    # A static archive carries none of the link interface the shared build has,
+    # and what that interface holds is the extension machinery: upstream calls
+    # link_extension_libraries() on the shared library alone, so duckdb_static
+    # calls LoadAllExtensions() without defining it, the generated loader that
+    # defines it instantiates every statically linked extension, and each of
+    # those calls back into the engine. All of them are installed next to
+    # duckdb_static, so name them together inside a group -- that last edge
+    # makes the archives mutually dependent, which a single pass cannot follow.
+    find_library(DUCKDB_EXTENSION_LOADER_LIBRARY duckdb_generated_extension_loader)
+    if (NOT DUCKDB_EXTENSION_LOADER_LIBRARY)
+      message(FATAL_ERROR " DuckDB extension loader not found!")
+    endif()
+    # Whichever extensions duckdb.bst ends up configuring, rather than a list
+    # to keep in step with it by hand.
+    get_filename_component(DUCKDB_LIBRARY_DIR ${DUCKDB_LIBRARY} DIRECTORY)
+    file(GLOB DUCKDB_EXTENSION_LIBRARIES "${DUCKDB_LIBRARY_DIR}/lib*_extension.a")
+    message(STATUS " DuckDB extensions: ${DUCKDB_EXTENSION_LIBRARIES}")
+    # And repeat the system libraries DuckDB links into libduckdb on Windows.
+    set(DUCKDB_LIBRARIES -Wl,--start-group ${DUCKDB_LIBRARIES}
+                         ${DUCKDB_EXTENSION_LOADER_LIBRARY}
+                         ${DUCKDB_EXTENSION_LIBRARIES} -Wl,--end-group
+                         ws2_32 rstrtmgr)
+    # Keeps the headers from declaring anything __declspec(dllimport), which
+    # would look for import thunks no static archive provides.
+    add_definitions(-DDUCKDB_STATIC_BUILD)
+  endif()
   include_directories(SYSTEM ${DUCKDB_INCLUDE_DIR})
   message(STATUS " DuckDB library: ${DUCKDB_LIBRARY}")
 else()

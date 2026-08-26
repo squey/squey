@@ -31,6 +31,21 @@ sources:
   - target_triple == "x86_64-w64-mingw32":
       variables:
         duckdb-platform: "windows_amd64"
+      # The DLL is unusable from C++ under MinGW: winapi.hpp expands DUCKDB_API
+      # to nothing there -- its guard reads `defined(_WIN32) &&
+      # !defined(__MINGW32__)` -- so not one C++ declaration carries
+      # __declspec(dllexport), while duckdb.h keeps exporting the C API. That
+      # single explicit export is enough to switch off the auto-export ld falls
+      # back to when a PE image marks no symbol at all, so the import library
+      # resolves the C API and nothing else. Squey links duckdb_static instead,
+      # the same target the upstream shell links; drop the pair so that
+      # find_library() cannot pick it and the Windows package does not carry a
+      # dead copy of the whole engine.
+      config:
+        install-commands:
+          (>):
+          - |
+            rm -f "%{install-root}%{bindir}/libduckdb.dll" "%{install-root}%{libdir}/libduckdb.dll.a"
 
 variables:
   source-dir: "."
@@ -38,6 +53,12 @@ variables:
   # BUILD_SHELL/BUILD_UNITTESTS pull in the CLI and the test runner, which more
   # than doubles the build time. OVERRIDE_GIT_DESCRIBE is required because the
   # release tarball carries no .git directory for the version to be derived from.
+  # CMAKE_CXX_STANDARD is theirs to default to 11, where a static constexpr
+  # member is not implicitly inline: the library then emits a strong definition
+  # for each LogicalType constant, while a C++17 translation unit naming one
+  # emits its own into a COMDAT section, and ld merges neither into the other.
+  # Only PE calls that a multiple definition -- ELF quietly lets the strong one
+  # win -- so build the library in the standard its consumer compiles against.
   cmake-local: >-
     -DCMAKE_BUILD_TYPE=Release
     -DBUILD_SHELL=OFF
@@ -49,6 +70,7 @@ variables:
     -DENABLE_EXTENSION_AUTOINSTALL=OFF
     -DOVERRIDE_GIT_DESCRIBE=v1.5.5
     -DDUCKDB_EXPLICIT_PLATFORM=%{duckdb-platform}
+    -DCMAKE_CXX_STANDARD=17
 
 config:
   configure-commands:

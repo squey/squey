@@ -48,7 +48,11 @@
 
 #include <pvcop/db/array.h>
 
+#ifdef _WIN32
+#include <ws2tcpip.h>
+#else
 #include <arpa/inet.h>
+#endif
 
 #include <algorithm>
 #include <cstring>
