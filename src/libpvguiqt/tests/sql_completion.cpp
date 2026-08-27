@@ -40,6 +40,9 @@
 #include <QAbstractItemView>
 #include <QApplication>
 #include <QCompleter>
+#include <QScrollBar>
+#include <QStyle>
+#include <QStyleOptionSlider>
 #include <QStandardItemModel>
 #include <QTest>
 #include <QFile>
@@ -450,6 +453,70 @@ int main(int argc, char** argv)
 			++checked;
 		}
 		PV_ASSERT_VALID(checked > 0, "no table was offered to check", checked);
+	}
+
+	// --- The scroll bar stays inside the rounded background -------------------
+	// The background is painted on the viewport. A scroll area lays its bar out
+	// in a strip taken from the widget's edge, which the viewport is not part of,
+	// so a bar laid out that way was drawn on the transparent pixels outside the
+	// corners. It floats over the list instead, and this is what says so.
+	{
+		// More entries than fit, so a bar has something to scroll.
+		editor.setPlainText("");
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+		PV_ASSERT_VALID(completer->popup()->isVisible(), "the popup did not open", 0);
+
+		QScrollBar* bar = nullptr;
+		for (QScrollBar* candidate : completer->popup()->findChildren<QScrollBar*>()) {
+			if (candidate->isVisible() && candidate->orientation() == Qt::Vertical) {
+				bar = candidate;
+			}
+		}
+		PV_ASSERT_VALID(bar != nullptr, "no scroll bar to check -- the list fits",
+		                completer->popup()->model()->rowCount());
+
+		// --- The handle is a pill, against the theme's own rule -------------
+		// The theme styles scroll bar handles too, and ours only wins over it
+		// because it is set on the bar itself: the same rule set through the
+		// popup's sheet lost to the application's, whatever the documented
+		// precedence says, and the handle came out square and inset by a pixel.
+		// So the theme is loaded here, or the test would pass against a cascade
+		// the application never has.
+		{
+			QFile theme(":/theme-dark.qss");
+			PV_ASSERT_VALID(theme.open(QIODevice::ReadOnly), "the theme is not in the resources", 0);
+			qApp->setStyleSheet(QString::fromUtf8(theme.readAll()));
+			QApplication::processEvents();
+
+			QStyleOptionSlider opt;
+			opt.initFrom(bar);
+			opt.orientation = Qt::Vertical;
+			opt.minimum = bar->minimum();
+			opt.maximum = bar->maximum();
+			opt.sliderPosition = bar->value();
+			opt.sliderValue = bar->value();
+			opt.pageStep = bar->pageStep();
+			const QRect handle = bar->style()->subControlRect(QStyle::CC_ScrollBar, &opt,
+			                                                  QStyle::SC_ScrollBarSlider, bar);
+			// Full width: the theme's rule inset it by a pixel when it won.
+			PV_VALID(handle.width(), bar->width());
+
+			const QImage drawn = bar->grab().toImage();
+			// A corner the radius cut away, and the middle it left alone.
+			PV_VALID(int(drawn.pixelColor(handle.x(), handle.y()).alpha()), 0);
+			PV_VALID(int(drawn.pixelColor(handle.center().x(), handle.center().y()).alpha()), 255);
+		}
+
+		const QRect painted = completer->popup()->viewport()->geometry();
+		PV_ASSERT_VALID(painted.contains(bar->geometry()),
+		                "the bar reaches outside the painted background",
+		                bar->geometry().right(), "background", painted.right());
+		// And clear of the corners, where the radius cuts the background away.
+		PV_ASSERT_VALID(bar->geometry().top() > painted.top() &&
+		                    bar->geometry().bottom() < painted.bottom(),
+		                "the bar runs into the rounded corners", bar->geometry().top(),
+		                "background", painted.top());
 	}
 
 	return 0;

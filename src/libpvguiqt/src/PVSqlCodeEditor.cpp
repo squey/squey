@@ -204,11 +204,56 @@ class completion_delegate : public QStyledItemDelegate
 class completion_popup : public QListView
 {
   public:
-	using QListView::QListView;
-
 	static constexpr int RADIUS = 8;
+	//! Width of the floating bar, and how far its right edge sits from the border.
+	static constexpr int BAR_WIDTH = 8;
+	static constexpr int BAR_INSET = 4;
+
+	completion_popup()
+	{
+		// The bar floats over the list rather than beside it. A scroll area lays
+		// its bar out in a strip taken from the widget's edge, which is exactly
+		// where the rounded corners are -- and the background is painted on the
+		// viewport, which that strip is outside of, so the bar came out drawn on
+		// the transparent pixels beyond the radius.
+		//
+		// With the view's own bar switched off, no strip is taken, the viewport
+		// spans the whole widget and the background reaches every corner. This
+		// one is a child of the view, placed by hand, and mirrors the bar that
+		// is no longer shown.
+		setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+
+		_bar = new QScrollBar(Qt::Vertical, this);
+		_bar->hide();
+		// On the bar itself rather than through the popup's sheet: the theme
+		// styles scroll bar handles too, and set through an ancestor ours lost
+		// to it -- the handle came out square and inset by a pixel. Set here it
+		// wins, whatever the documented precedence says.
+		style_bar();
+		connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this,
+		        &completion_popup::style_bar);
+
+		QScrollBar* real = verticalScrollBar();
+		connect(real, &QScrollBar::rangeChanged, this, [this](int low, int high) {
+			_bar->setRange(low, high);
+			_bar->setVisible(high > low);
+			place_bar();
+		});
+		connect(real, &QScrollBar::valueChanged, _bar, &QScrollBar::setValue);
+		connect(_bar, &QScrollBar::valueChanged, real, &QScrollBar::setValue);
+		_bar->setPageStep(real->pageStep());
+		connect(real, &QScrollBar::actionTriggered, this,
+		        [this, real](int) { _bar->setPageStep(real->pageStep()); });
+	}
 
   protected:
+	void resizeEvent(QResizeEvent* event) override
+	{
+		QListView::resizeEvent(event);
+		_bar->setPageStep(verticalScrollBar()->pageStep());
+		place_bar();
+	}
+
 	void paintEvent(QPaintEvent* event) override
 	{
 		const popup_palette colors = palette_of_theme();
@@ -228,6 +273,38 @@ class completion_popup : public QListView
 		// viewport, which is why the one above is closed first.
 		QListView::paintEvent(event);
 	}
+
+  private:
+	//! A pill of the popup's dim colour, with nothing the theme drew left on it.
+	void style_bar()
+	{
+		_bar->setStyleSheet(
+		    QString("QScrollBar:vertical {"
+		            "  background: transparent; border: none; width: %2px; margin: 0;"
+		            "}"
+		            "QScrollBar::handle:vertical, QScrollBar::handle:vertical:hover {"
+		            "  background: %1; border: none; border-radius: %3px; min-height: 24px;"
+		            "}"
+		            "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {"
+		            "  height: 0; border: none; background: transparent;"
+		            "}"
+		            "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
+		            "  background: transparent; border: none;"
+		            "}")
+		        .arg(palette_of_theme().detail.name(QColor::HexArgb))
+		        .arg(BAR_WIDTH)
+		        .arg(BAR_WIDTH / 2));
+	}
+
+	//! Down the right edge, inside the radius, clear of the rounded corners.
+	void place_bar()
+	{
+		_bar->setGeometry(width() - BAR_WIDTH - BAR_INSET, RADIUS, BAR_WIDTH,
+		                  std::max(0, height() - 2 * RADIUS));
+		_bar->raise();
+	}
+
+	QScrollBar* _bar = nullptr;
 };
 
 /**
@@ -386,7 +463,6 @@ PVGuiQt::PVSqlCodeEditor::PVSqlCodeEditor(QWidget* parent /* = nullptr */) : QTe
 void PVGuiQt::PVSqlCodeEditor::restyle_popup()
 {
 	QAbstractItemView* popup = _completer->popup();
-	const popup_palette colors = palette_of_theme();
 
 	popup->setWindowFlags(popup->windowFlags() | Qt::FramelessWindowHint |
 	                      Qt::NoDropShadowWindowHint);
@@ -412,20 +488,10 @@ void PVGuiQt::PVSqlCodeEditor::restyle_popup()
 
 	// No background here: it is painted, and a colour set through the style
 	// sheet would be a square one laid outside the radius.
-	popup->setStyleSheet(
-	    QString("QAbstractItemView { background: transparent; border: none; outline: none; }"
-	            "QAbstractItemView::item { border: none; }"
-	            "QScrollBar:vertical {"
-	            "  background: transparent; width: 8px; margin: 6px 3px 6px 0;"
-	            "}"
-	            "QScrollBar::handle:vertical {"
-	            "  background: %1; border-radius: 4px; min-height: 24px;"
-	            "}"
-	            "QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical { height: 0; }"
-	            "QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {"
-	            "  background: transparent;"
-	            "}")
-	        .arg(colors.detail.name(QColor::HexArgb)));
+	// The scroll bar is not here: completion_popup styles the one it floats,
+	// on the bar itself, where a rule wins over the theme's.
+	popup->setStyleSheet("QAbstractItemView { background: transparent; border: none; outline: none; }"
+	                     "QAbstractItemView::item { border: none; }");
 }
 
 // What a business type is stored as, and how to get back and forth. A query
@@ -783,8 +849,11 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 	// style sheet draws around them are not in it, and a popup sized without
 	// them elides the very description it exists to show.
 	const QMargins frame = _completer->popup()->contentsMargins();
+	// The bar floats over the list, so the room it needs is slack in the width
+	// rather than a strip the layout took: without it, a description would run
+	// under the bar instead of stopping short of it.
 	rect.setWidth(_completer->popup()->sizeHintForColumn(0) + frame.left() + frame.right() +
-	              _completer->popup()->verticalScrollBar()->sizeHint().width());
+	              completion_popup::BAR_WIDTH + 2 * completion_popup::BAR_INSET);
 	_completer->complete(rect);
 }
 
