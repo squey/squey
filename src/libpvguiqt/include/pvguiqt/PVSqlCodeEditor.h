@@ -130,6 +130,21 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 	void set_layer_provider(std::function<QStringList()> provider);
 
 	/**
+	 * Keep @a query as the last one run, for Up to reach.
+	 *
+	 * Whatever was run, not whatever worked: a query one wants back is most
+	 * often one that failed, and going and fixing it is the point. A run
+	 * repeating the one before it is not kept twice.
+	 *
+	 * The list lives with the console and goes with it -- nothing is written to
+	 * disk, and nothing of it is saved into the investigation.
+	 */
+	void remember(const QString& query);
+
+	//! What Up walks back through, oldest first. For a test to read.
+	const QStringList& history() const { return _history; }
+
+	/**
 	 * One line tall.
 	 *
 	 * A query is usually one line, and the console is a strip at the bottom of
@@ -208,6 +223,29 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 	QHash<QString, QString> _quoted_form;
 	//! Set while inserting a completion, to keep that edit from re-triggering.
 	bool _inserting = false;
+
+	/**
+	 * Walk to the query @a delta steps away and put it in the editor.
+	 *
+	 * @return false when there is nowhere to go, so the key can fall through to
+	 *         what it otherwise does.
+	 */
+	bool recall(int delta);
+
+	//! The queries run in this console, oldest first. See remember().
+	QStringList _history;
+	/**
+	 * Which entry the editor is standing on, or -1 for the draft.
+	 *
+	 * The draft is a position of its own, just past the newest entry: Up steps
+	 * off it and Down comes back to it. Typing puts one back on it, which is
+	 * what makes Up save the text before replacing it.
+	 */
+	int _history_at = -1;
+	//! What was being typed when Up was first pressed, kept for Down.
+	QString _draft;
+	//! Set while recall() writes, so its own edit is not read as typing.
+	bool _recalling = false;
 };
 
 } // namespace PVGuiQt

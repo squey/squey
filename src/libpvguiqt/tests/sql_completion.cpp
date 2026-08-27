@@ -482,6 +482,57 @@ int main(int argc, char** argv)
 		PV_ASSERT_VALID(checked > 0, "no table was offered to check", checked);
 	}
 
+	// --- Up and Down walk the queries already run -----------------------------
+	// The console keeps what it ran for as long as it is open, and nowhere else.
+	// What is checked is that walking away from what is being written gives it
+	// back: a query one has half-typed is lost by a key pressed to look
+	// something up, which is worse than not offering the key at all.
+	{
+		completer->popup()->hide();
+		editor.setPlainText("");
+		editor.remember("port = 80");
+		editor.remember("host LIKE '%.fr'");
+
+		// Standing on the newest, which is what the editor would still show
+		// after running it, so Up reaches the one before rather than itself.
+		QTest::keyClick(&editor, Qt::Key_Up);
+		PV_VALID(editor.toPlainText().toStdString(), std::string("port = 80"));
+		// And no further: the oldest stays put rather than letting the key move
+		// the cursor out of the query it just handed over.
+		QTest::keyClick(&editor, Qt::Key_Up);
+		PV_VALID(editor.toPlainText().toStdString(), std::string("port = 80"));
+
+		QTest::keyClick(&editor, Qt::Key_Down);
+		PV_VALID(editor.toPlainText().toStdString(), std::string("host LIKE '%.fr'"));
+		// Past the newest is a clean editor, ready for the next query.
+		QTest::keyClick(&editor, Qt::Key_Down);
+		PV_VALID(editor.toPlainText().toStdString(), std::string(""));
+
+		// What is being typed is a position of its own, and Down comes back to
+		// it word for word.
+		editor.setPlainText("proto = 'ud'");
+		QTest::keyClick(&editor, Qt::Key_Up);
+		PV_VALID(editor.toPlainText().toStdString(), std::string("host LIKE '%.fr'"));
+		QTest::keyClick(&editor, Qt::Key_Down);
+		PV_VALID(editor.toPlainText().toStdString(), std::string("proto = 'ud'"));
+
+		// Running the same query twice does not put it in twice.
+		editor.remember("host LIKE '%.fr'");
+		editor.remember("host LIKE '%.fr'");
+		PV_VALID(editor.history().size(), qsizetype(2));
+		PV_VALID(editor.history().last().toStdString(), std::string("host LIKE '%.fr'"));
+
+		// Within a query, the keys are still the keys: a cursor on the second
+		// line moves up a line rather than reaching for another query.
+		editor.setPlainText("SELECT rowid\nFROM layers");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Up);
+		PV_VALID(editor.toPlainText().toStdString(), std::string("SELECT rowid\nFROM layers"));
+		PV_VALID(editor.textCursor().blockNumber(), 0);
+	}
+
 	// --- The scroll bar stays inside the rounded background -------------------
 	// The background is painted on the viewport. A scroll area lays its bar out
 	// in a strip taken from the widget's edge, which the viewport is not part of,

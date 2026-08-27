@@ -1,0 +1,4 @@
+MYLIB_1.0
+{
+global: *; local: _ZN6PVCore14PVClassLibraryIN6PVRush11PVInputTypeEE3getEv;
+}

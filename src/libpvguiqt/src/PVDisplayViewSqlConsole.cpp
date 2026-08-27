@@ -398,6 +398,10 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 			return;
 		}
 
+		// Kept before it runs, so a query that fails is still one Up reaches --
+		// which is the one most worth reaching, since it is going to be fixed.
+		editor->remember(editor->toPlainText());
+
 		// Squey::PVSelection rather than its PVSelBitField base: that is what
 		// the view takes, and the query only needs the base to fill it.
 		Squey::PVSelection result(source.get_row_count());

@@ -428,6 +428,15 @@ PVGuiQt::PVSqlCodeEditor::PVSqlCodeEditor(QWidget* parent /* = nullptr */) : QTe
 	        .arg(QColor(theme.editorColor(KSyntaxHighlighting::Theme::EditorColorRole::BackgroundColor))
 	                 .name()));
 
+	// Typing puts one back on the draft, so that walking up from there saves it.
+	// On textChanged rather than on the keys, since a paste is an edit too, and
+	// guarded because recall() writes through the same signal.
+	connect(this, &QTextEdit::textChanged, this, [this]() {
+		if (not _recalling) {
+			_history_at = -1;
+		}
+	});
+
 	_model = new QStandardItemModel(this);
 	_completer = new QCompleter(this);
 	_completer->setWidget(this);
@@ -1063,6 +1072,23 @@ void PVGuiQt::PVSqlCodeEditor::keyPressEvent(QKeyEvent* event)
 		}
 	}
 
+	// Up and Down walk the queries already run, the way a shell does -- but only
+	// from the edge of the text. A query spanning several lines is still walked
+	// through line by line; it is the line one cannot leave that hands the key
+	// over, so nothing is taken from moving about in what is being written.
+	const bool bare = (event->modifiers() & ~Qt::KeypadModifier) == Qt::NoModifier;
+	if (bare && event->key() == Qt::Key_Up && textCursor().blockNumber() == 0) {
+		if (recall(-1)) {
+			return;
+		}
+	}
+	if (bare && event->key() == Qt::Key_Down &&
+	    textCursor().blockNumber() == document()->blockCount() - 1) {
+		if (recall(1)) {
+			return;
+		}
+	}
+
 	// Enter runs the query. A query is a line, so that is what Enter should do
 	// with it; the line break moves to the modified keys, which is the bargain
 	// every one-line query box makes.
@@ -1087,6 +1113,62 @@ void PVGuiQt::PVSqlCodeEditor::keyPressEvent(QKeyEvent* event)
 	}
 
 	show_completions(forced);
+}
+
+void PVGuiQt::PVSqlCodeEditor::remember(const QString& query)
+{
+	const QString kept = query.trimmed();
+	if (kept.isEmpty()) {
+		return;
+	}
+	if (_history.isEmpty() || _history.last() != kept) {
+		_history.append(kept);
+		// A console left open for a day is still a console. What falls off the
+		// end is what nobody walks back that far to reach.
+		static constexpr int KEPT = 100;
+		while (_history.size() > KEPT) {
+			_history.removeFirst();
+		}
+	}
+	// Standing on the query just run, which is what the editor still shows: Up
+	// then reaches the one before it rather than handing back the same text.
+	// And the draft one comes back to by pressing Down is a clean editor, ready
+	// for the next query rather than holding the last one twice.
+	_history_at = _history.size() - 1;
+	_draft.clear();
+}
+
+bool PVGuiQt::PVSqlCodeEditor::recall(int delta)
+{
+	if (_history.isEmpty()) {
+		return false;
+	}
+	// One past the newest entry: where the draft sits.
+	const int draft_slot = _history.size();
+	int at = _history_at < 0 ? draft_slot : _history_at;
+	if (at == draft_slot && delta > 0) {
+		// Nothing newer than what is being written, so Down still moves the
+		// cursor -- which on a one-line query is nothing at all, and on a longer
+		// one is what it is for.
+		return false;
+	}
+	if (at == 0 && delta < 0) {
+		// Nothing older either, but the oldest query is already in the editor:
+		// letting the key through would move the cursor out of the text one
+		// just asked for.
+		return true;
+	}
+	if (_history_at < 0) {
+		_draft = toPlainText();
+	}
+	at += delta;
+	_history_at = at >= draft_slot ? -1 : at;
+
+	_recalling = true;
+	setPlainText(at >= draft_slot ? _draft : _history.at(at));
+	_recalling = false;
+	moveCursor(QTextCursor::End);
+	return true;
 }
 
 void PVGuiQt::PVSqlCodeEditor::insertFromMimeData(const QMimeData* source)
