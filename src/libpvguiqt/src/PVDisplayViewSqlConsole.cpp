@@ -295,7 +295,7 @@ PVDisplays::PVDisplayViewSqlConsole::PVDisplayViewSqlConsole()
     : PVDisplayViewIf(PVDisplayIf::ShowInToolbar | PVDisplayIf::ShowInCentralDockWidget |
                           PVDisplayIf::UniquePerParameters | PVDisplayIf::HasHelpPage,
                       "SQL console",
-                      PVModdedIcon("database-play"),
+                      PVModdedIcon("sql-file"),
                       Qt::BottomDockWidgetArea)
 {
 }

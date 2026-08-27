@@ -44,6 +44,7 @@
 #include <squey/PVSource.h>
 #include <squey/PVView.h>
 
+#include <pvkernel/core/PVTheme.h>
 #include <pvkernel/core/squey_assert.h>
 
 #include <pvbase/types.h>
@@ -363,6 +364,33 @@ int main(int argc, char** argv)
 
 		// The same widget, so the query that was typed is still there.
 		PV_VALID(editor->toPlainText().toStdString(), sql.toStdString());
+	}
+
+	// --- The button carries an icon -------------------------------------------
+	// A name with nothing behind it in the resources is not an error: the icon
+	// comes out empty, and a toolbar button with nothing drawn on it looks like
+	// a gap rather than a mistake. Both themes, since each has its own file.
+	{
+		const QIcon icon =
+		    PVDisplays::display_view_if<PVDisplays::PVDisplayViewSqlConsole>().toolbar_icon();
+		const PVCore::PVTheme::EColorScheme was = PVCore::PVTheme::color_scheme();
+		for (PVCore::PVTheme::EColorScheme scheme :
+		     {PVCore::PVTheme::EColorScheme::LIGHT, PVCore::PVTheme::EColorScheme::DARK}) {
+			PVCore::PVTheme::set_color_scheme(scheme);
+			const QImage drawn = icon.pixmap(QSize(32, 32)).toImage();
+			PV_ASSERT_VALID(not drawn.isNull(), "the toolbar icon resolves to nothing",
+			                int(scheme));
+			// Drawn rather than merely there: a name with no file behind it
+			// gives a pixmap of the right size with nothing on it.
+			int opaque = 0;
+			for (int y = 0; y < drawn.height(); ++y) {
+				for (int x = 0; x < drawn.width(); ++x) {
+					opaque += static_cast<int>(qAlpha(drawn.pixel(x, y)) > 200);
+				}
+			}
+			PV_ASSERT_VALID(opaque > 0, "nothing was drawn on the toolbar icon", int(scheme));
+		}
+		PVCore::PVTheme::set_color_scheme(was);
 	}
 
 	return 0;
