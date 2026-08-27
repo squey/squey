@@ -332,9 +332,10 @@ QString source_reference(const PVGuiQt::PVSqlCodeEditor::SourceCompletion& sourc
 } // namespace
 
 
-// The tables a query can read, and what each stands for. "layers" first: it is
-// what a layer filter reads, so it is the one a query is usually written
-// about.
+// The tables a query can read, and what each stands for. "selection" first: a
+// condition written on its own reads it, so it is what a query is against
+// unless it says otherwise -- and the first line of a list is where one looks
+// for the ordinary case.
 //
 // The text forms come last: reading a cell the format could not parse is a
 // deliberate act, not the everyday query.
@@ -343,12 +344,12 @@ QString source_reference(const PVGuiQt::PVSqlCodeEditor::SourceCompletion& sourc
 // sentence, so there is nothing to map from one to the other. The page may add
 // a second sentence -- a line of a popup cannot carry it -- but it starts here.
 static const QVector<QPair<QString, QString>> TABLES = {
-    {"layers", "layers — every row the layer stack lets through"},
     {"selection", "selection — the currently selected rows — what the listing shows"},
+    {"layers", "layers — every row the layer stack lets through"},
     {"layer('')", "layer('name') — one layer, by the name it carries"},
     {"layer('All events')", "layer('All events') — every row of the source"},
-    {"layers(text := true)", "layers(text := true) — every column as it was written"},
-    {"selection(text := true)", "selection(text := true) — every column as it was written"}};
+    {"selection(text := true)", "selection(text := true) — every column as it was written"},
+    {"layers(text := true)", "layers(text := true) — every column as it was written"}};
 
 // Keywords that expect something after them, and what that something is. Typing
 // one of these opens the next list on its own.

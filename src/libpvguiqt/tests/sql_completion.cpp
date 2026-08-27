@@ -438,6 +438,16 @@ int main(int argc, char** argv)
 		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
 		PV_ASSERT_VALID(completer->popup()->isVisible(), "the table list did not open", 0);
 
+		// "selection" leads: a condition written on its own reads it, so it is
+		// what a query is against unless it says otherwise.
+		QString first_offered;
+		for (int row = 0; row < model->rowCount() && first_offered.isEmpty(); ++row) {
+			if (not model->item(row)->data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
+				first_offered = model->item(row)->data(PVGuiQt::PVSqlCodeEditor::InsertRole).toString();
+			}
+		}
+		PV_VALID(first_offered.toStdString(), std::string("selection"));
+
 		int checked = 0;
 		for (int row = 0; row < model->rowCount(); ++row) {
 			if (model->item(row)->data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
