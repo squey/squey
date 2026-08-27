@@ -159,7 +159,8 @@ PVCol Squey::PVPythonSource::nraw_column_index(const std::string& column_name,
         throw std::domain_error(std::string("No column named \"") + column_name + "\"");
     }
     if (position >= matching_columns_indexes.size()) {
-        throw std::domain_error(std::string("The count of column named \"") + column_name + "\" is <= " + std::to_string(position));
+        throw std::domain_error(std::string("The count of column named \"") + column_name +
+                                "\" is <= " + std::to_string(position));
     }
     return matching_columns_indexes[position];
 }
@@ -167,6 +168,33 @@ PVCol Squey::PVPythonSource::nraw_column_index(const std::string& column_name,
 pybind11::array Squey::PVPythonSource::column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/
 {
     return column(nraw_column_index(column_name, position), string_as);
+}
+
+pybind11::array Squey::PVPythonSource::valid(size_t column_index)
+{
+    PVRush::PVNraw& nraw = _source.get_rushnraw();
+    if (PVCol(column_index) >= nraw.column_count()) {
+        throw std::out_of_range("Out of range column index");
+    }
+    const pvcop::db::array& column = nraw.column(PVCol(column_index));
+
+    pybind11::array array(pybind11::dtype("bool"), column.size());
+    auto* const flags = static_cast<uint8_t*>(array.request().ptr);
+    if (column.has_invalid() == pvcop::db::NONE) {
+        // Nothing was unreadable, which is worth answering without walking the
+        // column: it is the ordinary case.
+        std::fill_n(flags, column.size(), uint8_t(1));
+        return array;
+    }
+    for (size_t row = 0; row < column.size(); row++) {
+        flags[row] = uint8_t(column.is_valid(row));
+    }
+    return array;
+}
+
+pybind11::array Squey::PVPythonSource::valid(const std::string& column_name, size_t position)
+{
+    return valid(nraw_column_index(column_name, position));
 }
 
 std::string Squey::PVPythonSource::column_type(size_t column_index)

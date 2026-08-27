@@ -80,6 +80,20 @@ public:
     PYBIND11_EXPORT pybind11::array column(const std::string& column_name, size_t position) /*const*/;
     PYBIND11_EXPORT pybind11::array column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/;
 
+    /**
+     * Which rows of a column carry a value, as a boolean array.
+     *
+     * A cell the format could not read still occupies its slot in the storage,
+     * and what sits there is an encoding rather than a value: an unreadable
+     * cell of a number column reads back as 0, which column() hands over as a
+     * plain 0. This is what tells the two apart.
+     *
+     * The same array a query result carries beside each of its columns, and it
+     * means the same thing there.
+     */
+    PYBIND11_EXPORT pybind11::array valid(size_t column_index) /*const*/;
+    PYBIND11_EXPORT pybind11::array valid(const std::string& column_name, size_t position) /*const*/;
+
     PYBIND11_EXPORT std::string column_type(size_t column_index) /*const*/;
     PYBIND11_EXPORT std::string column_type(const std::string& column_name, size_t position) /*const*/;
 
