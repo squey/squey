@@ -179,20 +179,28 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 
   private:
 	//! What makes sense at the cursor, derived from the preceding keyword.
-	enum class Context { Any, Tables, Columns, Layers };
+	enum class Context { Any, Tables, Columns, Layers, Sources };
 
 	//! Paint the popup the way the rest of the console looks, in either theme.
 	void restyle_popup();
 
+	//! A string literal under the cursor, and what it is a name of.
+	struct name_literal {
+		//! Where the name starts, or -1 when the cursor is not in one.
+		int start = -1;
+		//! What to offer there. Meaningless while start is -1.
+		Context names = Context::Any;
+	};
+
 	/**
-	 * Where the layer name being typed starts, or -1 outside one.
+	 * The string literal the cursor sits in, when it holds a name.
 	 *
-	 * A layer name is a string literal, so it holds what an identifier cannot
-	 * -- spaces above all -- and neither the word under the cursor nor the
-	 * completion prefix spans it. Both what to offer and what an accepted
-	 * completion replaces are measured from here.
+	 * A layer and a source are named by string literals, so they hold what an
+	 * identifier cannot -- spaces above all -- and neither the word under the
+	 * cursor nor the completion prefix spans them. Both what to offer and what
+	 * an accepted completion replaces are measured from the start returned here.
 	 */
-	int layer_literal_start() const;
+	name_literal literal_at_cursor() const;
 
 	Context context_at_cursor() const;
 	//! What the popup shows for a column: its name, and what it really holds.

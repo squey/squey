@@ -558,6 +558,59 @@ int main(int argc, char** argv)
 		                "nothing says which sources can be named", 0);
 	}
 
+	// --- A source is named by a string, and completed inside it ---------------
+	// "selection(source := 'name')" is how a query reaches another source when
+	// the schema form cannot -- a namesake has no schema. The name in it is a
+	// string literal, which the completion prefix does not span, so the one
+	// place a source has to be named by hand was the one place nothing offered
+	// the names.
+	{
+		PVGuiQt::PVSqlCodeEditor::SourceCompletion own;
+		own.name = "packets.pcap";
+		own.has_schema = true;
+		own.current = true;
+		PVGuiQt::PVSqlCodeEditor::SourceCompletion other;
+		other.name = "web logs";
+		other.position = 1;
+		other.has_schema = false;
+		editor.set_sources({own, other});
+
+		editor.setPlainText("SELECT * FROM selection(source := '");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+
+		const QStringList names = offered(*model);
+		// Bare, since what goes between the quotes is the name and nothing else.
+		PV_ASSERT_VALID(names.contains("web logs"), "the source names are not offered", 0);
+		PV_ASSERT_VALID(names.contains("packets.pcap"),
+		                "this console's own source cannot be named", 0);
+
+		// A name holding a space is what the literal is there for, and picking
+		// it closes what was opened.
+		pick(completer, "web logs");
+		PV_VALID(editor.toPlainText().toStdString(),
+		         std::string("SELECT * FROM selection(source := 'web logs')"));
+	}
+
+	// --- And not beside it ----------------------------------------------------
+	// source_position takes a number. It reads back as "position", the
+	// underscore stopping the word, so it cannot be taken for the argument that
+	// takes a name.
+	{
+		editor.setPlainText("SELECT * FROM selection(source_position := '");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+
+		PV_ASSERT_VALID(not offered(*model).contains("web logs"),
+		                "a name was offered where a number goes", 0);
+	}
+
 	// --- Up and Down walk the queries already run -----------------------------
 	// The console keeps what it ran for as long as it is open, and nowhere else.
 	// What is checked is that walking away from what is being written gives it

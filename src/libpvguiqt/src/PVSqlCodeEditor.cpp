@@ -712,12 +712,13 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force)
 
 void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, const QString& match)
 {
-	const int literal = layer_literal_start();
+	const name_literal quoted = literal_at_cursor();
+	const int literal = quoted.start;
 	if (literal >= 0) {
-		// Inside layer('...'): what is being typed is a layer name, which the
-		// prefix does not span, so both the context and what to match on are
-		// taken from the literal instead.
-		context = Context::Layers;
+		// Inside a name written as a string -- layer('...'), source := '...' --
+		// what is being typed is that name, which the prefix does not span, so
+		// both the context and what to match on are taken from the literal.
+		context = quoted.names;
 	}
 	const QString typed =
 	    literal >= 0 ? toPlainText().mid(literal, textCursor().position() - literal) : match;
@@ -755,6 +756,16 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 			for (const QString& name : _layer_provider()) {
 				offer(layers, name, name);
 			}
+		}
+	}
+
+	if (context == Context::Sources) {
+		// Every one of them, this console's own included: naming it is the long
+		// way of writing the bare form, and a list that left it out would read
+		// as though it could not be named.
+		QVector<entry>& named = section(tr("Sources"));
+		for (const SourceCompletion& source : _sources) {
+			offer(named, source.name, source.name);
 		}
 	}
 
@@ -917,15 +928,15 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 }
 
 /**
- * Whether the cursor sits inside the string layer() takes, and where that
- * string starts.
+ * Whether the cursor sits inside a string that names something, and what.
  *
- * Read backwards from the cursor: an unmatched quote opens a literal, and the
- * word before its parenthesis says whether the literal is a layer name. Only
- * the current line is walked -- a query is written on one, and a quote left
- * open on an earlier one is a mistake rather than a context.
+ * Read backwards from the cursor: an unmatched quote opens a literal, and what
+ * stands in front of it says what the literal is for -- "layer(" a layer, and
+ * "source :=" a source. Only the current line is walked: a query is written on
+ * one, and a quote left open on an earlier one is a mistake rather than a
+ * context.
  */
-int PVGuiQt::PVSqlCodeEditor::layer_literal_start() const
+PVGuiQt::PVSqlCodeEditor::name_literal PVGuiQt::PVSqlCodeEditor::literal_at_cursor() const
 {
 	const QString text = toPlainText();
 	const int cursor = textCursor().position();
@@ -947,25 +958,41 @@ int PVGuiQt::PVSqlCodeEditor::layer_literal_start() const
 		quote = quote < 0 ? i : -1;
 	}
 	if (quote < 0) {
-		return -1;
+		return {};
 	}
+
+	// The word in front of whatever opens the literal.
+	const auto word_before = [&text](int at) {
+		while (at > 0 && text.at(at - 1).isSpace()) {
+			--at;
+		}
+		int start = at;
+		while (start > 0 && text.at(start - 1).isLetterOrNumber()) {
+			--start;
+		}
+		return text.mid(start, at - start);
+	};
 
 	int pos = quote;
 	while (pos > 0 && text.at(pos - 1).isSpace()) {
 		--pos;
 	}
-	if (pos == 0 || text.at(pos - 1) != '(') {
-		return -1;
+	if (pos > 0 && text.at(pos - 1) == '(') {
+		// The argument of a call, which is a layer name when the call is layer().
+		if (word_before(pos - 1).compare("layer", Qt::CaseInsensitive) == 0) {
+			return {quote + 1, Context::Layers};
+		}
+		return {};
 	}
-	--pos;
-	while (pos > 0 && text.at(pos - 1).isSpace()) {
-		--pos;
+	if (pos > 1 && text.at(pos - 1) == '=' && text.at(pos - 2) == ':') {
+		// A named argument. "source_position" reads back as "position", since
+		// the underscore stops the word, so it cannot be taken for this one --
+		// and it takes a number anyway.
+		if (word_before(pos - 2).compare("source", Qt::CaseInsensitive) == 0) {
+			return {quote + 1, Context::Sources};
+		}
 	}
-	int start = pos;
-	while (start > 0 && text.at(start - 1).isLetterOrNumber()) {
-		--start;
-	}
-	return text.mid(start, pos - start).compare("layer", Qt::CaseInsensitive) == 0 ? quote + 1 : -1;
+	return {};
 }
 
 void PVGuiQt::PVSqlCodeEditor::insert_completion(const QModelIndex& index)
@@ -985,7 +1012,7 @@ void PVGuiQt::PVSqlCodeEditor::insert_completion(const QModelIndex& index)
 	// Inside layer('...') what is replaced is the literal, which the prefix does
 	// not span: a layer name may hold spaces, and stopping at one would leave
 	// half of the old name in front of the new.
-	const int literal = layer_literal_start();
+	const int literal = literal_at_cursor().start;
 	cursor.setPosition(literal >= 0 ? literal : cursor.position() - current_prefix().length(),
 	                   QTextCursor::KeepAnchor);
 	cursor.insertText(inserted);
