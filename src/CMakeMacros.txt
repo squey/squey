@@ -89,21 +89,42 @@ else()
 	set(SQUEY_DEFAULT_TEST_TIMEOUT 600)
 endif()
 set(SQUEY_TEST_TIMEOUT ${SQUEY_DEFAULT_TEST_TIMEOUT} CACHE STRING "Timeout in seconds after which a test is killed and reported as failed")
+# Beside the collections rather than in the build tree, which is rarely on the
+# roomy filesystem. Short, too -- a deep enough path makes pvcop's filearray
+# throw from its destructor, which ends the process rather than the test.
+set(SQUEY_TEST_SANDBOX_DIR "/tmp/squey/tests" CACHE PATH
+    "Where a test writes the collections it imports. One directory per test, cleared as the test starts and ends.")
 
+# LONG_PATHS marks a test whose own files already reach as deep as Windows
+# allows, which is what keeps this from adding two components to its paths.
 function(add_squey_test test_exe test_name)
+	cmake_parse_arguments(_TEST "LONG_PATHS" "" "" ${ARGN})
 	# Naming the target is what runs the test through the TEST_LAUNCHER of that
 	# target, but it writes the path of the build tree into CTestTestfile.cmake.
 	# Without a launcher, keep the name relative to the test directory: an
 	# installed copy of the suite, which is how the tests of a cross-compiled
 	# build run, can only find the executable by that name.
 	if (CMAKE_TEST_LAUNCHER)
-		add_test(NAME SQUEY_TEST_${test_exe} COMMAND SQUEY_TEST_${test_name} ${ARGN})
+		add_test(NAME SQUEY_TEST_${test_exe} COMMAND SQUEY_TEST_${test_name}
+		         ${_TEST_UNPARSED_ARGUMENTS})
 	else()
-		add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX} ${ARGN})
+		add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX}
+		         ${_TEST_UNPARSED_ARGUMENTS})
 	endif()
 	set_tests_properties(SQUEY_TEST_${test_exe} PROPERTIES
 		TIMEOUT ${SQUEY_TEST_TIMEOUT}
 		FIXTURES_REQUIRED squey_testsuite_built)
+
+	# An imported collection is the size of what was imported, and a suite run
+	# is a few hundred of them: where they go and who removes them is not a
+	# detail. Each test is given a directory of its own, which it clears on its
+	# way in and on its way out -- see PVNrawCacheManager::nraw_dir().
+	#
+	# Appended, so a test that sets an environment of its own keeps it.
+	if(NOT (WIN32 AND _TEST_LONG_PATHS))
+		set_property(TEST SQUEY_TEST_${test_exe} APPEND PROPERTY ENVIRONMENT
+			"SQUEY_NRAW_DIR=${SQUEY_TEST_SANDBOX_DIR}/${test_exe}")
+	endif()
 endfunction()
 
 function(add_bench bench_name)

@@ -128,10 +128,15 @@ add_squey_test(Tmapping_mac_address_uni-uni Tmapping_mac_address 6 ${TESTS_FILES
 add_bench(Tmapping_mac_address_uni-uni LINKS ${LINK_LIBRARIES} FILES mapping_mac_address.cpp ${COMMON_FILES})
 
 add_squey_compile_test(Tsquey_investigation LINKS ${LINK_LIBRARIES} FILES investigation.cpp ${COMMON_FILES})
-add_squey_test(Tsquey_investigation Tsquey_investigation)
+# LONG_PATHS: these two write their investigation among the collections, and
+# saving explodes it into a tree ninety characters deep. Under a Windows runner
+# directory already ninety-five long that leaves no room for the two components
+# a sandbox would add -- the 260 characters are spent. Those runs keep the
+# directory the configuration names, as they did before.
+add_squey_test(Tsquey_investigation Tsquey_investigation LONG_PATHS)
 
 add_squey_compile_test(Tsquey_investigation_multisource LINKS ${LINK_LIBRARIES} FILES investigation_multisource.cpp ${COMMON_FILES})
-add_squey_test(Tsquey_investigation_multisource Tsquey_investigation_multisource)
+add_squey_test(Tsquey_investigation_multisource Tsquey_investigation_multisource LONG_PATHS)
 set_tests_properties(SQUEY_TEST_Tsquey_investigation_multisource PROPERTIES DEPENDS SQUEY_TEST_Tsquey_investigation)
 
 add_squey_compile_test(Tscaling_integer_default_default LINKS ${LINK_LIBRARIES} FILES scaling.cpp ${COMMON_FILES})
@@ -254,7 +259,7 @@ if(SQUEY_PYTHON_SITE_PACKAGES)
     list(JOIN SQUEY_PYTHON_SITE_PACKAGES ":" SQUEY_PYTHONPATH)
     set_property(TEST SQUEY_TEST_Tsquey_python_scripting
                       SQUEY_TEST_Tsquey_embeded_python_scripting
-                 PROPERTY ENVIRONMENT "PYTHONPATH=${SQUEY_PYTHONPATH}")
+                 APPEND PROPERTY ENVIRONMENT "PYTHONPATH=${SQUEY_PYTHONPATH}")
 endif()
 
 add_custom_command(
