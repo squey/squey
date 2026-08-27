@@ -196,7 +196,7 @@ bool needs_quoting(const std::string& name)
 enum class scan_scope {
 	//! What is selected right now.
 	selection,
-	//! What the layer stack lets through: what the listing shows.
+	//! Every row the layer stack lets through.
 	layers,
 	//! One layer, named by the function's argument.
 	layer
@@ -665,10 +665,10 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 
 		column_binding binding;
 		// A text scan renders every column through pvcop's own formatter, which
-		// is what the listing shows -- a cell the format could not read included,
-		// since pvcop kept the text it was written with. That is the whole point
-		// of the mode, so the storage shortcuts are skipped rather than chosen
-		// against.
+		// is what a cell of the listing draws -- one the format could not read
+		// included, since pvcop kept the text it was written with. That is the
+		// whole point of the mode, so the storage shortcuts are skipped rather
+		// than chosen against.
 		//
 		// Except where the storage already is that text: a string column with
 		// nothing unreadable in it reads the same either way, so pvcop can still
@@ -702,7 +702,7 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 			// Not when the column holds cells the format could not read: pvcop
 			// keeps their text in a dictionary of its own and reads the stored
 			// value as an index into it, so those rows are the one place where
-			// the column's dictionary and what the listing shows part company.
+			// the column's dictionary and what a cell draws part company.
 			if (array.is_string() && array.has_invalid() == pvcop::db::NONE) {
 				const pvcop::db::read_dict* dict = array.dict();
 				if (dict != nullptr && dict->size() > 0) {

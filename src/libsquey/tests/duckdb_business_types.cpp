@@ -100,7 +100,7 @@ int main(int argc, char** argv)
 	for (size_t row = 0; row < probes; ++row) {
 		const std::string written = array.at(row);
 
-		// --- Reading: what the conversion shows is what the listing shows -------
+		// --- Reading: what the conversion shows is what the listing draws ---------
 		const auto shown = query.run_tabular("SELECT " + conversion + "_text(" + quoted +
 		                                         ") FROM layers WHERE rowid = " + std::to_string(row),
 		                                     nullptr, 1);

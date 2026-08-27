@@ -9,19 +9,23 @@
 </tr>
 <tr>
   <td class="shortcuts"><b>ipv4('…')</b>&nbsp;:</td>
-  <td>to compare a column against, and the fast direction</td>
+  <td>an address, to compare a column against — and the fast direction, since
+      it leaves the comparison on the stored number</td>
 </tr>
 <tr>
-  <td class="shortcuts"><b>ipv4_text(col)</b>&nbsp;:</td>
-  <td>to read one. It builds a string per row, so keep it out of a WHERE</td>
+  <td class="shortcuts"><b>ipv4_text(column)</b>&nbsp;:</td>
+  <td>the address a column holds, as text. It builds a string per row, so keep
+      it out of a WHERE</td>
 </tr>
 <tr>
-  <td class="shortcuts"><b>mac_address(…)</b>&nbsp;:</td>
-  <td>the same pair for a MAC, with mac_address_text(col)</td>
+  <td class="shortcuts"><b>mac_address('…')</b>&nbsp;:</td>
+  <td>an address, to compare a column against — with mac_address_text(column)
+      to read one</td>
 </tr>
 <tr>
-  <td class="shortcuts"><b>to_timestamp(col)</b>&nbsp;:</td>
-  <td>reads a date, stored as an epoch in seconds</td>
+  <td class="shortcuts"><b>to_timestamp(column)</b>&nbsp;:</td>
+  <td>the instant a column holds, stored as an epoch in seconds. A date in
+      milliseconds reads with epoch_ms(column)</td>
 </tr>
 <tr>
   <td class="shortcuts"><b>which is which</b>&nbsp;:</td>

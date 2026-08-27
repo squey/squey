@@ -31,7 +31,7 @@
 // And that the text form of a scope shows a cell the format could not read.
 // Such a cell has no value to expose: the typed form gives NULL, because what
 // the storage holds for it is an encoding rather than a number. pvcop kept the
-// text it was written with, which is what the listing shows and what
+// text it was written with, which is what the listing draws in a cell and what
 // "text := true" hands to SQL.
 
 #include <squey/PVDuckDBQuery.h>

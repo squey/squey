@@ -42,7 +42,9 @@
 #include <QCompleter>
 #include <QStandardItemModel>
 #include <QTest>
+#include <QFile>
 #include <QTextCursor>
+#include <QTextDocument>
 
 #include <string>
 
@@ -406,6 +408,48 @@ int main(int argc, char** argv)
 		pick(completer, "ipv4()");
 		PV_VALID(editor.toPlainText().toStdString(), std::string("ipv4() = 0"));
 		PV_VALID(editor.textCursor().position(), 5);
+	}
+
+	// --- The popup and the help page say the same sentence ---------------------
+	// Aligned by hand in three places -- this header's own documentation, the
+	// table above, and the help resources -- because they address one reader.
+	// Nothing but this holds them together, so the day one is reworded the other
+	// stops recognising it, and a user has two phrasings to map onto each other.
+	{
+		QString help;
+		for (const char* page : {":help-sql-console-tables", ":help-sql-console-types"}) {
+			QFile file(page);
+			PV_ASSERT_VALID(file.open(QIODevice::ReadOnly), "help page missing", page);
+			help += QString::fromUtf8(file.readAll());
+		}
+		// Rendered rather than raw: the page wraps its cells, so a sentence is
+		// split across lines by whitespace the reader never sees.
+		QTextDocument rendered;
+		rendered.setHtml(help);
+		const QString shown = rendered.toPlainText().simplified();
+
+		editor.setPlainText("SELECT * FROM ");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		PV_ASSERT_VALID(completer->popup()->isVisible(), "the table list did not open", 0);
+
+		int checked = 0;
+		for (int row = 0; row < model->rowCount(); ++row) {
+			if (model->item(row)->data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
+				continue;
+			}
+			const QString detail =
+			    model->item(row)->data(PVGuiQt::PVSqlCodeEditor::DetailRole).toString();
+			if (detail.isEmpty()) {
+				continue;
+			}
+			PV_ASSERT_VALID(shown.contains(detail), "the help page words it otherwise",
+			                detail.toStdString());
+			++checked;
+		}
+		PV_ASSERT_VALID(checked > 0, "no table was offered to check", checked);
 	}
 
 	return 0;

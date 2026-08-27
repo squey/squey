@@ -58,26 +58,34 @@ class PVView;
  * column, so a query holds a single copy of the data and always sees the
  * current schema (including columns added at runtime through Python).
  *
- * A query names the rows it reads the way the application names them:
- *   - "selection": what is selected right now;
- *   - "layers": what the layer stack lets through, which is what the listing
- *     shows and what a layer filter takes as input;
- *   - "layer('name')": one layer, by the name it carries in the layer stack.
- *     The base layer is locked, so "layer('All events')" is how a query reads
- *     every row of the source.
+ * A query names the rows it reads the way the application names them. The
+ * wording below is the wording the completion popup and the help page use, word
+ * for word: what one reads while typing, what one reads when asking, and what
+ * one reads here are the same sentence.
+ *   - "selection": the currently selected rows -- what the listing shows;
+ *   - "layers": every row the layer stack lets through. What the listing shows
+ *     is the selection above, unless its visibility toggles say otherwise;
+ *   - "layer('name')": one layer, by the name it carries in the layer stack;
+ *   - "layer('All events')": every row of the source. The base layer cannot be
+ *     removed, so that is how a query reaches past everything else.
+ *
+ * Each also takes a "text" argument -- "selection(text := true)" -- giving
+ * every column as it was written. That is the only way to see a cell the format
+ * could not read, which is NULL otherwise, since what the storage holds for it
+ * is an encoding rather than a value.
+ *
+ * And each reaches the other sources of the project: "source.selection" is the
+ * selection of another source, under that source's own name, which is how a
+ * query joins across sources. "selection(source := 'name')" is the same reach
+ * spelt out, with "source_position :=" to tell namesakes apart. The "sources"
+ * table lists what can be named.
  *
  * A business type is exposed as the integer it is stored as, whose order is its
  * own order -- an IPv4 as a UINTEGER, a datetime as an epoch. Named conversions
- * bridge the two: "WHERE ip = ipv4('192.168.1.1')" and "SELECT ipv4_text(ip)".
- * The literal-side one is the one to reach for, since it leaves the comparison
- * on the stored integer rather than building a string per row.
- *
- * Each of them also takes a "text" argument -- "selection(text := true)",
- * "layer('All events', text := true)" -- which renders every column the way the
- * listing does, as the text the cell was written with. That is the form to
- * reach for to read a cell the format could not parse: the typed form exposes
- * such a cell as NULL, since what the storage holds for it is an encoding
- * rather than a value.
+ * bridge the two: "ipv4('192.168.1.1')" is an address, to compare a column
+ * against, and "ipv4_text(column)" is the address a column holds, as text. The
+ * literal-side one is the one to reach for, since it leaves the comparison on
+ * the stored integer rather than building a string per row.
  *
  * Queries come in two shapes:
  *   - a bare predicate -- "port = 80 AND host LIKE '%.fr'" -- which is wrapped
