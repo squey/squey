@@ -96,9 +96,20 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
     python_source.def("column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
     python_source.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSource::column_type), pybind11::arg("column_name"));
     python_source.def("column_type", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::column_type), pybind11::arg("column_name"), pybind11::arg("position") = 0);
-    python_source.def("selection", pybind11::overload_cast<>(&PVPythonSource::selection));
-    python_source.def("selection", pybind11::overload_cast<int>(&PVPythonSource::selection), pybind11::arg("layer_index"));
-    python_source.def("selection", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::selection), pybind11::arg("layer_name"), pybind11::arg("position") = 0);
+    // Named as the SQL console names them, word for word, and documented in the
+    // same sentence: one reader learns the vocabulary once. selection() used to
+    // return what layers() returns, so the name moved rather than stayed on a
+    // different set of rows -- a script calling it now fails instead of quietly
+    // reading something else.
+    python_source.def("selection", pybind11::overload_cast<>(&PVPythonSource::selection),
+        "The currently selected rows -- what the listing shows.");
+    python_source.def("layers", pybind11::overload_cast<>(&PVPythonSource::layers),
+        "Every row the layer stack lets through.");
+    python_source.def("layer", pybind11::overload_cast<int>(&PVPythonSource::layer), pybind11::arg("layer_index"),
+        "One layer, by its position in the layer stack.");
+    python_source.def("layer", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::layer), pybind11::arg("layer_name"), pybind11::arg("position") = 0,
+        "One layer, by the name it carries in the layer stack. Names are not "
+        "unique, so position tells namesakes apart.");
     python_source.def("insert_column", &PVPythonSource::insert_column, pybind11::arg("column"), pybind11::arg("column_name"));
     python_source.def("delete_column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::delete_column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
     python_source.def("insert_layer", pybind11::overload_cast<const std::string&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"));

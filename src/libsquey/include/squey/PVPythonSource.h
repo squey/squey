@@ -83,9 +83,24 @@ public:
     PYBIND11_EXPORT std::string column_type(size_t column_index) /*const*/;
     PYBIND11_EXPORT std::string column_type(const std::string& column_name, size_t position) /*const*/;
 
+    /**
+     * The currently selected rows -- what the listing shows.
+     *
+     * Named as the SQL console names it. What used to be called selection() was
+     * this source's layers(), which is a different set of rows -- so the name
+     * was taken away rather than left pointing at the other one, since a script
+     * calling it would have gone on working and quietly read the wrong thing.
+     */
     PYBIND11_EXPORT PVPythonSelection selection() /*const*/;
-    PYBIND11_EXPORT PVPythonSelection selection(int layer_index) /*const*/;
-    PYBIND11_EXPORT PVPythonSelection selection(const std::string& layer_name, size_t position) /*const*/;
+
+    //! Every row the layer stack lets through.
+    PYBIND11_EXPORT PVPythonSelection layers() /*const*/;
+
+    //! One layer, by its position in the layer stack.
+    PYBIND11_EXPORT PVPythonSelection layer(int layer_index) /*const*/;
+
+    //! One layer, by the name it carries in the layer stack.
+    PYBIND11_EXPORT PVPythonSelection layer(const std::string& layer_name, size_t position) /*const*/;
 
     PYBIND11_EXPORT void insert_column(const pybind11::array& column, const std::string& axis_name);
     PYBIND11_EXPORT void delete_column(const std::string& column_name, size_t position);

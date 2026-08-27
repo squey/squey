@@ -193,41 +193,44 @@ std::string Squey::PVPythonSource::column_type(const std::string& column_name, s
     return column_type(nraw_column_index(column_name, position));
 }
 
-Squey::PVPythonSelection Squey::PVPythonSource::selection()
+//! Wrap @a selection as the read-only numpy array Python sees.
+static Squey::PVPythonSelection as_python_selection(Squey::PVView& view,
+                                                    Squey::PVSelection& selection)
 {
-    return selection(-1);
-}
-
-Squey::PVPythonSelection Squey::PVPythonSource::selection(int layer_index)
-{
-    Squey::PVView* view = &active_view();
-    Squey::PVLayerStack& layerstack = view->get_layer_stack();
-    Squey::PVSelection* selection = nullptr;
-
-    if (layer_index == -1) {
-        selection = &view->get_layer_stack_output_layer().get_selection();
-    }
-    else {
-        if (layer_index >= layerstack.get_layer_count()) {
-            throw std::out_of_range("Out of range layer index");
-        }
-        selection = &layerstack.get_layer_n(layer_index).get_selection();
-    }
     pybind11::str dummy_data_owner; // hack to disable ownership
     pybind11::dtype dt("uint64");
-    auto arr = pybind11::array(dt, selection->chunk_count(), selection->get_buffer(), dummy_data_owner);
+    auto arr = pybind11::array(dt, selection.chunk_count(), selection.get_buffer(), dummy_data_owner);
     reinterpret_cast<pybind11::detail::PyArray_Proxy*>(arr.ptr())->flags &= ~pybind11::detail::npy_api::NPY_ARRAY_WRITEABLE_; // hack to set flags.writable=false
-    return Squey::PVPythonSelection(*view, *selection, arr);
+    return Squey::PVPythonSelection(view, selection, arr);
 }
 
-Squey::PVPythonSelection Squey::PVPythonSource::selection(const std::string& layer_name, size_t position  /* = 0 */)
+Squey::PVPythonSelection Squey::PVPythonSource::selection()
+{
+    Squey::PVView* view = _source.current_view();
+    return as_python_selection(*view, view->get_post_filter_layer().get_selection());
+}
+
+Squey::PVPythonSelection Squey::PVPythonSource::layers()
+{
+    Squey::PVView* view = _source.current_view();
+    return as_python_selection(*view, view->get_layer_stack_output_layer().get_selection());
+}
+
+Squey::PVPythonSelection Squey::PVPythonSource::layer(int layer_index)
 {
     Squey::PVView* view = &active_view();
     Squey::PVLayerStack& layerstack = view->get_layer_stack();
-    if (layer_name == "") {
-        return selection(-1);
+    if (layer_index < 0 || layer_index >= layerstack.get_layer_count()) {
+        throw std::out_of_range("Out of range layer index");
     }
-    else {
+    return as_python_selection(*view, layerstack.get_layer_n(layer_index).get_selection());
+}
+
+Squey::PVPythonSelection Squey::PVPythonSource::layer(const std::string& layer_name, size_t position  /* = 0 */)
+{
+    Squey::PVView* view = _source.current_view();
+    Squey::PVLayerStack& layerstack = view->get_layer_stack();
+    {
         std::vector<size_t> matching_layers_indexes;
         for (size_t i = 0; i < (size_t)layerstack.get_layer_count(); i++) {
             if (layer_name == layerstack.get_layer_n(i).get_name().toStdString()) {
@@ -240,7 +243,7 @@ Squey::PVPythonSelection Squey::PVPythonSource::selection(const std::string& lay
         if (position >= matching_layers_indexes.size()) {
             throw std::domain_error(std::string("The count of layer named \"") + layer_name + "\" is <= " + std::to_string(position));
         }
-        return selection(matching_layers_indexes[position]);
+        return layer(static_cast<int>(matching_layers_indexes[position]));
     }
 }
 
