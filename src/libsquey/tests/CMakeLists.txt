@@ -245,6 +245,18 @@ add_squey_test(Tsquey_multi_inputs Tsquey_multi_inputs)
 add_squey_compile_test(Tsquey_python_scripting LINKS ${LINK_LIBRARIES} FILES python_scripting.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
 add_squey_test(Tsquey_embeded_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_embeded_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
+# numpy sits in the sandbox prefix rather than beside the interpreter, so the
+# script cannot import it unless PYTHONPATH says where to look. CI exports that
+# before calling ctest; carrying it on the tests makes a bare "ctest" work too,
+# which is what anyone running the suite by hand does.
+file(GLOB SQUEY_PYTHON_SITE_PACKAGES "/app/lib/python*/site-packages")
+if(SQUEY_PYTHON_SITE_PACKAGES)
+    list(JOIN SQUEY_PYTHON_SITE_PACKAGES ":" SQUEY_PYTHONPATH)
+    set_property(TEST SQUEY_TEST_Tsquey_python_scripting
+                      SQUEY_TEST_Tsquey_embeded_python_scripting
+                 PROPERTY ENVIRONMENT "PYTHONPATH=${SQUEY_PYTHONPATH}")
+endif()
+
 add_custom_command(
     TARGET SQUEY_TEST_Tsquey_python_scripting POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
