@@ -55,6 +55,22 @@ add_squey_test(Tsquey_duckdb_interrupt Tsquey_duckdb_interrupt)
 add_squey_compile_test(Tsquey_duckdb_functions LINKS ${LINK_LIBRARIES} FILES duckdb_functions.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_functions Tsquey_duckdb_functions)
 
+# The parquet source is what produces a text column with missing values, so this
+# one is built against it the way the libpvkernel tests are. Its packages are
+# looked up again here: they were found in libpvkernel's scope, which a sibling
+# directory does not inherit.
+find_package(Arrow CONFIG REQUIRED)
+find_package(Parquet CONFIG REQUIRED)
+find_package(Thrift CONFIG REQUIRED)
+find_package(re2 REQUIRED)
+set(PARQUET_LIBS Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
+set(PARQUET_SRC_FILES
+../../libpvkernel/plugins/common/parquet/PVParquetAPI.cpp
+../../libpvkernel/plugins/input-types/parquet/PVParquetExporter.cpp
+)
+add_squey_compile_test(Tsquey_duckdb_null_strings LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES duckdb_null_strings.cpp ${COMMON_FILES} ${PARQUET_SRC_FILES})
+add_squey_test(Tsquey_duckdb_null_strings Tsquey_duckdb_null_strings)
+
 # An address is exposed as the integer it is stored as, so the conversions that
 # bridge the two have to agree with pvcop's own formatter -- in both directions.
 add_squey_compile_test(Tsquey_duckdb_business_types LINKS ${LINK_LIBRARIES} FILES duckdb_business_types.cpp ${COMMON_FILES})

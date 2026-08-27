@@ -45,6 +45,33 @@ pvtest::TestEnv::TestEnv(
     }
 }
 
+pvtest::TestEnv::TestEnv()
+{
+    // Need this core application to find plugins path.
+    std::string prog_name = "test_squey";
+    char* arg = const_cast<char*>(prog_name.c_str());
+    int argc = 1;
+    QCoreApplication app(argc, &arg);
+
+    init_env();
+}
+
+Squey::PVSource& pvtest::TestEnv::add_source(
+    PVRush::PVInputType::list_inputs const& inputs,
+    PVRush::PVSourceCreator_p sc,
+    PVRush::PVFormat const& format,
+    bool new_scene /* = true */)
+{
+    Squey::PVScene* scene =
+        (new_scene) ? &root.emplace_add_child("scene") : root.get_children().front();
+    Squey::PVSource& src = scene->emplace_add_child(inputs, sc, format);
+
+    PVRush::PVControllerJob_p job = src.extract(0);
+    src.wait_extract_end(job);
+
+    return src;
+}
+
 Squey::PVSource& pvtest::TestEnv::import(
     std::vector<std::string> const& log_files,
     std::string const& format_file,

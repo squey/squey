@@ -327,6 +327,34 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	size_t dropped_optional_filters() const;
 
 	/**
+	 * How many columns the last query read through their dictionary.
+	 *
+	 * A text column stores one dictionary and an index per row, so a scan can
+	 * hand DuckDB the dictionary once and turn the indices into a selection
+	 * vector: no string is built at all. The row-by-row path builds one per row
+	 * read, which is why the scan only takes the dictionary when it is smaller
+	 * than what the query reads.
+	 *
+	 * Exposed so a test can say which path a query took. Whether a column is
+	 * read one way or the other is invisible in the result, and the difference
+	 * is what the scan is fast for.
+	 */
+	size_t dictionary_columns() const;
+
+	/**
+	 * How many filters the last query had pvcop answer rather than DuckDB.
+	 *
+	 * A filter pvcop takes narrows what the scan reads, instead of being
+	 * evaluated on what the scan emitted. It can only take one where the storage
+	 * holds what the filter compares against.
+	 *
+	 * Exposed so a test can say the shortcut was taken. Which path a filter went
+	 * down does not show in the result, so a test that only checks the answer
+	 * would pass just as well with the shortcut gone.
+	 */
+	size_t pvcop_filters() const;
+
+	/**
 	 * Column names as exposed to SQL, in nraw order: the axis names, verbatim.
 	 * Pass them through quote_identifier() to write them into a query.
 	 */

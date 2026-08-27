@@ -111,6 +111,24 @@ class TestEnv
 	{
 	}
 
+	/**
+	 * An environment with nothing imported yet.
+	 *
+	 * For a source the file sniffing does not reach: PVTests::get_file_sc()
+	 * answers with the generic file source whatever it is handed, so a format
+	 * that is derived from the input rather than written beside it -- parquet's
+	 * is -- has to be built by the caller and handed over.
+	 */
+	TestEnv();
+
+	/**
+	 * Import from inputs, a source creator and a format the caller built.
+	 */
+	Squey::PVSource& add_source(PVRush::PVInputType::list_inputs const& inputs,
+	                            PVRush::PVSourceCreator_p sc,
+	                            PVRush::PVFormat const& format,
+	                            bool new_scene = true);
+
 	Squey::PVSource& add_source(std::vector<std::string> const& log_files,
 	                             std::string const& format_file,
 	                             size_t dup = 1,

@@ -102,6 +102,14 @@ struct column_binding {
 	// such gap: pvcop hands back the cell as it was written, empty string
 	// included, and the listing shows exactly that.
 	bool null_on_invalid = false;
+	/**
+	 * Whether the column holds rows the source had no value for.
+	 *
+	 * Those are kept in a selection of pvcop's own; what is left in the column
+	 * for such a row means nothing. The dictionary path therefore cannot use the
+	 * stored index for them -- see the slot scan_init_global adds.
+	 */
+	bool missing_values = false;
 
 	// Whether pvcop may answer a filter on this column instead of DuckDB.
 	//
@@ -232,6 +240,10 @@ struct scan_context : public duckdb::TableFunctionInfo {
 	// Where to count the optional filters this scan let go. Owned by the impl
 	// and shared by its three contexts, since one query may read several.
 	std::atomic<size_t>* dropped_optional = nullptr;
+	//! Reset per query. See PVDuckDBQuery::dictionary_columns().
+	std::atomic<size_t>* dictionary_columns = nullptr;
+	//! Reset per query. See PVDuckDBQuery::pvcop_filters().
+	std::atomic<size_t>* pvcop_filters = nullptr;
 
 	//! The source a bare scope reads. Never null once the impl is built.
 	const Squey::PVDuckDBQuery::Source* primary() const
@@ -674,8 +686,16 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 		// nothing unreadable in it reads the same either way, so pvcop can still
 		// answer a filter on it -- which is the column a text query is usually
 		// written about.
-		binding.pushdown = not bind_data->text ||
-		                   (array.is_string() && array.has_invalid() == pvcop::db::NONE);
+		binding.missing_values = array.has_invalid() != pvcop::db::NONE;
+		// pvcop answers a filter by comparing what the column stores. That is
+		// what the filter is about only where the storage holds it: in text mode
+		// that means a string column, whose storage already is that text.
+		//
+		// Rows the source had no value for are no obstacle, though what is
+		// stored for them means nothing: pvcop compares the valid rows against
+		// the literals that converted and the invalid ones against those that
+		// did not, so such a row is never matched against a value.
+		binding.pushdown = not bind_data->text || array.is_string();
 		const auto it = bind_data->text ? zero_copy_types().end()
 		                                : zero_copy_types().find(array.type());
 		if (it != zero_copy_types().end()) {
@@ -699,11 +719,7 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 			// the scan starts: this records what the option needs, and
 			// scan_init_global decides.
 			//
-			// Not when the column holds cells the format could not read: pvcop
-			// keeps their text in a dictionary of its own and reads the stored
-			// value as an index into it, so those rows are the one place where
-			// the column's dictionary and what a cell draws part company.
-			if (array.is_string() && array.has_invalid() == pvcop::db::NONE) {
+			if (array.is_string()) {
 				const pvcop::db::read_dict* dict = array.dict();
 				if (dict != nullptr && dict->size() > 0) {
 					binding.dict = dict;
@@ -844,6 +860,9 @@ scan_init_global(duckdb::ClientContext& context, duckdb::TableFunctionInitInput&
 				                      narrowed)) {
 					kept = std::move(narrowed);
 					taken = taken_any = true;
+					if (bind_data.ctx != nullptr && bind_data.ctx->pvcop_filters != nullptr) {
+						bind_data.ctx->pvcop_filters->fetch_add(1, std::memory_order_relaxed);
+					}
 				}
 			}
 
@@ -924,17 +943,36 @@ scan_init_global(duckdb::ClientContext& context, duckdb::TableFunctionInitInput&
 			continue;
 		}
 		const column_binding& binding = bind_data.columns[id - 1];
-		if (binding.dict == nullptr || binding.dict->size() >= rows_read) {
+		// One entry past the dictionary when the column has rows without a
+		// value: those cannot use their stored index, so they are all pointed at
+		// this one instead.
+		const size_t entries = binding.dict != nullptr
+		                           ? binding.dict->size() + size_t(binding.missing_values)
+		                           : 0;
+		if (binding.dict == nullptr || entries >= rows_read) {
 			continue;
 		}
 
-		auto values =
-		    duckdb::make_uniq<duckdb::Vector>(duckdb::LogicalType::VARCHAR, binding.dict->size());
+		auto values = duckdb::make_uniq<duckdb::Vector>(duckdb::LogicalType::VARCHAR, entries);
 		auto* data = duckdb::FlatVector::GetData<duckdb::string_t>(*values);
 		for (size_t i = 0; i < binding.dict->size(); ++i) {
 			data[i] = duckdb::StringVector::AddString(*values, binding.dict->key(i));
 		}
+		if (binding.missing_values) {
+			// NULL, because there is no value -- which is what a row the format
+			// could not read comes back as for every other type. Except in text
+			// mode, which shows what the listing draws for such a cell, and
+			// pvcop draws an empty one.
+			if (bind_data.text) {
+				data[binding.dict->size()] = duckdb::StringVector::AddString(*values, "");
+			} else {
+				duckdb::FlatVector::SetNull(*values, binding.dict->size(), true);
+			}
+		}
 		state->dictionaries[id - 1] = std::move(values);
+		if (bind_data.ctx != nullptr && bind_data.ctx->dictionary_columns != nullptr) {
+			bind_data.ctx->dictionary_columns->fetch_add(1, std::memory_order_relaxed);
+		}
 	}
 
 	return state;
@@ -1017,8 +1055,17 @@ void emit_dense_column(const column_binding& binding, const pvcop::db::array& ar
 		// the chunk is that index array turned into a selection vector: no
 		// string is built here at all.
 		duckdb::SelectionVector sel(count);
-		for (size_t i = 0; i < count; ++i) {
-			sel.set_index(i, binding.indices[offset + i]);
+		if (binding.missing_values) {
+			const uint32_t nowhere = uint32_t(binding.dict->size());
+			for (size_t i = 0; i < count; ++i) {
+				sel.set_index(i, array.is_valid(offset + i)
+				                     ? uint32_t(binding.indices[offset + i])
+				                     : nowhere);
+			}
+		} else {
+			for (size_t i = 0; i < count; ++i) {
+				sel.set_index(i, binding.indices[offset + i]);
+			}
 		}
 		out.Slice(*dictionary, sel, count);
 		return;
@@ -1071,8 +1118,16 @@ void emit_sparse_column(const column_binding& binding, const pvcop::db::array& a
 		// selection vector goes straight from output position to dictionary
 		// entry, so the two indirections cost one.
 		duckdb::SelectionVector sel(count);
-		for (size_t i = 0; i < count; ++i) {
-			sel.set_index(i, binding.indices[rows[i]]);
+		if (binding.missing_values) {
+			const uint32_t nowhere = uint32_t(binding.dict->size());
+			for (size_t i = 0; i < count; ++i) {
+				sel.set_index(i, array.is_valid(rows[i]) ? uint32_t(binding.indices[rows[i]])
+				                                         : nowhere);
+			}
+		} else {
+			for (size_t i = 0; i < count; ++i) {
+				sel.set_index(i, binding.indices[rows[i]]);
+			}
 		}
 		out.Slice(*dictionary, sel, count);
 		return;
@@ -1206,6 +1261,8 @@ struct Squey::PVDuckDBQuery::impl {
 		for (scan_context* ctx : {&sel_ctx, &layers_ctx, &layer_ctx}) {
 			ctx->sources = &sources;
 			ctx->dropped_optional = &dropped_optional;
+			ctx->dictionary_columns = &dictionary_columns;
+			ctx->pvcop_filters = &pvcop_filters;
 		}
 		sel_ctx.scope = scan_scope::selection;
 		layers_ctx.scope = scan_scope::layers;
@@ -1544,6 +1601,10 @@ struct Squey::PVDuckDBQuery::impl {
 	mutable std::mutex query_lock;
 	//! Reset per query. See PVDuckDBQuery::dropped_optional_filters().
 	std::atomic<size_t> dropped_optional{0};
+	//! Reset per query. See PVDuckDBQuery::dictionary_columns().
+	std::atomic<size_t> dictionary_columns{0};
+	//! Reset per query. See PVDuckDBQuery::pvcop_filters().
+	std::atomic<size_t> pvcop_filters{0};
 	//! Whether a statement is in DuckDB's hands. See PVDuckDBQuery::interrupt().
 	std::atomic<bool> running{false};
 };
@@ -1607,6 +1668,8 @@ void Squey::PVDuckDBQuery::run(const std::string& sql,
 	const bool was_wrapped = statement != sql;
 	_d->require_read_only(statement);
 	_d->dropped_optional.store(0, std::memory_order_relaxed);
+	_d->dictionary_columns.store(0, std::memory_order_relaxed);
+	_d->pvcop_filters.store(0, std::memory_order_relaxed);
 
 	// Held for the whole query: the scan hands DuckDB pointers into the columns
 	// and walks them from several threads, so the set of columns has to stay
@@ -1705,6 +1768,8 @@ Squey::PVDuckDBQuery::Table Squey::PVDuckDBQuery::run_tabular(const std::string&
 	const std::string statement = wrap_predicate(sql, in != nullptr ? "selection" : "layers");
 	_d->require_read_only(statement);
 	_d->dropped_optional.store(0, std::memory_order_relaxed);
+	_d->dictionary_columns.store(0, std::memory_order_relaxed);
+	_d->pvcop_filters.store(0, std::memory_order_relaxed);
 
 	const auto held = _d->hold_sources();
 
@@ -1875,6 +1940,16 @@ void Squey::PVDuckDBQuery::interrupt() const
 	if (_d->running.load(std::memory_order_acquire)) {
 		_d->con.Interrupt();
 	}
+}
+
+size_t Squey::PVDuckDBQuery::pvcop_filters() const
+{
+	return _d->pvcop_filters.load(std::memory_order_relaxed);
+}
+
+size_t Squey::PVDuckDBQuery::dictionary_columns() const
+{
+	return _d->dictionary_columns.load(std::memory_order_relaxed);
 }
 
 size_t Squey::PVDuckDBQuery::dropped_optional_filters() const
