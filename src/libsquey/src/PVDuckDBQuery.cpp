@@ -1170,6 +1170,30 @@ void emit_sparse_column(const column_binding& binding, const pvcop::db::array& a
 	}
 }
 
+/**
+ * How many rows this scan gives back, which is known rather than guessed.
+ *
+ * A scope is a selection, so its size is a count of set bits. Without this
+ * DuckDB plans as though every scan returned the same unknown number: it picks
+ * which side of a join to build a hash table on, and how much room to set aside
+ * for it, from nothing.
+ *
+ * Asked for after the query was bound and while the sources are held, so the
+ * scope resolves to what the scan itself will read.
+ */
+duckdb::unique_ptr<duckdb::NodeStatistics> scan_cardinality(duckdb::ClientContext&,
+                                                            const duckdb::FunctionData* data)
+{
+	const auto& bind_data = data->Cast<scan_bind_data>();
+	if (bind_data.ctx == nullptr) {
+		return nullptr;
+	}
+	const PVCore::PVSelBitField* rows = resolve_scope(*bind_data.ctx, bind_data);
+	const size_t count = rows != nullptr ? rows->bit_count() : bind_data.row_count;
+	// The second is the most it could ever be, which a scope never exceeds.
+	return duckdb::make_uniq<duckdb::NodeStatistics>(count, bind_data.row_count);
+}
+
 void scan_function(duckdb::ClientContext&, duckdb::TableFunctionInput& input,
                    duckdb::DataChunk& output)
 {
@@ -1437,6 +1461,15 @@ struct Squey::PVDuckDBQuery::impl {
 		// ignored, a WHERE clause selects every row). scan_init_global answers
 		// what pvcop can and keeps the rest for evaluation per chunk.
 		fn.filter_pushdown = true;
+		// What a scope holds is known exactly rather than guessed, and a planner
+		// with nothing to go on plans for the worst.
+		//
+		// Only the count. The other callback, for what a column holds, is not
+		// given: nothing certain could be said about the values without walking
+		// them, and saying a column has no NULL -- the one thing that is known
+		// -- changed no plan that could be found. What DuckDB would drop on the
+		// strength of it, it drops without being told.
+		fn.cardinality = scan_cardinality;
 		// The context is shared, not owned: it lives as long as this object.
 		fn.function_info = duckdb::shared_ptr<duckdb::TableFunctionInfo>(
 		    &ctx, [](duckdb::TableFunctionInfo*) {});

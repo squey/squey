@@ -52,6 +52,8 @@ add_squey_test(Tsquey_duckdb_concurrency Tsquey_duckdb_concurrency)
 add_squey_compile_test(Tsquey_duckdb_interrupt LINKS ${LINK_LIBRARIES} FILES duckdb_interrupt.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_interrupt Tsquey_duckdb_interrupt)
 
+add_squey_compile_test(Tsquey_duckdb_planner_stats LINKS ${LINK_LIBRARIES} FILES duckdb_planner_stats.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_planner_stats Tsquey_duckdb_planner_stats)
 add_squey_compile_test(Tsquey_duckdb_functions LINKS ${LINK_LIBRARIES} FILES duckdb_functions.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_functions Tsquey_duckdb_functions)
 
