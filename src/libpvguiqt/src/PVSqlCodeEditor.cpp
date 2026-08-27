@@ -775,6 +775,10 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 		}
 
 		QVector<entry>& others = section(tr("Sources"));
+		// The table that says which names the forms below can be given: a query
+		// can only name a source it already knows, and nothing else in the
+		// window shows them.
+		offer(others, "sources", "sources — every source a query can name");
 		for (const SourceCompletion& source : _sources) {
 			if (source.current) {
 				continue;

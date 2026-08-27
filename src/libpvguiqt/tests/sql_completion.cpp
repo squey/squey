@@ -544,6 +544,20 @@ int main(int argc, char** argv)
 		PV_VALID(editor.textCursor().position(), int(editor.toPlainText().length()) - 1);
 	}
 
+	// --- The table naming the sources is offered ------------------------------
+	// A query can only name a source it already knows, and nothing else in the
+	// window shows them.
+	{
+		editor.setPlainText("SELECT * FROM ");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+		PV_ASSERT_VALID(offered(*model).contains("sources"),
+		                "nothing says which sources can be named", 0);
+	}
+
 	// --- Up and Down walk the queries already run -----------------------------
 	// The console keeps what it ran for as long as it is open, and nowhere else.
 	// What is checked is that walking away from what is being written gives it
