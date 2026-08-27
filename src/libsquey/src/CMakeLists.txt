@@ -39,6 +39,7 @@ if (PYTHON_SUPPORT)
 	PVPythonInterpreter.cpp
 	PVPythonSource.cpp
 	PVPythonSelection.cpp
+	PVPythonSqlResult.cpp
 	PVPythonInputDialog.cpp
 	)
 	set(MOC_HEADERS

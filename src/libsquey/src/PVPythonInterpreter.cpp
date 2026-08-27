@@ -120,6 +120,25 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
     python_source.def("insert_layer", pybind11::overload_cast<const std::string&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"));
     python_source.def("insert_layer", pybind11::overload_cast<const std::string&, const pybind11::array&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"), pybind11::arg("selection_array"));
 
+    // The console's SQL, from a script. A query that names rows gives the rows
+    // back, ready for insert_layer(); one that summarizes gives a result, read
+    // with the same words a source is read with.
+    python_source.def("query", &PVPythonSource::query, pybind11::arg("sql"),
+        "Run a query and return what it gives back, column by column.");
+    python_source.def("select", &PVPythonSource::select, pybind11::arg("sql"),
+        "Run a query that names rows and return which ones, as a boolean array.");
+
+    pybind11::class_<PVPythonSqlResult> python_sql_result(main, "sql_result");
+    python_sql_result.def("row_count", &PVPythonSqlResult::row_count);
+    python_sql_result.def("column_count", &PVPythonSqlResult::column_count);
+    python_sql_result.def("column_name", &PVPythonSqlResult::column_name, pybind11::arg("column_index"));
+    python_sql_result.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_index"));
+    python_sql_result.def("column_type", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0);
+    python_sql_result.def("column", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_index"));
+    python_sql_result.def("column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0);
+    python_sql_result.def("valid", pybind11::overload_cast<size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_index"));
+    python_sql_result.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0);
+
     pybind11::class_<PVPythonSelection> python_selection(main, "selection");
     python_selection.def("size", &PVPythonSelection::size);
     python_selection.def("get", pybind11::overload_cast<>(&PVPythonSelection::get));

@@ -1869,6 +1869,104 @@ Squey::PVDuckDBQuery::Table Squey::PVDuckDBQuery::run_tabular(const std::string&
 	return table;
 }
 
+namespace
+{
+//! Which of the three shapes a DuckDB type is read into.
+Squey::PVDuckDBQuery::ResultColumn::Kind kind_of(const duckdb::LogicalType& type)
+{
+	using Kind = Squey::PVDuckDBQuery::ResultColumn::Kind;
+	switch (type.id()) {
+	case duckdb::LogicalTypeId::BOOLEAN:
+	case duckdb::LogicalTypeId::TINYINT:
+	case duckdb::LogicalTypeId::SMALLINT:
+	case duckdb::LogicalTypeId::INTEGER:
+	case duckdb::LogicalTypeId::BIGINT:
+	case duckdb::LogicalTypeId::UTINYINT:
+	case duckdb::LogicalTypeId::USMALLINT:
+	case duckdb::LogicalTypeId::UINTEGER:
+	case duckdb::LogicalTypeId::UBIGINT:
+		return Kind::Integer;
+	case duckdb::LogicalTypeId::FLOAT:
+	case duckdb::LogicalTypeId::DOUBLE:
+	case duckdb::LogicalTypeId::DECIMAL:
+		return Kind::Real;
+	default:
+		// Everything else -- a date, an interval, a list -- as the text it
+		// prints as. HUGEINT among them: it does not fit a whole number on the
+		// other side, and silently losing its top half would be worse.
+		return Kind::Text;
+	}
+}
+} // namespace
+
+std::vector<Squey::PVDuckDBQuery::ResultColumn>
+Squey::PVDuckDBQuery::run_columns(const std::string& sql,
+                                  const PVCore::PVSelBitField* in,
+                                  size_t max_rows) const
+{
+	std::lock_guard<std::mutex> lock(_d->query_lock);
+
+	const std::string statement = wrap_predicate(sql, in != nullptr ? "selection" : "layers");
+	_d->require_read_only(statement);
+	_d->dropped_optional.store(0, std::memory_order_relaxed);
+	_d->dictionary_columns.store(0, std::memory_order_relaxed);
+	_d->pvcop_filters.store(0, std::memory_order_relaxed);
+
+	const auto held = _d->hold_sources();
+
+	_d->sel_ctx.input = in;
+	auto result = _d->run_interruptible(statement);
+	_d->sel_ctx.input = nullptr;
+
+	if (result->HasError()) {
+		std::string error = explain_error(result->GetError(), sql);
+		if (statement != sql) {
+			error += "\n\nThe input was read as a predicate and run as:\n  " + statement;
+		}
+		throw std::runtime_error(error);
+	}
+
+	std::vector<ResultColumn> columns(result->ColumnCount());
+	for (size_t col = 0; col < columns.size(); ++col) {
+		columns[col].name = result->ColumnName(col);
+		columns[col].type = result->types[col].ToString();
+		columns[col].kind = kind_of(result->types[col]);
+	}
+
+	size_t kept = 0;
+	for (auto& chunk : result->Collection().Chunks()) {
+		const size_t taking = std::min<size_t>(chunk.size(), max_rows - kept);
+		for (size_t col = 0; col < columns.size(); ++col) {
+			ResultColumn& into = columns[col];
+			for (size_t i = 0; i < taking; ++i) {
+				// A Value per cell, which a result this size can afford: what
+				// makes one worth reading is that it aggregates. The cap is
+				// what stands between that and a query which does not.
+				const duckdb::Value value = chunk.GetValue(col, i);
+				into.valid.push_back(uint8_t(not value.IsNull()));
+				switch (into.kind) {
+				case ResultColumn::Kind::Integer:
+					into.integers.push_back(value.IsNull() ? 0
+					                                       : value.GetValue<int64_t>());
+					break;
+				case ResultColumn::Kind::Real:
+					into.reals.push_back(value.IsNull() ? 0.0 : value.GetValue<double>());
+					break;
+				case ResultColumn::Kind::Text:
+					into.texts.push_back(value.IsNull() ? std::string() : value.ToString());
+					break;
+				}
+			}
+		}
+		kept += taking;
+		if (kept >= max_rows) {
+			break;
+		}
+	}
+
+	return columns;
+}
+
 bool Squey::PVDuckDBQuery::yields_selection(const std::string& sql) const
 {
 	std::lock_guard<std::mutex> lock(_d->query_lock);

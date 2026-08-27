@@ -275,6 +275,42 @@ Squey::PVPythonSelection Squey::PVPythonSource::layer(const std::string& layer_n
     }
 }
 
+Squey::PVDuckDBQuery& Squey::PVPythonSource::sql()
+{
+    if (not _sql) {
+        // Bound to the view, so "selection" and the layers a query names are the
+        // ones this script is looking at -- a source may carry several views.
+        _sql = std::make_shared<Squey::PVDuckDBQuery>(*_source.current_view());
+    }
+    return *_sql;
+}
+
+Squey::PVPythonSqlResult Squey::PVPythonSource::query(const std::string& sql_text)
+{
+    // The current selection is handed over, which is what makes a bare
+    // condition narrow what is already selected rather than read the whole
+    // stack. Same rule as the console's.
+    const Squey::PVView* view = _source.current_view();
+    return PVPythonSqlResult(
+        sql().run_columns(sql_text, &view->get_real_output_selection()));
+}
+
+pybind11::array Squey::PVPythonSource::select(const std::string& sql_text)
+{
+    Squey::PVView* view = _source.current_view();
+    Squey::PVSelection selected(_source.get_row_count());
+    sql().select(sql_text, view->get_real_output_selection(), selected);
+
+    // A byte per row rather than the bit field it is: that is the shape
+    // insert_layer() takes, and the shape a selection hands out already.
+    pybind11::array array(pybind11::dtype("bool"), _source.get_row_count());
+    auto* const flags = static_cast<uint8_t*>(array.request().ptr);
+    for (size_t row = 0; row < _source.get_row_count(); row++) {
+        flags[row] = uint8_t(selected.get_line(row));
+    }
+    return array;
+}
+
 void Squey::PVPythonSource::insert_column(const pybind11::array& column, const std::string& axis_name /*= {}*/)
 {
     // Check array size

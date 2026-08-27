@@ -28,6 +28,7 @@
 #include <squey/export.h>
 
 #include <cstddef>
+#include <cstdint>
 #include <functional>
 #include <memory>
 #include <string>
@@ -267,6 +268,48 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	Table run_tabular(const std::string& sql,
 	                  const PVCore::PVSelBitField* in = nullptr,
 	                  size_t max_rows = 10000) const;
+
+	/**
+	 * One column of a result, with its values and which rows carry one.
+	 *
+	 * The values are kept as they came back rather than written out, which is
+	 * what a caller computing on them needs -- Table stringifies for display,
+	 * and going through it to read a number back would be absurd. Types are
+	 * gathered into three, since that is what an array on the other side can
+	 * be: whole numbers, real ones, and everything else as the text it prints
+	 * as.
+	 */
+	struct ResultColumn {
+		enum class Kind { Integer, Real, Text };
+
+		std::string name;
+		//! What DuckDB called it, which is finer than the kind below.
+		std::string type;
+		Kind kind = Kind::Text;
+		//! Only the one the kind names is filled.
+		std::vector<int64_t> integers;
+		std::vector<double> reals;
+		std::vector<std::string> texts;
+		/**
+		 * False where the result has no value for that row.
+		 *
+		 * Kept apart from the values rather than folded into them: there is no
+		 * whole number that means "none", and the value beside a false here is
+		 * whatever the column's type reads as empty.
+		 */
+		std::vector<uint8_t> valid;
+	};
+
+	/**
+	 * Run a query and return its result column by column, typed.
+	 *
+	 * What run_tabular() gives for display, this gives for computing on. The
+	 * cap is on the rows materialized, as there: a result worth reading is
+	 * small, and what makes it small is that it aggregates.
+	 */
+	std::vector<ResultColumn> run_columns(const std::string& sql,
+	                                      const PVCore::PVSelBitField* in = nullptr,
+	                                      size_t max_rows = 1000000) const;
 
 	/**
 	 * Whether a query's result can become a selection, i.e. projects a single

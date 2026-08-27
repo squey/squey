@@ -342,6 +342,10 @@ add_squey_test(Tsquey_range_subsampler Tsquey_range_subsampler)
 add_squey_compile_test(Tsquey_multi_inputs LINKS ${LINK_LIBRARIES} FILES multi_inputs.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_multi_inputs Tsquey_multi_inputs)
 
+# python_sql
+add_squey_compile_test(Tsquey_python_sql LINKS ${LINK_LIBRARIES} FILES python_sql.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_python_sql Tsquey_python_sql)
+
 # python_scripting
 add_squey_compile_test(Tsquey_python_scripting LINKS ${LINK_LIBRARIES} FILES python_scripting.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
@@ -363,6 +367,7 @@ if(SQUEY_PYTHON_SITE_PACKAGES)
                       SQUEY_TEST_Tsquey_embeded_python_scripting
                       SQUEY_TEST_Tsquey_python_other_source
                       SQUEY_TEST_Tsquey_python_column_names
+                      SQUEY_TEST_Tsquey_python_sql
                  APPEND PROPERTY ENVIRONMENT "PYTHONPATH=${SQUEY_PYTHONPATH}")
 endif()
 

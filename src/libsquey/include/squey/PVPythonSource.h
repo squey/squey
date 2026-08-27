@@ -27,11 +27,14 @@
 
 #include <squey/PVSource.h>
 #include <squey/PVPythonSelection.h>
+#include <squey/PVPythonSqlResult.h>
 
 #include "pybind11/numpy.h"
 #include "pybind11/stl.h"
 
 //Q_DECLARE_METATYPE(Squey::PVView*);
+
+#include <memory>
 
 #include <QThread>
 #include <QApplication>
@@ -116,11 +119,36 @@ public:
     //! One layer, by the name it carries in the layer stack.
     PYBIND11_EXPORT PVPythonSelection layer(const std::string& layer_name, size_t position) /*const*/;
 
+    /**
+     * Run a query and return what it gives back, column by column.
+     *
+     * The same SQL the console takes, including a bare condition -- which reads
+     * the current selection, as it does there and as every other filter in the
+     * application does.
+     *
+     * For a query that narrows rather than summarizes, select() is the one to
+     * reach for: it gives back the rows themselves, without building anything.
+     */
+    PYBIND11_EXPORT PVPythonSqlResult query(const std::string& sql);
+
+    /**
+     * Run a query that names rows and return which ones, as a boolean array.
+     *
+     * The array insert_layer() takes, so a query becomes a layer in one step.
+     * The query has to project a single "rowid" column, or say only the
+     * condition -- anything else is a table, and query() is where those go.
+     */
+    PYBIND11_EXPORT pybind11::array select(const std::string& sql);
+
     PYBIND11_EXPORT void insert_column(const pybind11::array& column, const std::string& axis_name);
     PYBIND11_EXPORT void delete_column(const std::string& column_name, size_t position);
 
     PYBIND11_EXPORT void insert_layer(const std::string& layer_name);
     PYBIND11_EXPORT void insert_layer(const std::string& layer_name, const pybind11::array& sel_array);
+
+private:
+    //! Built when a query is first asked for, and kept: making one is not free.
+    Squey::PVDuckDBQuery& sql();
 
 private:
     /**
@@ -143,6 +171,8 @@ private:
 
 private:
     Squey::PVSource& _source;
+    //! Shared rather than held: this object is handed back by value.
+    std::shared_ptr<Squey::PVDuckDBQuery> _sql;
 };
 
 } // namespace Squey
