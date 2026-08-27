@@ -49,6 +49,9 @@ add_squey_test(Tsquey_duckdb_confinement Tsquey_duckdb_confinement)
 add_squey_compile_test(Tsquey_duckdb_concurrency LINKS ${LINK_LIBRARIES} FILES duckdb_concurrency.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_concurrency Tsquey_duckdb_concurrency)
 
+add_squey_compile_test(Tsquey_duckdb_interrupt LINKS ${LINK_LIBRARIES} FILES duckdb_interrupt.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_interrupt Tsquey_duckdb_interrupt)
+
 # An address is exposed as the integer it is stored as, so the conversions that
 # bridge the two have to agree with pvcop's own formatter -- in both directions.
 add_squey_compile_test(Tsquey_duckdb_business_types LINKS ${LINK_LIBRARIES} FILES duckdb_business_types.cpp ${COMMON_FILES})

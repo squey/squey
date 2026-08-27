@@ -417,8 +417,15 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 		// The query runs in the progress box's worker so a long scan does not
 		// freeze the window; it only touches the nraw and its own DuckDB
 		// instance, and the view is updated afterwards, back on this thread.
-		PVCore::PVProgressBox::progress(
-		    [&](PVCore::PVProgressBox&) {
+		const PVCore::PVProgressBox::CancelState state = PVCore::PVProgressBox::progress(
+		    [&](PVCore::PVProgressBox& pbox) {
+			    // The worker is inside DuckDB for the whole query, so there is
+			    // nothing for it to poll: Cancel has to reach in from the thread
+			    // the button is on. Without this the dialog closed on Cancel and
+			    // the window froze in the join that follows -- waiting on the
+			    // very query the user had just asked to stop.
+			    QObject::connect(&pbox, &PVCore::PVProgressBox::cancel_asked_sig,
+			                     [query]() { query->interrupt(); });
 			    try {
 				    if (as_selection) {
 					    query->select(sql, *input, result);
@@ -430,6 +437,14 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 			    }
 		    },
 		    "Running SQL query...", console_widget);
+
+		// A cancelled query failed, of course, and says so -- but the user is the
+		// one who stopped it, so there is nothing to report and nothing to apply:
+		// the selection filled so far is whatever the scan had reached.
+		if (state != PVCore::PVProgressBox::CancelState::CONTINUE) {
+			console_widget->set_error(status, QString());
+			return;
+		}
 
 		console_widget->set_error(status, error);
 		if (not error.isEmpty()) {

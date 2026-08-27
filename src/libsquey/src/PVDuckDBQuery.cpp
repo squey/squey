@@ -1504,6 +1504,25 @@ struct Squey::PVDuckDBQuery::impl {
 	//! The source this query object speaks for. Never null.
 	const Squey::PVDuckDBQuery::Source& primary() const { return sources.front(); }
 
+	/**
+	 * Run a statement with the interrupt flag under control.
+	 *
+	 * The flag lives on the connection rather than on a query, so it is cleared
+	 * on the way in: one raised after a query ended -- a cancel that lost the
+	 * race against the last chunk -- would otherwise kill the query that comes
+	 * next. And "running" is what tells interrupt() there is something to stop.
+	 */
+	duckdb::unique_ptr<duckdb::MaterializedQueryResult> run_interruptible(const std::string& sql)
+	{
+		con.context->ClearInterrupt();
+		running.store(true, std::memory_order_release);
+		struct clear_on_exit {
+			std::atomic<bool>& flag;
+			~clear_on_exit() { flag.store(false, std::memory_order_release); }
+		} guard{running};
+		return con.Query(sql);
+	}
+
 	static void expect_success(duckdb::unique_ptr<duckdb::MaterializedQueryResult> result)
 	{
 		if (result->HasError()) {
@@ -1525,6 +1544,8 @@ struct Squey::PVDuckDBQuery::impl {
 	mutable std::mutex query_lock;
 	//! Reset per query. See PVDuckDBQuery::dropped_optional_filters().
 	std::atomic<size_t> dropped_optional{0};
+	//! Whether a statement is in DuckDB's hands. See PVDuckDBQuery::interrupt().
+	std::atomic<bool> running{false};
 };
 
 Squey::PVDuckDBQuery::PVDuckDBQuery(const PVRush::PVNraw& nraw,
@@ -1593,7 +1614,7 @@ void Squey::PVDuckDBQuery::run(const std::string& sql,
 	const auto held = _d->hold_sources();
 
 	_d->sel_ctx.input = in;
-	auto result = _d->con.Query(statement);
+	auto result = _d->run_interruptible(statement);
 	_d->sel_ctx.input = nullptr;
 
 	if (result->HasError()) {
@@ -1688,7 +1709,7 @@ Squey::PVDuckDBQuery::Table Squey::PVDuckDBQuery::run_tabular(const std::string&
 	const auto held = _d->hold_sources();
 
 	_d->sel_ctx.input = in;
-	auto result = _d->con.Query(statement);
+	auto result = _d->run_interruptible(statement);
 	_d->sel_ctx.input = nullptr;
 
 	if (result->HasError()) {
@@ -1815,6 +1836,13 @@ std::vector<Squey::PVDuckDBQuery::SourceInfo> Squey::PVDuckDBQuery::sources() co
 		described.emplace_back(std::move(info));
 	}
 	return described;
+}
+
+void Squey::PVDuckDBQuery::interrupt() const
+{
+	if (_d->running.load(std::memory_order_acquire)) {
+		_d->con.Interrupt();
+	}
 }
 
 size_t Squey::PVDuckDBQuery::dropped_optional_filters() const

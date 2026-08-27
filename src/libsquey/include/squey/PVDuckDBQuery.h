@@ -276,6 +276,24 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	bool yields_selection(const std::string& sql) const;
 
 	/**
+	 * Ask the query that is running to stop. It then fails like any other.
+	 *
+	 * Meant to be called from a thread other than the one running it -- there is
+	 * no other useful moment, since that thread is inside the query. It takes no
+	 * lock for the same reason: a query holds the one that serializes them for
+	 * its whole duration, so waiting for it would be waiting for what one is
+	 * trying to stop. What makes that sound is that nothing here touches the
+	 * query's own state; DuckDB raises a flag its executor reads between chunks.
+	 *
+	 * With nothing running this does nothing, rather than arming the flag for
+	 * whatever comes next: the flag belongs to the connection, not to a query.
+	 *
+	 * The connection survives. The next query runs as though this one had never
+	 * been asked for.
+	 */
+	void interrupt() const;
+
+	/**
 	 * SQL type of each column, aligned with column_names(). Useful to tell a
 	 * user, or a completer, which columns take a number and which take a
 	 * string -- the mapping is not obvious from an axis name.
