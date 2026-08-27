@@ -955,8 +955,31 @@ scan_init_global(duckdb::ClientContext& context, duckdb::TableFunctionInitInput&
 
 		auto values = duckdb::make_uniq<duckdb::Vector>(duckdb::LogicalType::VARCHAR, entries);
 		auto* data = duckdb::FlatVector::GetData<duckdb::string_t>(*values);
-		for (size_t i = 0; i < binding.dict->size(); ++i) {
-			data[i] = duckdb::StringVector::AddString(*values, binding.dict->key(i));
+
+		// Pointed at pvcop's own dictionary rather than copied into the vector's
+		// heap: a read_dict holds its words contiguously in one buffer, each
+		// terminated by a nul, and a string_t of more than twelve characters is
+		// a pointer, a length and a four-character prefix. So there is nothing
+		// to copy and nothing to allocate -- which is also why this needs no
+		// cache: what would be cached is now cheap enough to rebuild.
+		//
+		// The contract that comes with it: the buffer has to outlive whatever
+		// DuckDB does with these. It does -- a query holds its sources for its
+		// whole duration, and both callers turn the result into their own
+		// strings before letting go. A method handing a DuckDB result straight
+		// out, past that hold, would break this.
+		//
+		// The words being contiguous and in order, each length is the distance
+		// to the next one less its nul. Only the last has to be measured.
+		for (size_t i = 0; i + 1 < binding.dict->size(); ++i) {
+			const char* word = binding.dict->key(i);
+			data[i] = duckdb::string_t(
+			    word, duckdb::NumericCast<uint32_t>(binding.dict->key(i + 1) - word - 1));
+		}
+		if (binding.dict->size() > 0) {
+			const char* last = binding.dict->key(binding.dict->size() - 1);
+			data[binding.dict->size() - 1] =
+			    duckdb::string_t(last, duckdb::NumericCast<uint32_t>(std::strlen(last)));
 		}
 		if (binding.missing_values) {
 			// NULL, because there is no value -- which is what a row the format
