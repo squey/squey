@@ -482,6 +482,68 @@ int main(int argc, char** argv)
 		PV_ASSERT_VALID(checked > 0, "no table was offered to check", checked);
 	}
 
+	// --- The functions are offered, once enough has been typed ----------------
+	// DuckDB carries hundreds of them. Offering them from the first keystroke
+	// would bury the columns and the scopes, which are what one reaches for far
+	// more often -- so what is checked is both that they are there and that they
+	// wait. The list here is a stand-in: which functions exist is DuckDB's
+	// business, and Tsquey_duckdb_functions is where that is checked.
+	{
+		editor.set_functions({{"upper", "Convert string to upper case"},
+		                      {"strlen", "Number of characters in string"},
+		                      {"regexp_matches", "Returns true if the string contains the regexp"},
+		                      {"unnest", std::string()}});
+
+		// Where a value goes, with nothing typed: the columns are offered and
+		// the catalogue is not.
+		editor.setPlainText("SELECT rowid FROM layers WHERE ");
+		QTextCursor at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+		PV_ASSERT_VALID(not sections(*model).contains("Functions"),
+		                "the whole catalogue was offered before anything was typed", 0);
+		PV_ASSERT_VALID(sections(*model).contains("Columns"),
+		                "the columns went with them", 0);
+
+		// And once two characters narrow it, they are.
+		editor.setPlainText("SELECT rowid FROM layers WHERE up");
+		at_end = editor.textCursor();
+		at_end.movePosition(QTextCursor::End);
+		editor.setTextCursor(at_end);
+		QTest::keyClick(&editor, Qt::Key_Space, Qt::ControlModifier);
+		QApplication::processEvents();
+		PV_ASSERT_VALID(sections(*model).contains("Functions"),
+		                "the functions are never offered", 0);
+
+		const QStringList names = offered(*model);
+		PV_ASSERT_VALID(names.contains("upper()"), "a function is offered with its parentheses",
+		                0);
+		// Matched on the name that is typed, so what does not begin with it is
+		// not in the list.
+		PV_ASSERT_VALID(not names.contains("strlen()"), "the prefix filtered nothing", 0);
+
+		// What DuckDB says about it, beside the name.
+		for (int row = 0; row < model->rowCount(); ++row) {
+			if (model->item(row)->data(PVGuiQt::PVSqlCodeEditor::InsertRole).toString() !=
+			    "upper()") {
+				continue;
+			}
+			PV_VALID(model->item(row)->data(PVGuiQt::PVSqlCodeEditor::DetailRole)
+			             .toString()
+			             .toStdString(),
+			         std::string("Convert string to upper case"));
+		}
+
+		// Picking one leaves the caret where the argument goes, as a conversion
+		// does -- a function is called on something.
+		pick(completer, "upper()");
+		PV_VALID(editor.toPlainText().toStdString(),
+		         std::string("SELECT rowid FROM layers WHERE upper()"));
+		PV_VALID(editor.textCursor().position(), int(editor.toPlainText().length()) - 1);
+	}
+
 	// --- Up and Down walk the queries already run -----------------------------
 	// The console keeps what it ran for as long as it is open, and nowhere else.
 	// What is checked is that walking away from what is being written gives it

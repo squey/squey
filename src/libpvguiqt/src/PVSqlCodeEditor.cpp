@@ -579,6 +579,36 @@ void PVGuiQt::PVSqlCodeEditor::set_columns(const QStringList& names,
 	}
 }
 
+void PVGuiQt::PVSqlCodeEditor::set_functions(
+    const std::vector<std::pair<std::string, std::string>>& functions)
+{
+	// DuckDB's sentences run to a paragraph for some of them, and the popup is
+	// as wide as its widest line. Cut at a word so the tail reads as left out
+	// rather than as a word gone wrong.
+	static constexpr int ROOM = 72;
+	const auto shortened = [](QString sentence) {
+		sentence = sentence.simplified();
+		if (sentence.length() <= ROOM) {
+			return sentence;
+		}
+		const int cut = sentence.lastIndexOf(' ', ROOM);
+		return sentence.left(cut > ROOM / 2 ? cut : ROOM) + QChar(0x2026); // ellipsis
+	};
+
+	_functions.clear();
+	_functions.reserve(int(functions.size()));
+	for (const auto& [name, description] : functions) {
+		// Offered with its parentheses, which is what puts the caret between
+		// them: what a function needs next is its arguments.
+		const QString call = QString::fromStdString(name) + "()";
+		QString label = call;
+		if (not description.empty()) {
+			label += " — " + shortened(QString::fromStdString(description));
+		}
+		_functions.append({call, label});
+	}
+}
+
 void PVGuiQt::PVSqlCodeEditor::set_sources(const QVector<SourceCompletion>& sources)
 {
 	_sources = sources;
@@ -772,6 +802,18 @@ void PVGuiQt::PVSqlCodeEditor::show_completions(bool force, Context context, con
 		QVector<entry>& conversions = section(tr("Conversions"));
 		for (const auto& [call, label] : _conversions) {
 			offer(conversions, call, label);
+		}
+
+		// Then what DuckDB itself offers, but only once enough has been typed to
+		// narrow it: there are hundreds, and with nothing typed they would bury
+		// the columns and the scopes under a catalogue. Last of the three, since
+		// a query is written about columns and reaches for a function around
+		// them.
+		if (typed.length() >= FUNCTION_PREFIX) {
+			QVector<entry>& functions = section(tr("Functions"));
+			for (const auto& [call, label] : _functions) {
+				offer(functions, call, label);
+			}
 		}
 
 		// Then the columns of the other sources. What gets inserted is the bare

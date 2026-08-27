@@ -354,6 +354,10 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 	}
 	editor->set_sources(sources);
 
+	// Read once: the catalogue is DuckDB's own and does not move while a console
+	// is open, whereas the layers below it do.
+	editor->set_functions(query->functions());
+
 	// Asked per list rather than captured: layers are created, renamed and
 	// dropped while the console stays open.
 	editor->set_layer_provider([query]() {

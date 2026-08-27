@@ -1792,6 +1792,38 @@ std::vector<std::string> Squey::PVDuckDBQuery::column_types() const
 	return types;
 }
 
+std::vector<std::pair<std::string, std::string>> Squey::PVDuckDBQuery::functions() const
+{
+	std::lock_guard<std::mutex> lock(_d->query_lock);
+
+	// GROUP BY rather than DISTINCT: overloads repeat a name, and their
+	// descriptions differ, so distinct rows would still be several per name.
+	// min() over them is a description rather than a chosen one -- it skips the
+	// overloads that carry none.
+	//
+	// And only what reads as an identifier: the catalogue lists the operators
+	// too, under the names they are spelt with -- "&&", "%", "!__postfix" --
+	// and those are not reached by typing the beginning of a word.
+	auto result = _d->con.Query("SELECT function_name, COALESCE(min(description), '') "
+	                            "FROM duckdb_functions() "
+	                            "WHERE function_type IN ('scalar', 'aggregate') "
+	                            "  AND regexp_full_match(function_name, '[a-z][a-z0-9_]*') "
+	                            "  AND NOT starts_with(function_name, 'duckdb_') "
+	                            "GROUP BY function_name "
+	                            "ORDER BY function_name");
+	if (result->HasError()) {
+		throw std::runtime_error(result->GetError());
+	}
+
+	std::vector<std::pair<std::string, std::string>> listed;
+	listed.reserve(result->RowCount());
+	for (size_t row = 0; row < result->RowCount(); ++row) {
+		listed.emplace_back(result->GetValue(0, row).ToString(),
+		                    result->GetValue(1, row).ToString());
+	}
+	return listed;
+}
+
 std::vector<std::string> Squey::PVDuckDBQuery::layer_names() const
 {
 	const Source& primary = _d->primary();

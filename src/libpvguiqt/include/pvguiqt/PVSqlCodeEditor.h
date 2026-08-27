@@ -121,6 +121,16 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 	void set_sources(const QVector<SourceCompletion>& sources);
 
 	/**
+	 * Replace the functions the completer offers, as name and description.
+	 *
+	 * There are hundreds, so they are only offered once enough has been typed
+	 * to narrow them: with nothing typed they would bury the columns and the
+	 * scopes, which are what one reaches for far more often. That is also why
+	 * they come last of what fits where a value goes.
+	 */
+	void set_functions(const std::vector<std::pair<std::string, std::string>>& functions);
+
+	/**
 	 * Where the completer reads the layers layer('name') can be given.
 	 *
 	 * A function rather than a list: layers are created, renamed and dropped
@@ -217,6 +227,10 @@ class PVGUIQT_EXPORT PVSqlCodeEditor : public QTextEdit
 	QVector<QPair<QString, QString>> _conversions;
 	//! The other sources a query can name. Empty while there is only one.
 	QVector<SourceCompletion> _sources;
+	//! Insert form and label of every function offered. See set_functions().
+	QVector<QPair<QString, QString>> _functions;
+	//! How much of a name has to be typed before the functions are offered.
+	static constexpr int FUNCTION_PREFIX = 2;
 	//! Asked for the layers whenever a list is built. See set_layer_provider().
 	std::function<QStringList()> _layer_provider;
 	//! Bare name -> quoted form, for the names a query cannot carry as-is.

@@ -333,6 +333,18 @@ class PVSQUEY_EXPORT PVDuckDBQuery
 	std::vector<std::string> column_names() const;
 
 	/**
+	 * The functions a query can call, and what each is for.
+	 *
+	 * Read from DuckDB's own catalogue, minus what a query is not written with:
+	 * the table functions, the catalogue's own readers, and the names beginning
+	 * with an underscore. Overloads come back as one entry -- what separates
+	 * them is their arguments, which a list of names has nowhere to put.
+	 *
+	 * The description is DuckDB's, and empty where it has none.
+	 */
+	std::vector<std::pair<std::string, std::string>> functions() const;
+
+	/**
 	 * The layers layer('name') can be given, as the view holds them now.
 	 *
 	 * Read per call rather than kept: a layer is created, renamed and dropped
