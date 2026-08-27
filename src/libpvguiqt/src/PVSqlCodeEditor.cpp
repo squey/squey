@@ -339,6 +339,10 @@ QString source_reference(const PVGuiQt::PVSqlCodeEditor::SourceCompletion& sourc
 //
 // The text forms come last: reading a cell the format could not parse is a
 // deliberate act, not the everyday query.
+//
+// No layer is named here. The ones that exist are offered from the stack, under
+// the names they carry -- a call written down here would be offered twice, and
+// would name a layer the moment someone renamed it away.
 // The wording of each is the one the help page uses, word for word: what the
 // popup shows while typing and what the page shows when asked are the same
 // sentence, so there is nothing to map from one to the other. The page may add
@@ -347,7 +351,6 @@ static const QVector<QPair<QString, QString>> TABLES = {
     {"selection", "selection — the currently selected rows — what the listing shows"},
     {"layers", "layers — every row the layer stack lets through"},
     {"layer('')", "layer('name') — one layer, by the name it carries"},
-    {"layer('All events')", "layer('All events') — every row of the source"},
     {"selection(text := true)", "selection(text := true) — every column as it was written"},
     {"layers(text := true)", "layers(text := true) — every column as it was written"}};
 

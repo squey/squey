@@ -65,9 +65,10 @@ class PVView;
  *   - "selection": the currently selected rows -- what the listing shows;
  *   - "layers": every row the layer stack lets through. What the listing shows
  *     is the selection above, unless its visibility toggles say otherwise;
- *   - "layer('name')": one layer, by the name it carries in the layer stack;
- *   - "layer('All events')": every row of the source. The base layer cannot be
- *     removed, so that is how a query reaches past everything else.
+ *   - "layer('name')": one layer, by the name it carries in the layer stack.
+ *     The base layer -- the one that cannot be removed, called "All events"
+ *     until it is renamed -- holds every row of the source, so naming it is how
+ *     a query reaches past everything else.
  *
  * Each also takes a "text" argument -- "selection(text := true)" -- giving
  * every column as it was written. That is the only way to see a cell the format

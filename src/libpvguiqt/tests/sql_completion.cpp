@@ -41,6 +41,7 @@
 #include <QApplication>
 #include <QCompleter>
 #include <QScrollBar>
+#include <QSet>
 #include <QStyle>
 #include <QStyleOptionSlider>
 #include <QStandardItemModel>
@@ -447,6 +448,22 @@ int main(int argc, char** argv)
 			}
 		}
 		PV_VALID(first_offered.toStdString(), std::string("selection"));
+
+		// And nothing is offered twice. "layer('All events')" was written into
+		// the table list as well as read from the stack, so the same call stood
+		// under two headings -- and the written one named a layer that anything
+		// may rename.
+		QSet<QString> offered;
+		for (int row = 0; row < model->rowCount(); ++row) {
+			if (model->item(row)->data(PVGuiQt::PVSqlCodeEditor::SectionRole).toBool()) {
+				continue;
+			}
+			const QString insert =
+			    model->item(row)->data(PVGuiQt::PVSqlCodeEditor::InsertRole).toString();
+			PV_ASSERT_VALID(not offered.contains(insert), "offered under two headings",
+			                insert.toStdString());
+			offered.insert(insert);
+		}
 
 		int checked = 0;
 		for (int row = 0; row < model->rowCount(); ++row) {
