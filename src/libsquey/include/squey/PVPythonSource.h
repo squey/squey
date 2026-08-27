@@ -79,6 +79,15 @@ public:
     PYBIND11_EXPORT size_t row_count();
     PYBIND11_EXPORT size_t column_count();
 
+    /**
+     * What the column at that index is called.
+     *
+     * Indexed as everything else here is: by the column's place in the source,
+     * not by where the view happens to show it. Which is what lets a script
+     * walk the columns it has rather than the ones somebody left on screen.
+     */
+    PYBIND11_EXPORT std::string column_name(size_t column_index) const;
+
     PYBIND11_EXPORT pybind11::array column(size_t column_index, StringColumnAs string_as) /*const*/;
     PYBIND11_EXPORT pybind11::array column(const std::string& column_name, size_t position) /*const*/;
     PYBIND11_EXPORT pybind11::array column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/;

@@ -25,6 +25,7 @@
 
 #include <pvkernel/core/qmetaobject_helper.h>
 
+#include <squey/PVPythonColumns.h>
 #include <squey/PVPythonSource.h>
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVRoot.h>
@@ -145,6 +146,16 @@ pybind11::array Squey::PVPythonSource::column(const std::string& column_name, si
     return column(column_name, PVPythonSource::StringColumnAs::STRING, position);
 }
 
+std::string Squey::PVPythonSource::column_name(size_t column_index) const
+{
+    const QStringList names =
+        _source.current_view()->get_axes_combination().get_nraw_names();
+    if (column_index >= size_t(names.size())) {
+        throw std::out_of_range("Out of range column index");
+    }
+    return names[int(column_index)].toStdString();
+}
+
 PVCol Squey::PVPythonSource::nraw_column_index(const std::string& column_name,
                                                size_t position) const
 {
@@ -155,14 +166,7 @@ PVCol Squey::PVPythonSource::nraw_column_index(const std::string& column_name,
             matching_columns_indexes.emplace_back(PVCol(i));
         }
     }
-    if (matching_columns_indexes.empty()) {
-        throw std::domain_error(std::string("No column named \"") + column_name + "\"");
-    }
-    if (position >= matching_columns_indexes.size()) {
-        throw std::domain_error(std::string("The count of column named \"") + column_name +
-                                "\" is <= " + std::to_string(position));
-    }
-    return matching_columns_indexes[position];
+    return PVPythonColumns::pick(matching_columns_indexes, column_name, position);
 }
 
 pybind11::array Squey::PVPythonSource::column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/
@@ -397,15 +401,9 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
             matching_columns_indexes.emplace_back(comb_col);
         }
     }
-    if (matching_columns_indexes.empty()) {
-        throw std::domain_error(std::string("No column named \"") + column_name + "\"");
-    }
-    if (position >= matching_columns_indexes.size()) {
-        throw std::domain_error(std::string("The count of columns named \"") + column_name + "\" is <= " + std::to_string(position));
-    }
-
     // Delete column from disk
-    active_view().delete_axis(matching_columns_indexes[position]);
+    active_view().delete_axis(
+        PVPythonColumns::pick(matching_columns_indexes, column_name, position));
 
     // TODO : edit format ? Investigation ?
 }

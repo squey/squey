@@ -97,6 +97,7 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
     // Which rows of a column carry a value: an unreadable cell reads back as a
     // plain 0 through column(), and this is what tells it from a real one. The
     // same array a query result carries beside each of its columns.
+    python_source.def("column_name", &PVPythonSource::column_name, pybind11::arg("column_index"));
     python_source.def("valid", pybind11::overload_cast<size_t>(&PVPythonSource::valid), pybind11::arg("column_index"));
     python_source.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::valid), pybind11::arg("column_name"), pybind11::arg("position") = 0);
     python_source.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSource::column_type), pybind11::arg("column_name"));

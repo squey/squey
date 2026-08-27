@@ -32,6 +32,7 @@
 // rather than a value -- an unreadable number reads as a plain 0. Nothing said
 // which was which.
 
+#include <squey/PVAxesCombination.h>
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVRoot.h>
 #include <squey/PVSource.h>
@@ -120,12 +121,45 @@ except RuntimeError as e:
     assert "exactly one column" in str(e), str(e)
 )PY";
 
+// What a name stands for is looked up among the source's own columns, not among
+// the axes the view shows. Those can be hidden and reordered from the interface,
+// and a script reading by name would otherwise answer to whatever somebody last
+// did on screen. Hiding one is the sharpest form of it: the column stayed
+// readable by index while its own name no longer reached it.
+const std::string after_hiding = R"PY(
+source = squey.source(0)
+
+assert source.column_count() == 2
+assert source.column_name(0) == "col1"
+assert source.column_name(1) == "col2"
+
+# col1 is hidden from the view, and still answers to its name.
+hidden = source.column("col1")
+assert hidden.size == source.row_count()
+assert source.valid("col1").size == source.row_count()
+assert source.column_type("col1") == source.column_type(0)
+
+# Which is the column its index gives, rather than some other one.
+assert numpy.array_equal(hidden, source.column(0))
+
+# And the query surface reads the same columns, hidden or not.
+assert int(source.query("SELECT COUNT(*) FROM layers").column(0)[0]) == source.row_count()
+)PY";
+
 int main()
 {
 	pvtest::TestEnv env(filename, fileformat, 1, pvtest::ProcessUntil::View);
 
 	Squey::PVPythonInterpreter& python = Squey::PVPythonInterpreter::get(env.root);
 	python.execute_script(script, false);
+
+	// Only the second axis left on screen, the first hidden.
+	Squey::PVView* view = env.root.current_view();
+	PV_VALID(size_t(view->get_axes_combination().get_nraw_axes_count()), size_t(2));
+	view->set_axes_combination(std::vector<PVCol>{PVCol(1)});
+	PV_VALID(size_t(view->get_column_count()), size_t(1));
+
+	python.execute_script("import numpy\n" + after_hiding, false);
 
 	return 0;
 }

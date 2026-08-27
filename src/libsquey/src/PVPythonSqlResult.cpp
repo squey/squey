@@ -22,6 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
+#include <squey/PVPythonColumns.h>
 #include <squey/PVPythonSqlResult.h>
 
 #include <stdexcept>
@@ -53,17 +54,13 @@ const Squey::PVDuckDBQuery::ResultColumn& Squey::PVPythonSqlResult::at(size_t co
 
 size_t Squey::PVPythonSqlResult::index_of(const std::string& column_name, size_t position) const
 {
-	size_t seen = 0;
+	std::vector<size_t> matching;
 	for (size_t i = 0; i < _columns.size(); i++) {
-		if (_columns[i].name == column_name && seen++ == position) {
-			return i;
+		if (_columns[i].name == column_name) {
+			matching.push_back(i);
 		}
 	}
-	if (seen == 0) {
-		throw std::domain_error(std::string("No column named \"") + column_name + "\"");
-	}
-	throw std::domain_error(std::string("The count of column named \"") + column_name +
-	                        "\" is <= " + std::to_string(position));
+	return PVPythonColumns::pick(matching, column_name, position);
 }
 
 std::string Squey::PVPythonSqlResult::column_name(size_t column_index) const
