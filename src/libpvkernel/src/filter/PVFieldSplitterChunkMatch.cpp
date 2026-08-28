@@ -25,6 +25,9 @@
 
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
+
+#include <algorithm>
+#include <vector>
 #include <pvkernel/filter/PVFieldsFilter.h> // for PVFieldsSplitter_p
 #include <pvkernel/core/PVArgument.h>     // for PVArgumentList
 #include <pvkernel/core/PVTextChunk.h>    // for list_elts, PVChunk
@@ -153,22 +156,52 @@ class PVGuessReducingTree
 	 */
 	bool get_highest_entry(PVCore::PVArgumentList& al, PVCol& nfields) const
 	{
-		bool ret = false;
-		int highest = -1;
+		// Ties are what this has to settle, and they are the common case: on a
+		// file where two separators are both regular -- a comma-separated file
+		// whose last field is a date, say, which the space splits just as
+		// evenly -- each of them matches every line, so each carries the same
+		// count. Picking whichever the hash table happened to yield first left
+		// the answer to Qt's per-run hash seed: the same file came out four
+		// columns wide one run and two the next.
+		//
+		// Ordered on three keys instead, all of them properties of the file: how
+		// many lines the candidate matched, then how many fields it tells apart
+		// -- of two equally regular splits the finer one carries more -- and last
+		// the arguments themselves, so that nothing is left to iteration order.
+		struct candidate {
+			int matched;
+			size_t fields;
+			QString key;
+			const PVCore::PVArgumentList* args;
+		};
 
-		for (const auto& dm_it : _data_map) {
-			for (size_map_t::const_iterator sm_it = dm_it.second.begin();
-			     sm_it != dm_it.second.end(); ++sm_it) {
-				if (highest < *sm_it) {
-					ret = true;
-					al = dm_it.first;
-					nfields = PVCol(sm_it.key());
-					highest = *sm_it;
-				}
+		std::vector<candidate> candidates;
+		for (auto dm_it = _data_map.constBegin(); dm_it != _data_map.constEnd(); ++dm_it) {
+			for (size_map_t::const_iterator sm_it = dm_it->second.begin();
+			     sm_it != dm_it->second.end(); ++sm_it) {
+				candidates.push_back({*sm_it, sm_it.key(), dm_it.key(), &dm_it->first});
 			}
 		}
 
-		return ret;
+		if (candidates.empty()) {
+			return false;
+		}
+
+		const auto& best = *std::min_element(
+		    candidates.begin(), candidates.end(), [](const candidate& a, const candidate& b) {
+			    if (a.matched != b.matched) {
+				    return a.matched > b.matched;
+			    }
+			    if (a.fields != b.fields) {
+				    return a.fields > b.fields;
+			    }
+			    return a.key < b.key;
+		    });
+
+		al = *best.args;
+		nfields = PVCol(best.fields);
+
+		return true;
 	}
 
 	size_t size() const
