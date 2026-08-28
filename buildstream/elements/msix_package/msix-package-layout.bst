@@ -65,7 +65,7 @@ config:
       %{libdir}/qt6/plugins/platforms \
       %{libdir}/qt6/plugins/sqldrivers \
       %{prefix}/share/pocl \
-      %{prefix}/share/squey/squey/{pvconfig.ini,COPYING,CHANGELOG} \
+      %{prefix}/share/squey/squey/{pvconfig.ini,COPYING,CHANGELOG,sample-network-traffic.parquet} \
       squey.ico \
       org.squey.Squey.png \
       Square44x44Logo.png \

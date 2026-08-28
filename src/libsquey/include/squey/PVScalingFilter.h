@@ -33,6 +33,7 @@
 
 #include <QString> // for QString
 
+#include <bit>     // for bit_cast
 #include <cstdint> // for uint32_t
 #include <memory>  // for shared_ptr
 #include <set>     // for set
@@ -44,6 +45,26 @@
 
 namespace Squey
 {
+
+/**
+ * Whether a value is NaN, read from its bits.
+ *
+ * Only meaningful in a translation unit built without -ffinite-math-only, which
+ * the release builds otherwise carry through -ffast-math: under that promise no
+ * NaN exists, clang rejects std::isnan outright (-Wnan-infinity-disabled) and
+ * folds this test away too -- measured, it answers false for a NaN. The scaling
+ * filters that call this withdraw the promise for themselves; see their
+ * CMakeLists.
+ *
+ * The bits are read rather than the value compared so that the answer holds
+ * whatever the arithmetic around it is allowed to assume.
+ */
+inline bool is_not_a_number(double value)
+{
+	const uint64_t bits = std::bit_cast<uint64_t>(value);
+	return (bits & 0x7ff0000000000000ULL) == 0x7ff0000000000000ULL and
+	       (bits & 0x000fffffffffffffULL) != 0;
+}
 
 template <typename T>
 inline double extract_value(const T& value)

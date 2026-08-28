@@ -1,3 +1,4 @@
 src/gui-qt/src/rc.*/**/**.png filter=lfs diff=lfs merge=lfs -text
 buildstream/files/screenshots/**/**.png filter=lfs diff=lfs merge=lfs -text
 buildstream/files/screenshots/**/**.gif filter=lfs diff=lfs merge=lfs -text
+src/samples/*.parquet filter=lfs diff=lfs merge=lfs -text

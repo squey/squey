@@ -80,8 +80,10 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 {
 	set_gl_viewport();
 
-	if (axis != PVCol()) {
-		_backend = create_backend(axis);
+	// create_backend() leaves its result empty when the progress box it runs
+	// under is interrupted before the backend is built, so what it returns has to
+	// be looked at before being reached through.
+	if (axis != PVCol() and (_backend = create_backend(axis))) {
 
 		/* computing the highest scene width to setup it... and do the first
 		 * run to initialize the manager's buffers :-)
@@ -146,7 +148,11 @@ PVParallelView::PVHitCountView::PVHitCountView(Squey::PVView& pvview_sp,
 	y_legend->set_current_axis(axis);
 	connect(y_legend, &PVWidgets::PVAxisComboBox::current_axis_changed,
 	        [this](PVCol axis, PVCombCol) {
-		        _backend = create_backend(axis);
+		        // Same as in the constructor: an interrupted creation gives
+		        // nothing back, and the view keeps the axis it had.
+		        if (not (_backend = create_backend(axis))) {
+			        return;
+		        }
 
 		        /* computing the highest scene width to setup it... and do the first
 		         * run to initialize the manager's buffers :-)
@@ -385,6 +391,13 @@ void PVParallelView::PVHitCountView::reset_view()
 
 void PVParallelView::PVHitCountView::set_x_zoom_level_from_sel()
 {
+	// Reachable straight from the keyboard -- PVHitCountViewInteractor binds it
+	// to Ctrl+Home -- so it cannot rely on its callers having checked, the way
+	// the ones inside this file do.
+	if (not _backend) {
+		return;
+	}
+
 	const uint32_t max_count_sel = get_hit_graph_manager().get_max_count_selected();
 	if (max_count_sel > 0) {
 		set_zoom_value(PVZoomableDrawingAreaConstraints::X,
@@ -767,6 +780,17 @@ void PVParallelView::PVHitCountView::toggle_log_color()
 
 void PVParallelView::PVHitCountView::toggle_show_labels()
 {
+	// A view built on no axis has no backend, and get_y_labels_cache() reaches
+	// through it without looking: the cache is the backend's first member, so a
+	// null one hands out a reference to address zero, and reading its entries
+	// faults at 0x60. Refusing the toggle rather than only the initialize() below
+	// is what closes it: get_y_value_at() reads the same cache on every repaint
+	// and asks nothing but _show_labels, so leaving that true would move the
+	// crash rather than remove it.
+	if (not is_backend_valid()) {
+		return;
+	}
+
 	_show_labels = !_show_labels;
 	params_widget()->update_widgets();
 

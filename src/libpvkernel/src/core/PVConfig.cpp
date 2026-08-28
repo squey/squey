@@ -60,15 +60,7 @@ static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/squey/squey.conf";
 	}();
 #endif
 
-#ifdef __APPLE__
-	boost::filesystem::path exe_path = boost::dll::program_location();
-	static QString LOCAL_CONFIG_FILENAME = QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/pvconfig.ini";
-#elifdef _WIN32
-	boost::filesystem::path exe_path = boost::dll::program_location();
-	static QString LOCAL_CONFIG_FILENAME = QString::fromStdString(exe_path.parent_path().string()) + "/pvconfig.ini";
-#else
-	static QString LOCAL_CONFIG_FILENAME = QString(SQUEY_CONFIG) + "/pvconfig.ini";
-#endif
+static const QString CONFIG_BASENAME = "/pvconfig.ini";
 
 static const QString _lists_folder = "lists";
 
@@ -94,7 +86,7 @@ PVCore::PVConfig::PVConfig()
 	if (!fi.exists()) {
 		fi.dir().mkpath(fi.path());
 
-		QFileInfo sys_fi(LOCAL_CONFIG_FILENAME);
+		QFileInfo sys_fi(shared_dir() + CONFIG_BASENAME);
 
 		if (sys_fi.exists()) {
 			QFile::copy(sys_fi.filePath(), fi.filePath());
@@ -220,6 +212,45 @@ QString PVCore::PVConfig::user_path()
 QString PVCore::PVConfig::user_dir()
 {
 	return _config_dir + QDir::separator() + SQUEY_SQUEY_CONFDIR + QDir::separator();
+}
+
+/*****************************************************************************
+ * PVCore::PVConfig::shared_dir
+ *****************************************************************************/
+
+QString PVCore::PVConfig::shared_dir()
+{
+	static const QString dir = []() -> QString {
+		// An explicit answer wins over any guess: this is how a test, or a build
+		// run from somewhere unusual, says where the shipped files are.
+		const QString overridden = QString::fromLocal8Bit(qgetenv("SQUEY_SHARED_DIR"));
+		if (not overridden.isEmpty()) {
+			return overridden;
+		}
+
+		// A bundle is moved around and copied by the user; where it was built
+		// says nothing about where its files are now. Only the running
+		// executable does.
+		const QString exe_dir =
+		    QString::fromStdString(boost::dll::program_location().parent_path().string());
+
+#if defined(__APPLE__)
+		return exe_dir + "/../share/squey/squey";
+#elifdef _WIN32
+		return exe_dir;
+#else
+		if (QFileInfo::exists(QString(SQUEY_CONFIG))) {
+			return QString(SQUEY_CONFIG);
+		}
+
+		// Nothing installed: a binary still in the build tree, where CMake
+		// mirrors the shipped files under the layout they have once installed.
+		// The executable sits at <build>/gui-qt/src/, hence the two levels up.
+		return exe_dir + "/../../share/squey/squey";
+#endif
+	}();
+
+	return dir;
 }
 
 /*****************************************************************************

@@ -33,6 +33,13 @@ default/register.cpp
 add_library(scaling_filter_default SHARED ${SRC_DEFAULT})
 target_link_libraries(scaling_filter_default ${LINK_LIBRARIES})
 
+# These two look at the values themselves to tell a NaN from a number, and a NaN
+# is exactly what -ffast-math promises the compiler will never occur: under it,
+# std::isnan is rejected outright by clang and even reading the bit pattern is
+# folded away. The promise cannot be kept here -- the values come from files the
+# user chose -- so it is withdrawn for these two objects only.
+target_compile_options(scaling_filter_default PRIVATE -fno-fast-math)
+
 ###############################################################################
 # Log min max filter
 ###############################################################################
@@ -45,6 +52,7 @@ log_minmax/register.cpp
 #Create lib
 add_library(scaling_filter_log_minmax SHARED ${SRC_LOGMINMAX})
 target_link_libraries(scaling_filter_log_minmax ${LINK_LIBRARIES})
+target_compile_options(scaling_filter_log_minmax PRIVATE -fno-fast-math)
 
 ###############################################################################
 # Port filter

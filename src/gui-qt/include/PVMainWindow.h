@@ -143,6 +143,7 @@ class PVMainWindow : public QMainWindow
 	void import_type_default_Slot();
 	void import_type_Slot();
 	void import_type_Slot(const QString& itype);
+	void load_sample_dataset_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	void quit_Slot();
@@ -183,6 +184,17 @@ class PVMainWindow : public QMainWindow
 	void menu_activate_is_file_opened(bool cond);
 
   private:
+	/*! \brief Path to the sample shipped with the application.
+	 *
+	 * Empty when it is not there, which is what a build run without being
+	 * installed looks like.
+	 */
+	QString sample_dataset_path() const;
+
+	/*! \brief Offer the shipped sample as a recent source, on a first run.
+	 */
+	void register_sample_dataset();
+
 	void connect_actions();
 	void create_actions();
 	void create_menus();
@@ -202,6 +214,7 @@ class PVMainWindow : public QMainWindow
 
 	QAction* about_Action;
 	QAction* refman_Action;
+	QAction* sample_dataset_Action;
 	QAction* commit_selection_to_new_layer_Action;
 	QAction* move_selection_to_new_layer_Action;
 	QAction* filter_reprocess_last_filter;

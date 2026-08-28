@@ -41,6 +41,10 @@
 #include <squey/widgets/PVNewLayerDialog.h>
 
 #include <pvkernel/core/PVRecentItemsManager.h>
+#include <pvbase/general.h>
+#include <QJsonArray>
+#include <QJsonDocument>
+#include <QJsonObject>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/squey_bench.h>
 
@@ -204,6 +208,10 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	QShortcut* toggle_zombies_shortcut = new QShortcut(QKeySequence(Qt::Key_U), this);
 	QObject::connect(toggle_zombies_shortcut, &QShortcut::activated, this, &App::PVMainWindow::events_display_unselected_zombies_parallelview_Slot);
+
+	// Last, so that the start screen is there to hear about it: adding the entry
+	// is what refreshes the list it appears in.
+	register_sample_dataset();
 }
 
 App::PVMainWindow::~PVMainWindow()
@@ -643,6 +651,83 @@ void App::PVMainWindow::import_type_Slot(const QString& itype)
 {
 	PVRush::PVInputType_p in_t = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name(itype);
 	import_type(in_t);
+}
+
+/******************************************************************************
+ *
+ * App::PVMainWindow::sample_dataset_path
+ *
+ *****************************************************************************/
+QString App::PVMainWindow::sample_dataset_path() const
+{
+	// Canonical, because this path is written down and shown back to the user in
+	// the recent sources: shared_dir() may well have reached it by going up and
+	// back down again.
+	return QFileInfo(PVCore::PVConfig::shared_dir() + "/" + SQUEY_SAMPLE_DATASET_FILENAME)
+	    .canonicalFilePath();
+}
+
+/******************************************************************************
+ *
+ * App::PVMainWindow::load_sample_dataset_Slot
+ *
+ *****************************************************************************/
+void App::PVMainWindow::load_sample_dataset_Slot()
+{
+	const QString sample = sample_dataset_path();
+	if (sample.isEmpty()) {
+		return; // the action is disabled in that case
+	}
+
+	// Being a Parquet file, its format comes from the file itself: this opens
+	// straight into the views, with nothing to describe on the way.
+	load_files({sample});
+}
+
+/******************************************************************************
+ *
+ * App::PVMainWindow::register_sample_dataset
+ *
+ *****************************************************************************/
+void App::PVMainWindow::register_sample_dataset()
+{
+	// Offered once. A user who cleared it away from the recent sources meant to,
+	// and a machine that has already been used has recent sources of its own to
+	// show.
+	static const QString config_key = "squey/sample_dataset_offered";
+	if (PVCore::PVConfig::get().config().value(config_key, false).toBool()) {
+		return;
+	}
+
+	const QString sample = sample_dataset_path();
+	if (sample.isEmpty()) {
+		return; // a build that was run without being installed
+	}
+
+	try {
+		PVRush::PVInputType_p in_t =
+		    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("parquet");
+
+		// Being a Parquet file, its format is derived from the file's own schema.
+		// That is what lets the entry be complete -- and openable in one click --
+		// without anything having been imported first.
+		PVRush::PVInputType::list_inputs inputs;
+		PVRush::PVFormat format;
+		const QString params = QJsonDocument(QJsonObject{{"paths", QJsonArray{sample}}})
+		                           .toJson(QJsonDocument::Compact);
+		if (not in_t->create_source_description_params(params, inputs, format)) {
+			return;
+		}
+
+		PVCore::PVRecentItemsManager::get().add_source(
+		    PVRush::PVSourceCreatorFactory::get_by_input_type(in_t), inputs, format);
+	} catch (const std::runtime_error& e) {
+		PVLOG_WARN("Could not offer the sample dataset: %s\n", e.what());
+		return;
+	}
+
+	PVCore::PVConfig::get().config().setValue(config_key, true);
+	PVCore::PVConfig::get().config().sync();
 }
 
 /******************************************************************************

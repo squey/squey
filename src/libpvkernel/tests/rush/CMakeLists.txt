@@ -211,6 +211,14 @@ add_squey_test(Trush_filtered_with_header Trush_format_import_export ${TESTS_FIL
 add_squey_compile_test(Trush_format_upgrade LINKS ${LINK_LIBRARIES} FILES format_upgrade.cpp)
 add_squey_test(Trush_format_upgrade Trush_format_upgrade)
 
+add_squey_compile_test(Trush_guess_separator_stability LINKS ${LINK_LIBRARIES} FILES guess_separator_stability.cpp)
+# Qt seeds its hash tables differently on every run, and the guess used to depend
+# on that order: pin the seed to several values instead of hoping one run catches it.
+foreach(hash_seed 0 1 7 42)
+	add_squey_test(Trush_guess_separator_stability_seed${hash_seed} Trush_guess_separator_stability)
+	set_property(TEST SQUEY_TEST_Trush_guess_separator_stability_seed${hash_seed} APPEND PROPERTY ENVIRONMENT "QT_HASH_SEED=${hash_seed}")
+endforeach()
+
 add_squey_compile_test(Trush_filter_guess_csv LINKS ${LINK_LIBRARIES} FILES filter_guess_csv.cpp)
 add_squey_test(Trush_filter_guess_csv_correct Trush_filter_guess_csv 4 "," "\"" ${PVRUSH_TEST_FILES}/csv/tiny.csv)
 add_squey_test(Trush_filter_guess_csv_incorrect Trush_filter_guess_csv 0 "," "\"" ${PVRUSH_TEST_FILES}/csv/irregular.csv)
@@ -258,6 +266,9 @@ add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/ti
 # machine running a cross-compiled test: use a path relative to the test working
 # directory, as TESTS_FILES_DIR already does for the test data.
 set_tests_properties(SQUEY_TEST_Trush_recent_items PROPERTIES ENVIRONMENT "SQUEY_CONFIG_DIR=recent_items_test_config")
+
+add_squey_compile_test(Trush_sample_dataset LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES sample_dataset.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_sample_dataset Trush_sample_dataset ${TESTS_FILES_DIR}/../../samples/sample-network-traffic.parquet)
 
 file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

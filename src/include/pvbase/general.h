@@ -86,4 +86,10 @@ static constexpr const char* ESCAPE_PERCENT = "\%";
  */
 #define SQUEY_CRASH_ENVELOPE_FILENAME "crash_envelope.bin"
 
+/* Sample data shipped with the application, so that a fresh install has
+ * something to open before the user has data of their own at hand. It lives
+ * next to the default configuration; see PVCore::PVConfig::shared_dir().
+ */
+#define SQUEY_SAMPLE_DATASET_FILENAME "sample-network-traffic.parquet"
+
 #endif /* PVBASE_GENERAL_H */

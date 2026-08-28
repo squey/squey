@@ -9,6 +9,9 @@ include_directories(${PVLICENSE_INCLUDE_DIR})
 
 set(COMMON_FILES "common.cpp")
 
+add_squey_compile_test(Tsquey_scaling_not_a_number LINKS ${LINK_LIBRARIES} FILES scaling_not_a_number.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_scaling_not_a_number Tsquey_scaling_not_a_number)
+
 add_squey_compile_test(Tsquey_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_heat_line Tsquey_heat_line)
 add_bench(Tsquey_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp ${COMMON_FILES})

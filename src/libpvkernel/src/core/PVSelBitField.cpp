@@ -66,6 +66,14 @@ PVCore::PVSelBitField::operator const pvcop_selection_t&() const
  *****************************************************************************/
 size_t PVCore::PVSelBitField::bit_count(size_t start /*= 0*/, size_t end /*= 0*/) const
 {
+	// An empty selection has no last bit to count up to: end would wrap around to
+	// SIZE_MAX and the count would run off the end of the buffer. A source with
+	// no rows is what gets here -- an empty file, or one whose every line was
+	// rejected -- and it used to crash on the first view built from it.
+	if (_selection.size() == 0) {
+		return 0;
+	}
+
 	if (end == 0) {
 		end = _selection.size() - 1;
 	}
