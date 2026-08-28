@@ -25,8 +25,20 @@ add_definitions(-DSQUEY_CONFIG="${SQUEY_CONFIG}")
 ###############################################################################
 
 install(FILES "pvconfig.ini" DESTINATION ${SQUEY_CONFIG})
+install(FILES "samples/sample-network-traffic.parquet" DESTINATION ${SHARE_RESSOURCES})
 install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME squey.png)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
+
+# The same files, mirrored into the build tree under the layout they have once
+# installed. A binary run from the build tree finds them there (see
+# PVCore::PVConfig::shared_dir()), so that working on Squey does not require
+# installing it first -- without this, the start screen offers no sample and the
+# about box has no changelog to read.
+foreach(shared_file "pvconfig.ini" "CHANGELOG" "samples/sample-network-traffic.parquet")
+	get_filename_component(shared_file_name "${shared_file}" NAME)
+	configure_file("${CMAKE_CURRENT_SOURCE_DIR}/${shared_file}"
+	               "${CMAKE_BINARY_DIR}/share/squey/squey/${shared_file_name}" COPYONLY)
+endforeach()
 
 # doc 
 add_definitions(-DDOC_URL="https://doc.squey.org")

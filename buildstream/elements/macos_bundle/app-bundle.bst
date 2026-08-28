@@ -30,6 +30,11 @@ config:
     mkdir share
     cp -ar %{prefix}/share/pocl share
     cp -ar %{prefix}/share/squey share
+    # The shipped default is a Linux absolute path no sandboxed application is
+    # ever granted. Left empty, the application picks a directory inside its own
+    # container instead of greeting a first-time user with a dialog it cannot
+    # satisfy.
+    sed 's|^nraw_tmp=.*|nraw_tmp=|' -i share/squey/squey/pvconfig.ini
     cp %{build-root}/buildstream/files/macos_bundle/squey.icns Resources
     VERSION=$(cat %{build-root}/VERSION.txt)
     CURRENT_YEAR=$(date +%Y)

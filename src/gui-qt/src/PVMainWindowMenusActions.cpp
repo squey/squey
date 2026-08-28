@@ -158,6 +158,12 @@ void App::PVMainWindow::create_actions()
 	about_Action->setIcon(PVModdedIcon("circle-info"));
 	refman_Action = new QAction(tr("Reference &Manual"), this);
 	refman_Action->setIcon(PVModdedIcon("book-open"));
+	sample_dataset_Action = new QAction(tr("Open &Sample Dataset"), this);
+	sample_dataset_Action->setIcon(PVModdedIcon("chart-simple"));
+	sample_dataset_Action->setToolTip(tr("Open a sample of network traffic shipped with Squey"));
+	// The recent sources only offer it on a first run; this is what remains once
+	// that entry has been used up or cleared away.
+	sample_dataset_Action->setEnabled(not sample_dataset_path().isEmpty());
 }
 
 /******************************************************************************
@@ -221,6 +227,7 @@ void App::PVMainWindow::create_menus()
 
 	help_Menu = menubar->addMenu(tr("&Help"));
 	help_Menu->setAttribute(Qt::WA_TranslucentBackground);
+	help_Menu->addAction(sample_dataset_Action);
 	help_Menu->addAction(refman_Action);
 	help_Menu->addAction(about_Action);
 }
@@ -290,6 +297,8 @@ void App::PVMainWindow::connect_actions()
 	connect(tools_open_format_Action, &QAction::triggered, this, &PVMainWindow::open_format_Slot);
 	connect(tools_cur_format_Action, &QAction::triggered, this, &PVMainWindow::cur_format_Slot);
 
+	connect(sample_dataset_Action, &QAction::triggered, this,
+	        &PVMainWindow::load_sample_dataset_Slot);
 	connect(about_Action, &QAction::triggered,
 	        [this]() { about_Slot(PVGuiQt::PVAboutBoxDialog::Tab::SOFTWARE); });
 	connect(refman_Action, &QAction::triggered,

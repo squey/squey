@@ -259,5 +259,8 @@ add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/ti
 # directory, as TESTS_FILES_DIR already does for the test data.
 set_tests_properties(SQUEY_TEST_Trush_recent_items PROPERTIES ENVIRONMENT "SQUEY_CONFIG_DIR=recent_items_test_config")
 
+add_squey_compile_test(Trush_sample_dataset LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES sample_dataset.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_sample_dataset Trush_sample_dataset ${TESTS_FILES_DIR}/../../samples/sample-network-traffic.parquet)
+
 file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

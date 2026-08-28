@@ -44,6 +44,8 @@
 #include <QDebug>
 
 #include <pvkernel/opencl/common.h>
+#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVTheme.h>
 
 #include <cassert>
@@ -119,18 +121,14 @@ class PVChangeLogWidget : public QWidget
 
 		layout->addWidget(changelog_text);
 
-#ifdef __APPLE__
-		boost::filesystem::path exe_path = boost::dll::program_location();
-		QFile f(QString::fromStdString(exe_path.parent_path().string()) + "/../share/squey/squey/CHANGELOG");
-#elifdef _WIN32
-		boost::filesystem::path exe_path = boost::dll::program_location();
-		QFile f(QString::fromStdString(exe_path.parent_path().string()) + "/CHANGELOG");
-#else
-		QFile f("/app/share/squey/squey/CHANGELOG");
-#endif
+		QFile f(PVCore::PVConfig::shared_dir() + "/CHANGELOG");
 		if (not f.open(QFile::ReadOnly | QFile::Text)) {
-		    assert(false && "Error when opening file");
-            return;
+			// A missing changelog is a packaging slip, not a reason to lose the
+			// about box -- and it used to abort the whole application in a debug
+			// build, where the file is only present once installed.
+			PVLOG_WARN("Unable to read the changelog at '%s'\n", qPrintable(f.fileName()));
+			setLayout(layout);
+			return;
 		}
 		QTextStream in(&f);
 		changelog_text->setText(in.readAll());

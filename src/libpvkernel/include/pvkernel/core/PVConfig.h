@@ -83,6 +83,12 @@ class PVConfig
 	static QString user_dir();
 
 	/**
+	 * return the path to the directory holding the files shipped with the
+	 * application (default configuration, sample data, changelog)
+	 */
+	static QString shared_dir();
+
+	/**
 	 * return the name of the product (ex: squey, etc)
 	 */
 	static std::string product_name();
