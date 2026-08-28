@@ -39,14 +39,19 @@ static void compute_minmax_scaling(pvcop::db::array const& mapped,
 	double ymax;
 	std::tie(ymin, ymax) = Squey::PVScalingFilter::extract_minmax<T>(minmax);
 
-	if (ymin == ymax) {
+	// Bounds that are equal leave nothing to spread over, and bounds that are not
+	// finite leave nothing to compute with: a column holding NaN -- which is how
+	// pandas and numpy write a missing value into a CSV -- satisfies neither
+	// ymin == ymax nor ymax > ymin, and the ratio below would be NaN, whose
+	// conversion to an unsigned integer is undefined. Both cases put every row at
+	// the same place, which is the honest answer when no order can be told.
+	if (not(ymin < ymax)) {
 		const scaling_t mid = std::numeric_limits<scaling_t>::max() / 2;
 		for (size_t i = 0; i < mapped.size(); i++) {
 			dest[i] = invalid_selection and invalid_selection[i] ? ~scaling_t(0) : mid;
 		}
 		return;
 	}
-	assert(ymax > ymin);
 
 	// Use double to compute value to avoid rounding issue.
 	// eg: if we use only uint32_t, with ymax - ymin > uint32_max / 2, ratio will be 1 and

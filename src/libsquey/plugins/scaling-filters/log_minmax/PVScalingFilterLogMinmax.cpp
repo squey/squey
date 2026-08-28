@@ -41,7 +41,11 @@ static void compute_log_scaling(pvcop::db::array const& mapped,
 	double ymax;
 	std::tie(ymin, ymax) = Squey::PVScalingFilter::extract_minmax<T>(minmax);
 
-	if (ymin == ymax) {
+	// Not just equal bounds but any bounds that cannot be ordered: a column whose
+	// values are all NaN satisfies neither test below, and the ratio would come
+	// out NaN, whose conversion to an unsigned integer is undefined. See the same
+	// guard in PVScalingFilterMinmax.
+	if (not(ymin < ymax)) {
 		for (size_t i = 0; i < mapped.size(); i++) {
 			dest[i] = invalid_selection and invalid_selection[i] ? ~value_type(0) : (value_type)1 << 31;
 		}
