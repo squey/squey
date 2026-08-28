@@ -113,6 +113,24 @@ assert int(source.select("col1 > 1").sum()) == kept
 source.insert_layer("Greater", selected)
 assert int(source.layer("Greater").get().sum()) == kept
 
+# --- What a script is told about all this ----------------------------------
+# The only documentation a script has is what help() shows, so an entry with
+# nothing but its signature is an entry nobody can use. pybind writes the
+# signature itself; a line without parentheses in it is the sentence we wrote.
+def documented(entry):
+    for line in (entry.__doc__ or "").split("\n"):
+        line = line.strip()
+        if line and "(" not in line and not line.startswith("Overloaded"):
+            return True
+    return False
+
+# Asked of the objects themselves: the classes are registered at module level,
+# and this script has already bound their names to instances of them.
+for name in ("column_name", "valid", "query", "select"):
+    assert documented(getattr(source, name)), name
+for name in ("row_count", "column_count", "column_name", "column_type", "column", "valid"):
+    assert documented(getattr(listed, name)), name
+
 # --- A query naming no rows is not a table ---------------------------------
 try:
     source.select("SELECT col1, col2 FROM layers")

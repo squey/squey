@@ -97,9 +97,12 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
     // Which rows of a column carry a value: an unreadable cell reads back as a
     // plain 0 through column(), and this is what tells it from a real one. The
     // same array a query result carries beside each of its columns.
-    python_source.def("column_name", &PVPythonSource::column_name, pybind11::arg("column_index"));
-    python_source.def("valid", pybind11::overload_cast<size_t>(&PVPythonSource::valid), pybind11::arg("column_index"));
-    python_source.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::valid), pybind11::arg("column_name"), pybind11::arg("position") = 0);
+    python_source.def("column_name", &PVPythonSource::column_name, pybind11::arg("column_index"),
+        "What the column at that index is called.");
+    python_source.def("valid", pybind11::overload_cast<size_t>(&PVPythonSource::valid), pybind11::arg("column_index"),
+        "Which rows of a column carry a value -- a cell the format could not read holds an encoding rather than one.");
+    python_source.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::valid), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "Which rows of a column carry a value -- a cell the format could not read holds an encoding rather than one.");
     python_source.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSource::column_type), pybind11::arg("column_name"));
     python_source.def("column_type", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::column_type), pybind11::arg("column_name"), pybind11::arg("position") = 0);
     // Named as the SQL console names them, word for word, and documented in the
@@ -130,15 +133,24 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
         "Run a query that names rows and return which ones, as a boolean array.");
 
     pybind11::class_<PVPythonSqlResult> python_sql_result(main, "sql_result");
-    python_sql_result.def("row_count", &PVPythonSqlResult::row_count);
-    python_sql_result.def("column_count", &PVPythonSqlResult::column_count);
-    python_sql_result.def("column_name", &PVPythonSqlResult::column_name, pybind11::arg("column_index"));
-    python_sql_result.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_index"));
-    python_sql_result.def("column_type", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0);
-    python_sql_result.def("column", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_index"));
-    python_sql_result.def("column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0);
-    python_sql_result.def("valid", pybind11::overload_cast<size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_index"));
-    python_sql_result.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0);
+    python_sql_result.def("row_count", &PVPythonSqlResult::row_count,
+        "How many rows the query gave back.");
+    python_sql_result.def("column_count", &PVPythonSqlResult::column_count,
+        "How many columns the query projected.");
+    python_sql_result.def("column_name", &PVPythonSqlResult::column_name, pybind11::arg("column_index"),
+        "What the query called the column at that index.");
+    python_sql_result.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_index"),
+        "What DuckDB called the column -- BIGINT, VARCHAR, TIMESTAMP.");
+    python_sql_result.def("column_type", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "What DuckDB called the column -- BIGINT, VARCHAR, TIMESTAMP.");
+    python_sql_result.def("column", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_index"),
+        "One column, as an array: whole numbers as int64, real ones as double, everything else as the text it prints as.");
+    python_sql_result.def("column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "One column, as an array: whole numbers as int64, real ones as double, everything else as the text it prints as.");
+    python_sql_result.def("valid", pybind11::overload_cast<size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_index"),
+        "Which rows of the column carry a value, NULL being an answer a query gives rather than an accident.");
+    python_sql_result.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "Which rows of the column carry a value, NULL being an answer a query gives rather than an accident.");
 
     pybind11::class_<PVPythonSelection> python_selection(main, "selection");
     python_selection.def("size", &PVPythonSelection::size);
