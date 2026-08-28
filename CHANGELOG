@@ -1,3 +1,13 @@
+5.1.3 (2026-08-28)
+------------------
+
+This minor release fixes or improves:
+* ship a sample dataset accessible from the Help menu
+* fix CSV column detection robustness
+* place NaN values where the axis keeps the invalid ones, instead of among the real values
+* fix a crash when showing the labels of a hit-count view built on no axis
+* fix several memory leaks
+
 5.1.2 (2026-08-24)
 ------------------
 
