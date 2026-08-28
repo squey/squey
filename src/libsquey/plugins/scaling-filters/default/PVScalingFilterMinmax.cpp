@@ -29,6 +29,29 @@
 
 using scaling_t = Squey::PVScalingFilter::value_type;
 
+/**
+ * Whether a value has no place among ordered ones.
+ *
+ * A NaN cannot be compared, so it cannot be positioned: no arithmetic below
+ * gives it a meaningful place, and converting the NaN that arithmetic produces
+ * to an unsigned integer is undefined. The axis already reserves a range for
+ * what cannot be placed -- see PVScalingFilter::INVALID_RESERVED_PERCENT_RANGE
+ * -- which is where such a value belongs, rather than in the middle of the real
+ * ones where it would read as a value of its own.
+ *
+ * Whether the import called it invalid is not enough to go by: bounds computed
+ * over NaNs differ between compilers and optimisation levels, so a column can
+ * reach here with NaNs in it and bounds that look perfectly ordered.
+ */
+template <class A>
+static inline bool is_unplaceable(const pvcop::db::selection& invalid_selection,
+                                  const A& values,
+                                  size_t i)
+{
+	return (invalid_selection and invalid_selection[i]) or
+	       Squey::is_not_a_number(Squey::extract_value(values[i]));
+}
+
 template <class T>
 static void compute_minmax_scaling(pvcop::db::array const& mapped,
                                     pvcop::db::array const& minmax,
@@ -39,16 +62,14 @@ static void compute_minmax_scaling(pvcop::db::array const& mapped,
 	double ymax;
 	std::tie(ymin, ymax) = Squey::PVScalingFilter::extract_minmax<T>(minmax);
 
-	// Bounds that are equal leave nothing to spread over, and bounds that are not
-	// finite leave nothing to compute with: a column holding NaN -- which is how
-	// pandas and numpy write a missing value into a CSV -- satisfies neither
-	// ymin == ymax nor ymax > ymin, and the ratio below would be NaN, whose
-	// conversion to an unsigned integer is undefined. Both cases put every row at
-	// the same place, which is the honest answer when no order can be told.
+	// Bounds that cannot be ordered leave nothing to spread over, which covers
+	// equal bounds and the ones a column of NaNs produces. Every row then goes to
+	// the same place.
 	if (not(ymin < ymax)) {
 		const scaling_t mid = std::numeric_limits<scaling_t>::max() / 2;
+		auto& values = mapped.to_core_array<T>();
 		for (size_t i = 0; i < mapped.size(); i++) {
-			dest[i] = invalid_selection and invalid_selection[i] ? ~scaling_t(0) : mid;
+			dest[i] = is_unplaceable(invalid_selection, values, i) ? ~scaling_t(0) : mid;
 		}
 		return;
 	}
@@ -65,7 +86,7 @@ static void compute_minmax_scaling(pvcop::db::array const& mapped,
 
 #pragma omp parallel for
 	for (size_t i = 0; i < values.size(); i++) {
-		bool invalid = invalid_selection and invalid_selection[i];
+		bool invalid = is_unplaceable(invalid_selection, values, i);
 		dest[i] = ~scaling_t(invalid ? 0 : (Squey::extract_value(values[i]) - ymin) * ratio +
 		                                        valid_offset);
 	}

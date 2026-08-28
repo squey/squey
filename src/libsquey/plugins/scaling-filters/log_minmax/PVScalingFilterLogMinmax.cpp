@@ -41,13 +41,14 @@ static void compute_log_scaling(pvcop::db::array const& mapped,
 	double ymax;
 	std::tie(ymin, ymax) = Squey::PVScalingFilter::extract_minmax<T>(minmax);
 
-	// Not just equal bounds but any bounds that cannot be ordered: a column whose
-	// values are all NaN satisfies neither test below, and the ratio would come
-	// out NaN, whose conversion to an unsigned integer is undefined. See the same
-	// guard in PVScalingFilterMinmax.
+	// Bounds that cannot be ordered, which covers equal ones and the ones a column
+	// of NaNs produces. See the same guard in PVScalingFilterMinmax.
 	if (not(ymin < ymax)) {
+		auto& all = mapped.to_core_array<T>();
 		for (size_t i = 0; i < mapped.size(); i++) {
-			dest[i] = invalid_selection and invalid_selection[i] ? ~value_type(0) : (value_type)1 << 31;
+			const bool unplaceable = (invalid_selection and invalid_selection[i]) or
+			                         Squey::is_not_a_number(Squey::extract_value(all[i]));
+			dest[i] = unplaceable ? ~value_type(0) : (value_type)1 << 31;
 		}
 		return;
 	}
@@ -69,7 +70,13 @@ static void compute_log_scaling(pvcop::db::array const& mapped,
 
 #pragma omp parallel for
 	for (size_t i = 0; i < mapped.size(); i++) {
-		bool invalid = invalid_selection and invalid_selection[i];
+		// A NaN has no place among ordered values; the axis reserves a range for
+		// what cannot be placed, and that is where it goes. Leaving it to the
+		// arithmetic below would convert a NaN to an unsigned integer, which is
+		// undefined. See PVScalingFilterMinmax for why the import's own verdict
+		// is not enough to go by.
+		bool invalid = (invalid_selection and invalid_selection[i]) or
+		               Squey::is_not_a_number(Squey::extract_value(values[i]));
 		dest[i] = ~value_type(
 		    invalid ? 0 : ratio * (std::log2((std::max<double>(
 		                                         ymin, Squey::extract_value(values[i]) + offset)) /

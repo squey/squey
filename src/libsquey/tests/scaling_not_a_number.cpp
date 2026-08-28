@@ -22,12 +22,18 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// A single "nan" in a floating point column -- how numpy and pandas write a
-// missing value, and what any export from them can carry -- leaves the column's
-// bounds unordered: neither ymin == ymax nor ymax > ymin holds. Scaling then
-// computed a NaN ratio and converted it to an unsigned integer, which is
-// undefined: an assertion in a debug build, and arbitrary positions along the
-// axis in a release one, with nothing said to the user either way.
+// A NaN in a floating point column -- how numpy and pandas write a missing
+// value, and what any export from them can carry -- cannot be compared, so it
+// cannot be positioned along an axis. Scaling used to hand it to the arithmetic
+// anyway and convert the resulting NaN to an unsigned integer, which is
+// undefined: an assertion in a debug build, and a position at the far end of the
+// axis in a release one, where it reads as a real value.
+//
+// It now goes where the axis keeps what it cannot place, the range reserved for
+// invalid values, which is also where the import sends a NaN it did call
+// invalid. The two verdicts had to agree: bounds computed over NaNs differ
+// between compilers, so the same column reached the scaling with unordered
+// bounds under gcc and ordered ones under clang.
 //
 // Infinities are left alone on purpose: they still compare, so they still order.
 
@@ -40,6 +46,7 @@
 #include "common.h"
 
 #include <fstream>
+#include <limits>
 #include <string>
 
 static std::string write_file(const std::string& path, const std::string& content)
@@ -107,12 +114,13 @@ int main()
 		for (PVCol col : {PVCol(1), PVCol(2)}) {
 			const uint32_t* values = scaled.get_column_pointer(col);
 			PV_ASSERT_VALID(values != nullptr, "spelling", spelling, "column", (size_t)col);
-			// Where exactly they land is not asserted: whether a NaN is taken for
-			// an invalid value -- which earns the reserved position at the end of
-			// the axis -- or for an ordinary one -- which lands mid-axis -- differs
-			// between platforms and compilers. What must hold everywhere is that
-			// the rows agree with each other, and that getting here at all took no
-			// undefined conversion on the way.
+			// Both rows land where the axis keeps what it cannot place, which is
+			// the position the invalid values are given. Asserting the position
+			// rather than only the agreement is what tells the fix from the
+			// undefined conversion it replaced: that one used to land here too,
+			// but only by accident of how a NaN converts on this machine.
+			PV_VALID(values[0], std::numeric_limits<uint32_t>::max(), "spelling", spelling,
+			         "column", (size_t)col);
 			PV_VALID(values[1], values[0], "spelling", spelling, "column", (size_t)col);
 		}
 	}
