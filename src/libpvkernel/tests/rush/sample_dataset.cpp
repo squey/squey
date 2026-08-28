@@ -47,7 +47,8 @@ static constexpr const size_t COLUMN_COUNT = 14;
 UNICODE_MAIN()
 {
 	if (argc < 2) {
-		std::cerr << "Usage: " << argv[0] << " sample.parquet" << std::endl;
+		// Not argv[0]: under wmain() it is a wchar_t* that std::cerr will not take.
+		std::cerr << "Usage: Trush_sample_dataset sample.parquet" << std::endl;
 		return 1;
 	}
 #ifdef _WIN32
