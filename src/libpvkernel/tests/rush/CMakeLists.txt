@@ -229,15 +229,14 @@ set(PARQUET_SRC_FILES
 )
 
 add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-target_compile_options(SQUEY_TEST_Trush_apache_parquet PRIVATE "-O0") # Optimisations are breaking the test under MacOS
-endif()
+# The test computes its own floating point data and compares an export of it against
+# reference files, so those values have to come out the same in every build. -ffast-math,
+# which the optimised build types enable, turns the division by a loop invariant that
+# computes them into a multiplication by its reciprocal, and that rounds differently: a
+# fifth of the float column lands one ulp away from what a build without it produces.
+target_compile_options(SQUEY_TEST_Trush_apache_parquet PRIVATE -fno-fast-math)
 set(PARQUET_MULTIINPUTS_CSV "${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïinputs.csv")
 set(PARQUET_MULTIINPUTS_OPTIM_CSV "${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïinputs_optim.csv")
-if(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-	set(PARQUET_MULTIINPUTS_CSV "${PARQUET_MULTIINPUTS_CSV}.mac")
-	set(PARQUET_MULTIINPUTS_OPTIM_CSV "${PARQUET_MULTIINPUTS_OPTIM_CSV}.mac")
-endif()
 add_squey_test(Trush_apache_parquet Trush_apache_parquet ${PARQUET_MULTIINPUTS_CSV} ${PARQUET_MULTIINPUTS_OPTIM_CSV} ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïchunks_export.csv)
 add_squey_compile_test(Trush_apache_parquet_import_export LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_import_export.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_import_export Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïchunks.csv)
