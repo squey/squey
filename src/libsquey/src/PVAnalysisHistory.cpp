@@ -82,7 +82,7 @@ void Squey::PVAnalysisHistory::Scope::describe(QString details)
 	 * operation assembled out of smaller ones is described by what the user
 	 * asked for, not by the parts.
 	 */
-	_details = details.simplified();
+	_details = details.trimmed();
 
 	if (_details.size() > details_length) {
 		_details = _details.left(details_length - 1) + QChar(0x2026); // ellipsis

@@ -30,6 +30,10 @@
 #include <QPushButton>
 #include <QMessageBox>
 
+#include <pvkernel/core/PVArgument.h>
+#include <pvkernel/core/PVOriginalAxisIndexType.h>
+#include <pvkernel/core/PVAxisIndexType.h>
+#include <pvkernel/core/PVEnumType.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <squey/PVAnalysisHistory.h>
@@ -206,6 +210,76 @@ void PVGuiQt::PVLayerFilterProcessWidget::reject()
 	QDialog::reject();
 }
 
+namespace
+{
+
+/* What an argument holds, said the way the dialog says it.
+ *
+ * to_string() is not that: it is the form presets are written in, so an
+ * enumeration comes back as the number of the entry that was picked and an axis
+ * as its index and a flag. A crumb reading "Search in: 2" tells nobody
+ * anything, so the ones worth resolving are resolved.
+ */
+QString value_of(PVCore::PVArgument const& value, Squey::PVView const& view)
+{
+	/* Asked what it holds, not what it could be turned into: a conversion
+	 * registered between two of these would make canConvert() answer yes for
+	 * both, and pick the wrong one.
+	 */
+	if (value.userType() == qMetaTypeId<PVCore::PVEnumType>()) {
+		return value.value<PVCore::PVEnumType>().get_sel();
+	}
+
+	if (value.userType() == qMetaTypeId<PVCore::PVOriginalAxisIndexType>()) {
+		return view.get_nraw_axis_name(
+		    value.value<PVCore::PVOriginalAxisIndexType>().get_original_index());
+	}
+
+	if (value.userType() == qMetaTypeId<PVCore::PVAxisIndexType>()) {
+		// The axis as it stands on screen, which is the one the dialog named.
+		return view.get_axis_name(value.value<PVCore::PVAxisIndexType>().get_axis_index());
+	}
+
+	return PVCore::PVArgument_to_QString(value);
+}
+
+/* What the filter was given that it would not have been given anyway.
+ *
+ * The arguments are what tells one run of a search from another, and a crumb
+ * that cannot say which search it was sends the user back to the dialog to find
+ * out. But most of a filter's form is left as it stands, and listing the
+ * untouched half buries the half that was typed: only what differs from what
+ * the dialog opened with is said.
+ *
+ * One per line, in the order the filter declared them, which is the order they
+ * were asked for on screen.
+ */
+QString describe(PVCore::PVArgumentList const& args,
+                 PVCore::PVArgumentList const& defaults,
+                 Squey::PVView const& view)
+{
+	QStringList said;
+
+	for (auto const& node : args) {
+		const QString value = value_of(node.value(), view).trimmed();
+		if (value.isEmpty()) {
+			continue;
+		}
+
+		const auto fallback = defaults.find(node.key());
+		if (fallback != defaults.end() && value_of(fallback->value(), view).trimmed() == value) {
+			continue;
+		}
+
+		const QString name = node.key().desc().isEmpty() ? node.key().key() : node.key().desc();
+		said << QString("%1: %2").arg(name).arg(value);
+	}
+
+	return said.join(QChar('\n'));
+}
+
+} // namespace
+
 void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 {
 	// Force the current parameter widget to lose its focus (in case it has not
@@ -225,6 +299,13 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 			return;
 		}
 	}
+
+	/* Described here rather than where the scope opened: process() is what
+	 * submits the widget's values into the arguments, so before it they are
+	 * whatever the last run left.
+	 */
+	step.describe(describe(*_args_widget->get_args(),
+	                       _filter_p->get_default_args_for_view(*_view), *_view));
 
 	// FIXME : This is a Hack to commit colors in layer but not the selection.
 	Squey::PVLayer& current_selected_layer = _view->edit_current_layer();

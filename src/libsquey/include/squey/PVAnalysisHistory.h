@@ -215,8 +215,10 @@ class PVAnalysisHistory
 
 		/**
 		 * Quotes what the step was done with, for the sites that know: the
-		 * text of a query, the script that was run. Kept short, since this is
-		 * a description of an act rather than a copy of what it was given.
+		 * text of a query, the arguments a filter was given. Kept short, since
+		 * this is a description of an act rather than a copy of what it was
+		 * given, but kept as the site laid it out -- a tooltip has room for
+		 * lines, and a list of arguments reads as a list.
 		 */
 		void describe(QString details);
 

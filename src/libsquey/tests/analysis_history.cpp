@@ -200,12 +200,12 @@ int main()
 	history.clear();
 	{
 		Scope step(env.root, "SQL query", "sql-file");
-		step.describe("  SELECT rowid\n  FROM   layers\n  WHERE  col1 > 1  ");
+		step.describe("  SELECT rowid\nFROM layers  ");
 		view->select_none();
 	}
 	PV_ASSERT_VALID(history.step(history.position()).details() ==
-	                    QString("SELECT rowid FROM layers WHERE col1 > 1"),
-	                "why", "a description is squeezed onto one line");
+	                    QString("SELECT rowid\nFROM layers"),
+	                "why", "a description is kept as the site laid it out, ends trimmed");
 
 	{
 		Scope step(env.root, "Nothing to quote", "square");
