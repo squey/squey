@@ -191,6 +191,37 @@ int main()
 	PV_VALID(shown_rows(*view), all_rows);
 	PV_ASSERT_VALID(not history.can_undo());
 
+	// ------------------------------------- what a step was done with
+
+	/* A name says what kind of act a step was; some acts are worth quoting.
+	 * Kept short, since this describes an act rather than copying what it was
+	 * given.
+	 */
+	history.clear();
+	{
+		Scope step(env.root, "SQL query", "sql-file");
+		step.describe("  SELECT rowid\n  FROM   layers\n  WHERE  col1 > 1  ");
+		view->select_none();
+	}
+	PV_ASSERT_VALID(history.step(history.position()).details() ==
+	                    QString("SELECT rowid FROM layers WHERE col1 > 1"),
+	                "why", "a description is squeezed onto one line");
+
+	{
+		Scope step(env.root, "Nothing to quote", "square");
+		view->select_all();
+	}
+	PV_ASSERT_VALID(history.step(history.position()).details().isEmpty(), "why",
+	                "a step whose site had nothing to add carries nothing");
+
+	{
+		Scope step(env.root, "A long one", "python");
+		step.describe(QString("x").repeated(Scope::details_length * 3));
+		view->select_none();
+	}
+	PV_VALID(int(history.step(history.position()).details().size()), Scope::details_length, "why",
+	         "past a point the breadcrumb would be quoting rather than describing");
+
 	// ------------------------------------- the steps nobody is standing on
 
 	/* A selection is a bit per row, so a history of them is the largest thing
@@ -199,6 +230,11 @@ int main()
 	 */
 	history.clear();
 	history.set_max_steps(Squey::PVAnalysisHistory::default_max_steps);
+
+	// From a known state, and outside any scope: what the block before left
+	// behind would otherwise decide whether the first step here changed a row,
+	// and a step that changes none is not recorded.
+	view->select_all();
 
 	for (int i = 0; i < 8; ++i) {
 		Scope step(env.root, QString("Far %1").arg(i), "square");

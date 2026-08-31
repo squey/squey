@@ -40,6 +40,7 @@
 #include <pvcop/db/algo.h>
 #include <pvcop/db/array.h>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVDuckDBQuery.h>
 #include <squey/PVSelection.h>
 #include <squey/PVSource.h>
@@ -502,6 +503,13 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 			dock_result(*this, view, console_widget, dlg);
 			return;
 		}
+
+		/* The query is what this step was: nothing else in the breadcrumb says
+		 * which rows were asked for, and a crumb reading "SQL" alone would send
+		 * the user back to the console to find out.
+		 */
+		Squey::PVAnalysisHistory::Scope step(*view, QObject::tr("SQL query"), "sql-file");
+		step.describe(editor->toPlainText());
 
 		view->set_selection_view(result);
 	});

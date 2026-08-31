@@ -216,6 +216,9 @@ void Squey::PVPythonInterpreter::execute_script(const std::string& script, bool 
      * Nothing is recorded when it changed nothing.
      */
     Squey::PVAnalysisHistory::Scope step(*_root, QObject::tr("Python script"), "python");
+    // Which script, since a session can run several: the path when there is
+    // one, and the script itself when it was typed into the console.
+    step.describe(QString::fromStdString(script));
 
     auto globals = pybind11::globals();
 	if (is_path) {

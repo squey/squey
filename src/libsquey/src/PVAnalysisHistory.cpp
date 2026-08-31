@@ -76,9 +76,23 @@ Squey::PVAnalysisHistory::Scope::Scope(PVView& view,
 {
 }
 
+void Squey::PVAnalysisHistory::Scope::describe(QString details)
+{
+	/* Only the outermost scope names the step, and only it describes one: an
+	 * operation assembled out of smaller ones is described by what the user
+	 * asked for, not by the parts.
+	 */
+	_details = details.simplified();
+
+	if (_details.size() > details_length) {
+		_details = _details.left(details_length - 1) + QChar(0x2026); // ellipsis
+	}
+}
+
 Squey::PVAnalysisHistory::Scope::~Scope()
 {
-	_history.close(std::move(_label), std::move(_icon), std::move(_merge_key), _window);
+	_history.close(std::move(_label), std::move(_details), std::move(_icon), std::move(_merge_key),
+	               _window);
 }
 
 /******************************************************************************
@@ -95,7 +109,8 @@ void Squey::PVAnalysisHistory::open()
 	 * needs one to start from before anything can be undone back to it.
 	 */
 	if (_steps.empty()) {
-		PVAnalysisStep initial = capture(QString("Opened"), "folder-open", std::string());
+		PVAnalysisStep initial =
+		    capture(QString("Opened"), QString(), "folder-open", std::string());
 
 		/* The step everything starts from stands for the analysis before it
 		 * moved, and it is taken when the first scope opens rather than when
@@ -116,6 +131,7 @@ void Squey::PVAnalysisHistory::open()
  *****************************************************************************/
 
 void Squey::PVAnalysisHistory::close(QString label,
+                                     QString details,
                                      std::string icon,
                                      std::string merge_key,
                                      std::chrono::milliseconds window)
@@ -124,7 +140,8 @@ void Squey::PVAnalysisHistory::close(QString label,
 		return;
 	}
 
-	PVAnalysisStep step = capture(std::move(label), std::move(icon), std::move(merge_key));
+	PVAnalysisStep step =
+	    capture(std::move(label), std::move(details), std::move(icon), std::move(merge_key));
 
 	/* A barrier may have wiped the history from inside the very scope being
 	 * closed, in which case this step is the one everything else starts from.
@@ -161,6 +178,7 @@ void Squey::PVAnalysisHistory::close(QString label,
 		 * the window against its first commit.
 		 */
 		step._label = previous._label;
+		step._details = previous._details;
 		step._icon = previous._icon;
 		_steps[_position] = std::move(step);
 	} else {
@@ -179,12 +197,14 @@ void Squey::PVAnalysisHistory::close(QString label,
  *****************************************************************************/
 
 Squey::PVAnalysisStep Squey::PVAnalysisHistory::capture(QString label,
+                                                        QString details,
                                                         std::string icon,
                                                         std::string merge_key) const
 {
 	PVAnalysisStep step;
 
 	step._label = std::move(label);
+	step._details = std::move(details);
 	step._icon = std::move(icon);
 	step._merge_key = std::move(merge_key);
 	step._taken_at = std::chrono::steady_clock::now();

@@ -246,9 +246,13 @@ QWidget* PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current,
 	crumb->setIconSize(QSize(icon_pixels, icon_pixels));
 	crumb->setAutoRaise(true);
 	crumb->setFocusPolicy(Qt::NoFocus);
-	crumb->setToolTip(tr("%1\n%2 event(s) selected")
-	                      .arg(step.label())
-	                      .arg(QLocale().toString(qulonglong(step.selected_row_count()))));
+	QString tip = step.label();
+	if (not step.details().isEmpty()) {
+		tip += QString("\n") + step.details();
+	}
+	tip += tr("\n%1 event(s) selected")
+	           .arg(QLocale().toString(qulonglong(step.selected_row_count())));
+	crumb->setToolTip(tip);
 
 	/* Where the user stands is the one pressed in; what lies ahead -- the
 	 * branch they walked back from, still there to walk forward into -- is

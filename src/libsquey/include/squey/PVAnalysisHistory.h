@@ -83,6 +83,16 @@ class PVAnalysisStep
 	std::string const& icon() const { return _icon; }
 
 	/**
+	 * What the step was done with, when the site that opened it had something
+	 * worth quoting -- the query a selection came from, the script that was
+	 * run. Empty for the steps that have nothing to add to their name.
+	 *
+	 * Shown under the name in the breadcrumb, and nowhere else: the name alone
+	 * goes in the Undo and Redo entries, which have no room for a query.
+	 */
+	QString const& details() const { return _details; }
+
+	/**
 	 * How many rows the step left selected in the view it was taken on, which
 	 * is the one thing about a step worth showing next to its name.
 	 */
@@ -106,6 +116,7 @@ class PVAnalysisStep
 
   private:
 	QString _label;
+	QString _details;
 	std::string _icon;
 	std::string _merge_key;
 	std::chrono::steady_clock::time_point _taken_at;
@@ -202,14 +213,29 @@ class PVAnalysisHistory
 		      std::string merge_key,
 		      std::chrono::milliseconds window = default_merge_window);
 
+		/**
+		 * Quotes what the step was done with, for the sites that know: the
+		 * text of a query, the script that was run. Kept short, since this is
+		 * a description of an act rather than a copy of what it was given.
+		 */
+		void describe(QString details);
+
 		~Scope();
 
 		Scope(Scope const&) = delete;
 		Scope& operator=(Scope const&) = delete;
 
+	  public:
+		/**
+		 * How much of a description is kept. Past this the breadcrumb would be
+		 * quoting rather than describing.
+		 */
+		static constexpr int details_length = 400;
+
 	  private:
 		PVAnalysisHistory& _history;
 		QString _label;
+		QString _details;
 		std::string _icon;
 		std::string _merge_key;
 		std::chrono::milliseconds _window;
@@ -286,11 +312,13 @@ class PVAnalysisHistory
   private:
 	void open();
 	void close(QString label,
+	           QString details,
 	           std::string icon,
 	           std::string merge_key,
 	           std::chrono::milliseconds window);
 
-	PVAnalysisStep capture(QString label, std::string icon, std::string merge_key) const;
+	PVAnalysisStep
+	capture(QString label, QString details, std::string icon, std::string merge_key) const;
 	static bool same_states(PVAnalysisStep const& a, PVAnalysisStep const& b);
 	void cool_distant_steps();
 	void restore(PVAnalysisStep& step);
