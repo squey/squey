@@ -106,6 +106,16 @@ PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget
 	connect(_redo_button, &QToolButton::clicked, this, &PVAnalysisBreadcrumb::redo);
 	layout->addWidget(_redo_button);
 
+	/* Set apart from the trail: the arrows walk it, they are not part of it.
+	 */
+	auto* divider = new PVModdedIconLabel("line-vertical", QSize(icon_pixels, icon_pixels));
+	divider->setParent(this);
+	divider->setEnabled(false);
+	divider->setAlignment(Qt::AlignCenter);
+	divider->setFixedWidth(chevron_pixels);
+	layout->addWidget(divider);
+	_divider = divider;
+
 	/* The whole trail is kept rather than elided: the history is bounded, and a
 	 * step nobody can see is a step nobody will think of going back to.
 	 */
@@ -176,6 +186,12 @@ void PVGuiQt::PVAnalysisBreadcrumb::rebuild()
 
 	_undo_button->setEnabled(history.can_undo());
 	_redo_button->setEnabled(history.can_redo());
+
+	/* There is nothing to set the arrows apart from until a trail exists. The
+	 * layout takes the room back, this being a plain child rather than
+	 * something a toolbar is holding.
+	 */
+	_divider->setVisible(history.size() > 1);
 
 	/* One step means the analysis has not moved yet. The row stays where it is
 	 * rather than coming and going: a toolbar that appears has to be laid out

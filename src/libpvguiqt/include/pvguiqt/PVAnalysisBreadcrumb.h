@@ -89,6 +89,7 @@ class PVGUIQT_EXPORT PVAnalysisBreadcrumb : public QWidget
 	Squey::PVRoot& _root;
 	QToolButton* _undo_button = nullptr;
 	QToolButton* _redo_button = nullptr;
+	QWidget* _divider = nullptr;
 	QScrollArea* _scroll = nullptr;
 	QWidget* _strip = nullptr;
 	QHBoxLayout* _strip_layout = nullptr;
