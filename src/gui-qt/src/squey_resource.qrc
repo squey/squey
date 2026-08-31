@@ -471,6 +471,14 @@
     <file>rc.dark/chart-mixed_focus@2x.png</file>
     <file>rc.dark/chart-mixed_pressed.png</file>
     <file>rc.dark/chart-mixed_pressed@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal.png</file>
+    <file>rc.dark/chart-simple-horizontal@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal_disabled.png</file>
+    <file>rc.dark/chart-simple-horizontal_disabled@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal_focus.png</file>
+    <file>rc.dark/chart-simple-horizontal_focus@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal_pressed.png</file>
+    <file>rc.dark/chart-simple-horizontal_pressed@2x.png</file>
     <file>rc.dark/chart-simple.png</file>
     <file>rc.dark/chart-simple@2x.png</file>
     <file>rc.dark/chart-simple_disabled.png</file>
@@ -1554,6 +1562,14 @@
     <file>rc.light/chart-mixed_focus@2x.png</file>
     <file>rc.light/chart-mixed_pressed.png</file>
     <file>rc.light/chart-mixed_pressed@2x.png</file>
+    <file>rc.light/chart-simple-horizontal.png</file>
+    <file>rc.light/chart-simple-horizontal@2x.png</file>
+    <file>rc.light/chart-simple-horizontal_disabled.png</file>
+    <file>rc.light/chart-simple-horizontal_disabled@2x.png</file>
+    <file>rc.light/chart-simple-horizontal_focus.png</file>
+    <file>rc.light/chart-simple-horizontal_focus@2x.png</file>
+    <file>rc.light/chart-simple-horizontal_pressed.png</file>
+    <file>rc.light/chart-simple-horizontal_pressed@2x.png</file>
     <file>rc.light/chart-simple.png</file>
     <file>rc.light/chart-simple@2x.png</file>
     <file>rc.light/chart-simple_disabled.png</file>

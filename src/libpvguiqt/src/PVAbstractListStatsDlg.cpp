@@ -397,7 +397,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 		model().current_selection().visit_selected_lines(
 		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
-		Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("Selection from the values listed"), "count-by");
+		Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("Selection from the values listed"), "chart-simple-horizontal");
 		multiple_search(_msearch_action_for_layer_creation, values, false);
 	});
 
