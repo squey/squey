@@ -156,7 +156,7 @@ public:
     PYBIND11_EXPORT void insert_layer(const std::string& layer_name, const pybind11::array& sel_array);
 
 private:
-    //! Built when a query is first asked for, and kept: making one is not free.
+    //! The view's own engine, built there the first time one is asked for.
     Squey::PVDuckDBQuery& sql();
 
 private:
@@ -180,8 +180,6 @@ private:
 
 private:
     Squey::PVSource& _source;
-    //! Shared rather than held: this object is handed back by value.
-    std::shared_ptr<Squey::PVDuckDBQuery> _sql;
 };
 
 } // namespace Squey

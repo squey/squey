@@ -35,6 +35,7 @@
 #include <squey/PVSelection.h>         // for PVSelection
 #include <squey/PVSource.h>            // for PVSource
 #include <squey/PVStateMachine.h>      // for PVStateMachine
+#include <squey/PVDuckDBQuery.h>
 #include <squey/PVView.h>              // for PVView, etc
 
 #include <pvkernel/rush/PVAxisFormat.h> // for PVAxisFormat
@@ -410,6 +411,14 @@ PVRush::PVNraw const& Squey::PVView::get_rushnraw_parent() const
  * Squey::PVView::process_correlation
  *
  *****************************************************************************/
+Squey::PVDuckDBQuery& Squey::PVView::sql()
+{
+	if (not _sql) {
+		_sql = std::make_unique<PVDuckDBQuery>(*this);
+	}
+	return *_sql;
+}
+
 void Squey::PVView::process_correlation()
 {
 	auto& root = get_parent<Squey::PVRoot>();

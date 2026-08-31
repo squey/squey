@@ -281,12 +281,12 @@ Squey::PVPythonSelection Squey::PVPythonSource::layer(const std::string& layer_n
 
 Squey::PVDuckDBQuery& Squey::PVPythonSource::sql()
 {
-    if (not _sql) {
-        // Bound to the view, so "selection" and the layers a query names are the
-        // ones this script is looking at -- a source may carry several views.
-        _sql = std::make_shared<Squey::PVDuckDBQuery>(*_source.current_view());
-    }
-    return *_sql;
+    // The view's, so "selection" and the layers a query names are the ones this
+    // script is looking at -- a source may carry several views. Held there and
+    // not here: this object is handed to Python, which lets go of it only when
+    // the interpreter is finalized, and by then the program is inside exit()
+    // where a DuckDB database can no longer be closed safely.
+    return _source.current_view()->sql();
 }
 
 Squey::PVPythonSqlResult Squey::PVPythonSource::query(const std::string& sql_text)

@@ -50,6 +50,7 @@
 
 #include <cstddef>     // for size_t, byte
 #include <cstdint>     // for int32_t
+#include <memory>      // for unique_ptr
 #include <span>        // for span
 #include <string>      // for allocator, string, etc
 #include <string_view> // for string_view
@@ -63,6 +64,10 @@ class PVScaled;
 namespace Squey
 {
 class PVSelection;
+} // namespace Squey
+namespace Squey
+{
+class PVDuckDBQuery;
 } // namespace Squey
 namespace PVCore
 {
@@ -266,6 +271,18 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	void commit_selection_to_layer(PVLayer& layer);
 	void commit_selection_to_new_layer(const QString& layer_name, bool should_hide_layers = true);
 
+	/**
+	 * The SQL engine over this view, built the first time it is asked for and
+	 * kept until the view goes.
+	 *
+	 * Owned here rather than by whoever asks because the engine reads the view
+	 * through callbacks it holds, and because a DuckDB database has to be torn
+	 * down while the program is still running: one reached from a Python object
+	 * outlives main(), and closing it once the thread-local storage it uses has
+	 * been unwound reads freed memory.
+	 */
+	PVDuckDBQuery& sql();
+
 	void process_correlation();
 
 	/**
@@ -393,6 +410,8 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	 *  to that view.
 	 */
 	PVCore::PVCowValue<PVAxesCombination> _axes_combination;
+
+	std::unique_ptr<PVDuckDBQuery> _sql;
 
 	QString _last_filter_name;
 	map_filter_arguments filters_args;
