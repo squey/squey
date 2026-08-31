@@ -6,6 +6,9 @@ set(LINK_LIBRARIES pvkernel pvsquey)
 
 set(COMMON_FILES "common.cpp")
 
+add_squey_compile_test(Tsquey_analysis_history LINKS ${LINK_LIBRARIES} FILES analysis_history.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_analysis_history Tsquey_analysis_history)
+
 add_squey_compile_test(Tsquey_view_state LINKS ${LINK_LIBRARIES} FILES view_state.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_view_state Tsquey_view_state)
 

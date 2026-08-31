@@ -28,6 +28,7 @@
 #include <squey/PVCorrelationEngine.h> // for PVCorrelationEngine
 #include <squey/PVScene.h>             // for PVScene
 #ifdef PYTHON_SUPPORT
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVPythonInterpreter.h>
 #endif
 
@@ -102,6 +103,15 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	const QString& get_path() const { return _path; }
 
   public:
+	/**
+	 * The steps this analysis went through. One history per investigation
+	 * rather than one per view, since a correlation makes a single gesture
+	 * move several views at once.
+	 */
+	PVAnalysisHistory& history() { return _history; }
+	const PVAnalysisHistory& history() const { return _history; }
+
+  public:
 	PVCorrelationEngine& correlations() { return _correlations; }
 	const PVCorrelationEngine& correlations() const { return _correlations; }
 	Squey::PVView* process_correlation(Squey::PVView* view);
@@ -133,6 +143,9 @@ class PVRoot : public PVCore::PVDataTreeParent<PVScene, PVRoot>
 	PVScene* _current_scene;
 	PVSource* _current_source;
 	PVView* _current_view;
+
+  private:
+	PVAnalysisHistory _history{*this};
 
   private:
 	PVCorrelationEngine _correlations;

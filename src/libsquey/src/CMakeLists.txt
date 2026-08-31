@@ -21,6 +21,7 @@ PVMappingProperties.cpp
 PVScaled.cpp
 PVScaledNrawCache.cpp
 PVScalingProperties.cpp
+PVAnalysisHistory.cpp
 PVRoot.cpp
 PVScene.cpp
 PVSource.cpp
