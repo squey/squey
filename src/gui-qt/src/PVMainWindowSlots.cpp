@@ -843,8 +843,12 @@ void App::PVMainWindow::selection_set_from_layer_Slot()
 {
 	if (current_view()) {
 		PVCore::PVArgumentList args;
+		/* Named, not written to -- the picker only has to point at a layer, and
+		 * asking for a writable one would copy it for nothing. The cast is what
+		 * the picker itself does; see PVLayerEnumEditor.
+		 */
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Squey::PVLayer*>(
-		    &current_view()->get_current_layer());
+		    const_cast<Squey::PVLayer*>(&current_view()->get_current_layer()));
 		bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
 		    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*current_view()),
 		    args, this);

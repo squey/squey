@@ -489,7 +489,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
  *****************************************************************************/
 void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 {
-	Squey::PVLayer& layer = lib_view().get_current_layer();
+	Squey::PVLayer& layer = lib_view().edit_current_layer();
 	Squey::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
 	// Color every lines in the current selection

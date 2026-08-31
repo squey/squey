@@ -110,10 +110,11 @@ Squey::PVView::PVView(PVScaled& scaled)
 	PVLayerStack& ls = layer_stack.write();
 	ls.delete_all_layers();
 	ls.append_new_layer(row_count, "All events");
-	ls.get_layer_n(0).set_lock();
-	ls.get_layer_n(0).get_selection() =
+	PVLayer& all_events = ls.edit_layer_n(0);
+	all_events.set_lock();
+	all_events.get_selection() =
 	    (const Squey::PVSelection&)get_parent<PVSource>().get_rushnraw().valid_rows_sel();
-	ls.get_layer_n(0).compute_selectable_count();
+	all_events.compute_selectable_count();
 
 	_layer_stack_refreshed.emit();
 
@@ -206,7 +207,7 @@ void Squey::PVView::commit_selection_to_new_layer(const QString& layer_name, boo
 	}
 
 	add_new_layer(layer_name);
-	Squey::PVLayer& layer = get_current_layer();
+	Squey::PVLayer& layer = edit_current_layer();
 
 	// We need to configure the layer
 	commit_selection_to_layer(layer);
@@ -523,7 +524,7 @@ void Squey::PVView::process_output_layer(bool emit_signal)
 void Squey::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 {
 	/* VARIABLES */
-	PVLayer& active_layer = layer_stack.write().get_selected_layer();
+	PVLayer& active_layer = layer_stack.write().edit_selected_layer();
 
 	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(), c);
 	process_layer_stack();
@@ -537,7 +538,7 @@ void Squey::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 void Squey::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 {
 	_layer_stack_about_to_refresh.emit();
-	PVLayer& layer = layer_stack.write().get_layer_n(n);
+	PVLayer& layer = layer_stack.write().edit_layer_n(n);
 	layer.set_name(name);
 	_layer_stack_refreshed.emit();
 }
@@ -594,7 +595,7 @@ void Squey::PVView::set_selection_view(PVSelection const& sel, bool update_ls, b
 void Squey::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 {
 	_layer_stack_about_to_refresh.emit();
-	PVLayer& layer = layer_stack.write().get_layer_n(n);
+	PVLayer& layer = layer_stack.write().edit_layer_n(n);
 
 	if (layer.get_visible()) {
 		layer.set_visible(false);
@@ -756,7 +757,7 @@ void Squey::PVView::compute_layer_min_max(Squey::PVLayer& layer)
 
 void Squey::PVView::update_current_layer_min_max()
 {
-	compute_layer_min_max(get_current_layer());
+	compute_layer_min_max(edit_current_layer());
 
 	_update_current_min_max.emit();
 }

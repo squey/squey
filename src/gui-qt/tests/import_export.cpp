@@ -36,7 +36,6 @@
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 #include <QToolButton>
-#include <pvkernel/core/PVTheme.h>
 #include <PVMainWindow.h>
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
@@ -136,16 +135,6 @@ ImportExportTest::ImportExportTest()
     Squey::common::load_filters();
     PVGuiQt::common::register_displays();
 
-    // The application stylesheet, because widgets measure differently under it
-    // than under the plain style, and it is those measurements the breadcrumb
-    // row is laid out from. Without this, a row that only comes out right under
-    // one of the two looks right here and wrong in the application.
-    //
-    // Asked for by name rather than through init(), which reads the settings
-    // and, when they say "system", probes the desktop over D-Bus -- a question
-    // with no reliable answer here, and one that crashed this test about once
-    // in three when it was asked.
-    PVCore::PVTheme::set_color_scheme(true);
 }
 
 void ImportExportTest::import_file()
@@ -257,6 +246,22 @@ void ImportExportTest::import_file()
 // hear about it, and going back has to put the rows back on screen.
 void ImportExportTest::undo_redo()
 {
+    // The application stylesheet, because widgets measure differently under it
+    // than under the plain style, and it is those measurements the breadcrumb
+    // row is laid out from: a row that only comes out right under one of the
+    // two would look right here and wrong in the application.
+    //
+    // Read straight from the resources rather than asked of PVTheme, whose
+    // setter writes the chosen scheme into the user's configuration -- which a
+    // test has no business doing, and which several tests at once have no
+    // business doing to the same file. And set here rather than for the whole
+    // class: the import tests drive modal dialogs, and dressing those up made
+    // them crash under a loaded machine.
+    QFile stylesheet(":/theme-light.qss");
+    if (stylesheet.open(QFile::ReadOnly)) {
+        qApp->setStyleSheet(QString::fromUtf8(stylesheet.readAll()));
+    }
+
     App::PVMainWindow main_window;
     main_window.show();
     main_window.raise();

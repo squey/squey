@@ -28,6 +28,8 @@
 #include <pvbase/types.h> // for PVRow
 #include <squey/PVLayer.h>
 
+#include <pvkernel/core/PVCowValue.h>
+
 #include <QList>   // for QList
 #include <QString> // for QString
 
@@ -65,11 +67,20 @@ class PVLayerStack
 	QString get_new_layer_name() const;
 	bool& should_hide_layers() { return _should_hide_layers; }
 	inline int get_layer_count() const { return _table.size(); }
-	PVLayer const& get_layer_n(int n) const { return _table[n]; };
-	PVLayer& get_layer_n(int n) { return _table[n]; };
 
-	PVLayer& get_selected_layer() { return _table[get_selected_layer_index()]; }
-	PVLayer const& get_selected_layer() const { return _table[get_selected_layer_index()]; }
+	/**
+	 * A layer, for reading.
+	 */
+	PVLayer const& get_layer_n(int n) const { return _table[n].read(); };
+	PVLayer const& get_selected_layer() const { return get_layer_n(get_selected_layer_index()); }
+
+	/**
+	 * A layer, to change it. Detaches that one layer from the states that
+	 * captured it, and leaves the others where they are -- which is the whole
+	 * reason the stack holds them one by one rather than as a block.
+	 */
+	PVLayer& edit_layer_n(int n) { return _table[n].write(); };
+	PVLayer& edit_selected_layer() { return edit_layer_n(get_selected_layer_index()); }
 
 	int get_selected_layer_index() const { return _selected_layer_index; }
 
@@ -112,7 +123,12 @@ class PVLayerStack
 
   private:
 	int _selected_layer_index;
-	QList<PVLayer> _table;
+
+	/* Held one by one rather than as a block: a step that changes one layer
+	 * then duplicates that layer alone, and copying the stack itself is a
+	 * handful of pointers. Reordering the layers moves no data at all.
+	 */
+	QList<PVCore::PVCowValue<PVLayer>> _table;
 	bool _should_hide_layers = true;
 };
 } // namespace Squey

@@ -227,7 +227,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	}
 
 	// FIXME : This is a Hack to commit colors in layer but not the selection.
-	Squey::PVLayer& current_selected_layer = _view->get_current_layer();
+	Squey::PVLayer& current_selected_layer = _view->edit_current_layer();
 	_view->get_post_filter_layer().get_lines_properties().A2B_copy_restricted_by_selection(
 	    current_selected_layer.get_lines_properties(),
 	    _view->get_post_filter_layer().get_selection());

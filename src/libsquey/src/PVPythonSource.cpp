@@ -255,7 +255,7 @@ Squey::PVPythonSelection Squey::PVPythonSource::layer(int layer_index)
     if (layer_index < 0 || layer_index >= layerstack.get_layer_count()) {
         throw std::out_of_range("Out of range layer index");
     }
-    return as_python_selection(*view, layerstack.get_layer_n(layer_index).get_selection());
+    return as_python_selection(*view, layerstack.edit_layer_n(layer_index).get_selection());
 }
 
 Squey::PVPythonSelection Squey::PVPythonSource::layer(const std::string& layer_name, size_t position  /* = 0 */)

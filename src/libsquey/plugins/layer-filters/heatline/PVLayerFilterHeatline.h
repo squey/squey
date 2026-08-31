@@ -90,7 +90,6 @@ class PVLayerFilterHeatline : public PVLayerFilter
 	 * Name to display in the menu.
 	 */
 	QString menu_name() const override { return "Frequency gradient"; }
-	std::string icon_name() const override { return "circle-half-stroke"; }
 
 	CLASS_FILTER(Squey::PVLayerFilterHeatline)
 };

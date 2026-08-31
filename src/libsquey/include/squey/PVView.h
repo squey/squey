@@ -160,7 +160,7 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	void set_axes_combination(std::vector<PVCol> const& comb);
 
 	inline PVLayer const& get_current_layer() const { return layer_stack.read().get_selected_layer(); }
-	inline PVLayer& get_current_layer() { return layer_stack.write().get_selected_layer(); }
+	inline PVLayer& edit_current_layer() { return layer_stack.write().edit_selected_layer(); }
 
 	inline void move_selected_layer_up() { layer_stack.write().move_selected_layer_up(); }
 	inline void move_selected_layer_down() { layer_stack.write().move_selected_layer_down(); }

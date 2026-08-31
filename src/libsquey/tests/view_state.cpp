@@ -87,6 +87,31 @@ int main()
 	                "adding a layer must leave the selection shared");
 	PV_VALID(view->get_layer_stack().get_layer_count(), 2);
 
+	// ------------------------------------------- one layer changed, one layer copied
+
+	/* What the stack holding its layers one by one buys: a step that changes a
+	 * layer duplicates that layer, not the others. Told by address, since a
+	 * layer that was not touched is the very same object a captured state still
+	 * points at.
+	 */
+	{
+		const Squey::PVLayer* untouched = &view->get_layer_stack().get_layer_n(0);
+		const Squey::PVLayer* renamed = &view->get_layer_stack().get_layer_n(1);
+		const Squey::PVViewState before = view->capture_state();
+
+		view->set_layer_stack_layer_n_name(1, "renamed");
+
+		PV_ASSERT_VALID(&view->get_layer_stack().get_layer_n(0) == untouched, "why",
+		                "a layer nobody wrote to must not be copied");
+		PV_ASSERT_VALID(&view->get_layer_stack().get_layer_n(1) != renamed, "why",
+		                "the layer that was written to has to leave the captured one alone");
+		PV_ASSERT_VALID(not view->capture_state().same_layer_stack_as(before));
+
+		// And what the state captured still reads as it did.
+		view->restore_state(before);
+		PV_ASSERT_VALID(view->get_layer_stack().get_layer_n(1).get_name() != QString("renamed"));
+	}
+
 	// -------------------------------------------------------------- going back
 
 	view->restore_state(after_selection);

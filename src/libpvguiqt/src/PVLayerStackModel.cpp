@@ -263,7 +263,7 @@ void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 {
 	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Reset the layer colours"), "palette");
 	Squey::PVLayerStack& layerstack = edit_lib_layer_stack();
-	Squey::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
+	Squey::PVLayer& layer = layerstack.edit_layer_n(lib_index_from_model_index(idx));
 	layer.reset_to_default_color();
 	lib_view().process_layer_stack();
 }
@@ -273,11 +273,11 @@ void PVGuiQt::PVLayerStackModel::show_this_layer_only(const int idx)
 	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Show this layer only"), "eye");
 	Squey::PVLayerStack& layerstack = edit_lib_layer_stack();
 	int layer_idx = lib_index_from_model_index(idx);
-	Squey::PVLayer& layer = layerstack.get_layer_n(layer_idx);
+	Squey::PVLayer& layer = layerstack.edit_layer_n(layer_idx);
 	layer.set_visible(true); // in case, it isn't visible
 	for (int i = 0; i < layerstack.get_layer_count(); i++) {
 		if (i != layer_idx) {
-			Squey::PVLayer& layer = layerstack.get_layer_n(i);
+			Squey::PVLayer& layer = layerstack.edit_layer_n(i);
 			layer.set_visible(false);
 		}
 	}
@@ -293,7 +293,7 @@ void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 {
 	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("New layer \"%1\"").arg(name), "layer-plus");
 	_lib_view.add_new_layer(name);
-	Squey::PVLayer& layer = edit_lib_layer_stack().get_layer_n(rowCount() - 1);
+	Squey::PVLayer& layer = edit_lib_layer_stack().edit_layer_n(rowCount() - 1);
 	layer.reset_to_full_and_default_color();
 	lib_view().process_layer_stack();
 }

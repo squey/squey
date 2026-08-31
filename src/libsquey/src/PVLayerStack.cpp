@@ -60,8 +60,9 @@ QString Squey::PVLayerStack::get_new_layer_name() const
 void Squey::PVLayerStack::hide_layers()
 {
 	for (int i = 0; i < get_layer_count(); i++) {
-		PVLayer& layer = get_layer_n(i);
-		layer.set_visible(false);
+		if (get_layer_n(i).get_visible()) {
+			edit_layer_n(i).set_visible(false);
+		}
 	}
 }
 
@@ -92,10 +93,10 @@ Squey::PVLayer* Squey::PVLayerStack::append_layer(const PVLayer& layer)
 {
 	/* We test if we have not reached the maximal number of layers */
 	if (get_layer_count() < SQUEY_LAYER_STACK_MAX_DEPTH - 1) {
-		_table.append(layer);
+		_table.append(PVCore::PVCowValue<PVLayer>(layer));
 		_selected_layer_index = get_layer_count() - 1;
 
-		return &_table.last();
+		return &_table.last().write();
 	}
 	// FIXME: should have an exception here, that will be treated by the GUI !
 	return nullptr;
@@ -125,7 +126,7 @@ void Squey::PVLayerStack::delete_by_index(int index)
 		return;
 	}
 
-	if (_table.at(index).is_locked()) {
+	if (_table.at(index).read().is_locked()) {
 		return;
 	}
 
@@ -137,7 +138,7 @@ void Squey::PVLayerStack::delete_by_index(int index)
 	}
 
 	// and we make sure it is visible
-	_table[_selected_layer_index].set_visible(true);
+	edit_layer_n(_selected_layer_index).set_visible(true);
 }
 
 /******************************************************************************
@@ -161,7 +162,7 @@ Squey::PVLayer* Squey::PVLayerStack::duplicate_selected_layer(const QString& nam
 		return nullptr;
 	}
 
-	const PVLayer& selected_layer = _table.at(_selected_layer_index);
+	const PVLayer& selected_layer = _table.at(_selected_layer_index).read();
 	PVLayer* new_layer = append_new_layer(selected_layer.get_selection().count(), name);
 
 	new_layer->get_selection() = selected_layer.get_selection();
@@ -277,7 +278,7 @@ void Squey::PVLayerStack::process(PVLayer& output_layer, PVRow row_count) const
 		*  the most visible to the less visible */
 		for (i = get_layer_count() - 1; i >= 0; i--) {
 			/* We prepare a direct access to the layer we have to process */
-			layer_being_processed = &(_table[i]);
+			layer_being_processed = &get_layer_n(i);
 			/* We check if this layer is visible */
 			if (layer_being_processed->get_visible()) {
 				/* we compute the selection of lines present
@@ -308,14 +309,14 @@ void Squey::PVLayerStack::process(PVLayer& output_layer, PVRow row_count) const
 void Squey::PVLayerStack::compute_selectable_count()
 {
 	for (int i = 0; i < get_layer_count(); i++) {
-		_table[i].compute_selectable_count();
+		edit_layer_n(i).compute_selectable_count();
 	}
 }
 
 bool Squey::PVLayerStack::contains_layer(PVLayer* layer) const
 {
-	for (PVLayer const& l : _table) {
-		if (&l == layer) {
+	for (auto const& held : _table) {
+		if (&held.read() == layer) {
 			return true;
 		}
 	}
@@ -328,10 +329,10 @@ void Squey::PVLayerStack::serialize_write(PVCore::PVSerializeObject& so) const
 
 	PVCore::PVSerializeObject_p list_obj = so.create_object("layers");
 	int idx = 0;
-	for (PVLayer const& layer : _table) {
+	for (auto const& held : _table) {
 		QString child_name = QString::number(idx++);
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(child_name);
-		layer.serialize_write(*new_obj);
+		held.read().serialize_write(*new_obj);
 	}
 	so.attribute_write("layer_count", idx);
 }
@@ -349,7 +350,7 @@ Squey::PVLayerStack Squey::PVLayerStack::serialize_read(PVCore::PVSerializeObjec
 	int layer_count = so.attribute_read<int>("layer_count");
 	for (int idx = 0; idx < layer_count; idx++) {
 		PVCore::PVSerializeObject_p new_obj = list_obj->create_object(QString::number(idx));
-		ls._table.append(PVLayer::serialize_read(*new_obj));
+		ls._table.append(PVCore::PVCowValue<PVLayer>(PVLayer::serialize_read(*new_obj)));
 	}
 
 	return ls;

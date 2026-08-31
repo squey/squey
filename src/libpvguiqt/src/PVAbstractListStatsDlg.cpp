@@ -822,7 +822,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 	lib_view()->add_new_layer(text);
-	Squey::PVLayer& layer = lib_view()->edit_layer_stack().get_selected_layer();
+	Squey::PVLayer& layer = lib_view()->edit_layer_stack().edit_selected_layer();
 	int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
 	lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 
@@ -935,7 +935,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 		lib_view()->add_new_layer(layer_name);
-		Squey::PVLayer& layer = lib_view()->edit_layer_stack().get_selected_layer();
+		Squey::PVLayer& layer = lib_view()->edit_layer_stack().edit_selected_layer();
 		int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
 		lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 

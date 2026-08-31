@@ -319,7 +319,7 @@ void App::PVMainWindow::commit_selection_to_new_layer(Squey::PVView* view)
  *****************************************************************************/
 void App::PVMainWindow::move_selection_to_new_layer(Squey::PVView* squey_view)
 {
-	Squey::PVLayer& current_layer = squey_view->get_current_layer();
+	Squey::PVLayer& current_layer = squey_view->edit_current_layer();
 
 	bool& should_hide_layers = squey_view->edit_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
@@ -334,7 +334,7 @@ void App::PVMainWindow::move_selection_to_new_layer(Squey::PVView* squey_view)
 		}
 
 		squey_view->add_new_layer(name);
-		Squey::PVLayer& new_layer = squey_view->get_current_layer();
+		Squey::PVLayer& new_layer = squey_view->edit_current_layer();
 
 		/* We set it's selection to the final selection */
 		squey_view->commit_selection_to_layer(new_layer);
