@@ -28,6 +28,7 @@
 
 #include <QApplication>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVSelection.h>
 
 #include <pvparallelview/PVSelectionGenerator.h>
@@ -526,13 +527,25 @@ void PVParallelView::PVSelectionGenerator::process_selection(Squey::PVView& view
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier
 	 * aren't really
 	 * constants */
+	/* One gesture, one step: a rectangle being dragged commits every 300 ms on
+	 * its way, and each of those is the same act of selecting. The key keeps a
+	 * menu action that happens to follow closely from joining it.
+	 */
 	if (use_modifiers && modifiers == AND_MODIFIER) {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Narrow the selection"),
+		                                     "graphical-selection");
 		view_sp.set_selection_view(view_sp.get_real_output_selection() & sel);
 	} else if (use_modifiers && modifiers == NAND_MODIFIER) {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Subtract from the selection"),
+		                                     "graphical-selection");
 		view_sp.set_selection_view(view_sp.get_real_output_selection() - sel);
 	} else if (use_modifiers && modifiers == OR_MODIFIER) {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Add to the selection"),
+		                                     "graphical-selection");
 		view_sp.set_selection_view(view_sp.get_real_output_selection() | sel);
 	} else {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Selection"),
+		                                     "graphical-selection");
 		view_sp.set_selection_view(sel);
 	}
 }

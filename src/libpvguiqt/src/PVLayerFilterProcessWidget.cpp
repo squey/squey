@@ -32,6 +32,7 @@
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVStateMachine.h>
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
 #include <squey/PVView.h>
@@ -210,6 +211,11 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	// Force the current parameter widget to lose its focus (in case it has not
 	// been updated yet !)
 	_apply_btn->setFocus(Qt::MouseFocusReason);
+
+	/* Named after the filter rather than after "Apply": a breadcrumb saying
+	 * which search was run is worth reading, one saying "Apply" is not.
+	 */
+	Squey::PVAnalysisHistory::Scope step(*_view, _filter_p->registered_name());
 
 	if (not _has_apply or _args_widget->args_changed()) {
 		// Nothing already computed, do it now

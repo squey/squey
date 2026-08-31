@@ -23,6 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVPythonInputDialog.h>
 #include <squey/PVRoot.h>
@@ -211,6 +212,11 @@ Squey::PVPythonInterpreter& Squey::PVPythonInterpreter::get(Squey::PVRoot& root)
 
 void Squey::PVPythonInterpreter::execute_script(const std::string& script, bool is_path)
 {
+    /* One script is one thing the user ran, whatever it does on the way.
+     * Nothing is recorded when it changed nothing.
+     */
+    Squey::PVAnalysisHistory::Scope step(*_root, QObject::tr("Python script"));
+
     auto globals = pybind11::globals();
 	if (is_path) {
 		pybind11::eval_file(script, globals);

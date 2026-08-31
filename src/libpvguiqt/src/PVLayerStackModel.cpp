@@ -23,6 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVLayerStack.h>
 #include <squey/PVView.h>
 
@@ -223,14 +224,22 @@ bool PVGuiQt::PVLayerStackModel::setData(const QModelIndex& index, const QVarian
 	switch (role) {
 	case (Qt::EditRole):
 		switch (index.column()) {
-		case 0:
+		case 0: {
+			Squey::PVAnalysisHistory::Scope step(
+			    lib_view(), tr("Show or hide layer \"%1\"")
+			                    .arg(lib_layer_stack().get_layer_n(lib_index).get_name()));
 			lib_view().toggle_layer_stack_layer_n_visible_state(lib_index);
 			lib_view().process_layer_stack();
 			return true;
+		}
 
-		case 1:
+		case 1: {
+			Squey::PVAnalysisHistory::Scope step(
+			    lib_view(), tr("Rename layer \"%1\"")
+			                    .arg(lib_layer_stack().get_layer_n(lib_index).get_name()));
 			lib_view().set_layer_stack_layer_n_name(lib_index, value.toString());
 			return true;
+		}
 
 		default:
 			return QAbstractTableModel::setData(index, value, role);
@@ -250,6 +259,7 @@ void PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed()
 
 void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 {
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Reset the layer colours"));
 	Squey::PVLayerStack& layerstack = edit_lib_layer_stack();
 	Squey::PVLayer& layer = layerstack.get_layer_n(lib_index_from_model_index(idx));
 	layer.reset_to_default_color();
@@ -258,6 +268,7 @@ void PVGuiQt::PVLayerStackModel::reset_layer_colors(const int idx)
 
 void PVGuiQt::PVLayerStackModel::show_this_layer_only(const int idx)
 {
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Show this layer only"));
 	Squey::PVLayerStack& layerstack = edit_lib_layer_stack();
 	int layer_idx = lib_index_from_model_index(idx);
 	Squey::PVLayer& layer = layerstack.get_layer_n(layer_idx);
@@ -278,6 +289,7 @@ void PVGuiQt::PVLayerStackModel::layer_stack_refreshed()
 
 void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 {
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("New layer \"%1\"").arg(name));
 	_lib_view.add_new_layer(name);
 	Squey::PVLayer& layer = edit_lib_layer_stack().get_layer_n(rowCount() - 1);
 	layer.reset_to_full_and_default_color();
@@ -286,6 +298,7 @@ void PVGuiQt::PVLayerStackModel::add_new_layer(QString name)
 
 void PVGuiQt::PVLayerStackModel::move_selected_layer_up()
 {
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Move a layer up"));
 	beginResetModel();
 	lib_view().move_selected_layer_up();
 	lib_view().process_layer_stack();
@@ -294,6 +307,7 @@ void PVGuiQt::PVLayerStackModel::move_selected_layer_up()
 
 void PVGuiQt::PVLayerStackModel::move_selected_layer_down()
 {
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Move a layer down"));
 	beginResetModel();
 	lib_view().move_selected_layer_down();
 	lib_view().process_layer_stack();
@@ -306,6 +320,8 @@ void PVGuiQt::PVLayerStackModel::delete_selected_layer()
 		return;
 	}
 
+	Squey::PVAnalysisHistory::Scope step(
+	    lib_view(), tr("Delete layer \"%1\"").arg(lib_layer_stack().get_selected_layer().get_name()));
 	_lib_view.delete_selected_layer();
 
 	lib_view().process_layer_stack();
@@ -313,6 +329,7 @@ void PVGuiQt::PVLayerStackModel::delete_selected_layer()
 
 void PVGuiQt::PVLayerStackModel::duplicate_selected_layer(const QString& name)
 {
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Duplicate a layer as \"%1\"").arg(name));
 	beginResetModel();
 	lib_view().duplicate_selected_layer(name);
 	lib_view().process_layer_stack();
@@ -327,6 +344,8 @@ void PVGuiQt::PVLayerStackModel::delete_layer_n(const int idx)
 		return;
 	}
 
+	Squey::PVAnalysisHistory::Scope step(
+	    lib_view(), tr("Delete layer \"%1\"").arg(lib_layer_stack().get_layer_n(idx).get_name()));
 	_lib_view.delete_layer_n(idx);
 	lib_view().process_layer_stack();
 }

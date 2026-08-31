@@ -852,6 +852,11 @@ void Squey::PVView::declare_inserted_axis(const pvcop::db::type_t& column_type,
 
 void Squey::PVView::delete_axis(PVCombCol comb_col)
 {
+	/* The column is about to be erased from disk, so no earlier step could be
+	 * put back without naming an axis whose data is gone.
+	 */
+	get_parent<PVRoot>().history().clear();
+
 	// Remove axis (or axes) from axes combination
 	PVCol col = _axes_combination.read().get_nraw_axis(comb_col);
 

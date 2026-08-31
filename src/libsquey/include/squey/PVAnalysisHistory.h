@@ -150,6 +150,16 @@ class PVAnalysisHistory
 		      std::string merge_key,
 		      std::chrono::milliseconds window = default_merge_window);
 
+		/**
+		 * As above, reaching the history through the view being worked on,
+		 * which is what most call sites have to hand.
+		 */
+		Scope(PVView& view, QString label);
+		Scope(PVView& view,
+		      QString label,
+		      std::string merge_key,
+		      std::chrono::milliseconds window = default_merge_window);
+
 		~Scope();
 
 		Scope(Scope const&) = delete;

@@ -56,6 +56,19 @@ Squey::PVAnalysisHistory::Scope::Scope(PVRoot& root,
 	_window = window;
 }
 
+Squey::PVAnalysisHistory::Scope::Scope(PVView& view, QString label)
+    : Scope(view.get_parent<PVRoot>(), std::move(label))
+{
+}
+
+Squey::PVAnalysisHistory::Scope::Scope(PVView& view,
+                                       QString label,
+                                       std::string merge_key,
+                                       std::chrono::milliseconds window)
+    : Scope(view.get_parent<PVRoot>(), std::move(label), std::move(merge_key), window)
+{
+}
+
 Squey::PVAnalysisHistory::Scope::~Scope()
 {
 	_history.close(std::move(_label), std::move(_merge_key), _window);

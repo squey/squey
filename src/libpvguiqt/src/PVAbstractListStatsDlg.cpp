@@ -29,6 +29,7 @@
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
 #include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
@@ -396,6 +397,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 		model().current_selection().visit_selected_lines(
 		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
+		Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("Selection from the values listed"));
 		multiple_search(_msearch_action_for_layer_creation, values, false);
 	});
 
@@ -567,6 +569,7 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 		model().current_selection().visit_selected_lines(
 		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
+		Squey::PVAnalysisHistory::Scope step(*lib_view(), act->text());
 		multiple_search(act, values);
 		return true;
 	}
@@ -773,6 +776,11 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QString text = dlg.get_name_pattern();
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
 
+	/* All of what follows -- a search, a layer, a visibility toggle, a commit
+	 * and a move -- is one thing the user asked for.
+	 */
+	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("New layer from the selected values"));
+
 	Squey::PVLayerStack& ls = lib_view()->edit_layer_stack();
 
 	text.replace("%l", ls.get_selected_layer().get_name());
@@ -874,6 +882,11 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 	QString text = dlg.get_name_pattern();
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
+
+	/* A search, then a layer per value, each hidden, committed and moved:
+	 * one thing the user asked for.
+	 */
+	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("One layer per selected value"));
 
 	/* some "static" formatting
 	 */

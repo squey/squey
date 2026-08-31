@@ -38,6 +38,7 @@
 #include <PVStringListChooserWidget.h>
 
 #include <pvguiqt/PVWorkspace.h>
+#include <squey/PVAnalysisHistory.h>
 #include <squey/widgets/PVNewLayerDialog.h>
 
 #include <pvkernel/core/PVRecentItemsManager.h>
@@ -307,6 +308,7 @@ void App::PVMainWindow::commit_selection_to_new_layer(Squey::PVView* view)
 		return;
 	}
 
+	Squey::PVAnalysisHistory::Scope step(*view, tr("New layer \"%1\" from the selection").arg(name));
 	view->commit_selection_to_new_layer(name, should_hide_layers);
 }
 
@@ -324,6 +326,8 @@ void App::PVMainWindow::move_selection_to_new_layer(Squey::PVView* squey_view)
 	    squey_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
 	if (!name.isEmpty()) {
+		Squey::PVAnalysisHistory::Scope step(
+		    *squey_view, tr("Selection moved to layer \"%1\"").arg(name));
 
 		if (should_hide_layers) {
 			squey_view->hide_layers();
@@ -1328,6 +1332,7 @@ void App::PVMainWindow::set_color(Squey::PVView* squey_view)
 
 	PVCore::PVHSVColor color = dial.color();
 
+	Squey::PVAnalysisHistory::Scope step(*squey_view, tr("Colour the selected events"));
 	squey_view->set_color_on_active_layer(color);
 }
 

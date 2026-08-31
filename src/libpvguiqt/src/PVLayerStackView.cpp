@@ -30,6 +30,7 @@
 #include <QMenu>
 #include <QInputDialog>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVSelection.h>
 
 #include <pvguiqt/PVCustomQtRoles.h>
@@ -316,6 +317,7 @@ void PVGuiQt::PVLayerStackView::boolean_op_on_selection_with_this_layer(int laye
 
 	Squey::PVSelection selection = (view.get_real_output_selection().*f)(layer.get_selection());
 
+	Squey::PVAnalysisHistory::Scope step(view, tr("Selection from a layer"));
 	view.set_selection_view(selection, true);
 }
 
