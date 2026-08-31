@@ -10,6 +10,9 @@ endif()
 add_squey_compile_test(Tcore_directory_remove LINKS ${LINK_LIBRARIES} FILES directory_remove.cpp)
 add_squey_test(Tcore_directory_remove Tcore_directory_remove)
 
+add_squey_compile_test(Tcore_cow_value LINKS ${LINK_LIBRARIES} FILES cow_value.cpp)
+add_squey_test(Tcore_cow_value Tcore_cow_value)
+
 add_squey_compile_test(Tcore_intrinsics LINKS ${LINK_LIBRARIES} FILES intrinsics.cpp)
 add_squey_test(Tcore_intrinsics Tcore_intrinsics)
 
