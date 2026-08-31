@@ -31,7 +31,6 @@
 
 #include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
-#include <QLabel>
 #include <QLocale>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -120,11 +119,6 @@ QToolButton* PVGuiQt::PVAnalysisBreadcrumb::make_button(const QIcon& icon)
 	return button;
 }
 
-bool PVGuiQt::PVAnalysisBreadcrumb::has_trail() const
-{
-	return _root.history().size() > 1;
-}
-
 void PVGuiQt::PVAnalysisBreadcrumb::undo()
 {
 	_root.history().undo();
@@ -147,8 +141,10 @@ void PVGuiQt::PVAnalysisBreadcrumb::rebuild()
 	_undo_button->setEnabled(history.can_undo());
 	_redo_button->setEnabled(history.can_redo());
 
-	/* One step means the analysis has not moved yet, and a trail of one crumb
-	 * is worth no room on screen -- but hiding is the container's to do.
+	/* One step means the analysis has not moved yet. The row stays where it is
+	 * rather than coming and going: a toolbar that appears has to be laid out
+	 * as it appears, and the first crumbs showed up at the wrong height for it.
+	 * Two arrows greyed out say "nothing to come back to" well enough.
 	 */
 	if (history.size() <= 1) {
 		Q_EMIT changed();
@@ -180,13 +176,15 @@ QWidget* PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current,
 	const Squey::PVAnalysisStep& step = _root.history().step(index);
 
 	/* A chevron between crumbs, so that the row reads as a trail rather than as
-	 * a handful of buttons that happen to sit side by side.
+	 * a handful of buttons that happen to sit side by side. Drawn from the icon
+	 * set like everything else here, so that it follows the theme rather than
+	 * the text colour.
 	 */
 	if (index > 0) {
-		auto* chevron = new QLabel(QString::fromUtf8(">"), _strip);
+		auto* chevron = new PVModdedIconLabel("branch-closed", QSize(icon_pixels, icon_pixels));
+		chevron->setParent(_strip);
 		chevron->setEnabled(false);
 		chevron->setAlignment(Qt::AlignCenter);
-		chevron->setContentsMargins(1, 0, 1, 0);
 		_strip_layout->addWidget(chevron);
 	}
 

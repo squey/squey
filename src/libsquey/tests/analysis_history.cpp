@@ -94,17 +94,16 @@ int main()
 	}
 	PV_VALID(history.size(), size_t(2), "why", "a step that changed nothing must leave no crumb");
 
-	/* Doing again what was already done does leave one, though: a step is
-	 * recorded when a value was written to, not when the bits it holds came out
-	 * different. Telling those apart would mean comparing every layer of every
-	 * view on each action -- a hundred megabytes a step on a large collection --
-	 * to spare the breadcrumb an entry for something the user did ask for.
+	/* Nor does doing again what was already done. Emptying an empty selection
+	 * writes to it, so the values are no longer the same ones -- but the rows
+	 * they hold are, and a second crumb leading to where the first one already
+	 * leads is one nobody would click.
 	 */
 	{
 		Scope step(env.root, "Emptied an already empty selection", "square");
 		view->select_none();
 	}
-	PV_VALID(history.size(), size_t(3));
+	PV_VALID(history.size(), size_t(2), "why", "an act that changed no row leaves no crumb");
 
 	// -------------------------------------------------------------- nesting
 
@@ -117,8 +116,8 @@ int main()
 		}
 		view->select_all();
 	}
-	PV_VALID(history.size(), size_t(4), "why", "nested scopes are one step");
-	PV_ASSERT_VALID(history.step(3).label() == QString("Whole gesture"), "why",
+	PV_VALID(history.size(), size_t(3), "why", "nested scopes are one step");
+	PV_ASSERT_VALID(history.step(2).label() == QString("Whole gesture"), "why",
 	                "the outermost scope names the step");
 	PV_VALID(shown_rows(*view), all_rows);
 
@@ -128,14 +127,14 @@ int main()
 		Scope step(env.root, "Dragging", "selection-square", "selection-rectangle");
 		view->select_none();
 	}
-	PV_VALID(history.size(), size_t(5));
+	PV_VALID(history.size(), size_t(4));
 
 	{
 		Scope step(env.root, "Dragging some more", "selection-square", "selection-rectangle");
 		view->select_all();
 	}
-	PV_VALID(history.size(), size_t(5), "why", "a drag is one step however often it commits");
-	PV_ASSERT_VALID(history.step(4).label() == QString("Dragging"), "why",
+	PV_VALID(history.size(), size_t(4), "why", "a drag is one step however often it commits");
+	PV_ASSERT_VALID(history.step(3).label() == QString("Dragging"), "why",
 	                "the joined step keeps the name of the gesture it started");
 	PV_VALID(shown_rows(*view), all_rows, "why", "but it holds the newest state");
 
@@ -143,13 +142,13 @@ int main()
 		Scope step(env.root, "Something else", "swap", "another-gesture");
 		view->select_none();
 	}
-	PV_VALID(history.size(), size_t(6), "why", "another kind of gesture is another step");
+	PV_VALID(history.size(), size_t(5), "why", "another kind of gesture is another step");
 
 	{
 		Scope step(env.root, "Too late to join", "swap", "another-gesture", no_merging);
 		view->select_all();
 	}
-	PV_VALID(history.size(), size_t(7), "why", "a gesture that came too late is its own step");
+	PV_VALID(history.size(), size_t(6), "why", "a gesture that came too late is its own step");
 
 	// ------------------------------------------- acting after having gone back
 

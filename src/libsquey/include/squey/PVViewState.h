@@ -68,6 +68,27 @@ class PVViewState
 
 	bool operator==(PVViewState const& o) const = default;
 
+	/**
+	 * Whether both states leave the analysis where the other does.
+	 *
+	 * The selection is compared by the rows it holds rather than by identity,
+	 * because acts that repeat it are ordinary -- pressing "select all" twice
+	 * -- and the second one leaves nothing to come back to. The layers and the
+	 * axes are still compared by identity: telling two layer stacks apart by
+	 * their contents would mean walking a hundred megabytes on a large
+	 * collection, to spare the breadcrumb an entry nobody asked twice for.
+	 */
+	bool holds_same_as(PVViewState const& o) const
+	{
+		if (_layer_stack != o._layer_stack || _axes_combination != o._axes_combination) {
+			return false;
+		}
+		if (_selection == o._selection) {
+			return true;
+		}
+		return _selection && o._selection && *_selection == *o._selection;
+	}
+
   public:
 	/* What is shared with another state, so that restoring notifies only the
 	 * views that have something to hear about.

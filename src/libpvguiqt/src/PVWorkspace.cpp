@@ -517,14 +517,6 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 	breadcrumb_bar->setFloatable(false);
 	breadcrumb_bar->setMovable(false);
 	breadcrumb_bar->setIconSize(QSize(16, 16));
-	auto* breadcrumb = new PVAnalysisBreadcrumb(_source->get_parent<Squey::PVRoot>());
-	breadcrumb_bar->addWidget(breadcrumb);
+	breadcrumb_bar->addWidget(new PVAnalysisBreadcrumb(_source->get_parent<Squey::PVRoot>()));
 	addToolBar(breadcrumb_bar);
-
-	/* The row goes away entirely until the analysis has moved, rather than
-	 * sitting there empty.
-	 */
-	connect(breadcrumb, &PVAnalysisBreadcrumb::changed, breadcrumb_bar,
-	        [breadcrumb, breadcrumb_bar] { breadcrumb_bar->setVisible(breadcrumb->has_trail()); });
-	breadcrumb_bar->setVisible(breadcrumb->has_trail());
 }

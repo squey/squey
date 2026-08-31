@@ -25,6 +25,7 @@
 #ifndef PVCORE_PVBITFIELD_H
 #define PVCORE_PVBITFIELD_H
 
+#include <cstring>
 #include <pvkernel/core/PVAllocators.h>
 #include <pvkernel/core/PVBitVisitor.h>
 #include <assert.h>
@@ -98,6 +99,22 @@ class PVSelBitField
 	pvcop_selection_t::const_iterator cend() { return _selection.cend(); };
 
 	PVRow count() const { return _selection.size(); }
+
+	/**
+	 * Whether both selections hold the same rows.
+	 *
+	 * Compared chunk by chunk, tail included. Operations here work on whole
+	 * chunks, so the bits past the last row are written as uniformly as the
+	 * others: two selections that were built differently can therefore differ
+	 * in those bits while meaning the same set. That way round is harmless --
+	 * it reports a difference where there is none -- whereas the other way
+	 * round cannot happen, two different sets of rows having different chunks.
+	 */
+	bool operator==(PVSelBitField const& o) const
+	{
+		return count() == o.count() &&
+		       std::memcmp(get_buffer(), o.get_buffer(), chunk_count() * CHUNK_SIZE_BYTE) == 0;
+	}
 
 	size_t chunk_count() const;
 

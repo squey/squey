@@ -199,7 +199,18 @@ Squey::PVAnalysisStep Squey::PVAnalysisHistory::capture(QString label,
 
 bool Squey::PVAnalysisHistory::same_states(PVAnalysisStep const& a, PVAnalysisStep const& b)
 {
-	return a._states == b._states;
+	if (a._states.size() != b._states.size()) {
+		return false;
+	}
+
+	for (size_t i = 0; i < a._states.size(); i++) {
+		if (a._states[i].first != b._states[i].first ||
+		    not a._states[i].second.holds_same_as(b._states[i].second)) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 /******************************************************************************

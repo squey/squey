@@ -69,14 +69,6 @@ class PVGUIQT_EXPORT PVAnalysisBreadcrumb : public QWidget
 	explicit PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget* parent = nullptr);
 	~PVAnalysisBreadcrumb() override;
 
-  public:
-	/**
-	 * Whether there is anything to walk back through. A widget that hides
-	 * itself inside a toolbar gets no room back when it reappears, so it is
-	 * left to whoever put it there to hide the row it sits on.
-	 */
-	bool has_trail() const;
-
   public Q_SLOTS:
 	void undo();
 	void redo();
