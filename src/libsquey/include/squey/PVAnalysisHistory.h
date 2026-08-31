@@ -31,6 +31,7 @@
 
 #include <QString>
 
+#include <algorithm>
 #include <chrono>
 #include <cstddef>
 #include <functional>
@@ -92,6 +93,17 @@ class PVAnalysisStep
 	 */
 	bool is_empty() const { return _states.empty(); }
 
+	/**
+	 * Whether what this step holds has been folded down, and would have to be
+	 * unfolded to be put back.
+	 */
+	bool is_cool() const
+	{
+		return not _states.empty() &&
+		       std::all_of(_states.begin(), _states.end(),
+		                   [](auto const& s) { return s.second.is_cool(); });
+	}
+
   private:
 	QString _label;
 	std::string _icon;
@@ -140,6 +152,14 @@ class PVAnalysisHistory
 	 * step holds alone is freed only once no step holds it.
 	 */
 	static constexpr size_t default_max_steps = 64;
+
+	/**
+	 * How many steps either side of where the user stands keep their selection
+	 * as it is. Beyond that a step is folded down, which costs an unfolding
+	 * when it is landed on -- so the ones a step away, where undo and redo go,
+	 * stay ready.
+	 */
+	static constexpr size_t hot_steps = 2;
 
   public:
 	explicit PVAnalysisHistory(PVRoot& root) : _root(root) {}
@@ -272,7 +292,8 @@ class PVAnalysisHistory
 
 	PVAnalysisStep capture(QString label, std::string icon, std::string merge_key) const;
 	static bool same_states(PVAnalysisStep const& a, PVAnalysisStep const& b);
-	void restore(PVAnalysisStep const& step);
+	void cool_distant_steps();
+	void restore(PVAnalysisStep& step);
 	void drop_oldest_steps();
 
   private:

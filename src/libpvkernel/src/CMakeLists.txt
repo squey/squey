@@ -32,6 +32,7 @@ core/PVPredefinedHSVColors.cpp
 core/PVLogger.cpp
 core/PVProgressBox.cpp
 core/PVPluginPresets.cpp
+core/PVCompressedSelection.cpp
 core/PVSelBitField.cpp
 core/PVSerializeArchive.cpp
 core/PVSerializeArchiveZip.cpp

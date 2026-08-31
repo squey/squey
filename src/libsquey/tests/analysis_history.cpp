@@ -191,6 +191,45 @@ int main()
 	PV_VALID(shown_rows(*view), all_rows);
 	PV_ASSERT_VALID(not history.can_undo());
 
+	// ------------------------------------- the steps nobody is standing on
+
+	/* A selection is a bit per row, so a history of them is the largest thing
+	 * kept. The ones out of reach are folded down; the ones undo and redo lead
+	 * to are left ready.
+	 */
+	history.clear();
+	history.set_max_steps(Squey::PVAnalysisHistory::default_max_steps);
+
+	for (int i = 0; i < 8; ++i) {
+		Scope step(env.root, QString("Far %1").arg(i), "square");
+		if (i % 2 == 0) {
+			view->select_none();
+		} else {
+			view->select_all();
+		}
+	}
+
+	PV_ASSERT_VALID(history.size() > 2 * Squey::PVAnalysisHistory::hot_steps + 1);
+	PV_ASSERT_VALID(not history.step(history.position()).is_cool(), "why",
+	                "the step being shown must not have to be unfolded");
+	PV_ASSERT_VALID(not history.step(history.position() - 1).is_cool(), "why",
+	                "nor the one undo leads to");
+	PV_ASSERT_VALID(history.step(0).is_cool(), "why",
+	                "a step nobody is standing on is folded down");
+
+	/* Landing on a folded one gives the very rows it was folded from. Both of
+	 * the shapes that fold to nothing at all are walked here: "Far 0" emptied
+	 * the selection, "Far 1" filled it.
+	 */
+	history.go_to(1);
+	PV_VALID(shown_rows(*view), size_t(0), "why",
+	         "unfolding has to give back the rows that were folded");
+	PV_ASSERT_VALID(not history.step(1).is_cool(), "why",
+	                "and where the user now stands is ready again");
+
+	history.go_to(2);
+	PV_VALID(shown_rows(*view), all_rows);
+
 	// --------------------------------- what a view does in reaction to a restore
 
 	/* Putting a state back makes the views react, and a reaction can itself be

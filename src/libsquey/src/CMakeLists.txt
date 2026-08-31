@@ -27,6 +27,7 @@ PVScene.cpp
 PVSource.cpp
 PVStateMachine.cpp
 PVView.cpp
+PVViewState.cpp
 PVCorrelationEngine.cpp
 PVRangeSubSampler.cpp
 PVDuckDBQuery.cpp

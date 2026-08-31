@@ -644,7 +644,7 @@ void Squey::PVView::restore_state(PVViewState const& state)
 		_layer_stack_about_to_refresh.emit();
 	}
 
-	_view_selection.restore(state._selection);
+	_view_selection.restore(state.selection());
 	layer_stack.restore(state._layer_stack);
 	_axes_combination.restore(state._axes_combination);
 

@@ -169,6 +169,8 @@ void Squey::PVAnalysisHistory::close(QString label,
 		drop_oldest_steps();
 	}
 
+	cool_distant_steps();
+
 	_changed.emit();
 }
 
@@ -228,7 +230,7 @@ bool Squey::PVAnalysisHistory::same_states(PVAnalysisStep const& a, PVAnalysisSt
  * Squey::PVAnalysisHistory::restore
  *****************************************************************************/
 
-void Squey::PVAnalysisHistory::restore(PVAnalysisStep const& step)
+void Squey::PVAnalysisHistory::restore(PVAnalysisStep& step)
 {
 	/* Putting the views back changes them, and those changes are the step being
 	 * landed on rather than a step of their own.
@@ -236,10 +238,19 @@ void Squey::PVAnalysisHistory::restore(PVAnalysisStep const& step)
 	_restoring = true;
 
 	const std::list<PVView*> alive = _root.get_children<PVView>();
-	for (auto const& [view, state] : step._states) {
-		if (std::find(alive.begin(), alive.end(), view) != alive.end()) {
-			view->restore_state(state);
+	for (auto& [view, state] : step._states) {
+		if (std::find(alive.begin(), alive.end(), view) == alive.end()) {
+			continue;
 		}
+
+		view->restore_state(state);
+
+		/* Landed on, so ready again: the view now holds what this state stood
+		 * for, and taking it back shares that rather than keeping a folded
+		 * copy beside it. A step stepped away from and back to should not have
+		 * to be unfolded twice.
+		 */
+		state = view->capture_state();
 	}
 
 	/* After the states, not before: putting a selection back makes the views
@@ -281,6 +292,7 @@ void Squey::PVAnalysisHistory::go_to(size_t index)
 
 	_position = index;
 	restore(_steps[_position]);
+	cool_distant_steps();
 
 	_changed.emit();
 }
@@ -381,4 +393,31 @@ void Squey::PVAnalysisHistory::remove_contributor(ContributorId id)
 	 * costs a pointer, and dropping it from every step would be work done for
 	 * a contributor that is on its way out anyway.
 	 */
+}
+
+/******************************************************************************
+ * Squey::PVAnalysisHistory::cool_distant_steps
+ *****************************************************************************/
+
+void Squey::PVAnalysisHistory::cool_distant_steps()
+{
+	/* A selection is a bit per row, so a history of them is the largest thing
+	 * this holds. The ones nobody is standing on are folded down to the runs
+	 * they are made of -- which costs nothing at all for a step that selected
+	 * everything, and is refused outright for one a search left scattered.
+	 *
+	 * Near where the user stands they are left alone: undo and redo go one step
+	 * either way, and those should not have to unfold anything.
+	 */
+	for (size_t i = 0; i < _steps.size(); i++) {
+		const size_t distance = i > _position ? i - _position : _position - i;
+		if (distance <= hot_steps) {
+			continue;
+		}
+
+		for (auto& [view, state] : _steps[i]._states) {
+			(void)view;
+			state.cool();
+		}
+	}
 }
