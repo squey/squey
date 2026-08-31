@@ -80,8 +80,7 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 * @param view the view whose selection is driven by the rectangle
 	 */
 	PVSelectionRectangle(QGraphicsScene* scene, Squey::PVView& view);
-	~PVSelectionRectangle() override = default;
-	;
+	~PVSelectionRectangle() override;
 
   public:
 	/**
@@ -326,6 +325,8 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	void view_selection_changed();
 
   private:
+	Squey::PVView& _view;
+	size_t _contributor;
 	PVSelectionRectangleItem* _rect;
 	QTimer* _timer;
 	bool _use_selection_modifiers;

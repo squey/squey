@@ -349,6 +349,32 @@ void PVParallelView::PVSelectionRectangleItem::set_rect(const QRectF& rect, bool
 }
 
 /*****************************************************************************
+ * PVParallelView::PVSelectionRectangleItem::restore_rect
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangleItem::restore_rect(const QRectF& rect)
+{
+	set_rect(rect, false);
+
+	show();
+
+	// A handle answers to two things: the graphics item, and the flag it paints
+	// from. clear() puts both away -- it hides the items and turns their cursors
+	// off -- and bringing back the flag alone left the handles nowhere to be
+	// seen. The items and their cursors are what a rectangle needs back.
+	for (auto it : _handles) {
+		it->show();
+		it->activate_cursor(true);
+	}
+
+	// The flag itself stays down. It is what hovering the rectangle raises and
+	// leaving it lowers, so raising it here drew every handle with the mouse
+	// nowhere near them. Down is how a rectangle rests, as the constructor
+	// leaves it.
+	hide_all_handles();
+}
+
+/*****************************************************************************
  * PVParallelView::PVSelectionRectangleItem::get_rect
  *****************************************************************************/
 

@@ -29,6 +29,8 @@
 
 #include <pvkernel/widgets/PVModdedIcon.h>
 
+#include <squey/PVAnalysisHistory.h>
+#include <squey/PVRoot.h>
 #include <squey/PVView.h>
 
 #include <QGraphicsScene>
@@ -49,10 +51,32 @@ const int PVParallelView::PVSelectionRectangle::delay_msec = 300;
 
 PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene,
                                                            Squey::PVView& view)
-    : QObject(static_cast<QObject*>(scene)), _use_selection_modifiers(true)
+    : QObject(static_cast<QObject*>(scene)), _view(view), _use_selection_modifiers(true)
 {
 	view._selection_view_changed.connect(
 	    sigc::mem_fun(*this, &PVSelectionRectangle::view_selection_changed));
+
+	/* The rectangle belongs to the step it drew. Without this, going back to a
+	 * step lands on the right rows with no rectangle around them: the selection
+	 * changing under the rectangle is exactly what clears it, so restoring one
+	 * would otherwise always throw the other away.
+	 */
+	_contributor = view.get_parent<Squey::PVRoot>().history().add_contributor(
+	    [this]() -> Squey::PVAnalysisAttachment {
+		    const QRectF rect = get_rect();
+		    return rect.isNull() ? Squey::PVAnalysisAttachment()
+		                         : std::make_shared<const QRectF>(rect);
+	    },
+	    [this](const Squey::PVAnalysisAttachment& attachment) {
+		    if (attachment) {
+			    // Put back rather than drawn: the selection it describes has
+			    // just been restored, and drawing it anew would only push the
+			    // very step being landed on.
+			    _rect->restore_rect(*static_cast<const QRectF*>(attachment.get()));
+		    } else {
+			    clear();
+		    }
+	    });
 
 	_rect = new PVParallelView::PVSelectionRectangleItem();
 	scene->addItem(_rect);
@@ -77,6 +101,11 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	 */
 	connect(this, &PVSelectionRectangle::commit_volatile_selection, this,
 	        &PVSelectionRectangle::commit);
+}
+
+PVParallelView::PVSelectionRectangle::~PVSelectionRectangle()
+{
+	_view.get_parent<Squey::PVRoot>().history().remove_contributor(_contributor);
 }
 
 /*****************************************************************************

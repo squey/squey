@@ -226,5 +226,56 @@ int main()
 
 	reaction.disconnect();
 
+	// ------------------------------- what belongs to a step without being state
+
+	/* The selection rectangle is why contributors exist: it is presentation, so
+	 * no view holds it, but it is also the handle that drew the step, and a step
+	 * that comes back without it comes back half done.
+	 */
+	history.clear();
+
+	int drawn = 0;
+	int put_back = -1;
+	const auto contributor = history.add_contributor(
+	    [&]() -> Squey::PVAnalysisAttachment {
+		    return drawn == 0 ? Squey::PVAnalysisAttachment()
+		                      : std::make_shared<const int>(drawn);
+	    },
+	    [&](const Squey::PVAnalysisAttachment& attachment) {
+		    put_back = attachment ? *static_cast<const int*>(attachment.get()) : 0;
+	    });
+
+	{
+		Scope step(env.root, "Nothing drawn yet", "square");
+		view->select_none();
+	}
+
+	drawn = 7;
+	{
+		Scope step(env.root, "Drawn", "selection-square");
+		view->select_all();
+	}
+
+	drawn = 9;
+	{
+		Scope step(env.root, "Drawn again", "selection-square");
+		view->select_none();
+	}
+
+	history.undo();
+	PV_VALID(put_back, 7, "why", "landing on a step hands back what it was drawn with");
+
+	history.undo();
+	PV_VALID(put_back, 0, "why", "a step drawn with nothing hands back nothing");
+
+	history.redo();
+	PV_VALID(put_back, 7);
+
+	// A contributor that has gone says nothing more.
+	history.remove_contributor(contributor);
+	put_back = -1;
+	history.undo();
+	PV_VALID(put_back, -1, "why", "a contributor that was removed is not asked again");
+
 	return 0;
 }

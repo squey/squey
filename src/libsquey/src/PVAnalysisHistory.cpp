@@ -184,6 +184,12 @@ Squey::PVAnalysisStep Squey::PVAnalysisHistory::capture(QString label,
 		step._selected_row_count = view->get_real_output_selection().bit_count();
 	}
 
+	for (auto const& [id, contributor] : _contributors) {
+		if (PVAnalysisAttachment attachment = contributor.capture()) {
+			step._attachments.emplace(id, std::move(attachment));
+		}
+	}
+
 	return step;
 }
 
@@ -212,6 +218,16 @@ void Squey::PVAnalysisHistory::restore(PVAnalysisStep const& step)
 		if (std::find(alive.begin(), alive.end(), view) != alive.end()) {
 			view->restore_state(state);
 		}
+	}
+
+	/* After the states, not before: putting a selection back makes the views
+	 * react, and one of the things they do is drop the rectangle that no longer
+	 * describes what is selected. This hands it back once they have.
+	 */
+	for (auto const& [id, contributor] : _contributors) {
+		const auto attachment = step._attachments.find(id);
+		contributor.restore(attachment == step._attachments.end() ? PVAnalysisAttachment()
+		                                                          : attachment->second);
 	}
 
 	_restoring = false;
@@ -319,4 +335,28 @@ void Squey::PVAnalysisHistory::drop_oldest_steps()
 	const size_t excess = _steps.size() - _max_steps;
 	_steps.erase(_steps.begin(), _steps.begin() + long(excess));
 	_position = _position > excess ? _position - excess : 0;
+}
+
+/******************************************************************************
+ * Squey::PVAnalysisHistory::add_contributor / remove_contributor
+ *****************************************************************************/
+
+Squey::PVAnalysisHistory::ContributorId Squey::PVAnalysisHistory::add_contributor(
+    std::function<PVAnalysisAttachment()> capture,
+    std::function<void(const PVAnalysisAttachment&)> restore)
+{
+	const ContributorId id = _next_contributor_id++;
+	_contributors.emplace(id, Contributor{std::move(capture), std::move(restore)});
+
+	return id;
+}
+
+void Squey::PVAnalysisHistory::remove_contributor(ContributorId id)
+{
+	_contributors.erase(id);
+
+	/* What it had handed over is left where it is: an attachment nobody claims
+	 * costs a pointer, and dropping it from every step would be work done for
+	 * a contributor that is on its way out anyway.
+	 */
 }

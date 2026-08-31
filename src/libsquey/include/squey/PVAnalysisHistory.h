@@ -33,6 +33,9 @@
 
 #include <chrono>
 #include <cstddef>
+#include <functional>
+#include <map>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -41,6 +44,13 @@ namespace Squey
 
 class PVRoot;
 class PVView;
+
+/**
+ * Something a step carries that is not part of a view's own state: the
+ * selection rectangle that drew it, say. Kept as an opaque handle, since the
+ * history has no business knowing what a rectangle is.
+ */
+using PVAnalysisAttachment = std::shared_ptr<const void>;
 
 /**
  * \class PVAnalysisStep
@@ -89,6 +99,7 @@ class PVAnalysisStep
 	std::chrono::steady_clock::time_point _taken_at;
 	size_t _selected_row_count = 0;
 	std::vector<std::pair<PVView*, PVViewState>> _states;
+	std::map<size_t, PVAnalysisAttachment> _attachments;
 };
 
 /**
@@ -226,6 +237,26 @@ class PVAnalysisHistory
 	size_t max_steps() const { return _max_steps; }
 
   public:
+	using ContributorId = size_t;
+
+	/**
+	 * Registers something that belongs to a step without being part of any
+	 * view's state, so that landing on a step puts it back too.
+	 *
+	 * The selection rectangle is why this exists. It is presentation -- the
+	 * history has no business rewinding a zoom or a scroll -- but it is also
+	 * the handle that drew the step, and a step that comes back without the
+	 * rectangle that made it comes back half done.
+	 *
+	 * @param capture hands over what to remember, or nothing at all
+	 * @param restore is given back what was remembered, or nothing when the
+	 *        step being landed on carried none
+	 */
+	ContributorId add_contributor(std::function<PVAnalysisAttachment()> capture,
+	                              std::function<void(const PVAnalysisAttachment&)> restore);
+	void remove_contributor(ContributorId id);
+
+  public:
 	/**
 	 * Emitted whenever the steps or the position change, so that a breadcrumb
 	 * can follow along.
@@ -245,7 +276,15 @@ class PVAnalysisHistory
 	void drop_oldest_steps();
 
   private:
+	struct Contributor {
+		std::function<PVAnalysisAttachment()> capture;
+		std::function<void(const PVAnalysisAttachment&)> restore;
+	};
+
+  private:
 	PVRoot& _root;
+	std::map<ContributorId, Contributor> _contributors;
+	ContributorId _next_contributor_id = 0;
 	std::vector<PVAnalysisStep> _steps;
 	size_t _position = 0;
 	size_t _max_steps = default_max_steps;

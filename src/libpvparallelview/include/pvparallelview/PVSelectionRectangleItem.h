@@ -170,6 +170,18 @@ class PVSelectionRectangleItem : public QGraphicsObject
 	void set_rect(const QRectF& rect, bool commit = true);
 
 	/**
+	 * put the rectangle back where it was and show it again
+	 *
+	 * set_rect() only places the rectangle; what cleared it hid the item and
+	 * its handles, and only begin() ever shows them again -- which is the
+	 * mouse's way in. Nothing is emitted: the rectangle is being put back, not
+	 * drawn anew.
+	 *
+	 * @param rect the geometry to come back to
+	 */
+	void restore_rect(const QRectF& rect);
+
+	/**
 	 * get the selection rectangle's geometry
 	 *
 	 * @return the reactangle's geometry
