@@ -262,12 +262,29 @@ QWidget* PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current,
 	crumb->setIconSize(QSize(icon_pixels, icon_pixels));
 	crumb->setAutoRaise(true);
 	crumb->setFocusPolicy(Qt::NoFocus);
-	QString tip = step.label();
+	/* Three things a crumb has to say -- what it was, what it was given, what it
+	 * left selected -- ruled off from one another. Rich text, so what is quoted
+	 * has to be escaped: a query saying "col1 < 2" would otherwise lose
+	 * everything from the angle bracket on.
+	 */
+	auto block = [](QString const& text) {
+		return QString("<div align=\"center\">%1</div>")
+		    .arg(QString(text).toHtmlEscaped().replace(QChar('\n'), "<br/>"));
+	};
+
+	/* Drawn rather than ruled: <hr/> is a raised border whose weight Qt gives no
+	 * way of setting, and next to two short lines of text it reads as a divider
+	 * between two tooltips rather than between two parts of one.
+	 */
+	const QString rule = block(QString(QChar(0x2500)).repeated(12));
+
+	QString tip = block(step.label());
 	if (not step.details().isEmpty()) {
-		tip += QString("\n") + step.details();
+		tip += rule + block(step.details());
 	}
-	tip += tr("\n%1 event(s) selected")
-	           .arg(QLocale().toString(qulonglong(step.selected_row_count())));
+	tip += rule + block(tr("%1 event(s) selected")
+	                        .arg(QLocale().toString(qulonglong(step.selected_row_count()))));
+
 	crumb->setToolTip(tip);
 
 	/* Where the user stands is the one pressed in; what lies ahead -- the

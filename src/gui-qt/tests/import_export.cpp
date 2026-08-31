@@ -5,6 +5,8 @@
 #include <QDir>
 #include <QFileInfo>
 #include <functional>
+#include <algorithm>
+
 #include <QFile>
 #include <QFileDialog>
 #include <QInputDialog>
@@ -296,14 +298,17 @@ void ImportExportTest::undo_redo()
 
     // The crumb carries the name the action gave it, which is how one can tell
     // the breadcrumb followed rather than merely existing. It shows an icon and
-    // no text, so the name is in the tooltip.
+    // no text, so the name is in the tooltip -- as rich text, the three things a
+    // crumb says being ruled off from one another.
     QStringList crumbs;
     for (QToolButton* button : breadcrumb->findChildren<QToolButton*>()) {
         if (not button->toolTip().isEmpty()) {
-            crumbs << button->toolTip().section('\n', 0, 0);
+            crumbs << button->toolTip();
         }
     }
-    QVERIFY2(crumbs.contains("Empty selection"), qPrintable(crumbs.join(", ")));
+    QVERIFY2(std::any_of(crumbs.begin(), crumbs.end(),
+                         [](QString const& t) { return t.contains("Empty selection"); }),
+             qPrintable(crumbs.join(" | ")));
 
     // The strip is meant to cost as little height as the toolbar row above it,
     // and to cost the same before and after: a row that settles only once a
