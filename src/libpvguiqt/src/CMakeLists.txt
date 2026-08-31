@@ -10,6 +10,7 @@
 
 set(LIBGUIQT_SRC_FILES
 common.cpp
+PVAnalysisBreadcrumb.cpp
 PVAxesCombinationDialog.cpp
 PVAxesCombinationWidget.cpp
 PVCredentialDialog.cpp
@@ -79,6 +80,7 @@ PVDisplayViewFilters.cpp
 )
 
 set(LIBGUIQT_MOC_HEADERS
+../include/pvguiqt/PVAnalysisBreadcrumb.h
 ../include/pvguiqt/PVAxesCombinationDialog.h
 ../include/pvguiqt/PVAxesCombinationWidget.h
 ../include/pvguiqt/PVLayerFilterProcessWidget.h

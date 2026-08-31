@@ -32,6 +32,10 @@
 #include <squey/PVRoot.h>
 #include <squey/PVSource.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvguiqt/PVAnalysisBreadcrumb.h>
+#include <squey/PVAnalysisHistory.h>
+#include <squey/PVView.h>
+#include <QToolButton>
 #include <PVMainWindow.h>
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
@@ -234,6 +238,63 @@ void ImportExportTest::import_file()
     main_window.load_files({source_path});
 
     QCOMPARE(success, true);
+}
+
+// What the history is worth only shows once it is wired to the window: a step
+// has to be recorded by the action the user triggers, the breadcrumb has to
+// hear about it, and going back has to put the rows back on screen.
+void ImportExportTest::undo_redo()
+{
+    App::PVMainWindow main_window;
+    main_window.show();
+    main_window.raise();
+
+    const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
+    QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
+    main_window.load_files({source_path});
+
+    Squey::PVView* view = main_window.current_view();
+    QVERIFY(view != nullptr);
+
+    Squey::PVAnalysisHistory& history = main_window.get_root().history();
+    QCOMPARE(history.size(), size_t(0));
+
+    auto* breadcrumb = main_window.findChild<PVGuiQt::PVAnalysisBreadcrumb*>();
+    QVERIFY(breadcrumb != nullptr);
+
+    const size_t all_rows = view->get_real_output_selection().bit_count();
+    QVERIFY(all_rows > 0);
+
+    main_window.selection_none_Slot();
+
+    // The step the action opened, plus the state it started from.
+    QCOMPARE(history.size(), size_t(2));
+    QCOMPARE(history.position(), size_t(1));
+    QCOMPARE(view->get_real_output_selection().bit_count(), size_t(0));
+
+    // The crumb carries the name the action gave it, which is how one can tell
+    // the breadcrumb followed rather than merely existing.
+    QStringList crumbs;
+    for (QToolButton* button : breadcrumb->findChildren<QToolButton*>()) {
+        if (not button->text().isEmpty()) {
+            crumbs << button->text();
+        }
+    }
+    QVERIFY2(crumbs.contains("Empty selection"), qPrintable(crumbs.join(", ")));
+
+    main_window.undo_Slot();
+    QCOMPARE(history.position(), size_t(0));
+    QCOMPARE(view->get_real_output_selection().bit_count(), all_rows);
+
+    main_window.redo_Slot();
+    QCOMPARE(history.position(), size_t(1));
+    QCOMPARE(view->get_real_output_selection().bit_count(), size_t(0));
+
+    // Acting after having gone back drops what lay ahead.
+    main_window.undo_Slot();
+    main_window.selection_all_Slot();
+    QCOMPARE(history.size(), size_t(2));
+    QCOMPARE(view->get_real_output_selection().bit_count(), all_rows);
 }
 
 void ImportExportTest::import_pcap()

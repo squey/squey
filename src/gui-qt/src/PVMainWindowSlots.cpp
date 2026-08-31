@@ -569,6 +569,34 @@ void App::PVMainWindow::quit_Slot()
  * App::PVMainWindow::selection_inverse_Slot()
  *
  *****************************************************************************/
+void App::PVMainWindow::undo_Slot()
+{
+	get_root().history().undo();
+}
+
+void App::PVMainWindow::redo_Slot()
+{
+	get_root().history().redo();
+}
+
+void App::PVMainWindow::refresh_history_actions()
+{
+	const Squey::PVAnalysisHistory& history = get_root().history();
+
+	undo_Action->setEnabled(history.can_undo());
+	redo_Action->setEnabled(history.can_redo());
+
+	/* Naming the step each one leads to, so that the menu says where it goes
+	 * rather than merely that it can go somewhere.
+	 */
+	undo_Action->setText(history.can_undo()
+	                         ? tr("&Undo %1").arg(history.step(history.position()).label())
+	                         : tr("&Undo"));
+	redo_Action->setText(history.can_redo()
+	                         ? tr("&Redo %1").arg(history.step(history.position() + 1).label())
+	                         : tr("&Redo"));
+}
+
 void App::PVMainWindow::selection_all_Slot()
 {
 	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);

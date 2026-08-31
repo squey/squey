@@ -37,6 +37,7 @@
 #include <PVMainWindow.h>
 #include <PVStringListChooserWidget.h>
 
+#include <pvguiqt/PVAnalysisBreadcrumb.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <squey/PVAnalysisHistory.h>
 #include <squey/widgets/PVNewLayerDialog.h>
@@ -165,6 +166,10 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setContentsMargins(0, 0, 0, 0);
+	_breadcrumb = new PVGuiQt::PVAnalysisBreadcrumb(get_root());
+	connect(_breadcrumb, &PVGuiQt::PVAnalysisBreadcrumb::changed, this,
+	        &PVMainWindow::refresh_history_actions);
+	pv_mainLayout->addWidget(_breadcrumb);
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
 	// Set status bar
