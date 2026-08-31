@@ -40,6 +40,7 @@
 #include <pvkernel/widgets/PVFileDialog.h>
 
 
+#include <sigc++/sigc++.h>
 #include <squey/PVSelection.h>
 
 #include <pvguiqt/PVProjectsTabWidget.h>
@@ -63,7 +64,6 @@ class PVSerializeArchive;
 
 namespace PVGuiQt
 {
-class PVAnalysisBreadcrumb;
 class PVSourceWorkspace;
 class PVAboutBoxDialog;
 class PVExportSelectionDlg;
@@ -210,8 +210,6 @@ class PVMainWindow : public QMainWindow
 	void flag_investigation_as_cached(const QString& file);
 
   private:
-	PVGuiQt::PVAnalysisBreadcrumb* _breadcrumb = nullptr;
-
 	QMenu* file_Menu;
 	QMenu* selection_Menu;
 	QMenu* events_Menu;
@@ -233,6 +231,8 @@ class PVMainWindow : public QMainWindow
 	QAction* new_scene_Action;
 	QAction* quit_Action;
 	QAction* select_scene_Action;
+	sigc::connection _history_changed;
+
 	QAction* undo_Action;
 	QAction* redo_Action;
 	QAction* selection_all_Action;

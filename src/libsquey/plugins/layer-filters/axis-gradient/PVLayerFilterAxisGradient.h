@@ -46,6 +46,7 @@ class PVLayerFilterAxisGradient : public PVLayerFilter
 	QString status_bar_description() override;
 	QString detailed_description() override;
 	QString menu_name() const override { return "Axis gradient"; }
+	std::string icon_name() const override { return "palette"; }
 
 	CLASS_FILTER(Squey::PVLayerFilterAxisGradient)
 };

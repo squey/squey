@@ -273,14 +273,18 @@ void ImportExportTest::undo_redo()
     QCOMPARE(view->get_real_output_selection().bit_count(), size_t(0));
 
     // The crumb carries the name the action gave it, which is how one can tell
-    // the breadcrumb followed rather than merely existing.
+    // the breadcrumb followed rather than merely existing. It shows an icon and
+    // no text, so the name is in the tooltip.
     QStringList crumbs;
     for (QToolButton* button : breadcrumb->findChildren<QToolButton*>()) {
-        if (not button->text().isEmpty()) {
-            crumbs << button->text();
+        if (not button->toolTip().isEmpty()) {
+            crumbs << button->toolTip().section('\n', 0, 0);
         }
     }
     QVERIFY2(crumbs.contains("Empty selection"), qPrintable(crumbs.join(", ")));
+
+    // The strip is meant to cost as little height as the toolbar row above it.
+    QVERIFY2(breadcrumb->height() <= 24, qPrintable(QString::number(breadcrumb->height())));
 
     main_window.undo_Slot();
     QCOMPARE(history.position(), size_t(0));

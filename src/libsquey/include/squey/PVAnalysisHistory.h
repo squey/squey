@@ -59,9 +59,17 @@ class PVAnalysisStep
 
   public:
 	/**
-	 * What the step is called in the breadcrumb.
+	 * What the step is called. Shown as a tooltip rather than as text: a
+	 * breadcrumb has to stay narrow enough to sit under a toolbar.
 	 */
 	QString const& label() const { return _label; }
+
+	/**
+	 * Which icon stands for the step, named as PVModdedIcon names them. This
+	 * is what the breadcrumb actually shows, so it should say what kind of act
+	 * the step was -- a search, a gradient, a layer -- rather than which one.
+	 */
+	std::string const& icon() const { return _icon; }
 
 	/**
 	 * How many rows the step left selected in the view it was taken on, which
@@ -76,6 +84,7 @@ class PVAnalysisStep
 
   private:
 	QString _label;
+	std::string _icon;
 	std::string _merge_key;
 	std::chrono::steady_clock::time_point _taken_at;
 	size_t _selected_row_count = 0;
@@ -137,7 +146,7 @@ class PVAnalysisHistory
 	class Scope
 	{
 	  public:
-		Scope(PVRoot& root, QString label);
+		Scope(PVRoot& root, QString label, std::string icon);
 
 		/**
 		 * As above, but joining the step before it when that one carries the
@@ -147,6 +156,7 @@ class PVAnalysisHistory
 		 */
 		Scope(PVRoot& root,
 		      QString label,
+		      std::string icon,
 		      std::string merge_key,
 		      std::chrono::milliseconds window = default_merge_window);
 
@@ -154,9 +164,10 @@ class PVAnalysisHistory
 		 * As above, reaching the history through the view being worked on,
 		 * which is what most call sites have to hand.
 		 */
-		Scope(PVView& view, QString label);
+		Scope(PVView& view, QString label, std::string icon);
 		Scope(PVView& view,
 		      QString label,
+		      std::string icon,
 		      std::string merge_key,
 		      std::chrono::milliseconds window = default_merge_window);
 
@@ -168,6 +179,7 @@ class PVAnalysisHistory
 	  private:
 		PVAnalysisHistory& _history;
 		QString _label;
+		std::string _icon;
 		std::string _merge_key;
 		std::chrono::milliseconds _window;
 	};
@@ -222,11 +234,12 @@ class PVAnalysisHistory
 
   private:
 	void open();
-	void close(QString label, std::string merge_key, std::chrono::milliseconds window);
+	void close(QString label,
+	           std::string icon,
+	           std::string merge_key,
+	           std::chrono::milliseconds window);
 
-	PVAnalysisStep capture(QString label,
-	                       std::string merge_key,
-	                       std::chrono::milliseconds window) const;
+	PVAnalysisStep capture(QString label, std::string icon, std::string merge_key) const;
 	static bool same_states(PVAnalysisStep const& a, PVAnalysisStep const& b);
 	void restore(PVAnalysisStep const& step);
 	void drop_oldest_steps();

@@ -88,6 +88,13 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	virtual QString detailed_description();
 	virtual QString menu_name() const { return registered_name(); }
 
+	/**
+	 * Which icon stands for this filter, named as PVModdedIcon names them.
+	 * Shown in the breadcrumb, where a step has room for an icon and not for a
+	 * sentence, so it should say what kind of filter this is rather than which.
+	 */
+	virtual std::string icon_name() const { return "filter"; }
+
   public:
 	/**
 	 * Show the appropriate error widget if a PVLayerFilter::error exception

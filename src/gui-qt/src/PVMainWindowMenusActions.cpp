@@ -300,9 +300,12 @@ void App::PVMainWindow::connect_actions()
 
 	connect(undo_Action, &QAction::triggered, this, &PVMainWindow::undo_Slot);
 	connect(redo_Action, &QAction::triggered, this, &PVMainWindow::redo_Slot);
-	/* The breadcrumb speaks up whenever the history moves, but it built itself
-	 * before this window could listen: settle the two actions once by hand.
+	/* Straight from the history rather than through the breadcrumb: the strip
+	 * lives in the workspaces, which come and go with the sources, while these
+	 * two actions are here for as long as the window is.
 	 */
+	_history_changed = get_root().history()._changed.connect(
+	    sigc::mem_fun(*this, &PVMainWindow::refresh_history_actions));
 	refresh_history_actions();
 	connect(commit_selection_to_new_layer_Action, &QAction::triggered, this,
 	        &PVMainWindow::commit_selection_to_new_layer_Slot);

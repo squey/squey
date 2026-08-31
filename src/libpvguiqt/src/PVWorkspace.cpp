@@ -31,6 +31,7 @@
 #include <QMenu>
 #include <QComboBox>
 
+#include <pvguiqt/PVAnalysisBreadcrumb.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVViewDisplay.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
@@ -39,6 +40,7 @@
 #include <pvguiqt/PVStatusBar.h>
 #include <pvguiqt/PVErrorsAndWarnings.h>
 
+#include <squey/PVRoot.h>
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
 #include <squey/widgets/PVViewArgumentEditorCreator.h>
 
@@ -502,4 +504,27 @@ void PVGuiQt::PVSourceWorkspace::populate_display()
 		    //}
 	    },
 	    PVDisplays::PVDisplayIf::ShowInToolbar);
+
+	/* The trail of the analysis, on its own row right under the toolbar: it
+	 * belongs beside the views whose selections it walks back through, and it
+	 * follows the one history the whole investigation shares, so every source
+	 * shows the same one.
+	 */
+	addToolBarBreak();
+
+	auto* breadcrumb_bar = new QToolBar(this);
+	breadcrumb_bar->toggleViewAction()->setVisible(false);
+	breadcrumb_bar->setFloatable(false);
+	breadcrumb_bar->setMovable(false);
+	breadcrumb_bar->setIconSize(QSize(16, 16));
+	auto* breadcrumb = new PVAnalysisBreadcrumb(_source->get_parent<Squey::PVRoot>());
+	breadcrumb_bar->addWidget(breadcrumb);
+	addToolBar(breadcrumb_bar);
+
+	/* The row goes away entirely until the analysis has moved, rather than
+	 * sitting there empty.
+	 */
+	connect(breadcrumb, &PVAnalysisBreadcrumb::changed, breadcrumb_bar,
+	        [breadcrumb, breadcrumb_bar] { breadcrumb_bar->setVisible(breadcrumb->has_trail()); });
+	breadcrumb_bar->setVisible(breadcrumb->has_trail());
 }

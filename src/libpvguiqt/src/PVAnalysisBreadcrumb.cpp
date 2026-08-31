@@ -27,6 +27,9 @@
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVRoot.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
+#include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QLocale>
@@ -35,32 +38,46 @@
 #include <QStyle>
 #include <QToolButton>
 
+/* One row of small icons, meant to cost as little height as a toolbar does.
+ * Only the icon size is ours: how much room a button needs around one is the
+ * style's business. Hardcoding that room is how the icons ended up cut off, and
+ * leaving the row unconstrained is how it grew to three times its need -- so
+ * ask a button of the very shape used here, once, and hold everything to that.
+ */
+static constexpr int icon_pixels = 16;
+
+static int row_height()
+{
+	QToolButton probe;
+
+	probe.setIconSize(QSize(icon_pixels, icon_pixels));
+	probe.setAutoRaise(true);
+
+	return probe.sizeHint().height();
+}
+
 PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget* parent)
     : QWidget(parent), _root(root)
 {
+	_row_pixels = row_height();
+
 	auto* layout = new QHBoxLayout(this);
-	layout->setContentsMargins(4, 2, 4, 2);
-	layout->setSpacing(2);
+	layout->setContentsMargins(2, 0, 2, 0);
+	layout->setSpacing(0);
 
-	/* Plain arrows rather than the icon set: it carries no rotate-right, and
-	 * back and forward is what walking a trail means anyway.
+	/* The style's own arrows rather than the icon set: it carries no
+	 * rotate-right, and back and forward is what walking a trail means anyway.
 	 */
-	auto* undo_button = new QToolButton(this);
-	undo_button->setIcon(style()->standardIcon(QStyle::SP_ArrowLeft));
-	undo_button->setAutoRaise(true);
-	undo_button->setToolTip(tr("Go back one step"));
-	connect(undo_button, &QToolButton::clicked, this, &PVAnalysisBreadcrumb::undo);
-	layout->addWidget(undo_button);
+	_undo_button = make_button(style()->standardIcon(QStyle::SP_ArrowLeft));
+	connect(_undo_button, &QToolButton::clicked, this, &PVAnalysisBreadcrumb::undo);
+	layout->addWidget(_undo_button);
 
-	auto* redo_button = new QToolButton(this);
-	redo_button->setIcon(style()->standardIcon(QStyle::SP_ArrowRight));
-	redo_button->setAutoRaise(true);
-	redo_button->setToolTip(tr("Go forward one step"));
-	connect(redo_button, &QToolButton::clicked, this, &PVAnalysisBreadcrumb::redo);
-	layout->addWidget(redo_button);
+	_redo_button = make_button(style()->standardIcon(QStyle::SP_ArrowRight));
+	connect(_redo_button, &QToolButton::clicked, this, &PVAnalysisBreadcrumb::redo);
+	layout->addWidget(_redo_button);
 
 	/* The whole trail is kept rather than elided: the history is bounded, and a
-	 * step the user cannot see is a step they will not think of going back to.
+	 * step nobody can see is a step nobody will think of going back to.
 	 */
 	_strip = new QWidget();
 	_strip_layout = new QHBoxLayout(_strip);
@@ -71,12 +88,16 @@ PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget
 	_scroll->setWidget(_strip);
 	_scroll->setWidgetResizable(true);
 	_scroll->setFrameShape(QFrame::NoFrame);
-	_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+	_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	_scroll->setFixedHeight(_row_pixels);
 	layout->addWidget(_scroll, 1);
 
-	_history_changed = _root.history()._changed.connect(
-	    sigc::mem_fun(*this, &PVAnalysisBreadcrumb::rebuild));
+	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+	setFixedHeight(_row_pixels);
+
+	_history_changed =
+	    _root.history()._changed.connect(sigc::mem_fun(*this, &PVAnalysisBreadcrumb::rebuild));
 
 	rebuild();
 }
@@ -84,6 +105,24 @@ PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget
 PVGuiQt::PVAnalysisBreadcrumb::~PVAnalysisBreadcrumb()
 {
 	_history_changed.disconnect();
+}
+
+QToolButton* PVGuiQt::PVAnalysisBreadcrumb::make_button(const QIcon& icon)
+{
+	auto* button = new QToolButton(this);
+
+	button->setIcon(icon);
+	button->setIconSize(QSize(icon_pixels, icon_pixels));
+	button->setFixedSize(_row_pixels, _row_pixels);
+	button->setAutoRaise(true);
+	button->setFocusPolicy(Qt::NoFocus);
+
+	return button;
+}
+
+bool PVGuiQt::PVAnalysisBreadcrumb::has_trail() const
+{
+	return _root.history().size() > 1;
 }
 
 void PVGuiQt::PVAnalysisBreadcrumb::undo()
@@ -105,62 +144,77 @@ void PVGuiQt::PVAnalysisBreadcrumb::rebuild()
 
 	const Squey::PVAnalysisHistory& history = _root.history();
 
+	_undo_button->setEnabled(history.can_undo());
+	_redo_button->setEnabled(history.can_redo());
+
 	/* One step means the analysis has not moved yet, and a trail of one crumb
-	 * is worth no room on screen.
+	 * is worth no room on screen -- but hiding is the container's to do.
 	 */
-	setVisible(history.size() > 1);
 	if (history.size() <= 1) {
 		Q_EMIT changed();
 		return;
 	}
 
 	const size_t position = history.position();
+	QWidget* current = nullptr;
 	for (size_t i = 0; i < history.size(); i++) {
-		add_crumb(i, i == position, i > position);
+		QWidget* crumb = add_crumb(i, i == position, i > position);
+		if (i == position) {
+			current = crumb;
+		}
 	}
 	_strip_layout->addStretch(1);
 
-	/* Landing anywhere may have scrolled the current step out of sight.
+	/* Landing anywhere may have left the current step off the visible part of
+	 * the strip.
 	 */
-	if (QWidget* current = _strip_layout->itemAt(int(position) * 2)->widget()) {
+	if (current != nullptr) {
 		_scroll->ensureWidgetVisible(current);
 	}
 
 	Q_EMIT changed();
 }
 
-void PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current, bool is_ahead)
+QWidget* PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current, bool is_ahead)
 {
 	const Squey::PVAnalysisStep& step = _root.history().step(index);
 
+	/* A chevron between crumbs, so that the row reads as a trail rather than as
+	 * a handful of buttons that happen to sit side by side.
+	 */
 	if (index > 0) {
-		auto* separator = new QLabel(QString::fromUtf8(" › "), _strip);
-		separator->setEnabled(false);
-		_strip_layout->addWidget(separator);
-	} else {
-		/* Kept so that every crumb sits at the same offset in the layout,
-		 * which is how the current one is found again to be scrolled to.
-		 */
-		_strip_layout->addWidget(new QWidget(_strip));
+		auto* chevron = new QLabel(QString::fromUtf8(">"), _strip);
+		chevron->setEnabled(false);
+		chevron->setAlignment(Qt::AlignCenter);
+		chevron->setContentsMargins(1, 0, 1, 0);
+		_strip_layout->addWidget(chevron);
 	}
 
 	auto* crumb = new QToolButton(_strip);
-	crumb->setText(step.label());
+	crumb->setIcon(PVModdedIcon(QString::fromStdString(step.icon())));
+	crumb->setIconSize(QSize(icon_pixels, icon_pixels));
+	crumb->setFixedSize(_row_pixels, _row_pixels);
 	crumb->setAutoRaise(true);
-	crumb->setToolTip(tr("%1 event(s) selected")
+	crumb->setFocusPolicy(Qt::NoFocus);
+	crumb->setToolTip(tr("%1\n%2 event(s) selected")
+	                      .arg(step.label())
 	                      .arg(QLocale().toString(qulonglong(step.selected_row_count()))));
 
-	/* Where the user stands is set in bold, and what lies ahead -- the branch
-	 * they walked back from, still there to walk forward into -- in italics.
-	 * Both survive a change of theme, which a colour of our own would not.
+	/* Where the user stands is the one pressed in; what lies ahead -- the
+	 * branch they walked back from, still there to walk forward into -- is
+	 * faded. Both come from the style, so both survive a change of theme.
 	 */
-	QFont font = crumb->font();
-	font.setBold(is_current);
-	font.setItalic(is_ahead);
-	crumb->setFont(font);
+	crumb->setCheckable(true);
+	crumb->setChecked(is_current);
+	if (is_ahead) {
+		auto* faded = new QGraphicsOpacityEffect(crumb);
+		faded->setOpacity(0.4);
+		crumb->setGraphicsEffect(faded);
+	}
 
-	connect(crumb, &QToolButton::clicked, this,
-	        [this, index] { _root.history().go_to(index); });
+	connect(crumb, &QToolButton::clicked, this, [this, index] { _root.history().go_to(index); });
 
 	_strip_layout->addWidget(crumb);
+
+	return crumb;
 }

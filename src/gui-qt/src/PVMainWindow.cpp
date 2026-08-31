@@ -37,7 +37,6 @@
 #include <PVMainWindow.h>
 #include <PVStringListChooserWidget.h>
 
-#include <pvguiqt/PVAnalysisBreadcrumb.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <squey/PVAnalysisHistory.h>
 #include <squey/widgets/PVNewLayerDialog.h>
@@ -166,10 +165,6 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	pv_mainLayout = new QVBoxLayout();
 	pv_mainLayout->setContentsMargins(0, 0, 0, 0);
-	_breadcrumb = new PVGuiQt::PVAnalysisBreadcrumb(get_root());
-	connect(_breadcrumb, &PVGuiQt::PVAnalysisBreadcrumb::changed, this,
-	        &PVMainWindow::refresh_history_actions);
-	pv_mainLayout->addWidget(_breadcrumb);
 	pv_mainLayout->addWidget(_projects_tab_widget);
 
 	// Set status bar
@@ -313,7 +308,7 @@ void App::PVMainWindow::commit_selection_to_new_layer(Squey::PVView* view)
 		return;
 	}
 
-	Squey::PVAnalysisHistory::Scope step(*view, tr("New layer \"%1\" from the selection").arg(name));
+	Squey::PVAnalysisHistory::Scope step(*view, tr("New layer \"%1\" from the selection").arg(name), "layer-from-selection");
 	view->commit_selection_to_new_layer(name, should_hide_layers);
 }
 
@@ -332,7 +327,7 @@ void App::PVMainWindow::move_selection_to_new_layer(Squey::PVView* squey_view)
 
 	if (!name.isEmpty()) {
 		Squey::PVAnalysisHistory::Scope step(
-		    *squey_view, tr("Selection moved to layer \"%1\"").arg(name));
+		    *squey_view, tr("Selection moved to layer \"%1\"").arg(name), "move-layer-from-selection");
 
 		if (should_hide_layers) {
 			squey_view->hide_layers();
@@ -1337,7 +1332,7 @@ void App::PVMainWindow::set_color(Squey::PVView* squey_view)
 
 	PVCore::PVHSVColor color = dial.color();
 
-	Squey::PVAnalysisHistory::Scope step(*squey_view, tr("Colour the selected events"));
+	Squey::PVAnalysisHistory::Scope step(*squey_view, tr("Colour the selected events"), "palette");
 	squey_view->set_color_on_active_layer(color);
 }
 

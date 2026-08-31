@@ -215,7 +215,8 @@ void PVGuiQt::PVLayerFilterProcessWidget::save_Slot()
 	/* Named after the filter rather than after "Apply": a breadcrumb saying
 	 * which search was run is worth reading, one saying "Apply" is not.
 	 */
-	Squey::PVAnalysisHistory::Scope step(*_view, _filter_p->registered_name());
+	Squey::PVAnalysisHistory::Scope step(*_view, _filter_p->registered_name(),
+	                                     _filter_p->icon_name());
 
 	if (not _has_apply or _args_widget->args_changed()) {
 		// Nothing already computed, do it now

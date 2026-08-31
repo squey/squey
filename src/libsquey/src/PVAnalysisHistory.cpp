@@ -35,13 +35,14 @@
  * Squey::PVAnalysisHistory::Scope
  *****************************************************************************/
 
-Squey::PVAnalysisHistory::Scope::Scope(PVRoot& root, QString label)
-    : Scope(root, std::move(label), std::string(), default_merge_window)
+Squey::PVAnalysisHistory::Scope::Scope(PVRoot& root, QString label, std::string icon)
+    : Scope(root, std::move(label), std::move(icon), std::string(), default_merge_window)
 {
 }
 
 Squey::PVAnalysisHistory::Scope::Scope(PVRoot& root,
                                        QString label,
+                                       std::string icon,
                                        std::string merge_key,
                                        std::chrono::milliseconds window)
     : _history(root.history())
@@ -52,26 +53,32 @@ Squey::PVAnalysisHistory::Scope::Scope(PVRoot& root,
 	 * smaller ones is one thing the user did, not several.
 	 */
 	_label = std::move(label);
+	_icon = std::move(icon);
 	_merge_key = std::move(merge_key);
 	_window = window;
 }
 
-Squey::PVAnalysisHistory::Scope::Scope(PVView& view, QString label)
-    : Scope(view.get_parent<PVRoot>(), std::move(label))
+Squey::PVAnalysisHistory::Scope::Scope(PVView& view, QString label, std::string icon)
+    : Scope(view.get_parent<PVRoot>(), std::move(label), std::move(icon))
 {
 }
 
 Squey::PVAnalysisHistory::Scope::Scope(PVView& view,
                                        QString label,
+                                       std::string icon,
                                        std::string merge_key,
                                        std::chrono::milliseconds window)
-    : Scope(view.get_parent<PVRoot>(), std::move(label), std::move(merge_key), window)
+    : Scope(view.get_parent<PVRoot>(),
+            std::move(label),
+            std::move(icon),
+            std::move(merge_key),
+            window)
 {
 }
 
 Squey::PVAnalysisHistory::Scope::~Scope()
 {
-	_history.close(std::move(_label), std::move(_merge_key), _window);
+	_history.close(std::move(_label), std::move(_icon), std::move(_merge_key), _window);
 }
 
 /******************************************************************************
@@ -88,7 +95,7 @@ void Squey::PVAnalysisHistory::open()
 	 * needs one to start from before anything can be undone back to it.
 	 */
 	if (_steps.empty()) {
-		_steps.push_back(capture(QString("Opened"), std::string(), default_merge_window));
+		_steps.push_back(capture(QString("Opened"), "folder-open", std::string()));
 		_position = 0;
 	}
 }
@@ -98,6 +105,7 @@ void Squey::PVAnalysisHistory::open()
  *****************************************************************************/
 
 void Squey::PVAnalysisHistory::close(QString label,
+                                     std::string icon,
                                      std::string merge_key,
                                      std::chrono::milliseconds window)
 {
@@ -105,7 +113,7 @@ void Squey::PVAnalysisHistory::close(QString label,
 		return;
 	}
 
-	PVAnalysisStep step = capture(std::move(label), std::move(merge_key), window);
+	PVAnalysisStep step = capture(std::move(label), std::move(icon), std::move(merge_key));
 
 	/* A barrier may have wiped the history from inside the very scope being
 	 * closed, in which case this step is the one everything else starts from.
@@ -142,6 +150,7 @@ void Squey::PVAnalysisHistory::close(QString label,
 		 * the window against its first commit.
 		 */
 		step._label = previous._label;
+		step._icon = previous._icon;
 		_steps[_position] = std::move(step);
 	} else {
 		_steps.push_back(std::move(step));
@@ -157,12 +166,13 @@ void Squey::PVAnalysisHistory::close(QString label,
  *****************************************************************************/
 
 Squey::PVAnalysisStep Squey::PVAnalysisHistory::capture(QString label,
-                                                        std::string merge_key,
-                                                        std::chrono::milliseconds /*window*/) const
+                                                        std::string icon,
+                                                        std::string merge_key) const
 {
 	PVAnalysisStep step;
 
 	step._label = std::move(label);
+	step._icon = std::move(icon);
 	step._merge_key = std::move(merge_key);
 	step._taken_at = std::chrono::steady_clock::now();
 

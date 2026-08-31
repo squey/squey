@@ -59,7 +59,7 @@ int main()
 	// ------------------------------------------------------------- one step
 
 	{
-		Scope step(env.root, "Empty selection");
+		Scope step(env.root, "Empty selection", "square");
 		view->select_none();
 	}
 
@@ -90,7 +90,7 @@ int main()
 	// ------------------------------------------- a step that changed nothing
 
 	{
-		Scope step(env.root, "Opened a dialog and thought better of it");
+		Scope step(env.root, "Opened a dialog and thought better of it", "square");
 	}
 	PV_VALID(history.size(), size_t(2), "why", "a step that changed nothing must leave no crumb");
 
@@ -101,7 +101,7 @@ int main()
 	 * to spare the breadcrumb an entry for something the user did ask for.
 	 */
 	{
-		Scope step(env.root, "Emptied an already empty selection");
+		Scope step(env.root, "Emptied an already empty selection", "square");
 		view->select_none();
 	}
 	PV_VALID(history.size(), size_t(3));
@@ -109,10 +109,10 @@ int main()
 	// -------------------------------------------------------------- nesting
 
 	{
-		Scope outer(env.root, "Whole gesture");
+		Scope outer(env.root, "Whole gesture", "selection-square");
 		view->select_all();
 		{
-			Scope inner(env.root, "Part of it");
+			Scope inner(env.root, "Part of it", "square");
 			view->select_none();
 		}
 		view->select_all();
@@ -125,13 +125,13 @@ int main()
 	// -------------------------------------------------------------- merging
 
 	{
-		Scope step(env.root, "Dragging", "selection-rectangle");
+		Scope step(env.root, "Dragging", "selection-square", "selection-rectangle");
 		view->select_none();
 	}
 	PV_VALID(history.size(), size_t(5));
 
 	{
-		Scope step(env.root, "Dragging some more", "selection-rectangle");
+		Scope step(env.root, "Dragging some more", "selection-square", "selection-rectangle");
 		view->select_all();
 	}
 	PV_VALID(history.size(), size_t(5), "why", "a drag is one step however often it commits");
@@ -140,13 +140,13 @@ int main()
 	PV_VALID(shown_rows(*view), all_rows, "why", "but it holds the newest state");
 
 	{
-		Scope step(env.root, "Something else", "another-gesture");
+		Scope step(env.root, "Something else", "swap", "another-gesture");
 		view->select_none();
 	}
 	PV_VALID(history.size(), size_t(6), "why", "another kind of gesture is another step");
 
 	{
-		Scope step(env.root, "Too late to join", "another-gesture", no_merging);
+		Scope step(env.root, "Too late to join", "swap", "another-gesture", no_merging);
 		view->select_all();
 	}
 	PV_VALID(history.size(), size_t(7), "why", "a gesture that came too late is its own step");
@@ -156,7 +156,7 @@ int main()
 	history.go_to(1);
 	PV_ASSERT_VALID(history.can_redo());
 	{
-		Scope step(env.root, "A different turn");
+		Scope step(env.root, "A different turn", "square-check");
 		view->select_all();
 	}
 	PV_VALID(history.size(), size_t(3), "why", "the branch not being followed is let go of");
@@ -173,7 +173,7 @@ int main()
 
 	history.set_max_steps(3);
 	for (int i = 0; i < 6; ++i) {
-		Scope step(env.root, QString("Step %1").arg(i));
+		Scope step(env.root, QString("Step %1").arg(i), "square");
 		if (i % 2 == 0) {
 			view->select_none();
 		} else {
@@ -203,7 +203,7 @@ int main()
 	history.set_max_steps(Squey::PVAnalysisHistory::default_max_steps);
 
 	{
-		Scope step(env.root, "Something to come back from");
+		Scope step(env.root, "Something to come back from", "square");
 		view->select_none();
 	}
 	const size_t before_reacting = history.size();
@@ -214,7 +214,7 @@ int main()
 			return;
 		}
 		reacting = true;
-		Scope step(env.root, "Propagated by a correlation");
+		Scope step(env.root, "Propagated by a correlation", "share-all");
 		view->set_selection_view(view->get_real_output_selection());
 		reacting = false;
 	});

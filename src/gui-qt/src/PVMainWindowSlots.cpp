@@ -604,7 +604,7 @@ void App::PVMainWindow::selection_all_Slot()
 		return;
 	}
 
-	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Select all events"));
+	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Select all events"), "square-check");
 	current_view()->select_all();
 }
 
@@ -620,7 +620,7 @@ void App::PVMainWindow::selection_none_Slot()
 		return;
 	}
 
-	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Empty selection"));
+	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Empty selection"), "square");
 	current_view()->select_none();
 }
 
@@ -636,7 +636,7 @@ void App::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
-	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Invert selection"));
+	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Invert selection"), "swap");
 	current_view()->select_inverse();
 }
 
@@ -833,7 +833,8 @@ void App::PVMainWindow::selection_set_from_current_layer_Slot()
 	if (current_view()) {
 		Squey::PVAnalysisHistory::Scope step(
 		    *current_view(),
-		    tr("Selection from layer \"%1\"").arg(current_view()->get_current_layer().get_name()));
+		    tr("Selection from layer \"%1\"").arg(current_view()->get_current_layer().get_name()),
+		    "selection-from-layer");
 		current_view()->set_selection_from_layer(current_view()->get_current_layer());
 	}
 }
@@ -850,7 +851,8 @@ void App::PVMainWindow::selection_set_from_layer_Slot()
 		if (ret) {
 			auto* layer = args["sel-layer"].value<Squey::PVLayer*>();
 			Squey::PVAnalysisHistory::Scope step(
-			    *current_view(), tr("Selection from layer \"%1\"").arg(layer->get_name()));
+			    *current_view(), tr("Selection from layer \"%1\"").arg(layer->get_name()),
+			    "selection-from-layer");
 			current_view()->set_selection_from_layer(*layer);
 		}
 	}

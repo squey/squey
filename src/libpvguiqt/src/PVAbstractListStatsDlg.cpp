@@ -397,7 +397,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 		model().current_selection().visit_selected_lines(
 		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
-		Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("Selection from the values listed"));
+		Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("Selection from the values listed"), "count-by");
 		multiple_search(_msearch_action_for_layer_creation, values, false);
 	});
 
@@ -569,7 +569,7 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 		model().current_selection().visit_selected_lines(
 		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
-		Squey::PVAnalysisHistory::Scope step(*lib_view(), act->text());
+		Squey::PVAnalysisHistory::Scope step(*lib_view(), act->text(), "magnifying-glass");
 		multiple_search(act, values);
 		return true;
 	}
@@ -779,7 +779,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	/* All of what follows -- a search, a layer, a visibility toggle, a commit
 	 * and a move -- is one thing the user asked for.
 	 */
-	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("New layer from the selected values"));
+	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("New layer from the selected values"), "layer-from-selection");
 
 	Squey::PVLayerStack& ls = lib_view()->edit_layer_stack();
 
@@ -886,7 +886,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 	/* A search, then a layer per value, each hidden, committed and moved:
 	 * one thing the user asked for.
 	 */
-	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("One layer per selected value"));
+	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("One layer per selected value"), "layer-group");
 
 	/* some "static" formatting
 	 */

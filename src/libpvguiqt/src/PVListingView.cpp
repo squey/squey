@@ -242,7 +242,7 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	// Substract new selection on Ctrl
 	// Expand the selection on Shift
 	// Replace the old selection without modifiers
-	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Selection in the listing"));
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Selection in the listing"), "table-list");
 
 	if ((modifiers & Qt::ShiftModifier) and (modifiers & Qt::ControlModifier)) {
 		lib_view().set_selection_view(lib_view().get_real_output_selection() &

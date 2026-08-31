@@ -32,7 +32,9 @@
 #include <QWidget>
 
 class QHBoxLayout;
+class QIcon;
 class QScrollArea;
+class QToolButton;
 
 namespace Squey
 {
@@ -47,6 +49,10 @@ namespace PVGuiQt
  *
  * The steps an analysis went through, laid out left to right, with the one
  * being shown picked out and the ones ahead of it dimmed.
+ *
+ * Icons alone, on one row as tall as a toolbar: it sits under the workspace
+ * toolbar, where a strip of sentences would take more room than the views can
+ * spare. What the step was called is a tooltip away.
  *
  * A crumb is a button rather than a label because the history is made of states
  * rather than of operations: landing on any of them is one call, so there is no
@@ -63,6 +69,14 @@ class PVGUIQT_EXPORT PVAnalysisBreadcrumb : public QWidget
 	explicit PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget* parent = nullptr);
 	~PVAnalysisBreadcrumb() override;
 
+  public:
+	/**
+	 * Whether there is anything to walk back through. A widget that hides
+	 * itself inside a toolbar gets no room back when it reappears, so it is
+	 * left to whoever put it there to hide the row it sits on.
+	 */
+	bool has_trail() const;
+
   public Q_SLOTS:
 	void undo();
 	void redo();
@@ -76,10 +90,14 @@ class PVGUIQT_EXPORT PVAnalysisBreadcrumb : public QWidget
 
   private:
 	void rebuild();
-	void add_crumb(size_t index, bool is_current, bool is_ahead);
+	QWidget* add_crumb(size_t index, bool is_current, bool is_ahead);
+	QToolButton* make_button(const QIcon& icon);
 
   private:
 	Squey::PVRoot& _root;
+	QToolButton* _undo_button = nullptr;
+	QToolButton* _redo_button = nullptr;
+	int _row_pixels = 0;
 	QScrollArea* _scroll = nullptr;
 	QWidget* _strip = nullptr;
 	QHBoxLayout* _strip_layout = nullptr;

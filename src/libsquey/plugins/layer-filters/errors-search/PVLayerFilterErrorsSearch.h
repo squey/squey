@@ -47,6 +47,7 @@ class PVLayerFilterErrorsSearch : public PVLayerFilter
 	void operator()(PVLayer const& in, PVLayer& out) override;
 	PVCore::PVArgumentKeyList get_args_keys_for_preset() const override;
 	QString menu_name() const override { return "Text Search/Empty and invalid values"; }
+	std::string icon_name() const override { return "magnifying-glass-waveform"; }
 
   public:
 	static PVCore::PVArgumentList menu(PVRow row, PVCombCol col, PVCol org_col, QString const& v);
