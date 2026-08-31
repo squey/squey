@@ -295,6 +295,22 @@
     <file>rc.dark/arrow-rotate-left_focus@2x.png</file>
     <file>rc.dark/arrow-rotate-left_pressed.png</file>
     <file>rc.dark/arrow-rotate-left_pressed@2x.png</file>
+    <file>rc.dark/arrow-left-long.png</file>
+    <file>rc.dark/arrow-left-long@2x.png</file>
+    <file>rc.dark/arrow-left-long_disabled.png</file>
+    <file>rc.dark/arrow-left-long_disabled@2x.png</file>
+    <file>rc.dark/arrow-left-long_focus.png</file>
+    <file>rc.dark/arrow-left-long_focus@2x.png</file>
+    <file>rc.dark/arrow-left-long_pressed.png</file>
+    <file>rc.dark/arrow-left-long_pressed@2x.png</file>
+    <file>rc.dark/arrow-right-long.png</file>
+    <file>rc.dark/arrow-right-long@2x.png</file>
+    <file>rc.dark/arrow-right-long_disabled.png</file>
+    <file>rc.dark/arrow-right-long_disabled@2x.png</file>
+    <file>rc.dark/arrow-right-long_focus.png</file>
+    <file>rc.dark/arrow-right-long_focus@2x.png</file>
+    <file>rc.dark/arrow-right-long_pressed.png</file>
+    <file>rc.dark/arrow-right-long_pressed@2x.png</file>
     <file>rc.dark/arrow-up-long.png</file>
     <file>rc.dark/arrow-up-long@2x.png</file>
     <file>rc.dark/arrow-up-long_disabled.png</file>
@@ -1362,6 +1378,22 @@
     <file>rc.light/arrow-rotate-left_focus@2x.png</file>
     <file>rc.light/arrow-rotate-left_pressed.png</file>
     <file>rc.light/arrow-rotate-left_pressed@2x.png</file>
+    <file>rc.light/arrow-left-long.png</file>
+    <file>rc.light/arrow-left-long@2x.png</file>
+    <file>rc.light/arrow-left-long_disabled.png</file>
+    <file>rc.light/arrow-left-long_disabled@2x.png</file>
+    <file>rc.light/arrow-left-long_focus.png</file>
+    <file>rc.light/arrow-left-long_focus@2x.png</file>
+    <file>rc.light/arrow-left-long_pressed.png</file>
+    <file>rc.light/arrow-left-long_pressed@2x.png</file>
+    <file>rc.light/arrow-right-long.png</file>
+    <file>rc.light/arrow-right-long@2x.png</file>
+    <file>rc.light/arrow-right-long_disabled.png</file>
+    <file>rc.light/arrow-right-long_disabled@2x.png</file>
+    <file>rc.light/arrow-right-long_focus.png</file>
+    <file>rc.light/arrow-right-long_focus@2x.png</file>
+    <file>rc.light/arrow-right-long_pressed.png</file>
+    <file>rc.light/arrow-right-long_pressed@2x.png</file>
     <file>rc.light/arrow-up-long.png</file>
     <file>rc.light/arrow-up-long@2x.png</file>
     <file>rc.light/arrow-up-long_disabled.png</file>

@@ -95,7 +95,18 @@ void Squey::PVAnalysisHistory::open()
 	 * needs one to start from before anything can be undone back to it.
 	 */
 	if (_steps.empty()) {
-		_steps.push_back(capture(QString("Opened"), "folder-open", std::string()));
+		PVAnalysisStep initial = capture(QString("Opened"), "folder-open", std::string());
+
+		/* The step everything starts from stands for the analysis before it
+		 * moved, and it is taken when the first scope opens rather than when
+		 * the investigation did. By then what is on screen can already belong
+		 * to the act about to be recorded -- a selection rectangle is drawn
+		 * before it is committed -- so this one keeps the values and nothing
+		 * else.
+		 */
+		initial._attachments.clear();
+
+		_steps.push_back(std::move(initial));
 		_position = 0;
 	}
 }

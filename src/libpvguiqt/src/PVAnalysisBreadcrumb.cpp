@@ -34,44 +34,75 @@
 #include <QLocale>
 #include <QScrollArea>
 #include <QScrollBar>
-#include <QStyle>
 #include <QToolButton>
 
 /* One row of small icons, meant to cost as little height as a toolbar does.
- * Only the icon size is ours: how much room a button needs around one is the
- * style's business. Hardcoding that room is how the icons ended up cut off, and
- * leaving the row unconstrained is how it grew to three times its need -- so
- * ask a button of the very shape used here, once, and hold everything to that.
+ *
+ * Only the icon sizes are ours. How much room a button needs around one is the
+ * style's business, and the style here is a stylesheet, which no button knows
+ * about until it is in the window that carries it: a button asked beforehand
+ * answers for a style nobody uses. So nothing is pinned to a number -- the row
+ * takes its height from the buttons it actually holds, every time it is built.
  */
 static constexpr int icon_pixels = 16;
 
-static int row_height()
+/* Narrower than the crumbs, and deliberately so: it separates them rather than
+ * standing among them.
+ */
+static constexpr int chevron_pixels = 10;
+
+namespace
 {
-	QToolButton probe;
 
-	probe.setIconSize(QSize(icon_pixels, icon_pixels));
-	probe.setAutoRaise(true);
+/* A scroll area is as tall as it feels like being, which for one row of buttons
+ * is three times too much. Saying so once, here, is what keeps the row honest:
+ * setting a height by hand instead meant setting it again whenever the style or
+ * the contents moved, and each of those adjustments moved the row.
+ */
+class PVRowScrollArea : public QScrollArea
+{
+  public:
+	using QScrollArea::QScrollArea;
 
-	return probe.sizeHint().height();
-}
+	QSize sizeHint() const override
+	{
+		const QSize inner = widget() != nullptr ? widget()->sizeHint() : QSize();
+		return QSize(inner.width(), inner.height() + 2 * frameWidth());
+	}
+
+	/**
+	 * The height the row needs, and no width at all.
+	 *
+	 * Only the height is worth insisting on: it is what keeps the row from being
+	 * squeezed under its own contents. Asking for the width as well made the
+	 * window unable to be narrower than the whole trail, so every step taken
+	 * widened it -- which is the one thing a scroll area is there to avoid.
+	 */
+	QSize minimumSizeHint() const override { return QSize(0, sizeHint().height()); }
+};
+
+} // namespace
 
 PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget* parent)
     : QWidget(parent), _root(root)
 {
-	_row_pixels = row_height();
-
 	auto* layout = new QHBoxLayout(this);
 	layout->setContentsMargins(2, 0, 2, 0);
 	layout->setSpacing(0);
 
-	/* The style's own arrows rather than the icon set: it carries no
-	 * rotate-right, and back and forward is what walking a trail means anyway.
+	/* From the icon set like the crumbs, and not from the style: two buttons
+	 * carrying icons of different kinds do not measure the same, and the row
+	 * would then change height the moment a first crumb joined the arrows.
+	 * Arrows with a shaft rather than the solid triangles the set uses for
+	 * spin boxes and scroll bars, and rather than rotate-left and rotate-right,
+	 * of which it has only the first -- back and forward is what walking a
+	 * trail means anyway.
 	 */
-	_undo_button = make_button(style()->standardIcon(QStyle::SP_ArrowLeft));
+	_undo_button = make_button(PVModdedIcon("arrow-left-long"));
 	connect(_undo_button, &QToolButton::clicked, this, &PVAnalysisBreadcrumb::undo);
 	layout->addWidget(_undo_button);
 
-	_redo_button = make_button(style()->standardIcon(QStyle::SP_ArrowRight));
+	_redo_button = make_button(PVModdedIcon("arrow-right-long"));
 	connect(_redo_button, &QToolButton::clicked, this, &PVAnalysisBreadcrumb::redo);
 	layout->addWidget(_redo_button);
 
@@ -83,17 +114,23 @@ PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget
 	_strip_layout->setContentsMargins(0, 0, 0, 0);
 	_strip_layout->setSpacing(0);
 
-	_scroll = new QScrollArea(this);
+	_scroll = new PVRowScrollArea(this);
 	_scroll->setWidget(_strip);
 	_scroll->setWidgetResizable(true);
 	_scroll->setFrameShape(QFrame::NoFrame);
+
+	/* NoFrame is not enough: the stylesheet frames scroll areas, and it is the
+	 * stylesheet that frameWidth() reports. Those three pixels a side are six
+	 * pixels of height the row gains the moment the strip holds anything, which
+	 * is what made it grow after the first step -- and, drawn, they are what
+	 * clipped the icons. This one is a layout device, not a view to be framed.
+	 */
+	_scroll->setStyleSheet("QScrollArea { border: none; padding: 0; }");
 	_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	_scroll->setFixedHeight(_row_pixels);
 	layout->addWidget(_scroll, 1);
 
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
-	setFixedHeight(_row_pixels);
 
 	_history_changed =
 	    _root.history()._changed.connect(sigc::mem_fun(*this, &PVAnalysisBreadcrumb::rebuild));
@@ -112,7 +149,6 @@ QToolButton* PVGuiQt::PVAnalysisBreadcrumb::make_button(const QIcon& icon)
 
 	button->setIcon(icon);
 	button->setIconSize(QSize(icon_pixels, icon_pixels));
-	button->setFixedSize(_row_pixels, _row_pixels);
 	button->setAutoRaise(true);
 	button->setFocusPolicy(Qt::NoFocus);
 
@@ -161,6 +197,17 @@ void PVGuiQt::PVAnalysisBreadcrumb::rebuild()
 	}
 	_strip_layout->addStretch(1);
 
+	/* A stylesheet reaches a button when the button is polished, and a button
+	 * is polished after it has been created -- possibly after somebody asked it
+	 * how big it wanted to be. Ask for the polish here and then say the sizes
+	 * moved, or the row is laid out from what the buttons measured before the
+	 * style reached them, and only settles on the rebuild after.
+	 */
+	_strip->ensurePolished();
+	_strip->updateGeometry();
+	_scroll->updateGeometry();
+	updateGeometry();
+
 	/* Landing anywhere may have left the current step off the visible part of
 	 * the strip.
 	 */
@@ -181,17 +228,22 @@ QWidget* PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current,
 	 * the text colour.
 	 */
 	if (index > 0) {
-		auto* chevron = new PVModdedIconLabel("branch-closed", QSize(icon_pixels, icon_pixels));
+		auto* chevron = new PVModdedIconLabel("branch-closed", QSize(chevron_pixels, chevron_pixels));
 		chevron->setParent(_strip);
 		chevron->setEnabled(false);
 		chevron->setAlignment(Qt::AlignCenter);
+		/* Sized both ways, not just across: a label is free to ask for the
+		 * height a stylesheet gives labels, and one asking for more than the
+		 * buttons around it is what made the row grow the moment a first
+		 * chevron joined the arrows.
+		 */
+		chevron->setFixedSize(chevron_pixels, chevron_pixels);
 		_strip_layout->addWidget(chevron);
 	}
 
 	auto* crumb = new QToolButton(_strip);
 	crumb->setIcon(PVModdedIcon(QString::fromStdString(step.icon())));
 	crumb->setIconSize(QSize(icon_pixels, icon_pixels));
-	crumb->setFixedSize(_row_pixels, _row_pixels);
 	crumb->setAutoRaise(true);
 	crumb->setFocusPolicy(Qt::NoFocus);
 	crumb->setToolTip(tr("%1\n%2 event(s) selected")

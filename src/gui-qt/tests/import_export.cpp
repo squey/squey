@@ -36,6 +36,7 @@
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 #include <QToolButton>
+#include <pvkernel/core/PVTheme.h>
 #include <PVMainWindow.h>
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
@@ -134,6 +135,17 @@ ImportExportTest::ImportExportTest()
 
     Squey::common::load_filters();
     PVGuiQt::common::register_displays();
+
+    // The application stylesheet, because widgets measure differently under it
+    // than under the plain style, and it is those measurements the breadcrumb
+    // row is laid out from. Without this, a row that only comes out right under
+    // one of the two looks right here and wrong in the application.
+    //
+    // Asked for by name rather than through init(), which reads the settings
+    // and, when they say "system", probes the desktop over D-Bus -- a question
+    // with no reliable answer here, and one that crashed this test about once
+    // in three when it was asked.
+    PVCore::PVTheme::set_color_scheme(true);
 }
 
 void ImportExportTest::import_file()
@@ -265,6 +277,11 @@ void ImportExportTest::undo_redo()
     const size_t all_rows = view->get_real_output_selection().bit_count();
     QVERIFY(all_rows > 0);
 
+    main_window.resize(1100, 700);
+    QTest::qWait(200);
+    const int empty_row = breadcrumb->height();
+    QVERIFY(empty_row > 0);
+
     main_window.selection_none_Slot();
 
     // The step the action opened, plus the state it started from.
@@ -283,8 +300,13 @@ void ImportExportTest::undo_redo()
     }
     QVERIFY2(crumbs.contains("Empty selection"), qPrintable(crumbs.join(", ")));
 
-    // The strip is meant to cost as little height as the toolbar row above it.
+    // The strip is meant to cost as little height as the toolbar row above it,
+    // and to cost the same before and after: a row that settles only once a
+    // crumb has joined it jumps under the user on their first step. Waited for,
+    // because a height read before the layout has run is the height from before.
+    QTest::qWait(200);
     QVERIFY2(breadcrumb->height() <= 24, qPrintable(QString::number(breadcrumb->height())));
+    QCOMPARE(breadcrumb->height(), empty_row);
 
     main_window.undo_Slot();
     QCOMPARE(history.position(), size_t(0));
