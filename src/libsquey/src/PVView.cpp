@@ -106,17 +106,18 @@ Squey::PVView::PVView(PVScaled& scaled)
 
 	// This function remove all the layers and add the default one with all events
 	// selected
-	layer_stack.delete_all_layers();
-	layer_stack.append_new_layer(row_count, "All events");
-	layer_stack.get_layer_n(0).set_lock();
-	layer_stack.get_layer_n(0).get_selection() =
+	PVLayerStack& ls = layer_stack.write();
+	ls.delete_all_layers();
+	ls.append_new_layer(row_count, "All events");
+	ls.get_layer_n(0).set_lock();
+	ls.get_layer_n(0).get_selection() =
 	    (const Squey::PVSelection&)get_parent<PVSource>().get_rushnraw().valid_rows_sel();
-	layer_stack.get_layer_n(0).compute_selectable_count();
+	ls.get_layer_n(0).compute_selectable_count();
 
 	_layer_stack_refreshed.emit();
 
 	// does not call ::select_all() to avoid calling uselessly ::process_post_filter_layer()
-	_view_selection.select_all();
+	_view_selection.write().select_all();
 	process_layer_stack();
 }
 
@@ -145,7 +146,7 @@ void Squey::PVView::add_new_layer(QString name)
 {
 	_layer_stack_about_to_refresh.emit();
 	size_t row_count = get_row_count();
-	Squey::PVLayer* layer = layer_stack.append_new_layer(row_count, name);
+	Squey::PVLayer* layer = layer_stack.write().append_new_layer(row_count, name);
 	layer->compute_selectable_count();
 
 	_layer_stack_refreshed.emit();
@@ -155,7 +156,7 @@ void Squey::PVView::add_new_layer(QString name)
 void Squey::PVView::delete_selected_layer()
 {
 	_layer_stack_about_to_refresh.emit();
-	layer_stack.delete_selected_layer();
+	layer_stack.write().delete_selected_layer();
 
 	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
@@ -164,7 +165,7 @@ void Squey::PVView::delete_selected_layer()
 void Squey::PVView::delete_layer_n(int idx)
 {
 	_layer_stack_about_to_refresh.emit();
-	layer_stack.delete_by_index(idx);
+	layer_stack.write().delete_by_index(idx);
 
 	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
@@ -173,7 +174,7 @@ void Squey::PVView::delete_layer_n(int idx)
 void Squey::PVView::duplicate_selected_layer(const QString& name)
 {
 	_layer_stack_about_to_refresh.emit();
-	PVLayer* new_layer = layer_stack.duplicate_selected_layer(name);
+	PVLayer* new_layer = layer_stack.write().duplicate_selected_layer(name);
 	compute_layer_min_max(*new_layer);
 	new_layer->compute_selectable_count();
 
@@ -220,7 +221,7 @@ void Squey::PVView::commit_selection_to_new_layer(const QString& layer_name, boo
  *****************************************************************************/
 QStringList Squey::PVView::get_axes_names_list() const
 {
-	return _axes_combination.get_combined_names();
+	return _axes_combination.read().get_combined_names();
 }
 
 QStringList Squey::PVView::get_zones_names_list() const
@@ -257,7 +258,7 @@ QStringList Squey::PVView::get_zones_names_list() const
 
 QString Squey::PVView::get_nraw_axis_name(PVCol axis_id) const
 {
-	return axis_id == PVCol() ? "" : _axes_combination.get_axis(axis_id).get_name();
+	return axis_id == PVCol() ? "" : _axes_combination.read().get_axis(axis_id).get_name();
 }
 
 // FIXME: This function should be removed
@@ -288,7 +289,7 @@ PVCombCol Squey::PVView::get_column_count() const
  *****************************************************************************/
 std::string Squey::PVView::get_data(PVRow row, PVCombCol column) const
 {
-	PVCol real_index = _axes_combination.get_nraw_axis(column);
+	PVCol real_index = _axes_combination.read().get_nraw_axis(column);
 
 	return get_rushnraw_parent().at_string(row, real_index);
 }
@@ -300,17 +301,17 @@ std::string Squey::PVView::get_data(PVRow row, PVCombCol column) const
  *****************************************************************************/
 PVCol Squey::PVView::get_nraw_axis_index(PVCombCol col) const
 {
-	return _axes_combination.get_nraw_axis(col);
+	return _axes_combination.read().get_nraw_axis(col);
 }
 
 /******************************************************************************
  *
- * Squey::PVView::get_layer_stack
+ * Squey::PVView::edit_layer_stack
  *
  *****************************************************************************/
-Squey::PVLayerStack& Squey::PVView::get_layer_stack()
+Squey::PVLayerStack& Squey::PVView::edit_layer_stack()
 {
-	return layer_stack;
+	return layer_stack.write();
 }
 
 /******************************************************************************
@@ -320,7 +321,7 @@ Squey::PVLayerStack& Squey::PVView::get_layer_stack()
  *****************************************************************************/
 QString Squey::PVView::get_layer_stack_layer_n_name(int n) const
 {
-	PVLayer const& layer = layer_stack.get_layer_n(n);
+	PVLayer const& layer = layer_stack.read().get_layer_n(n);
 	return layer.get_name();
 }
 
@@ -331,7 +332,7 @@ QString Squey::PVView::get_layer_stack_layer_n_name(int n) const
  *****************************************************************************/
 int Squey::PVView::get_layer_stack_layer_n_visible_state(int n) const
 {
-	PVLayer const& layer = layer_stack.get_layer_n(n);
+	PVLayer const& layer = layer_stack.read().get_layer_n(n);
 	return layer.get_visible();
 }
 
@@ -422,7 +423,7 @@ void Squey::PVView::process_correlation()
  *****************************************************************************/
 void Squey::PVView::process_layer_stack(bool emit_signal)
 {
-	layer_stack.process(layer_stack_output_layer, get_row_count());
+	layer_stack.read().process(layer_stack_output_layer, get_row_count());
 
 	if (emit_signal) {
 		_update_layer_stack_output_layer.emit();
@@ -440,7 +441,7 @@ void Squey::PVView::process_post_filter_layer(bool emit_signal)
 {
 	/* Updating the post_filter_layer selection */
 	post_filter_layer.get_selection().inplace_and(layer_stack_output_layer.get_selection(),
-	                                              _view_selection);
+	                                              _view_selection.read());
 
 	/* We simply copy the lines_properties */
 	post_filter_layer.get_lines_properties() = layer_stack_output_layer.get_lines_properties();
@@ -513,7 +514,7 @@ void Squey::PVView::process_output_layer(bool emit_signal)
 void Squey::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 {
 	/* VARIABLES */
-	PVLayer& active_layer = layer_stack.get_selected_layer();
+	PVLayer& active_layer = layer_stack.write().get_selected_layer();
 
 	active_layer.get_lines_properties().selection_set_color(get_real_output_selection(), c);
 	process_layer_stack();
@@ -527,7 +528,7 @@ void Squey::PVView::set_color_on_active_layer(const PVCore::PVHSVColor c)
 void Squey::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 {
 	_layer_stack_about_to_refresh.emit();
-	PVLayer& layer = layer_stack.get_layer_n(n);
+	PVLayer& layer = layer_stack.write().get_layer_n(n);
 	layer.set_name(name);
 	_layer_stack_refreshed.emit();
 }
@@ -540,7 +541,7 @@ void Squey::PVView::set_layer_stack_layer_n_name(int n, QString const& name)
 void Squey::PVView::set_layer_stack_selected_layer_index(int index)
 {
 	_layer_stack_about_to_refresh.emit();
-	layer_stack.set_selected_layer_index(index);
+	layer_stack.write().set_selected_layer_index(index);
 
 	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
@@ -563,7 +564,7 @@ void Squey::PVView::set_selection_from_layer(PVLayer const& layer)
  *****************************************************************************/
 void Squey::PVView::set_selection_view(PVSelection const& sel, bool update_ls, bool emit_signal)
 {
-	_view_selection = sel;
+	_view_selection.assign(sel);
 
 	if (emit_signal) {
 		_selection_view_changed.emit();
@@ -584,7 +585,7 @@ void Squey::PVView::set_selection_view(PVSelection const& sel, bool update_ls, b
 void Squey::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 {
 	_layer_stack_about_to_refresh.emit();
-	PVLayer& layer = layer_stack.get_layer_n(n);
+	PVLayer& layer = layer_stack.write().get_layer_n(n);
 
 	if (layer.get_visible()) {
 		layer.set_visible(false);
@@ -595,13 +596,73 @@ void Squey::PVView::toggle_layer_stack_layer_n_visible_state(int n)
 }
 
 /******************************************************************************
+ * Squey::PVView::capture_state
+ *****************************************************************************/
+
+Squey::PVViewState Squey::PVView::capture_state() const
+{
+	PVViewState state;
+
+	state._selection = _view_selection.snapshot();
+	state._layer_stack = layer_stack.snapshot();
+	state._axes_combination = _axes_combination.snapshot();
+
+	return state;
+}
+
+/******************************************************************************
+ * Squey::PVView::restore_state
+ *****************************************************************************/
+
+void Squey::PVView::restore_state(PVViewState const& state)
+{
+	assert(state.is_valid());
+
+	const PVViewState current = capture_state();
+	if (state == current) {
+		return;
+	}
+
+	const bool axes_changed = not state.same_axes_combination_as(current);
+	const bool layers_changed = not state.same_layer_stack_as(current);
+	const bool selection_changed = not state.same_selection_as(current);
+
+	if (axes_changed) {
+		_axis_combination_about_to_update.emit();
+	}
+	if (layers_changed) {
+		_layer_stack_about_to_refresh.emit();
+	}
+
+	_view_selection.restore(state._selection);
+	layer_stack.restore(state._layer_stack);
+	_axes_combination.restore(state._axes_combination);
+
+	if (layers_changed) {
+		_layer_stack_refreshed.emit();
+		_update_current_min_max.emit();
+	}
+	if (axes_changed) {
+		_axis_combination_updated.emit(true);
+	}
+	if (selection_changed) {
+		_selection_view_changed.emit();
+	}
+
+	/* The output layers are derived from the three values just put back, so
+	 * they have to be computed again rather than remembered.
+	 */
+	process_layer_stack();
+}
+
+/******************************************************************************
  * Squey::PVView::move_selected_layer_to
  *****************************************************************************/
 
 void Squey::PVView::move_selected_layer_to(int new_index)
 {
 	_layer_stack_about_to_refresh.emit();
-	get_layer_stack().move_selected_layer_to(new_index);
+	edit_layer_stack().move_selected_layer_to(new_index);
 
 	_layer_stack_refreshed.emit();
 	_update_current_min_max.emit();
@@ -609,21 +670,21 @@ void Squey::PVView::move_selected_layer_to(int new_index)
 
 void Squey::PVView::select_all()
 {
-	_view_selection.select_all();
+	_view_selection.write().select_all();
 	_selection_view_changed.emit();
 	process_post_filter_layer();
 }
 
 void Squey::PVView::select_none()
 {
-	_view_selection.select_none();
+	_view_selection.write().select_none();
 	_selection_view_changed.emit();
 	process_post_filter_layer();
 }
 
 void Squey::PVView::select_inverse()
 {
-	_view_selection.select_inverse();
+	_view_selection.write().select_inverse();
 	_selection_view_changed.emit();
 	process_post_filter_layer();
 }
@@ -698,27 +759,27 @@ void Squey::PVView::compute_selectable_count(Squey::PVLayer& layer)
 
 void Squey::PVView::recompute_all_selectable_count()
 {
-	layer_stack.compute_selectable_count();
+	layer_stack.write().compute_selectable_count();
 }
 
 void Squey::PVView::set_axes_combination(std::vector<PVCol> const& comb)
 {
 	_axis_combination_about_to_update.emit();
 
-	_axes_combination.set_combination(comb);
+	_axes_combination.write().set_combination(comb);
 
 	_axis_combination_updated.emit(true);
 }
 
 PVRow Squey::PVView::get_scaled_col_min_row(PVCombCol const combined_col) const
 {
-	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
+	PVCol const col = _axes_combination.read().get_nraw_axis(combined_col);
 	return get_parent<PVScaled>().get_col_min_row(col);
 }
 
 PVRow Squey::PVView::get_scaled_col_max_row(PVCombCol const combined_col) const
 {
-	PVCol const col = _axes_combination.get_nraw_axis(combined_col);
+	PVCol const col = _axes_combination.read().get_nraw_axis(combined_col);
 	return get_parent<PVScaled>().get_col_max_row(col);
 }
 
@@ -770,7 +831,7 @@ void Squey::PVView::declare_inserted_axis(const pvcop::db::type_t& column_type,
 	axis_format.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
 	axis_format.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
 	format.insert_axis(axis_format, PVCombCol(0), true); // FIXME
-	_axes_combination.axis_append(col);
+	_axes_combination.write().axis_append(col);
 
 	// compute mapping and scaling
 	auto& mapped = get_parent<PVMapped>();
@@ -783,7 +844,7 @@ void Squey::PVView::declare_inserted_axis(const pvcop::db::type_t& column_type,
 void Squey::PVView::delete_axis(PVCombCol comb_col)
 {
 	// Remove axis (or axes) from axes combination
-	PVCol col = _axes_combination.get_nraw_axis(comb_col);
+	PVCol col = _axes_combination.read().get_nraw_axis(comb_col);
 
 	// Notify axes combination update on Qt GUI thread
     QMetaObject::invokeMethod(qApp, [&,col](){
@@ -791,7 +852,7 @@ void Squey::PVView::delete_axis(PVCombCol comb_col)
 		auto& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
 		auto& original_format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_original_format()); // FIXME
 		_axis_combination_about_to_update.emit();
-		_axes_combination.delete_axes(col);
+		_axes_combination.write().delete_axes(col);
 		format.delete_axis(col);
 		if (format.has_multi_inputs() and col != 0) {
 			original_format.delete_axis(col-PVCol(1));
@@ -814,11 +875,11 @@ void Squey::PVView::serialize_write(PVCore::PVSerializeObject& so) const
 	so.set_current_status("Saving view...");
 	so.set_current_status("Saving layer stack...");
 	auto ls_obj = so.create_object("layer-stack");
-	layer_stack.serialize_write(*ls_obj);
+	layer_stack.read().serialize_write(*ls_obj);
 
 	so.set_current_status("Saving axes combination...");
 	auto ax_comb_obj = so.create_object("axes-combination");
-	_axes_combination.serialize_write(*ax_comb_obj);
+	_axes_combination.read().serialize_write(*ax_comb_obj);
 }
 
 Squey::PVView& Squey::PVView::serialize_read(PVCore::PVSerializeObject& so,
@@ -830,14 +891,14 @@ Squey::PVView& Squey::PVView::serialize_read(PVCore::PVSerializeObject& so,
 
 	so.set_current_status("Loading axes combination...");
 	auto ax_comb_obj = so.create_object("axes-combination");
-	view._axes_combination.set_combination(
+	view._axes_combination.write().set_combination(
 	    Squey::PVAxesCombination::serialize_read(
 	        *ax_comb_obj, parent.get_parent<Squey::PVSource>().get_format())
 	        .get_combination());
 
 	so.set_current_status("Loading layer stack...");
 	auto ls_obj = so.create_object("layer-stack");
-	view.layer_stack = Squey::PVLayerStack::serialize_read(*ls_obj);
+	view.layer_stack.assign(Squey::PVLayerStack::serialize_read(*ls_obj));
 
 	so.set_current_status("Processing layer stack...");
 

@@ -72,7 +72,7 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 
   public:
 	Squey::PVLayerStack const& lib_layer_stack() const { return _lib_view.get_layer_stack(); }
-	Squey::PVLayerStack& lib_layer_stack() { return _lib_view.get_layer_stack(); }
+	Squey::PVLayerStack& edit_lib_layer_stack() { return _lib_view.edit_layer_stack(); }
 	Squey::PVView const& lib_view() const { return _lib_view; }
 	Squey::PVView& lib_view() { return _lib_view; }
 

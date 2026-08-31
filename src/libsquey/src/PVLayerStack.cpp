@@ -250,13 +250,13 @@ void Squey::PVLayerStack::move_selected_layer_up()
  * Squey::PVLayerStack::process
  *
  **********************************************************************/
-void Squey::PVLayerStack::process(PVLayer& output_layer, PVRow row_count)
+void Squey::PVLayerStack::process(PVLayer& output_layer, PVRow row_count) const
 {
 	/******************************
 	* Preparation
 	******************************/
 	/* We prepare a pointer to the layer of the LS being processed */
-	PVLayer* layer_being_processed;
+	PVLayer const* layer_being_processed;
 	/* We prepare a temporary selection, needed in our computations */
 	PVSelection temp_selection(row_count);
 	/* We store locally the layer-stack->layer_count and prepare a counter */
@@ -355,7 +355,7 @@ Squey::PVLayerStack Squey::PVLayerStack::serialize_read(PVCore::PVSerializeObjec
 	return ls;
 }
 
-void Squey::PVLayerStack::copy_details_to_clipboard()
+void Squey::PVLayerStack::copy_details_to_clipboard() const
 {
 	QString s;
 

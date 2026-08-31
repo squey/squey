@@ -75,7 +75,11 @@ class PVLayerStack
 
 	void set_selected_layer_index(int index) { _selected_layer_index = index; }
 	//
-	void process(PVLayer& output_layer, PVRow row_count);
+	/* Reads the layers and writes the result into output_layer, which is why
+	 * this is const: a stack being processed is not a stack being changed, and
+	 * saying so is what lets a snapshot of it stay shared.
+	 */
+	void process(PVLayer& output_layer, PVRow row_count) const;
 	//
 	PVLayer* append_layer(const PVLayer& layer);
 	PVLayer* append_new_layer(PVRow row_count, QString const& name = QString());
@@ -100,7 +104,7 @@ class PVLayerStack
 	void hide_layers();
 
   public:
-	void copy_details_to_clipboard();
+	void copy_details_to_clipboard() const;
 
   public:
 	void serialize_write(PVCore::PVSerializeObject& so) const;

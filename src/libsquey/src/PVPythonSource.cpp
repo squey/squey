@@ -251,7 +251,7 @@ Squey::PVPythonSelection Squey::PVPythonSource::layers()
 Squey::PVPythonSelection Squey::PVPythonSource::layer(int layer_index)
 {
     Squey::PVView* view = &active_view();
-    Squey::PVLayerStack& layerstack = view->get_layer_stack();
+    Squey::PVLayerStack& layerstack = view->edit_layer_stack();
     if (layer_index < 0 || layer_index >= layerstack.get_layer_count()) {
         throw std::out_of_range("Out of range layer index");
     }
@@ -261,7 +261,7 @@ Squey::PVPythonSelection Squey::PVPythonSource::layer(int layer_index)
 Squey::PVPythonSelection Squey::PVPythonSource::layer(const std::string& layer_name, size_t position  /* = 0 */)
 {
     Squey::PVView* view = _source.current_view();
-    Squey::PVLayerStack& layerstack = view->get_layer_stack();
+    Squey::PVLayerStack& layerstack = view->edit_layer_stack();
     {
         std::vector<size_t> matching_layers_indexes;
         for (size_t i = 0; i < (size_t)layerstack.get_layer_count(); i++) {
@@ -416,7 +416,7 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
  void Squey::PVPythonSource::insert_layer(const std::string& layer_name, const pybind11::array& sel_array)
  {
     Squey::PVView* view = &active_view();
-    Squey::PVLayer* layer = view->get_layer_stack().append_new_layer(row_count(), layer_name.c_str());
+    Squey::PVLayer* layer = view->edit_layer_stack().append_new_layer(row_count(), layer_name.c_str());
     if (sel_array.size() != 0) {
         if (not pybind11::dtype("bool").is(sel_array.dtype())) {
             throw std::invalid_argument(std::string("invalid dtype, should be bool"));

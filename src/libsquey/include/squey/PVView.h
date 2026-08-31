@@ -30,7 +30,9 @@
 #include <squey/PVLayerStack.h>
 #include <squey/PVLinesProperties.h>
 #include <squey/PVStateMachine.h>
+#include <squey/PVViewState.h>
 
+#include <pvkernel/core/PVCowValue.h>
 #include <pvkernel/core/PVHSVColor.h>
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVDataTreeObject.h>
@@ -116,8 +118,8 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	 * @return The name of that axis
 	 *
 	 */
-	QString get_axis_name(PVCombCol index) const { return index == PVCombCol() ? "" : _axes_combination.get_axis(index).get_name(); }
-	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const { return _axes_combination.get_axis(comb_index);} ;
+	QString get_axis_name(PVCombCol index) const { return index == PVCombCol() ? "" : _axes_combination.read().get_axis(index).get_name(); }
+	PVRush::PVAxisFormat const& get_axis(PVCombCol const comb_index) const { return _axes_combination.read().get_axis(comb_index);} ;
 	bool is_last_axis(PVCombCol const axis_comb) const
 	{
 		return axis_comb == get_column_count() - 1;
@@ -125,8 +127,18 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 
 	const PVCore::PVHSVColor get_color_in_output_layer(PVRow index) const;
 	PVCombCol get_column_count() const;
-	PVLayerStack& get_layer_stack();
-	inline PVLayerStack const& get_layer_stack() const { return layer_stack; };
+	/**
+	 * The layer stack, for reading.
+	 */
+	inline PVLayerStack const& get_layer_stack() const { return layer_stack.read(); };
+
+	/**
+	 * The layer stack, to change it. Detaches it from every state that captured
+	 * it, so reaching for this without writing costs a copy of the whole stack:
+	 * that is why reading goes through the accessor above rather than through a
+	 * non-const overload of it.
+	 */
+	PVLayerStack& edit_layer_stack();
 
 	QString get_layer_stack_layer_n_name(int n) const;
 	int get_layer_stack_layer_n_visible_state(int n) const;
@@ -135,18 +147,18 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	void hide_layers()
 	{
 		_layer_stack_about_to_refresh.emit();
-		layer_stack.hide_layers();
+		layer_stack.write().hide_layers();
 		_layer_stack_refreshed.emit();
 	}
 
-	PVAxesCombination const& get_axes_combination() const { return _axes_combination; }
+	PVAxesCombination const& get_axes_combination() const { return _axes_combination.read(); }
 	void set_axes_combination(std::vector<PVCol> const& comb);
 
-	inline PVLayer const& get_current_layer() const { return layer_stack.get_selected_layer(); }
-	inline PVLayer& get_current_layer() { return layer_stack.get_selected_layer(); }
+	inline PVLayer const& get_current_layer() const { return layer_stack.read().get_selected_layer(); }
+	inline PVLayer& get_current_layer() { return layer_stack.write().get_selected_layer(); }
 
-	inline void move_selected_layer_up() { layer_stack.move_selected_layer_up(); }
-	inline void move_selected_layer_down() { layer_stack.move_selected_layer_down(); }
+	inline void move_selected_layer_up() { layer_stack.write().move_selected_layer_up(); }
+	inline void move_selected_layer_down() { layer_stack.write().move_selected_layer_down(); }
 
 	inline PVCore::PVHSVColor const* get_output_layer_color_buffer() const
 	{
@@ -210,6 +222,19 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 
 	void toggle_layer_stack_layer_n_visible_state(int n);
 	void move_selected_layer_to(int new_index);
+
+	/**
+	 * Captures what an undo step has to remember of this view, in constant time
+	 * and without copying anything.
+	 */
+	PVViewState capture_state() const;
+
+	/**
+	 * Puts back a captured state, recomputes what derives from it, and notifies
+	 * only the changes the state actually carries: landing on a step that moved
+	 * the selection alone must not make the views rebuild their zones.
+	 */
+	void restore_state(PVViewState const& state);
 
 	void select_all();
 	void select_none();
@@ -352,19 +377,22 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	sigc::signal<void()> _about_to_be_delete;
 
   protected:
-	PVSelection _view_selection; //!< pre layer-stack masking selection
+	/* The three values an undo step is made of. They are held so that a step
+	 * can capture them without copying them; see PVCore::PVCowValue.
+	 */
+	PVCore::PVCowValue<PVSelection> _view_selection; //!< pre layer-stack masking selection
 	PVLayer
 	    post_filter_layer; //!< Contains selection and color lines for in progress view computation.
 	PVLayer layer_stack_output_layer; //!< Layer grouping every information from the layer stack
 	PVLayer output_layer;             //!< This is the shown layer.
-	PVLayerStack layer_stack;
+	PVCore::PVCowValue<PVLayerStack> layer_stack;
 	PVStateMachine _state_machine;
 
 	/*! \brief PVView's specific axes combination
 	 *  It is originaly copied from the parent's PVSource, and then become specific
 	 *  to that view.
 	 */
-	PVAxesCombination _axes_combination;
+	PVCore::PVCowValue<PVAxesCombination> _axes_combination;
 
 	QString _last_filter_name;
 	map_filter_arguments filters_args;

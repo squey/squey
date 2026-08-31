@@ -299,7 +299,7 @@ void App::PVMainWindow::closeEvent(QCloseEvent* event)
  *****************************************************************************/
 void App::PVMainWindow::commit_selection_to_new_layer(Squey::PVView* view)
 {
-	bool& should_hide_layers = view->get_layer_stack().should_hide_layers();
+	bool& should_hide_layers = view->edit_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
 	    view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
 
@@ -319,7 +319,7 @@ void App::PVMainWindow::move_selection_to_new_layer(Squey::PVView* squey_view)
 {
 	Squey::PVLayer& current_layer = squey_view->get_current_layer();
 
-	bool& should_hide_layers = squey_view->get_layer_stack().should_hide_layers();
+	bool& should_hide_layers = squey_view->edit_layer_stack().should_hide_layers();
 	QString name = PVWidgets::PVNewLayerDialog::get_new_layer_name_from_dialog(
 	    squey_view->get_layer_stack().get_new_layer_name(), should_hide_layers, this);
 

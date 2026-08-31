@@ -207,7 +207,7 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 	case Qt::Key_F2:
 		int model_index = ls_model()->lib_layer_stack().get_selected_layer_index();
-		Squey::PVLayer& layer = ls_model()->lib_layer_stack().get_layer_n(model_index);
+		Squey::PVLayer& layer = ls_model()->edit_lib_layer_stack().get_layer_n(model_index);
 		QString current_name = layer.get_name();
 		QString name = QInputDialog::getText(this, "Rename current layer", "New layer name:",
 		                                     QLineEdit::Normal, current_name);
