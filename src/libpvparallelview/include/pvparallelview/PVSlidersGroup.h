@@ -92,6 +92,22 @@ class PVSlidersGroup : public QObject, public QGraphicsItemGroup, public sigc::t
 
 	selection_ranges_t get_selection_ranges() const;
 
+	/**
+	 * Carry every selection sliders pair through a rescaling of the axis.
+	 *
+	 * A pair holds a band of the axis, and the axis under it has just been scaled
+	 * over other bounds: the band the pair stood on has moved and stretched, and
+	 * the pair follows it, so that it keeps framing the same values. The band is
+	 * given by where the selected rows reached before and where they reach now.
+	 *
+	 * The selection is left alone, see
+	 * PVAbstractRangeAxisSliders::set_range_quietly.
+	 *
+	 * @param before the band the selected rows occupied, in slider values
+	 * @param after the band they occupy now
+	 */
+	void rescale_selection_sliders(range_t before, range_t after);
+
   Q_SIGNALS:
 	void selection_sliders_moved(PVCombCol col);
 

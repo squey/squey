@@ -63,6 +63,7 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
   public:
 	void update_position();
 
+
   protected:
 	void commit(bool use_selection_modifiers) override;
 

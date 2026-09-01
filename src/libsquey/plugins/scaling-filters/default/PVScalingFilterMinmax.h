@@ -36,6 +36,7 @@ class PVScalingFilterMinmax : public PVScalingFilter
 	void operator()(pvcop::db::array const& mapped,
 	                pvcop::db::array const& minmax,
 	                const pvcop::db::selection& invalid_selection,
+	                const pvcop::db::selection& domain_selection,
 	                pvcop::core::array<value_type>& dest) override;
 	QString get_human_name() const override { return QString("Min/max"); }
 

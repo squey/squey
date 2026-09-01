@@ -44,7 +44,9 @@
 #include <pvparallelview/PVSlidersManager.h>
 
 #include <atomic>
+#include <optional>
 #include <unordered_set>
+#include <utility>
 
 namespace PVParallelView
 {
@@ -120,6 +122,32 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	void enable_density_on_axes(bool enable_density);
 
+	/**
+	 * Selection scaling: spread the selection over the whole axes.
+	 *
+	 * The setting lives on the Squey::PVScaled, so it reaches every view built on
+	 * the same scaling and is saved with the investigation. See
+	 * Squey::PVScaled::set_scale_on_selection.
+	 */
+	void set_scale_on_selection(bool enabled);
+	void set_auto_scale_on_selection(bool enabled);
+
+	/**
+	 * Rescale the axes over the rows currently selected.
+	 */
+	void rescale_on_selection();
+
+  private:
+	/**
+	 * The band the selected rows occupy on an axis, in slider values.
+	 *
+	 * Empty when nothing is selected. The bounds are scaled values as the sliders
+	 * hold them, which is also what a scene ordinate is derived from.
+	 */
+	std::optional<std::pair<int64_t, int64_t>> selection_band(PVCombCol col) const;
+
+  public:
+
   protected:
 	/**
 	 * recompute the selected event number and update the displayed statistics
@@ -128,6 +156,20 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
   private Q_SLOTS:
 	void update_new_selection();
+
+	/**
+	 * Rescale on the selection when the scaling was told to follow it.
+	 *
+	 * Held back until the selection stops changing. A rectangle being dragged
+	 * commits a selection every PVSelectionRectangle::delay_msec, and answering
+	 * each one means rescaling every column and rebuilding every zone tree behind
+	 * them, over and over, for selections nobody has looked at yet.
+	 *
+	 * Reached through a queued connection: rescaling emits the scaling's own
+	 * update, which the rendering context answers by rebuilding zones, and that
+	 * must not run inside the emission of the selection change that led here.
+	 */
+	void rescale_on_selection_if_automatic();
 	void toggle_unselected_zombie_visibility();
 	void axis_hover_entered(PVCombCol col, bool entered);
 
@@ -287,7 +329,10 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	PVSlidersManager* _sm_p;
 
-	QTimer* _timer_render;
+	// Read from update_all() and update_new_selection(), which the model can reach
+	// through queued calls: never left holding whatever was on the stack.
+	QTimer* _timer_render = nullptr;
+	QTimer* _timer_rescale = nullptr;
 
 	// Set once this scene is detached from its rendering context or model
 	// (teardown): pending render-finished callbacks must then be ignored.

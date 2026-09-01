@@ -132,6 +132,22 @@ class PVSlidersManager
 	                                     const int64_t y_max);
 
 	/**
+	 * Record where a selection sliders pair now sits, without announcing it.
+	 *
+	 * The announcement is what makes the sliders stand for a new selection, and
+	 * there are moves that must not: a pair reopened because the axis under it was
+	 * rescaled holds the very rows it already held. Only the remembered geometry
+	 * is updated, so a view opened later shows the pair where it really is.
+	 */
+	void set_selection_sliders_geometry(PVCombCol col,
+	                                    const id_t id,
+	                                    const int64_t y_min,
+	                                    const int64_t y_max)
+	{
+		update_range_sliders(_selection_geometries, col, id, y_min, y_max);
+	}
+
+	/**
 	 * Function to iterate on all range sliders
 	 *
 	 * @param functor the function called on each range sliders pair

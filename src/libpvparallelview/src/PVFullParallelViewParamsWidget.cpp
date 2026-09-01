@@ -28,13 +28,19 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
 
+#include <pvkernel/widgets/PVModdedIcon.h>
+
+#include <squey/PVScaled.h>
+
 #include <QVBoxLayout>
 #include <QToolBar>
 #include <QCheckBox>
+#include <QSignalBlocker>
 #include <QSignalMapper>
 #include <QMenu>
 #include <QLineEdit>
 #include <QLabel>
+#include <QToolButton>
 #include <QDebug>
 
 /*****************************************************************************
@@ -67,6 +73,46 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
 		dll_action->setVisible(pushed);
 		adjustSize();
 	});
+
+	// Selection scaling: the button turns it on for every axis, its menu rescales
+	// once on demand and follows the selection on its own. Both are held on the
+	// model, so an axis switched on its own through its header menu keeps its say.
+	_scale_on_selection_button = new QToolButton(this);
+	// A themed icon, so that it is legible under both colour schemes: a plain
+	// QIcon on a resource file carries one rendering and stays dark on dark.
+	_scale_on_selection_button->setIcon(PVModdedIcon("scaling"));
+	// The size the toolbar gives its actions: a widget added to a toolbar does not
+	// inherit it, and the button would otherwise carry an icon smaller than the
+	// one beside it.
+	_scale_on_selection_button->setIconSize(iconSize());
+	_scale_on_selection_button->setCheckable(true);
+	_scale_on_selection_button->setPopupMode(QToolButton::MenuButtonPopup);
+	_scale_on_selection_button->setToolTip(tr("Selection stretch"));
+
+	auto* scale_menu = new QMenu(_scale_on_selection_button);
+	scale_menu->setAttribute(Qt::WA_TranslucentBackground);
+	_rescale_now = scale_menu->addAction(tr("Stretch on current selection"));
+	_auto_rescale = scale_menu->addAction(tr("Stretch on each selection"));
+	_auto_rescale->setCheckable(true);
+	_scale_on_selection_button->setMenu(scale_menu);
+	addWidget(_scale_on_selection_button);
+
+	connect(_scale_on_selection_button, &QToolButton::toggled, [this](bool pushed) {
+		if (auto* s = scene()) {
+			s->set_scale_on_selection(pushed);
+		}
+	});
+	connect(_rescale_now, &QAction::triggered, [this]() {
+		if (auto* s = scene()) {
+			s->rescale_on_selection();
+		}
+	});
+	connect(_auto_rescale, &QAction::toggled, [this](bool pushed) {
+		if (auto* s = scene()) {
+			s->set_auto_scale_on_selection(pushed);
+		}
+	});
+
 	setVisible(true);
 }
 
@@ -74,7 +120,31 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
  * PVParallelView::PVFullParallelViewParamsWidget::update_widgets
  *****************************************************************************/
 
-void PVParallelView::PVFullParallelViewParamsWidget::update_widgets() {}
+void PVParallelView::PVFullParallelViewParamsWidget::update_widgets()
+{
+	auto* s = scene();
+	if (s == nullptr) {
+		return;
+	}
+
+	const Squey::PVScaled& scaled = s->lib_view().get_parent<Squey::PVScaled>();
+
+	// Set without going back through the handlers, which would ask the model to
+	// do again what it is already doing.
+	QSignalBlocker block_button(_scale_on_selection_button);
+	QSignalBlocker block_auto(_auto_rescale);
+	_scale_on_selection_button->setChecked(scaled.scale_on_selection());
+	_auto_rescale->setChecked(scaled.auto_scale_on_selection());
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelViewParamsWidget::scene
+ *****************************************************************************/
+
+PVParallelView::PVFullParallelScene* PVParallelView::PVFullParallelViewParamsWidget::scene() const
+{
+	return static_cast<PVParallelView::PVFullParallelScene*>(parent_fpv()->scene());
+}
 
 /*****************************************************************************
  * PVParallelView::PVFullParallelViewParamsWidget::set_selection_mode

@@ -28,6 +28,8 @@
 #include <pvparallelview/PVAbstractAxisSliders.h>
 #include <pvparallelview/PVAbstractAxisSlider.h>
 
+#include <algorithm>
+
 class QGraphicsItem;
 
 namespace PVParallelView
@@ -72,6 +74,21 @@ class PVAbstractRangeAxisSliders : public PVAbstractAxisSliders
 	{
 		if (_sl_min and _sl_max) {
 			refresh_value(_sl_min->get_value(), _sl_max->get_value());
+		}
+	}
+
+	/**
+	 * Move the pair without standing for a new selection.
+	 *
+	 * Going through the sliders manager would announce the move, which the pair
+	 * answers by emitting sliders_moved, and the view by recomputing its selection
+	 * from where the sliders now are. See
+	 * PVSlidersManager::set_selection_sliders_geometry.
+	 */
+	void set_range_quietly(int64_t y_min, int64_t y_max)
+	{
+		if (_sl_min and _sl_max) {
+			refresh_value(std::min(y_min, y_max), std::max(y_min, y_max));
 		}
 	}
 

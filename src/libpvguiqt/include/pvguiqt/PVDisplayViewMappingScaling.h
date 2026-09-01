@@ -28,6 +28,13 @@
 #include <pvkernel/core/PVRegistrableClass.h>
 #include <pvdisplays/PVDisplayIf.h>
 
+namespace Squey
+{
+class PVScaled;
+class PVScalingProperties;
+class PVView;
+} // namespace Squey
+
 namespace PVDisplays
 {
 
@@ -42,6 +49,13 @@ class PVDisplayViewMappingScaling : public PVDisplayViewIf
 	void add_to_axis_menu(QMenu& menu, PVCol axis, PVCombCol axis_comb,
 	                      Squey::PVView*, PVDisplaysContainer* container) override;
 
+  private:
+	static void add_selection_scaling_menu(QMenu& menu,
+	                                       Squey::PVScaled& scaled,
+	                                       Squey::PVScalingProperties& props,
+	                                       Squey::PVView& view);
+
+  public:
 	CLASS_REGISTRABLE(PVDisplayViewMappingScaling)
 };
 } // namespace PVDisplays

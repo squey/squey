@@ -196,6 +196,51 @@ PVParallelView::PVSlidersGroup::get_selection_ranges() const
 }
 
 /*****************************************************************************
+ * PVParallelView::PVSlidersGroup::grow_selection_sliders_to_axis
+ *****************************************************************************/
+
+void PVParallelView::PVSlidersGroup::rescale_selection_sliders(range_t before, range_t after)
+{
+	const double before_span = double(before.second) - double(before.first);
+	const double after_span = double(after.second) - double(after.first);
+
+	// Carried from the middle of the band it framed onto the middle of the band
+	// those rows occupy now, stretched by how much that band grew. Either band can
+	// be a single value rather than a stretch -- a selection of one row lands
+	// wherever its axis puts a lone value -- and the pair then keeps its height
+	// and simply moves onto the rows. See
+	// PVFullParallelViewSelectionRectangle::rescale_vertically.
+	const double factor = (before_span > 0. and after_span > 0.) ? after_span / before_span : 1.;
+
+	const double before_middle = (double(before.first) + double(before.second)) / 2.;
+	const double after_middle = (double(after.first) + double(after.second)) / 2.;
+
+	const auto carry = [&](int64_t value) {
+		const double moved = after_middle + (double(value) - before_middle) * factor;
+		return PVCore::clamp<int64_t>((int64_t)moved, PVAbstractAxisSlider::min_value,
+		                              PVAbstractAxisSlider::max_value);
+	};
+
+	const auto rescale = [&](auto& sliders_set) {
+		for (const auto& it : sliders_set) {
+			const range_t range = it.second->get_range();
+			const int64_t y_min = carry(range.first);
+			const int64_t y_max = carry(range.second);
+
+			if (y_min == range.first and y_max == range.second) {
+				continue;
+			}
+
+			it.second->set_range_quietly(y_min, y_max);
+			_sliders_manager_p->set_selection_sliders_geometry(_col, it.first, y_min, y_max);
+		}
+	};
+
+	rescale(_selection_sliders);
+	rescale(_zoomed_selection_sliders);
+}
+
+/*****************************************************************************
  * PVParallelView::PVSlidersGroup::add_zoom_sliders
  *****************************************************************************/
 

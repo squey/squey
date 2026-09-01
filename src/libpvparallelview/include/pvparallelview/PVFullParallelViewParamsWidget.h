@@ -36,6 +36,7 @@ namespace PVParallelView
 {
 
 class PVFullParallelView;
+class PVFullParallelScene;
 
 class PVFullParallelViewParamsWidget : public QToolBar
 {
@@ -45,6 +46,13 @@ class PVFullParallelViewParamsWidget : public QToolBar
 	explicit PVFullParallelViewParamsWidget(PVFullParallelView* parent);
 
   public:
+	/**
+	 * Read the toolbar's state back from the view it acts on.
+	 *
+	 * The toolbar is built with the graphics view, before the scene that carries
+	 * the model is attached, so the settings an investigation was saved with are
+	 * only reachable once the scene exists.
+	 */
 	void update_widgets();
 
   private Q_SLOTS:
@@ -53,12 +61,20 @@ class PVFullParallelViewParamsWidget : public QToolBar
   private:
 	PVFullParallelView* parent_fpv() const;
 
+	/**
+	 * The scene, or nullptr while it is not attached yet.
+	 */
+	PVFullParallelScene* scene() const;
+
   private:
 	QAction* _autofit;
 	QAction* _use_log_color;
 	QAction* _show_labels;
 	QSignalMapper* _signal_mapper;
 	QToolButton* _sel_mode_button;
+	QToolButton* _scale_on_selection_button;
+	QAction* _rescale_now;
+	QAction* _auto_rescale;
 };
 } // namespace PVParallelView
 

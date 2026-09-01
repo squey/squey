@@ -77,17 +77,25 @@ static void compute_log_scaling(pvcop::db::array const& mapped,
 		// is not enough to go by.
 		bool invalid = (invalid_selection and invalid_selection[i]) or
 		               Squey::is_not_a_number(Squey::extract_value(values[i]));
-		dest[i] = ~value_type(
-		    invalid ? 0 : ratio * (std::log2((std::max<double>(
-		                                         ymin, Squey::extract_value(values[i]) + offset)) /
-		                                     ymin)) +
-		                      valid_offset);
+		// Pinned to the ends of the axis: under selection scaling the bounds are
+		// the selection's own, and the rows above ymax would otherwise land past
+		// the end of the range. The lower end is already held by the max() below,
+		// which no longer stands for "at ymin" alone once ymin is a bound the
+		// column has values under.
+		dest[i] = ~(invalid ? value_type(0)
+		                    : Squey::PVScalingFilter::clamp_to_axis(
+		                          ratio * (std::log2((std::max<double>(
+		                                       ymin, Squey::extract_value(values[i]) + offset)) /
+		                                   ymin)) +
+		                              valid_offset,
+		                          valid_offset));
 	}
 }
 
 void Squey::PVScalingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
                                                    pvcop::db::array const& minmax,
                                                    const pvcop::db::selection& invalid_selection,
+                                                   const pvcop::db::selection& /*domain_selection*/,
                                                    pvcop::core::array<value_type>& dest)
 {
 	assert(dest);
