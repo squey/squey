@@ -88,7 +88,14 @@ class PVLayerStackModel : public QAbstractTableModel, public sigc::trackable
 	void layer_stack_refreshed();
 
   private:
+	void on_view_about_to_be_deleted();
+
+  private:
 	Squey::PVView& _lib_view;
+
+	//! Cleared when the view this model reads goes away, after which the model
+	//! holds no rows. See on_view_about_to_be_deleted.
+	bool _lib_view_alive = true;
 	QBrush select_brush;   //!<
 	QFont select_font;     //!<
 	QBrush unselect_brush; //!<

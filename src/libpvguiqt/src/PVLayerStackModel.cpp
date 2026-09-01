@@ -50,6 +50,34 @@ PVGuiQt::PVLayerStackModel::PVLayerStackModel(Squey::PVView& lib_view, QObject* 
 	    sigc::mem_fun(*this, &PVGuiQt::PVLayerStackModel::layer_stack_about_to_be_refreshed));
 	lib_view._layer_stack_refreshed.connect(
 	    sigc::mem_fun(*this, &PVGuiQt::PVLayerStackModel::layer_stack_refreshed));
+	lib_view._about_to_be_delete.connect(
+	    sigc::mem_fun(*this, &PVGuiQt::PVLayerStackModel::on_view_about_to_be_deleted));
+}
+
+/******************************************************************************
+ *
+ * PVGuiQt::PVLayerStackModel::on_view_about_to_be_deleted
+ *
+ *****************************************************************************/
+void PVGuiQt::PVLayerStackModel::on_view_about_to_be_deleted()
+{
+	// The Squey::PVView is released right after this emission, and this model
+	// keeps a reference to it: every row it serves reads the view's layer stack.
+	// The model outlives the view -- the table view it feeds does not own it and
+	// nothing else destroys it -- so a query arriving afterwards read a freed
+	// layer stack, whose count could still look positive while its storage was
+	// gone, and indexing it reached a layer at a null address.
+	//
+	// Answering with no rows at all is what stops that. The reset tells the table
+	// view to drop the rows it was showing, so it stops asking for them, rather
+	// than leaving it to paint from a model that refuses to answer.
+	//
+	// Still needed now that the model is owned by that table view: what it is
+	// owned by says when it is destroyed, not when the view it reads goes away,
+	// and the two orders are independent.
+	beginResetModel();
+	_lib_view_alive = false;
+	endResetModel();
 }
 
 /******************************************************************************
@@ -72,6 +100,10 @@ QVariant PVGuiQt::PVLayerStackModel::data(const QModelIndex& index, int role) co
 	// AG: the two following lines are kept for the sake of history...
 	/* We prepare a direct acces to the total number of layers */
 	// int layer_count = lib_layer_stack().get_layer_count();
+
+	if (not _lib_view_alive) {
+		return {};
+	}
 
 	// AG: this comment is also kept for history :)
 	/* We create and store the true index of the layer in the lib */
@@ -166,6 +198,10 @@ Qt::ItemFlags PVGuiQt::PVLayerStackModel::flags(const QModelIndex& index) const
  *****************************************************************************/
 int PVGuiQt::PVLayerStackModel::rowCount(const QModelIndex& /*index*/) const
 {
+	if (not _lib_view_alive) {
+		return 0;
+	}
+
 	return lib_layer_stack().get_layer_count();
 }
 
@@ -176,6 +212,10 @@ int PVGuiQt::PVLayerStackModel::rowCount(const QModelIndex& /*index*/) const
  *****************************************************************************/
 bool PVGuiQt::PVLayerStackModel::setData(const QModelIndex& index, const QVariant& value, int role)
 {
+	if (not _lib_view_alive) {
+		return false;
+	}
+
 	int layer_count = lib_layer_stack().get_layer_count();
 	/* We create and store the true index of the layer in the lib */
 	int lib_index = layer_count - 1 - index.row();

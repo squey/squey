@@ -61,9 +61,11 @@ PVGuiQt::PVLayerStackWidget::PVLayerStackWidget(Squey::PVView& lib_view, QWidget
 	main_layout->setContentsMargins(0, 0, 0, 0);
 
 	// PVLAYERSTACKVIEW
-	auto* model = new PVLayerStackModel(lib_view);
-	auto* delegate = new PVLayerStackDelegate(lib_view, this);
 	_layer_stack_view = new PVLayerStackView();
+	// Owned by the view it feeds: setModel() does not take a model over, so
+	// without an owner this one was never destroyed.
+	auto* model = new PVLayerStackModel(lib_view, _layer_stack_view);
+	auto* delegate = new PVLayerStackDelegate(lib_view, this);
 	_layer_stack_view->setItemDelegate(delegate);
 	_layer_stack_view->setModel(model);
 	_layer_stack_view->resizeColumnsToContents();

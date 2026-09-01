@@ -63,11 +63,11 @@ int main(int argc, char** argv)
 
 	Squey::PVView& view = *src.current_view();
 	auto* delegate = new PVGuiQt::PVLayerStackDelegate(view);
-	auto* model = new PVGuiQt::PVLayerStackModel(view);
-	auto* model2 = new PVGuiQt::PVLayerStackModel(view);
 
 	auto* qt_view = new PVGuiQt::PVLayerStackView();
 	auto* qt_view2 = new PVGuiQt::PVLayerStackView();
+	auto* model = new PVGuiQt::PVLayerStackModel(view, qt_view);
+	auto* model2 = new PVGuiQt::PVLayerStackModel(view, qt_view2);
 	qt_view->setModel(model);
 	qt_view->setItemDelegate(delegate);
 	qt_view2->setModel(model2);
