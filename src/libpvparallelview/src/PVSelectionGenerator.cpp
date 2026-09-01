@@ -63,16 +63,19 @@ void PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_
 	PVLineEqInt line;
 	line.b = -width;
 
+	// Only occupied buckets can select anything, and there are typically far
+	// fewer of them than the million this used to walk.
+	auto const& branches = ztree.occupied_branches();
+	const int64_t branch_count_total = (int64_t)branches.size();
+
 #pragma omp parallel
 	{
 		Squey::PVSelection local_sel(sel.count());
 		local_sel.select_none();
 
 #pragma omp for firstprivate(line) nowait
-		for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
-			if (not ztree.branch_valid(branch)) {
-				continue;
-			}
+		for (int64_t branch_idx = 0; branch_idx < branch_count_total; branch_idx++) {
+			const uint32_t branch = branches[branch_idx];
 
 			PVParallelView::PVBCode code_b;
 			code_b.int_v = branch;

@@ -29,6 +29,8 @@
 
 #include <pvparallelview/common.h>
 
+#include <vector>
+
 namespace PVCore
 {
 class PVHSVColor;
@@ -61,6 +63,17 @@ class PVZoneTreeBase
 
 	inline const PVRow* get_bg_elts() const { return _bg_elts; }
 
+	/**
+	 * The buckets that hold at least one row, in ascending order.
+	 *
+	 * There are a million buckets and a zone rarely fills more than a handful of
+	 * them, so everything that used to sweep the whole range -- generating BCI
+	 * codes, filtering by selection -- walks this instead. Filled in by
+	 * PVZoneTree::process; empty until then, which is correct, as an unbuilt tree
+	 * has nothing to walk.
+	 */
+	inline std::vector<uint32_t> const& occupied_branches() const { return _occupied_branches; }
+
 	size_t browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
 	size_t browse_tree_bci_sel(PVCore::PVHSVColor const* colors,
 	                           PVBCICode<NBITS_INDEX>* codes) const;
@@ -74,6 +87,9 @@ class PVZoneTreeBase
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];
 	PVRow DECLARE_ALIGN(16) _sel_elts[NBUCKETS];
 	PVRow DECLARE_ALIGN(16) _bg_elts[NBUCKETS];
+
+  protected:
+	std::vector<uint32_t> _occupied_branches;
 };
 } // namespace PVParallelView
 

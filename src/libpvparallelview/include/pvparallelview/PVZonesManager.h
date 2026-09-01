@@ -98,14 +98,8 @@ class PVZonesManager : public QObject
 	 * Rebuild several zones at once.
 	 *
 	 * Rebuilt together rather than one after another, as the first build already
-	 * does (see update_all): a zone tree costs a sweep of its buckets whatever the
-	 * rows put in them, and one zone alone cannot spread that over the cores.
-	 *
-	 * The cores are shared out between the zones instead of being given to each in
-	 * turn, which also cuts the sweep itself: it reads one entry per bucket per
-	 * task, so fewer tasks per zone means proportionally fewer reads -- and the
-	 * buffers behind those tasks are tens of megabytes each, which is what stops
-	 * every zone from taking every core.
+	 * does (see update_all): the cores are shared out between the zones, so a zone
+	 * with few rows in it does not leave most of the machine idle waiting on it.
 	 */
 	void update_zones(std::unordered_set<PVZoneID> const& zones);
 	[[nodiscard]] auto acquire_zone(PVZoneID zone) -> ZoneRetainer;
