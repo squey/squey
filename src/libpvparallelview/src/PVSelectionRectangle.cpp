@@ -24,6 +24,8 @@
 //
 
 #include <pvparallelview/PVSelectionRectangle.h>
+#include <pvparallelview/PVSelectionGenerator.h>
+#include <QApplication>
 #include <pvparallelview/PVSelectionRectangleItem.h>
 #include <pvparallelview/PVSelectionHandleItem.h>
 
@@ -123,6 +125,32 @@ void PVParallelView::PVSelectionRectangle::clear()
 
 void PVParallelView::PVSelectionRectangle::begin(const QPointF& p)
 {
+	/* One step for the whole gesture, opened here so that it holds the selection
+	 * as it stands before the drag begins. Every commit the drag makes on its way
+	 * nests into this one and writes nothing of its own; the step is written when
+	 * this closes, on release.
+	 *
+	 * What it is called is read from the modifiers now, which is when the user
+	 * says what kind of selection this is going to be.
+	 */
+	const unsigned int modifiers =
+	    (unsigned int)QApplication::keyboardModifiers() & ~Qt::KeypadModifier;
+
+	QString label = QObject::tr("Selection");
+	std::string icon = "selection-square";
+	if (modifiers == PVSelectionGenerator::AND_MODIFIER) {
+		label = QObject::tr("Narrow the selection");
+		icon = "intersection";
+	} else if (modifiers == PVSelectionGenerator::NAND_MODIFIER) {
+		label = QObject::tr("Subtract from the selection");
+		icon = "difference";
+	} else if (modifiers == PVSelectionGenerator::OR_MODIFIER) {
+		label = QObject::tr("Add to the selection");
+		icon = "union";
+	}
+
+	_gesture_step = std::make_unique<Squey::PVAnalysisHistory::Scope>(_view, label, icon);
+
 	_rect->begin(p);
 	start_timer();
 }
@@ -150,6 +178,10 @@ void PVParallelView::PVSelectionRectangle::end(const QPointF& p, bool use_sel_mo
 	} else {
 		start_timer();
 	}
+
+	// Closed last, once the gesture's own commit has gone through: this is what
+	// writes the step, and it is written on release rather than on the way.
+	_gesture_step.reset();
 }
 
 /*****************************************************************************

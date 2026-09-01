@@ -33,9 +33,12 @@
 
 #include <sigc++/sigc++.h>
 
+#include <memory>
 #include <vector>
 
 #include <pvparallelview/PVSelectionRectangleItem.h>
+
+#include <squey/PVAnalysisHistory.h>
 
 class QGraphicsScene;
 class QActionGroup;
@@ -92,6 +95,8 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 * show and start a mouse interaction
 	 */
 	void begin(const QPointF& p);
+
+
 
 	/**
 	 * process a mouse interaction step
@@ -327,6 +332,15 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
   private:
 	Squey::PVView& _view;
 	size_t _contributor;
+
+	/**
+	 * Open for as long as a mouse gesture lasts, so that everything the gesture
+	 * commits on its way -- which is what lets a selection be tried out before it
+	 * is settled -- falls into one step of the analysis instead of leaving one
+	 * behind at every commit. Steps opened underneath it nest into it, and the
+	 * step is written when this one closes, on release.
+	 */
+	std::unique_ptr<Squey::PVAnalysisHistory::Scope> _gesture_step;
 	PVSelectionRectangleItem* _rect;
 	QTimer* _timer;
 	bool _use_selection_modifiers;

@@ -31,6 +31,8 @@
 
 #include <QWidget>
 
+#include <vector>
+
 class QHBoxLayout;
 class QIcon;
 class QScrollArea;
@@ -82,7 +84,14 @@ class PVGUIQT_EXPORT PVAnalysisBreadcrumb : public QWidget
 
   private:
 	void rebuild();
-	QWidget* add_crumb(size_t index, bool is_current, bool is_ahead);
+	/**
+	 * Tell a crumb what it now stands for.
+	 *
+	 * Crumbs are kept from one rebuild to the next -- a trail that only appends
+	 * at its end has no reason to be built again from scratch -- so this says
+	 * what one shows rather than making it.
+	 */
+	void refresh_crumb(QToolButton* crumb, size_t index, bool is_current, bool is_ahead);
 	QToolButton* make_button(const QIcon& icon);
 
   private:
@@ -93,6 +102,15 @@ class PVGUIQT_EXPORT PVAnalysisBreadcrumb : public QWidget
 	QScrollArea* _scroll = nullptr;
 	QWidget* _strip = nullptr;
 	QHBoxLayout* _strip_layout = nullptr;
+
+	//! The crumbs on show, one per step, and the chevrons between them. Kept from
+	//! one rebuild to the next, see refresh_crumb.
+	std::vector<QToolButton*> _crumbs;
+	std::vector<QWidget*> _chevrons;
+
+	//! Set when the trail should show its end, acted on once the scroll bar
+	//! announces how far the strip now reaches.
+	bool _follow_end = false;
 	sigc::connection _history_changed;
 };
 } // namespace PVGuiQt

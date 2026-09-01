@@ -32,7 +32,11 @@
 #include <QGraphicsOpacityEffect>
 #include <QHBoxLayout>
 #include <QLocale>
+#include <QPointer>
+#include <QTimer>
 #include <QScrollArea>
+#include <QScrollBar>
+#include <QWheelEvent>
 #include <QScrollBar>
 #include <QToolButton>
 
@@ -79,6 +83,31 @@ class PVRowScrollArea : public QScrollArea
 	 * widened it -- which is the one thing a scroll area is there to avoid.
 	 */
 	QSize minimumSizeHint() const override { return QSize(0, sizeHint().height()); }
+
+	/**
+	 * Walk the trail with the wheel.
+	 *
+	 * The scroll bars are kept out of sight -- one would add its own height to a
+	 * row whose height is the whole point of measuring it here -- so without this
+	 * a trail longer than the window has steps that nothing can reach. Either
+	 * axis of the wheel walks it, this row running only one way.
+	 */
+	void wheelEvent(QWheelEvent* event) override
+	{
+		QScrollBar* const bar = horizontalScrollBar();
+		if (bar == nullptr) {
+			QScrollArea::wheelEvent(event);
+			return;
+		}
+
+		const QPoint pixels = event->pixelDelta();
+		const QPoint degrees = event->angleDelta();
+		const int by = not pixels.isNull() ? pixels.x() + pixels.y()
+		                                   : (degrees.x() + degrees.y()) / 2;
+
+		bar->setValue(bar->value() - by);
+		event->accept();
+	}
 };
 
 } // namespace
@@ -124,6 +153,10 @@ PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget
 	_strip_layout->setContentsMargins(0, 0, 0, 0);
 	_strip_layout->setSpacing(0);
 
+	// Packs the trail to the left, and stays the last item of the layout: crumbs
+	// are inserted before it as the history grows.
+	_strip_layout->addStretch(1);
+
 	_scroll = new PVRowScrollArea(this);
 	_scroll->setWidget(_strip);
 	_scroll->setWidgetResizable(true);
@@ -136,6 +169,20 @@ PVGuiQt::PVAnalysisBreadcrumb::PVAnalysisBreadcrumb(Squey::PVRoot& root, QWidget
 	 * clipped the icons. This one is a layout device, not a view to be framed.
 	 */
 	_scroll->setStyleSheet("QScrollArea { border: none; padding: 0; }");
+	/* Going to the end of the trail has to wait for the scroll area to have
+	 * measured the strip and worked out how far it can scroll, which it does on
+	 * its own schedule -- after the strip's layout, after the widget has been
+	 * resized. Rather than guess when that is, the bar says so: it announces its
+	 * new range, and that is when the end is known.
+	 */
+	connect(_scroll->horizontalScrollBar(), &QScrollBar::rangeChanged, this,
+	        [this](int /*min*/, int max) {
+		        if (_follow_end) {
+			        _follow_end = false;
+			        _scroll->horizontalScrollBar()->setValue(max);
+		        }
+	        });
+
 	_scroll->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	_scroll->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	layout->addWidget(_scroll, 1);
@@ -177,12 +224,8 @@ void PVGuiQt::PVAnalysisBreadcrumb::redo()
 
 void PVGuiQt::PVAnalysisBreadcrumb::rebuild()
 {
-	while (QLayoutItem* item = _strip_layout->takeAt(0)) {
-		delete item->widget();
-		delete item;
-	}
-
 	const Squey::PVAnalysisHistory& history = _root.history();
+
 
 	_undo_button->setEnabled(history.can_undo());
 	_redo_button->setEnabled(history.can_redo());
@@ -198,70 +241,115 @@ void PVGuiQt::PVAnalysisBreadcrumb::rebuild()
 	 * as it appears, and the first crumbs showed up at the wrong height for it.
 	 * Two arrows greyed out say "nothing to come back to" well enough.
 	 */
-	if (history.size() <= 1) {
+	const size_t wanted = history.size() > 1 ? history.size() : 0;
+
+	/* The crumbs standing are kept and told what they now say. Building the trail
+	 * again from scratch meant every crumb was destroyed and remade whenever one
+	 * was added -- the whole row blinking for a step that only ever appends at
+	 * its end -- and left them without a position long enough that asking to
+	 * bring one into view scrolled back to the first.
+	 *
+	 * So only the difference is built: crumbs beyond what the history holds are
+	 * let go of, missing ones are added at the end, and the rest stay exactly
+	 * where they are.
+	 */
+	while (_crumbs.size() > wanted) {
+		delete _crumbs.back();
+		_crumbs.pop_back();
+		if (not _chevrons.empty()) {
+			delete _chevrons.back();
+			_chevrons.pop_back();
+		}
+	}
+
+	while (_crumbs.size() < wanted) {
+		const size_t index = _crumbs.size();
+
+		/* A chevron between crumbs, so that the row reads as a trail rather than
+		 * as a handful of buttons that happen to sit side by side. Drawn from the
+		 * icon set like everything else here, so that it follows the theme rather
+		 * than the text colour.
+		 */
+		if (index > 0) {
+			auto* chevron =
+			    new PVModdedIconLabel("branch-closed", QSize(chevron_pixels, chevron_pixels));
+			chevron->setParent(_strip);
+			chevron->setEnabled(false);
+			chevron->setAlignment(Qt::AlignCenter);
+			/* Sized both ways, not just across: a label is free to ask for the
+			 * height a stylesheet gives labels, and one asking for more than the
+			 * buttons around it is what made the row grow the moment a first
+			 * chevron joined the arrows.
+			 */
+			chevron->setFixedSize(chevron_pixels, chevron_pixels);
+			_strip_layout->insertWidget(_strip_layout->count() - 1, chevron);
+			_chevrons.push_back(chevron);
+		}
+
+		auto* crumb = new QToolButton(_strip);
+		crumb->setIconSize(QSize(icon_pixels, icon_pixels));
+		crumb->setAutoRaise(true);
+		crumb->setFocusPolicy(Qt::NoFocus);
+		crumb->setCheckable(true);
+		connect(crumb, &QToolButton::clicked, this, [this, crumb]() {
+			const auto found = std::find(_crumbs.begin(), _crumbs.end(), crumb);
+			if (found != _crumbs.end()) {
+				_root.history().go_to(size_t(found - _crumbs.begin()));
+			}
+		});
+
+		// Before the trailing stretch, which keeps the trail packed to the left.
+		_strip_layout->insertWidget(_strip_layout->count() - 1, crumb);
+		_crumbs.push_back(crumb);
+	}
+
+	if (wanted == 0) {
 		Q_EMIT changed();
 		return;
 	}
 
 	const size_t position = history.position();
-	QWidget* current = nullptr;
-	for (size_t i = 0; i < history.size(); i++) {
-		QWidget* crumb = add_crumb(i, i == position, i > position);
-		if (i == position) {
-			current = crumb;
-		}
+	for (size_t i = 0; i < _crumbs.size(); i++) {
+		refresh_crumb(_crumbs[i], i, i == position, i > position);
 	}
-	_strip_layout->addStretch(1);
-
-	/* A stylesheet reaches a button when the button is polished, and a button
-	 * is polished after it has been created -- possibly after somebody asked it
-	 * how big it wanted to be. Ask for the polish here and then say the sizes
-	 * moved, or the row is laid out from what the buttons measured before the
-	 * style reached them, and only settles on the rebuild after.
-	 */
-	_strip->ensurePolished();
-	_strip->updateGeometry();
-	_scroll->updateGeometry();
-	updateGeometry();
 
 	/* Landing anywhere may have left the current step off the visible part of
-	 * the strip.
+	 * the strip. Asked for once the scroll area has laid the strip out, which it
+	 * does on coming back to its event loop: a crumb added a moment ago has no
+	 * place yet, and asking now answers with the strip's own origin -- which
+	 * scrolls back to the first crumb rather than to the one landed on.
 	 */
-	if (current != nullptr) {
-		_scroll->ensureWidgetVisible(current);
-	}
+	/* Standing on the last step means the end of the trail, which is where the
+	 * crumb just added is. Asked for by the flag above rather than by scrolling
+	 * now: how far the strip reaches is not settled at this point, and every
+	 * attempt at it landed on the crumb before the last.
+	 */
+	_follow_end = position + 1 == _crumbs.size();
+
+	QPointer<QWidget> target = _crumbs[position];
+	QTimer::singleShot(0, this, [this, target]() {
+		if (target == nullptr or _follow_end) {
+			// The end of the trail is being gone to, which covers this crumb.
+			return;
+		}
+
+		// Coming back to a step in the middle: the layout is settled by now.
+		_strip_layout->activate();
+		_scroll->ensureWidgetVisible(target);
+	});
 
 	Q_EMIT changed();
 }
 
-QWidget* PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current, bool is_ahead)
+void PVGuiQt::PVAnalysisBreadcrumb::refresh_crumb(QToolButton* crumb,
+                                                  size_t index,
+                                                  bool is_current,
+                                                  bool is_ahead)
 {
 	const Squey::PVAnalysisStep& step = _root.history().step(index);
 
-	/* A chevron between crumbs, so that the row reads as a trail rather than as
-	 * a handful of buttons that happen to sit side by side. Drawn from the icon
-	 * set like everything else here, so that it follows the theme rather than
-	 * the text colour.
-	 */
-	if (index > 0) {
-		auto* chevron = new PVModdedIconLabel("branch-closed", QSize(chevron_pixels, chevron_pixels));
-		chevron->setParent(_strip);
-		chevron->setEnabled(false);
-		chevron->setAlignment(Qt::AlignCenter);
-		/* Sized both ways, not just across: a label is free to ask for the
-		 * height a stylesheet gives labels, and one asking for more than the
-		 * buttons around it is what made the row grow the moment a first
-		 * chevron joined the arrows.
-		 */
-		chevron->setFixedSize(chevron_pixels, chevron_pixels);
-		_strip_layout->addWidget(chevron);
-	}
-
-	auto* crumb = new QToolButton(_strip);
 	crumb->setIcon(PVModdedIcon(QString::fromStdString(step.icon())));
-	crumb->setIconSize(QSize(icon_pixels, icon_pixels));
-	crumb->setAutoRaise(true);
-	crumb->setFocusPolicy(Qt::NoFocus);
+
 	/* Three things a crumb has to say -- what it was, what it was given, what it
 	 * left selected -- ruled off from one another. Rich text, so what is quoted
 	 * has to be escaped: a query saying "col1 < 2" would otherwise lose
@@ -290,18 +378,19 @@ QWidget* PVGuiQt::PVAnalysisBreadcrumb::add_crumb(size_t index, bool is_current,
 	/* Where the user stands is the one pressed in; what lies ahead -- the
 	 * branch they walked back from, still there to walk forward into -- is
 	 * faded. Both come from the style, so both survive a change of theme.
+	 *
+	 * The effect is set and unset rather than made anew, a crumb outliving the
+	 * step it stood for: one left over from a previous position would go on
+	 * being faded after the trail moved on.
 	 */
-	crumb->setCheckable(true);
 	crumb->setChecked(is_current);
 	if (is_ahead) {
-		auto* faded = new QGraphicsOpacityEffect(crumb);
-		faded->setOpacity(0.4);
-		crumb->setGraphicsEffect(faded);
+		if (crumb->graphicsEffect() == nullptr) {
+			auto* faded = new QGraphicsOpacityEffect(crumb);
+			faded->setOpacity(0.4);
+			crumb->setGraphicsEffect(faded);
+		}
+	} else {
+		crumb->setGraphicsEffect(nullptr);
 	}
-
-	connect(crumb, &QToolButton::clicked, this, [this, index] { _root.history().go_to(index); });
-
-	_strip_layout->addWidget(crumb);
-
-	return crumb;
 }
