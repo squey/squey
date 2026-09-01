@@ -29,7 +29,8 @@
 
 #include <QPainter>
 #include <QDebug>
-#include <thread>
+
+#include <tbb/task_group.h>
 
 PVParallelView::PVBCIDrawingBackendQPainter& PVParallelView::PVBCIDrawingBackendQPainter::get()
 {
@@ -53,7 +54,7 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
                                                          bool reverse,
                                                          std::function<void()> const& render_done)
 {
-	std::thread th([=] {
+	_jobs.run([=] {
 		auto backend = static_cast<backend_image_t*>(backend_img.get());
 		const auto height_bits = backend->height_bits();
 		const auto height = backend->height() * zoom_y +
@@ -63,8 +64,12 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 
 		QPainter painter(&paint_image);
 
+		// The OpenCL kernel settles overlapping lines by keeping the lowest row
+		// index, so here the lowest index has to be drawn last, over the others.
+		// Sorting on the whole code instead ordered by position, which decides
+		// nothing, and left the two backends disagreeing about what is on top.
 		std::sort(codes, codes + n, [](PVBCICodeBase const& a, PVBCICodeBase const& b) {
-			return a.as_10.int_v > b.as_10.int_v;
+			return a.as_10.s.idx > b.as_10.s.idx;
 		});
 
 		size_t valid_begin =
@@ -76,16 +81,24 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 		const int x1 = reverse ? width : 0;
 		const int x2 = reverse ? 0 : width;
 
+		int last_color = -1;
+		const auto use_color = [&](uint8_t color) {
+			if (color != last_color) {
+				painter.setPen(PVCore::PVHSVColor(color).toQColor());
+				last_color = color;
+			}
+		};
+
 		if (height_bits == 10) {
 			for (size_t i = valid_begin; i < n; ++i) {
-				painter.setPen(PVCore::PVHSVColor(codes[i].as_10.s.color).toQColor());
+				use_color(codes[i].as_10.s.color);
 				float left = codes[i].as_10.s.l / float(1 << height_bits);
 				float right = codes[i].as_10.s.r / float(1 << height_bits);
 				painter.drawLine(x1, left * height, x2, right * height);
 			}
 		} else {
 			for (size_t i = valid_begin; i < n; ++i) {
-				painter.setPen(PVCore::PVHSVColor(codes[i].as_11.s.color).toQColor());
+				use_color(codes[i].as_11.s.color);
 				if (codes[i].as_11.s.type == PVBCICode<11>::STRAIGHT) {
 					float left = codes[i].as_11.s.l;
 					float right = codes[i].as_11.s.r;
@@ -108,5 +121,9 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 
 		render_done();
 	});
-	th.detach();
+}
+
+void PVParallelView::PVBCIDrawingBackendQPainter::wait_all() const
+{
+	_jobs.wait();
 }
