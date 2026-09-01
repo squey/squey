@@ -93,6 +93,21 @@ class PVZonesManager : public QObject
 	void update_from_axes_comb(std::vector<PVCol> const& ac);
 	void update_from_axes_comb(Squey::PVView const& view);
 	void update_zone(PVZoneID zone);
+
+	/**
+	 * Rebuild several zones at once.
+	 *
+	 * Rebuilt together rather than one after another, as the first build already
+	 * does (see update_all): a zone tree costs a sweep of its buckets whatever the
+	 * rows put in them, and one zone alone cannot spread that over the cores.
+	 *
+	 * The cores are shared out between the zones instead of being given to each in
+	 * turn, which also cuts the sweep itself: it reads one entry per bucket per
+	 * task, so fewer tasks per zone means proportionally fewer reads -- and the
+	 * buffers behind those tasks are tens of megabytes each, which is what stops
+	 * every zone from taking every core.
+	 */
+	void update_zones(std::unordered_set<PVZoneID> const& zones);
 	[[nodiscard]] auto acquire_zone(PVZoneID zone) -> ZoneRetainer;
 	void release_zone(PVZoneID zone);
 
@@ -167,6 +182,11 @@ class PVZonesManager : public QObject
 	std::unordered_multiset<PVZoneID> _zones_ref_count;
 
   protected:
+	/**
+	 * Rebuild one zone using caller-provided scratch space.
+	 */
+	void rebuild_zone(PVZoneID zone, PVZoneTree::ProcessData& pdata);
+
 	PVZone& get_zone(PVZoneID z)
 	{
 		assert(_zone_indices.count(z) > 0);

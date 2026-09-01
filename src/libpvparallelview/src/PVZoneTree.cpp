@@ -222,6 +222,7 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 		std::fill(pdata.first_elts[task].begin(), pdata.first_elts[task].end(),
 		          PVROW_INVALID_VALUE);
 	}
+	pdata.used = true;
 
 	BENCH_START(trees);
 	tbb::task_group group;

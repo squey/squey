@@ -99,14 +99,31 @@ class PVZoneTree : public PVZoneTreeBase
 			}
 		}
 
+		/**
+		 * Give back a state a tree can be built from again.
+		 *
+		 * Costly by construction: one entry per bucket per task, which is tens of
+		 * megabytes to walk however few rows were put in them. Data that has never
+		 * been built on is already in that state, so it is left alone -- which is
+		 * what spares the walk entirely when a zone is rebuilt on its own.
+		 *
+		 * Deliberately serial: the callers already run this inside a TBB task, and
+		 * nesting a parallel_for there gained little for the risk it carried.
+		 */
 		void clear()
 		{
+			if (not used) {
+				return;
+			}
+
 			for (uint32_t t = 0; t < ntasks; t++) {
 				std::fill(first_elts[t].begin(), first_elts[t].end(), PVROW_INVALID_VALUE);
 				for (uint32_t b = 0; b < NBUCKETS; b++) {
 					trees[t][b].clear();
 				}
 			}
+
+			used = false;
 		}
 
 		~ProcessData()
@@ -118,6 +135,10 @@ class PVZoneTree : public PVZoneTreeBase
 		pdata_tree_t* trees;
 		pdata_array_t* first_elts;
 		uint32_t ntasks;
+
+		//! Whether a tree has been built on these buffers, so clear() knows whether
+		//! there is anything to give back. Set by PVZoneTree::process.
+		bool used = false;
 	};
 
 	struct PVBranch {

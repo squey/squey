@@ -161,8 +161,12 @@ void PVParallelView::PVViewRenderingContext::on_scaling_updated(QList<PVCol> con
 
 	zones_about_to_be_updated.emit(zones_to_update);
 
+	// Rebuilt together: a zone tree costs a fixed sweep of its buckets whatever
+	// the rows put in them, so a run of them one after another spends most of its
+	// time on one core. See PVZonesManager::update_zones.
+	get_zones_manager().update_zones(zones_to_update);
+
 	for (PVZoneID z : zones_to_update) {
-		get_zones_manager().update_zone(z);
 		_processor_bg.invalidate_zone_preprocessing(z);
 		_processor_sel.invalidate_zone_preprocessing(z);
 	}
