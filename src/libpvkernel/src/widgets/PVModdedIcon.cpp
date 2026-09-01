@@ -1,4 +1,5 @@
 #include <pvkernel/widgets/PVModdedIcon.h>
+#include <QSizeF>
 #include <QtCore/qobjectdefs.h>
 #include <qguiapplication.h>
 #include <qnamespace.h>
@@ -18,17 +19,26 @@ PVModdedIconEngine::PVModdedIconEngine(QString icon_name) : QIconEngine()
 
 QPixmap PVModdedIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
-    QWindow* window = QGuiApplication::focusWindow();
-    double divide_by = 1;
-    if (window) {
-        double primary_screen_device_pixel_ratio = QGuiApplication::primaryScreen()->devicePixelRatio();
-        double current_screen_device_pixel_ratio = window->screen()->devicePixelRatio();
-        if (current_screen_device_pixel_ratio != 0) {
-            divide_by = primary_screen_device_pixel_ratio / current_screen_device_pixel_ratio;
-        }
-    }
+    return _icons[(int)PVCore::PVTheme::is_color_scheme_dark()].pixmap(size, mode, state);
+}
 
-    return _icons[(int)PVCore::PVTheme::is_color_scheme_dark()].pixmap(size / divide_by, mode, state);
+QPixmap PVModdedIconEngine::scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state,
+                                         qreal scale)
+{
+    /* The size is in device independent pixels and the scale is what the screen
+     * this is bound for wants, so the pixmap has to carry size * scale real
+     * pixels and say that it does. Qt then draws it at `size`, out of enough
+     * pixels to stay sharp.
+     *
+     * Working the ratio out here instead, off whichever window held the focus,
+     * is what this used to do: it answered for a window that was not the one
+     * being drawn -- while a menu is open the focus is on the menu's own popup --
+     * so an icon on a button carrying a menu changed size as that menu came and
+     * went, and on a second screen it was built for the wrong one. Too big for
+     * the room it was given, and a widget aligns a pixmap in that room rather
+     * than scaling it down, so the edges fell outside and were clipped.
+     */
+    return _icons[(int)PVCore::PVTheme::is_color_scheme_dark()].pixmap(size, scale, mode, state);
 }
 
 void PVModdedIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state)
