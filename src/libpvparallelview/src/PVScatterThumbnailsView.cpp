@@ -324,6 +324,22 @@ PVParallelView::PVScatterThumbnailsView::PVScatterThumbnailsView(Squey::PVView& 
 
 PVParallelView::PVScatterThumbnailsView::~PVScatterThumbnailsView()
 {
+	// Renders first, before anything else starts going away: they read the
+	// model view's scaled columns and its colour buffer from a worker thread,
+	// and every line below tears down something around them. Waiting for the
+	// model's own destructor to do it leaves them running through the whole
+	// teardown, because QObject only deletes its children once the members
+	// above have gone.
+	_model->drain();
+
+	// Then the chain that reads the model. QObject deletes children in
+	// creation order and the model was created before the proxy and the list,
+	// so it would otherwise go first and leave those two reacting to its
+	// destruction -- a reset, and the repaint that follows -- in the middle of
+	// a widget that is already half gone.
+	_list->setModel(nullptr);
+	_proxy->setSourceModel(nullptr);
+
 	// Free-standing window, so it is not taken down by the widget tree.
 	delete _preview;
 }
