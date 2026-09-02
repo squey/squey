@@ -25,6 +25,8 @@
 #ifndef PVPARALLELVIEW_PVZONERENDERING_TYPES_H
 #define PVPARALLELVIEW_PVZONERENDERING_TYPES_H
 
+#include <QMetaType>
+
 #include <memory>
 
 namespace PVParallelView
@@ -33,5 +35,12 @@ namespace PVParallelView
 class PVZoneRendering;
 typedef std::shared_ptr<PVZoneRendering> PVZoneRendering_p;
 } // namespace PVParallelView
+
+// Declared here rather than beside the class in PVZoneRendering.h: headers
+// declaring a slot taking this type (PVScatterView, PVZoomedParallelScene)
+// only include this one, so moc'ing them instantiated QMetaTypeId before the
+// specialisation was ever seen. It compiled only as long as some other file in
+// the same unity batch happened to pull in PVZoneRendering.h first.
+Q_DECLARE_METATYPE(PVParallelView::PVZoneRendering_p)
 
 #endif

@@ -149,6 +149,4 @@ class PVZoneRendering
 };
 } // namespace PVParallelView
 
-Q_DECLARE_METATYPE(PVParallelView::PVZoneRendering_p)
-
 #endif
