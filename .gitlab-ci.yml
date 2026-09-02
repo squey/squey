@@ -168,6 +168,83 @@ builder appstream-linter:
   interruptible: true
   allow_failure: false
 
+# The devcontainer image is the staged build dependencies of squey.bst turned
+# into a container root filesystem, so that a contributor can compile Squey
+# without running BuildStream at all (see buildstream/README.md). Its tag is a
+# digest of the dependency graph, and .devcontainer/devcontainer.json pins it
+# the same way this file pins BASE_IMAGE_NAME.
+#
+# The two halves are one job on purpose. Checking the pin and publishing the
+# image are separate concerns, but splitting them races: whichever runs first
+# either fails on an image the other has not built yet, or publishes under a
+# pin nobody has validated. Run in order inside a single job, a merge request
+# only goes green once its pin matches its dependency graph AND names an image
+# the registry really holds -- which is what makes the pin safe to merge, with
+# no window where the default branch points at something nobody can pull.
+ensure devcontainer image:
+  stage: build
+  image:
+    name: "$BASE_IMAGE_NAME"
+    pull_policy: [if-not-present]
+  tags:
+    - privileged-docker
+  needs: [] # start as soon as the pipeline does, do not wait for the earlier stages
+  variables:
+    # Two merge request pipelines can reach this job at once, see ".build".
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
+    # The staged sysroot is around 11 GB and /tmp is not always backed by a
+    # disk, so keep the scratch checkout beside the clone instead.
+    TMPDIR: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/devcontainer-scratch
+    # The overlay driver of podman cannot stack on the overlayfs this job runs
+    # on, so its image store has to sit on a directory the host really backs.
+    # The script falls back to the vfs driver if this one turns out to be an
+    # overlayfs as well.
+    PODMAN_STORAGE_ROOT: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/devcontainer-store
+  before_script:
+    # Same per-slot isolation as ".build": concurrent jobs must never share a
+    # local CAS directory.
+    - export XDG_CACHE_HOME="$HOME/.cache/bst-slots/bst-slot-${CI_CONCURRENT_ID:-0}"
+    - mkdir -p "$TMPDIR" "$PODMAN_STORAGE_ROOT"
+    # Reading the registry to find out whether the image is already there needs
+    # no credentials, and that is all a pipeline does when the dependency graph
+    # is untouched. Only a pipeline that really has an image to publish needs to
+    # be logged in, and that one fails on the push rather than here -- which is
+    # what keeps a fork pipeline, whose token cannot write to this registry,
+    # from failing on every merge request that has nothing to publish.
+    - podman login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+      || echo "Registry login failed; this job can still verify, but not publish."
+  script:
+    # Fails fast, and tells the author the command that fixes it.
+    - buildstream/scripts/update_devcontainer_pin.sh --check
+    # Idempotent: the tag is a pure function of the dependency graph, so this
+    # exits early when the registry already holds it, which is what the vast
+    # majority of merge requests hit.
+    - buildstream/scripts/build_devcontainer_image.sh --push=true
+    # The pin matching the graph says nothing about the image being pullable.
+    - buildstream/scripts/update_devcontainer_pin.sh --verify-image
+  after_script:
+    # Both hold a copy of the 11 GB sysroot; leaving them behind would fill the
+    # runner slot within a couple of pipelines. "system reset" comes first
+    # because podman may lay the store out under subordinate uids, which a
+    # plain rm cannot remove from outside its user namespace.
+    - podman --root "$PODMAN_STORAGE_ROOT" system reset --force || true
+    - rm -rf "$TMPDIR" "$PODMAN_STORAGE_ROOT" || true
+  rules:
+    - !reference [.skip_if_already_built, rules]
+    # Deliberately not narrowed to the paths the tag is computed from. Gating it
+    # on "changes" would be correct as long as those paths and that list agree,
+    # and would quietly stop protecting anything the day they drift apart -- or
+    # the day the registry loses an image while the repository stands still.
+    # Running every time costs a "bst show" and a registry query, seconds
+    # against the pipeline it sits in, and never builds an image that already
+    # exists.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  # A half pushed image is wasted work rather than a broken one, but there is no
+  # reason to pay for it twice.
+  interruptible: false
+
+
 .build:
   stage: build
   image:

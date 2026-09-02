@@ -1,0 +1,72 @@
+{
+  "name": "Squey (native Linux build)",
+
+  // Pinned by buildstream/scripts/update_devcontainer_pin.sh, the same way
+  // .gitlab-ci.yml pins BASE_IMAGE_NAME: the tag is a digest of the dependency
+  // graph, so a branch that does not touch buildstream/ inherits the image of
+  // the branch it forked from. Never edit this line by hand.
+  "image": "registry.gitlab.com/squey/squey/devcontainer:d8e751ed979b1136",
+
+  // No "workspaceFolder" here. Setting it does not move the bind mount, which
+  // the runtime places at /workspaces/<name of the local directory>: naming a
+  // path that does not match leaves ${containerWorkspaceFolder}, and every
+  // command run through it, pointing at nothing. Left out, the two agree
+  // whatever the clone is called.
+
+  // The image only carries a "dev" user because the BuildStream sandbox mounts
+  // /etc/passwd from the host and the staged sysroot therefore has none.
+  // updateRemoteUserUID remaps it onto the host uid, which is what keeps the
+  // files written in the workspace owned by the user rather than by root.
+  "remoteUser": "dev",
+  "updateRemoteUserUID": true,
+
+  "containerEnv": {
+    // buildstream/dev_shell_bashrc reads SOURCE_DIR to find the tree to build;
+    // the scripts shared with it expect the same variable here.
+    "SOURCE_DIR": "${containerWorkspaceFolder}",
+    // The container offers no OpenCL platform: the PortableCL of the sysroot is
+    // built without ICD support, and the binary goes through the ICD loader.
+    // Rendering falls back to the CPU, as it does under the test suite.
+    "FORCE_CPU": "1",
+    // The socket mounted below. Drop both, and mount /tmp/.X11-unix instead, to
+    // run against an X server.
+    "WAYLAND_DISPLAY": "/tmp/wayland-0",
+    "QT_QPA_PLATFORM": "wayland"
+  },
+
+  "mounts": [
+    // A full build is long enough that losing the compiler cache every time the
+    // container is rebuilt would defeat the point of the whole thing.
+    "source=squey-ccache,target=/home/dev/.cache/ccache,type=volume",
+    // Squey keeps its settings, its recent sources and its lists here. Left in
+    // the image layer they would go with the container, and every start would
+    // be a first start.
+    "source=squey-config,target=/home/dev/.squey,type=volume",
+    // Lets the built binary put a window on the host compositor. Harmless on a
+    // host that has no Wayland session: the socket is simply never used.
+    "source=${localEnv:XDG_RUNTIME_DIR}/wayland-0,target=/tmp/wayland-0,type=bind"
+  ],
+
+  // podman maps the container user onto a subordinate uid of the host, which
+  // owns none of the host sockets: connecting to the compositor then fails with
+  // a permission error. keep-id lines the two up. Docker needs no such thing --
+  // its uid 1000 is already the host one -- and rejects the option, so drop
+  // this line when running the devcontainer under Docker.
+  "runArgs": ["--userns=keep-id"],
+
+  "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/configure_builds.sh",
+
+  "customizations": {
+    "vscode": {
+      // Same set as the one buildstream/README.md asks for when attaching to
+      // the BuildStream sandbox over ssh, minus Remote Development which is
+      // what gets you here in the first place. The build settings themselves
+      // live in the workspace .vscode/settings.json and apply unchanged.
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "twxs.cmake",
+        "vadimcn.vscode-lldb"
+      ]
+    }
+  }
+}
