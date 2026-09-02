@@ -46,6 +46,9 @@ add_squey_test(Tseries_tree_selection Tseries_tree_selection)
 add_squey_compile_test(Tseries_date_range_formatter LINKS ${LINK_LIBRARIES} FILES series_date_range_formatter.cpp)
 add_squey_test(Tseries_date_range_formatter Tseries_date_range_formatter)
 
+add_squey_compile_test(Tpview_scatter_thumbnail_orientation LINKS ${LINK_LIBRARIES} FILES scatter_thumbnail_orientation.cpp)
+add_squey_test(Tpview_scatter_thumbnail_orientation Tpview_scatter_thumbnail_orientation)
+
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
 add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
