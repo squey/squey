@@ -189,6 +189,8 @@
 	<file alias="help-mouse-zoomed-parallel-view">resources/help/view-mouse-zoomed-parallel.html</file>
 	<file alias="help-mouse-hit-count-view">resources/help/view-mouse-hit-count.html</file>
 	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
+	<file alias="help-mouse-scatter-thumbnails-view">resources/help/view-mouse-scatter-thumbnails.html</file>
+	<file alias="help-shortcuts-scatter-thumbnails-view">resources/help/view-shortcuts-scatter-thumbnails.html</file>
 	<file alias="help-mouse-scatter-view">resources/help/view-mouse-scatter.html</file>
 	<file alias="help-shortcuts-scatter-view">resources/help/view-shortcuts-scatter.html</file>
 	<file alias="help-series-view-navigation">resources/help/view-series-navigation.html</file>
@@ -751,6 +753,14 @@
     <file>rc.dark/folder-plus_focus@2x.png</file>
     <file>rc.dark/folder-plus_pressed.png</file>
     <file>rc.dark/folder-plus_pressed@2x.png</file>
+    <file>rc.dark/grid.png</file>
+    <file>rc.dark/grid@2x.png</file>
+    <file>rc.dark/grid_disabled.png</file>
+    <file>rc.dark/grid_disabled@2x.png</file>
+    <file>rc.dark/grid_focus.png</file>
+    <file>rc.dark/grid_focus@2x.png</file>
+    <file>rc.dark/grid_pressed.png</file>
+    <file>rc.dark/grid_pressed@2x.png</file>
     <file>rc.dark/hitcount.png</file>
     <file>rc.dark/hitcount@2x.png</file>
     <file>rc.dark/hitcount_disabled.png</file>
@@ -1842,6 +1852,14 @@
     <file>rc.light/folder-plus_focus@2x.png</file>
     <file>rc.light/folder-plus_pressed.png</file>
     <file>rc.light/folder-plus_pressed@2x.png</file>
+    <file>rc.light/grid.png</file>
+    <file>rc.light/grid@2x.png</file>
+    <file>rc.light/grid_disabled.png</file>
+    <file>rc.light/grid_disabled@2x.png</file>
+    <file>rc.light/grid_focus.png</file>
+    <file>rc.light/grid_focus@2x.png</file>
+    <file>rc.light/grid_pressed.png</file>
+    <file>rc.light/grid_pressed@2x.png</file>
     <file>rc.light/hitcount.png</file>
     <file>rc.light/hitcount@2x.png</file>
     <file>rc.light/hitcount_disabled.png</file>

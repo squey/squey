@@ -144,6 +144,7 @@ int main(int argc, char** argv)
 	    "parallelview_zoomedparallelview",
 	    "parallelview_hitcountview",
 	    "parallelview_scatterview",
+	    "parallelview_scatterthumbnailsview",
 	    "parallelview_timeseriesview",
 	};
 #ifdef PYTHON_SUPPORT

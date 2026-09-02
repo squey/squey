@@ -56,6 +56,7 @@ PVDisplayViewFullParallel.cpp
 PVDisplayViewZoomedParallel.cpp
 PVDisplayViewHitCount.cpp
 PVDisplayViewScatter.cpp
+PVDisplayViewScatterThumbnails.cpp
 PVDisplayViewTimeseries.cpp
 
 # ZoomableDrawingArea & co
@@ -91,6 +92,10 @@ PVScatterViewDataInterface.cpp
 PVScatterViewDataImpl.cpp
 PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
+
+PVScatterThumbnail.cpp
+PVScatterThumbnailsModel.cpp
+PVScatterThumbnailsView.cpp
 
 PVSeriesView.cpp
 PVSeriesViewWidget.cpp
@@ -128,6 +133,8 @@ set(MOC_HEADERS
 ../include/pvparallelview/PVHitCountViewParamsWidget.h
 ../include/pvparallelview/PVScatterView.h
 ../include/pvparallelview/PVScatterViewParamsWidget.h
+../include/pvparallelview/PVScatterThumbnailsModel.h
+../include/pvparallelview/PVScatterThumbnailsView.h
 ../include/pvparallelview/PVSeriesView.h
 ../include/pvparallelview/PVSeriesViewWidget.h
 ../include/pvparallelview/PVSeriesViewParamsWidget.h
