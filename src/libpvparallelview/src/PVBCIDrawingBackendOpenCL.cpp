@@ -41,6 +41,10 @@
 #include <sstream>
 #include <filesystem>
 
+#ifdef _WIN32
+#include <windows.h>
+#endif
+
 #include <QSettings>
 
 #include <boost/dll/runtime_symbol_info.hpp>
@@ -115,13 +119,6 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	std::string libdir = exe_path.parent_path().string();
 	PVCore::setenv("LIBRARY_PATH", libdir.c_str(), 1);
-	// Beside the executable is where the packaged application finds it. The test
-	// executables are installed two directories below that, under tests/, and
-	// naming a path that does not exist leaves the loader with no ICD at all --
-	// the whole testsuite ran without an OpenCL device for that reason. Falling
-	// back to the bare name hands the lookup to the regular DLL search order,
-	// which covers them: the directory holding pocl.dll comes first in the PATH
-	// the testsuite runs with.
 	// Beside the executable is where the packaged application finds it, squey.exe
 	// and pocl.dll sitting in the same directory. The test executables are
 	// installed two levels below that, under tests/ (see CMakeMacros.txt), and
@@ -134,6 +131,32 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		pocl_path = "pocl.dll";
 	}
 	PVCore::setenv("OCL_ICD_FILENAMES", pocl_path.c_str(), 0);
+
+	// The Khronos loader also reads this environment variable through
+	// secure_getenv(), which Windows makes return NULL for a process running at
+	// a high integrity level -- a deliberate hardening against an elevated
+	// process picking up an attacker-controlled driver path from its
+	// environment. GitLab's Windows CI runner executes tests at exactly that
+	// level, which left every OpenCL-backed test with no device at all,
+	// regardless of pocl.dll being perfectly correct and OCL_ICD_FILENAMES
+	// pointing right at it: the loader never even looked.
+	//
+	// Registering the same path under the registry key the loader also reads
+	// sidesteps the guard entirely, as it is a plain read with no secure_getenv
+	// involved. A normal, non-elevated desktop session cannot write HKLM, so
+	// this is additional to the environment variable above, not a replacement
+	// for it: whichever one the current process is allowed to use is the one
+	// that ends up mattering.
+	HKEY icd_vendors_key;
+	if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Khronos\\OpenCL\\Vendors", 0,
+	                     nullptr, 0, KEY_SET_VALUE, nullptr, &icd_vendors_key,
+	                     nullptr) == ERROR_SUCCESS) {
+		DWORD icd_version = 0; // the ICD spec's "OpenCL 1.2 or later" marker
+		RegSetValueExA(icd_vendors_key, pocl_path.c_str(), 0, REG_DWORD,
+		               reinterpret_cast<const BYTE*>(&icd_version), sizeof(icd_version));
+		RegCloseKey(icd_vendors_key);
+	}
+
 	std::filesystem::current_path(libdir);
 #endif
 
