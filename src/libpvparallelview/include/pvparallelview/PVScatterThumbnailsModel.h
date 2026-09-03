@@ -32,7 +32,7 @@
 
 #include <pvparallelview/PVScatterThumbnail.h>
 
-#include <tbb/task_group.h>
+#include <QThreadPool>
 
 #include <QAbstractListModel>
 #include <QPixmap>
@@ -94,9 +94,7 @@ class PVScatterThumbnailsModel : public QAbstractListModel
 	constexpr static int preview_size = 512;
 
 	explicit PVScatterThumbnailsModel(Squey::PVView& view, QObject* parent = nullptr);
-	// noexcept is explicit because tbb::task_group's destructor is not, which
-	// would otherwise make this one laxer than QAbstractListModel's.
-	~PVScatterThumbnailsModel() noexcept override;
+	~PVScatterThumbnailsModel() override;
 
   public:
 	int rowCount(QModelIndex const& parent = QModelIndex()) const override;
@@ -297,7 +295,16 @@ class PVScatterThumbnailsModel : public QAbstractListModel
 	//! Cancels the in-flight hover preview when the pointer moves to another item.
 	std::shared_ptr<std::atomic<bool>> _preview_cancelled;
 
-	mutable tbb::task_group _tasks;
+	/**
+	 * Own pool rather than tbb::task_group.
+	 *
+	 * The group was the only one in the production tree, and waiting on it is
+	 * where the Windows CI died: an execution fault at address 0 inside
+	 * drain(), between "draining" and "drained". QThreadPool is what the rest
+	 * of the codebase leans on, its waitForDone() is a plain join, and clear()
+	 * drops whatever has not started yet.
+	 */
+	mutable QThreadPool _pool;
 
 	//! Renders in flight at once, so a fast scroll cannot queue unbounded work.
 	size_t _max_concurrent_renders;

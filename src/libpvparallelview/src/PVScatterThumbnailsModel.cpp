@@ -77,6 +77,8 @@ PVParallelView::PVScatterThumbnailsModel::PVScatterThumbnailsModel(Squey::PVView
     , _max_concurrent_renders(std::max<size_t>(1, pvhwloc::core_count()))
     , _max_cached_bytes(64u << 20)
 {
+	_pool.setMaxThreadCount(int(_max_concurrent_renders));
+
 	rebuild_placeholder();
 	reset_pairs();
 
@@ -109,7 +111,7 @@ PVParallelView::PVScatterThumbnailsModel::PVScatterThumbnailsModel(Squey::PVView
 	    _view._axis_combination_updated.connect([this](bool) { on_axes_combination_changed(); });
 }
 
-PVParallelView::PVScatterThumbnailsModel::~PVScatterThumbnailsModel() noexcept
+PVParallelView::PVScatterThumbnailsModel::~PVScatterThumbnailsModel()
 {
 	std::fprintf(stderr, "[gallery] ~model: enter\n");
 	std::fflush(stderr);
@@ -152,7 +154,7 @@ void PVParallelView::PVScatterThumbnailsModel::request_preview(int row, int size
 	const Pair pair = _pairs[row];
 	auto cancelled = _preview_cancelled;
 
-	_tasks.run([this, row, pair, size, cancelled]() {
+	_pool.start(QRunnable::create([this, row, pair, size, cancelled]() {
 		PVScatterThumbnailImages images;
 		if (not PVScatterThumbnail::render(_view, pair.x, pair.y, size, images, *cancelled)) {
 			return;
@@ -168,7 +170,7 @@ void PVParallelView::PVScatterThumbnailsModel::request_preview(int row, int size
 			    Q_EMIT preview_ready(row, compose(images));
 			},
 		    Qt::QueuedConnection);
-	});
+	}));
 }
 
 void PVParallelView::PVScatterThumbnailsModel::drain()
@@ -179,7 +181,9 @@ void PVParallelView::PVScatterThumbnailsModel::drain()
 	// a selection change does not stop it.
 	cancel_correlations();
 	// Only here, where a caller is about to take away what those two read.
-	_tasks.wait();
+	// clear() first, so anything still queued never starts.
+	_pool.clear();
+	_pool.waitForDone();
 }
 
 void PVParallelView::PVScatterThumbnailsModel::cancel_correlations()
@@ -348,7 +352,7 @@ void PVParallelView::PVScatterThumbnailsModel::schedule_renders() const
 
 		++_running;
 		_in_flight.insert(row);
-		_tasks.run([this, self, row, pair, size, cancelled]() {
+		_pool.start(QRunnable::create([this, self, row, pair, size, cancelled]() {
 			PVScatterThumbnailImages images;
 			const bool rendered =
 			    PVScatterThumbnail::render(_view, pair.x, pair.y, size, images, *cancelled);
@@ -383,7 +387,7 @@ void PVParallelView::PVScatterThumbnailsModel::schedule_renders() const
 				    }
 			    },
 			    Qt::QueuedConnection);
-		});
+		}));
 	}
 }
 
@@ -545,7 +549,7 @@ void PVParallelView::PVScatterThumbnailsModel::compute_correlations()
 	auto cancelled = _correlations_cancelled;
 	auto scores = std::make_shared<std::vector<double>>(_pairs.size(), 0.);
 
-	_tasks.run([this, scores, cancelled]() {
+	_pool.start(QRunnable::create([this, scores, cancelled]() {
 		// The per-column sums first, once per column: with N axes each column
 		// takes part in N-1 pairs, so folding them into the pair loop would walk
 		// every column N-1 times over.
@@ -602,7 +606,7 @@ void PVParallelView::PVScatterThumbnailsModel::compute_correlations()
 			    Q_EMIT correlations_ready();
 			},
 		    Qt::QueuedConnection);
-	});
+	}));
 }
 
 void PVParallelView::PVScatterThumbnailsModel::on_selection_changed()
