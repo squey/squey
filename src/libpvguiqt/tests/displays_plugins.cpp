@@ -88,6 +88,108 @@ static void report_crash(int sig)
 	std::signal(sig, SIG_DFL);
 	std::raise(sig); // let the platform report the signal as it would have
 }
+#elif defined(_WIN32)
+#include <windows.h>
+// dbghelp.h insists on coming after windows.h.
+#include <dbghelp.h>
+
+#include <cstdio>
+
+// Same reasoning as the branch above, for the Windows CI: ctest reports only
+// "SEGFAULT", Windows leaves no core behind, and the runner is not reachable,
+// so a crash here says nothing at all. Walk the faulting stack ourselves.
+//
+// The walk starts from the exception's own context rather than from this
+// filter, which would only show the filter's frames.
+static LONG WINAPI report_crash(EXCEPTION_POINTERS* info)
+{
+	const EXCEPTION_RECORD& record = *info->ExceptionRecord;
+	std::fprintf(stderr, "\n*** fatal exception 0x%08lx at 0x%llx ***\n", record.ExceptionCode,
+	             reinterpret_cast<unsigned long long>(record.ExceptionAddress));
+
+	if (record.ExceptionCode == EXCEPTION_ACCESS_VIOLATION and record.NumberParameters >= 2) {
+		std::fprintf(stderr, "    %s address 0x%llx\n",
+		             record.ExceptionInformation[0] != 0 ? "writing" : "reading",
+		             static_cast<unsigned long long>(record.ExceptionInformation[1]));
+	}
+
+	const HANDLE process = GetCurrentProcess();
+	SymSetOptions(SYMOPT_DEFERRED_LOADS | SYMOPT_UNDNAME);
+	SymInitialize(process, nullptr, TRUE);
+
+	// The faulting address on its own, before any stack walking: a module plus
+	// an offset is enough to get the exact line back through addr2line, and it
+	// survives the walk below failing -- which it does when the frame chain is
+	// unusable.
+	{
+		const DWORD64 pc = reinterpret_cast<DWORD64>(record.ExceptionAddress);
+		IMAGEHLP_MODULE64 module_info = {};
+		module_info.SizeOfStruct = sizeof(module_info);
+		const DWORD64 base = SymGetModuleBase64(process, pc);
+		if (base != 0 and SymGetModuleInfo64(process, base, &module_info)) {
+			std::fprintf(stderr, "    in %s + 0x%llx\n", module_info.ModuleName,
+			             static_cast<unsigned long long>(pc - base));
+		}
+	}
+
+	std::fprintf(stderr, "  backtrace:\n");
+
+	CONTEXT context = *info->ContextRecord;
+	STACKFRAME64 frame = {};
+	frame.AddrPC.Offset = context.Rip;
+	frame.AddrPC.Mode = AddrModeFlat;
+	frame.AddrFrame.Offset = context.Rbp;
+	frame.AddrFrame.Mode = AddrModeFlat;
+	frame.AddrStack.Offset = context.Rsp;
+	frame.AddrStack.Mode = AddrModeFlat;
+
+	// SYMBOL_INFO carries its name inline past the end of the struct.
+	char storage[sizeof(SYMBOL_INFO) + 512] = {};
+	auto* symbol = reinterpret_cast<SYMBOL_INFO*>(storage);
+	symbol->SizeOfStruct = sizeof(SYMBOL_INFO);
+	symbol->MaxNameLen = 511;
+
+	int walked = 0;
+	for (int i = 0; i < 64; ++i) {
+		if (not StackWalk64(IMAGE_FILE_MACHINE_AMD64, process, GetCurrentThread(), &frame,
+		                    &context, nullptr, SymFunctionTableAccess64, SymGetModuleBase64,
+		                    nullptr)) {
+			if (walked == 0) {
+				std::fprintf(stderr, "    (stack walk gave nothing, error %lu)\n",
+				             GetLastError());
+			}
+			break;
+		}
+		++walked;
+		const DWORD64 pc = frame.AddrPC.Offset;
+		if (pc == 0) {
+			break;
+		}
+
+		// The module matters as much as the symbol here: mingw emits DWARF and
+		// dbghelp reads PDBs, so it resolves names only through the export
+		// table, and anything static stays an address. Knowing which library a
+		// frame is in already narrows a crash down a great deal.
+		IMAGEHLP_MODULE64 module_info = {};
+		module_info.SizeOfStruct = sizeof(module_info);
+		const DWORD64 base = SymGetModuleBase64(process, pc);
+		const char* module = (base != 0 and SymGetModuleInfo64(process, base, &module_info))
+		                         ? module_info.ModuleName
+		                         : "?";
+
+		DWORD64 displacement = 0;
+		if (SymFromAddr(process, pc, &displacement, symbol)) {
+			std::fprintf(stderr, "  %2d  %s!%s + 0x%llx\n", i, module, symbol->Name,
+			             static_cast<unsigned long long>(displacement));
+		} else {
+			std::fprintf(stderr, "  %2d  %s + 0x%llx\n", i, module,
+			             static_cast<unsigned long long>(base != 0 ? pc - base : pc));
+		}
+	}
+
+	std::fflush(stderr);
+	return EXCEPTION_EXECUTE_HANDLER;
+}
 #endif
 
 int main(int argc, char** argv)
@@ -99,6 +201,8 @@ int main(int argc, char** argv)
 #if defined(__linux__) || defined(__APPLE__)
 	std::signal(SIGSEGV, report_crash);
 	std::signal(SIGBUS, report_crash);
+#elif defined(_WIN32)
+	SetUnhandledExceptionFilter(report_crash);
 #endif
 
 	init_env();
