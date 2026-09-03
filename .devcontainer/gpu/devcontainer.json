@@ -1,0 +1,62 @@
+{
+  "name": "Squey (native Linux build, NVIDIA GPU)",
+
+  // Everything below repeats .devcontainer/devcontainer.json, which is what the
+  // specification leaves us: a configuration cannot extend another. Keep the
+  // two in step -- update_devcontainer_pin.sh already writes the image line of
+  // both.
+  "image": "registry.gitlab.com/squey/squey/devcontainer:2782e2b4951489b6",
+
+  "remoteUser": "dev",
+  "updateRemoteUserUID": true,
+
+  // Collects the host GPU userspace under one fixed path before the container
+  // is created, so that the mount below needs to know neither where flatpak
+  // keeps its runtimes nor which driver version is loaded.
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/prepare_gpu.sh",
+
+  "containerEnv": {
+    "SOURCE_DIR": "${containerWorkspaceFolder}",
+    "WAYLAND_DISPLAY": "/tmp/wayland-0",
+    "QT_QPA_PLATFORM": "wayland",
+    // Squey finds the device and then dies building its kernels without this:
+    // run_cmd.sh links libnvidia-ptxjitcompiler next to the ICD file it writes,
+    // but the OpenCL compiler also dlopens libnvidia-nvvm.so.4, which is only
+    // ever found by being on the search path. "nvidia" is the fixed alias
+    // prepare_gpu.sh creates next to the driver-versioned directory it cannot
+    // predict.
+    "LD_LIBRARY_PATH": "/usr/lib/x86_64-linux-gnu/GL/nvidia/lib:/usr/lib/x86_64-linux-gnu/GL/lib:/usr/lib/x86_64-linux-gnu:/app/lib"
+  },
+
+  "mounts": [
+    "source=squey-ccache,target=/home/dev/.cache/ccache,type=volume",
+    "source=squey-config,target=/home/dev/.squey,type=volume",
+    "source=${localEnv:XDG_RUNTIME_DIR}/wayland-0,target=/tmp/wayland-0,type=bind",
+    // What prepare_gpu.sh gathered. run_cmd.sh reads the driver out of it and
+    // writes the matching OpenCL vendor file.
+    "source=${localEnv:HOME}/.cache/squey-devcontainer/gl,target=/usr/lib/x86_64-linux-gnu/GL,type=bind,readonly"
+  ],
+
+  // The devices the driver needs. Unlike everything else here these have to
+  // exist, which is why this configuration is a separate choice rather than the
+  // default: on a machine with no NVIDIA card the container would refuse to
+  // start.
+  "runArgs": [
+    "--device=/dev/dri",
+    "--device=/dev/nvidia0",
+    "--device=/dev/nvidiactl",
+    "--device=/dev/nvidia-uvm"
+  ],
+
+  "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/configure_builds.sh",
+
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "twxs.cmake",
+        "vadimcn.vscode-lldb"
+      ]
+    }
+  }
+}

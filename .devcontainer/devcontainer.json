@@ -5,7 +5,7 @@
   // .gitlab-ci.yml pins BASE_IMAGE_NAME: the tag is a digest of the dependency
   // graph, so a branch that does not touch buildstream/ inherits the image of
   // the branch it forked from. Never edit this line by hand.
-  "image": "registry.gitlab.com/squey/squey/devcontainer:d8e751ed979b1136",
+  "image": "registry.gitlab.com/squey/squey/devcontainer:2782e2b4951489b6",
 
   // No "workspaceFolder" here. Setting it does not move the bind mount, which
   // the runtime places at /workspaces/<name of the local directory>: naming a
@@ -46,13 +46,6 @@
     // host that has no Wayland session: the socket is simply never used.
     "source=${localEnv:XDG_RUNTIME_DIR}/wayland-0,target=/tmp/wayland-0,type=bind"
   ],
-
-  // podman maps the container user onto a subordinate uid of the host, which
-  // owns none of the host sockets: connecting to the compositor then fails with
-  // a permission error. keep-id lines the two up. Docker needs no such thing --
-  // its uid 1000 is already the host one -- and rejects the option, so drop
-  // this line when running the devcontainer under Docker.
-  "runArgs": ["--userns=keep-id"],
 
   "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/configure_builds.sh",
 
