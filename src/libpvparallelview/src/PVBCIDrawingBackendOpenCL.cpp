@@ -115,8 +115,25 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	std::string libdir = exe_path.parent_path().string();
 	PVCore::setenv("LIBRARY_PATH", libdir.c_str(), 1);
+	// Beside the executable is where the packaged application finds it. The test
+	// executables are installed two directories below that, under tests/, and
+	// naming a path that does not exist leaves the loader with no ICD at all --
+	// the whole testsuite ran without an OpenCL device for that reason. Falling
+	// back to the bare name hands the lookup to the regular DLL search order,
+	// which covers them: the directory holding pocl.dll comes first in the PATH
+	// the testsuite runs with.
+	// Beside the executable is where the packaged application finds it, squey.exe
+	// and pocl.dll sitting in the same directory. The test executables are
+	// installed two levels below that, under tests/ (see CMakeMacros.txt), and
+	// naming a path that does not exist leaves the loader with no ICD at all --
+	// which is why the testsuite ran without an OpenCL device. The bare name
+	// falls back on the regular DLL search order, and the last argument of
+	// setenv leaves an OCL_ICD_FILENAMES set by the caller alone.
 	std::string pocl_path = libdir + "/pocl.dll";
-	PVCore::setenv("OCL_ICD_FILENAMES", pocl_path.c_str(), 1);
+	if (not std::filesystem::exists(pocl_path)) {
+		pocl_path = "pocl.dll";
+	}
+	PVCore::setenv("OCL_ICD_FILENAMES", pocl_path.c_str(), 0);
 	std::filesystem::current_path(libdir);
 #endif
 
