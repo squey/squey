@@ -31,6 +31,7 @@
 #include <CL/cl.hpp> // for cl_context_properties, etc
 
 #include <cstddef> // for size_t
+#include <cstdlib> // for getenv
 #include <string>  // for string
 #include <vector>  // for vector
 
@@ -41,12 +42,21 @@
 
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
+bool PVOpenCL::force_cpu()
+{
+	if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
+		return true;
+	}
+	const char* env = getenv("FORCE_CPU");
+	return env != nullptr && std::string(env) == "1";
+}
+
 std::pair<std::string, bool> PVOpenCL::opencl_infos()
 {
 	static std::string s_opencl_version;
 	static bool accelerated = true;
 	if (s_opencl_version.empty()) {
-		if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
+		if (force_cpu()) {
 			accelerated = false;
 		}
 		for (size_t i = 0; i < (size_t)(accelerated + 1); i++) {

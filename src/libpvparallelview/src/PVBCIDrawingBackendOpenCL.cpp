@@ -24,7 +24,6 @@
 //
 
 #include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVUtils.h>
 
 #include <pvkernel/opencl/common.h>
@@ -129,10 +128,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	const size_t column_mem_size = image_height * sizeof(cl_uint);
 	const uint64_t max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
 
-	auto& config = PVCore::PVConfig::get().config();
-	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
-	const char* force_cpu_env = getenv("FORCE_CPU");
-	force_cpu |= (force_cpu_env != nullptr && std::string(force_cpu_env) == "1");
+	const bool force_cpu = PVOpenCL::force_cpu();
 
 	// List all usable OpenCL devices and create appropriate structures
 	const auto fun = [&](cl::Context& ctx, cl::Device& dev) {
