@@ -1,8 +1,19 @@
 #!/bin/bash
 
 GL_TARGET_DIR="/usr/lib/x86_64-linux-gnu/GL"
-export OCL_ICD_VENDORS=/etc/opencl_vendors
-mkdir -p $OCL_ICD_VENDORS
+# /etc/opencl_vendors is where the flatpak sandbox expects the vendor files, and
+# it is writable there. It is not in a BuildStream build sandbox, where /etc is
+# read only -- so the testsuite ran with no OpenCL platform at all, silently,
+# neither the mkdir nor the redirections below being checked. Honour a caller
+# that already named a directory, and fall back to a writable one rather than
+# carry on writing nowhere.
+if [ -z "$OCL_ICD_VENDORS" ]; then
+	export OCL_ICD_VENDORS=/etc/opencl_vendors
+fi
+if ! mkdir -p "$OCL_ICD_VENDORS" 2> /dev/null; then
+	export OCL_ICD_VENDORS="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/opencl_vendors"
+	mkdir -p "$OCL_ICD_VENDORS"
+fi
 
 NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"|sed -e "s/nvidia-//"`
 NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed 's/-/./g'`
