@@ -40,6 +40,8 @@
 #include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVFullParallelScene.h>
+
+#include <cstdio>
 #include <pvparallelview/PVRenderingPipeline.h>
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZonesManager.h>
@@ -265,6 +267,8 @@ void PVParallelView::PVFullParallelScene::on_zones_updated(
 
 void PVParallelView::PVFullParallelScene::on_view_about_to_be_deleted()
 {
+	std::fprintf(stderr, "[PVFullParallelScene] on_view_about_to_be_deleted: enter\n");
+	std::fflush(stderr);
 	// The Squey::PVView is being destroyed: its memory is released right
 	// after this emission, so the widget (which owns this scene) must not
 	// outlive it.

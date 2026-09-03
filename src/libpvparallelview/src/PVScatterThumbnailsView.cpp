@@ -38,6 +38,7 @@
 #include <squey/PVView.h>
 
 #include <QApplication>
+#include <cstdio>
 #include <QKeyEvent>
 #include <QClipboard>
 #include <QComboBox>
@@ -320,16 +321,28 @@ PVParallelView::PVScatterThumbnailsView::PVScatterThumbnailsView(Squey::PVView& 
 	// is tied straight to the model, as PVSeriesViewWidget is. Deleting the
 	// widget here drains the renders still reading the model's columns.
 	_view_deleted_connection = _view._about_to_be_delete.connect([this] {
+		// TEMPORARY tracing: the Windows CI dies jumping to address 0 somewhere
+		// in this teardown, and neither Linux nor the Windows VM reproduces it.
+		// The last line to come out locates it.
+		std::fprintf(stderr, "[gallery] about_to_be_delete: detaching\n");
+		std::fflush(stderr);
 		// Stop everything before the destructor starts pulling the object graph
 		// apart: the renders read the model view's columns, and the model is
 		// still subscribed to signals this very emission runs alongside.
 		_model->detach();
+		std::fprintf(stderr, "[gallery] detached, deleting widget\n");
+		std::fflush(stderr);
 		delete this;
+		std::fprintf(stderr, "[gallery] widget deleted\n");
+		std::fflush(stderr);
 	});
 }
 
 PVParallelView::PVScatterThumbnailsView::~PVScatterThumbnailsView()
 {
+	std::fprintf(stderr, "[gallery] ~view: enter\n");
+	std::fflush(stderr);
+
 	// Idempotent: detach() has usually run already, from the model-teardown
 	// handler. This covers the other way in -- the widget being deleted on its
 	// own, with the model view still alive.
@@ -345,6 +358,9 @@ PVParallelView::PVScatterThumbnailsView::~PVScatterThumbnailsView()
 
 	// Free-standing window, so it is not taken down by the widget tree.
 	delete _preview;
+
+	std::fprintf(stderr, "[gallery] ~view: leaving body, children next\n");
+	std::fflush(stderr);
 }
 
 void PVParallelView::PVScatterThumbnailsView::setup_toolbar(QBoxLayout* layout)
