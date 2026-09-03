@@ -162,6 +162,17 @@ class PVScatterThumbnailsModel : public QAbstractListModel
 	 */
 	void cancel_renders();
 
+	/**
+	 * Stop for good: no further work is scheduled, everything in flight is
+	 * waited for, and every subscription to the model view is dropped.
+	 *
+	 * Called before the widget starts coming apart, rather than left to the
+	 * destructors. A queued render completing, or a signal arriving, once
+	 * half of the object graph has gone is how a teardown ends up calling
+	 * through something that is no longer there.
+	 */
+	void detach();
+
 	//! Cancel a running correlation pass without touching the renders.
 	void cancel_correlations();
 
@@ -251,6 +262,12 @@ class PVScatterThumbnailsModel : public QAbstractListModel
 	 */
 	mutable std::unordered_set<int> _in_flight;
 	mutable size_t _running = 0;
+	/**
+	 * Set by detach(): no repaint, signal or completion callback may schedule
+	 * work from here on. Without it, a repaint during teardown -- setModel()
+	 * alone triggers one -- puts a fresh render on the pool after the drain.
+	 */
+	bool _shutting_down = false;
 	/**
 	 * A render landed since renders_idle() was last emitted.
 	 *

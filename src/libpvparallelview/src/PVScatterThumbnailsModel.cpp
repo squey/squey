@@ -136,7 +136,7 @@ void PVParallelView::PVScatterThumbnailsModel::cancel_renders()
 
 void PVParallelView::PVScatterThumbnailsModel::request_preview(int row, int size)
 {
-	if (row < 0 or row >= int(_pairs.size())) {
+	if (_shutting_down or row < 0 or row >= int(_pairs.size())) {
 		return;
 	}
 
@@ -183,6 +183,23 @@ void PVParallelView::PVScatterThumbnailsModel::cancel_correlations()
 	_correlations_cancelled->store(true);
 	_correlations_cancelled = std::make_shared<std::atomic<bool>>(false);
 	_correlations_pending = false;
+}
+
+void PVParallelView::PVScatterThumbnailsModel::detach()
+{
+	_shutting_down = true;
+	drain();
+
+	// Dropped by hand rather than by the PVDisconnector members: those run
+	// from the destructor, which is well after the widget has begun to
+	// disappear around them.
+	_selection_changed_connection.disconnect();
+	_output_selection_connection.disconnect();
+	_output_layer_connection.disconnect();
+	_scaling_connection.disconnect();
+	_unselected_zombie_connection.disconnect();
+	_axes_comb_about_to_change_connection.disconnect();
+	_axes_comb_changed_connection.disconnect();
 }
 
 void PVParallelView::PVScatterThumbnailsModel::reset_pairs()
@@ -286,7 +303,7 @@ void PVParallelView::PVScatterThumbnailsModel::request_render(int row) const
 {
 	// Between the two axes-combination signals the pair list is about to be
 	// rebuilt, so anything rendered against it would be thrown away at once.
-	if (_axes_combination_changing or _in_flight.contains(row)) {
+	if (_shutting_down or _axes_combination_changing or _in_flight.contains(row)) {
 		return;
 	}
 
@@ -307,7 +324,7 @@ void PVParallelView::PVScatterThumbnailsModel::schedule_renders() const
 {
 	auto* self = const_cast<PVScatterThumbnailsModel*>(this);
 
-	while (_running < _max_concurrent_renders and not _pending.empty()) {
+	while (not _shutting_down and _running < _max_concurrent_renders and not _pending.empty()) {
 		const int row = _pending.back();
 		_pending.pop_back();
 
@@ -510,7 +527,7 @@ QPixmap PVParallelView::PVScatterThumbnailsModel::render_preview(int row, int si
 
 void PVParallelView::PVScatterThumbnailsModel::compute_correlations()
 {
-	if (_pairs.empty() or not _correlations.empty() or _correlations_pending) {
+	if (_shutting_down or _pairs.empty() or not _correlations.empty() or _correlations_pending) {
 		return;
 	}
 

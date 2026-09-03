@@ -108,8 +108,22 @@ static LONG WINAPI report_crash(EXCEPTION_POINTERS* info)
 	             reinterpret_cast<unsigned long long>(record.ExceptionAddress));
 
 	if (record.ExceptionCode == EXCEPTION_ACCESS_VIOLATION and record.NumberParameters >= 2) {
-		std::fprintf(stderr, "    %s address 0x%llx\n",
-		             record.ExceptionInformation[0] != 0 ? "writing" : "reading",
+		// 0 read, 1 write, 8 execute. The last one means control reached an
+		// address it may not run, which is what a call through a null or
+		// dangling function pointer looks like -- worth telling apart from a
+		// bad data access.
+		char const* kind = "reading";
+		switch (record.ExceptionInformation[0]) {
+		case 1:
+			kind = "writing";
+			break;
+		case 8:
+			kind = "executing at";
+			break;
+		default:
+			break;
+		}
+		std::fprintf(stderr, "    %s address 0x%llx\n", kind,
 		             static_cast<unsigned long long>(record.ExceptionInformation[1]));
 	}
 

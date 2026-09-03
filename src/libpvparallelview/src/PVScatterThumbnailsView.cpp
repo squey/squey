@@ -319,18 +319,21 @@ PVParallelView::PVScatterThumbnailsView::PVScatterThumbnailsView(Squey::PVView& 
 	// Autonomous view: it borrows nothing from a PVViewRenderingContext, so it
 	// is tied straight to the model, as PVSeriesViewWidget is. Deleting the
 	// widget here drains the renders still reading the model's columns.
-	_view_deleted_connection = _view._about_to_be_delete.connect([this] { delete this; });
+	_view_deleted_connection = _view._about_to_be_delete.connect([this] {
+		// Stop everything before the destructor starts pulling the object graph
+		// apart: the renders read the model view's columns, and the model is
+		// still subscribed to signals this very emission runs alongside.
+		_model->detach();
+		delete this;
+	});
 }
 
 PVParallelView::PVScatterThumbnailsView::~PVScatterThumbnailsView()
 {
-	// Renders first, before anything else starts going away: they read the
-	// model view's scaled columns and its colour buffer from a worker thread,
-	// and every line below tears down something around them. Waiting for the
-	// model's own destructor to do it leaves them running through the whole
-	// teardown, because QObject only deletes its children once the members
-	// above have gone.
-	_model->drain();
+	// Idempotent: detach() has usually run already, from the model-teardown
+	// handler. This covers the other way in -- the widget being deleted on its
+	// own, with the model view still alive.
+	_model->detach();
 
 	// Then the chain that reads the model. QObject deletes children in
 	// creation order and the model was created before the proxy and the list,
