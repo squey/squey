@@ -32,8 +32,6 @@
 #include <squey/PVView.h>
 
 #include <pvparallelview/PVHitCountView.h>
-
-#include <cstdio>
 #include <pvparallelview/PVHitGraphData.h>
 
 #include <pvparallelview/PVZoomableDrawingAreaInteractor.h>
@@ -323,8 +321,6 @@ void PVParallelView::PVHitCountView::on_scaling_updated(QList<PVCol> const& cols
 
 void PVParallelView::PVHitCountView::on_view_about_to_be_deleted()
 {
-	std::fprintf(stderr, "[PVHitCountView] on_view_about_to_be_deleted: enter\n");
-	std::fflush(stderr);
 	// The Squey::PVView is being destroyed: its memory is released right after
 	// this emission, so this widget must not outlive it.
 	_update_all_timer.stop();

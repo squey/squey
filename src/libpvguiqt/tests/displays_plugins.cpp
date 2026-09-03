@@ -335,11 +335,7 @@ int main(int argc, char** argv)
 	// the whole drain-then-delete path of the per-view rendering context.
 	std::cout << "tearing down the source" << std::endl;
 	src.get_parent<Squey::PVScene>().remove_child(src);
-	// TEMPORARY: bracket the two halves of the teardown, so the Windows log
-	// shows which one the jump to address 0 happens in.
-	std::cout << "source removed, draining the event queue" << std::endl;
 	QApplication::processEvents();
-	std::cout << "event queue drained" << std::endl;
 
 	for (auto const& [name, widget] : parallelview_widgets) {
 		PV_ASSERT_VALID(widget.isNull(), "widget_alive_after_model_teardown", name);

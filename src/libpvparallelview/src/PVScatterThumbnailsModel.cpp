@@ -36,8 +36,6 @@
 
 #include <QPainter>
 
-#include <cstdio>
-
 #include <algorithm>
 #include <unordered_set>
 
@@ -113,8 +111,6 @@ PVParallelView::PVScatterThumbnailsModel::PVScatterThumbnailsModel(Squey::PVView
 
 PVParallelView::PVScatterThumbnailsModel::~PVScatterThumbnailsModel()
 {
-	std::fprintf(stderr, "[gallery] ~model: enter\n");
-	std::fflush(stderr);
 	// Every render dereferences the scaled columns and the colour buffer of the
 	// model view; none may still be running once this returns.
 	drain();
@@ -195,12 +191,8 @@ void PVParallelView::PVScatterThumbnailsModel::cancel_correlations()
 
 void PVParallelView::PVScatterThumbnailsModel::detach()
 {
-	std::fprintf(stderr, "[gallery] detach: draining\n");
-	std::fflush(stderr);
 	_shutting_down = true;
 	drain();
-	std::fprintf(stderr, "[gallery] detach: drained, disconnecting\n");
-	std::fflush(stderr);
 
 	// Dropped by hand rather than by the PVDisconnector members: those run
 	// from the destructor, which is well after the widget has begun to
@@ -212,8 +204,6 @@ void PVParallelView::PVScatterThumbnailsModel::detach()
 	_unselected_zombie_connection.disconnect();
 	_axes_comb_about_to_change_connection.disconnect();
 	_axes_comb_changed_connection.disconnect();
-	std::fprintf(stderr, "[gallery] detach: done\n");
-	std::fflush(stderr);
 }
 
 void PVParallelView::PVScatterThumbnailsModel::reset_pairs()

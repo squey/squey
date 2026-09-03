@@ -27,8 +27,6 @@
 #include <pvparallelview/PVViewRenderingContext.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVScatterView.h>
-
-#include <cstdio>
 #include <pvparallelview/PVScatterViewInteractor.h>
 #include <pvparallelview/PVScatterViewParamsWidget.h>
 #include <pvparallelview/PVScatterViewSelectionRectangle.h>
@@ -326,8 +324,6 @@ void PVParallelView::PVScatterView::on_zones_updated(std::unordered_set<PVZoneID
 
 void PVParallelView::PVScatterView::on_view_about_to_be_deleted()
 {
-	std::fprintf(stderr, "[PVScatterView] on_view_about_to_be_deleted: enter\n");
-	std::fflush(stderr);
 	// The Squey::PVView is being destroyed: its memory is released right
 	// after this emission, so this widget must not outlive it. The backend
 	// destructor drains the pending renderings.

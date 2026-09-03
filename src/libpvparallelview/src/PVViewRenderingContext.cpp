@@ -30,8 +30,6 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVViewRenderingContext.h>
 
-#include <cstdio>
-
 PVParallelView::PVViewRenderingContext::PVViewRenderingContext(Squey::PVView& view_sp)
     : _view(&view_sp)
     , _zones_manager(view_sp)
@@ -110,23 +108,11 @@ PVParallelView::PVViewRenderingContext::acquire_zoomed_zone(PVZoneID zone_id)
 
 void PVParallelView::PVViewRenderingContext::on_view_about_to_be_deleted()
 {
-	// TEMPORARY tracing: the Windows CI dies jumping to address 0 during this
-	// teardown, before the gallery is even notified, so the fault is in what
-	// this emission drives.
-	std::fprintf(stderr, "[ctx] view_about_to_be_deleted: notifying views\n");
-	std::fflush(stderr);
-
 	// Subscribed views drain their renderings and synchronously delete their
 	// top-level widget: the model memory is released right after this handler.
 	view_about_to_be_deleted.emit();
 
-	std::fprintf(stderr, "[ctx] views notified, removing context\n");
-	std::fflush(stderr);
-
 	PVParallelView::common::remove_rendering_context(*lib_view());
-
-	std::fprintf(stderr, "[ctx] context removed\n");
-	std::fflush(stderr);
 }
 
 void PVParallelView::PVViewRenderingContext::on_selection_view_changed()
