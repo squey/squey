@@ -32,15 +32,19 @@
 namespace PVParallelView
 {
 
-class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
+/**
+ * Reference renderer: one QPainter polyline per serie. Portable and easy to reason
+ * about, but single threaded and paying the generic stroker on every segment, so it
+ * only stays interactive for a handful of series -- see PVSeriesRendererRaster.
+ */
+class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer
 {
 	using PVRSS = Squey::PVRangeSubSampler;
 
   public:
-	PVSeriesRendererQPainter(Squey::PVRangeSubSampler const& rss, QWidget* parent = nullptr)
-	    : PVSeriesAbstractRenderer(rss), QWidget(parent)
+	PVSeriesRendererQPainter(Squey::PVRangeSubSampler const& rss)
+	    : PVSeriesAbstractRenderer(rss)
 	{
-		setAutoFillBackground(true);
 	}
 
 	static constexpr bool capability() { return true; }
@@ -56,18 +60,21 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 	void set_background_color(QColor const& bgcol) override { _background_color = bgcol; }
 	void set_draw_mode(PVSeriesView::DrawMode mode) override { _draw_mode = capability(mode); }
 
-	void resize(QSize const& size) override { return QWidget::resize(size); }
-	QPixmap grab() override { return QWidget::grab(); }
-
-  protected:
-	void paintEvent(QPaintEvent*) override
+	QImage grab() override
 	{
-		if (not _rss.valid()) {
-			return;
+		if (_image.size() != _size) {
+			_image = QImage(_size, QImage::Format_RGB32);
 		}
-		QPainter painter(this);
+		if (_image.isNull()) {
+			return _image;
+		}
 
-		painter.fillRect(rect(), _background_color);
+		QPainter painter(&_image);
+		painter.fillRect(_image.rect(), _background_color);
+
+		if (not _rss.valid()) {
+			return _image;
+		}
 
 		std::vector<QPoint> points;
 		auto draw_lines = [&painter, &points]() {
@@ -116,11 +123,14 @@ class PVSeriesRendererQPainter : public PVSeriesAbstractRenderer, public QWidget
 			}
 		}
 		painter.end();
+
+		return _image;
 	}
 
   private:
 	PVSeriesView::DrawMode _draw_mode = PVSeriesView::DrawMode::Lines;
-	QColor _background_color;
+	QColor _background_color = Qt::black;
+	QImage _image;
 };
 
 } // namespace PVParallelView

@@ -346,6 +346,7 @@ add_squey_test(Tsquey_cancel_export Tsquey_cancel_export ${TESTS_FILES_DIR}/sour
 # Range subsampler
 add_squey_compile_test(Tsquey_range_subsampler LINKS ${LINK_LIBRARIES} FILES range_subsampler.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_range_subsampler Tsquey_range_subsampler)
+add_bench(Tsquey_subsample_bench LINKS ${LINK_LIBRARIES} FILES subsample_bench.cpp ${COMMON_FILES})
 
 # multi-inputs
 add_squey_compile_test(Tsquey_multi_inputs LINKS ${LINK_LIBRARIES} FILES multi_inputs.cpp ${COMMON_FILES})

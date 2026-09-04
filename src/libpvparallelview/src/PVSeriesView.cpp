@@ -25,7 +25,12 @@
 
 #include <pvparallelview/PVSeriesView.h>
 
+#include <pvparallelview/PVSeriesRendererHybrid.h>
 #include <pvparallelview/PVSeriesRendererQPainter.h>
+#include <pvparallelview/PVSeriesRendererRaster.h>
+#ifdef SQUEY_SERIES_QRHI
+#include <pvparallelview/PVSeriesRendererQRhi.h>
+#endif
 
 #include <cassert>
 #include <stdexcept>
@@ -41,7 +46,19 @@ namespace PVParallelView
 		throw std::invalid_argument("Unkown PVSeriesView::Backend");                               \
 	}
 
+#ifdef SQUEY_SERIES_QRHI
+#define CASE_BACKEND_QRHI(...) CASE_BACKEND(Backend::QRhi, PVSeriesRendererQRhi, __VA_ARGS__)
+#else
+// Without the backend compiled in, asking for it lands on the next one down.
+#define CASE_BACKEND_QRHI(...)                                                                     \
+	case Backend::QRhi:                                                                            \
+		[[fallthrough]];
+#endif
+
 #define CASELIST_BACKEND(...)                                                                      \
+	CASE_BACKEND_QRHI(__VA_ARGS__)                                                                 \
+	CASE_BACKEND(Backend::Hybrid, PVSeriesRendererHybrid, __VA_ARGS__)                              \
+	CASE_BACKEND(Backend::Raster, PVSeriesRendererRaster, __VA_ARGS__)                              \
 	CASE_BACKEND(Backend::QPainter, PVSeriesRendererQPainter, __VA_ARGS__)
 
 #define CASE_BACKEND(backend, Renderer, ...)                                                       \
@@ -56,6 +73,24 @@ namespace PVParallelView
 auto PVSeriesView::make_renderer(Backend backend) -> Backend
 {
 	SWITCH_BACKEND(backend)
+}
+
+auto PVSeriesView::backend_from_environment() -> Backend
+{
+	const QByteArray name = qgetenv("SQUEY_SERIES_BACKEND").toLower();
+	if (name == "qrhi" or name == "gpu") {
+		return Backend::QRhi;
+	}
+	if (name == "hybrid" or name == "auto") {
+		return Backend::Hybrid;
+	}
+	if (name == "raster") {
+		return Backend::Raster;
+	}
+	if (name == "qpainter") {
+		return Backend::QPainter;
+	}
+	return Backend::Default;
 }
 
 #undef CASE_BACKEND
@@ -77,9 +112,9 @@ auto PVSeriesView::capability(Backend backend) -> Backend
 		return Renderer::capability(test);
 
 PVSeriesView::PVSeriesView(Squey::PVRangeSubSampler& rss, Backend backend, QWidget* parent)
-    : QWidget(parent), _rss(rss), _backend(make_renderer(backend)), _pixmap(size())
+    : QWidget(parent), _rss(rss), _backend(make_renderer(backend))
 {
-	_pixmap.fill(Qt::black);
+	_renderer->resize(size());
 
 	_rss._subsampled.connect([this] { refresh(); });
 }
@@ -117,12 +152,15 @@ void PVSeriesView::paintEvent(QPaintEvent*)
 {
 	if (_need_hard_redraw) {
 		BENCH_START(paint_series);
-		_pixmap = _renderer->grab();
+		_image = _renderer->grab();
 		BENCH_END(paint_series, "paint_series", 1, 1, 1, 1);
 		_need_hard_redraw = false;
 	}
+	if (_image.isNull()) {
+		return;
+	}
 	QPainter painter(this);
-	painter.drawPixmap(0, 0, width(), height(), _pixmap);
+	painter.drawImage(QRect(0, 0, width(), height()), _image);
 }
 
 void PVSeriesView::resizeEvent(QResizeEvent*)

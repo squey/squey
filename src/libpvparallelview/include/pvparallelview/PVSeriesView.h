@@ -46,7 +46,21 @@ class PVSeriesView : public QWidget
 
 	enum class DrawMode { Lines, Points, LinesAlways, Default = Lines };
 
-	enum class Backend { QPainter, Default = QPainter };
+	// Ordered from the fastest to the most portable: make_renderer() falls through the
+	// list until one of them reports it can run here. QRhi and Hybrid are ahead of the
+	// rasteriser but neither is the default, because whether a GPU wins here depends on
+	// the machine and bringing one up costs more than it saves on the common picture:
+	// both are asked for by name, through SQUEY_SERIES_BACKEND.
+	enum class Backend {
+		QRhi,    // GPU always, for benchmarking and the correctness test
+		Hybrid,  // GPU past a work threshold, CPU rasteriser below it
+		Raster,
+		QPainter,
+		Default = Raster
+	};
+
+	// Reads SQUEY_SERIES_BACKEND, falling back to Default.
+	static Backend backend_from_environment();
 
 	explicit PVSeriesView(Squey::PVRangeSubSampler& rss,
 	                      Backend backend = Backend::Default,
@@ -75,7 +89,7 @@ class PVSeriesView : public QWidget
 	Squey::PVRangeSubSampler& _rss;
 	std::unique_ptr<PVSeriesAbstractRenderer> _renderer;
 	const Backend _backend;
-	QPixmap _pixmap;
+	QImage _image;
 	bool _need_hard_redraw = false;
 
 	auto make_renderer(Backend backend) -> Backend;

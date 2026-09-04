@@ -233,7 +233,7 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 		    time, std::move(timeseries), nraw, _view->get_real_output_selection(),
 		    _split_axis == PVCol() ? nullptr : &nraw.column(_split_axis));
 	}
-	_plot = new PVSeriesView(*_sampler, PVSeriesView::Backend::Default);
+	_plot = new PVSeriesView(*_sampler, PVSeriesView::backend_from_environment());
 	_plot->set_background_color(color_view_bg);
 
 	_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);

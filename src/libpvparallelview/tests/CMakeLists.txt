@@ -16,6 +16,10 @@ add_squey_test(Thitgraph-buffer Thitgraph-buffer)
 add_squey_compile_test(Thitgraph_kernels_agree LINKS ${LINK_LIBRARIES} FILES hitgraph_kernels_agree.cpp)
 add_squey_test(Thitgraph_kernels_agree Thitgraph_kernels_agree)
 
+add_squey_compile_test(Tseries_renderers_agree LINKS ${LINK_LIBRARIES} FILES series_renderers_agree.cpp)
+add_squey_test(Tseries_renderers_agree Tseries_renderers_agree)
+add_bench(series_render_bench LINKS ${LINK_LIBRARIES} FILES series_render_bench.cpp)
+
 add_squey_compile_test(Tpview_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zone_tree_dump_load.cpp)
 add_squey_test(Tpview_zone_tree_dump_load Tpview_zone_tree_dump_load 0 50 2)
 
