@@ -5,7 +5,7 @@
   // .gitlab-ci.yml pins BASE_IMAGE_NAME: the tag is a digest of the dependency
   // graph, so a branch that does not touch buildstream/ inherits the image of
   // the branch it forked from. Never edit this line by hand.
-  "image": "registry.gitlab.com/squey/squey/devcontainer:1e0a643f1601c113",
+  "image": "registry.gitlab.com/squey/squey/devcontainer:a531b0d9993d2189",
 
   // No "workspaceFolder" here. Setting it does not move the bind mount, which
   // the runtime places at /workspaces/<name of the local directory>: naming a

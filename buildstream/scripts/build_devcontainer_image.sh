@@ -190,6 +190,30 @@ EOF
 # has to point at the site-packages the staged interpreter actually looks for.
 PYTHON_SITE_PACKAGES="$(cd "$SYSROOT_DIR" && echo app/lib/python*/site-packages)"
 
+# A shell in the container should see what a "bst shell --build" sees, and every
+# one of those values is already written down somewhere: the sysroot carries
+# /etc/target_env_vars.sh, BuildStream composes PATH and PKG_CONFIG_PATH itself,
+# and env.conf holds what .common.sh exported on the way in. Retyping them here
+# is what once left the container with its library path the wrong way round --
+# two libLLVM live in this sysroot, only one of them is the one PortableCL was
+# linked against, and the first one found wins. So read them.
+#
+# What is genuinely this image's own decision stays below: where ccache writes,
+# and a library path that prefers the sysroot over the SDK and names the
+# multiarch directory the SDK actually uses.
+source "$SYSROOT_DIR/etc/target_env_vars.sh"
+BST_ENV="$(bst --option target_triple x86_64-linux-gnu --option cxx_compiler clang++ \
+           show --deps none --format '%{env}' squey.bst 2> /dev/null)"
+function bst_env {
+  sed -n "s/^$1: *//p" <<< "$BST_ENV" | tr -d "'"
+}
+for required in PREFIX TARGET_TRIPLE TARGET_PLATFORM HOST TOOLCHAIN_DIR; do
+  [ -n "${!required}" ] || { echo >&2 "$required is not set by the sysroot"; exit 1; }
+done
+for required in PATH PKG_CONFIG_PATH; do
+  [ -n "$(bst_env "$required")" ] || { echo >&2 "bst declares no $required"; exit 1; }
+done
+
 # One pass over the sysroot yields both digests the OCI format asks for: the
 # layer descriptor identifies the compressed blob, the config identifies the
 # uncompressed stream it unpacks to. The fifo is what keeps it to one pass -- a
@@ -215,26 +239,28 @@ LAYER_DIGEST="$(sha256sum "$OCI_DIR/layer" | cut -d' ' -f1)"
 LAYER_SIZE="$(stat -c %s "$OCI_DIR/layer")"
 mv "$OCI_DIR/layer" "$OCI_DIR/blobs/sha256/$LAYER_DIGEST"
 
-# Mirrors the environment BuildStream gives a "bst shell --build" (the PATH and
-# PKG_CONFIG_PATH of app.yml, and /etc/target_env_vars.sh which the sysroot
-# already carries), so that a shell in the container sees what the dev shell
-# sees. What depends on the workspace path is left to devcontainer.json.
-jq -n --arg diff "sha256:$DIFF_ID" --arg pysite "/$PYTHON_SITE_PACKAGES" '{
+jq -n --arg diff "sha256:$DIFF_ID" --arg pysite "/$PYTHON_SITE_PACKAGES" \
+      --arg path "$(bst_env PATH)" --arg pkgconfig "$(bst_env PKG_CONFIG_PATH)" \
+      --arg ldpath "/usr/lib/$TARGET_TRIPLE:$PREFIX/lib" \
+      --arg prefix "$PREFIX" --arg triple "$TARGET_TRIPLE" \
+      --arg platform "$TARGET_PLATFORM" --arg host "$HOST" \
+      --arg toolchain "$TOOLCHAIN_DIR" \
+      --arg protobuf "$PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION" '{
   created: (now | todate),
   architecture: "amd64",
   os: "linux",
   config: {
     Env: [
-      "PATH=/app/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin",
-      "PKG_CONFIG_PATH=/app/lib/pkgconfig:",
-      "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/app/lib",
+      "PATH=" + $path,
+      "PKG_CONFIG_PATH=" + $pkgconfig,
+      "LD_LIBRARY_PATH=" + $ldpath,
       "PYTHONPATH=" + $pysite,
-      "PREFIX=/app",
-      "TARGET_TRIPLE=x86_64-linux-gnu",
-      "TARGET_PLATFORM=linux",
-      "HOST=x86_64-unknown-linux-gnu",
-      "TOOLCHAIN_DIR=/usr/bin",
-      "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python",
+      "PREFIX=" + $prefix,
+      "TARGET_TRIPLE=" + $triple,
+      "TARGET_PLATFORM=" + $platform,
+      "HOST=" + $host,
+      "TOOLCHAIN_DIR=" + $toolchain,
+      "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=" + $protobuf,
       "CCACHE_DIR=/home/dev/.cache/ccache"
     ],
     Cmd: ["/usr/bin/bash"]

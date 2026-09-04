@@ -5,7 +5,7 @@
   // specification leaves us: a configuration cannot extend another. Keep the
   // two in step -- update_devcontainer_pin.sh already writes the image line of
   // both.
-  "image": "registry.gitlab.com/squey/squey/devcontainer:1e0a643f1601c113",
+  "image": "registry.gitlab.com/squey/squey/devcontainer:a531b0d9993d2189",
 
   "remoteUser": "dev",
   "updateRemoteUserUID": true,
