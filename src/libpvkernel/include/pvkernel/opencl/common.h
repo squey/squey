@@ -62,6 +62,16 @@ namespace PVOpenCL
 using device_func = std::function<void(cl::Context&, cl::Device&)>;
 
 /**
+ * @return whether the rendering must stay on a CPU device
+ *
+ * Reads the "backend_opencl/force_cpu" setting and the FORCE_CPU environment
+ * variable the test suite sets. Shared so that everything asking the question
+ * gets the same answer: the two used to disagree, and the about box announced
+ * GPU acceleration while the status bar warned about running without it.
+ */
+bool force_cpu();
+
+/**
  * @return a string containing version and devices used
  */
 std::pair<std::string, bool> opencl_infos();

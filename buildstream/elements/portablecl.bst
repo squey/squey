@@ -6,7 +6,15 @@ description: |
 (@): buildstream/elements/base/target.yml
 
 environment:
-  PKG_CONFIG_PATH: "%{bindir}/pkgconfig"
+  # Was %{bindir}/pkgconfig, a directory nothing ever installs into, which
+  # overrode the project-wide setting with an empty search path. pocl looks the
+  # ICD loader up through pkg-config, and 'ocl-icd' names OpenCL-Headers in its
+  # Requires: with nowhere to find that .pc file, the lookup fails, pocl reports
+  # "Requested build with icd, but ICD loader not found" as a mere warning and
+  # builds a standalone libOpenCL instead of the libpocl.so an ICD file can
+  # point at. opencl-headers.bst installs it under share/pkgconfig, hence both
+  # directories here.
+  PKG_CONFIG_PATH: "%{libdir}/pkgconfig:%{prefix}/share/pkgconfig:"
   VERBOSE: 1
 
 variables:
@@ -92,6 +100,7 @@ variables:
   - target_triple == "x86_64-linux-gnu":
       cmake-local-linux: >-
         -DEXTRA_HOST_LD_FLAGS="-L%{libdir}"
+        -DENABLE_ICD=1
 
 sources:
 - kind: git
@@ -108,6 +117,22 @@ config:
       configure-commands:
       - |
         %{cmake} %{cmake-local-distro} %{cmake-local-linux}
+      install-commands:
+        (>):
+        - |
+          # pocl compiles and links every OpenCL kernel at runtime, with the
+          # link flags cmake baked in here: "-shared -nostartfiles -lmvec",
+          # searched under "-L%{libdir}". libmvec is glibc's vectorized math
+          # library; cmake found it in the sysroot, which carries the whole
+          # development symlink farm, so the flag went in unconditionally.
+          #
+          # The flatpak runtime carries libmvec.so.1 but no libmvec.so: a
+          # runtime ships sonames, not link names. So the flag that resolved at
+          # build time fails at run time -- "ld: cannot find -lmvec" -- every
+          # kernel build fails and the views render garbage. Provide the link
+          # name pocl asks for, next to pocl itself, on the search path it
+          # already passes.
+          ln -s /usr/lib/x86_64-linux-gnu/libmvec.so.1 "%{install-root}%{libdir}/libmvec.so"
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       configure-commands:
       - |
@@ -182,6 +207,13 @@ depends:
         (>):
         - clang_host.bst
         - binutils.bst
+        # For OpenCL-Headers.pc. pocl looks the ICD loader up through
+        # pkg-config, and 'ocl-icd' declares OpenCL-Headers in its Requires:
+        # without that file the whole lookup fails, pocl reports "Requested
+        # build with icd, but ICD loader not found", quietly builds a
+        # standalone libOpenCL instead of libpocl.so, and no CPU device is ever
+        # registered.
+        - opencl-headers.bst
   - target_triple == "x86_64-w64-mingw32":
       depends:
         (>):

@@ -24,7 +24,6 @@
 //
 
 #include <pvkernel/core/PVLogger.h>
-#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVUtils.h>
 
 #include <pvkernel/opencl/common.h>
@@ -41,6 +40,10 @@
 #include <iostream>
 #include <sstream>
 #include <filesystem>
+
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 #include <QSettings>
 
@@ -116,8 +119,44 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	std::string libdir = exe_path.parent_path().string();
 	PVCore::setenv("LIBRARY_PATH", libdir.c_str(), 1);
+	// Beside the executable is where the packaged application finds it, squey.exe
+	// and pocl.dll sitting in the same directory. The test executables are
+	// installed two levels below that, under tests/ (see CMakeMacros.txt), and
+	// naming a path that does not exist leaves the loader with no ICD at all --
+	// which is why the testsuite ran without an OpenCL device. The bare name
+	// falls back on the regular DLL search order, and the last argument of
+	// setenv leaves an OCL_ICD_FILENAMES set by the caller alone.
 	std::string pocl_path = libdir + "/pocl.dll";
-	PVCore::setenv("OCL_ICD_FILENAMES", pocl_path.c_str(), 1);
+	if (not std::filesystem::exists(pocl_path)) {
+		pocl_path = "pocl.dll";
+	}
+	PVCore::setenv("OCL_ICD_FILENAMES", pocl_path.c_str(), 0);
+
+	// The Khronos loader also reads this environment variable through
+	// secure_getenv(), which Windows makes return NULL for a process running at
+	// a high integrity level -- a deliberate hardening against an elevated
+	// process picking up an attacker-controlled driver path from its
+	// environment. GitLab's Windows CI runner executes tests at exactly that
+	// level, which left every OpenCL-backed test with no device at all,
+	// regardless of pocl.dll being perfectly correct and OCL_ICD_FILENAMES
+	// pointing right at it: the loader never even looked.
+	//
+	// Registering the same path under the registry key the loader also reads
+	// sidesteps the guard entirely, as it is a plain read with no secure_getenv
+	// involved. A normal, non-elevated desktop session cannot write HKLM, so
+	// this is additional to the environment variable above, not a replacement
+	// for it: whichever one the current process is allowed to use is the one
+	// that ends up mattering.
+	HKEY icd_vendors_key;
+	if (RegCreateKeyExA(HKEY_LOCAL_MACHINE, "SOFTWARE\\Khronos\\OpenCL\\Vendors", 0,
+	                     nullptr, 0, KEY_SET_VALUE, nullptr, &icd_vendors_key,
+	                     nullptr) == ERROR_SUCCESS) {
+		DWORD icd_version = 0; // the ICD spec's "OpenCL 1.2 or later" marker
+		RegSetValueExA(icd_vendors_key, pocl_path.c_str(), 0, REG_DWORD,
+		               reinterpret_cast<const BYTE*>(&icd_version), sizeof(icd_version));
+		RegCloseKey(icd_vendors_key);
+	}
+
 	std::filesystem::current_path(libdir);
 #endif
 
@@ -129,10 +168,7 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	const size_t column_mem_size = image_height * sizeof(cl_uint);
 	const uint64_t max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
 
-	auto& config = PVCore::PVConfig::get().config();
-	bool force_cpu = config.value("backend_opencl/force_cpu", false).toBool();
-	const char* force_cpu_env = getenv("FORCE_CPU");
-	force_cpu |= (force_cpu_env != nullptr && std::string(force_cpu_env) == "1");
+	const bool force_cpu = PVOpenCL::force_cpu();
 
 	// List all usable OpenCL devices and create appropriate structures
 	const auto fun = [&](cl::Context& ctx, cl::Device& dev) {

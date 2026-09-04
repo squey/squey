@@ -47,6 +47,9 @@ add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter
 add_squey_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)
 add_squey_test(Topencl_build_test Topencl_build_test)
 
+add_squey_compile_test(Topencl_cpu_device LINKS ${LINK_LIBRARIES} FILES opencl_cpu_device.cpp)
+add_squey_test(Topencl_cpu_device Topencl_cpu_device)
+
 add_squey_compile_test(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
 add_bench(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
 
