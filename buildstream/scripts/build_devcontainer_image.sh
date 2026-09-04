@@ -24,8 +24,7 @@ usage() {
   echo "--registry=<image_repository>  (default: \$DEVCONTAINER_REGISTRY, then the GitLab CI one)"
   echo "--push=<true/false>            publish the image once built"
   echo "--update-pin=<true/false>      rewrite the image reference in .devcontainer/devcontainer.json"
-  echo "--force=<true/false>           rebuild even when the registry already holds the tag"
-  echo "--storage-root=<directory>     where podman keeps its images (default: \$PODMAN_STORAGE_ROOT)" 1>&2
+  echo "--force=<true/false>           rebuild even when the registry already holds the tag" 1>&2
   exit 1
 }
 
@@ -33,9 +32,8 @@ REGISTRY="${DEVCONTAINER_REGISTRY:-${CI_REGISTRY_IMAGE:+$CI_REGISTRY_IMAGE/devco
 PUSH=false
 UPDATE_PIN=false
 FORCE=false
-STORAGE_ROOT="${PODMAN_STORAGE_ROOT:-}"
 
-OPTS=$(getopt -o h --long help,registry:,push:,update-pin:,force:,storage-root: -n 'parse-options' -- "$@")
+OPTS=$(getopt -o h --long help,registry:,push:,update-pin:,force: -n 'parse-options' -- "$@")
 if [ $? != 0 ] ; then usage >&2 ; fi
 eval set -- "$OPTS"
 while true; do
@@ -45,7 +43,6 @@ while true; do
     --push ) PUSH="$2"; shift 2 ;;
     --update-pin ) UPDATE_PIN="$2"; shift 2 ;;
     --force ) FORCE="$2"; shift 2 ;;
-    --storage-root ) STORAGE_ROOT="$2"; shift 2 ;;
     -- ) shift; break ;;
     * ) break ;;
   esac
@@ -56,23 +53,22 @@ if [ -z "$REGISTRY" ]; then
   exit 1
 fi
 
-command -v podman &> /dev/null || { echo >&2 "'podman' executable not found"; exit 1; }
+command -v skopeo &> /dev/null || { echo >&2 "'skopeo' executable not found"; exit 1; }
+command -v jq &> /dev/null || { echo >&2 "'jq' executable not found"; exit 1; }
 
-# Every filesystem a container sees is an overlayfs, and the overlay driver of
-# podman refuses to stack on one without a fuse mount program. Running the build
-# inside a container therefore needs its image store somewhere else: a directory
-# on a volume the host really backs, which CI has in $CI_BUILDS_DIR. Should that
-# one be an overlayfs too, fall back to vfs, which works anywhere at the cost of
-# unpacking every layer -- a mild price here, as the image is a single layer.
-PODMAN_OPTS=()
-if [ -n "$STORAGE_ROOT" ]; then
-  mkdir -p "$STORAGE_ROOT"
-  PODMAN_OPTS+=(--root "$STORAGE_ROOT")
-fi
-if ! podman "${PODMAN_OPTS[@]}" info &> /dev/null; then
-  echo "podman cannot use ${STORAGE_ROOT:-its default store}, falling back to the vfs driver."
-  PODMAN_OPTS+=(--storage-driver=vfs)
-fi
+# The image is assembled as an OCI layout and handed to skopeo, rather than
+# imported into a container store and pushed out of it. A store keeps layers
+# unpacked, so anything leaving one has to be compressed again on the way out:
+# the sysroot was compressed twice, unpacked once in between, and three copies
+# of it existed at the peak -- on a runner with room for two.
+#
+# Writing the layout by hand costs the lines below and removes all of that. It
+# also settles which storage driver to use, by needing none: /builds sits on a
+# nodev filesystem, where the overlay driver cannot create the device nodes it
+# marks deletions with.
+COMPRESSOR=(gzip -1)
+command -v pigz &> /dev/null && COMPRESSOR=(pigz -1)
+echo "Compressing with ${COMPRESSOR[0]}."
 
 TAG="$(scripts/devcontainer_image_tag.sh)"
 IMAGE="$REGISTRY:$TAG"
@@ -94,8 +90,16 @@ if [ "$FORCE" != true ] && [ "$PUSH" = true ] && command -v skopeo &> /dev/null 
 fi
 
 SYSROOT_DIR="$(mktemp -d)"
+OCI_DIR="$SYSROOT_DIR.oci"
 function cleanup {
-  rm -rf -- "$SYSROOT_DIR"
+  # The checkout goes as soon as the layer exists, and the layer is moved into
+  # the layout rather than copied, so these two are never both full at once.
+  # Whatever survives a failure is removed here: on a runner this directory is
+  # shared with the clone and with the other slots.
+  rm -rf -- "$OCI_DIR" \
+    || echo >&2 "warning: $OCI_DIR survived and still holds the image layer."
+  rm -rf -- "$SYSROOT_DIR" \
+    || echo >&2 "warning: $SYSROOT_DIR survived and still holds the staged sysroot."
 }
 trap cleanup EXIT
 
@@ -108,6 +112,17 @@ export TARGET_TRIPLE=x86_64-linux-gnu
 set +e
 { source .common.sh ; } 1>&2
 set -e
+
+# The artifacts the image is made of only exist once built, which is the doing
+# of the Linux build -- and that job and this one take turns on the same cache,
+# in no set order. Whenever a dependency moved and this job came first, it
+# failed on artifacts nobody had built yet; on the default branch, where it runs
+# alone, nothing else would ever build them. So build whatever is missing: what
+# the Linux build already has is a cache hit.
+BUILD_DEPS="$(bst --option target_triple x86_64-linux-gnu --option cxx_compiler clang++ \
+    show --deps build --format '%{name}' squey.bst)"
+# shellcheck disable=SC2086 # one element name per word
+bst --option target_triple x86_64-linux-gnu --option cxx_compiler clang++ build $BUILD_DEPS
 
 # Deliberately not "--hardlinks": the checkout would then share its inodes with
 # the local CAS, and the overlay below writes into the tree. A stray write
@@ -175,30 +190,99 @@ EOF
 # has to point at the site-packages the staged interpreter actually looks for.
 PYTHON_SITE_PACKAGES="$(cd "$SYSROOT_DIR" && echo app/lib/python*/site-packages)"
 
+# One pass over the sysroot yields both digests the OCI format asks for: the
+# layer descriptor identifies the compressed blob, the config identifies the
+# uncompressed stream it unpacks to. The fifo is what keeps it to one pass -- a
+# process substitution would leave sha256sum still running when the pipeline
+# returns, and the digest half written.
+mkdir -p "$OCI_DIR/blobs/sha256"
+DIFF_FIFO="$OCI_DIR/diff.fifo"
+mkfifo "$DIFF_FIFO"
+sha256sum < "$DIFF_FIFO" | cut -d' ' -f1 > "$OCI_DIR/diff_id" &
+DIFF_PID=$!
+tar --numeric-owner -C "$SYSROOT_DIR" -c . \
+  | tee "$DIFF_FIFO" \
+  | "${COMPRESSOR[@]}" > "$OCI_DIR/layer"
+wait "$DIFF_PID"
+rm -f -- "$DIFF_FIFO"
+
+# A dozen gigabytes, and nothing reads them after this.
+rm -rf -- "$SYSROOT_DIR"
+
+DIFF_ID="$(cat "$OCI_DIR/diff_id")"
+rm -f -- "$OCI_DIR/diff_id"
+LAYER_DIGEST="$(sha256sum "$OCI_DIR/layer" | cut -d' ' -f1)"
+LAYER_SIZE="$(stat -c %s "$OCI_DIR/layer")"
+mv "$OCI_DIR/layer" "$OCI_DIR/blobs/sha256/$LAYER_DIGEST"
+
 # Mirrors the environment BuildStream gives a "bst shell --build" (the PATH and
 # PKG_CONFIG_PATH of app.yml, and /etc/target_env_vars.sh which the sysroot
 # already carries), so that a shell in the container sees what the dev shell
 # sees. What depends on the workspace path is left to devcontainer.json.
-tar --numeric-owner -C "$SYSROOT_DIR" -c . | podman "${PODMAN_OPTS[@]}" import \
-  --change 'ENV PATH=/app/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin' \
-  --change 'ENV PKG_CONFIG_PATH=/app/lib/pkgconfig:' \
-  --change 'ENV LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/app/lib' \
-  --change "ENV PYTHONPATH=/$PYTHON_SITE_PACKAGES" \
-  --change 'ENV PREFIX=/app' \
-  --change 'ENV TARGET_TRIPLE=x86_64-linux-gnu' \
-  --change 'ENV TARGET_PLATFORM=linux' \
-  --change 'ENV HOST=x86_64-unknown-linux-gnu' \
-  --change 'ENV TOOLCHAIN_DIR=/usr/bin' \
-  --change 'ENV PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python' \
-  --change 'ENV CCACHE_DIR=/home/dev/.cache/ccache' \
-  --change 'CMD ["/usr/bin/bash"]' \
-  - "$IMAGE"
+jq -n --arg diff "sha256:$DIFF_ID" --arg pysite "/$PYTHON_SITE_PACKAGES" '{
+  created: (now | todate),
+  architecture: "amd64",
+  os: "linux",
+  config: {
+    Env: [
+      "PATH=/app/bin:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin",
+      "PKG_CONFIG_PATH=/app/lib/pkgconfig:",
+      "LD_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu:/app/lib",
+      "PYTHONPATH=" + $pysite,
+      "PREFIX=/app",
+      "TARGET_TRIPLE=x86_64-linux-gnu",
+      "TARGET_PLATFORM=linux",
+      "HOST=x86_64-unknown-linux-gnu",
+      "TOOLCHAIN_DIR=/usr/bin",
+      "PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION=python",
+      "CCACHE_DIR=/home/dev/.cache/ccache"
+    ],
+    Cmd: ["/usr/bin/bash"]
+  },
+  rootfs: { type: "layers", diff_ids: [$diff] },
+  history: [{ created: (now | todate), created_by: "bst artifact checkout --deps build squey.bst" }]
+}' > "$OCI_DIR/config.json"
+CONFIG_DIGEST="$(sha256sum "$OCI_DIR/config.json" | cut -d' ' -f1)"
+CONFIG_SIZE="$(stat -c %s "$OCI_DIR/config.json")"
+mv "$OCI_DIR/config.json" "$OCI_DIR/blobs/sha256/$CONFIG_DIGEST"
+
+jq -n --arg cd "sha256:$CONFIG_DIGEST" --argjson cs "$CONFIG_SIZE" \
+      --arg ld "sha256:$LAYER_DIGEST" --argjson ls "$LAYER_SIZE" '{
+  schemaVersion: 2,
+  mediaType: "application/vnd.oci.image.manifest.v1+json",
+  config: { mediaType: "application/vnd.oci.image.config.v1+json", digest: $cd, size: $cs },
+  layers: [{ mediaType: "application/vnd.oci.image.layer.v1.tar+gzip", digest: $ld, size: $ls }]
+}' > "$OCI_DIR/manifest.json"
+MANIFEST_DIGEST="$(sha256sum "$OCI_DIR/manifest.json" | cut -d' ' -f1)"
+MANIFEST_SIZE="$(stat -c %s "$OCI_DIR/manifest.json")"
+mv "$OCI_DIR/manifest.json" "$OCI_DIR/blobs/sha256/$MANIFEST_DIGEST"
+
+echo '{"imageLayoutVersion": "1.0.0"}' > "$OCI_DIR/oci-layout"
+jq -n --arg md "sha256:$MANIFEST_DIGEST" --argjson ms "$MANIFEST_SIZE" --arg tag "$TAG" '{
+  schemaVersion: 2,
+  mediaType: "application/vnd.oci.image.index.v1+json",
+  manifests: [{
+    mediaType: "application/vnd.oci.image.manifest.v1+json",
+    digest: $md, size: $ms,
+    annotations: { "org.opencontainers.image.ref.name": $tag }
+  }]
+}' > "$OCI_DIR/index.json"
 
 echo "Built $IMAGE"
 
 if [ "$PUSH" = true ]; then
-  podman "${PODMAN_OPTS[@]}" push "$IMAGE"
+  # The blob goes up exactly as it was written. skopeo copies it; it does not
+  # unpack and recompress it the way a push out of a container store would.
+  skopeo copy "oci:$OCI_DIR:$TAG" "docker://$IMAGE"
   echo "Pushed $IMAGE"
+else
+  # Nowhere to send it, so leave it where it can be looked at or loaded, and
+  # say where rather than deleting it silently on the way out.
+  KEEP_DIR="${TMPDIR:-/tmp}/devcontainer-oci-$TAG"
+  rm -rf -- "$KEEP_DIR"
+  mv "$OCI_DIR" "$KEEP_DIR"
+  echo "Not pushing. The image is an OCI layout in $KEEP_DIR; load it with:"
+  echo "  skopeo copy oci:$KEEP_DIR:$TAG containers-storage:$IMAGE"
 fi
 
 if [ "$UPDATE_PIN" = true ]; then

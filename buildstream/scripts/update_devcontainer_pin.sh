@@ -37,8 +37,11 @@ if [ "$1" = "--check" ]; then
     exit 0
   fi
   echo >&2 "devcontainer.json pins '$pinned', but this branch's dependency graph resolves to tag '$expected_tag'."
-  echo >&2 "Publish the image and refresh the pin with:"
-  echo >&2 "  buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true"
+  echo >&2 "Refresh the pin and commit it:"
+  echo >&2 "  buildstream/scripts/update_devcontainer_pin.sh ${pinned%:*}:$expected_tag"
+  echo >&2 "The image itself needs no action in CI, where it has just been published."
+  echo >&2 "Elsewhere, build and push it with:"
+  echo >&2 "  buildstream/scripts/build_devcontainer_image.sh --push=true"
   exit 1
 fi
 

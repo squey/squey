@@ -69,10 +69,12 @@ buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true
 ```
 
 The tag is a digest of the dependency graph, so only a commit that changes a
-dependency calls for a new image. The `ensure devcontainer image` CI job
-publishes one whenever the pin and the registry disagree, which is why this is
-never a manual step in normal use. Staging the sysroot takes around 11 GB, so
-point `TMPDIR` at a disk with room if `/tmp` is a tmpfs.
+dependency calls for a new image. The `ensure devcontainer image` CI job builds
+and pushes that image by itself, on every merge request. The one thing it will
+not do is write the new tag into your branch, so when a dependency moves it
+stops and prints the one-line command that does -- the image is already waiting
+by then. Staging the sysroot takes around 11 GB, so point `TMPDIR` at a disk
+with room if `/tmp` is a tmpfs.
 
 ## Development shell
 
