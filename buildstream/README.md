@@ -45,8 +45,7 @@ The Wayland socket is bound into the container, so the window lands on your
 desktop like any other application:
 
 ```
-buildstream/files/flatpak/run_cmd.sh \
-  builds/x86_64-linux-gnu/Clang/RelWithDebInfo/squey.sh
+builds/x86_64-linux-gnu/Clang/RelWithDebInfo/squey.sh
 ```
 
 Pass `debug` to `squey.sh` to start it under gdb.
