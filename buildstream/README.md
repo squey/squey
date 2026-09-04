@@ -133,7 +133,7 @@ CodeLLDB           |
 ## Generating and installing a local flatpak package
 
 ```
-cd buildstream && ./build.sh --flatpak-export=true --flatpak-repo=local_repo
+cd buildstream && ./build.sh --export=true --export-dir=local_repo
 ```
 
 Adding the flatpak local remote (once):
