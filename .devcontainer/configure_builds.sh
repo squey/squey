@@ -21,12 +21,32 @@ cd "$SOURCE_DIR"
 
 declare -A COMPILERS=( [Clang]="$TOOLCHAIN_DIR/clang++" [GCC]="$TOOLCHAIN_DIR/g++" )
 
-# No OpenCL setup here, on purpose. The sysroot carries PortableCL, but built
-# without ICD support -- it exports no clIcdGetPlatformIDsKHR and its soname is
-# libOpenCL.so.2 -- while the binary links the ICD loader, libOpenCL.so.1. No
-# vendor file can bridge those two, so the container has no OpenCL platform to
-# offer and FORCE_CPU, which devcontainer.json sets, is what the views fall back
-# on. That matches how the test suite is run.
+# No OpenCL setup here, on purpose. The sysroot does carry a PortableCL that
+# registers itself as an ICD -- libpocl.so.2 alongside its vendor file -- so the
+# container has a CPU device to offer, and run_cmd.sh is what points the loader
+# at it when the application starts. What the container has no way to offer is a
+# GPU: the default configuration names no device, which is what the FORCE_CPU of
+# devcontainer.json accounts for. Open .devcontainer/gpu/ for the other case.
+
+# A clone without --recursive leaves the submodules empty, and cmake then fails
+# with "does not contain a CMakeLists.txt file" for each of them, under a couple
+# of hundred lines of consequences -- while the editor reports only that the
+# container's scripts failed, which points nowhere. Say it here instead, and let
+# the container start anyway: a shell to run the fix in is more use than a
+# container that refuses to open.
+mapfile -t SUBMODULES < <(sed -n 's/^[[:space:]]*path = //p' .gitmodules 2>/dev/null)
+EMPTY=()
+for submodule in "${SUBMODULES[@]}"; do
+    [ -n "$(ls -A "$submodule" 2>/dev/null)" ] || EMPTY+=("$submodule")
+done
+if [ ${#EMPTY[@]} -gt 0 ]; then
+    echo >&2 "Not configuring anything: these submodules are empty."
+    printf >&2 '  %s\n' "${EMPTY[@]}"
+    echo >&2 "Populate them, then run this script again:"
+    echo >&2 "  git submodule update --init --recursive"
+    echo >&2 "  .devcontainer/configure_builds.sh"
+    exit 0
+fi
 
 for combination in "${@:-Clang/RelWithDebInfo}"; do
     compiler="${combination%%/*}"
