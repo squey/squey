@@ -19,6 +19,7 @@
 
 #include <import_export.h>
 
+#include <pvkernel/core/PVStreamingCompressor.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <squey/common.h>
@@ -154,17 +155,31 @@ void ImportExportTest::import_file()
         }
         if (not export_connected) {
             connect(dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, [&]() {
+                // Hash the exported rows, not the archive holding them: the
+                // compression is delegated to whichever tool the platform ships
+                // (see PVStreamingCompressor), so the bytes of the .gz change
+                // when that tool is updated while the export itself does not.
+                const QString exported_path = tmp_export_filename + ".csv.gz";
                 QByteArray sha256sum;
-                QFile f(tmp_export_filename + ".csv.gz");
-                if (f.open(QFile::ReadOnly)) {
+                try {
+                    PVCore::PVStreamingDecompressor decompressor(exported_path.toStdString());
                     QCryptographicHash hash(QCryptographicHash::Sha256);
-                    if (hash.addData(&f)) {
-                        sha256sum = hash.result();
+                    char buffer[64 * 1024];
+                    while (true) {
+                        auto [uncompressed, compressed] =
+                            decompressor.read(buffer, sizeof(buffer));
+                        if (uncompressed == 0) {
+                            break;
+                        }
+                        hash.addData(QByteArrayView(buffer, uncompressed));
                     }
+                    sha256sum = hash.result();
+                } catch (const PVCore::PVStreamingDecompressorError& e) {
+                    QFAIL(e.what());
                 }
-                f.remove();
+                QFile::remove(exported_path);
 
-                QCOMPARE(sha256sum.toHex(), QString("5e3122873a465857982c76f7f70ef4728f9680c5931a9bb0afbfa582359dc5d6"));
+                QCOMPARE(sha256sum.toHex(), QString("7bf9a8257c004c57b3a4c707bc965181c983439de757f792183e1c206f21fef8"));
                 success = true;
             });
             export_connected = true;
