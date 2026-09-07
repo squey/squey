@@ -35,6 +35,7 @@
 
 #include <pvparallelview/PVBCICode.h>
 
+#include <algorithm>
 #include <cassert>
 #include <stdlib.h>
 #include <iostream>
@@ -86,10 +87,23 @@ struct opencl_kernel {
 		squey_verify_opencl(kernel.setArg(9, bit_mask));
 		squey_verify_opencl(kernel.setArg(10, reverse_flag));
 
-		/* we make fit the highest number of image column in the work group local memory
+		/* We make fit the highest number of image columns in the work group local
+		 * memory. The shape must not follow the zone width, though: PortableCL
+		 * specialises the kernel per local work size and caches the result, so a
+		 * width never drawn before costs a compiler run -- and, where that run is
+		 * slow, leaves the zone black until it ends. Rounding up to a power of two
+		 * bounds the number of distinct shapes to a handful, at the price of the
+		 * work-items past the zone that the kernel now lets through without
+		 * drawing.
 		 */
-		const size_t local_num_x =
-		    std::min((cl_ulong)width, (dev.local_mem_size / column_mem_size) - 1);
+		const cl_ulong max_local_num_x =
+		    std::min({(cl_ulong)PARALLELVIEW_ZONE_MAX_WIDTH,
+		              (cl_ulong)dev.work_group_size,
+		              (dev.local_mem_size / column_mem_size) - 1});
+		size_t local_num_x = 1;
+		while (local_num_x < width && (local_num_x * 2) <= max_local_num_x) {
+			local_num_x *= 2;
+		}
 		const size_t local_num_y = dev.work_group_size / local_num_x;
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
 		const size_t global_num_y = local_num_y;
@@ -364,7 +378,9 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 
 	if (n != 0) {
 		// Specs that a size of zero will lead to CL_INVALID_VALUE
-		err = dev.queue.enqueueWriteBuffer(dev.buffer, CL_FALSE, 0, n * sizeof(codes), codes);
+		// sizeof(*codes), not sizeof(codes): the latter is the size of the
+		// pointer, which only happens to match on the platforms built for.
+		err = dev.queue.enqueueWriteBuffer(dev.buffer, CL_FALSE, 0, n * sizeof(*codes), codes);
 		squey_verify_opencl_var(err);
 	}
 
