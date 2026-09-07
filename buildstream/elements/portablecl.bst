@@ -158,22 +158,31 @@ config:
   - target_triple == "x86_64-linux-gnu":
       configure-commands:
       - |
+        # pocl links every kernel it compiles against libmvec, glibc's
+        # vectorized math library, and since 7.2 it does so by the absolute
+        # path cmake resolved rather than -lmvec -- its in-process lld link
+        # carries over absolute inputs but drops bare -l flags. That path is
+        # the build sysroot's, which carries the whole development symlink
+        # farm. The flatpak runtime ships sonames only, so it has libmvec.so.1
+        # and no libmvec.so, and every kernel link fails at run time with "no
+        # such file or directory" -- leaving the views black.
+        #
+        # Bake in the link name installed next to pocl below instead, which the
+        # application always carries. Patched here rather than through
+        # -DLIBMVEC, which cmake link-checks to decide whether libmvec has the
+        # vectorized entry points and which cannot point at a path the
+        # read-only build sysroot has no room for; and rather than in the
+        # generated config.h, which the build regenerates from its template.
+        grep -qF 'DEFAULT_HOST_LD_FLAGS} ${LIBMVEC}' CMakeLists.txt || { echo "libmvec link flag not found"; exit 1; }
+        sed -i 's|"${DEFAULT_HOST_LD_FLAGS} ${LIBMVEC}"|"${DEFAULT_HOST_LD_FLAGS} %{libdir}/libmvec.so"|' CMakeLists.txt
+
         %{cmake} %{cmake-local-distro} %{cmake-local-linux}
+
+        grep -qF '%{libdir}/libmvec.so' _builddir/config.h || { echo "libmvec path not baked in"; exit 1; }
       install-commands:
         (>):
         - |
-          # pocl compiles and links every OpenCL kernel at runtime, with the
-          # link flags cmake baked in here: "-shared -nostartfiles -lmvec",
-          # searched under "-L%{libdir}". libmvec is glibc's vectorized math
-          # library; cmake found it in the sysroot, which carries the whole
-          # development symlink farm, so the flag went in unconditionally.
-          #
-          # The flatpak runtime carries libmvec.so.1 but no libmvec.so: a
-          # runtime ships sonames, not link names. So the flag that resolved at
-          # build time fails at run time -- "ld: cannot find -lmvec" -- every
-          # kernel build fails and the views render garbage. Provide the link
-          # name pocl asks for, next to pocl itself, on the search path it
-          # already passes.
+          # The link name the kernel linker was told to use (see above).
           ln -s /usr/lib/x86_64-linux-gnu/libmvec.so.1 "%{install-root}%{libdir}/libmvec.so"
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       configure-commands:
