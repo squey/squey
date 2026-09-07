@@ -18,6 +18,8 @@ sources:
 - kind: git
   url: github:DaemonEngine/breakpad.git
   ref: 3f088e97737b9915c4e2925e0cbfa82e6066cbc1
+- kind: patch
+  path: buildstream/patches/breakpad/allocator-traits-typedefs.patch
 
 config:
   # Only the tools are wanted, not the client library, and building everything

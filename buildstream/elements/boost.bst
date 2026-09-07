@@ -9,8 +9,8 @@ description: |
 
 sources:
 - kind: tar
-  url: boost:release/1.85.0/source/boost_1_85_0.tar.bz2
-  ref: 7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617
+  url: boost:release/1.92.0/source/boost_1_92_0.tar.bz2
+  ref: 5c1d40cb8e19adbf740a4ec2da35b3e58f3f5804b1dce44deb53df72193cbc6c
 
 (@): buildstream/elements/base/target.yml
 

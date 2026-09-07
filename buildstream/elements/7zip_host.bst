@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: remote
-  url: github:ip7z/7zip/releases/download/25.01/7z2501-linux-x86.tar.xz
-  ref: 62a47626eb9ce2886de3fec6f201f6a4210f14ba61b30a16141b953aed705207
+  url: github:ip7z/7zip/releases/download/26.03/7z2603-linux-x86.tar.xz
+  ref: 1ac4d68723f457ce000a069f5453051aa5381765ce5c77b1d5a02ea8cfba9af7
 
 config:
   install-commands:

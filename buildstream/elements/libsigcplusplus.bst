@@ -7,8 +7,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:libsigcplusplus/libsigcplusplus/archive/refs/tags/3.6.0.tar.gz
-  ref: bbe81e4f6d8acb41a9795525a38c0782751dbc4af3d78a9339f4a282e8a16c38
+  url: github:libsigcplusplus/libsigcplusplus/archive/refs/tags/3.8.1.tar.gz
+  ref: d168c799c32c35b8a036484875df7ac692ec1ad2d7de7f9630c8b1b38617e41f
 
 (@): buildstream/elements/base/target.yml
 

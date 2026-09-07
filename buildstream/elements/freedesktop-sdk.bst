@@ -5,4 +5,4 @@ sources:
   submodules:
     utils/buildstream-abi-checker:
       url: gitlab:freedesktop-sdk/buildstream-abi-checker.git
-  ref: 3405120e658f2e84c594aeedff456e16a1a2b185
+  ref: db97cce32cecadc7a3e98f06d557ebfa6ba9ad46

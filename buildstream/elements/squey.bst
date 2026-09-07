@@ -221,11 +221,10 @@ build-depends:
   config:
     digest-environment: RECC_REMOTE_PLATFORM_chrootRootDigest
 - freedesktop-sdk.bst:bootstrap/gcc.bst
-- freedesktop-sdk.bst:bootstrap/zlib.bst
+- freedesktop-sdk.bst:bootstrap/zlib-ng.bst
 - freedesktop-sdk.bst:bootstrap/glibc.bst
 - freedesktop-sdk.bst:components/openssl.bst
 - freedesktop-sdk.bst:components/zip.bst
-- freedesktop-sdk.bst:components/unzip.bst
 - freedesktop-sdk.bst:bootstrap/pcre2.bst
 - freedesktop-sdk.bst:components/ccache.bst
 - freedesktop-sdk.bst:components/icu.bst

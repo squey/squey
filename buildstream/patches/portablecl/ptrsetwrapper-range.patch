@@ -1,0 +1,20 @@
+Make PtrSetWrapper a range so std::inserter accepts it
+
+libstdc++ 16 declares std::inserter as taking a __range_iter_t<C>, that is
+decltype(ranges::begin(c)), where it used to take a plain C::iterator. A
+container therefore has to be a range to be passed to it, and PtrSetWrapper
+exposes no begin()/end(), so overload resolution fails. Forward both to the
+wrapped set.
+
+diff --git a/lib/llvmopencl/SubCFGFormation.cc b/lib/llvmopencl/SubCFGFormation.cc
+--- a/lib/llvmopencl/SubCFGFormation.cc
++++ b/lib/llvmopencl/SubCFGFormation.cc
+@@ -1131,6 +1131,8 @@ template <class PtrSet> struct PtrSetWrapper {
+   PtrSet &Set;
+   using iterator = typename PtrSet::iterator;
+   using value_type = typename PtrSet::value_type;
++  iterator begin() const { return Set.begin(); }
++  iterator end() const { return Set.end(); }
+   template <class IT, class ValueT> IT insert(IT, const ValueT &Value) {
+     return Set.insert(Value).first;
+   }

@@ -13,7 +13,7 @@ description: |
 sources:
 - kind: git
   url: github:getsentry/crashpad.git
-  ref: aae505d3daf73e8a48136ccc7398663f16096712
+  ref: 95733c1ee6fe77fc82ae6bb1bac2c34b9a6d0c17
   checkout-submodules: True
 
 - kind: patch

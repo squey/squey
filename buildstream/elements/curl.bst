@@ -4,7 +4,7 @@ sources:
 - kind: git_repo
   url: github:curl/curl.git
   track: curl-*
-  ref: curl-8_16_0-0-g11b991232fbcaa88e2b1faecac224416b0001e35
+  ref: curl-8_22_0-0-g01346829096c61b372692f6dc43ffa778c6caccd
 
 (@): buildstream/elements/base/target.yml
 

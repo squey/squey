@@ -5,9 +5,15 @@ sources:
 - kind: git_repo
   url: github:madler/zlib.git
   track: v*
-  ref: v1.3.1-0-g51b7f2abdade71cd9bb0e7a373ef2610ec6f9daf
+  ref: v1.3.2-0-gda607da739fa6047df13e66a2af6b8bec7c2a498
 
 (@): buildstream/elements/base/target.yml
+
+variables:
+  # infcover, one of zlib's test targets, links with -coverage, which mingw's
+  # libgcov cannot satisfy (__gcov_exit). The tests are of no use here anyway.
+  cmake-local: >-
+    -DZLIB_BUILD_TESTING=OFF
 
 (?):
 - (target_triple == "x86_64-linux-gnu"):
@@ -22,15 +28,6 @@ sources:
         (>):
         - |
           %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/libz.1.%{dylib-extension}" "%{install-root}%{libdir}/libz.%{dylib-extension}"
-- (target_triple == "x86_64-w64-mingw32"):
-    config:
-      install-commands:
-        (>):
-        - |
-          cd %{install-root}%{bindir}
-          ln -s "libzlib.dll" "libz.dll"
-          cd %{install-root}%{libdir}
-          ln -s "libzlib.dll.a" "libz.dll.a"
 
 public:
   bst:

@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:pybind/pybind11/archive/refs/tags/v3.0.1.tar.gz
-  ref: 741633da746b7c738bb71f1854f957b9da660bcd2dce68d71949037f0969d0ca
+  url: github:pybind/pybind11/archive/refs/tags/v3.1.0.tar.gz
+  ref: ef712655692a2e9bf7bb7874c022564a45f91d847ddee987e720cd9e28849665
 
 (@): buildstream/elements/base/target.yml
 

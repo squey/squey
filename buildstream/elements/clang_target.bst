@@ -26,7 +26,10 @@ config:
       configure-commands:
         (<):
         - |
-          sed "415,420d" -i compiler-rt/cmake/Modules/AddCompilerRT.cmake # Disable code signing
+          # Drop the configure-time codesign probe: it runs the host codesign,
+          # which does not exist in the cross sandbox. Anchored on the code
+          # itself, line numbers move with every LLVM release.
+          sed '/^        execute_process($/,/^        set(EXTRA_CODESIGN_ARGUMENTS)$/d' -i compiler-rt/cmake/Modules/AddCompilerRT.cmake
       install-commands:
         (>):
         - |

@@ -6,8 +6,8 @@ description: |
 sources:
 - kind: tar
 
-  url: github:include-what-you-use/include-what-you-use/archive/refs/tags/0.25.tar.gz
-  ref: 2e8381368ec0a6ecb770834bce00fc62efa09a2b2f9710ed569acbb823ead9cc
+  url: github:include-what-you-use/include-what-you-use/archive/refs/tags/0.26.tar.gz
+  ref: ca3f157a5e6bf293cfb2fea585b103ec87245d02eaee0b6ab832665e740016eb
 
 variables:
   cmake-local: >-

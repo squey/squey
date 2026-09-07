@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: tcpdump:release/libpcap-1.10.5.tar.xz
-  ref: 84fa89ac6d303028c1c5b754abff77224f45eca0a94eb1a34ff0aa9ceece3925
+  url: tcpdump:release/libpcap-1.10.7.tar.xz
+  ref: 68fa62cffb974f4275641ce14c2e2d75739251f30e00e6a0900903b247d76a03
 
 (@): buildstream/elements/base/target.yml
 

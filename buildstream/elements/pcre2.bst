@@ -6,7 +6,7 @@ sources:
   track: pcre2-*
   exclude:
   - '*-RC*'
-  ref: pcre2-10.46-0-gb2bd4254b379b9d7dc9a3dda060a7e27009ccdff
+  ref: pcre2-10.48-0-g7978954dbd2efc6f2196869290553cf1871b4ce6
 
 (@): buildstream/elements/base/target.yml
 

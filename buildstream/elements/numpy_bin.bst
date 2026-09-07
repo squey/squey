@@ -7,24 +7,24 @@ description: |
   - target_triple == "x86_64-apple-darwin":
       sources:
         - kind: remote
-          url: pythonhosted:packages/a7/45/7f9244cd792e163b334e3a7f02dff1239d2890b6f37ebf9e82cbe17debc0/numpy-2.1.3-cp313-cp313t-macosx_10_13_x86_64.whl
-          ref: 996bb9399059c5b82f76b53ff8bb686069c05acc94656bb259b1d63d04a9506f
+          url: pythonhosted:packages/ac/f8/c3b222bf075b50afd8e949a07a15c4b312a4a84bd8102a332bcd953cbbb4/numpy-2.5.2-cp314-cp314-macosx_10_15_x86_64.whl
+          ref: d787cf769c3baeb5f6235e778edb52c08dfa923789b5958f28e6450f96107cb1
   - target_triple == "aarch64-apple-darwin":
       sources:
         - kind: remote
-          url: pythonhosted:packages/45/e1/210b2d8b31ce9119145433e6ea78046e30771de3fe353f313b2778142f34/numpy-2.1.3-cp313-cp313-macosx_11_0_arm64.whl
-          ref: f653490b33e9c3a4c1c01d41bc2aef08f9475af51146e4a7710c450cf9761598
+          url: pythonhosted:packages/17/e1/2c1d4b1987795a92b5bbf7c24fe249ab96aa2573ab0d7604802c189d7b86/numpy-2.5.2-cp314-cp314-macosx_11_0_arm64.whl
+          ref: 24b9dc2e3d84aa58523798805194e23e736f3f6ce2d1a5b92583ae734e6dbda8
   - target_triple == "x86_64-w64-mingw32":
       sources:
         - kind: remote
-          url: msys2:mingw/mingw64/mingw-w64-x86_64-python-numpy-2.2.3-1-any.pkg.tar.zst
-          ref: 55a1b75c198a845a7fe17d6090f303fcd992016775f3817794a2d8d6cedecd29
+          url: msys2:mingw/mingw64/mingw-w64-x86_64-python-numpy-2.5.2-1-any.pkg.tar.zst
+          ref: c5d5d0d9172ca2cfdbcfeef0301153576590dfdb11b2e0fb0a276e3ef2c240b4
         - kind: remote
-          url: msys2:mingw/mingw64/mingw-w64-x86_64-openblas-0.3.29-1-any.pkg.tar.zst
-          ref: e0c22584647202589901dd08715b814fe9529830848742fe19682dd34cabf245
+          url: msys2:mingw/mingw64/mingw-w64-x86_64-openblas-0.3.34-1-any.pkg.tar.zst
+          ref: cac7623e6b0f07a7ad72fa2e6d4e346e9025fc14d0ccb68d0b79a50765f05e88
         - kind: remote
-          url: msys2:mingw/mingw64/mingw-w64-x86_64-gcc-libgfortran-14.2.0-3-any.pkg.tar.zst
-          ref: 6f5d0967234ccc25f18556308293be70d3a63ca8c285033e561593a7d754fe24
+          url: msys2:mingw/mingw64/mingw-w64-x86_64-gcc-libgfortran-16.2.0-3-any.pkg.tar.zst
+          ref: bc9095f979fb555e116bd7cab7a514e65988bb9d7e4ddb3f333acd1a5295936d
 
 (@): buildstream/elements/base/target.yml
 
@@ -53,4 +53,4 @@ config:
 build-depends:
 - sdk.bst
 - zstd.bst
-- freedesktop-sdk.bst:components/unzip.bst
+- freedesktop-sdk.bst:components/libarchive.bst

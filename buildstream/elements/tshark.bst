@@ -6,14 +6,20 @@ description: |
 
 sources:
 - kind: tar
-  url: gitlab:wireshark/wireshark/-/archive/v4.6.4/wireshark-v4.6.4.tar.bz2
-  ref: 51607771f25d80a70a83a1d6086dfcb36876c92b95782788c63f25c057ee2e01
+  url: gitlab:wireshark/wireshark/-/archive/v4.6.8/wireshark-v4.6.8.tar.bz2
+  ref: 7157e61b3a8b4f38e33a7447ae6bb5b5469c86d28ba8b5e2bb03e1a6efa5156a
 
 variables:
   cmake-local: >-
     -DBUILD_wireshark=OFF
     -DBUILD_sharkd=OFF
     -DBUILD_logray=OFF
+
+build-depends:
+# Wireshark's CMake requires a Python 3 interpreter for its code generators.
+# It used to come in through glib, which declared python3 as a runtime
+# dependency until freedesktop-sdk 26.08 moved it to build-depends.
+- freedesktop-sdk.bst:components/python3.bst
 
 depends:
 - base.bst

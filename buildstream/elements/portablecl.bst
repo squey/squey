@@ -28,6 +28,9 @@ variables:
     -DENABLE_TBB_DEVICE=1
 
   executable_dir_keyword: "@executable_dir"
+  # HOST_CLANG is the osxcross wrapper rather than the bare clang: pocl compiles
+  # kernels with it at build time targeting darwin, and only the wrapper passes
+  # the -isysroot that makes the macOS headers reachable.
   cmake-local-darwin: >-
     -DCLANG="%{toolchain-dir}/%{cc-compiler}"
     -DCLANGXX="%{toolchain-dir}/%{cxx-compiler}"
@@ -41,9 +44,18 @@ variables:
     -DCMAKE_SYSROOT="%{prefix}"
     -DLLVM_BINDIR="%{host-prefix}/bin"
     -DLLVM_LIBDIR="%{libdir}"
+    -DWITH_LLVM_CONFIG="%{host-prefix}/bin/llvm-config"
+    -DLLVM_DIR="%{libdir}/cmake/llvm"
+    -DHOST_CLANG="%{toolchain-dir}/%{cc-compiler}"
+    -DHOST_CLANGXX="%{toolchain-dir}/%{cxx-compiler}"
     -DSTATIC_LLVM=OFF
+    -DLLC_HOST_CPU_AUTO="x86-64"
     -DDL_H="%{sdk-dir}/usr/include/dlfcn.h"
 
+  # The drivers are linked into pocl.dll rather than dlopen()-ed: as separate
+  # DLLs they have to resolve pocl's internal symbols, which pocl.dll does not
+  # export since it links with -Wl,--exclude-libs,ALL. ELF targets never hit
+  # this because every symbol is visible there by default.
   cmake-local-win: >-
     -DCLANG="/app/bin/clang"
     -DCLANGXX="/app/bin/clang++"
@@ -53,7 +65,25 @@ variables:
     -DCMAKE_SYSROOT="%{prefix}"
     -DLLVM_BINDIR="%{host-prefix}/bin"
     -DLLVM_LIBDIR="%{libdir}"
-    -DSTATIC_LLVM=TRUE
+    -DWITH_LLVM_CONFIG="%{host-prefix}/bin/llvm-config"
+    -DLLVM_DIR="%{libdir}/cmake/llvm"
+    -DHOST_CLANG="%{host-prefix}/bin/clang"
+    -DHOST_CLANGXX="%{host-prefix}/bin/clang++"
+    -DHOST_LLVM_OPT="%{host-prefix}/bin/opt"
+    -DHOST_LLVM_LLC="%{host-prefix}/bin/llc"
+    -DHOST_LLVM_AS="%{host-prefix}/bin/llvm-as"
+    -DHOST_LLVM_DIS="%{host-prefix}/bin/llvm-dis"
+    -DHOST_LLVM_LINK="%{host-prefix}/bin/llvm-link"
+    -DTARGET_CLANG="%{bindir}/clang.exe"
+    -DTARGET_CLANGXX="%{bindir}/clang++.exe"
+    -DTARGET_LLVM_OPT="%{bindir}/opt.exe"
+    -DTARGET_LLVM_LLC="%{bindir}/llc.exe"
+    -DTARGET_LLVM_AS="%{bindir}/llvm-as.exe"
+    -DTARGET_LLVM_DIS="%{bindir}/llvm-dis.exe"
+    -DTARGET_LLVM_LINK="%{bindir}/llvm-link.exe"
+    -DSTATIC_LLVM=OFF
+    -DLLC_HOST_CPU_AUTO="x86-64"
+    -DENABLE_LOADABLE_DRIVERS=OFF
     -DCMAKE_SIZEOF_VOID_P=8
     -DLLVM_PREFIX="%{prefix}"
     -DLLVM_VERSION_FULL=19.1.7
@@ -82,13 +112,9 @@ variables:
     -DOPENCL_VERSION="3.0.0"
     -DPOCL_INSTALL_PRIVATE_DATADIR="%{bindir}/pocl"
 
+  commit_ref: "888c9774b94590fff1afef003154ca2c0ea66605"
+
   (?):
-  - (target_triple != "x86_64-w64-mingw32"):
-      commit_ref: "a6f7e5cc223cdf6254ff62ea1f37a9aa8a52d778"
-      patch: "buildstream/patches/portablecl/fix_tbb.patch"
-  - (target_triple == "x86_64-w64-mingw32"):
-      commit_ref: "85654efe89894af6d0fbc701d597b2f9be5441fe"
-      patch: "buildstream/patches/noop.patch"
   - (target_triple == "x86_64-linux-gnu" or target_triple == "x86_64-apple-darwin" or target_triple == "x86_64-w64-mingw32"):
       cmake-local-distro: >-
         -DKERNELLIB_HOST_CPU_VARIANTS=distro
@@ -108,7 +134,19 @@ sources:
   ref: "%{commit_ref}"
 
 - kind: patch
-  path: "%{patch}"
+  path: buildstream/patches/portablecl/fix_tbb.patch
+  strip-level: 1
+
+- kind: patch
+  path: buildstream/patches/portablecl/llvm-objcarc-component.patch
+  strip-level: 1
+
+- kind: patch
+  path: buildstream/patches/portablecl/ptrsetwrapper-range.patch
+  strip-level: 1
+
+- kind: patch
+  path: buildstream/patches/portablecl/mingw-icd-exports.patch
   strip-level: 1
 
 config:

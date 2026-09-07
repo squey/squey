@@ -7,14 +7,14 @@ description: |
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       sources:
         - kind: remote
-          url: wireshark:download/osx/all-versions/Wireshark%204.6.4.dmg
-          ref: 08150f79cfc5828820f991b6d944c68536db9595b1c3052982bbde79fb2053df
+          url: wireshark:download/osx/all-versions/Wireshark%204.6.8.dmg
+          ref: 7de945ed1ba324259ba7e3b2ca2fe11a854cf48a33dc6d4423dd531e466a1f3a
           filename: wireshark.dmg
   - target_triple == "x86_64-w64-mingw32":
       sources:
         - kind: remote
-          url: wireshark:download/win64/all-versions/WiresharkPortable64_4.6.4.paf.exe
-          ref: 2f144183e24d14c3573053b85e304819a5409399383a3f3f6b2feac5e36d1dbb
+          url: wireshark:download/win64/all-versions/WiresharkPortable64_4.6.8.paf.exe
+          ref: d6cf5056586a0156c8634a9d9b3097e60a8dda408b889c9afc4445ec2b18d581
           filename: wireshark.exe
 
 (@): buildstream/elements/base/target.yml

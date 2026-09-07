@@ -14,8 +14,8 @@ sources:
   ref: dbf9d87c38042752ad6f530aa8210427e22b526611bb7b7bfed0e81977d1f1ef
 # The only gcovr runtime dependency the runtime does not already provide
 - kind: remote
-  url: pythonhosted:packages/ec/a1/6b71004ab0fea510230be9ce05a4059029ac847c009fcc80b1b73d6fa5ab/colorlog-6.11.0-py3-none-any.whl
-  ref: f1e27d75aa2cb138f3f640c0e305b65b680ccbef6ecc034eba7e03494ffcd2a1
+  url: pythonhosted:packages/d4/19/0b6647bf5e331521e55d2b63bfbdc210bd9cd605189273f03614a05f702d/colorlog-6.12.0-py3-none-any.whl
+  ref: 30d392604e9110045a2c2aeefc27d7a017abbab63f3a8aee594eac0801df784e
 
 config:
   install-commands:

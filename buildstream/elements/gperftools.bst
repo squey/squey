@@ -7,8 +7,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:gperftools/gperftools/archive/refs/tags/gperftools-2.17.2.tar.gz
-  ref: 885dbbf1f25a922de0cdc78b0703c3ab93c43850e1d2f7c889e41be7c824c53d
+  url: github:gperftools/gperftools/archive/refs/tags/gperftools-2.18.1.tar.gz
+  ref: 172d27e6f6c1fa69df4be30bc61ea35ed225b74cd3a15500e2d75e981478fb2b
 
 (@): buildstream/elements/base/target.yml
 

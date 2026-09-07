@@ -6,8 +6,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:oneapi-src/oneTBB/archive/v2022.2.0.tar.gz
-  ref: f0f78001c8c8edb4bddc3d4c5ee7428d56ae313254158ad1eec49eced57f6a5b
+  url: github:oneapi-src/oneTBB/archive/v2023.1.0.tar.gz
+  ref: 191288b52e1e6b17198000b64d77d194bb65e791be46ebc606e9b091781e2070
 
 (@): buildstream/elements/base/target.yml
 

@@ -1,0 +1,20 @@
+Link LLVMObjCARCOpts among the LLVM components
+
+pocl_llvm_build.cc pulls in llvm::createObjCARCContractPass() through clang's
+backend headers, but LLVMObjCARCOpts is missing from the component list. It
+goes unnoticed wherever LLVM is built as a single libLLVM dylib, since pocl
+then links that one library and gets every symbol; the mingw target builds LLVM
+with BUILD_SHARED_LIBS, so pocl links the components listed here and the link
+fails on that symbol.
+
+diff --git a/cmake/SetupLLVMviaCMake.cmake b/cmake/SetupLLVMviaCMake.cmake
+--- a/cmake/SetupLLVMviaCMake.cmake
++++ b/cmake/SetupLLVMviaCMake.cmake
+@@ -146,6 +146,7 @@ set(POCL_LLVM_COMPONENTS
+   LLVMExecutionEngine
+   LLVMTarget
+   LLVMPasses
++  LLVMObjCARCOpts
+   LLVMTargetParser
+   LLVMLibDriver
+   LLVMWindowsDriver

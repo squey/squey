@@ -3,28 +3,22 @@ description: |
 
     LLVM OpenMP library implementation
 
+# The per-component openmp-*.src.tar.xz and cmake-*.src.tar.xz tarballs are no
+# longer published from LLVM 22 on, so the monorepo archive is used instead. It
+# is the very one clang.yml builds from, so the two share a single download.
 sources:
 - kind: tar
-  url: github:llvm/llvm-project/releases/download/llvmorg-19.1.7/openmp-19.1.7.src.tar.xz
-  ref: bd7e6901ab086fd268750363017935fd4a717c153dad3c2aab86cb0140d9e3fe
-
-- kind: tar
-  url: github:llvm/llvm-project/releases/download/llvmorg-19.1.7/cmake-19.1.7.src.tar.xz
-  ref: 11c5a28f90053b0c43d0dec3d0ad579347fc277199c005206b963c19aae514e3
-  directory: cmake/
+  url: github:llvm/llvm-project/archive/refs/tags/llvmorg-22.1.8.tar.gz
+  ref: ad18b70e287954c3d62bc7e0b86e7b7af2adf87bcfce21c15fe717f101d7aace
 
 (@): buildstream/elements/base/target.yml
 
 variables:
+  # openmp/CMakeLists.txt reaches for ../cmake/Modules, which the monorepo lays
+  # out the way it expects.
+  conf-root: "openmp"
   cmake-local: >-
     -DCMAKE_BUILD_TYPE=Release
-
-config:
-  configure-commands:
-  - |
-    cd cmake && for f in Modules/*.cmake; do ln -s "$f" .; done
-    cd ..
-    %{cmake}
 
 depends:
 - sdk.bst

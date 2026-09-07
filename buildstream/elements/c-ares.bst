@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:c-ares/c-ares/archive/refs/tags/v1.34.5.tar.gz
-  ref: dcd919635f01b7c8c9c2f5fb38063cd86500f7c6d4d32ecf4deff5e3497fb157
+  url: github:c-ares/c-ares/archive/refs/tags/v1.34.8.tar.gz
+  ref: ddf8be8b179ef6ff656e7413da93cf0f3038c627aca29ce9aae30f66e5b32bc1
 
 (@): buildstream/elements/base/target.yml
 

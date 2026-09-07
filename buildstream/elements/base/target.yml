@@ -1,10 +1,10 @@
+# Three separate Pythons: the freedesktop-sdk one on Linux, the python.org
+# package on macOS and the msys2 one on Windows. This SDK release lines them
+# all up on the same version, so a single value covers the three platforms.
+variables:
+  python-version: "3.14"
+
 (?):
-  - (target_triple != "x86_64-w64-mingw32"):
-      variables:
-        python-version: "3.13"
-  - (target_triple == "x86_64-w64-mingw32"):
-      variables:
-        python-version: "3.12"
   - (target_triple == "x86_64-apple-darwin"):
       variables:
         target-arch: "x86_64"
@@ -64,11 +64,17 @@
         icu-platform: "MacOSX"
       environment:
         PATH: "%{toolchain-dir}:%{host-prefix}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-        LD_LIBRARY_PATH: "%{osxcross-dir}/lib:%{host-prefix}/lib/clang/18/lib/darwin/:/usr/lib:%{host-prefix}/lib"
+        # Must track the clang major osxcross.bst installs compiler-rt under.
+        LD_LIBRARY_PATH: "%{osxcross-dir}/lib:%{host-prefix}/lib/clang/22/lib/darwin/:/usr/lib:%{host-prefix}/lib"
         OSXCROSS_TARGET_DIR: "%{osxcross-dir}"
         OSXCROSS_SDK: "%{sdk-dir}"
         OSXCROSS_PKG_CONFIG_USE_NATIVE_VARIABLES: 1
         OSXCROSS_HOST: "%{host}"
+        # osxcross' toolchain.cmake no longer derives the compilers itself: it
+        # builds ${OSXCROSS_HOST}-${OSXCROSS_C_COMPILER} out of these, which its
+        # osxcross-cmake dispatcher normally exports.
+        OSXCROSS_C_COMPILER: "clang"
+        OSXCROSS_CXX_COMPILER: "clang++"
         OSXCROSS_TARGET: "%{host}"
         MACOSX_DEPLOYMENT_TARGET: "%{deployment-target-version}"
   - (target_triple == "x86_64-w64-mingw32"):

@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
   url: github:KDE/syntax-highlighting
-  ref: f39b8f4054efa48389765d82081854053d8cfd91
+  ref: fc04c764cf9a0317bb48d207ee7bb2de2c902eb8
 
 (@): buildstream/elements/base/target.yml
 

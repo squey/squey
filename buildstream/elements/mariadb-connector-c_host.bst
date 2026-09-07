@@ -4,7 +4,7 @@ kind: cmake
 
 depends:
 - freedesktop-sdk.bst:components/openssl.bst
-- freedesktop-sdk.bst:bootstrap/zlib.bst
+- freedesktop-sdk.bst:bootstrap/zlib-ng.bst
 - freedesktop-sdk.bst:components/zstd.bst
 - freedesktop-sdk.bst:components/curl.bst
 
