@@ -101,6 +101,17 @@ QString mkstemp(QString tmpl);
 int setenv(const char* name, const char* value, int overwrite);
 char* getenv(const char* env_var);
 
+#ifdef _WIN32
+/**
+ * Convert a wide string to UTF-8.
+ *
+ * -municode makes the entry point wmain(), so argv comes in as wchar_t*, while
+ * everything downstream takes UTF-8. std::wstring_convert used to do this and
+ * was deprecated in C++17.
+ */
+std::string wide_to_utf8(const wchar_t* str);
+#endif
+
 } // namespace PVCore
 
 #endif /* PVCORE_PVUTILS_H */

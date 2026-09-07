@@ -94,8 +94,10 @@ int main()
 	                       "15-3-26 23:42:35.123");
 	testcases.emplace_back("datetime_ms", "dd-M-yy H:mm:ss:S", "19-02-14 15:55:47:123",
 	                       "19-2-14 15:55:47:1");
+	// ICU 78 renders the 'z' pattern for GMT as "GMT+0" where ICU 77 rendered
+	// "GMT", so the round trip no longer gives the input back verbatim.
 	testcases.emplace_back("datetime_ms", "yy-M-d H:mm:ss.SSS z", "15-3-26 23:42:35.123 GMT",
-	                       "15-3-26 23:42:35.123 GMT");
+	                       "15-3-26 23:42:35.123 GMT+0");
 
 	// testcases.emplace_back("datetime_ms", "hh 'o''clock' a, zzzz", 	"12 o'clock PM, Pacific
 	// Daylight Time"); // bug in ICU

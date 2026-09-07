@@ -40,6 +40,22 @@ endif()
 # only appear in inline static helpers and local variables, so the warning has no bearing.
 set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wall -Wextra -fPIC -Wno-psabi")
 
+# GCC 16 added -Wsfinae-incomplete. It fires where Qt's qmetatype probes a type
+# with sizeof(U) in a SFINAE context while that type is still incomplete, and the
+# unity build only defines it in a later part of the same translation unit. The
+# ODR hazard it describes is real in general, but here the sequence comes from
+# moc-generated sources meeting the precompiled header, which this code cannot
+# reorder. Keep the diagnostic, just stop -Werror from making it fatal.
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
+    set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wno-error=sfinae-incomplete")
+    # -Warray-bounds misfires at -O3 inside Arrow's headers: inlining an
+    # ArrayBuilder::Reserve() chain lets GCC reason about a downcast to
+    # BasicUnionBuilder that the call never takes, and it then reports an
+    # out-of-bounds read on the builder's own control block. The diagnostic
+    # points into arrow's headers, not into code this project can fix.
+    set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wno-error=array-bounds")
+endif()
+
 if (CODE_COVERAGE)
 	set(CODE_COVERAGE_FLAGS "-O0 --coverage")
     set(CTEST_COVERAGE_COMMAND "gcov")

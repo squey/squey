@@ -24,6 +24,7 @@
 //
 
 #include "import_export.h"
+#include <pvkernel/core/PVUtils.h>
 
 UNICODE_MAIN()
 {
@@ -33,10 +34,9 @@ UNICODE_MAIN()
 	}
 
 #ifdef _WIN32
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-	static const std::string input_file = conv.to_bytes(argv[1]);
-	static const std::string format = conv.to_bytes(argv[2]);
-	static const std::string ref_file =conv.to_bytes(argv[3]);
+	static const std::string input_file = PVCore::wide_to_utf8(argv[1]);
+	static const std::string format = PVCore::wide_to_utf8(argv[2]);
+	static const std::string ref_file =PVCore::wide_to_utf8(argv[3]);
 #else
 	static const std::string input_file = argv[1];
 	static const std::string format = argv[2];

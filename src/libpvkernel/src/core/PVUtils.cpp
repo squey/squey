@@ -280,3 +280,23 @@ char* PVCore::getenv(const char* env_var)
 	return std::getenv(env_var);
 #endif
 }
+#ifdef _WIN32
+std::string PVCore::wide_to_utf8(const wchar_t* str)
+{
+    if (str == nullptr) {
+        return {};
+    }
+
+    // The returned length covers the terminating null, which std::string keeps
+    // track of on its own.
+    int len = WideCharToMultiByte(CP_UTF8, 0, str, -1, nullptr, 0, nullptr, nullptr);
+    if (len <= 1) {
+        return {};
+    }
+
+    std::string utf8(len - 1, '\0');
+    WideCharToMultiByte(CP_UTF8, 0, str, -1, &utf8[0], len, nullptr, nullptr);
+
+    return utf8;
+}
+#endif

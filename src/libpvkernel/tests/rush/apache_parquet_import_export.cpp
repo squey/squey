@@ -22,6 +22,7 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 #include "../../plugins/common/parquet/PVParquetAPI.h"
+#include <pvkernel/core/PVUtils.h>
 #include "../../plugins/common/parquet/PVParquetFileDescription.h"
 #include "../../plugins/input-types/parquet/PVParquetExporter.h"
 #include <pvkernel/rush/PVSourceCreator.h>
@@ -71,9 +72,8 @@ UNICODE_MAIN()
 	}
 
 #ifdef _WIN32
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-    const std::string& parquet_test_file = conv.to_bytes(argv[1]);
-    const std::string& csv_ref_file = conv.to_bytes(argv[2]);
+    const std::string& parquet_test_file = PVCore::wide_to_utf8(argv[1]);
+    const std::string& csv_ref_file = PVCore::wide_to_utf8(argv[2]);
 #else
     const std::string& parquet_test_file = argv[1];
     const std::string& csv_ref_file = argv[2];
