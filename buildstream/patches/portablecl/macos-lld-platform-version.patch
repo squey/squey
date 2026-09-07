@@ -1,0 +1,39 @@
+Tell ld64 which platform the kernels are linked for
+
+pocl links each compiled kernel through lld's library API, and builds the
+argument list for ld64 with -arch but no -platform_version. ld64 refuses a
+link that does not name the platform, so on macOS the in-process link
+failed for every kernel -- twice per specialisation -- and pocl fell back
+to spawning the Clang driver, which is the slow path this function exists
+to avoid. The rendering was correct, but each kernel paid for a failed
+link first and the errors reached the application's stderr.
+
+The versions come from the triplet the kernels were compiled for, which is
+the one they have to be linked for.
+diff --git a/lib/CL/pocl_llvm_build.cc b/lib/CL/pocl_llvm_build.cc
+index 97b4889d..a77ee6a5 100644
+--- a/lib/CL/pocl_llvm_build.cc
++++ b/lib/CL/pocl_llvm_build.cc
+@@ -1231,10 +1231,19 @@ int pocl_invoke_lld_link(cl_device_id Device, const char *InFile,
+   // Symbols the kernel binary leaves undefined resolve when it is
+   // dlopen()ed, so no C runtime or startup files are needed at link time.
+ #ifdef __APPLE__
+-  ArgStorage.push_back(
+-      llvm::Triple(Device->llvm_target_triplet).getArchName().str());
++  llvm::Triple TargetTriple(Device->llvm_target_triplet);
++  ArgStorage.push_back(TargetTriple.getArchName().str());
++  /* ld64 rejects a link that does not name the platform and its versions,
++     so without this every kernel fails here and falls back to the Clang
++     driver -- the slow path this function exists to avoid. The triplet is
++     what the kernels were compiled for, so it is also what to link them
++     for; a triplet carrying no version leaves an empty string, which ld64
++     reports just as it would a missing one. */
++  ArgStorage.push_back(TargetTriple.getOSVersion().getAsString());
+   LinkerArgs = {"ld64.lld", "-dylib", "-undefined", "dynamic_lookup",
+-                "-arch",    ArgStorage[0].c_str(), "-o", OutFile,
++                "-arch",    ArgStorage[0].c_str(),
++                "-platform_version", "macos", ArgStorage[1].c_str(),
++                ArgStorage[1].c_str(), "-o", OutFile,
+                 InFile};
+   Drivers = {{lld::Darwin, &lld::macho::link}};
+ #else
