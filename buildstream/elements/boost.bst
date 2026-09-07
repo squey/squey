@@ -19,7 +19,21 @@ config:
   - |
     ./bootstrap.sh --prefix=%{prefix}
     if [ "%{target-platform}" = "darwin" ] ; then
-      echo "using clang : osxcross : %{cxx-compiler} ;" > ~/user-config.jam
+      # b2 hands the compiler -m64 whatever we ask of it: it reads the address
+      # model off the build machine and clang-linux.jam turns that into a flag.
+      # Targeting Mach-O, the clang driver rewrites -m64 into "-arch x86_64",
+      # which outranks --target -- so the arm64 libraries came out x86_64 and
+      # every boost symbol was missing when squey linked. Adding -arch arm64
+      # does not override it either, it just yields a universal binary. Drop
+      # the flag on its way to the compiler.
+      mkdir -p wrappers
+      printf '%s\n' \
+        '#!/bin/bash' \
+        'args=()' \
+        'for arg in "$@" ; do [ "$arg" = "-m64" ] || args+=("$arg") ; done' \
+        'exec %{cxx-compiler} "${args[@]}"' > wrappers/b2-cxx
+      chmod +x wrappers/b2-cxx
+      echo "using clang : osxcross : $PWD/wrappers/b2-cxx ;" > ~/user-config.jam
     elif [ "%{target_triple}" = "x86_64-w64-mingw32" ] ; then
       echo "using gcc : mingw : %{cxx-compiler} ;" > ~/user-config.jam
     fi

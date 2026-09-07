@@ -9,6 +9,7 @@ variables:
       variables:
         target-arch: "x86_64"
         macho-arch: "%{target-arch}"
+        boost-architecture: "x86"
         cc-compiler: "o64-clang"
         cxx-compiler: "o64-clang++"
         openssl-target: "darwin64-%{target-arch}-cc"
@@ -16,6 +17,7 @@ variables:
       variables:
         target-arch: "aarch64"
         macho-arch: "arm64"
+        boost-architecture: "arm"
         cc-compiler: "oa64-clang"
         cxx-compiler: "oa64-clang++"
         openssl-target: "darwin64-arm64-cc"
@@ -57,8 +59,13 @@ variables:
           -DINPUT_linker="%{toolchain-dir}/%{host}-ld"
           -DQT_HOST_PATH="%{host-prefix}"
         boost-toolset: "clang-osxcross"
-        boost-target-os: "%{target-platform}"
-        boost-cxx-flags: "--target=%{target-arch}-apple-darwin"
+        # b2 reads the architecture off the build machine unless told, which
+        # here means x86: Boost.Atomic then reaches for its SSE sources in an
+        # arm64 build. The mingw target below states it for the same reason.
+        boost-target-os: "%{target-platform} architecture=%{boost-architecture} address-model=64"
+        # macho-arch, not target-arch: arm64 is the name Apple gives this
+        # architecture, and the one its tools answer to.
+        boost-cxx-flags: "--target=%{macho-arch}-apple-darwin"
         boost-link-flags: "-fuse-ld=%{toolchain-dir}/%{host}-ld"
         openssl-arch-conf: enable-ec_nistp_64_gcc_128
         icu-platform: "MacOSX"
