@@ -29,6 +29,7 @@
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
+#include <functional>
 #include <map>
 #include <vector>
 
@@ -61,6 +62,21 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
   public:
 	bool is_gpu_accelerated() const override { return _is_gpu_accelerated; }
 	size_t device_count() const { return _devices.size(); }
+
+	/**
+	 * Compiles every kernel the views will ask for, so that none of them has to
+	 * be compiled while a zone is waiting to be drawn.
+	 *
+	 * PortableCL specialises a kernel per local work size and only does so on
+	 * the first enqueue naming one, which is why a zone width drawn for the
+	 * first time used to stay black for as long as the compiler took. Drawing
+	 * each shape once with nothing in it pays that cost here instead, and the
+	 * kernel cache keeps it for the next runs.
+	 *
+	 * progress, if given, is called with (shapes done, shapes total) before
+	 * each one and once more at the end.
+	 */
+	void precompile_kernels(const std::function<void(size_t, size_t)>& progress = {});
 
   public:
 	static PVBCIDrawingBackendOpenCL& get();

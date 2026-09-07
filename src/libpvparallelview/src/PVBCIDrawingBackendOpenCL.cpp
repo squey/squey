@@ -289,6 +289,51 @@ PVParallelView::PVBCIDrawingBackendOpenCL& PVParallelView::PVBCIDrawingBackendOp
 }
 
 /*****************************************************************************
+ * PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels
+ *****************************************************************************/
+
+void PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
+    const std::function<void(size_t, size_t)>& progress)
+{
+	if (_devices.empty()) {
+		return;
+	}
+
+	// The work-group shape is rounded up to a power of two (see opencl_kernel),
+	// so these are all the shapes the views can ask for: the widths a zone can
+	// take are clamped to [ZoneMinWidth, ZoneMaxWidth]. Both image heights are
+	// covered because the shape is capped by the local memory a column needs,
+	// which the taller one exhausts sooner.
+	std::vector<std::pair<size_t, uint8_t>> shapes;
+	for (int height_bits : {PARALLELVIEW_ZT_BBITS, PARALLELVIEW_ZZT_BBITS}) {
+		for (size_t width = PARALLELVIEW_ZONE_MIN_WIDTH; width <= PARALLELVIEW_ZONE_MAX_WIDTH;
+		     width *= 2) {
+			shapes.emplace_back(width, static_cast<uint8_t>(height_bits));
+		}
+	}
+
+	size_t done = 0;
+
+	for (const auto& [width, height_bits] : shapes) {
+		if (progress) {
+			progress(done, shapes.size());
+		}
+
+		// No codes to draw: the kernel is enqueued with the dimensions that
+		// select the specialisation, and returns having written a blank image.
+		PVBCIBackendImage_p image = create_image(width, height_bits);
+		render(image, 0, width, nullptr, 0);
+		wait_all();
+
+		++done;
+	}
+
+	if (progress) {
+		progress(done, shapes.size());
+	}
+}
+
+/*****************************************************************************
  * PVParallelView::PVBCIDrawingBackendOpenCL::create_image
  *****************************************************************************/
 
