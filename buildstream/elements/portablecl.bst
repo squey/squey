@@ -22,6 +22,7 @@ variables:
   cmake-local-distro: ''
   cmake-local-linux: ''
   cmake-local-darwin-aarch64: ''
+  cmake-local-darwin-x86_64: ''
   cmake-local: >-
     -DINSTALL_OPENCL_HEADERS=1
     -DCMAKE_BUILD_TYPE=Release
@@ -118,6 +119,16 @@ variables:
   - (target_triple == "x86_64-linux-gnu" or target_triple == "x86_64-apple-darwin" or target_triple == "x86_64-w64-mingw32"):
       cmake-local-distro: >-
         -DKERNELLIB_HOST_CPU_VARIANTS=distro
+  - target_triple == "x86_64-apple-darwin":
+      # OCL_KERNEL_TARGET follows LLC_TRIPLE, and pocl falls back to detecting
+      # a bare "x86_64-apple-darwin" when it is not told. A triplet with no
+      # version reads to clang as a macOS old enough to want -lgcc_s.1 and no
+      # -platform_version, so the linker rejects every kernel it is handed and
+      # the views stay black. Name the deployment target the rest of the build
+      # is compiled against, which is also the triplet the kernel libraries
+      # were built under before pocl started guessing.
+      cmake-local-darwin-x86_64: >-
+        -DLLC_TRIPLE="%{macho-arch}-apple-macosx%{deployment-target-version}.0"
   - target_triple == "aarch64-apple-darwin":
       cmake-local-darwin-aarch64: >-
         -DLLC_TRIPLE="%{host}"
@@ -231,7 +242,18 @@ config:
           return ld_flags;
         }
         EOF
-        %{cmake} %{cmake-local-distro} %{cmake-local-darwin} %{cmake-local-darwin-aarch64}
+
+        # LLC_TRIPLE names the triplet the kernels are built and linked for, and
+        # SetupLLVMHostCPU already treats it as overridable -- but this earlier
+        # set() overwrites whatever was passed with LLVM's own target triplet,
+        # which our cross-built LLVM reports without a version. Clang reads a
+        # versionless darwin triplet as a macOS old enough to want -lgcc_s.1 and
+        # no -platform_version, so ld64.lld rejects every kernel and the views
+        # stay black. Honour the value when one is given.
+        grep -qF 'set(LLC_TRIPLE ${LLVM_TARGET_TRIPLE})' cmake/SetupLLVMviaCMake.cmake || { echo "LLC_TRIPLE assignment not found"; exit 1; }
+        sed -i 's|^set(LLC_TRIPLE ${LLVM_TARGET_TRIPLE})$|if(NOT LLC_TRIPLE)\n  set(LLC_TRIPLE ${LLVM_TARGET_TRIPLE})\nendif()|' cmake/SetupLLVMviaCMake.cmake
+
+        %{cmake} %{cmake-local-distro} %{cmake-local-darwin} %{cmake-local-darwin-aarch64} %{cmake-local-darwin-x86_64}
   - target_triple == "x86_64-w64-mingw32":
       configure-commands:
       - |
