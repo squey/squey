@@ -13,10 +13,28 @@ against mingw:
    plain cl* names come from symbol aliases -- which PE does not have, so the
    plain names never exist.
 
+ - the entrypoints themselves are exported through CL_API_ENTRY, which pocl.h
+   redefines to __declspec(dllexport), again only for MSVC. This is what puts
+   clGetExtensionFunctionAddress in the export table; without it the loader
+   finds the four clIcd* symbols and nothing else, and still gives up.
+
 Meanwhile --exclude-libs,ALL keeps the archives' symbols out of the export
 table, which leaves nothing at all. Take the Windows path for naming and
 __declspec on any _WIN32 target, and define EXPORT_POCL_LIB for mingw too. Only
 the entrypoints are exported, so --exclude-libs still hides the LLVM symbols.
+diff --git a/include/pocl.h b/include/pocl.h
+index 3269f931..76dd7133 100644
+--- a/include/pocl.h
++++ b/include/pocl.h
+@@ -40,7 +40,7 @@
+    0 marks an invalid/undefined object. */
+ typedef uint64_t pocl_obj_id_t;
+ 
+-#if defined(EXPORT_POCL_LIB) && defined(_MSC_VER)
++#if defined(EXPORT_POCL_LIB) && defined(_WIN32)
+ /* To successfully export OpenCL API, the dllexport must be placed on
+  * both the declaration and the definition as MSVC requires that both
+  * of them have the same attributes.
 diff --git a/include/pocl_export.h b/include/pocl_export.h
 index 01c368be..a67f1bce 100644
 --- a/include/pocl_export.h
