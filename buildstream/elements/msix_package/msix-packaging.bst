@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
   url: github:microsoft/msix-packaging
-  ref: efeb9dad695a200c2beaddcba54a52c8320bd135
+  ref: 25a65f5c1690930813bcc10cdf1d59fa865f2bb1
   checkout-submodules: True
 
 config:

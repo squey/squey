@@ -23,6 +23,7 @@
  */
 
 #include <algorithm>
+#include <pvkernel/core/PVUtils.h>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -88,8 +89,7 @@ UNICODE_MAIN()
 		return 1;
 	}
 #ifdef _WIN32
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-	const std::string pcap_path = conv.to_bytes(argv[1]);
+	const std::string pcap_path = PVCore::wide_to_utf8(argv[1]);
 #else
 	const std::string pcap_path = argv[1];
 #endif

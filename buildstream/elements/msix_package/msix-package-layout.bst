@@ -75,7 +75,6 @@ config:
     cp "Square44x44Logo.png" "%{install-package-root}/Square44x44Logo.targetsize-44_altform-unplated.png"
     cp "Square150x150Logo.png" "%{install-package-root}/Square150x150Logo.targetsize-150_altform-unplated.png"
     cp -r %{libdir}/squey/plugins/* "%{install-package-root}/plugins"
-    cp %{bindir}/pocl/* "%{install-package-root}/pocl"
     mkdir -p "%{install-package-root}/python"
     cp -r %{libdir}/python*/* "%{install-package-root}/python"
     cd "%{bindir}/tshark" && 7zzs a "%{install-package-root}/tshark.zip" .

@@ -23,6 +23,7 @@
  */
 
 #include <memory>
+#include <pvkernel/core/PVUtils.h>
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
 #include "../../plugins/common/parquet/PVParquetFileDescription.h"
@@ -339,9 +340,8 @@ UNICODE_MAIN()
     pvtest::init_ctxt();
 
 #ifdef _WIN32
-    std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-    std::string parquet_test_file = conv.to_bytes(argv[3]);
-    std::string csv_ref_file = conv.to_bytes(argv[4]);
+    std::string parquet_test_file = PVCore::wide_to_utf8(argv[3]);
+    std::string csv_ref_file = PVCore::wide_to_utf8(argv[4]);
 #else
     std::string parquet_test_file = argv[3];
     std::string csv_ref_file = argv[4];
@@ -351,8 +351,7 @@ UNICODE_MAIN()
     //std::vector<size_t> sizes = { 128 };
     for (size_t i = 0; i < sizes.size(); i++) {
 #ifdef _WIN32
-        std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-        const std::string csv_ref = conv.to_bytes(argv[i+1]);
+        const std::string csv_ref = PVCore::wide_to_utf8(argv[i+1]);
 #else
         const std::string& csv_ref = argv[i+1];
 #endif

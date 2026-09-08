@@ -31,6 +31,7 @@
 // multi-file concatenation case.
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
+#include <pvkernel/core/PVUtils.h>
 #include "../../plugins/common/parquet/PVParquetFileDescription.h"
 
 #include <pvkernel/rush/PVFileDescription.h>
@@ -72,12 +73,11 @@ UNICODE_MAIN()
 	}
 
 #ifdef _WIN32
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-	const std::string csv_file = conv.to_bytes(argv[1]);
-	const std::string csv_format = conv.to_bytes(argv[2]);
-	const std::string parquet_file1 = conv.to_bytes(argv[3]);
-	const std::string parquet_file2 = conv.to_bytes(argv[4]);
-	const std::string pvconfig_template = conv.to_bytes(argv[5]);
+	const std::string csv_file = PVCore::wide_to_utf8(argv[1]);
+	const std::string csv_format = PVCore::wide_to_utf8(argv[2]);
+	const std::string parquet_file1 = PVCore::wide_to_utf8(argv[3]);
+	const std::string parquet_file2 = PVCore::wide_to_utf8(argv[4]);
+	const std::string pvconfig_template = PVCore::wide_to_utf8(argv[5]);
 #else
 	const std::string csv_file = argv[1];
 	const std::string csv_format = argv[2];

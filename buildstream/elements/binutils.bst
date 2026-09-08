@@ -3,8 +3,8 @@ description: GNU Binutils
 
 sources:
   - kind: tar
-    url: sourceware:pub/binutils/releases/binutils-2.45.tar.xz
-    ref: c50c0e7f9cb188980e2cc97e4537626b1672441815587f1eab69d2a1bfbef5d2
+    url: sourceware:pub/binutils/releases/binutils-2.47.tar.xz
+    ref: 154ab23b60070e8f27013c22977f1129425d67d1e8acd6e13010e617811e4cff
 
 (@):
   - buildstream/elements/base/target.yml

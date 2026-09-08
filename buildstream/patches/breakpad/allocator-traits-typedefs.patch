@@ -1,0 +1,23 @@
+Take PageStdAllocator's typedefs from std::allocator_traits
+
+std::allocator<T>::pointer was deprecated in C++17 and removed in C++20, which
+the GCC 16 shipped by freedesktop-sdk 26.08 now enforces, so dump_syms stops
+compiling. Upstream google/breakpad moved these typedefs to
+std::allocator_traits; this does the same on the fork, which keeps the
+std::allocator base class the fork's own rebind relies on.
+
+diff --git a/src/common/memory_allocator.h b/src/common/memory_allocator.h
+--- a/src/common/memory_allocator.h
++++ b/src/common/memory_allocator.h
+@@ -156,8 +156,9 @@ class PageAllocator {
+ // Wrapper to use with STL containers
+ template <typename T>
+ struct PageStdAllocator : public std::allocator<T> {
+-  typedef typename std::allocator<T>::pointer pointer;
+-  typedef typename std::allocator<T>::size_type size_type;
++  using AllocatorTraits = std::allocator_traits<std::allocator<T>>;
++  typedef typename AllocatorTraits::pointer pointer;
++  typedef typename AllocatorTraits::size_type size_type;
+ 
+   explicit PageStdAllocator(PageAllocator& allocator) : allocator_(allocator),
+                                                         stackdata_(NULL),

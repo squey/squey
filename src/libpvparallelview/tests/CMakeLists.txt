@@ -50,6 +50,9 @@ add_squey_test(Topencl_build_test Topencl_build_test)
 add_squey_compile_test(Topencl_cpu_device LINKS ${LINK_LIBRARIES} FILES opencl_cpu_device.cpp)
 add_squey_test(Topencl_cpu_device Topencl_cpu_device)
 
+add_squey_compile_test(Topencl_render LINKS ${LINK_LIBRARIES} FILES opencl_render.cpp bci_helpers.cpp)
+add_squey_test(Topencl_render Topencl_render)
+
 add_squey_compile_test(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
 add_bench(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
 

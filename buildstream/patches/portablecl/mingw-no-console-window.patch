@@ -1,0 +1,36 @@
+Run the kernel compiler without flashing a console window
+
+pocl compiles a kernel by running the LLVM tools and a linker as separate
+processes, and creates them with no creation flags. A console application
+started that way from a GUI process gets a console of its own, so every
+kernel specialisation the application compiles pops a window up and closes
+it again -- several times over on a cold cache.
+
+CREATE_NO_WINDOW keeps the child attached to no console at all, which is
+what the callers want: one of the two already redirects stdout and stderr
+through a pipe, and the other discards them.
+
+diff --git a/lib/CL/pocl_run_command.c b/lib/CL/pocl_run_command.c
+index 367f4010..cb02c1d2 100644
+--- a/lib/CL/pocl_run_command.c
++++ b/lib/CL/pocl_run_command.c
+@@ -148,7 +148,9 @@ pocl_run_command (const char **args)
+   si.cb = sizeof (si);
+   PROCESS_INFORMATION pi;
+   ZeroMemory (&pi, sizeof (pi));
+-  DWORD dwProcessFlags = 0;
++  /* Without CREATE_NO_WINDOW, every command run from a GUI process -- the
++     kernel compiler and the linker it invokes -- flashes a console window. */
++  DWORD dwProcessFlags = CREATE_NO_WINDOW;
+ 
+   char *cmd = build_cmd_from_arglist (args);
+   if (!cmd)
+@@ -296,7 +298,7 @@ pocl_run_command_capture_output (char *capture_string,
+ 
+   ZeroMemory (&process_info, sizeof (process_info));
+ 
+-  if (!CreateProcess (NULL, cmd, NULL, NULL, TRUE, 0, NULL, NULL,
++  if (!CreateProcess (NULL, cmd, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL,
+                       &startup_info, &process_info))
+     {
+       CloseHandle (child_stdout_rd);

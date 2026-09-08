@@ -1,0 +1,19 @@
+Throw std::bad_alloc directly instead of calling the libstdc++ internal
+
+std::__throw_bad_alloc() is a libstdc++ implementation detail that GCC 16,
+which freedesktop-sdk 26.08 ships, no longer declares in <bits/functexcept.h>,
+so jemalloc_cpp.cpp stops compiling. Upstream made the same change; drop this
+patch once a release carries it.
+
+diff --git a/src/jemalloc_cpp.cpp b/src/jemalloc_cpp.cpp
+--- a/src/jemalloc_cpp.cpp
++++ b/src/jemalloc_cpp.cpp
+@@ -100,7 +100,7 @@ handleOOM(std::size_t size, bool nothrow) {
+ 	}
+ 
+ 	if (ptr == nullptr && !nothrow)
+-		std::__throw_bad_alloc();
++		throw std::bad_alloc();
+ 	return ptr;
+ }
+ 

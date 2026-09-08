@@ -7,7 +7,9 @@ sources:
 - kind: git_repo
   url: github:abseil/abseil-cpp.git
   track: '[0-9]*.[0-9]'
-  ref: 20250814.1-0-gd38452e1ee03523a208362186fd42248ff2609f6
+  ref: 20260817.0-0-g2065f4ded0558c6f89fee67c8e5228feb4eb960e
+- kind: patch
+  path: buildstream/patches/abseil-cpp/mingw-no-o-nonblock.patch
 
 (@): buildstream/elements/base/target.yml
 
@@ -18,7 +20,9 @@ variables:
 
 config:
   configure-commands:
-  - sed '250d' -i absl/base/CMakeLists.txt
+  # Drop the -lrt of the 'base' target: librt is glibc-only, and the line moves
+  # with every abseil release, so it is matched rather than addressed by number.
+  - sed '/^ *\$<\$<BOOL:\${LIBRT}>:-lrt>$/d' -i absl/base/CMakeLists.txt
   - "%{cmake}"
 
 depends:

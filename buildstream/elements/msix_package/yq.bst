@@ -2,8 +2,8 @@ kind: manual
 
 sources:
 - kind: remote
-  url: github:mikefarah/yq/releases/download/v4.45.1/yq_linux_amd64
-  ref: 654d2943ca1d3be2024089eb4f270f4070f491a0610481d128509b2834870049
+  url: github:mikefarah/yq/releases/download/v4.53.6/yq_linux_amd64
+  ref: c5f056448f973ae7d39b5401949648a78f2dc1947d6a8eb65be60d5c504b9385
 
 config:
   install-commands:

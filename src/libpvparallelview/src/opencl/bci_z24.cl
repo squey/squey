@@ -88,16 +88,20 @@ kernel void DRAW(const global uint2* bci_codes,
 
 	int band_x = get_local_id(0) + get_group_id(0)*get_local_size(0);
 
-	if (band_x >= width) {
-		return;
-	}
+	/* The kernel is enqueued over a whole number of work-groups, so the last one
+	 * may reach past the zone. Those work-items draw nothing, but they cannot
+	 * leave: every work-item of a work-group has to reach the barriers below,
+	 * and one returning early makes them undefined. Each loop they would take
+	 * part in is guarded instead.
+	 */
+	const bool draws = band_x < width;
 
 	const float alpha0 = (float)(width-band_x)/(float)width;
 	const float alpha1 = (float)(width-(band_x+1))/(float)width;
 	const uint y_start = get_local_id(1) + get_group_id(1)*get_local_size(1);
 	const uint y_pitch = get_local_size(1)*get_num_groups(1);
 
-	for (int idx_y = get_local_id(1); idx_y < image_height; idx_y += get_local_size(1)) {
+	for (int idx_y = get_local_id(1); draws && idx_y < image_height; idx_y += get_local_size(1)) {
 		shared_img[get_local_id(0) + idx_y*get_local_size(0)] = 0xFFFFFFFF;
 	}
 
@@ -106,7 +110,7 @@ kernel void DRAW(const global uint2* bci_codes,
 
 	barrier(CLK_LOCAL_MEM_FENCE);
 
-	for (uint idx_codes = y_start; idx_codes < n; idx_codes += y_pitch) {
+	for (uint idx_codes = y_start; draws && idx_codes < n; idx_codes += y_pitch) {
 		uint2 code0 = bci_codes[idx_codes];
 
 		code0.x &= 0xFFFFFF00;
@@ -189,7 +193,7 @@ kernel void DRAW(const global uint2* bci_codes,
 
 	barrier(CLK_LOCAL_MEM_FENCE);
 
-	for (int idx_y = get_local_id(1); idx_y < image_height; idx_y += get_local_size(1)) {
+	for (int idx_y = get_local_id(1); draws && idx_y < image_height; idx_y += get_local_size(1)) {
 		const uint pixel_shared = shared_img[get_local_id(0) + idx_y*get_local_size(0)];
 		uint pixel;
 

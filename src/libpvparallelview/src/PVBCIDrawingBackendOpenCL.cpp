@@ -35,6 +35,7 @@
 
 #include <pvparallelview/PVBCICode.h>
 
+#include <algorithm>
 #include <cassert>
 #include <stdlib.h>
 #include <iostream>
@@ -86,10 +87,23 @@ struct opencl_kernel {
 		squey_verify_opencl(kernel.setArg(9, bit_mask));
 		squey_verify_opencl(kernel.setArg(10, reverse_flag));
 
-		/* we make fit the highest number of image column in the work group local memory
+		/* We make fit the highest number of image columns in the work group local
+		 * memory. The shape must not follow the zone width, though: PortableCL
+		 * specialises the kernel per local work size and caches the result, so a
+		 * width never drawn before costs a compiler run -- and, where that run is
+		 * slow, leaves the zone black until it ends. Rounding up to a power of two
+		 * bounds the number of distinct shapes to a handful, at the price of the
+		 * work-items past the zone that the kernel now lets through without
+		 * drawing.
 		 */
-		const size_t local_num_x =
-		    std::min((cl_ulong)width, (dev.local_mem_size / column_mem_size) - 1);
+		const cl_ulong max_local_num_x =
+		    std::min({(cl_ulong)PARALLELVIEW_ZONE_MAX_WIDTH,
+		              (cl_ulong)dev.work_group_size,
+		              (dev.local_mem_size / column_mem_size) - 1});
+		size_t local_num_x = 1;
+		while (local_num_x < width && (local_num_x * 2) <= max_local_num_x) {
+			local_num_x *= 2;
+		}
 		const size_t local_num_y = dev.work_group_size / local_num_x;
 		const size_t global_num_x = ((width + local_num_x - 1) / local_num_x) * local_num_x;
 		const size_t global_num_y = local_num_y;
@@ -110,14 +124,52 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	PVCore::setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
 
 #ifdef __APPLE__
-	// Configure our patched PortableCL to find "ld64.lld" linker at runtime
+	// Configure our patched PortableCL to find "ld64.lld" linker at runtime.
+	// It ships beside the application, which is where the executable is -- but
+	// not for the test binaries: those run from the build tree while the linker
+	// stays in the bundle, and pocl was handed a -fuse-ld= naming a file that
+	// does not exist. Fall back to the PATH, which is how the test environment
+	// reaches the bundle.
 	boost::filesystem::path exe_path = boost::dll::program_location();
-	PVCore::setenv("POCL_LINKER_DIR", exe_path.parent_path().string().c_str(), 1);
+	boost::filesystem::path linker_dir = exe_path.parent_path();
+	if (not std::filesystem::exists((linker_dir / "ld64.lld").string())) {
+		const char* const path_env = std::getenv("PATH");
+		std::istringstream path_stream(path_env != nullptr ? path_env : "");
+		std::string dir;
+		while (std::getline(path_stream, dir, ':')) {
+			if (not dir.empty() and std::filesystem::exists(std::filesystem::path(dir) / "ld64.lld")) {
+				linker_dir = dir;
+				break;
+			}
+		}
+	}
+	PVCore::setenv("POCL_LINKER_DIR", linker_dir.string().c_str(), 1);
 #elifdef _WIN32
 	// Configure "ld" linker to search for librairies in the proper location
 	// and Khronos ICD loader to find PortableCL
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	std::string libdir = exe_path.parent_path().string();
+
+	// pocl links each kernel it compiles against the mingw runtime, and finds
+	// those through LIBRARY_PATH. They sit next to the application, which is
+	// where the executable is -- except for the test binaries, installed two
+	// levels below under tests/ (see CMakeMacros.txt). Pointing at their own
+	// directory leaves ld with no libmingw32.a, no dllcrt2.o and no kernel:
+	// every zone comes back blank. Walk up to whichever directory actually
+	// holds them, and keep the executable's own as the last resort so that a
+	// layout not anticipated here behaves as before.
+	for (boost::filesystem::path dir = exe_path.parent_path(); not dir.empty();
+	     dir = dir.parent_path()) {
+		if (std::filesystem::exists((dir / "libmingw32.a").string())) {
+			libdir = dir.string();
+			break;
+		}
+
+		if (dir == dir.parent_path()) {
+			break;
+		}
+	}
+
 	PVCore::setenv("LIBRARY_PATH", libdir.c_str(), 1);
 	// Beside the executable is where the packaged application finds it, squey.exe
 	// and pocl.dll sitting in the same directory. The test executables are
@@ -157,7 +209,22 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		RegCloseKey(icd_vendors_key);
 	}
 
-	std::filesystem::current_path(libdir);
+	// Where the loader is to look for pocl.dll and the DLLs it depends on. This
+	// was a chdir, harmless while libdir was the directory the executable runs
+	// from -- the tests already ran there. Now that it is wherever the mingw
+	// runtime lives, two levels above them, moving there would resolve every
+	// relative path the process opens afterwards from the wrong place: the test
+	// files, named relative to the test's own directory, stopped being found.
+	// This adds the directory to the DLL search order and leaves the working
+	// directory alone.
+	SetDllDirectoryA(libdir.c_str());
+
+	// The chdir was also how ld found the startup files, which the clang driver
+	// names without a path and ld then only looks for in the working directory.
+	// Name the directory instead: pocl's linker flags carry a keyword it swaps
+	// for this at link time (-B, see portablecl.bst), so the driver resolves
+	// dllcrt2.o and the crt objects itself and hands ld absolute paths.
+	PVCore::setenv("POCL_LINKER_DIR", libdir.c_str(), 1);
 #endif
 
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
@@ -275,6 +342,51 @@ PVParallelView::PVBCIDrawingBackendOpenCL& PVParallelView::PVBCIDrawingBackendOp
 }
 
 /*****************************************************************************
+ * PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels
+ *****************************************************************************/
+
+void PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
+    const std::function<void(size_t, size_t)>& progress)
+{
+	if (_devices.empty()) {
+		return;
+	}
+
+	// The work-group shape is rounded up to a power of two (see opencl_kernel),
+	// so these are all the shapes the views can ask for: the widths a zone can
+	// take are clamped to [ZoneMinWidth, ZoneMaxWidth]. Both image heights are
+	// covered because the shape is capped by the local memory a column needs,
+	// which the taller one exhausts sooner.
+	std::vector<std::pair<size_t, uint8_t>> shapes;
+	for (int height_bits : {PARALLELVIEW_ZT_BBITS, PARALLELVIEW_ZZT_BBITS}) {
+		for (size_t width = PARALLELVIEW_ZONE_MIN_WIDTH; width <= PARALLELVIEW_ZONE_MAX_WIDTH;
+		     width *= 2) {
+			shapes.emplace_back(width, static_cast<uint8_t>(height_bits));
+		}
+	}
+
+	size_t done = 0;
+
+	for (const auto& [width, height_bits] : shapes) {
+		if (progress) {
+			progress(done, shapes.size());
+		}
+
+		// No codes to draw: the kernel is enqueued with the dimensions that
+		// select the specialisation, and returns having written a blank image.
+		PVBCIBackendImage_p image = create_image(width, height_bits);
+		render(image, 0, width, nullptr, 0);
+		wait_all();
+
+		++done;
+	}
+
+	if (progress) {
+		progress(done, shapes.size());
+	}
+}
+
+/*****************************************************************************
  * PVParallelView::PVBCIDrawingBackendOpenCL::create_image
  *****************************************************************************/
 
@@ -364,7 +476,9 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 
 	if (n != 0) {
 		// Specs that a size of zero will lead to CL_INVALID_VALUE
-		err = dev.queue.enqueueWriteBuffer(dev.buffer, CL_FALSE, 0, n * sizeof(codes), codes);
+		// sizeof(*codes), not sizeof(codes): the latter is the size of the
+		// pointer, which only happens to match on the platforms built for.
+		err = dev.queue.enqueueWriteBuffer(dev.buffer, CL_FALSE, 0, n * sizeof(*codes), codes);
 		squey_verify_opencl_var(err);
 	}
 

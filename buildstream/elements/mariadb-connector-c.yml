@@ -4,8 +4,8 @@ description: |
 
 sources:
   - kind: tar
-    url: github:mariadb-corporation/mariadb-connector-c/archive/refs/tags/v3.4.7.tar.gz
-    ref: cf81cd1c71c3199da9d2125aee840cb6083d43e1ea4c60c4be5045bfc7824eba
+    url: github:mariadb-corporation/mariadb-connector-c/archive/refs/tags/v3.4.9.tar.gz
+    ref: 2c70b74393d589df0bde9b3e17cb7b571d30a45aaf006eda7a273120fb660f3a
 
 variables:
   cmake-local-extra: ""

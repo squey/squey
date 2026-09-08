@@ -119,10 +119,16 @@ namespace PVParallelView::common
  * RAII backend resources implementation
  *
  ************************************************************/
-RAII_backend_init::RAII_backend_init() : _instance(&PVParallelView::PVParallelViewImpl::get())
+RAII_backend_init::RAII_backend_init(const std::function<void(size_t, size_t)>& progress)
+    : _instance(&PVParallelView::PVParallelViewImpl::get())
 {
-	if (PVBCIDrawingBackendOpenCL::get().device_count() > 0) {
+	auto& opencl_backend = PVBCIDrawingBackendOpenCL::get();
+
+	if (opencl_backend.device_count() > 0) {
 	 	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
+		// Here rather than on the first zone drawn, which is what left zones
+		// black while PortableCL compiled the kernel they needed.
+		opencl_backend.precompile_kernels(progress);
 	} else {
 		_instance->init_backends<PVBCIDrawingBackendQPainter>();
 	}

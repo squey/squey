@@ -14,7 +14,7 @@ sources:
 - kind: git
   url: github:markmentovai/bootstrap_cmds.git
   track: cross_platform
-  ref: 3cc6b1cf291f8fccfbf6444d6630a02a54c16831
+  ref: f337e600741638896fb6056ce87c6479f74b89a3
 
 variables:
   # migcom declares 'extern char *strbool(boolean_t bool)': 'bool' became a

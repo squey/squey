@@ -10,7 +10,9 @@ variables:
   gcc_arch: "%{arch}"
   runtime-libdir: "/usr/lib/%{gcc_triplet}"
   branch: "master"
-  runtime-branch: "25.08"
+  runtime-branch: "26.08"
+  # Python version shipped by the freedesktop-sdk runtime the sandbox is built on
+  sdk-python-version: "3.14"
 
 environment:
   PATH: '%{bindir}:/usr/bin:/usr/local/bin:/bin:/usr/sbin:/sbin'

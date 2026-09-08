@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
   url: kde:kitemmodels.git
-  ref: 18193e5860898500e4f45d3c3b80c86b4c8bc12f
+  ref: fce2130ff7612f67b68121a8cfee436748bcace5
 
 (@): buildstream/elements/base/target.yml
 

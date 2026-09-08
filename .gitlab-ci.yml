@@ -1,5 +1,5 @@
 variables:
-  BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:3937dd44
+  BASE_IMAGE_NAME: registry.gitlab.com/squey/container-images/squey_build:e8e2b986
   GIT_SUBMODULE_STRATEGY: normal
   GIT_SUBMODULE_PATHS: src/external/type_safe src/furl src/squey-utils src/libpvcop
   GIT_SUBMODULE_DEPTH: 1

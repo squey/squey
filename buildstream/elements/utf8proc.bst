@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:JuliaStrings/utf8proc/archive/refs/tags/v2.10.0.tar.gz
-  ref: 6f4f1b639daa6dca9f80bc5db1233e9cbaa31a67790887106160b33ef743f136
+  url: github:JuliaStrings/utf8proc/archive/refs/tags/v2.11.3.tar.gz
+  ref: abfed50b6d4da51345713661370290f4f4747263ee73dc90356299dfc7990c78
 
 variables:
   cmake-local: >-

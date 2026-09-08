@@ -11,7 +11,7 @@ sources:
   track: '*.*.*'
   exclude:
   - '*rc*'
-  ref: e72c717199fa18d34020c7c97f9de3f388c5e055
+  ref: 983fca5b39b62060c733a58fd8ecd276591bdf12
 
 (@): buildstream/elements/base/target.yml
 

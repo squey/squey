@@ -1,0 +1,20 @@
+Point the stable cctools at libdispatch and libblocksruntime
+
+The cctools release build_stable() uses now needs libblocksruntime, and its
+configure stops with "Required library libblocksruntime not installed" without
+it. build_latest() already passes --with-libdispatch and --with-libblocksruntime;
+build_stable() never got them. Squey builds libdispatch into the same TARGET_DIR
+before running build.sh, so the flags are all that is missing here.
+
+diff --git a/build.sh b/build.sh
+--- a/build.sh
++++ b/build.sh
+@@ -289,6 +289,8 @@ function build_stable()
+ 
+     CONFFLAGS="--prefix=$TARGET_DIR --target=$(first_supported_arch)-apple-$TARGET "
+     if [ $NEED_TAPI_SUPPORT -eq 1 ]; then
++      CONFFLAGS+="--with-libdispatch=$TARGET_DIR "
++      CONFFLAGS+="--with-libblocksruntime=$TARGET_DIR "
+       CONFFLAGS+="--with-libtapi=$TARGET_DIR "
+     fi
+     CONFFLAGS+="--with-libxar=$TARGET_DIR "

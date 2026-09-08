@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: open-mpi:release/hwloc/v2.12/hwloc-2.12.2.tar.bz2
-  ref: 563e61d70febb514138af0fac36b97621e01a4aacbca07b86e7bd95b85055ba0
+  url: open-mpi:release/hwloc/v2.14/hwloc-2.14.0.tar.bz2
+  ref: 966b9bb3e9f29f8d65ce8d106779e457f40e246a645e584b100772a42f9ae94b
 
 (@): buildstream/elements/base/target.yml
 

@@ -6,7 +6,7 @@ sources:
   track: v*
   exclude:
   - "*rc*"
-  ref: v1.1.0-0-ged738e842d2fbdf2d6459e39267a633c4a9b2f5d
+  ref: v1.2.0-0-g028fb5a23661f123017c060daa546b55cf4bde29
 
 (@): buildstream/elements/base/target.yml
 

@@ -7,8 +7,8 @@ description: |
 
 sources:
 - kind: tar
-  url: freedesktop:mstoeckl/waypipe/-/archive/v0.10.4/waypipe-v0.10.4.tar.bz2
-  ref: 4de622de39890912a0242e446b8d401f6fe385977985224f15353d40d6f7f0a3
+  url: freedesktop:mstoeckl/waypipe/-/archive/v0.11.2/waypipe-v0.11.2.tar.bz2
+  ref: be2d59871a9dc67a78f800f08cfba08bb22d660a97a2def24a4df9b8da6196a7
 
 variables:
   meson-local: |

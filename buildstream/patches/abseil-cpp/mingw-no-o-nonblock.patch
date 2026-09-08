@@ -1,0 +1,22 @@
+Default O_NONBLOCK to 0 where the platform lacks it
+
+cctz's zoneinfo reader takes the POSIX branch on mingw, since that is guarded on
+_MSC_VER, and opens the file with O_NONBLOCK, which mingw-w64 does not define:
+there is no such notion in the Win32 API. Default it to 0 the way the very next
+lines already do for O_CLOEXEC. The guard that actually matters, the S_ISREG
+check on the opened descriptor, is unaffected, and Windows has no POSIX FIFO for
+the non-blocking open to protect against in the first place.
+
+diff --git a/absl/time/internal/cctz/src/time_zone_info.cc b/absl/time/internal/cctz/src/time_zone_info.cc
+--- a/absl/time/internal/cctz/src/time_zone_info.cc
++++ b/absl/time/internal/cctz/src/time_zone_info.cc
+@@ -413,6 +413,9 @@ inline FilePtr FOpen(const char* path) {
+ #ifndef O_CLOEXEC
+ #define O_CLOEXEC 0
+ #endif
++#ifndef O_NONBLOCK
++#define O_NONBLOCK 0
++#endif
+   const int fd = open(path, O_RDONLY | O_NONBLOCK | O_CLOEXEC);
+   if (fd >= 0) {
+     struct stat st;

@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2025.07.22.tar.gz
-  ref: dff7a0b11ad5b63a669358e3476e3dc889a4a361674e5b69b267b944d0794142
+  url: github:KhronosGroup/OpenCL-ICD-Loader/archive/refs/tags/v2026.05.29.tar.gz
+  ref: 48fd0c5181db7cd046f4f731d5955694892e10998d49d09ee0d997e7e04fd939
 
 (@): buildstream/elements/base/target.yml
 

@@ -3,8 +3,8 @@ description: |
 
 sources:
   - kind: tar
-    url: qt:archive/qt/6.10/6.10.1/single/qt-everywhere-src-6.10.1.tar.xz
-    ref: 0ed08b079719394303cd2054b66b2dc0c5895ceeb88fb6131c18991c980bf00f
+    url: qt:archive/qt/6.11/6.11.2/single/qt-everywhere-src-6.11.2.tar.xz
+    ref: 6dcfbca271d76a6502741a2c0dc6fc98ef7dd0b7b4cfd0abcebb285a86a26f33
 
   - kind: patch
     path: buildstream/patches/qt6/Permit-to-specify-a-default-QTransform-in-QGraphisSc.patch
@@ -32,6 +32,7 @@ variables:
     -DBUILD_qtactiveqt=OFF
     -DBUILD_qtandroidextras=OFF
     -DBUILD_qtcanvas3d=OFF
+    -DBUILD_qtcanvaspainter=OFF
     -DBUILD_qtcharts=OFF
     -DBUILD_qtcoap=OFF
     -DBUILD_qtconnectivity=OFF
@@ -151,7 +152,7 @@ variables:
 
 environment:
   OPENSSL_LIBS: "-L/%{libdir}/lib -lssl -lcrypto"
-  PYTHONPATH: "/usr/lib/python3.13/site-packages:/%{libdir}/python3.13/site-packages"
+  PYTHONPATH: "/usr/lib/python%{sdk-python-version}/site-packages:/%{libdir}/python%{sdk-python-version}/site-packages"
 
 config:
   configure-commands:

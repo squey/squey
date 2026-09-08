@@ -6,7 +6,7 @@ description: |
 sources:
 - kind: git
   url: github:numpy/numpy
-  ref: f2a77a76e08719556527e0819182073fe9b5f1c3
+  ref: 48fecee5453aa1d31e6b79dcb3969dc1a6d1a891
 
 depends:
 - base.bst

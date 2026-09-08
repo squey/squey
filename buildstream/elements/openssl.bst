@@ -7,7 +7,7 @@ sources:
   exclude:
   - openssl*alpha*
   - openssl*beta*
-  ref: openssl-3.5.2-0-g0893a62353583343eb712adef6debdfbe597c227
+  ref: openssl-3.5.8-0-gf4dc4d58b48d346a8270183f89acf826d459b0ca
 
 (@): buildstream/elements/base/target.yml
 

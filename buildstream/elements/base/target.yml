@@ -1,14 +1,15 @@
+# Three separate Pythons: the freedesktop-sdk one on Linux, the python.org
+# package on macOS and the msys2 one on Windows. This SDK release lines them
+# all up on the same version, so a single value covers the three platforms.
+variables:
+  python-version: "3.14"
+
 (?):
-  - (target_triple != "x86_64-w64-mingw32"):
-      variables:
-        python-version: "3.13"
-  - (target_triple == "x86_64-w64-mingw32"):
-      variables:
-        python-version: "3.12"
   - (target_triple == "x86_64-apple-darwin"):
       variables:
         target-arch: "x86_64"
         macho-arch: "%{target-arch}"
+        boost-architecture: "x86"
         cc-compiler: "o64-clang"
         cxx-compiler: "o64-clang++"
         openssl-target: "darwin64-%{target-arch}-cc"
@@ -16,6 +17,7 @@
       variables:
         target-arch: "aarch64"
         macho-arch: "arm64"
+        boost-architecture: "arm"
         cc-compiler: "oa64-clang"
         cxx-compiler: "oa64-clang++"
         openssl-target: "darwin64-arm64-cc"
@@ -57,18 +59,29 @@
           -DINPUT_linker="%{toolchain-dir}/%{host}-ld"
           -DQT_HOST_PATH="%{host-prefix}"
         boost-toolset: "clang-osxcross"
-        boost-target-os: "%{target-platform}"
-        boost-cxx-flags: "--target=%{target-arch}-apple-darwin"
+        # b2 reads the architecture off the build machine unless told, which
+        # here means x86: Boost.Atomic then reaches for its SSE sources in an
+        # arm64 build. The mingw target below states it for the same reason.
+        boost-target-os: "%{target-platform} architecture=%{boost-architecture} address-model=64"
+        # macho-arch, not target-arch: arm64 is the name Apple gives this
+        # architecture, and the one its tools answer to.
+        boost-cxx-flags: "--target=%{macho-arch}-apple-darwin"
         boost-link-flags: "-fuse-ld=%{toolchain-dir}/%{host}-ld"
         openssl-arch-conf: enable-ec_nistp_64_gcc_128
         icu-platform: "MacOSX"
       environment:
         PATH: "%{toolchain-dir}:%{host-prefix}/bin:/usr/bin:/bin:/usr/sbin:/sbin"
-        LD_LIBRARY_PATH: "%{osxcross-dir}/lib:%{host-prefix}/lib/clang/18/lib/darwin/:/usr/lib:%{host-prefix}/lib"
+        # Must track the clang major osxcross.bst installs compiler-rt under.
+        LD_LIBRARY_PATH: "%{osxcross-dir}/lib:%{host-prefix}/lib/clang/22/lib/darwin/:/usr/lib:%{host-prefix}/lib"
         OSXCROSS_TARGET_DIR: "%{osxcross-dir}"
         OSXCROSS_SDK: "%{sdk-dir}"
         OSXCROSS_PKG_CONFIG_USE_NATIVE_VARIABLES: 1
         OSXCROSS_HOST: "%{host}"
+        # osxcross' toolchain.cmake no longer derives the compilers itself: it
+        # builds ${OSXCROSS_HOST}-${OSXCROSS_C_COMPILER} out of these, which its
+        # osxcross-cmake dispatcher normally exports.
+        OSXCROSS_C_COMPILER: "clang"
+        OSXCROSS_CXX_COMPILER: "clang++"
         OSXCROSS_TARGET: "%{host}"
         MACOSX_DEPLOYMENT_TARGET: "%{deployment-target-version}"
   - (target_triple == "x86_64-w64-mingw32"):

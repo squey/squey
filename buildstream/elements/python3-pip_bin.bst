@@ -4,8 +4,8 @@ kind: manual
 - target_triple == "x86_64-w64-mingw32":
     sources:
     - kind: remote
-      url: msys2:mingw/mingw64/mingw-w64-x86_64-python-pip-25.2-1-any.pkg.tar.zst
-      ref: 4d678225ad8c42765e1fbca05ea43f5c8fb56d77b1379948af2837c4cae37d6c
+      url: msys2:mingw/mingw64/mingw-w64-x86_64-python-pip-26.2.1-1-any.pkg.tar.zst
+      ref: 04ec74a0ffa10b97fcceea48969609e5c72a1fa34e992fadc168c654519be718
 
 (@): buildstream/elements/base/target.yml
 
@@ -26,7 +26,7 @@ config:
 
 build-depends:
 - sdk.bst
-- freedesktop-sdk.bst:components/unzip.bst
+- freedesktop-sdk.bst:components/libarchive.bst
 - zstd.bst
 
 depends:

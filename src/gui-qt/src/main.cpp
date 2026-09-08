@@ -218,7 +218,19 @@ int run_squey(App::PVSingleInstanceApplication& app, int argc, char* argv[])
 	task_label->setText(QObject::tr("Initializing backends..."));
 	splash.repaint();
 	app.processEvents();
-	PVParallelView::common::RAII_backend_init backend_resources;
+	// The OpenCL backend compiles a kernel per work-group shape, which is slow
+	// enough on a cold cache to be worth reporting rather than left to happen
+	// under the first zones drawn.
+	PVParallelView::common::RAII_backend_init backend_resources(
+	    [&](size_t done, size_t total) {
+		    task_label->setText(
+		        // "Preparing", not "Compiling": the two image heights mostly share
+		        // a work-group shape, so about half of these are already cached
+		        // by the time they come up and cost nothing.
+		        QObject::tr("Preparing rendering kernels (%1/%2)...").arg(done).arg(total));
+		    splash.repaint();
+		    app.processEvents();
+	    });
 
 	task_label->setText(QObject::tr("Loading plugins..."));
 	splash.repaint();
@@ -311,6 +323,13 @@ int main(int argc, char* argv[])
     if (AttachConsole(ATTACH_PARENT_PROCESS)) {
         freopen("CONOUT$", "w", stdout);
         freopen("CONOUT$", "w", stderr);
+    } else if (AllocConsole()) {
+        // Nothing is meant to be read here, and stdout is deliberately left
+        // where it was. The console exists so that the compiler and linker
+        // PortableCL runs to build its kernels inherit one instead of each
+        // opening a window of its own: they are console programs, and the LLVM
+        // driver that spawns them does so without CREATE_NO_WINDOW.
+        ShowWindow(GetConsoleWindow(), SW_HIDE);
     }
 #endif
 

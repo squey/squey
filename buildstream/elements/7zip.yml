@@ -1,4 +1,0 @@
-sources:
-  - kind: tar
-    url: github:ip7z/7zip/releases/download/25.01/7z2501-linux-x86.tar.xz
-    ref: 4ca3b7c6f2f67866b92622818b58233dc70367be2f36b498eb0bdeaaa44b53f4

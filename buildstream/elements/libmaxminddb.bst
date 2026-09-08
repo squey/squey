@@ -12,8 +12,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:maxmind/libmaxminddb/archive/refs/tags/1.12.2.tar.gz
-  ref: c325cb952d512b12a715e0a08aedff0d16791db528dc3f23af576057398d66ab
+  url: github:maxmind/libmaxminddb/archive/refs/tags/1.13.3.tar.gz
+  ref: 341dfbeef96bd58c3e1e98ffe39ac4fa1110b72b20149f312345fc43cc3559f9
 
 (@): buildstream/elements/base/target.yml
 

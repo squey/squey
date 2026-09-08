@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:tukaani-project/xz/archive/refs/tags/v5.8.1.tar.gz
-  ref: bdbc23fbf9098843357e71e49685724fda2c320c29cb1b25fd90505f14bb0b3d
+  url: github:tukaani-project/xz/archive/refs/tags/v5.8.3.tar.gz
+  ref: 8ec1767fa517642ecb4cf08b891ce667ba6f143551e382b07c7ef437bda335e2
 
 (@): buildstream/elements/base/target.yml
 

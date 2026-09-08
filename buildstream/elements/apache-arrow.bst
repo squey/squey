@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:apache/arrow/releases/download/apache-arrow-22.0.0/apache-arrow-22.0.0.tar.gz
-  ref: 131250cd24dec0cddde04e2ad8c9e2bc43edc5e84203a81cf71cf1a33a6e7e0f
+  url: github:apache/arrow/releases/download/apache-arrow-25.0.1/apache-arrow-25.0.1.tar.gz
+  ref: 43d5de0a581f43cf63a2c06b4dcf13b9ff6fcd800f023324596e5781093bc500
 
 (@): buildstream/elements/base/target.yml
 
@@ -76,7 +76,7 @@ depends:
       depends:
         (>):
         - freedesktop-sdk.bst:bootstrap/bzip2.bst
-        - freedesktop-sdk.bst:bootstrap/zlib.bst
+        - freedesktop-sdk.bst:bootstrap/zlib-ng.bst
         - freedesktop-sdk.bst:components/brotli.bst
         - freedesktop-sdk.bst:components/openssl.bst
         - freedesktop-sdk.bst:components/lz4.bst

@@ -4,8 +4,8 @@ description: |
 
 sources:
   - kind: tar
-    url: postgresql:pub/source/v18.0/postgresql-18.0.tar.bz2
-    ref: 0d5b903b1e5fe361bca7aa9507519933773eb34266b1357c4e7780fdee6d6078
+    url: postgresql:pub/source/v18.6/postgresql-18.6.tar.bz2
+    ref: 555610c24d53e4316da5b7d3fc25c279d96856d5e0e23ee308c328c5fa881d9f
 
 variables:
   conf-local: |

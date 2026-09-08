@@ -25,6 +25,7 @@
 #ifndef PVPARALLELVIEW_PVPARALLELVIEW_H
 #define PVPARALLELVIEW_PVPARALLELVIEW_H
 
+#include <functional>
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
 #include <tbb/mutex.h>
@@ -120,7 +121,12 @@ namespace common
 class RAII_backend_init
 {
   public:
-	RAII_backend_init();
+	/**
+	 * progress, if given, is forwarded to the OpenCL backend's kernel
+	 * precompilation as (shapes done, shapes total), so that a caller showing a
+	 * splash screen can report what the wait is for.
+	 */
+	RAII_backend_init(const std::function<void(size_t, size_t)>& progress = {});
 
 	~RAII_backend_init() { delete _instance; }
 

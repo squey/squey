@@ -10,39 +10,39 @@ Note that the Linux version used the report ID after new_report had been moved
 from by FinishedWritingCrashReport(), which this removes as well.
 
 diff --git a/handler/linux/crash_report_exception_handler.cc b/handler/linux/crash_report_exception_handler.cc
-index 11f0f47..2a6c198 100644
+index 16c1b46..b9b98d8 100644
 --- a/handler/linux/crash_report_exception_handler.cc
 +++ b/handler/linux/crash_report_exception_handler.cc
-@@ -328,7 +328,7 @@ bool CrashReportExceptionHandler::WriteMinidumpToDatabase(
+@@ -330,7 +330,7 @@ bool CrashReportExceptionHandler::WriteMinidumpToDatabase(
    }
  
-   if (has_crash_reporter) {
+   if (has_crash_reporter && uploads_enabled) {
 -    database_->DeleteReport(new_report->ReportID());
 +    // The report is kept in the database for the crash reporter to pick up.
    } else if (upload_thread_) {
      upload_thread_->ReportPending(uuid);
    }
 diff --git a/handler/mac/crash_report_exception_handler.cc b/handler/mac/crash_report_exception_handler.cc
-index a6341ab..fceb01e 100644
+index 1d9f826..36d4a9b 100644
 --- a/handler/mac/crash_report_exception_handler.cc
 +++ b/handler/mac/crash_report_exception_handler.cc
-@@ -234,7 +234,7 @@ kern_return_t CrashReportExceptionHandler::CatchMachException(
+@@ -236,7 +236,7 @@ kern_return_t CrashReportExceptionHandler::CatchMachException(
      }
  
-     if (has_crash_reporter) {
+     if (has_crash_reporter && uploads_enabled) {
 -      database_->DeleteReport(uuid);
 +      // The report is kept in the database for the crash reporter to pick up.
      } else if (upload_thread_) {
        if (wait_for_upload_) {
          upload_thread_->ReportPendingSync(uuid);
 diff --git a/handler/win/crash_report_exception_handler.cc b/handler/win/crash_report_exception_handler.cc
-index 334e66b..b659042 100644
+index f07e390..b052ee6 100644
 --- a/handler/win/crash_report_exception_handler.cc
 +++ b/handler/win/crash_report_exception_handler.cc
-@@ -202,7 +202,7 @@ unsigned int CrashReportExceptionHandler::ExceptionHandlerServerException(
+@@ -204,7 +204,7 @@ unsigned int CrashReportExceptionHandler::ExceptionHandlerServerException(
      }
  
-     if (has_crash_reporter) {
+     if (has_crash_reporter && uploads_enabled) {
 -      database_->DeleteReport(uuid);
 +      // The report is kept in the database for the crash reporter to pick up.
      } else if (upload_thread_) {

@@ -29,6 +29,7 @@
 // would otherwise only be found by someone downloading a release.
 
 #include <memory>
+#include <pvkernel/core/PVUtils.h>
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
 #include "../../plugins/common/parquet/PVParquetFileDescription.h"
@@ -52,8 +53,7 @@ UNICODE_MAIN()
 		return 1;
 	}
 #ifdef _WIN32
-	std::wstring_convert<std::codecvt_utf8<wchar_t>> conv;
-	const QString sample = QString::fromStdString(conv.to_bytes(argv[1]));
+	const QString sample = QString::fromStdString(PVCore::wide_to_utf8(argv[1]));
 #else
 	const QString sample = QString::fromStdString(std::string(argv[1]));
 #endif

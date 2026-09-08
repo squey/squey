@@ -37,6 +37,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVFieldSplitterChunkMatch.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/squey_assert.h>
 
 #include "common.h"
@@ -48,8 +49,15 @@ int main()
 {
 	pvtest::init_ctxt();
 
-	const std::string path =
-	    PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/guess_separator.csv";
+	// A path of its own: ctest runs the four seeds of this test at the same
+	// time, and they used to share one file. One truncating it while another
+	// read left the reader with nothing to split, no separator matched, and the
+	// failure landed on whichever seed lost the race -- looking like the hash
+	// order it is meant to be testing.
+	const QString path_qs = PVCore::mkstemp(
+	    PVRush::PVNrawCacheManager::nraw_dir() + "/guess_separator_XXXXXX.csv");
+	PV_ASSERT_VALID(not path_qs.isEmpty(), "input file", path_qs.toStdString());
+	const std::string path = path_qs.toStdString();
 	{
 		std::ofstream out(path);
 		for (int i = 1; i <= 8; i++) {

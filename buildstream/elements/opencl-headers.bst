@@ -5,8 +5,8 @@ description: |
 
 sources:
 - kind: tar
-  url: github:KhronosGroup/OpenCL-Headers/archive/refs/tags/v2025.07.22.tar.gz
-  ref: 98f0a3ea26b4aec051e533cb1750db2998ab8e82eda97269ed6efe66ec94a240
+  url: github:KhronosGroup/OpenCL-Headers/archive/refs/tags/v2026.05.29.tar.gz
+  ref: d9e6c48357de5002da11ce45de600e0c3ffe6ab4f628a3b9fe2b38603161658a
 
 - kind: patch
   path: buildstream/patches/opencl-headers/cl.hpp.patch
