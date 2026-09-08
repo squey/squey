@@ -16,17 +16,29 @@ PYTHON_VERSION=`python3 -c 'import sys; print(str(sys.version_info[0])+"."+str(s
 export PYTHONPATH="/app/lib/python${PYTHON_VERSION}/site-packages:$HOME/.local/lib/python${PYTHON_VERSION}/site-packages"
 runtime_branch=`sed -n "s/  track: 'freedesktop-sdk-\(.*\)'\.*$/\1/ p" "${SOURCE_DIR}/buildstream/elements/freedesktop-sdk.bst" | cut -d "." -f 1,2`
 
-OCL_ICD_VENDORS="$GL_TARGET_DIR/OpenCL/vendors"
+# The vendor files go to the GL runtime the drivers are mounted from, which is
+# only writable when that runtime is a user-wide flatpak install: a system-wide
+# one belongs to root, and the redirections below would fail loudly and write
+# nowhere. Honour a directory the caller has already named, and fall back to one
+# that can be written. Exported, so that what is started from this shell reads
+# the same directory this wrote to.
+if [ -z "$OCL_ICD_VENDORS" ]; then
+    export OCL_ICD_VENDORS="$GL_TARGET_DIR/OpenCL/vendors"
+fi
+if ! mkdir -p "$OCL_ICD_VENDORS" 2> /dev/null || [ ! -w "$OCL_ICD_VENDORS" ]; then
+    export OCL_ICD_VENDORS="${XDG_RUNTIME_DIR:-${TMPDIR:-/tmp}}/opencl_vendors"
+    mkdir -p "$OCL_ICD_VENDORS"
+fi
 
 # Enable PortableCL ICD
-echo "/app/lib/libpocl.so" > "$OCL_ICD_VENDORS/pocl.icd" 2> /dev/null
+echo "/app/lib/libpocl.so" > "$OCL_ICD_VENDORS/pocl.icd"
 
 # Enable NVIDIA ICD
-find "$GL_TARGET_DIR" -name "nvidia-*" -empty -type d -delete
+find "$GL_TARGET_DIR" -name "nvidia-*" -empty -type d -delete 2> /dev/null
 NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"`
 NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME |sed -e "s/nvidia-//" | sed 's/-/./g'`
 if [ ! -z "$NVIDIA_VERSION_NAME" ]; then
-    echo "$GL_TARGET_DIR/$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > "$OCL_ICD_VENDORS/nvidia.icd" 2> /dev/null
+    echo "$GL_TARGET_DIR/$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > "$OCL_ICD_VENDORS/nvidia.icd"
     export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$GL_TARGET_DIR/$NVIDIA_VERSION_NAME/lib:"$GL_TARGET_DIR/lib"
 fi
 
