@@ -105,6 +105,15 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 
   private:
 	/**
+	 * Bring up the OpenCL context, devices and kernel this backend draws with.
+	 *
+	 * @return true once the backend can draw; false when the OpenCL stack could
+	 * not be brought up, which leaves the backend without a device and has the
+	 * QPainter backend take over.
+	 */
+	bool initialize();
+
+	/**
 	 * Callback function called once image creation is done and back on computer.
 	 */
 	static void termination_cb(cl_event event, cl_int status, void* data);

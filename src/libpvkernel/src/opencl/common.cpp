@@ -42,6 +42,39 @@
 
 static const constexpr int PLATFORM_ANY_INDEX = -1;
 
+bool PVOpenCL::failed(cl_int err, const char* file, int line)
+{
+	if (err == CL_SUCCESS) {
+		return false;
+	}
+
+	PVLOG_WARN("OpenCL call failed at %s:%d with error code %d\n", file, line, err);
+
+	return true;
+}
+
+namespace
+{
+
+/* The platform and device strings below only feed the log. A driver that will
+ * not describe itself earns a line in the log rather than the loss of the
+ * device it was asked about.
+ */
+template <cl_int Param, typename Object>
+auto info(const Object& object)
+{
+	cl_int err = CL_SUCCESS;
+	auto value = object.template getInfo<Param>(&err);
+
+	if (squey_opencl_failed(err)) {
+		return decltype(value){};
+	}
+
+	return value;
+}
+
+} // namespace
+
 bool PVOpenCL::force_cpu()
 {
 	if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
@@ -124,7 +157,16 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 			continue;
 		}
 
-		squey_verify_opencl_var(err);
+		/* A platform that will not hand out a context is one to walk past. It
+		 * used to end the process instead, which is how a Windows on ARM
+		 * machine -- where the x64 build runs under emulation, next to a driver
+		 * that answers the enumeration but not much else -- lost the session at
+		 * start-up, when the platform right after it, or the QPainter backend,
+		 * would have drawn its views.
+		 */
+		if (squey_opencl_failed(err)) {
+			continue;
+		}
 
 		if ((wanted_platform_index != PLATFORM_ANY_INDEX) &&
 		    (platform_index != wanted_platform_index)) {
@@ -133,51 +175,30 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 		}
 
 		std::vector<cl::Device> devices = ctx.getInfo<CL_CONTEXT_DEVICES>(&err);
-		squey_verify_opencl_var(err);
+		if (squey_opencl_failed(err)) {
+			continue;
+		}
 
 		if (devices.size() != 0) {
 
-			std::string pname = platform.getInfo<CL_PLATFORM_NAME>(&err);
-			squey_verify_opencl_var(err);
-
-			std::string pversion = platform.getInfo<CL_PLATFORM_VERSION>(&err);
-			squey_verify_opencl_var(err);
-
-			std::string pvendor = platform.getInfo<CL_PLATFORM_VENDOR>(&err);
-			squey_verify_opencl_var(err);
-
-			std::string pprofile = platform.getInfo<CL_PLATFORM_PROFILE>(&err);
-			squey_verify_opencl_var(err);
-
 			PVLOG_INFO("OpenCL backend found: %s, Version: %s, Vendor: %s, Profil: %s\n",
-			           pname.c_str(), pversion.c_str(), pvendor.c_str(), pprofile.c_str());
+			           info<CL_PLATFORM_NAME>(platform).c_str(),
+			           info<CL_PLATFORM_VERSION>(platform).c_str(),
+			           info<CL_PLATFORM_VENDOR>(platform).c_str(),
+			           info<CL_PLATFORM_PROFILE>(platform).c_str());
 
-			std::string pextensions = platform.getInfo<CL_PLATFORM_EXTENSIONS>(&err);
-			squey_verify_opencl_var(err);
-
-			PVLOG_INFO("OpenCL backend extensions: %s\n", pextensions.c_str());
+			PVLOG_INFO("OpenCL backend extensions: %s\n",
+			           info<CL_PLATFORM_EXTENSIONS>(platform).c_str());
 
 			for (auto& device : devices) {
 				f(ctx, device);
 
-				std::string dname = device.getInfo<CL_DEVICE_NAME>(&err);
-				squey_verify_opencl_var(err);
-
-				std::string dversion = device.getInfo<CL_DEVICE_VERSION>(&err);
-				squey_verify_opencl_var(err);
-
-				std::string dvendor = device.getInfo<CL_DEVICE_VENDOR>(&err);
-				squey_verify_opencl_var(err);
-
-				std::string dprofile = device.getInfo<CL_DEVICE_PROFILE>(&err);
-				squey_verify_opencl_var(err);
-
-				size_t local_mem_size = device.getInfo<CL_DEVICE_LOCAL_MEM_SIZE>(&err);
-
 				PVLOG_INFO("OpenCL device found: %s, Version: %s, Vendor: %s, Profil, %s LocalMemSize: %d\n",
-				           dname.c_str(), dversion.c_str(), dvendor.c_str(), dprofile.c_str(), local_mem_size);
-
-
+				           info<CL_DEVICE_NAME>(device).c_str(),
+				           info<CL_DEVICE_VERSION>(device).c_str(),
+				           info<CL_DEVICE_VENDOR>(device).c_str(),
+				           info<CL_DEVICE_PROFILE>(device).c_str(),
+				           info<CL_DEVICE_LOCAL_MEM_SIZE>(device));
 			}
 
 			return ctx;

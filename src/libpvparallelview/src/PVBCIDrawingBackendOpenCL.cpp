@@ -121,6 +121,23 @@ struct opencl_kernel {
 PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
     : _context(nullptr), _is_gpu_accelerated(true)
 {
+	if (not initialize()) {
+		/* Whatever the OpenCL stack could not do, the backend is left holding no
+		 * device, which is what has PVParallelViewImpl pick the QPainter backend
+		 * instead. A driver that cannot be brought up costs the session its GPU
+		 * acceleration, not the session itself.
+		 */
+		_devices.clear();
+		_is_gpu_accelerated = false;
+	}
+}
+
+/*****************************************************************************
+ * PVParallelView::PVBCIDrawingBackendOpenCL::initialize
+ *****************************************************************************/
+
+bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
+{
 	PVCore::setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
 
 #ifdef __APPLE__
@@ -245,10 +262,14 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		device.dev = dev;
 
 		device.queue = cl::CommandQueue(ctx, dev, 0, &err);
-		squey_verify_opencl_var(err);
+		if (squey_opencl_failed(err)) {
+			return;
+		}
 
 		device.buffer = cl::Buffer(ctx, CL_MEM_READ_ONLY, size, nullptr, &err);
-		squey_verify_opencl_var(err);
+		if (squey_opencl_failed(err)) {
+			return;
+		}
 
 		this->_devices.insert(std::make_pair(dev_idx, device));
 		++dev_idx;
@@ -268,13 +289,24 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 	if (_context() == nullptr) {
 		PVLOG_INFO("No OpenCL support: no context available.\n");
-		return;
+		return false;
+	}
+
+	/* A context whose devices all failed to be set up leaves nothing to render
+	 * on, and the build options below read a local memory size no device would
+	 * have reported.
+	 */
+	if (_devices.empty()) {
+		PVLOG_INFO("No OpenCL support: no usable device in the context.\n");
+		return false;
 	}
 
 	_next_device = _devices.begin();
 
 	cl::Program program(_context, bci_z24_str, false, &err);
-	squey_verify_opencl_var(err);
+	if (squey_opencl_failed(err)) {
+		return false;
+	}
 
 	/**
 	 * NOTE: options can be passed to build process, like -DVAR=VAL. So that, Bbits
@@ -283,12 +315,16 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	 */
 
 	std::vector<cl::Device> devices = _context.getInfo<CL_CONTEXT_DEVICES>(&err);
-	squey_verify_opencl_var(err);
+	if (squey_opencl_failed(err)) {
+		return false;
+	}
 
 	uint64_t local_mem_size;
 	for (auto& it : _devices) {
 		err = it.second.dev.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &local_mem_size);
-		squey_verify_opencl_var(err);
+		if (squey_opencl_failed(err)) {
+			return false;
+		}
 	}
 
 	std::stringstream build_options;
@@ -306,7 +342,10 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		for (const auto& dev : devices) {
 			cl_build_status status;
 
-			squey_verify_opencl(program.getBuildInfo(dev, CL_PROGRAM_BUILD_STATUS, &status));
+			if (squey_opencl_failed(
+			        program.getBuildInfo(dev, CL_PROGRAM_BUILD_STATUS, &status))) {
+				continue;
+			}
 
 			if (status != CL_BUILD_ERROR) {
 				continue;
@@ -316,19 +355,29 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 			PVLOG_INFO("build log: %s\n", log.c_str());
 		}
 	}
-	squey_verify_opencl_var(err);
+	if (squey_opencl_failed(err)) {
+		return false;
+	}
 
 	_kernel = cl::Kernel(program, "DRAW", &err);
-	squey_verify_opencl_var(err);
+	if (squey_opencl_failed(err)) {
+		return false;
+	}
 
 	for (auto& it : _devices) {
 		err = _kernel.getWorkGroupInfo(it.second.dev, CL_KERNEL_WORK_GROUP_SIZE,
 		                               &it.second.work_group_size);
-		squey_verify_opencl_var(err);
+		if (squey_opencl_failed(err)) {
+			return false;
+		}
 
 		err = it.second.dev.getInfo(CL_DEVICE_LOCAL_MEM_SIZE, &it.second.local_mem_size);
-		squey_verify_opencl_var(err);
+		if (squey_opencl_failed(err)) {
+			return false;
+		}
 	}
+
+	return true;
 }
 
 /*****************************************************************************

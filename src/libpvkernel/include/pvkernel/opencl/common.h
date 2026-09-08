@@ -53,6 +53,14 @@
 #define squey_verify_opencl(E) __squey_verify_opencl(E, __FILE__, __LINE__)
 #define squey_verify_opencl_var(E) __squey_verify_opencl_var(E, __FILE__, __LINE__)
 
+/* Unlike the two above, this one reports and hands the decision back to its
+ * caller instead of ending the process. Start-up has somewhere else to go when
+ * a driver turns out to be unusable -- another platform, a CPU device, or the
+ * QPainter backend -- and a machine whose OpenCL stack cannot be brought up is
+ * a reason to draw more slowly, not to refuse to run.
+ */
+#define squey_opencl_failed(E) PVOpenCL::failed(E, __FILE__, __LINE__)
+
 namespace PVOpenCL
 {
 
@@ -60,6 +68,17 @@ namespace PVOpenCL
  * the function type used as find_first_usable_context(...) parameter
  */
 using device_func = std::function<void(cl::Context&, cl::Device&)>;
+
+/**
+ * report an OpenCL error without ending the process
+ *
+ * @param err the error code an OpenCL call gave back
+ * @param file the source file the call was made from
+ * @param line the line the call was made on
+ *
+ * @return true when @p err reports a failure, false when it is CL_SUCCESS
+ */
+bool failed(cl_int err, const char* file, int line);
 
 /**
  * @return whether the rendering must stay on a CPU device
