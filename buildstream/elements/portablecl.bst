@@ -177,8 +177,12 @@ variables:
       cmake-local-darwin-x86_64: >-
         -DLLC_TRIPLE="%{macho-arch}-apple-macosx%{deployment-target-version}.0"
   - target_triple == "aarch64-apple-darwin":
+      # macho-arch, not the %{host} triplet this used to name: Apple calls the
+      # architecture arm64, and ld64.lld answers "missing or unsupported -arch
+      # aarch64" to anything else. Same versioned form as the x86_64 triplet
+      # above, for the same reason.
       cmake-local-darwin-aarch64: >-
-        -DLLC_TRIPLE="%{host}"
+        -DLLC_TRIPLE="%{macho-arch}-apple-macosx%{deployment-target-version}.0"
         -DLLC_HOST_CPU="apple-m1"
         -DHOST_DEVICE_BUILD_HASH="%{macho-arch}-apple-darwin%{deployment-target-version}.0"
   - target_triple == "x86_64-linux-gnu":

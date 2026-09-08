@@ -124,9 +124,26 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	PVCore::setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
 
 #ifdef __APPLE__
-	// Configure our patched PortableCL to find "ld64.lld" linker at runtime
+	// Configure our patched PortableCL to find "ld64.lld" linker at runtime.
+	// It ships beside the application, which is where the executable is -- but
+	// not for the test binaries: those run from the build tree while the linker
+	// stays in the bundle, and pocl was handed a -fuse-ld= naming a file that
+	// does not exist. Fall back to the PATH, which is how the test environment
+	// reaches the bundle.
 	boost::filesystem::path exe_path = boost::dll::program_location();
-	PVCore::setenv("POCL_LINKER_DIR", exe_path.parent_path().string().c_str(), 1);
+	boost::filesystem::path linker_dir = exe_path.parent_path();
+	if (not std::filesystem::exists((linker_dir / "ld64.lld").string())) {
+		const char* const path_env = std::getenv("PATH");
+		std::istringstream path_stream(path_env != nullptr ? path_env : "");
+		std::string dir;
+		while (std::getline(path_stream, dir, ':')) {
+			if (not dir.empty() and std::filesystem::exists(std::filesystem::path(dir) / "ld64.lld")) {
+				linker_dir = dir;
+				break;
+			}
+		}
+	}
+	PVCore::setenv("POCL_LINKER_DIR", linker_dir.string().c_str(), 1);
 #elifdef _WIN32
 	// Configure "ld" linker to search for librairies in the proper location
 	// and Khronos ICD loader to find PortableCL
