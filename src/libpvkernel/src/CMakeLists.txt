@@ -269,7 +269,14 @@ target_link_libraries(pvkernel
 		# linker is the one that says so, the ELF one resolves them indirectly.
 		Squey::OpenCL Python::Python CURL::libcurl
 	PRIVATE
-		${ARCHIVE_LIBRARIES} ${CRASHPAD_LIBRARIES})
+		${ARCHIVE_LIBRARIES}
+		# Crashpad stays private: the segfault handler in this library is its only
+		# user here, and the one test that needs it links it itself. Letting it
+		# through would pull its static archives into every library linking
+		# pvkernel, where they collide with the std:: template instantiations that
+		# --export-all-symbols publishes as strong definitions through pvkernel's
+		# import library.
+		${CRASHPAD_LIBRARIES})
 
 # Define installation directory
 install(TARGETS pvkernel LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
