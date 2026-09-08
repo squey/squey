@@ -5,7 +5,6 @@ description: |
 variables:
   archive_url: "github:llvm/llvm-project/archive/refs/tags/llvmorg-%{llvm-version}.tar.gz"
   archive_ref: "ad18b70e287954c3d62bc7e0b86e7b7af2adf87bcfce21c15fe717f101d7aace"
-  patch: "buildstream/patches/noop.patch"
   debug_flags: "-g1"
   optimize-debug: "false"
   # LLVM_INCLUDE_BENCHMARKS is off because the benchmarks are never wanted.
@@ -40,9 +39,6 @@ sources:
   - kind: tar
     url: "%{archive_url}"
     ref: "%{archive_ref}"
-  - kind: patch
-    path: "%{patch}"
-    strip-level: 1
 
 build-depends:
   - freedesktop-sdk.bst:components/python3.bst
