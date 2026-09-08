@@ -41,10 +41,11 @@ GL_MOUNT_OPTS=""
 export IS_TRUE_LINUX=$([[ "$(uname -s)" == "Linux" && -z "$(uname -a | grep -i 'microsoft')" ]] && echo 1 || echo 0)
 
 if [[ "$IS_TRUE_LINUX" -eq 1 ]]; then # Enable GPU acceleration
-    GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/26.08/active/files"
+    GL_BRANCH="26.08"
+    GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/$GL_BRANCH/active/files"
     GL_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_HOST_DIR"
     GL_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_HOST_DIR"
-    GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/26.08-extra/active/files"
+    GL_EXTRA_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/$GL_BRANCH-extra/active/files"
     GL_EXTRA_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_EXTRA_HOST_DIR"
     GL_EXTRA_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_EXTRA_HOST_DIR"
     NVIDIA_VERSION_NAME=$(flatpak --gl-drivers|grep "nvidia") || true
@@ -52,30 +53,46 @@ if [[ "$IS_TRUE_LINUX" -eq 1 ]]; then # Enable GPU acceleration
     NVIDIA_HOST_DIR_USER="$HOME/.local/share/flatpak/$NVIDIA_HOST_DIR"
     NVIDIA_HOST_DIR_SYSTEM="/var/lib/flatpak/$NVIDIA_HOST_DIR"
 
-    # The -extra runtime is mounted inside the one mounted just above, which is
-    # read-only: bwrap can only put it where the base runtime already has a
-    # "default" directory to mount over. Runtimes that ship without one -- the
-    # system-wide 26.08 does -- would otherwise fail the sandbox outright.
+    # The -extra and the NVIDIA runtimes are mounted inside the base one, and
+    # bwrap makes the directory it mounts them over itself -- through the bind,
+    # so it lands in the runtime on the host. That needs the runtime to be ours
+    # to write to, which a user-wide flatpak install is and a system-wide one,
+    # owned by root, is not: there bwrap fails outright and takes the sandbox
+    # down with it. Mount them where that can work, and say so where it cannot.
     if [ -d "$GL_HOST_DIR_USER" ]; then
-        GL_MOUNT_OPTS="--mount $GL_HOST_DIR_USER $GL_TARGET_DIR"
-        if [ -d "$GL_HOST_DIR_USER/default" ]; then
-            GL_MOUNT_OPTS="$GL_MOUNT_OPTS --mount $GL_EXTRA_HOST_DIR_USER $GL_TARGET_DIR/default"
-        fi
+        GL_HOST_DIR_USED="$GL_HOST_DIR_USER"
+        GL_EXTRA_HOST_DIR_USED="$GL_EXTRA_HOST_DIR_USER"
     elif [ -d "$GL_HOST_DIR_SYSTEM" ]; then
-        GL_MOUNT_OPTS="$GL_MOUNT_OPTS --mount $GL_HOST_DIR_SYSTEM $GL_TARGET_DIR"
-        if [ -d "$GL_HOST_DIR_SYSTEM/default" ]; then
-            GL_MOUNT_OPTS="$GL_MOUNT_OPTS --mount $GL_EXTRA_HOST_DIR_SYSTEM $GL_TARGET_DIR/default"
+        GL_HOST_DIR_USED="$GL_HOST_DIR_SYSTEM"
+        GL_EXTRA_HOST_DIR_USED="$GL_EXTRA_HOST_DIR_SYSTEM"
+    fi
+
+    # Either the mount point is already there, or bwrap has to be able to make it.
+    gl_can_mount_into() { [ -d "$1/$2" ] || [ -w "$1" ]; }
+
+    if [ -n "$GL_HOST_DIR_USED" ]; then
+        GL_MOUNT_OPTS="--mount $GL_HOST_DIR_USED $GL_TARGET_DIR"
+        if [ -d "$GL_EXTRA_HOST_DIR_USED" ] && gl_can_mount_into "$GL_HOST_DIR_USED" default; then
+            GL_MOUNT_OPTS="$GL_MOUNT_OPTS --mount $GL_EXTRA_HOST_DIR_USED $GL_TARGET_DIR/default"
         fi
     fi
 
     if [ -z "$NVIDIA_VERSION_NAME" ]; then
         echo "Please, install NVIDIA Drivers in order to have GPU acceleration."
     elif [ -d "$NVIDIA_HOST_DIR_USER" ]; then
-        GL_MOUNT_OPTS="$GL_MOUNT_OPTS --mount $NVIDIA_HOST_DIR_USER $GL_TARGET_DIR/$NVIDIA_VERSION_NAME"
+        NVIDIA_HOST_DIR_USED="$NVIDIA_HOST_DIR_USER"
     elif [ -d "$NVIDIA_HOST_DIR_SYSTEM" ]; then
-        GL_MOUNT_OPTS="$GL_MOUNT_OPTS --mount $NVIDIA_HOST_DIR_SYSTEM $GL_TARGET_DIR/$NVIDIA_VERSION_NAME"
+        NVIDIA_HOST_DIR_USED="$NVIDIA_HOST_DIR_SYSTEM"
     else
         echo "Please, install flatpaked NVIDIA Drivers in order to have GPU acceleration (flatpak install flathub org.freedesktop.Platform.GL.$NVIDIA_VERSION_NAME)"
+    fi
+
+    if [ -n "$NVIDIA_HOST_DIR_USED" ]; then
+        if [ -z "$GL_HOST_DIR_USED" ] || gl_can_mount_into "$GL_HOST_DIR_USED" "$NVIDIA_VERSION_NAME"; then
+            GL_MOUNT_OPTS="$GL_MOUNT_OPTS --mount $NVIDIA_HOST_DIR_USED $GL_TARGET_DIR/$NVIDIA_VERSION_NAME"
+        else
+            echo "Please, install the GL runtime as user in order to have NVIDIA GPU acceleration (flatpak install --user flathub org.freedesktop.Platform.GL.default//$GL_BRANCH): the system-wide one is read only, and the driver has to be mounted into it."
+        fi
     fi
 fi
 
