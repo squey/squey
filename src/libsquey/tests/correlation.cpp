@@ -78,19 +78,41 @@ int main()
 {
 	pvtest::TestEnv env(csv_file1, csv_file_format, dupl);
 	env.add_source(csv_file2, csv_file_format, dupl);
+	// A third view, so that two of them can correlate towards the same one.
+	env.add_source(csv_file2, csv_file_format, dupl);
 
 	env.compute_mappings();
 	env.compute_scalings();
 	env.compute_views();
 
 	auto views = env.root.get_children<Squey::PVView>();
-	PV_VALID(views.size(), (size_t)2);
+	PV_VALID(views.size(), (size_t)3);
+
+	auto view_it = views.begin();
+	Squey::PVView* view1 = *view_it++;
+	Squey::PVView* view2 = *view_it++;
+	Squey::PVView* view3 = *view_it;
+
+	/**
+	 * Deleting a view has to clear every correlation naming it, not just the first
+	 * one: process() dereferences view2 as soon as a correlation is handed to it,
+	 * and one left behind points at a view that no longer exists.
+	 */
+	{
+		env.root.correlations().add(Squey::PVCorrelation{view1, PVCol(2), view3, PVCol(2)});
+		env.root.correlations().add(Squey::PVCorrelation{view2, PVCol(2), view3, PVCol(2)});
+		PV_ASSERT_VALID(env.root.correlations().correlation(view1) != nullptr);
+		PV_ASSERT_VALID(env.root.correlations().correlation(view2) != nullptr);
+
+		view3->get_parent().remove_child(*view3);
+
+		PV_ASSERT_VALID(env.root.correlations().correlation(view1) == nullptr);
+		PV_ASSERT_VALID(env.root.correlations().correlation(view2) == nullptr);
+	}
 
 	/**
 	 * Add correlation between source IP columns
 	 */
-	Squey::PVView* view1 = views.front();
-	Squey::PVView* view2 = views.back();
 
 	Squey::PVCorrelation correlation{view1, PVCol(2), view2, PVCol(2)};
 	PV_ASSERT_VALID(not env.root.correlations().exists(view1, PVCol(2)));
