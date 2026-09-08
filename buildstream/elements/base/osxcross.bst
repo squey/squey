@@ -33,8 +33,11 @@ sources:
   ref: 904de2a71d4da6a9b30d2efaf912a10ddc7d9ddb
   directory: build/cctools-port/
 
+# compiler-rt comes out of the same monorepo archive clang.yml and libomp.bst
+# fetch, so the tag follows llvm-version rather than being written out again:
+# the runtime osxcross builds has to match the clang that uses it.
 - kind: tar
-  url: github:llvm/llvm-project/archive/refs/tags/llvmorg-22.1.8.tar.gz
+  url: github:llvm/llvm-project/archive/refs/tags/llvmorg-%{llvm-version}.tar.gz
   ref: ad18b70e287954c3d62bc7e0b86e7b7af2adf87bcfce21c15fe717f101d7aace
   directory: build/compiler-rt/
 
