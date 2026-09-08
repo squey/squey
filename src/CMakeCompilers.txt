@@ -6,7 +6,7 @@ set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace distrib)
 
 
 
-set(CMAKE_CXX_STANDARD 23)
+set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 # The kernels that are built a second time for a wider instruction set only make sense
