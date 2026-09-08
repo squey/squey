@@ -87,7 +87,7 @@ variables:
     -DENABLE_LOADABLE_DRIVERS=OFF
     -DCMAKE_SIZEOF_VOID_P=8
     -DLLVM_PREFIX="%{prefix}"
-    -DLLVM_VERSION_FULL=19.1.7
+    -DLLVM_VERSION_FULL=%{llvm-version}
     -DLLVM_CFLAGS="-I%{includedir}"
     -DLLVM_CXXFLAGS="-I%{includedir}"
     -DLLVM_CPPFLAGS="-I%{includedir}"

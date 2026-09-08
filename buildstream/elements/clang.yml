@@ -3,21 +3,12 @@ description: |
   The Clang project provides a language front-end and tooling infrastructure for languages in the C language family (C, C++, Objective C/C++, OpenCL, CUDA, and RenderScript) for the LLVM project.
 
 variables:
-  (?):
-    - (target_triple != "x86_64-w64-mingw32"):
-        archive_url: "github:llvm/llvm-project/archive/refs/tags/llvmorg-22.1.8.tar.gz"
-        archive_ref: "ad18b70e287954c3d62bc7e0b86e7b7af2adf87bcfce21c15fe717f101d7aace"
-        patch: "buildstream/patches/noop.patch"
-    - (target_triple == "x86_64-w64-mingw32"):
-        archive_url: "github:llvm/llvm-project/archive/refs/tags/llvmorg-19.1.7.tar.gz"
-        archive_ref: "59abea1c22e64933fad4de1671a61cdb934098793c7a31b333ff58dc41bff36c"
-        patch: "buildstream/patches/clang/fix_compilation_with_glibc_2.42.patch"
+  archive_url: "github:llvm/llvm-project/archive/refs/tags/llvmorg-%{llvm-version}.tar.gz"
+  archive_ref: "ad18b70e287954c3d62bc7e0b86e7b7af2adf87bcfce21c15fe717f101d7aace"
+  patch: "buildstream/patches/noop.patch"
   debug_flags: "-g1"
   optimize-debug: "false"
-  # LLVM_INCLUDE_BENCHMARKS is off because the benchmarks are never wanted, and
-  # because the google-benchmark bundled with the LLVM 19 used for the mingw
-  # target does not build with the SDK's clang 22: __COUNTER__ is now
-  # diagnosed as a C2y extension, which is fatal under benchmark's -Werror.
+  # LLVM_INCLUDE_BENCHMARKS is off because the benchmarks are never wanted.
   cmake-local: >-
     -DLLVM_ENABLE_PROJECTS='clang;compiler-rt'
     -DLLVM_ENABLE_ASSERTIONS:BOOL=OFF

@@ -19,6 +19,8 @@ variables:
         -DCLANG_LINK_CLANG_DYLIB=OFF
         -DLLVM_TARGETS_TO_BUILD="X86"
         -DCMAKE_CXX_FLAGS="-fvisibility-inlines-hidden -Wl,--allow-multiple-definition -s -Wa,-mbig-obj"
+        -DCMAKE_SHARED_LINKER_FLAGS="-Wl,--export-all-symbols"
+        -DLLVM_ENABLE_PROJECTS='clang'
 
 config:
   (?):
