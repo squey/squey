@@ -45,23 +45,18 @@ void Squey::PVCorrelationEngine::add(const PVCorrelation& c)
 
 void Squey::PVCorrelationEngine::remove(const Squey::PVView* view, bool both_ways /*= false*/)
 {
-	for (const auto& c : _correlations) {
-		if (view == c.second.view1) {
-			_correlations.erase(c.first);
-			break;
-		}
-	}
+	// The map is keyed by view1, so a view is the source of at most one correlation.
+	_correlations.erase(view);
 
 	if (not both_ways) {
 		return;
 	}
 
-	for (const auto& c : _correlations) {
-		if (view == c.second.view2) {
-			_correlations.erase(c.first);
-			break;
-		}
-	}
+	// Any number of views can correlate towards the same one, though. Stopping at
+	// the first match left the others holding a view that is being deleted, and
+	// process() dereferences view2 as soon as it is handed one.
+	std::erase_if(_correlations,
+	              [view](const auto& correlation) { return view == correlation.second.view2; });
 }
 
 bool Squey::PVCorrelationEngine::exists(const PVCorrelation& c) const
