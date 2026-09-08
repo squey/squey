@@ -132,6 +132,27 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 	// and Khronos ICD loader to find PortableCL
 	boost::filesystem::path exe_path = boost::dll::program_location();
 	std::string libdir = exe_path.parent_path().string();
+
+	// pocl links each kernel it compiles against the mingw runtime, and finds
+	// those through LIBRARY_PATH. They sit next to the application, which is
+	// where the executable is -- except for the test binaries, installed two
+	// levels below under tests/ (see CMakeMacros.txt). Pointing at their own
+	// directory leaves ld with no libmingw32.a, no dllcrt2.o and no kernel:
+	// every zone comes back blank. Walk up to whichever directory actually
+	// holds them, and keep the executable's own as the last resort so that a
+	// layout not anticipated here behaves as before.
+	for (boost::filesystem::path dir = exe_path.parent_path(); not dir.empty();
+	     dir = dir.parent_path()) {
+		if (std::filesystem::exists((dir / "libmingw32.a").string())) {
+			libdir = dir.string();
+			break;
+		}
+
+		if (dir == dir.parent_path()) {
+			break;
+		}
+	}
+
 	PVCore::setenv("LIBRARY_PATH", libdir.c_str(), 1);
 	// Beside the executable is where the packaged application finds it, squey.exe
 	// and pocl.dll sitting in the same directory. The test executables are
@@ -171,7 +192,22 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 		RegCloseKey(icd_vendors_key);
 	}
 
-	std::filesystem::current_path(libdir);
+	// Where the loader is to look for pocl.dll and the DLLs it depends on. This
+	// was a chdir, harmless while libdir was the directory the executable runs
+	// from -- the tests already ran there. Now that it is wherever the mingw
+	// runtime lives, two levels above them, moving there would resolve every
+	// relative path the process opens afterwards from the wrong place: the test
+	// files, named relative to the test's own directory, stopped being found.
+	// This adds the directory to the DLL search order and leaves the working
+	// directory alone.
+	SetDllDirectoryA(libdir.c_str());
+
+	// The chdir was also how ld found the startup files, which the clang driver
+	// names without a path and ld then only looks for in the working directory.
+	// Name the directory instead: pocl's linker flags carry a keyword it swaps
+	// for this at link time (-B, see portablecl.bst), so the driver resolves
+	// dllcrt2.o and the crt objects itself and hands ld absolute paths.
+	PVCore::setenv("POCL_LINKER_DIR", libdir.c_str(), 1);
 #endif
 
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);

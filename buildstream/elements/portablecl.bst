@@ -29,6 +29,52 @@ variables:
     -DENABLE_TBB_DEVICE=1
 
   executable_dir_keyword: "@executable_dir"
+  # pocl bakes its linker flags in at build time, but the directory they have to
+  # point at is only known when the application runs. The flags carry a keyword
+  # that update_ld_flags() swaps for POCL_LINKER_DIR on the way to the linker.
+  linker-dir-patch: |
+    # Patch the lib to look for the linker at runtime using the POCL_LINKER_DIR environment variable
+    old="\(device->final_linkage_flags = \)\(final_ld_flags\);"
+    grep "$old" lib/CL/devices/common_utils.c || { echo "Patching failed!"; exit 1; }
+    sed -e "s/$old/\1update_ld_flags(\2);/" -e '1i #include <executable_dir.h>' -i lib/CL/devices/common_utils.c
+    cat <<EOF > "lib/CL/devices/executable_dir.h"
+    #include <stdio.h>
+    #include <string.h>
+    #include <stdlib.h>
+    #define EXEC_DIR_KEYWORD "%{executable_dir_keyword}"
+    const char** update_ld_flags(const char *ld_flags[]) {
+      const char* lld_bin_dir = getenv("POCL_LINKER_DIR");
+      if (!lld_bin_dir) return ld_flags;
+      for (int i = 0; ld_flags[i] != NULL; i++) {
+          const char* original = ld_flags[i];
+          size_t original_len = strlen(original);
+          size_t keyword_len = strlen(EXEC_DIR_KEYWORD);
+          size_t replacement_len = strlen(lld_bin_dir);
+          size_t count = 0;
+          for (const char* p = strstr(original, EXEC_DIR_KEYWORD); p; p = strstr(p + keyword_len, EXEC_DIR_KEYWORD)) {
+              count++;
+          }
+          if (count == 0) continue;
+          size_t new_len = original_len + count * (replacement_len - keyword_len);
+          char* new_str = (char*)malloc(new_len + 1);
+          if (!new_str) continue;
+          const char *src = original;
+          char *dst = new_str;
+          while (*src) {
+              if (strncmp(src, EXEC_DIR_KEYWORD, keyword_len) == 0) {
+                  strcpy(dst, lld_bin_dir);
+                  dst += replacement_len;
+                  src += keyword_len;
+              } else {
+                  *dst++ = *src++;
+              }
+          }
+          *dst = '\0';
+          ld_flags[i] = new_str;
+      }
+      return ld_flags;
+    }
+    EOF
   # HOST_CLANG is the osxcross wrapper rather than the bare clang: pocl compiles
   # kernels with it at build time targeting darwin, and only the wrapper passes
   # the -isysroot that makes the macOS headers reachable.
@@ -87,6 +133,7 @@ variables:
     -DENABLE_LOADABLE_DRIVERS=OFF
     -DCMAKE_SIZEOF_VOID_P=8
     -DLLVM_PREFIX="%{prefix}"
+    -DEXTRA_HOST_LD_FLAGS="-B%{executable_dir_keyword}"
     -DLLVM_VERSION_FULL=%{llvm-version}
     -DLLVM_CFLAGS="-I%{includedir}"
     -DLLVM_CXXFLAGS="-I%{includedir}"
@@ -204,48 +251,7 @@ config:
       - |
         sed -E 's/([[:space:]]|")-lm([[:space:]]|")/\1\2/g' -i CMakeLists.txt
 
-        # Patch the lib to look for the linker at runtime using the POCL_LINKER_DIR environment variable
-        old="\(device->final_linkage_flags = \)\(final_ld_flags\);"
-        grep "$old" lib/CL/devices/common_utils.c || { echo "Patching failed!"; exit 1; }
-        sed -e "s/$old/\1update_ld_flags(\2);/" -e '1i #include <executable_dir.h>' -i lib/CL/devices/common_utils.c
-        cat <<EOF > "lib/CL/devices/executable_dir.h"
-        #include <stdio.h>
-        #include <string.h>
-        #include <stdlib.h>
-        #define EXEC_DIR_KEYWORD "%{executable_dir_keyword}"
-        const char** update_ld_flags(const char *ld_flags[]) {
-          const char* lld_bin_dir = getenv("POCL_LINKER_DIR");
-          if (!lld_bin_dir) return ld_flags;
-          for (int i = 0; ld_flags[i] != NULL; i++) {
-              const char* original = ld_flags[i];
-              size_t original_len = strlen(original);
-              size_t keyword_len = strlen(EXEC_DIR_KEYWORD);
-              size_t replacement_len = strlen(lld_bin_dir);
-              size_t count = 0;
-              for (const char* p = strstr(original, EXEC_DIR_KEYWORD); p; p = strstr(p + keyword_len, EXEC_DIR_KEYWORD)) {
-                  count++;
-              }
-              if (count == 0) continue;
-              size_t new_len = original_len + count * (replacement_len - keyword_len);
-              char* new_str = (char*)malloc(new_len + 1);
-              if (!new_str) continue;
-              const char *src = original;
-              char *dst = new_str;
-              while (*src) {
-                  if (strncmp(src, EXEC_DIR_KEYWORD, keyword_len) == 0) {
-                      strcpy(dst, lld_bin_dir);
-                      dst += replacement_len;
-                      src += keyword_len;
-                  } else {
-                      *dst++ = *src++;
-                  }
-              }
-              *dst = '\0';
-              ld_flags[i] = new_str;
-          }
-          return ld_flags;
-        }
-        EOF
+        %{linker-dir-patch}
 
         # LLC_TRIPLE names the triplet the kernels are built and linked for, and
         # SetupLLVMHostCPU already treats it as overridable -- but this earlier
@@ -262,6 +268,9 @@ config:
       configure-commands:
       - |
         test -f "%{bindir}/ld.exe" || exit 1 # Check that ld.exe is available
+
+        %{linker-dir-patch}
+
         rm -rf cmake/FindHwloc.cmake
         sed 's/ -fPIC / /g' -i CMakeLists.txt
         sed 's/set(BUILD_SHARED_LIBS_DEFAULT OFF)/set(BUILD_SHARED_LIBS_DEFAULT ON)/' -i CMakeLists.txt
