@@ -265,5 +265,9 @@ set_tests_properties(SQUEY_TEST_Trush_recent_items PROPERTIES ENVIRONMENT "SQUEY
 add_squey_compile_test(Trush_sample_dataset LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES sample_dataset.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_sample_dataset Trush_sample_dataset ${TESTS_FILES_DIR}/../../samples/sample-network-traffic.parquet)
 
+# The path from a file name handed over by a desktop to the importer that reads it.
+add_squey_compile_test(Trush_open_with LINKS ${LINK_LIBRARIES} FILES open_with.cpp)
+add_squey_test(Trush_open_with Trush_open_with)
+
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

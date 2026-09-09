@@ -737,110 +737,129 @@ void App::PVMainWindow::register_sample_dataset()
  *****************************************************************************/
 void App::PVMainWindow::load_files(QStringList const& files, QString format_str /* = "" */)
 {
-    bool load_as_multiple_sources = false;
-	if (files.size() == 0) {
-		return;
-	}
-	else if (files.size() > 1) {
-        load_as_multiple_sources = QMessageBox::question(
-            this,
-            "Opening multiple input files",
-            QString("Do you want to open each of these files as a source ?\n"
-                    "Selecting 'Yes' will load each input file as a new source.\n"
-                    "Selecting 'No' will load a unique source with a concatenation of all the input files.\n"),
-            QMessageBox::Yes|QMessageBox::No
-        ) == QMessageBox::Yes;
-	}
-
-	QSet<QString> exts;
-	for (auto const& file : files) {
-	    const QFileInfo& fi = QFileInfo(file);
-		if (not fi.exists()) {
-		    QMessageBox::critical(
-				this,
-				"File not found",
-				QString("The file '%1' does not exist, ignoring.").arg(file),
-				QMessageBox::Ok
-			);
+	// Nobody has checked these paths before they got here: they come from a
+	// command line, or from a desktop that handed over a file this process
+	// cannot reach -- under flatpak, anything in /tmp is outside the sandbox.
+	// Report those, and go on with the rest rather than refusing the batch.
+	QStringList existing_files;
+	QStringList missing_files;
+	for (QString const& file : files) {
+		const QFileInfo fi(file);
+		if (fi.exists()) {
+			// Absolute: a relative path handed over by another instance was
+			// written against *its* working directory, not ours.
+			existing_files << fi.absoluteFilePath();
+		} else {
+			missing_files << file;
 		}
-		else {
-            const QString& ext = fi.suffix();
-            if (not ext.isEmpty()) {
-                exts.insert(ext);
-            }
-        }
 	}
-	if (exts.size() == 0) {
-	    return; // No file to load...
+	if (not missing_files.isEmpty()) {
+		QString explanation = tr("The following file(s) do not exist, and are ignored:\n\n%1")
+		                          .arg(missing_files.join("\n"));
+		// A flatpak has a /tmp, and a few other directories, of its own: a file
+		// plainly there for the file manager that opened it is not there for
+		// us. Worth saying, the path being reported as missing while the user
+		// is looking at it.
+		if (QFile::exists("/.flatpak-info")) {
+			explanation +=
+			    tr("\n\nThis application runs in a sandbox: files kept outside of the home "
+			       "directory, such as in /tmp, are not visible to it.");
+		}
+		QMessageBox::critical(this, tr("File not found"), explanation, QMessageBox::Ok);
 	}
-	else if (exts.size() > 1) {
-	    QMessageBox::critical(
-			this,
-			"Mismatching extensions",
-	        "Only one type of extension is supported when loading several files.",
-	        QMessageBox::Ok
-		);
-		return;
-	}
-	const QString& extension = *exts.begin();
-
-	if (extension == "pvi") {
-	    load_solution_and_create_mw(files[0]);
+	if (existing_files.isEmpty()) {
 		return;
 	}
 
+	// An investigation opens in a window of its own -- one per file, and the
+	// window of one that is already open is simply brought forward. Data files
+	// go through an importer instead, so the two cannot be mixed in one batch.
+	QStringList investigations;
+	QStringList sources;
+	for (QString const& file : existing_files) {
+		if (QFileInfo(file).suffix().compare("pvi", Qt::CaseInsensitive) == 0) {
+			investigations << file;
+		} else {
+			sources << file;
+		}
+	}
+	if (not investigations.isEmpty() and not sources.isEmpty()) {
+		QMessageBox::critical(
+			this, tr("Mismatching file types"),
+			tr("An investigation cannot be opened together with data files."),
+			QMessageBox::Ok);
+		return;
+	}
+	if (not investigations.isEmpty()) {
+		for (QString const& investigation : investigations) {
+			load_solution_and_create_mw(investigation);
+		}
+		return;
+	}
+
+	// One importer for the whole batch, resolved before anything is asked of
+	// the user: a mismatch is worth reporting straight away rather than after a
+	// question about files that will not be loaded. Which extensions go
+	// together is the plugins' business -- .pcap and .pcapng are the same
+	// importer, .csv and .csv.gz too.
+	PVRush::PVInputType_p in_file;
+	try {
+		for (QString const& file : sources) {
+			PVRush::PVInputType_p in_t =
+			    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_extension(file);
+			if (not in_file) {
+				in_file = in_t;
+			} else if (in_t.get() != in_file.get()) {
+				QMessageBox::critical(
+					this, tr("Mismatching file types"),
+					tr("Only files handled by a single importer can be loaded together."),
+					QMessageBox::Ok);
+				return;
+			}
+		}
+	} catch (std::runtime_error const& e) {
+		QMessageBox::critical(this, tr("Error when loading file(s)"),
+		                      QString::fromStdString(e.what()), QMessageBox::Ok);
+		return;
+	}
+
+	bool load_as_multiple_sources = false;
+	if (sources.size() > 1) {
+		load_as_multiple_sources =
+			QMessageBox::question(
+				this, tr("Opening multiple input files"),
+				tr("Do you want to open each of these files as a source ?\n"
+				   "Selecting 'Yes' will load each input file as a new source.\n"
+				   "Selecting 'No' will load a unique source with a concatenation of all the "
+				   "input files.\n"),
+				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
+	}
+
+	// 'format_str' is what --format named, and it is handed to the plugin as it
+	// came: a plugin that has no use for it overwrites it, one that has honours
+	// it over the format it would have gone looking for by itself.
+	auto import_source = [&](QStringList const& input_files, bool concatenation) {
+		QString format = format_str;
+		PVRush::hash_formats formats;
+		PVRush::PVInputType::list_inputs inputs;
+		PVCore::PVArgumentList args;
+		if (not in_file->create_widget_with_input_files(input_files, formats, inputs, format, args,
+		                                               this)) {
+			return false; // the user cancelled
+		}
+		PVRush::hash_format_creator format_creator;
+		import_type(in_file, inputs, formats, format_creator, format, concatenation);
+		return true;
+	};
 
 	if (load_as_multiple_sources) {
-	    for (const QString& file : files) {
-			PVRush::PVInputType_p in_file;
-			try {
-			    in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_extension(extension);
+		for (QString const& file : sources) {
+			if (not import_source({file}, false)) {
+				return;
 			}
-			catch (std::runtime_error const& e) {
-               	QMessageBox::critical(
-                        this,
-                        "Error when loading file(s)",
-                        QString::fromStdString(e.what()),
-                        QMessageBox::Ok
-               	);
-                return;
-			}
-			QString input_format_str = format_str;
-			PVRush::hash_formats formats;
-			PVRush::PVInputType::list_inputs inputs;
-			PVCore::PVArgumentList args;
-			if (not in_file->create_widget_with_input_files({file}, formats, inputs, input_format_str, args, this)) {
-           	    return;
-           	}
-
-           	PVRush::hash_format_creator format_creator;
-			import_type(in_file, inputs, formats, format_creator, input_format_str);
 		}
-	}
-	else { // load a unique source as a concatenation of the input files
-    	PVRush::PVInputType_p in_file;
-    	try {
-    	    in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_extension(extension);
-    	}
-    	catch (std::runtime_error const& e) {
-       	QMessageBox::critical(
-                this,
-                "Error when loading file(s)",
-                QString::fromStdString(e.what()),
-                QMessageBox::Ok
-       	);
-            return;
-    	}
-    	PVRush::hash_formats formats;
-    	PVRush::PVInputType::list_inputs inputs;
-    	PVCore::PVArgumentList args;
-		QString format;
-		if (not in_file->create_widget_with_input_files(files, formats, inputs, format, args, this)) {
-    	    return;
-    	}
-
-    	PVRush::hash_format_creator format_creator;
-		import_type(in_file, inputs, formats, format_creator, format, true);
+	} else {
+		import_source(sources, true);
 	}
 }
 
