@@ -8,6 +8,11 @@ set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace distrib)
 
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# From policy version 3.28 on (CMP0155), CMake scans every C++20 source for
+# module imports before compiling it, one extra pass per translation unit.
+# Nothing here imports or exports a C++ module, so leave the pass out. The
+# variable is inherited by the subdirectories, submodules included.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 # The kernels that are built a second time for a wider instruction set only make sense
 # on x86, where -mavx2 and friends exist : elsewhere the compiler rejects those flags

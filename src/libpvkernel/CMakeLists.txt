@@ -48,8 +48,12 @@ else(${QT_WEBKIT})
 	# include_directories(SYSTEM ${Qt6WebEngineCore_INCLUDE_DIRS})
 endif(${QT_WEBKIT})
 
-find_package(Arrow CONFIG REQUIRED)
-find_package(Parquet CONFIG REQUIRED)
+# QUIET: ArrowConfig.cmake first tries config-mode find_package calls for lz4
+# and zstd, which warn when no CMake package exists for them (the freedesktop
+# SDK ships none) before the pkg-config fallback finds them anyway.
+find_package(Arrow CONFIG REQUIRED QUIET)
+find_package(Parquet CONFIG REQUIRED QUIET)
+message(STATUS "Found Arrow ${Arrow_VERSION} and Parquet ${Parquet_VERSION}")
 find_package(Thrift CONFIG REQUIRED)
 find_package(re2 REQUIRED)
 set(PARQUET_LIBS Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)

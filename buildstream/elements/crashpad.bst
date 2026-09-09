@@ -50,13 +50,20 @@ config:
   configure-commands:
   - "%{cmake}"
 
-depends:
-- zlib.bst
-
 build-depends:
 - sdk.bst
 
+# The zlib is the one the rest of the target links: the freedesktop SDK's on
+# Linux, where a second copy under /app would shadow /usr's libz.so.1 in the
+# runtime search path of every executable and library built against Crashpad
+# (CMake warns about it at every configure); the cross-built one elsewhere.
 (?):
+  - (target_triple == "x86_64-linux-gnu"):
+      depends:
+      - freedesktop-sdk.bst:bootstrap/zlib-ng.bst
+  - (target_triple != "x86_64-linux-gnu"):
+      depends:
+      - zlib.bst
   - (target_triple == "x86_64-w64-mingw32"):
       variables:
         # enable_language(ASM_MASM) runs before the CMakeLists looks for jwasm,

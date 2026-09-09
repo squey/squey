@@ -47,6 +47,18 @@ sources:
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       variables:
         conf-global: ""
+  # --with-system-zlib links the zlib of the platform the tools run on: the
+  # freedesktop SDK's on Linux (the zlib.bst copy is then only a second
+  # libz.so.1 under /app, which the runtime search path of everything built in
+  # the sandbox would pick over /usr's), the cross-built one on the other targets.
+  - (target_triple == "x86_64-linux-gnu"):
+      depends:
+        (>):
+        - freedesktop-sdk.bst:bootstrap/zlib-ng.bst
+  - (target_triple != "x86_64-linux-gnu"):
+      depends:
+        (>):
+        - zlib.bst
 
 config:
   configure-commands:
@@ -68,4 +80,3 @@ build-depends:
 
 depends:
 - sdk.bst
-- zlib.bst
