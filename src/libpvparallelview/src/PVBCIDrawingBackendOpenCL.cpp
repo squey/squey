@@ -46,7 +46,9 @@
 #include <windows.h>
 #endif
 
+#include <QDir>
 #include <QSettings>
+#include <QStandardPaths>
 
 #include <boost/dll/runtime_symbol_info.hpp>
 
@@ -162,6 +164,22 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 	}
 	PVCore::setenv("POCL_LINKER_DIR", linker_dir.string().c_str(), 1);
 #elifdef _WIN32
+	// Where PortableCL keeps its compiled kernels is picked from the environment,
+	// and which variable wins has already changed under us: the version shipped
+	// until now read TEMP before LOCALAPPDATA, so every kernel went to %TEMP%\pocl
+	// -- a directory Windows is free to empty, and does. The kernels were then
+	// compiled again on the first run following a reboot, ten-odd seconds of
+	// "Preparing rendering kernels" paid for nothing. Name the directory here
+	// instead, beside the utilities unpacked into the same cache, so that it
+	// survives a cleanup and does not move with the next pocl upgrade. The last
+	// argument leaves a POCL_CACHE_DIR set by the caller alone, which is how the
+	// tests point it at a directory of their own.
+	const QString pocl_cache_dir =
+	    QDir(QStandardPaths::writableLocation(QStandardPaths::CacheLocation)).filePath("pocl");
+	QDir().mkpath(pocl_cache_dir);
+	const QByteArray pocl_cache_dir_utf8 = QDir::toNativeSeparators(pocl_cache_dir).toUtf8();
+	PVCore::setenv("POCL_CACHE_DIR", pocl_cache_dir_utf8.constData(), 0);
+
 	// Configure "ld" linker to search for librairies in the proper location
 	// and Khronos ICD loader to find PortableCL
 	boost::filesystem::path exe_path = boost::dll::program_location();
