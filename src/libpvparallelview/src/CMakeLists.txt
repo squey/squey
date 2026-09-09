@@ -2,13 +2,11 @@
 # @file
 #
 
-include_directories(AFTER SYSTEM ${OPENGL_INCLUDE_DIR})
-
 ################################################
 # Ressource declaration
 ################################################
 
-SET(SRC_FILES
+set(SRC_FILES
 PVAbstractAxisSlider.cpp
 PVAbstractAxisSliders.cpp
 PVAbstractRangeAxisSliders.cpp
@@ -105,7 +103,7 @@ set(OPENCL_SRC_FILES
 	PVBCIBackendImageOpenCL.cpp
 )
 
-SET(MOC_HEADERS
+set(MOC_HEADERS
 ../include/pvparallelview/PVRenderingJob.h
 ../include/pvparallelview/PVFullParallelView.h
 ../include/pvparallelview/PVFullParallelScene.h
@@ -141,27 +139,19 @@ SET(MOC_HEADERS
 # Generate extra QT files (moc, uic, rcc)
 ################################################
 
-QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS)
 
 ################################################
 # Declare the new library and linkage options
 ################################################
 
-set(QT6_LIBS Qt6Core Qt6Gui Qt6Widgets Qt6Xml)
-
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
-  COMMAND ${CMAKE_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
+  COMMAND ${squey_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
   DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
 )
 
-include_directories(AFTER ${CMAKE_CURRENT_BINARY_DIR})
-
 list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)
-
-set(LINK_LIBRARIES pvkernel pvsquey pvdisplays ${QT6_LIBS}
-	${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} ${OPENCL_LIBRARIES}
-	${PVHWLOC_LIBRARIES} KF6::ItemModels)
 
 # The hit graph kernels are built twice from the same .ipp : the avx2 unit needs its
 # own instruction set, and neither may be folded into a unity blob that would drag the
@@ -185,7 +175,17 @@ add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
 squey_speedup_compilation(pvparallelview QT)
 
-target_link_libraries(pvparallelview ${LINK_LIBRARIES})
+target_include_directories(pvparallelview
+	PUBLIC
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
+		$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+	PRIVATE
+		${CMAKE_CURRENT_BINARY_DIR})
 
-INSTALL(TARGETS pvparallelview LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-                               RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+target_link_libraries(pvparallelview
+	PUBLIC pvkernel pvsquey pvdisplays
+	       Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Xml KF6::ItemModels
+	PRIVATE ${TBB_LIBRARIES} ${Boost_LIBRARIES} ${OpenMP_LIBRARIES} Squey::OpenCL)
+
+install(TARGETS pvparallelview LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+						RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})

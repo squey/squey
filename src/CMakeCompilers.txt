@@ -2,12 +2,13 @@
 # @file
 #
 
-set(CMAKE_CONFIGURATION_TYPES debug release relwithdebinfo calltrace distrib)
-
-
-
 set(CMAKE_CXX_STANDARD 26)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
+# From policy version 3.28 on (CMP0155), CMake scans every C++20 source for
+# module imports before compiling it, one extra pass per translation unit.
+# Nothing here imports or exports a C++ module, so leave the pass out. The
+# variable is inherited by the subdirectories, submodules included.
+set(CMAKE_CXX_SCAN_FOR_MODULES OFF)
 
 # The kernels that are built a second time for a wider instruction set only make sense
 # on x86, where -mavx2 and friends exist : elsewhere the compiler rejects those flags
@@ -27,18 +28,23 @@ if(SQUEY_TARGET_X86_64 AND NOT DEFINED ARCH_TYPE)
     # emulates the wider intrinsics the code uses.
     set(ARCH_TYPE "x86-64-v2")
 endif()
-if(ARCH_TYPE)
+# Guarded by the architecture too: on a non-x86 target the root leaves ARCH_TYPE
+# unset, squey-utils then caches its own default of "native", and the next
+# configuration would read it back here and hand -march=native to a cross
+# compiler that rejects it.
+if(SQUEY_TARGET_X86_64 AND ARCH_TYPE)
     set(CMAKE_CXX_ARCH_FLAGS "-march=${ARCH_TYPE}")
 endif()
 
 if (WIN32)
     set(CMAKE_CXX_COMMON_FLAGS "-Wa,-mbig-obj -Wl,--export-all-symbols -Wl,--enable-auto-import -DWIN32_LEAN_AND_MEAN")
-    add_definitions(-DUNICODE -D_UNICODE)
+    add_compile_definitions(UNICODE _UNICODE)
 endif()
 # Passing a 256 bits simde vector by value uses a different calling convention when AVX
 # is off, which -Wpsabi reports. Those types never cross a library boundary here: they
 # only appear in inline static helpers and local variables, so the warning has no bearing.
-set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wall -Wextra -fPIC -Wno-psabi")
+set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+string(APPEND CMAKE_CXX_COMMON_FLAGS " -Wall -Wextra -Wno-psabi")
 
 # GCC 16 added -Wsfinae-incomplete. It fires where Qt's qmetatype probes a type
 # with sizeof(U) in a SFINAE context while that type is still incomplete, and the
@@ -47,20 +53,20 @@ set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wall -Wextra -fPIC -Wno-p
 # moc-generated sources meeting the precompiled header, which this code cannot
 # reorder. Keep the diagnostic, just stop -Werror from making it fatal.
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU" AND CMAKE_CXX_COMPILER_VERSION VERSION_GREATER_EQUAL 16)
-    set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wno-error=sfinae-incomplete")
+    string(APPEND CMAKE_CXX_COMMON_FLAGS " -Wno-error=sfinae-incomplete")
     # -Warray-bounds misfires at -O3 inside Arrow's headers: inlining an
     # ArrayBuilder::Reserve() chain lets GCC reason about a downcast to
     # BasicUnionBuilder that the call never takes, and it then reports an
     # out-of-bounds read on the builder's own control block. The diagnostic
     # points into arrow's headers, not into code this project can fix.
-    set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} -Wno-error=array-bounds")
+    string(APPEND CMAKE_CXX_COMMON_FLAGS " -Wno-error=array-bounds")
 endif()
 
 if (CODE_COVERAGE)
 	set(CODE_COVERAGE_FLAGS "-O0 --coverage")
     set(CTEST_COVERAGE_COMMAND "gcov")
-    set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} --coverage")
-    set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} --coverage")
+    string(APPEND CMAKE_EXE_LINKER_FLAGS " --coverage")
+    string(APPEND CMAKE_SHARED_LINKER_FLAGS " --coverage")
     message(STATUS "Code coverage instrumentation enabled")
 endif()
 
@@ -101,13 +107,13 @@ if (ADDRESS_SANITIZER)
     message(STATUS "Address sanitizer instrumentation enabled")
 endif()
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")
+string(APPEND CMAKE_CXX_FLAGS " ${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")
 
 ###############################################################################
 # Configure linker
 ###############################################################################
 # Use ld.mold if available
-OPTION(USE_LD_MOLD "Use mold linker" ON)
+option(USE_LD_MOLD "Use mold linker" ON)
 if (USE_LD_MOLD)
     execute_process(COMMAND ${CMAKE_CXX_COMPILER} -fuse-ld=mold -Wl,--separate-debug-file,--version ERROR_QUIET OUTPUT_VARIABLE LD_VERSION)
     if ("${LD_VERSION}" MATCHES "mold")
@@ -121,8 +127,8 @@ if (USE_LD_MOLD)
         # clang does not, which is why the symbols of the released builds were
         # empty.
         set(MOLD_LINKER_FLAGS "-fuse-ld=mold -Wl,--build-id -Wl,--separate-debug-file")
-        set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${MOLD_LINKER_FLAGS}")
-        set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} ${MOLD_LINKER_FLAGS}")
+        string(APPEND CMAKE_EXE_LINKER_FLAGS " ${MOLD_LINKER_FLAGS}")
+        string(APPEND CMAKE_SHARED_LINKER_FLAGS " ${MOLD_LINKER_FLAGS}")
     else ()
         message(STATUS "mold linker isn't available, using the default system linker.")
         set(USE_LD_MOLD OFF)
@@ -139,14 +145,16 @@ if(NOT CODE_COVERAGE)
     endif()
 endif()
 
-MESSAGE(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
+message(STATUS "Build type is ${CMAKE_BUILD_TYPE}")
 
 #if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 #	set(CMAKE_CXX_COMMON_FLAGS "-Qunused-arguments ${CMAKE_CXX_COMMON_FLAGS}")
 #endif()
 
-OPTION(USE_LTO "Use LTO" OFF)
-if (${USER_TARGET} STREQUAL "Customer")
+option(USE_LTO "Use LTO" OFF)
+# NOTE: CMakeOptions.txt spells the customer build "customer"; this test has
+# never matched, so LTO has never been turned on by it.
+if (USER_TARGET STREQUAL "Customer")
     set(USE_LTO true)
 endif()
 if (USE_LD_MOLD AND USE_LTO)
@@ -159,22 +167,22 @@ else()
 	set(LTO_LINK_FLAGS "")
 endif()
 
-set(CMAKE_CXX_COMMON_FLAGS "${CMAKE_CXX_COMMON_FLAGS} ${LTO_CXX_FLAGS}")
+string(APPEND CMAKE_CXX_COMMON_FLAGS " ${LTO_CXX_FLAGS}")
 
 set(CMAKE_CXX_FLAGS_DEBUG "-ggdb ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
-list(APPEND CMAKE_SHARED_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_MODULE_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG ${LTO_LINK_FLAGS})
+string(APPEND CMAKE_SHARED_LINKER_FLAGS_DEBUG " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_MODULE_LINKER_FLAGS_DEBUG " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_EXE_LINKER_FLAGS_DEBUG " ${LTO_LINK_FLAGS}")
 
 set(CMAKE_CXX_FLAGS_RELEASE "-O3 -ffast-math -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
-list(APPEND CMAKE_SHARED_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_MODULE_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE ${LTO_LINK_FLAGS})
+string(APPEND CMAKE_SHARED_LINKER_FLAGS_RELEASE " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_MODULE_LINKER_FLAGS_RELEASE " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_EXE_LINKER_FLAGS_RELEASE " ${LTO_LINK_FLAGS}")
 
 set(CMAKE_CXX_FLAGS_DISTRIB "-O3 -ffast-math -ggdb -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
-list(APPEND CMAKE_SHARED_LINKER_FLAGS_DISTRIB ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_MODULE_LINKER_FLAGS_DISTRIB ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_EXE_LINKER_FLAGS_DISTRIB ${LTO_LINK_FLAGS})
+string(APPEND CMAKE_SHARED_LINKER_FLAGS_DISTRIB " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_MODULE_LINKER_FLAGS_DISTRIB " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_EXE_LINKER_FLAGS_DISTRIB " ${LTO_LINK_FLAGS}")
 
 set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "-O3 -ffast-math -ggdb -DNDEBUG ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
 if (WIN32)
@@ -183,11 +191,11 @@ if (WIN32)
 	# stripped by squey-cleanup.bst instead, once the symbols have been dumped.
 	# DWARF 4 is forced because dump_syms does not read the .debug_rnglists
 	# section that GCC emits for DWARF 5, and silently drops those functions.
-	set(CMAKE_CXX_FLAGS_RELWITHDEBINFO "${CMAKE_CXX_FLAGS_RELWITHDEBINFO} -gdwarf-4")
+	string(APPEND CMAKE_CXX_FLAGS_RELWITHDEBINFO " -gdwarf-4")
 endif()
-list(APPEND CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO ${LTO_LINK_FLAGS})
+string(APPEND CMAKE_SHARED_LINKER_FLAGS_RELWITHDEBINFO " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_MODULE_LINKER_FLAGS_RELWITHDEBINFO " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_EXE_LINKER_FLAGS_RELWITHDEBINFO " ${LTO_LINK_FLAGS}")
 
 message(STATUS CMAKE_CXX_FLAGS_RELWITHDEBINFO=${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 
@@ -195,6 +203,6 @@ message(STATUS CMAKE_CXX_FLAGS_RELWITHDEBINFO=${CMAKE_CXX_FLAGS_RELWITHDEBINFO})
 # http://nic.uoregon.edu/pipermail/tau-users/2012-September/000713.htm
 # http://nic.uoregon.edu/pipermail/tau-users/2012-September/000717.html
 set(CMAKE_CXX_FLAGS_CALLTRACE "-ggdb -finstrument-functions -finstrument-functions-exclude-file-list=intrin,include/c++,include/tbb,include/boost ${CMAKE_CXX_ARCH_FLAGS} ${CMAKE_CXX_COMMON_FLAGS}")
-list(APPEND CMAKE_SHARED_LINKER_FLAGS_CALLTRACE ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_MODULE_LINKER_FLAGS_CALLTRACE ${LTO_LINK_FLAGS})
-list(APPEND CMAKE_EXE_LINKER_FLAGS_CALLTRACE ${LTO_LINK_FLAGS})
+string(APPEND CMAKE_SHARED_LINKER_FLAGS_CALLTRACE " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_MODULE_LINKER_FLAGS_CALLTRACE " ${LTO_LINK_FLAGS}")
+string(APPEND CMAKE_EXE_LINKER_FLAGS_CALLTRACE " ${LTO_LINK_FLAGS}")

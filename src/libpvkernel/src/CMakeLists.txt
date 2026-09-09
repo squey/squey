@@ -54,7 +54,7 @@ set(CORE_SRC_FILES ${CORE_SRC_FILES}
 	core/segfault_handler.cpp
 )
 
-SET(CORE_MOC_HEADERS
+set(CORE_MOC_HEADERS
 ../include/pvkernel/core/PVProgressBox.h
 ../include/pvkernel/core/PVDBusConnection.h
 ../include/pvkernel/core/PVTheme.h
@@ -68,7 +68,7 @@ set(OPENCL_SRC_FILES
 # Ressources for pvkernel/filter
 #########################################################################
 
-SET(FILTER_SRC_FILES
+set(FILTER_SRC_FILES
 filter/PVChunkFilterByElt.cpp
 filter/PVChunkFilterByEltCancellable.cpp
 filter/PVChunkFilterDumpElts.cpp
@@ -82,7 +82,7 @@ filter/PVFieldSplitterChunkMatch.cpp
 filter/PVPluginsLoad.cpp
 )
 
-SET(FILTER_MOC_HEADERS
+set(FILTER_MOC_HEADERS
 ../include/pvkernel/filter/PVFieldsFilterParamWidget.h
 )
 
@@ -220,7 +220,7 @@ widgets/PVMultipleFileDialog.cpp
 widgets/PVModdedIcon.cpp
 )
 
-SET(UI_FILES
+set(UI_FILES
 widgets/PVColorDialog.ui
 )
 
@@ -231,8 +231,8 @@ widgets/PVColorDialog.ui
 set(SRC_FILES ${CORE_SRC_FILES} ${FILTER_SRC_FILES} ${RUSH_SRC_FILES} ${WIDGETS_SRC_FILES} ${OPENCL_SRC_FILES})
 set(MOC_HEADERS ${CORE_MOC_HEADERS} ${FILTER_MOC_HEADERS} ${RUSH_MOC_HEADERS} ${WIDGETS_MOC_HEADERS})
 
-QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
-PV_QT6_WRAP_UI(UI_SRC pvkernel ${UI_FILES})
+qt6_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS)
+pv_qt6_wrap_ui(UI_SRC pvkernel ${UI_FILES})
 
 ################################################
 # Declare the new library and linkage options
@@ -247,27 +247,30 @@ set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 # both land in the same translation unit.
 squey_speedup_compilation(pvkernel QT SKIP_UNITY core/segfault_handler.cpp)
 
-# Define third_part=y libs we have to link with for the library
-find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
-set(QT6_LIBS Qt6Core Qt6Widgets Qt6Gui Qt6Xml Qt6DBus Qt6Core5Compat)
-include_directories(AFTER SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
+# The headers of the library, and the ones generated beside them (ui_*.h).
+target_include_directories(pvkernel PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
+# PUBLIC: PVCharsetDetect.h, a header of the library, includes <nscore.h> from
+# the vendored uchardetect.
+target_include_directories(pvkernel PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/third_party/uchardetect>)
+target_include_directories(pvkernel SYSTEM PUBLIC ${CRASHPAD_INCLUDE_DIRS})
 
-set(PVKERNEL_LINK_LIBRARIES ${QT6_LIBS} ${ICU_LIBRARY} ${TBB_LIBRARIES}
-	${OpenMP_LIBRARIES} ${Boost_LIBRARIES}
-	${ARCHIVE_LIBRARIES} ${CRASHPAD_LIBRARIES} ${WINSOCK_LIB} ${PVHWLOC_LIBRARIES}
-	${NUMA_LIBRARIES} ${SIGCPP_LIBRARIES} ${PVCOP_LIBRARIES} ${PVLOGGER_LIBRARIES})
-
-if (PYTHON_SUPPORT)
-	set(PVKERNEL_LINK_LIBRARIES ${PVKERNEL_LINK_LIBRARIES} ${Python_LIBRARIES})
-endif()
-
-if(OPENCL_FOUND)
-	list(APPEND PVKERNEL_LINK_LIBRARIES  ${OPENCL_LIBRARIES})
-endif(OPENCL_FOUND)
-
-target_link_libraries(pvkernel ${PVKERNEL_LINK_LIBRARIES})
-
+target_link_libraries(pvkernel
+	PUBLIC
+		squey_base
+		pvcop pvlogger pvhwloc
+		Qt6::Core Qt6::Gui Qt6::Widgets Qt6::Xml Qt6::DBus Qt6::Core5Compat
+		${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES}
+		${SIGCPP_LIBRARIES} ${ICU_LIBRARY}
+		# These appear in the headers of the library, as inline code that its
+		# users end up instantiating: they have to link them as well. The macOS
+		# linker is the one that says so, the ELF one resolves them indirectly.
+		Squey::OpenCL Python::Python CURL::libcurl
+	PRIVATE
+		${ARCHIVE_LIBRARIES} ${CRASHPAD_LIBRARIES})
 
 # Define installation directory
-INSTALL(TARGETS pvkernel LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-		RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(TARGETS pvkernel LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+		RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})

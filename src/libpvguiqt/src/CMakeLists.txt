@@ -2,9 +2,7 @@
 # @file
 #
 
-include_directories(AFTER ../include/pvguiqt/format-builder)
-
-#set(CMAKE_CXX_FLAGS "-Wl,--version-script=${CMAKE_SOURCE_DIR}/libpvguiqt/export.def ${CMAKE_CXX_FLAGS}")
+#set(CMAKE_CXX_FLAGS "-Wl,--version-script=${squey_SOURCE_DIR}/libpvguiqt/export.def ${CMAKE_CXX_FLAGS}")
 
 ################################################
 # Ressource declaration
@@ -77,7 +75,7 @@ PVDisplayViewListing.cpp
 PVDisplayViewFilters.cpp
 )
 
-SET(LIBGUIQT_MOC_HEADERS
+set(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVAxesCombinationDialog.h
 ../include/pvguiqt/PVAxesCombinationWidget.h
 ../include/pvguiqt/PVLayerFilterProcessWidget.h
@@ -134,12 +132,12 @@ if (PYTHON_SUPPORT)
 	)
 endif()
 
-SET(UI_FILES
+set(UI_FILES
 PVAxesCombinationWidget.ui
 PVListDisplayDlg.ui
 )
 
-SET(QRC_FILES
+set(QRC_FILES
 ../../gui-qt/src/squey_resource.qrc
 )
 
@@ -150,9 +148,9 @@ SET(QRC_FILES
 set(SRC_FILES ${LIBGUIQT_SRC_FILES})
 set(HEADER_FILES ${LIBGUIQT_HEADER_FILES})
 set(MOC_HEADERS ${LIBGUIQT_MOC_HEADERS})
-QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
-QT6_ADD_RESOURCES(QRC_FILES_SRCS ${QRC_FILES})
-PV_QT6_WRAP_UI(UI_SRC pvguiqt ${UI_FILES})
+qt6_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS)
+qt6_add_resources(QRC_FILES_SRCS ${QRC_FILES})
+pv_qt6_wrap_ui(UI_SRC pvguiqt ${UI_FILES})
 
 ################################################
 # Declare the new library and linkage options
@@ -163,47 +161,25 @@ target_compile_definitions(pvguiqt PRIVATE PVGUIQT_LIBRARY)
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 squey_speedup_compilation(pvguiqt QT)
 
-find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
-set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets Qt6Core5Compat)
-include_directories(AFTER SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
+target_include_directories(pvguiqt PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include/pvguiqt/format-builder>)
 
-set(PVGUIQT_LINK_LIBRARIES pvkernel pvsquey pvdisplays pvparallelview ${PVHWLOC_LIBRARIES} ${PVLOGGER_LIBRARIES} 
-	${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES} ${QT6_LIBS} KF6::SyntaxHighlighting)
+target_link_libraries(pvguiqt
+	PUBLIC
+		pvkernel pvsquey pvdisplays pvparallelview
+		Qt6::Core Qt6::Xml Qt6::Gui Qt6::Widgets Qt6::Core5Compat
+		KF6::SyntaxHighlighting
+	PRIVATE
+		${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${Boost_LIBRARIES})
 
-target_link_libraries(pvguiqt ${PVGUIQT_LINK_LIBRARIES})
-
-INSTALL(TARGETS pvguiqt LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-                        RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-                        
-                        set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
+install(TARGETS pvguiqt LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+				RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})
 
 ################################################
 # Crash reporter
 ################################################
-function(compile_and_install_tool tool_exe)
-	# Define all kinds of arguments
-	set(options)
-	set(oneValueArgs)
-	set(multiValueArgs FILES LINKS)
-	
-	# Call cmake_parse_arguments to extract information in variables
-	cmake_parse_arguments(_WRAP_TEST "${options}" "${oneValueArgs}" "${multiValueArgs}" ${ARGN})
-
-	set(args ${_WRAP_TEST_UNPARSED_ARGUMENTS})
-	set(files ${_WRAP_TEST_FILES})
-	set(links ${_WRAP_TEST_LINKS})
-
-	# Same UTF-8 active code page as the application (see utf8.manifest): the
-	# crash reporter walks user paths that may hold non-ASCII characters.
-	if (WIN32)
-		list(APPEND files "${CMAKE_SOURCE_DIR}/utf8_manifest.rc")
-	endif()
-
-	add_executable(${tool_exe} ${files})
-	target_link_libraries(${tool_exe} ${links})
-	INSTALL(TARGETS ${tool_exe} DESTINATION ${CMAKE_INSTALL_PREFIX}/bin)
-endfunction()
-
 # On macOS the crash reporter links against the libcurl of the system rather than
 # the one of the prefix. Ours is built against OpenSSL with no CA bundle, and
 # macOS provides no store for it, so verifying the certificate of the crash
@@ -218,15 +194,19 @@ if (APPLE)
 	if (CMAKE_OSX_SYSROOT)
 		set(MACOS_SDK_DIR "${CMAKE_OSX_SYSROOT}")
 	else()
-		set(MACOS_SDK_DIR "${OSXCROSS_SDK}")
+		set(MACOS_SDK_DIR "$ENV{OSXCROSS_SDK}")
 	endif()
 	set(CRASH_REPORTER_CURL "${MACOS_SDK_DIR}/usr/lib/libcurl.tbd")
 	if (NOT EXISTS "${CRASH_REPORTER_CURL}")
 		message(FATAL_ERROR "libcurl of the macOS SDK not found: ${CRASH_REPORTER_CURL}")
 	endif()
 else()
-	set(CRASH_REPORTER_CURL curl)
+	set(CRASH_REPORTER_CURL CURL::libcurl)
 endif()
-compile_and_install_tool(squey-crashreport LINKS ${LINK_LIBRARIES} ${QT6_LIBS} pvkernel ${CRASH_REPORTER_CURL} FILES crash_report.cpp)
 
-
+compile_and_install_tool(squey-crashreport
+	LINKS pvkernel Qt6::Core Qt6::Widgets ${CRASH_REPORTER_CURL}
+	FILES crash_report.cpp)
+# PVCrashReporterDialog.h has no implementation file: the reporter uses that one
+# header of the library without linking it, so it only needs the search path.
+target_include_directories(squey-crashreport PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include")

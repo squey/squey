@@ -4,7 +4,6 @@
 
 # For QtCore5Compat
 find_package(Qt6 COMPONENTS Core5Compat REQUIRED)
-include_directories(AFTER SYSTEM ${Qt6Core5Compat_INCLUDE_DIRS})
 
 ###############################################################################
 # Normalize plugins
@@ -18,7 +17,7 @@ macro(declare_library target)
 	set(NORMALIZE_FILTERS_DIST_LIST
 		${NORMALIZE_FILTERS_DIST_LIST}
 		${target})
-endmacro(declare_library)
+endmacro()
 
 # Converter
 
@@ -34,7 +33,7 @@ converter_GUID_to_IP/register.cpp
 
 # Create lib
 add_library(normalize_filter_converter_GUID_to_IP SHARED ${GUIDTOIP_SRC})
-target_link_libraries(normalize_filter_converter_GUID_to_IP pvkernel)
+target_link_libraries(normalize_filter_converter_GUID_to_IP PRIVATE pvkernel)
 declare_library(normalize_filter_converter_GUID_to_IP)
 
 ###############################################################################
@@ -42,22 +41,22 @@ declare_library(normalize_filter_converter_GUID_to_IP)
 ###############################################################################
 
 # Define ressources
-SET(Substitution_MOC_HEADERS
+set(Substitution_MOC_HEADERS
 converter_substitution/PVFieldConverterSubstitutionParamWidget.h
 )
 
-SET(SUBSTITUTION_SRCS
+set(SUBSTITUTION_SRCS
 converter_substitution/PVFieldConverterSubstitution.cpp
 converter_substitution/PVFieldConverterSubstitutionParamWidget.cpp
 converter_substitution/register.cpp
 )
 
 # Generate Qt files
-QT6_WRAP_CPP(Substitution_MOC_SRCS ${Substitution_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(Substitution_MOC_SRCS ${Substitution_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_converter_substitution SHARED ${SUBSTITUTION_SRCS} ${Substitution_MOC_SRCS})
-target_link_libraries(normalize_filter_converter_substitution pvkernel)
+target_link_libraries(normalize_filter_converter_substitution PRIVATE pvkernel)
 declare_library(normalize_filter_converter_substitution)
 
 # Splitter
@@ -67,22 +66,22 @@ declare_library(normalize_filter_converter_substitution)
 ###############################################################################
 
 # Define ressources
-SET(Struct_MOC_HEADERS
+set(Struct_MOC_HEADERS
 converter_struct/PVFieldConverterStructParamWidget.h
 )
 
-SET(STRUCT_SRCS
+set(STRUCT_SRCS
 converter_struct/PVFieldConverterStruct.cpp
 converter_struct/PVFieldConverterStructParamWidget.cpp
 converter_struct/register.cpp
 )
 
 # Generate Qt files
-QT6_WRAP_CPP(Struct_MOC_SRCS ${Struct_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(Struct_MOC_SRCS ${Struct_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_converter_struct SHARED ${STRUCT_SRCS} ${Struct_MOC_SRCS})
-target_link_libraries(normalize_filter_converter_struct pvkernel)
+target_link_libraries(normalize_filter_converter_struct PRIVATE pvkernel)
 declare_library(normalize_filter_converter_struct)
 
 # Splitter
@@ -92,7 +91,7 @@ declare_library(normalize_filter_converter_struct)
 ###############################################################################
 
 # Declare ressources
-SET(CSV_MOC_HEADERS
+set(CSV_MOC_HEADERS
 splitter_csv/PVFieldSplitterCSVParamWidget.h
 )
 
@@ -103,11 +102,11 @@ splitter_csv/register.cpp
 	)
 
 # Generate Qt files
-QT6_WRAP_CPP(CSV_MOC_SRCS ${CSV_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(CSV_MOC_SRCS ${CSV_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_csv SHARED ${CSV_SRC} ${CSV_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_csv pvkernel)
+target_link_libraries(normalize_filter_splitter_csv PRIVATE pvkernel)
 declare_library(normalize_filter_splitter_csv)
 
 ###############################################################################
@@ -115,7 +114,7 @@ declare_library(normalize_filter_splitter_csv)
 ###############################################################################
 
 # Declare ressources
-SET(REGEXP_MOC_HEADERS
+set(REGEXP_MOC_HEADERS
 splitter_regexp/PVFieldSplitterRegexpParamWidget.h
 )
 
@@ -126,11 +125,11 @@ splitter_regexp/register.cpp
 )
 
 # Genrate Qt files
-QT6_WRAP_CPP(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(REGEXP_MOC_SRCS ${REGEXP_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_regexp SHARED ${REGEX_SRC} ${REGEXP_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_regexp pvkernel ${Boost_LIBRARIES} ${ICU_LIBRARY})
+target_link_libraries(normalize_filter_splitter_regexp PRIVATE pvkernel ${Boost_LIBRARIES} ${ICU_LIBRARY})
 declare_library(normalize_filter_splitter_regexp)
 
 ###############################################################################
@@ -145,7 +144,7 @@ splitter_url/register.cpp
 
 # Create lib
 add_library(normalize_filter_splitter_url SHARED ${URL_SRC})
-target_link_libraries(normalize_filter_splitter_url pvkernel ${FURL_STATIC_LIB})
+target_link_libraries(normalize_filter_splitter_url PRIVATE pvkernel furls-utf8)
 declare_library(normalize_filter_splitter_url)
 
 ###############################################################################
@@ -153,22 +152,22 @@ declare_library(normalize_filter_splitter_url)
 ###############################################################################
 
 # Define ressources
-SET(KEYVALUE_MOC_HEADERS
+set(KEYVALUE_MOC_HEADERS
 splitter_key_value/PVFieldSplitterKeyValueParamWidget.h
 )
 
-SET(KEYVALUE_SRCS
+set(KEYVALUE_SRCS
 splitter_key_value/PVFieldSplitterKeyValue.cpp
 splitter_key_value/PVFieldSplitterKeyValueParamWidget.cpp
 splitter_key_value/register.cpp
 )
 
 # Generate Qt files
-QT6_WRAP_CPP(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(KEYVALUE_MOC_SRCS ${KEYVALUE_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_key_value SHARED ${KEYVALUE_SRCS} ${KEYVALUE_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_key_value pvkernel)
+target_link_libraries(normalize_filter_splitter_key_value PRIVATE pvkernel)
 declare_library(normalize_filter_splitter_key_value)
 
 ###############################################################################
@@ -176,22 +175,22 @@ declare_library(normalize_filter_splitter_key_value)
 ###############################################################################
 
 # Define ressources
-SET(SPLITTERIP_MOC_HEADERS
+set(SPLITTERIP_MOC_HEADERS
 splitter_ip/PVFieldSplitterIPParamWidget.h
 )
 
-SET(IP_SRC
+set(IP_SRC
 splitter_ip/PVFieldSplitterIP.cpp
 splitter_ip/PVFieldSplitterIPParamWidget.cpp
 splitter_ip/register.cpp
 )
 
 # Generate Qt files
-QT6_WRAP_CPP(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(SPLITTERIP_MOC_SRCS ${SPLITTERIP_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_ip SHARED ${IP_SRC} ${SPLITTERIP_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_ip pvkernel)
+target_link_libraries(normalize_filter_splitter_ip PRIVATE pvkernel)
 declare_library(normalize_filter_splitter_ip)
 
 ###############################################################################
@@ -199,22 +198,22 @@ declare_library(normalize_filter_splitter_ip)
 ###############################################################################
 
 # Define ressource
-SET(DUPLICATE_MOC_HEADERS
+set(DUPLICATE_MOC_HEADERS
 splitter_duplicate/PVFieldSplitterDuplicateParamWidget.h
 )
 
-SET(DUPLICATE_SRC
+set(DUPLICATE_SRC
 splitter_duplicate/PVFieldDuplicate.cpp
 splitter_duplicate/PVFieldSplitterDuplicateParamWidget.cpp
 splitter_duplicate/register.cpp
 )
 
 # Generate Qt files
-QT6_WRAP_CPP(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(DUPLICATE_MOC_SRCS ${DUPLICATE_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_duplicate SHARED ${DUPLICATE_SRC} ${DUPLICATE_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_duplicate pvkernel)
+target_link_libraries(normalize_filter_splitter_duplicate PRIVATE pvkernel)
 declare_library(normalize_filter_splitter_duplicate)
 
 ###############################################################################
@@ -222,22 +221,22 @@ declare_library(normalize_filter_splitter_duplicate)
 ###############################################################################
 
 # Define ressources
-SET(MACADDRESS_MOC_HEADERS
+set(MACADDRESS_MOC_HEADERS
 splitter_mac_address/PVFieldSplitterMacAddressParamWidget.h
 )
 
-SET(MACADDRESS_SRC
+set(MACADDRESS_SRC
 splitter_mac_address/PVFieldSplitterMacAddress.cpp
 splitter_mac_address/PVFieldSplitterMacAddressParamWidget.cpp
 splitter_mac_address/register.cpp
 )
 
 #Generate Qt files
-QT6_WRAP_CPP(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(MACADDRESS_MOC_SRCS ${MACADDRESS_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_mac_address SHARED ${MACADDRESS_SRC} ${MACADDRESS_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_mac_address pvkernel)
+target_link_libraries(normalize_filter_splitter_mac_address PRIVATE pvkernel)
 declare_library(normalize_filter_splitter_mac_address)
 
 ###############################################################################
@@ -245,22 +244,22 @@ declare_library(normalize_filter_splitter_mac_address)
 ###############################################################################
 
 # Define ressources
-SET(DNSFQDN_MOC_HEADERS
+set(DNSFQDN_MOC_HEADERS
 splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.h
 )
 
-SET(DNSFQDN_SRC
+set(DNSFQDN_SRC
 splitter_dns_fqdn/PVFieldSplitterDnsFqdn.cpp
 splitter_dns_fqdn/PVFieldSplitterDnsFqdnParamWidget.cpp
 splitter_dns_fqdn/register.cpp
 )
 
 # Generate Qt files
-QT6_WRAP_CPP(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(DNSFQDN_MOC_SRCS ${DNSFQDN_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_dns_fqdn SHARED ${DNSFQDN_SRC} ${DNSFQDN_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_dns_fqdn pvkernel)
+target_link_libraries(normalize_filter_splitter_dns_fqdn PRIVATE pvkernel)
 declare_library(normalize_filter_splitter_dns_fqdn)
 
 ###############################################################################
@@ -268,22 +267,22 @@ declare_library(normalize_filter_splitter_dns_fqdn)
 ###############################################################################
 
 # Define ressources
-SET(LENGTH_MOC_HEADERS
+set(LENGTH_MOC_HEADERS
 splitter_length/PVFieldSplitterLengthParamWidget.h
 )
 
-SET(LENGTH_SRC
+set(LENGTH_SRC
 splitter_length/PVFieldSplitterLength.cpp
 splitter_length/PVFieldSplitterLengthParamWidget.cpp
 splitter_length/register.cpp
 )
 
 # Generate Qt files
-QT6_WRAP_CPP(LENGTH_MOC_SRCS ${LENGTH_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(LENGTH_MOC_SRCS ${LENGTH_MOC_HEADERS} OPTIONS)
 
 # Create lib
 add_library(normalize_filter_splitter_length SHARED ${LENGTH_SRC} ${LENGTH_MOC_SRCS})
-target_link_libraries(normalize_filter_splitter_length pvkernel)
+target_link_libraries(normalize_filter_splitter_length PRIVATE pvkernel)
 declare_library(normalize_filter_splitter_length)
 
 ###############################################################################
@@ -291,20 +290,20 @@ declare_library(normalize_filter_splitter_length)
 ###############################################################################
 
 # Define ressources
-SET(GREP_SRC
+set(GREP_SRC
 grep_regexp/PVFieldFilterRegexpGrep.cpp
 grep_regexp/register.cpp
 )
 
 # Create lib
 add_library(normalize_filter_grep_regexp SHARED ${GREP_SRC})
-target_link_libraries(normalize_filter_grep_regexp pvkernel)
+target_link_libraries(normalize_filter_grep_regexp PRIVATE pvkernel)
 declare_library(normalize_filter_grep_regexp)
 
 ###############################################################################
 # Install normalize plugins
 ###############################################################################
 
-INSTALL(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/normalize-filters
+install(TARGETS ${NORMALIZE_FILTERS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/normalize-filters
 					       RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/normalize-filters)
-INSTALL(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-filters)
+install(FILES ${NORMALIZE_FILTERS_DIST_FILES} DESTINATION ${SHARE_RESSOURCES}/normalize-filters)

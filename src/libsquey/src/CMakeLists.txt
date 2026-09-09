@@ -77,26 +77,32 @@ widgets/editors/PVZoneIndexEditor.cpp
 ###############################################################################
 # Generate Qt files
 ###############################################################################
-QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(MOC_SRC ${MOC_HEADERS} ${WIDGETS_MOC_HEADERS} OPTIONS)
 
 ###############################################################################
 # Define libs
 ###############################################################################
-
-set(QT6_LIBS Qt6Core Qt6Xml Qt6Gui Qt6Widgets)
 
 add_library(pvsquey SHARED ${SRC_FILES} ${WIDGETS_SRC_FILES} ${MOC_SRC})
 target_compile_definitions(pvsquey PRIVATE PVSQUEY_LIBRARY)
 set_target_properties(pvsquey PROPERTIES SOVERSION 1)
 squey_speedup_compilation(pvsquey QT)
 
-target_link_libraries(pvsquey pvkernel ${QT6_LIBS} ${TBB_LIBRARIES}
-			     ${Boost_LIBRARIES} ${ICU_LIBRARY}
-			     ${OpenMP_LIBRARIES} ${SIGCPP_LIBRARIES} curl)
+target_include_directories(pvsquey PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
+
+target_link_libraries(pvsquey
+	PUBLIC
+		pvkernel
+		Qt6::Core Qt6::Xml Qt6::Gui Qt6::Widgets
+		${TBB_LIBRARIES} ${OpenMP_LIBRARIES} ${SIGCPP_LIBRARIES}
+	PRIVATE
+		${Boost_LIBRARIES} ${ICU_LIBRARY})
 
 ###############################################################################
 # Install files
 ###############################################################################
 
-INSTALL(TARGETS pvsquey LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-                       RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
+install(TARGETS pvsquey LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+				RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})

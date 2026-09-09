@@ -3,7 +3,7 @@
 #
 
 # Test directory
-set(TESTS_ROOT_DIR "${CMAKE_SOURCE_DIR}/tests")
+set(TESTS_ROOT_DIR "${squey_SOURCE_DIR}/tests")
 set(TESTS_SCRIPTS_DIR "${TESTS_ROOT_DIR}/scripts")
 # Script to compare tests' stdout output
 set(TEST_DIFF_STDOUT "${TESTS_SCRIPTS_DIR}/diff_stdout.py")
@@ -14,6 +14,6 @@ if(STAT_RUN)
   string(REGEX REPLACE "(\r?\n)+$" "" STAT_RUN ${STAT_RUN})
   configure_file(stat_run.sh.cmake stat_run.sh @ONLY)
   message(STATUS "STAT_RUN='" ${STAT_RUN} "'")
-else(STAT_RUN)
+else()
   file(REMOVE stat_run.sh)
-endif(STAT_RUN)
+endif()
