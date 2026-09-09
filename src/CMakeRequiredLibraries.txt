@@ -2,43 +2,50 @@
 # @file
 #
 
-# Allows to develop the application in a Flatpak environment
+# Allows to develop the application in a Flatpak environment.
+# The sandbox prefix holds the header only dependencies that ship no CMake
+# package of their own (simde, pybind11), so it stays a global search path;
+# everything else below comes in through an imported target.
 include_directories(SYSTEM ${CMAKE_INSTALL_PREFIX}/include)
 link_directories(${CMAKE_INSTALL_PREFIX}/lib)
 
 ###############################################################################
-# Define the Qt Core package
+# Define the Qt packages
 ###############################################################################
-ADD_DEFINITIONS(-DQT_SHARED)
-ADD_DEFINITIONS(-DQT_NO_KEYWORDS)
-FIND_PACKAGE(Qt6Core REQUIRED)
-message(STATUS "QtCore include dirs: " ${Qt6Core_INCLUDE_DIR})
-message(STATUS "QtCore include dirs: " ${Qt${QT_MAJOR_VERSION}_INCLUDE_DIRS})
+add_compile_definitions(QT_SHARED QT_NO_KEYWORDS)
+# One lookup for the whole tree: the imported Qt6::<Component> targets carry
+# their own include directories and compile definitions, so no directory needs
+# to look a component up again or add an include path by hand.
+find_package(Qt6 REQUIRED COMPONENTS
+	Core Gui Widgets Xml DBus Network Sql Test Core5Compat)
+message(STATUS "Qt version: ${Qt6_VERSION}")
 
 ###############################################################################
 # Define the OpenCL runtime
 ###############################################################################
-pkg_check_modules(OPENCL REQUIRED)
-message(STATUS "OPENCL_FOUND=${OPENCL_FOUND}")
-
-if(OPENCL_FOUND)
+# The runtime is taken from a known location rather than looked up: on Linux it
+# must be the ICD loader of the host, not the one of the prefix. An imported
+# target keeps that choice in one place.
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-  set(OPENCL_LIBRARIES "/usr/lib/x86_64-linux-gnu/libOpenCL.so")
+  set(OPENCL_LIBRARY "/usr/lib/x86_64-linux-gnu/libOpenCL.so")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
-  set(OPENCL_LIBRARIES "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dylib")
+  set(OPENCL_LIBRARY "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dylib")
 elseif(CMAKE_SYSTEM_NAME STREQUAL "Windows")
-  set(OPENCL_LIBRARIES "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dll.a")
+  set(OPENCL_LIBRARY "${CMAKE_INSTALL_PREFIX}/lib/libOpenCL.dll.a")
+else()
+  message(FATAL_ERROR "No OpenCL environment found")
 endif()
 
-	message(STATUS "OpenCL runtime libraries: " ${OPENCL_LIBRARIES})
-  add_definitions(-DCL_TARGET_OPENCL_VERSION=220)
+add_library(Squey::OpenCL UNKNOWN IMPORTED)
+set_target_properties(Squey::OpenCL PROPERTIES
+	IMPORTED_LOCATION "${OPENCL_LIBRARY}"
+	INTERFACE_COMPILE_DEFINITIONS "CL_TARGET_OPENCL_VERSION=220")
+set(OPENCL_FOUND ON)
+message(STATUS "OpenCL runtime library: ${OPENCL_LIBRARY}")
 
-	find_program(PWGEN_BIN pwgen)
-	if(NOT PWGEN_BIN)
-		message(FATAL_ERROR "pwgen does not seem to installed")
-	endif()
-else()
-	message(FATAL_ERROR "No OpenCL environment found")
+find_program(PWGEN_BIN pwgen)
+if(NOT PWGEN_BIN)
+	message(FATAL_ERROR "pwgen does not seem to installed")
 endif()
 
 ###############################################################################
@@ -49,25 +56,27 @@ set(Boost_USE_STATIC_LIBS       OFF)
 set(Boost_USE_MULTITHREADED      ON)
 set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost 1.49 REQUIRED COMPONENTS thread date_time program_options filesystem)
-add_definitions(-DBOOST_ALL_NO_LIB)
-add_definitions(-DBOOST_ALL_DYN_LINK)
-
-message(STATUS "Boost found: " ${Boost_FOUND})
-message(STATUS "Boost include dirs: " ${Boost_INCLUDEDIR})
-message(STATUS "Boost libraries: " ${Boost_LIBRARIES})
-include_directories(AFTER SYSTEM ${BOOST_INCLUDEDIR})
+add_compile_definitions(BOOST_ALL_NO_LIB BOOST_ALL_DYN_LINK)
+message(STATUS "Boost version: ${Boost_VERSION}")
 
 ###############################################################################
 # Check for OpenMP
 ###############################################################################
-if ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
-  set(OpenMP_LIBRARIES "-fopenmp")
-  add_definitions("-fopenmp")
+find_package(OpenMP QUIET)
+if (OpenMP_CXX_FOUND)
+	set(OpenMP_LIBRARIES OpenMP::OpenMP_CXX)
 else()
-  find_package(OpenMP REQUIRED)
-# This package does not declare the library used by GCC
-  set(OpenMP_LIBRARIES ${OpenMP_CXX_FLAGS})
-  add_definitions(${OpenMP_CXX_FLAGS})
+	# The sandbox keeps libomp in the install prefix, which is not on the default
+	# link path of the compiler: the test link of FindOpenMP fails there even
+	# though the toolchain does support OpenMP. Carry the flag in a target of our
+	# own rather than in a global add_definitions(), so that only what asks for
+	# OpenMP is compiled with it.
+	add_library(Squey::OpenMP INTERFACE IMPORTED)
+	set_target_properties(Squey::OpenMP PROPERTIES
+		INTERFACE_COMPILE_OPTIONS "-fopenmp"
+		INTERFACE_LINK_OPTIONS "-fopenmp")
+	set(OpenMP_LIBRARIES Squey::OpenMP)
+	message(STATUS "OpenMP taken from the compiler flag, FindOpenMP could not link its test")
 endif()
 
 ###############################################################################
@@ -75,29 +84,14 @@ endif()
 ###############################################################################
 
 find_package(TBB "2021.0" REQUIRED)
-set(TBB_LIBRARIES "TBB::tbb;TBB::tbbmalloc")
-add_definitions(-DTBB_SUPPRESS_DEPRECATED_MESSAGES=1)
-
-###############################################################################
-# Check for libnuma
-###############################################################################
-#find_package(NUMA REQUIRED)
-#if (NUMA_FOUND)
-#  message(STATUS "NUMA_LIBRARIES: ${NUMA_LIBRARIES}")
-#  message(STATUS "NUMA_INCLUDE_DIRS: ${NUMA_INCLUDE_DIRS}")
-#else()
-#  message(ERROR "libNUMA not found!")
-#endif()
+set(TBB_LIBRARIES TBB::tbb TBB::tbbmalloc)
+add_compile_definitions(TBB_SUPPRESS_DEPRECATED_MESSAGES=1)
 
 ###############################################################################
 # Check for rapidjson
 ###############################################################################
-find_package(rapidjson REQUIRED)
-if (RAPIDJSON_FOUND)
-  message(STATUS " rapidjson include directory: ${RAPIDJSON_INCLUDE_DIRS}")
-else()
-  message(ERROR " rapidjson not found!")
-endif()
+find_package(RapidJSON CONFIG REQUIRED)
+message(STATUS "RapidJSON version: ${RapidJSON_VERSION}")
 
 ########################
 # Needed for libpvrush #
@@ -106,7 +100,8 @@ endif()
 ###############################################################################
 # Check for Archive library
 ###############################################################################
-pkg_check_modules(ARCHIVE REQUIRED libarchive)
+pkg_check_modules(ARCHIVE REQUIRED IMPORTED_TARGET libarchive)
+set(ARCHIVE_LIBRARIES PkgConfig::ARCHIVE)
 
 ###############################################################################
 # Google Crashpad
@@ -122,26 +117,12 @@ get_target_property(MINI_CHROMIUM_INCLUDE_DIR crashpad::mini_chromium
 get_filename_component(CRASHPAD_ROOT_INCLUDE_DIR "${MINI_CHROMIUM_INCLUDE_DIR}" DIRECTORY)
 set(CRASHPAD_INCLUDE_DIRS ${CRASHPAD_ROOT_INCLUDE_DIR} ${MINI_CHROMIUM_INCLUDE_DIR})
 set(CRASHPAD_LIBRARIES crashpad::client crashpad::util crashpad::mini_chromium)
-message(STATUS "Google Crashpad libraries: ${CRASHPAD_LIBRARIES}")
-message(STATUS "Google Crashpad include: ${CRASHPAD_INCLUDE_DIRS}")
-
-###############################################################################
-# OpenGL
-# TODO : Check result and deduce OpenGL Support in Qt?
-###############################################################################
-# find_package(OpenGL REQUIRED)
-# set(OPENGL_LIBRARIES ${OPENGL_LIBRARIES} EGL) # Force EGL as CMake is too old to find it
 
 ###############################################################################
 # IBM ICU
 ###############################################################################
-find_package(ICU 77 COMPONENTS data i18n uc REQUIRED)
-
-message(STATUS "ICU found: " ${ICU_FOUND})
-if(ICU_FOUND)
-	message(STATUS "ICU include: ${ICU_INCLUDE}")
-  message(STATUS "ICU libraries: ${ICU_LIBRARY}")
-endif(ICU_FOUND)
+find_package(ICU 77 REQUIRED COMPONENTS data i18n uc)
+set(ICU_LIBRARY ICU::data ICU::i18n ICU::uc)
 
 ###############################################################################
 # Check for CURL
@@ -149,24 +130,30 @@ endif(ICU_FOUND)
 find_package(CURL "7.38.0" REQUIRED)
 
 ###############################################################################
+# Check for OpenSSL
+###############################################################################
+find_package(OpenSSL REQUIRED)
+
+###############################################################################
 # Check for SIGCPP installation
 ###############################################################################
 
-pkg_check_modules(SIGCPP REQUIRED sigc++-3.0)
+pkg_check_modules(SIGCPP REQUIRED IMPORTED_TARGET sigc++-3.0)
+set(SIGCPP_LIBRARIES PkgConfig::SIGCPP)
 
 ###############################################################################
 # type_safe library
 ###############################################################################
-add_definitions(-DTYPE_SAFE_ENABLE_WRAPPER=0)
-add_definitions(-DTYPE_SAFE_ENABLE_ASSERTIONS=0)
-include_directories(AFTER external/type_safe/external/debug_assert)
-include_directories(AFTER external/type_safe/include)
-
+add_library(squey_type_safe INTERFACE)
+target_compile_definitions(squey_type_safe INTERFACE
+	TYPE_SAFE_ENABLE_WRAPPER=0 TYPE_SAFE_ENABLE_ASSERTIONS=0)
+target_include_directories(squey_type_safe SYSTEM INTERFACE
+	"${CMAKE_CURRENT_SOURCE_DIR}/external/type_safe/external/debug_assert"
+	"${CMAKE_CURRENT_SOURCE_DIR}/external/type_safe/include")
 
 ###############################################################################
 # Python3
 ###############################################################################
 find_package(Python REQUIRED COMPONENTS Development)
-include_directories(AFTER SYSTEM ${Python_INCLUDE_DIRS})
 set(PYTHON_SUPPORT ON)
-add_definitions(-DPYTHON_SUPPORT=1)
+add_compile_definitions(PYTHON_SUPPORT=1)

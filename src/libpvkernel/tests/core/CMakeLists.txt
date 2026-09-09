@@ -36,7 +36,7 @@ add_custom_command(TARGET SQUEY_TEST_Tcore_crash_report_generation POST_BUILD
 	COMMAND ${CMAKE_COMMAND} -E copy_if_different
 		$<TARGET_FILE:crashpad::crashpad_handler>
 		$<TARGET_FILE_DIR:SQUEY_TEST_Tcore_crash_report_generation>)
-file(RELATIVE_PATH CRASH_TEST_REL_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+file(RELATIVE_PATH CRASH_TEST_REL_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(PROGRAMS $<TARGET_FILE:crashpad::crashpad_handler>
 	DESTINATION "tests/${CRASH_TEST_REL_DIR}" COMPONENT tests OPTIONAL)
 # A configuration directory of its own, so that the test neither reads nor
@@ -53,5 +53,5 @@ set_tests_properties(SQUEY_TEST_Tcore_crash_report_generation PROPERTIES
 add_squey_compile_test(Tcore_streaming_compressor LINKS ${LINK_LIBRARIES} FILES streaming_compressor.cpp)
 add_squey_test(Tcore_streaming_compressor Tcore_streaming_compressor)
 
-file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

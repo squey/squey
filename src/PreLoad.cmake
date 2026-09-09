@@ -1,12 +1,19 @@
 ###############################################################################
-# Configure build system 
+# Configure build system
 ###############################################################################
-# Use ninja build system if available
+# Picks the generator before the first configuration, for a plain `cmake -S src
+# -B <dir>` invocation. A build started from CMakePresets.json names its own
+# generator and does not go through this.
 # see https://stackoverflow.com/questions/11269833/cmake-selecting-a-generator-within-cmakelists-txt
-OPTION(USE_NINJA "Use ninja build system" ON)
+option(USE_NINJA "Use ninja build system" ON)
 if (USE_NINJA)
-    execute_process(COMMAND ninja --version ERROR_QUIET OUTPUT_VARIABLE NINJA_VERSION)
-    if ("${NINJA_VERSION}" GREATER_EQUAL "1.10.0")
+    find_program(NINJA_EXECUTABLE ninja)
+    if (NINJA_EXECUTABLE)
+        execute_process(COMMAND ${NINJA_EXECUTABLE} --version
+                        OUTPUT_VARIABLE NINJA_VERSION OUTPUT_STRIP_TRAILING_WHITESPACE
+                        ERROR_QUIET)
+    endif()
+    if (NINJA_VERSION VERSION_GREATER_EQUAL "1.10.0")
         message(STATUS "Using ninja build system as it is available.")
         set(CMAKE_GENERATOR "Ninja" CACHE INTERNAL "" FORCE)
     else ()

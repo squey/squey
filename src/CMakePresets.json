@@ -1,0 +1,123 @@
+{
+  "version": 6,
+  "cmakeMinimumRequired": { "major": 3, "minor": 30, "patch": 0 },
+  "configurePresets": [
+    {
+      "name": "sandbox",
+      "hidden": true,
+      "description": "Shared settings of the BuildStream sandbox and of the devcontainer",
+      "generator": "Ninja",
+      "binaryDir": "${sourceDir}/../builds/${presetName}",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER_LAUNCHER": "ccache",
+        "CMAKE_EXPORT_COMPILE_COMMANDS": "ON"
+      }
+    },
+    {
+      "name": "linux",
+      "hidden": true,
+      "inherits": "sandbox",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "clang++",
+        "CMAKE_INSTALL_PREFIX": "/app",
+        "CMAKE_INSTALL_LIBDIR": "lib"
+      }
+    },
+    {
+      "name": "windows",
+      "hidden": true,
+      "inherits": "sandbox",
+      "description": "Cross build for x86_64-w64-mingw32, against the /win sysroot",
+      "cacheVariables": {
+        "CMAKE_SYSTEM_NAME": "Windows",
+        "CMAKE_SYSTEM_PROCESSOR": "x86_64",
+        "CMAKE_C_COMPILER": "x86_64-w64-mingw32-gcc",
+        "CMAKE_CXX_COMPILER": "x86_64-w64-mingw32-g++",
+        "CMAKE_SYSROOT": "/usr/x86_64-w64-mingw32",
+        "CMAKE_PREFIX_PATH": "/win",
+        "CMAKE_INSTALL_PREFIX": "/win",
+        "CMAKE_INSTALL_LIBDIR": "lib",
+        "Python3_INCLUDE_DIR": "/win/include"
+      },
+      "environment": {
+        "PKG_CONFIG_PATH": "/win/lib/pkgconfig",
+        "C_INCLUDE_PATH": "/win/include",
+        "CPLUS_INCLUDE_PATH": "/win/include"
+      }
+    },
+    {
+      "name": "macos",
+      "hidden": true,
+      "inherits": "sandbox",
+      "description": "Cross build for aarch64-apple-darwin through osxcross, against the /mac sysroot",
+      "toolchainFile": "/app/osxcross/toolchain.cmake",
+      "cacheVariables": {
+        "CMAKE_CXX_COMPILER": "/app/osxcross/bin/aarch64-apple-darwin24.5-clang++",
+        "CMAKE_FIND_ROOT_PATH": "/mac",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "10.15",
+        "CMAKE_INSTALL_PREFIX": "/mac",
+        "CMAKE_INSTALL_LIBDIR": "lib"
+      },
+      "environment": {
+        "OSXCROSS_HOST": "aarch64-apple-darwin24.5",
+        "OSXCROSS_TARGET": "aarch64-apple-darwin24.5",
+        "OSXCROSS_C_COMPILER": "clang",
+        "OSXCROSS_CXX_COMPILER": "clang++",
+        "PKG_CONFIG_LIBDIR": "/mac/lib/pkgconfig:/mac/share/pkgconfig"
+      }
+    },
+
+    { "name": "linux-debug", "displayName": "Linux, Debug", "inherits": "linux",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
+    { "name": "linux-release", "displayName": "Linux, RelWithDebInfo (what the CI builds)", "inherits": "linux",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo", "CMAKE_COMPILE_WARNING_AS_ERROR": "ON" } },
+    { "name": "windows-debug", "displayName": "Windows, Debug", "inherits": "windows",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
+    { "name": "windows-release", "displayName": "Windows, RelWithDebInfo", "inherits": "windows",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo", "CMAKE_COMPILE_WARNING_AS_ERROR": "ON" } },
+    { "name": "macos-debug", "displayName": "macOS, Debug", "inherits": "macos",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "Debug" } },
+    { "name": "macos-release", "displayName": "macOS, RelWithDebInfo", "inherits": "macos",
+      "cacheVariables": { "CMAKE_BUILD_TYPE": "RelWithDebInfo", "CMAKE_COMPILE_WARNING_AS_ERROR": "ON" } }
+  ],
+
+  "buildPresets": [
+    { "name": "linux-debug", "configurePreset": "linux-debug" },
+    { "name": "linux-debug-testsuite", "configurePreset": "linux-debug", "targets": "squey_testsuite" },
+    { "name": "linux-release", "configurePreset": "linux-release" },
+    { "name": "linux-release-testsuite", "configurePreset": "linux-release", "targets": "squey_testsuite" },
+    { "name": "windows-debug", "configurePreset": "windows-debug" },
+    { "name": "windows-release", "configurePreset": "windows-release" },
+    { "name": "windows-release-testsuite", "configurePreset": "windows-release", "targets": "squey_testsuite" },
+    { "name": "macos-debug", "configurePreset": "macos-debug" },
+    { "name": "macos-release", "configurePreset": "macos-release" },
+    { "name": "macos-release-testsuite", "configurePreset": "macos-release", "targets": "squey_testsuite" }
+  ],
+
+  "testPresets": [
+    {
+      "name": "linux-debug",
+      "configurePreset": "linux-debug",
+      "output": { "outputOnFailure": true },
+      "filter": { "include": { "name": "SQUEY_TEST" } },
+      "execution": { "jobs": 0 }
+    },
+    {
+      "name": "linux-release",
+      "inherits": "linux-debug",
+      "configurePreset": "linux-release"
+    }
+  ],
+
+  "workflowPresets": [
+    {
+      "name": "linux-debug",
+      "steps": [
+        { "type": "configure", "name": "linux-debug" },
+        { "type": "build", "name": "linux-debug" },
+        { "type": "build", "name": "linux-debug-testsuite" },
+        { "type": "test", "name": "linux-debug" }
+      ]
+    }
+  ]
+}

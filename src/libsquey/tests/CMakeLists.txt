@@ -2,10 +2,7 @@
 # @file
 #
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
-
 set(LINK_LIBRARIES pvkernel pvsquey)
-include_directories(${PVLICENSE_INCLUDE_DIR})
 
 set(COMMON_FILES "common.cpp")
 
@@ -251,10 +248,10 @@ add_squey_test(Tsquey_embeded_python_scripting Tsquey_python_scripting ${TESTS_F
 add_custom_command(
     TARGET SQUEY_TEST_Tsquey_python_scripting POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy
-            ${CMAKE_SOURCE_DIR}/tests/files/sources/pÿthon_scripting.py
+            ${squey_SOURCE_DIR}/tests/files/sources/pÿthon_scripting.py
             ${CMAKE_CURRENT_BINARY_DIR}
 )
 
-file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)
-install(FILES ${CMAKE_SOURCE_DIR}/tests/files/sources/pÿthon_scripting.py DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)
+install(FILES ${squey_SOURCE_DIR}/tests/files/sources/pÿthon_scripting.py DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

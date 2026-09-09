@@ -2,14 +2,7 @@
 # @file
 #
 
-include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
-add_definitions(${SQUEY_DEFINITIONS})
-include_directories(AFTER ${SQUEY_INCLUDE_DIRS})
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
-
-set(LINK_LIBRARIES ${SQUEY_LIBRARY} ${PVKERNEL_LIBRARY} pvparallelview)
-include_directories(${PVLICENSE_INCLUDE_DIR})
+set(LINK_LIBRARIES pvparallelview)
 
 add_squey_compile_test(zoomed_parallel_view LINKS ${LINK_LIBRARIES} FILES zoomed_parallel_view.cpp)
 add_squey_compile_test(zoomable_drawing_area_test LINKS ${LINK_LIBRARIES} FILES zoomable_drawing_area_test.cpp)
@@ -64,5 +57,5 @@ add_squey_compile_test(Tseries_zoomer LINKS ${LINK_LIBRARIES} FILES series_zoome
 #add_squey_test(Tseries_zoomer Tseries_zoomer)
 add_bench(series_zoomer LINKS ${LINK_LIBRARIES} FILES series_zoomer.cpp)
 
-file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

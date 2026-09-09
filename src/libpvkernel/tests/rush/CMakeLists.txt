@@ -13,16 +13,16 @@ macro(PV_ADD_TEST_CONV_UTF8 input_file chunks_size)
 	add_squey_test(TestConvUtf8_${input_file}_${chunks_size} Trush_conv_utf8 ${PVRUSH_TEST_FILES}/${input_file} ${PVRUSH_TEST_FILES}/${input_file}.out ${chunks_size})
 endmacro()
 
-PV_ADD_TEST_CONV_UTF8("charset/utf8" 20000)
-PV_ADD_TEST_CONV_UTF8("charset/utf16" 20000)
-PV_ADD_TEST_CONV_UTF8("charset/utf32" 20000)
-PV_ADD_TEST_CONV_UTF8("charset/latin1" 20000)
-PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 20000)
+pv_add_test_conv_utf8("charset/utf8" 20000)
+pv_add_test_conv_utf8("charset/utf16" 20000)
+pv_add_test_conv_utf8("charset/utf32" 20000)
+pv_add_test_conv_utf8("charset/latin1" 20000)
+pv_add_test_conv_utf8("conv_utf8_align" 20000)
 # Check import can be done with too small chunk size.
-PV_ADD_TEST_CONV_UTF8("conv_utf8_align" 200)
-PV_ADD_TEST_CONV_UTF8("charset/windows1250" 10048576)
-PV_ADD_TEST_CONV_UTF8("charset/utf8_windows1252" 10048576)
-PV_ADD_TEST_CONV_UTF8("charset/viscii" 10048576)
+pv_add_test_conv_utf8("conv_utf8_align" 200)
+pv_add_test_conv_utf8("charset/windows1250" 10048576)
+pv_add_test_conv_utf8("charset/utf8_windows1252" 10048576)
+pv_add_test_conv_utf8("charset/viscii" 10048576)
 
 # Test the aggregator
 add_squey_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
@@ -124,17 +124,13 @@ add_squey_test(Trush_splitter_length Trush_splitter_length)
 add_squey_compile_test(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
 add_squey_test(Trush_filter_composition Trush_filter_composition)
 add_bench(Trush_filter_composition LINKS ${LINK_LIBRARIES} FILES filter_composition.cpp helpers.cpp)
-
-# Plugin database
-find_package(Qt6Sql REQUIRED)
-include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
 set(DATABASE_SRC_FILES
 ../../plugins/common/database/PVDBInfos.cpp
 ../../plugins/common/database/PVDBQuery.cpp
 ../../plugins/common/database/PVSQLTypeMap.cpp
 helpers.cpp)
 
-add_squey_compile_test(Trush_database LINKS ${LINK_LIBRARIES} pvkernel Qt6Sql FILES database.cpp ${DATABASE_SRC_FILES})
+add_squey_compile_test(Trush_database LINKS ${LINK_LIBRARIES} pvkernel Qt6::Sql FILES database.cpp ${DATABASE_SRC_FILES})
 #add_squey_test(Trush_database Trush_database ${TESTS_FILES_DIR})
 
 # Plugin sources
@@ -269,5 +265,5 @@ set_tests_properties(SQUEY_TEST_Trush_recent_items PROPERTIES ENVIRONMENT "SQUEY
 add_squey_compile_test(Trush_sample_dataset LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES sample_dataset.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_sample_dataset Trush_sample_dataset ${TESTS_FILES_DIR}/../../samples/sample-network-traffic.parquet)
 
-file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

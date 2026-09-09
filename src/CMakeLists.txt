@@ -2,22 +2,30 @@
 # @file
 #
 
-cmake_minimum_required(VERSION 3.30)
+# The Freedesktop SDK the sandbox and the devcontainer are built on ships CMake
+# 4.4: the upper bound of the range opts into every policy up to that release,
+# while the lower bound keeps the tree configurable by an older CMake.
+cmake_minimum_required(VERSION 3.30...4.4)
 
+# No LANGUAGES here on purpose: the default list is what enables RC on Windows,
+# which the resource files of the application and of the tests are compiled with.
 project(squey)
 
 ###############################################################################
 # Define testing environment
 ###############################################################################
+# include(CTest) calls enable_testing() itself.
 include(CTest)
-enable_testing()
 
 ###############################################################################
 # Generic configuration for squey
 ###############################################################################
 
 # Used for ICU, TBB and HWLoc
-find_package(PkgConfig)
+find_package(PkgConfig REQUIRED)
+
+# Installation layout (CMAKE_INSTALL_LIBDIR, _BINDIR, _DATADIR...)
+include(GNUInstallDirs)
 
 # User defined macro
 include(CMakeMacros.txt)
@@ -37,7 +45,7 @@ if (WIN32)
 endif()
 
 # Define folder for find_package macro
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} ${squey_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH "${squey_SOURCE_DIR}/cmake")
 
 # Required libraries
 # Define library that will be used everywhere in Squey
@@ -58,8 +66,13 @@ include(CMakePackageDistribute.txt)
 # Add generic squey includes
 ###############################################################################
 
-# PVBase
-include_directories(AFTER "${squey_SOURCE_DIR}/include")
+# PVBase. An interface target rather than a global include directory: whoever
+# links it gets the headers, and nobody else does.
+add_library(squey_base INTERFACE)
+target_include_directories(squey_base INTERFACE "${squey_SOURCE_DIR}/include")
+# pvbase/types.h builds its strong typedefs on type_safe, so whoever includes
+# these headers needs it too.
+target_link_libraries(squey_base INTERFACE squey_type_safe)
 
 ###############################################################################
 # Define tests targets
@@ -85,27 +98,35 @@ add_dependencies(squey_bench squey_testsuite)
 # ###############################################################################
 # # furl
 # ###############################################################################
-add_definitions(-DFURL_UTF8_CHAR)
-set(FURL_STATIC_LIB ${CMAKE_CURRENT_BINARY_DIR}/furl/src/lib/libfurls-utf8${CMAKE_SHARED_LIBRARY_SUFFIX})
-include_directories(${CMAKE_SOURCE_DIR}/furl/src/lib/include)
+add_compile_definitions(FURL_UTF8_CHAR)
 add_subdirectory(furl)
+# The submodules declare their targets without usage requirements; attach them
+# here rather than patching repositories of their own. PUBLIC, not INTERFACE:
+# the libraries are compiled against their own headers too.
+target_include_directories(furls-utf8 PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/furl/src/lib/include")
 
 ###############################################################################
 # squey-utils
 ###############################################################################
-SET(PVLOGGER_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvlogger/src/libpvlogger${CMAKE_SHARED_LIBRARY_SUFFIX})
-SET(PVHWLOC_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/squey-utils/libpvhwloc/src/libpvhwloc${CMAKE_SHARED_LIBRARY_SUFFIX})
-include_directories(${CMAKE_SOURCE_DIR}/squey-utils/include)
-include_directories(${CMAKE_SOURCE_DIR}/squey-utils/libpvlogger/include)
-include_directories(${CMAKE_SOURCE_DIR}/squey-utils/libpvhwloc/include)
 add_subdirectory(squey-utils)
+# The submodules link each other through these variables; they now name the
+# targets instead of the file each library ends up at, so that CMake orders the
+# builds and propagates the headers on its own.
+set(PVLOGGER_LIBRARIES pvlogger)
+set(PVHWLOC_LIBRARIES pvhwloc)
+target_include_directories(pvlogger PUBLIC
+	"${CMAKE_CURRENT_SOURCE_DIR}/squey-utils/include"
+	"${CMAKE_CURRENT_SOURCE_DIR}/squey-utils/libpvlogger/include")
+target_include_directories(pvhwloc PUBLIC
+	"${CMAKE_CURRENT_SOURCE_DIR}/squey-utils/include"
+	"${CMAKE_CURRENT_SOURCE_DIR}/squey-utils/libpvhwloc/include")
 
 ###############################################################################
 # libpvcop
 ###############################################################################
 add_subdirectory(libpvcop)
-include_directories(${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include)
-SET(PVCOP_LIBRARIES ${CMAKE_CURRENT_BINARY_DIR}/libpvcop/src/libpvcop${CMAKE_SHARED_LIBRARY_SUFFIX})
+set(PVCOP_LIBRARIES pvcop)
+target_include_directories(pvcop PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include")
 
 squey_speedup_compilation(pvcop)
 

@@ -9,16 +9,19 @@
 # but it will make cpack use this same path so we should not generate .deb file with
 # this variable set.
 
-SET(SHARE_RESSOURCES "${CMAKE_INSTALL_PREFIX}/share/squey/squey")
-SET(SQUEY_CONFIG ${SHARE_RESSOURCES})
-SET(PVKERNEL_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/squey/plugins")
-SET(SQUEY_PLUGIN "${CMAKE_INSTALL_PREFIX}/lib/squey/plugins")
-add_definitions(-DPLUGINS_DISTRIB_DIR="${SQUEY_PLUGIN}")
+# Absolute paths: they are compiled into the binaries, which look their
+# resources up at run time. They follow the layout GNUInstallDirs describes, so
+# that a build overriding CMAKE_INSTALL_LIBDIR keeps the two consistent.
+set(SHARE_RESSOURCES "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/squey/squey")
+set(SQUEY_CONFIG ${SHARE_RESSOURCES})
+set(PVKERNEL_PLUGIN "${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/squey/plugins")
+set(SQUEY_PLUGIN "${PVKERNEL_PLUGIN}")
+add_compile_definitions(PLUGINS_DISTRIB_DIR="${SQUEY_PLUGIN}")
 
 # Set rpath for custom Qt and TBB
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-add_definitions(-DSQUEY_CONFIG="${SQUEY_CONFIG}")
+add_compile_definitions(SQUEY_CONFIG="${SQUEY_CONFIG}")
 
 ###############################################################################
 # Define files to install
@@ -26,7 +29,8 @@ add_definitions(-DSQUEY_CONFIG="${SQUEY_CONFIG}")
 
 install(FILES "pvconfig.ini" DESTINATION ${SQUEY_CONFIG})
 install(FILES "samples/sample-network-traffic.parquet" DESTINATION ${SHARE_RESSOURCES})
-install(FILES "gui-qt/src/resources/icon.png" DESTINATION share/icons/hicolor/64x64/apps RENAME squey.png)
+install(FILES "gui-qt/src/resources/icon.png"
+	DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps" RENAME squey.png)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 # The same files, mirrored into the build tree under the layout they have once
@@ -52,4 +56,4 @@ foreach(shared_file "pvconfig.ini" "CHANGELOG" "samples/sample-network-traffic.p
 endforeach()
 
 # doc 
-add_definitions(-DDOC_URL="https://doc.squey.org")
+add_compile_definitions(DOC_URL="https://doc.squey.org")

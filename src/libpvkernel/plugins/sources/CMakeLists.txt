@@ -6,10 +6,6 @@
 # QT6 related include and check
 ################################################
 
-# For QSQLQuery
-find_package(Qt6Sql REQUIRED)
-include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
-
 ################################################
 # Ressource declaration
 ################################################
@@ -25,7 +21,7 @@ set(SOURCES_DIST_FILES
 # text_file sources
 ###############################################################################
 # Define ressources
-SET(TEXT_FILE_SRC
+set(TEXT_FILE_SRC
 text_file/PVSourceCreatorTextfile.cpp
 text_file/PVSourceCreatorRemoteTextfile.cpp
 text_file/register.cpp
@@ -33,13 +29,13 @@ text_file/register.cpp
 
 # Create lib
 add_library(source_text_file SHARED ${TEXT_FILE_SRC})
-target_link_libraries(source_text_file pvkernel)
+target_link_libraries(source_text_file PRIVATE pvkernel)
 
 ###############################################################################
 # database sources
 ###############################################################################
 # Define ressources
-SET(DB_SRC
+set(DB_SRC
 database/PVSourceCreatorDatabase.cpp
 database/PVDBSource.cpp
 ../common/database/PVSQLTypeMap.cpp
@@ -48,13 +44,9 @@ database/PVDBSource.cpp
 database/register.cpp
 )
 
-# For QSQLDatabase
-find_package(Qt6Sql REQUIRED)
-include_directories(SYSTEM ${Qt6Sql_INCLUDE_DIRS})
-
 # Create lib
 add_library(source_database SHARED ${DB_SRC})
-target_link_libraries(source_database pvkernel Qt6Sql)
+target_link_libraries(source_database PRIVATE pvkernel Qt6::Sql)
 
 ###############################################################################
 # Elasticsearch
@@ -71,7 +63,7 @@ elasticsearch/register.cpp
 
 # Create lib
 add_library(source_elasticsearch SHARED ${ELASTICSEARCH_SRC_FILES})
-target_link_libraries(source_elasticsearch pvkernel curl ${TBB_LIBRARIES})
+target_link_libraries(source_elasticsearch PRIVATE pvkernel curl ${TBB_LIBRARIES})
 
 ###############################################################################
 # pcap sources
@@ -85,7 +77,7 @@ set(PCAP_SRC_FILES
 
 # Create lib
 add_library(source_pcap SHARED ${PCAP_SRC_FILES})
-target_link_libraries(source_pcap pvkernel)
+target_link_libraries(source_pcap PRIVATE pvkernel)
 
 ###############################################################################
 # parquet sources
@@ -102,7 +94,7 @@ set(PARQUET_SRC_FILES
 
 # Create lib
 add_library(source_parquet SHARED ${PARQUET_SRC_FILES})
-target_link_libraries(source_parquet pvkernel Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
+target_link_libraries(source_parquet PRIVATE pvkernel Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
 
 ###############################################################################
 # Define installation folders
@@ -114,13 +106,13 @@ source_elasticsearch
 source_pcap
 source_parquet
 )
-INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
+install(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
 		RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)
 
 ###############################################################################
 # Define installation folders
 ###############################################################################
 
-INSTALL(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
+install(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
 		RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)
-INSTALL(FILES ${SOURCES_DIST_FILES} DESTINATION ${SHARE_RESSOURCES}/sources)
+install(FILES ${SOURCES_DIST_FILES} DESTINATION ${SHARE_RESSOURCES}/sources)

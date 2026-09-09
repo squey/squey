@@ -2,10 +2,13 @@
 # @file
 #
 
-# Default build type is debug
-if (NOT DEFINED CMAKE_BUILD_TYPE OR CMAKE_BUILD_TYPE STREQUAL "")
-	set(CMAKE_BUILD_TYPE "debug")
+# Default build type is Debug. Cached, so that it survives a reconfiguration and
+# shows up in the GUI tools with the values it accepts.
+if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+	set(CMAKE_BUILD_TYPE "Debug" CACHE STRING "Build type" FORCE)
 endif()
+set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+	Debug Release RelWithDebInfo Distrib CallTrace)
 
 string(TOLOWER "${CMAKE_BUILD_TYPE}" CMAKE_BUILD_TYPE_LOWER)
 
@@ -21,7 +24,7 @@ endif()
 # Default values for tests files root
 if (NOT DEFINED TESTS_FILES_DIR)
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-		set(TESTS_FILES_DIR "${CMAKE_SOURCE_DIR}/tests/files")
+		set(TESTS_FILES_DIR "${squey_SOURCE_DIR}/tests/files")
 	else()
 		set(TESTS_FILES_DIR "../../../../../../src/tests/files")
 	endif()
@@ -33,7 +36,7 @@ endif()
 # relative to the test working directory there, like TESTS_FILES_DIR does.
 if (NOT DEFINED TESTS_SOURCE_DIR)
 	if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
-		set(TESTS_SOURCE_DIR "${CMAKE_SOURCE_DIR}")
+		set(TESTS_SOURCE_DIR "${squey_SOURCE_DIR}")
 	else()
 		set(TESTS_SOURCE_DIR "../../../../../../src")
 	endif()
@@ -41,7 +44,7 @@ endif()
 
 # Default values for tests kind
 if (DEFINED TESTS_LONG)
-	add_definitions(-DTESTS_LONG)
+	add_compile_definitions(TESTS_LONG)
 endif()
 
 ###############################################################################
@@ -52,10 +55,10 @@ endif()
 if (USER_TARGET STREQUAL "developer")
 	set(SQUEY_DEVELOPER_MODE true)
 	message(STATUS "Picviz mode is developer")
-	add_definitions(-DSQUEY_DEVELOPER_MODE)
+	add_compile_definitions(SQUEY_DEVELOPER_MODE)
 else()
 	set(SQUEY_DEVELOPER_MODE false)
-	add_definitions(-DCUSTOMER_RELEASE)
+	add_compile_definitions(CUSTOMER_RELEASE)
 	message(STATUS "Picviz mode is customer")
 endif()
 
@@ -65,7 +68,7 @@ endif()
 
 set(BUILD_FILE_PATH "${CMAKE_CURRENT_BINARY_DIR}/include/pvbase/build.h")
 configure_file(include/pvbase/build.h.cmake ${BUILD_FILE_PATH})
-add_definitions(-DSQUEY_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
+add_compile_definitions(SQUEY_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 
 ###############################################################################
 # Define email addresses
@@ -73,7 +76,7 @@ add_definitions(-DSQUEY_BUILD_FILE_PATH="${BUILD_FILE_PATH}")
 
 set(EMAIL_ADDRESS_CONTACT "contact@squey.org")
 
-add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
+add_compile_definitions(EMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
 
 ###############################################################################
 # Compilation speed-up (from-scratch builds, no cache required)
@@ -82,9 +85,9 @@ add_definitions(-DEMAIL_ADDRESS_CONTACT="${EMAIL_ADDRESS_CONTACT}")
 # Unity (jumbo) builds: group several source files into a single translation
 # unit so the heavy Qt/Boost/Arrow headers are parsed once per batch instead of
 # once per file.
-OPTION(SQUEY_UNITY_BUILD "Group source files into unity (jumbo) builds to speed up compilation" ON)
+option(SQUEY_UNITY_BUILD "Group source files into unity (jumbo) builds to speed up compilation" ON)
 set(SQUEY_UNITY_BUILD_BATCH_SIZE "16" CACHE STRING "Number of source files merged per unity build batch")
 
 # Precompiled headers: pre-parse the heaviest standard/Qt headers once per
 # target and reuse the result for every translation unit.
-OPTION(SQUEY_PCH "Use precompiled headers to speed up compilation" ON)
+option(SQUEY_PCH "Use precompiled headers to speed up compilation" ON)

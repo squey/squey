@@ -6,12 +6,6 @@
 # Add include directories for squey's libs and external projects
 ###################################################################
 
-include_directories(AFTER ${PVKERNEL_INCLUDE_DIR})
-include_directories(AFTER ${PVGUIQT_INCLUDE_DIR})
-include_directories(AFTER ${PVPARALLELVIEW_INCLUDE_DIRS})
-
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${Qt6Core_EXECUTABLE_COMPILE_FLAGS}")
-
 set(COMMON_LIBRARIES pvparallelview pvguiqt pvsquey pvkernel)
 
 add_squey_compile_test(Tqt_listing_model LINKS ${COMMON_LIBRARIES} FILES listing_model.cpp common.cpp)
@@ -40,5 +34,5 @@ add_squey_test(Tpvguiqt_crash_report_cleanup Tpvguiqt_crash_report_cleanup -plat
 set_tests_properties(SQUEY_TEST_Tpvguiqt_crash_report_cleanup PROPERTIES
 	ENVIRONMENT "SQUEY_CONFIG_DIR=crash_report_cleanup_config")
 
-file(RELATIVE_PATH REL_TEST_DIR ${CMAKE_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
+file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

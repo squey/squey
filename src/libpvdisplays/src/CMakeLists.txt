@@ -11,7 +11,7 @@ PVDisplayIf.cpp
 PVDisplaysImpl.cpp
 )
 
-SET(LIBDISPLAYS_MOC_HEADERS
+set(LIBDISPLAYS_MOC_HEADERS
 ../include/pvdisplays/PVDisplaysContainer.h
 )
 
@@ -21,25 +21,23 @@ SET(LIBDISPLAYS_MOC_HEADERS
 
 set(SRC_FILES ${LIBDISPLAYS_SRC_FILES})
 set(MOC_HEADERS ${LIBDISPLAYS_MOC_HEADERS})
-QT6_WRAP_CPP(MOC_SRC ${MOC_HEADERS} OPTIONS ${QT6_WRAP_OPTIONS})
+qt6_wrap_cpp(MOC_SRC ${MOC_HEADERS} OPTIONS)
 
 ################################################
 # Declare the new library and linkage options
 ################################################
 
-include_directories(AFTER SYSTEM ${SIGCPP_INCLUDE_DIRS})
-
 add_library(pvdisplays SHARED ${SRC_FILES} ${MOC_SRC})
-
 set_target_properties(pvdisplays PROPERTIES SOVERSION 1)
 squey_speedup_compilation(pvdisplays QT)
 
-set(QT6_LIBS Qt6Core Qt6Xml Qt6Widgets)
+target_include_directories(pvdisplays PUBLIC
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>
+	$<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../include>)
 
-set(PVDISPLAYS_LINK_LIBRARIES pvsquey pvkernel ${QT6_LIBS} ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
+target_link_libraries(pvdisplays
+	PUBLIC pvsquey pvkernel Qt6::Core Qt6::Xml Qt6::Widgets
+	PRIVATE ${TBB_LIBRARIES} ${OpenMP_LIBRARIES})
 
-target_link_libraries(pvdisplays ${PVDISPLAYS_LINK_LIBRARIES})
-
-INSTALL(TARGETS pvdisplays LIBRARY DESTINATION ${CMAKE_INSTALL_PREFIX}/lib
-                           RUNTIME DESTINATION ${CMAKE_INSTALL_PREFIX}/lib)
-
+install(TARGETS pvdisplays LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+					RUNTIME DESTINATION ${CMAKE_INSTALL_LIBDIR})
