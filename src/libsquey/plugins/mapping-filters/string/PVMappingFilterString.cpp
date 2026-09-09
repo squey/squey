@@ -158,7 +158,7 @@ pvcop::db::array Squey::PVMappingFilterString::operator()(PVCol const col,
 			ret[dict_idx] = compute_str_factor(c, strlen(c));
 		}
 
-		auto& core_array = array.to_core_array<string_index_t>();
+		auto& core_array = array.to_core_array<pvcop::string_index_t>();
 #pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			dest_array[row] = ret[core_array[row]];

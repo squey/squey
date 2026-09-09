@@ -93,7 +93,7 @@ void Squey::PVScalingFilterLogMinmax::operator()(pvcop::db::array const& mapped,
 	assert(dest);
 
 	if (mapped.is_string()) {
-		compute_log_scaling<string_index_t>(mapped, minmax, invalid_selection, dest);
+		compute_log_scaling<pvcop::string_index_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_int8") {
 		compute_log_scaling<int8_t>(mapped, minmax, invalid_selection, dest);
 	} else if (mapped.type() == "number_uint8") {

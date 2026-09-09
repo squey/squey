@@ -208,9 +208,9 @@ double load_investigation()
 
 	PV_VALID(mapped->get_properties_for_col(PVCol(0)).get_mode(), std::string("default"));
 	auto const& minmax = mapped->get_properties_for_col(PVCol(0)).get_minmax();
-	auto core_minmax = minmax.to_core_array<string_index_t>();
-	PV_VALID(core_minmax[0], (string_index_t)0U);
-	PV_VALID(core_minmax[1], (string_index_t)90038U);
+	auto core_minmax = minmax.to_core_array<pvcop::string_index_t>();
+	PV_VALID(core_minmax[0], (pvcop::string_index_t)0U);
+	PV_VALID(core_minmax[1], (pvcop::string_index_t)90038U);
 
 	/**
 	 * Check scaleds

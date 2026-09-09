@@ -46,10 +46,12 @@
 #include <QColor>
 #include <QHash>
 
-#include <cstddef> // for size_t
-#include <cstdint> // for int32_t
-#include <string>  // for allocator, string, etc
-#include <vector>  // for vector
+#include <cstddef>     // for size_t, byte
+#include <cstdint>     // for int32_t
+#include <span>        // for span
+#include <string>      // for allocator, string, etc
+#include <string_view> // for string_view
+#include <vector>      // for vector
 
 #include <tbb/task_group.h>
 namespace Squey
@@ -79,11 +81,6 @@ namespace db
 class indexes;
 } // namespace db
 } // namespace pvcop
-
-namespace pybind11
-{
-class array;
-}
 
 namespace Squey
 {
@@ -187,7 +184,18 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 
 	void set_selection_from_layer(PVLayer const& layer);
 
-	bool insert_axis(const pvcop::db::type_t& column_type, const pybind11::array& column, const QString& axis_name);
+	/**
+	 * Appends a new axis holding @p values, laid out the way @p column_type stores them
+	 * in memory
+	 */
+	bool insert_axis(const pvcop::db::type_t& column_type,
+	                 std::span<const std::byte> values,
+	                 const QString& axis_name);
+
+	/**
+	 * Appends a new axis of type "string" holding @p values
+	 */
+	bool insert_axis(std::span<const std::string_view> values, const QString& axis_name);
 	void delete_axis(PVCombCol comb_col);
 
 	/**
@@ -364,6 +372,13 @@ class PVView : public PVCore::PVDataTreeChild<PVScaled, PVView>
 	PVCol _active_axis;
 	QColor _color;
 	std::string _name;
+
+  private:
+	/**
+	 * Declares the column that insert_axis() has just appended to the NRaw as a new axis,
+	 * and computes its mapping and its scaling
+	 */
+	void declare_inserted_axis(const pvcop::db::type_t& column_type, const QString& axis_name);
 
   private:
 	static PVCore::PVHSVColor _default_zombie_line_properties; //!< Default color for Zombies lines.

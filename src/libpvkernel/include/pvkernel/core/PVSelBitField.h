@@ -52,7 +52,7 @@ class array;
 
 #include "pvbase/types.h"
 #include "pvcop/core/array.h"
-#include "pvcop/core/impl/bit.h"
+#include "pvcop/core/detail/bit.h"
 
 namespace PVCore
 {
@@ -66,8 +66,8 @@ class PVSerializeObject;
 class PVSelBitField
 {
   public:
-	static constexpr auto CHUNK_SIZE = pvcop::core::__impl::bit_manip::chunk_bit_size;
-	static constexpr auto CHUNK_SIZE_BYTE = pvcop::core::__impl::bit_manip::chunk_byte_size;
+	static constexpr auto CHUNK_SIZE = pvcop::core::bit_manip::chunk_bit_size;
+	static constexpr auto CHUNK_SIZE_BYTE = pvcop::core::bit_manip::chunk_byte_size;
 
   public:
 	typedef pvcop::core::memarray<bool> pvcop_selection_t;
