@@ -179,14 +179,25 @@ builder appstream-linter:
   variables:
     # Give every runner slot its own clone to avoid collisions
     GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
+    # Which BuildStream cache this job builds in, see the before_script below. Jobs
+    # sharing a value must share a resource_group, they can never run at the same time.
+    BST_SLOT: linux
   before_script:
     - |
-      # Isolate the BuildStream cache per runner slot: concurrent jobs on the same
-      # runner must never share a local CAS directory, otherwise their independent
-      # buildbox-casd LRU cleanups race and evict each other's blobs mid-staging.
-      # Durable artifacts live in the shared casd daemon (storage-service);
-      # these per-slot caches are purgeable pass-through.
-      export XDG_CACHE_HOME="$HOME/.cache/bst-slots/bst-slot-${CI_CONCURRENT_ID:-0}"
+      # Isolate the BuildStream cache per target platform: concurrent jobs must never
+      # share a local CAS directory, otherwise their independent buildbox-casd LRU
+      # cleanups race and evict each other's blobs mid-staging. What makes a shared
+      # cache safe here is the resource_group each build declares, which keeps two jobs
+      # of the same platform from ever running at once. Keying the cache on the
+      # platform rather than on the runner slot (handed out by the runner as slots free
+      # up, so a rerun rarely lands on the same one) lets a build find what the
+      # previous pipeline of its own platform left behind, instead of whatever the slot
+      # last held: squey.bst is the one element build.sh keeps out of the shared pool,
+      # so this cache is the only place it can be found again. Durable dependencies
+      # live in the shared casd daemon (storage-service); these caches are purgeable
+      # pass-through. The recc action cache is a third daemon (recc-cas.sock), shared
+      # by every job whatever its platform, and is untouched by this.
+      export XDG_CACHE_HOME="$HOME/.cache/bst-slots/bst-slot-${BST_SLOT:-linux}"
       # Only offer the build dependencies to the shared pool when this pipeline
       # can bring new ones: an untouched buildstream directory means they are
       # all there already (squey.bst itself is never pushed, see build.sh). The
@@ -218,11 +229,13 @@ builder appstream-linter:
       # allowed", leaving the submodule on its previous commit.
       # A submodule a job does not ask for is deinitialized rather than left as it
       # is: squey.bst stages "src" as a local source, so its cache key is the digest
-      # of the whole directory, test files included. The clone is per runner slot
-      # (GIT_CLONE_PATH), and neither the runner's "git clean" nor the submodules it
-      # handles itself reach these paths, so a checkout left behind by a coverage job
-      # gives that slot a cache key of its own, and a rerun landing anywhere else
-      # rebuilds squey.bst from scratch. Deinitializing only empties the work tree,
+      # of the whole directory, test files included. The clone, unlike the cache
+      # above, still follows the runner slot (GIT_CLONE_PATH), and neither the
+      # runner's "git clean" nor the submodules it handles itself reach these paths.
+      # A checkout left behind by a coverage job would therefore give the slot it ran
+      # on a cache key of its own, the platform cache would end up holding two keys
+      # for one commit, and the builds landing on the other slot would miss it -- the
+      # very hits this cache exists for. Deinitializing only empties the work tree,
       # .git/modules keeps the objects for the next checkout.
       # Only what is really checked out is deinitialized: doing it on an already
       # empty submodule still returns 0, but logs a misleading "could not lock
@@ -267,6 +280,7 @@ builder appstream-linter:
 
 build and run testsuite linux:
   extends: .build
+  resource_group: bst-slot-linux
   variables:
     # Runs ctest, unlike the cross-compiled builds which stop before it.
     TEST_FILES: "true"
@@ -327,7 +341,9 @@ build and run testsuite linux:
 
 build testsuite windows:
   extends: .build
+  resource_group: bst-slot-windows
   variables:
+    BST_SLOT: windows
     # ctest does not run here, but building the test suite copies test files next to
     # the test binaries and installs them into the exported package, which the matching
     # 'run testsuite' job unpacks to run ctest from.
@@ -360,7 +376,9 @@ build testsuite windows:
 
 build testsuite macos:
   extends: .build
+  resource_group: bst-slot-macos
   variables:
+    BST_SLOT: macos
     # Same as the windows build above : the test files are needed at build time.
     TEST_FILES: "true"
   script:
@@ -392,7 +410,9 @@ build testsuite macos:
 
 build release macos:
   extends: .build
+  resource_group: bst-slot-macos
   variables:
+    BST_SLOT: macos
     # Same as the windows build above : the test files are needed at build time.
     TEST_FILES: "true"
   needs:
@@ -488,6 +508,7 @@ run testsuite macos:
 
 build release linux:
   extends: .build
+  resource_group: bst-slot-linux
   variables:
     # Native build, so squey.bst runs ctest here too.
     TEST_FILES: "true"
