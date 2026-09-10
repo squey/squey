@@ -121,7 +121,18 @@ class DragNDropTransparencyHack : public QObject
 
 namespace bpo = boost::program_options;
 
-int run_squey(App::PVSingleInstanceApplication& app, int argc, char* argv[])
+// What the command line asked of this run.
+struct command_line
+{
+	QStringList files;
+	QString format;
+	std::string product_name;
+};
+
+/* Reads the command line, once Qt has taken its own arguments out of it.
+ * Returns false when this process is not meant to go any further.
+ */
+static bool parse_command_line(int argc, char* argv[], command_line& cmd)
 {
 	// Program options
 	bpo::options_description desc_opts("Options");
@@ -140,35 +151,47 @@ int run_squey(App::PVSingleInstanceApplication& app, int argc, char* argv[])
 	p.add("input-file", -1);
 
 	bpo::variables_map vm;
-	bpo::store(bpo::command_line_parser(argc, argv).options(all_opts).positional(p).run(), vm);
-	bpo::notify(vm);
+	try {
+		bpo::store(bpo::command_line_parser(argc, argv).options(all_opts).positional(p).run(), vm);
+		bpo::notify(vm);
+	} catch (const bpo::error& e) {
+		// A command line the desktop, or a user, got wrong is worth a line of
+		// explanation rather than the crash reporter.
+		std::cerr << e.what() << std::endl << std::endl;
+		std::cerr << "Usage: " << argv[0] << " [--format format] [file [file...]]" << std::endl;
+		std::cerr << desc_opts << std::endl;
+		return false;
+	}
 
 	if (vm.count("help")) {
 		std::cerr << "Squey " << SQUEY_CURRENT_VERSION_STR << std::endl << std::endl;
 		std::cerr << "Usage: " << argv[0] << " [--format format] [file [file...]]" << std::endl;
 		std::cerr << desc_opts << std::endl;
-		return 1;
+		return false;
 	}
 
-	QString format;
 	if (vm.count("format")) {
 		std::string format_arg = vm["format"].as<std::string>();
-		format = QString::fromLocal8Bit(format_arg.c_str(), format_arg.size());
+		cmd.format = QString::fromLocal8Bit(format_arg.c_str(), format_arg.size());
 	}
 
-	QStringList files;
 	if (vm.count("input-file")) {
 		std::vector<std::string> files_arg = vm["input-file"].as<std::vector<std::string>>();
-		files.reserve(files_arg.size());
+		cmd.files.reserve(files_arg.size());
 		// Convert file path to unicode
 		for (std::string const& arg : files_arg) {
-			files.push_back(QString::fromLocal8Bit(arg.c_str(), arg.size()));
+			cmd.files.push_back(QString::fromLocal8Bit(arg.c_str(), arg.size()));
 		}
 	}
 
-	std::string product_name;
-	product_name = vm["product"].as<std::string>();
-	PVCore::PVConfig::set_product_name(product_name);
+	cmd.product_name = vm["product"].as<std::string>();
+
+	return true;
+}
+
+int run_squey(App::PVSingleInstanceApplication& app, const command_line& cmd)
+{
+	PVCore::PVConfig::set_product_name(cmd.product_name);
 
 	// Init theme
 	PVCore::PVTheme::init();
@@ -263,15 +286,24 @@ int run_squey(App::PVSingleInstanceApplication& app, int argc, char* argv[])
 
 	pv_mw.set_window_title_with_filename();
 
-	QObject::connect(
-	    &app,
-		&App::PVSingleInstanceApplication::files_opened,
-		&pv_mw,
-		std::bind(&App::PVMainWindow::load_files, &pv_mw, std::placeholders::_1, "")
-	);
-	if (files.size() > 0) {
-		pv_mw.load_files(files, format);
+	QObject::connect(&app, &App::PVSingleInstanceApplication::files_opened, &pv_mw,
+	                 [&pv_mw](const QStringList& opened_files) {
+		                 // Whatever a second launch, or the desktop, was asked
+		                 // to open, it is this window that shows it: bring it
+		                 // forward, or its import dialog opens behind the file
+		                 // manager the user just clicked in.
+		                 pv_mw.setWindowState(pv_mw.windowState() & ~Qt::WindowMinimized);
+		                 pv_mw.show();
+		                 pv_mw.raise();
+		                 pv_mw.activateWindow();
+		                 pv_mw.load_files(opened_files);
+	                 });
+	if (not cmd.files.isEmpty()) {
+		pv_mw.load_files(cmd.files, cmd.format);
 	}
+	// Files reaching us from here on have somewhere to go, and so have those
+	// that came in while this window was being built.
+	app.start_serving();
 
 #if 1 // Taking screenshots is not supported under Wayland
 	/* set the screenshot shortcuts as global shortcuts
@@ -299,8 +331,16 @@ int run_squey(App::PVSingleInstanceApplication& app, int argc, char* argv[])
 int main(int argc, char* argv[])
 {
 	App::PVSingleInstanceApplication app(argc, argv);
-	if (app.is_running()) {
-	    return 0;
+
+	// Parsed before anything is handed over: only the files are of any use to
+	// an instance already running, which would take the options of *this*
+	// command line for file names.
+	command_line cmd;
+	if (not parse_command_line(argc, argv, cmd)) {
+		return 1;
+	}
+	if (app.forward_to_running_instance(cmd.files)) {
+		return 0;
 	}
 
 #ifdef __APPLE__
@@ -349,6 +389,6 @@ int main(int argc, char* argv[])
 	setrlimit(RLIMIT_NOFILE, &ulimit_info);
 #endif
 
-	return run_squey(app, argc, argv);
+	return run_squey(app, cmd);
 }
 //! [0]

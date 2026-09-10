@@ -48,6 +48,25 @@
 
         <key>UTExportedTypeDeclarations</key>
         <array>
+            <!-- PVI -->
+            <dict>
+                <key>UTTypeIdentifier</key>
+                <string>org.squey.investigation</string>
+                <key>UTTypeDescription</key>
+                <string>Squey investigation</string>
+                <key>UTTypeConformsTo</key>
+                <array>
+                    <string>public.data</string>
+                </array>
+                <key>UTTypeTagSpecification</key>
+                <dict>
+                    <key>public.filename-extension</key>
+                    <array>
+                        <string>pvi</string>
+                    </array>
+                </dict>
+            </dict>
+
             <!-- CSV -->
             <dict>
                 <key>UTTypeIdentifier</key>
@@ -75,7 +94,7 @@
             <!-- TSV -->
             <dict>
                 <key>UTTypeIdentifier</key>
-                <string>org.squey.csvcompressed</string>
+                <string>org.squey.tsvcompressed</string>
                 <key>UTTypeDescription</key>
                 <string>Compressed TSV file</string>
                 <key>UTTypeConformsTo</key>
@@ -168,6 +187,10 @@
                 <string>Squey investigation</string>
                 <key>CFBundleTypeRole</key>
                 <string>Editor</string>
+                <key>LSItemContentTypes</key>
+                <array>
+                    <string>org.squey.investigation</string>
+                </array>
                 <key>CFBundleTypeExtensions</key>
                 <array>
                     <string>pvi</string>

@@ -76,6 +76,15 @@ bool PVRush::PVInputTypeFilename::create_widget_with_input_files(
     PVCore::PVArgumentList& /*args_ext*/,
     QWidget* parent) const
 {
+	// A format the caller already named -- --format on the command line -- is
+	// what the user asked for, and the conventions looked for below (a
+	// squey.format sitting next to the files, or one named after each of them)
+	// do not get to override it. Left as the path it came in as, which is what
+	// the import reads it from.
+	if (not format.isEmpty()) {
+		return load_files(filenames, inputs, parent);
+	}
+
 	if (filenames.size() > 1) {
 		QString custom_format;
 		const QString& squey_local_generic_format = QFileInfo(filenames[0]).absoluteDir().path() + "/squey.format";

@@ -157,7 +157,10 @@ class SQUEY_EXPORT PVClassLibrary
 
 		if constexpr (HasGetSupportedExtensions<decltype(*pf)>) {
 			for (const QString& extension : pf->get_supported_extensions()) {
-				_classes_extensions[extension] = pf;
+				// Lowercased, so that a file named by a system that does not
+				// care about case -- .CSV comes from Windows all the time --
+				// still finds its plugin.
+				_classes_extensions[extension.toLower()] = pf;
 			}
 		}
 	}
@@ -174,16 +177,29 @@ class SQUEY_EXPORT PVClassLibrary
 		return _classes.at(name);
 	}
 
-	PF get_class_by_extension(QString const& extension) const
+	// Takes a file name -- not an extension: an extension alone cannot tell
+	// "archive.csv.gz" from "archive.gz", and the two do not go to the same
+	// plugin.
+	PF get_class_by_extension(QString const& file_name) const
 	{
-	    QString extension_suffixe = extension;
-		if (!_classes_extensions.contains(extension_suffixe)) {
-		    extension_suffixe = QFileInfo(extension).suffix();
-			if (!_classes_extensions.contains(extension_suffixe)) {
-			    throw InvalidPlugin("Unsupported input file extension : " + extension_suffixe.toStdString());
+		// Some registered extensions have more than one component ("csv.gz"),
+		// so the longest suffix is tried first and shortened one component at a
+		// time: "report.2026.csv" is looked up as "2026.csv" then as "csv",
+		// while "log.csv.gz" finds the compressed CSV plugin rather than being
+		// handed over as a mere gzip archive.
+		const QString suffixes = QFileInfo(file_name).completeSuffix().toLower();
+		for (QString suffix = suffixes; not suffix.isEmpty();) {
+			if (_classes_extensions.contains(suffix)) {
+				return _classes_extensions.at(suffix);
 			}
+			const qsizetype dot = suffix.indexOf('.');
+			if (dot < 0) {
+				break;
+			}
+			suffix = suffix.mid(dot + 1);
 		}
-		return _classes_extensions.at(extension_suffixe);
+		throw InvalidPlugin("Unsupported input file extension : " +
+		                    QFileInfo(file_name).fileName().toStdString());
 	}
 
   private:

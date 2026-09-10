@@ -20,19 +20,36 @@ config:
     Exec=squey_launcher.sh %F
     Icon=org.squey.Squey
     Categories=Science;Graphics;Network;
-    MimeType=application/org.squey.investigation;text/csv;text/tab-separated-values;application/vnd.apache.parquet;application/vnd.tcpdump.pcap;application/vnd.tcpdump.pcapng;
+    MimeType=application/org.squey.investigation;text/csv;text/tab-separated-values;application/vnd.apache.parquet;application/vnd.tcpdump.pcap;application/x-pcapng;
     EOF
     install -D -m 0644 "org.squey.Squey.desktop" -t "%{install-root}%{prefix}/share/applications"
   - |
-    cat <<EOF >squey-mime.xml
+    # What the desktop entry above names has to exist in the shared MIME
+    # database, or the association is written against a type no file is ever
+    # given. Declared here are the types that database does not carry -- the
+    # investigation is ours, and Parquet and pcapng reached it late enough that
+    # a supported distribution may still be without them -- and the compressed
+    # spellings it otherwise resolves to their container: *.csv.gz is longer
+    # than *.gz, so the glob below wins and the file is offered to Squey.
+    #
+    # A type that is already known keeps its own comment: re-stating it here
+    # would replace a translated description with an English one.
+    cat <<EOF >org.squey.Squey.xml
+    <?xml version="1.0" encoding="UTF-8"?>
     <mime-info xmlns="http://www.freedesktop.org/standards/shared-mime-info">
         <mime-type type="application/org.squey.investigation">
             <comment>Squey investigation</comment>
             <glob pattern="*.pvi"/>
         </mime-type>
+        <mime-type type="application/vnd.apache.parquet">
+            <comment>Apache Parquet file</comment>
+            <glob pattern="*.parquet"/>
+        </mime-type>
+        <mime-type type="application/x-pcapng">
+            <comment>PCAPNG capture file</comment>
+            <glob pattern="*.pcapng"/>
+        </mime-type>
         <mime-type type="text/csv">
-            <comment>CSV file</comment>
-            <glob pattern="*.csv"/>
             <glob pattern="*.csv.zip"/>
             <glob pattern="*.csv.gz"/>
             <glob pattern="*.csv.bz2"/>
@@ -40,26 +57,13 @@ config:
             <glob pattern="*.csv.zst"/>
         </mime-type>
         <mime-type type="text/tab-separated-values">
-            <comment>TSV file</comment>
-            <glob pattern="*.tsv"/>
             <glob pattern="*.tsv.zip"/>
             <glob pattern="*.tsv.gz"/>
             <glob pattern="*.tsv.bz2"/>
             <glob pattern="*.tsv.xz"/>
             <glob pattern="*.tsv.zst"/>
         </mime-type>
-        <mime-type type="application/vnd.apache.parquet">
-            <comment>Apache Parquet file</comment>
-            <glob pattern="*.parquet"/>
-        </mime-type>
-        <mime-type type="application/vnd.tcpdump.pcap">
-            <comment>PCAP file</comment>
-            <glob pattern="*.pcap"/>
-        </mime-type>
-        <mime-type type="application/vnd.tcpdump.pcapng">
-            <comment>PCAPNG file</comment>
-            <glob pattern="*.pcapng"/>
-        </mime-type>
     </mime-info>
-    install -D -m 0644 "squey-mime.xml" -t "%{install-root}%{prefix}/share/mime/packages"
+    EOF
+    install -D -m 0644 "org.squey.Squey.xml" -t "%{install-root}%{prefix}/share/mime/packages"
   - install -D -m 0644 "org.squey.Squey.metainfo.xml" -t "%{install-root}%{prefix}/share/metainfo"
