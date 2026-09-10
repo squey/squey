@@ -44,6 +44,7 @@
 #include <chrono>
 #include <string>
 #include <thread>
+#include <vector>
 
 #include "common.h"
 
@@ -90,7 +91,26 @@ int main()
 	// --- A writer waits -------------------------------------------------------
 	// The reader's lock is held while a column is removed from another thread:
 	// the removal must not happen until the lock goes.
+	//
+	// The first column is the one removed, not the last: what follows it has to
+	// shift down, and a column vector left as it was answers for its neighbour
+	// ever after. The file holds the same values in both its columns, so one of
+	// its own is appended to tell them apart.
 	{
+		std::vector<std::string> marks(row_count);
+		std::vector<std::string_view> mark_views(row_count);
+		for (size_t row = 0; row < row_count; ++row) {
+			marks[row] = "mark" + std::to_string(row);
+			mark_views[row] = marks[row];
+		}
+		PV_ASSERT_VALID(nraw.append_column(mark_views), "the appended column was refused", 0);
+
+		const PVCol appended(nraw.column_count() - 1);
+		const std::string mark = nraw.at_string(0, appended);
+		PV_VALID(mark, marks[0]);
+
+		const PVCol before_removal = nraw.column_count();
+
 		std::atomic<bool> removed{false};
 		std::thread writer;
 
@@ -98,18 +118,21 @@ int main()
 			const auto held = nraw.lock_structure();
 
 			writer = std::thread([&]() {
-				nraw.delete_column(PVCol(column_count - 1));
+				nraw.delete_column(PVCol(0));
 				removed = true;
 			});
 
 			std::this_thread::sleep_for(SETTLE);
 			PV_ASSERT_VALID(not removed.load(), "a column was removed under a reader", 1);
-			PV_VALID(nraw.column_count(), column_count);
+			PV_VALID(nraw.column_count(), before_removal);
 		}
 
 		writer.join();
 		PV_ASSERT_VALID(removed.load(), "the writer never got through", 0);
-		PV_VALID(nraw.column_count(), PVCol(column_count - 1));
+		PV_VALID(nraw.column_count(), PVCol(before_removal - 1));
+
+		// the appended column has shifted down by one, and still reads as itself
+		PV_VALID(nraw.at_string(0, PVCol(appended - 1)), mark);
 	}
 
 	return 0;
