@@ -38,6 +38,8 @@
 #include <future>
 #include <QObject>
 #include <QStringList>
+#include <atomic>
+#include <condition_variable>
 #include <map>
 #include <mutex>
 #include <string>
@@ -93,6 +95,12 @@ class PVControllerJob : public QObject
 	bool done() const;
 	bool running() const;
 	void cancel();
+
+	/**
+	 * Hold or resume the extraction pipeline.
+	 *
+	 * Safe to call from any thread, and repeated calls with the same value are no-ops.
+	 */
 	void pause(bool pause);
 
 	/**
@@ -146,9 +154,11 @@ class PVControllerJob : public QObject
 	std::future<void>
 	    _executor; //!< Run the TBB Pipeline in this executor to have non blocking execution
 
-	bool _cancel = false;
+	std::atomic<bool> _cancel = false;
 
-	std::mutex _pause;
+	std::mutex _pause_mutex;
+	std::condition_variable _pause_cv;
+	bool _paused = false; //!< Whether the pipeline must hold, guarded by _pause_mutex.
 };
 
 typedef PVControllerJob::p_type PVControllerJob_p;
