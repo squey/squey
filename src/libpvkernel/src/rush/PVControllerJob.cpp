@@ -93,7 +93,10 @@ void PVRush::PVControllerJob::run_job()
 tbb::filter<void, void> PVRush::PVControllerJob::create_tbb_filter()
 {
 	tbb::filter<void, void> pause_filter(
-		tbb::filter_mode::serial_in_order, [&](tbb::flow_control& /*fc*/) { std::lock_guard<std::mutex> lg(_pause); });
+		tbb::filter_mode::serial_in_order, [this](tbb::flow_control& /*fc*/) {
+			std::unique_lock<std::mutex> lock(_pause_mutex);
+			_pause_cv.wait(lock, [this] { return not _paused or _cancel; });
+		});
 
 	if (_agg.chunk_type() == EChunkType::TEXT) {
 		tbb::filter<void, PVCore::PVTextChunk*> input_filter(
@@ -161,19 +164,21 @@ void PVRush::PVControllerJob::wait_end()
 
 void PVRush::PVControllerJob::cancel()
 {
-	pause(false);
 	_cancel = true;
+	// Wake the pipeline up, as it may be waiting on a pause request.
+	pause(false);
 	wait_end();
 	_cancel = false;
 }
 
 void PVRush::PVControllerJob::pause(bool pause)
 {
-	if (pause) {
-		_pause.lock();
+	{
+		std::lock_guard<std::mutex> lock(_pause_mutex);
+		_paused = pause;
 	}
-	else {
-		_pause.unlock();
+	if (not pause) {
+		_pause_cv.notify_all();
 	}
 }
 

@@ -148,21 +148,34 @@ size_t PVCore::available_memory()
 }
 #elifdef __APPLE__
 
-#include <sys/types.h>
-#include <sys/sysctl.h>
+#include <mach/mach.h>
+#include <mach/mach_host.h>
 
 size_t PVCore::available_memory()
 {
-	int mib[2] = { CTL_HW, HW_MEMSIZE };
-    uint64_t mem = 0;
-    size_t len = sizeof(mem);
+    const mach_port_t host = mach_host_self();
 
-    if (sysctl(mib, 2, &mem, &len, nullptr, 0) == 0) {
-        return mem * 1024;
-    } else {
-        perror("sysctl");
+    vm_size_t page_size = 0;
+    if (host_page_size(host, &page_size) != KERN_SUCCESS) {
+        mach_port_deallocate(mach_task_self(), host);
         return 0;
     }
+
+    vm_statistics64_data_t stats;
+    mach_msg_type_number_t stats_count = HOST_VM_INFO64_COUNT;
+    const kern_return_t ret =
+        host_statistics64(host, HOST_VM_INFO64, reinterpret_cast<host_info64_t>(&stats), &stats_count);
+    mach_port_deallocate(mach_task_self(), host);
+
+    if (ret != KERN_SUCCESS) {
+        return 0;
+    }
+
+    // Free pages can be handed out right away, and inactive ones are the first the kernel
+    // reclaims under pressure. Purgeable pages are left out on purpose : they are already
+    // accounted for as active or inactive, and counting them twice would overstate what is
+    // really available.
+    return (static_cast<size_t>(stats.free_count) + stats.inactive_count) * page_size;
 }
 #elif _WIN32
 #include <windows.h>

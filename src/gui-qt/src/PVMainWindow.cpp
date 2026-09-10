@@ -82,6 +82,8 @@
 
 #include <boost/thread.hpp>
 
+#include <chrono>
+
 //#include <sys/utsname.h> // uname
 
 /******************************************************************************
@@ -1003,28 +1005,55 @@ static QString bad_conversions_as_string(const Squey::PVSource* src)
 	return l.join("\n");
 }
 
-/***
- * Compute additionnal memory structures consumption increase after import
- ***/
-static size_t forecasted_memory_consumption_increase(Squey::PVSource* src)
+namespace
 {
-	const size_t column_count = src->get_nraw_column_count();
-	const size_t row_count = src->get_row_count();
 
-	const PVRush::PVFormat& format = src->get_format();
+/***
+ * Forecast of the memory taken by the structures built on top of an imported source.
+ *
+ * Only the row count changes while the import runs, so everything that depends on the format
+ * alone is computed once and each forecast then boils down to a multiplication.
+ ***/
+class PVMemoryConsumptionForecast
+{
+  public:
+	explicit PVMemoryConsumptionForecast(const Squey::PVSource& src)
+	{
+		const size_t column_count = src.get_nraw_column_count();
+		const PVRush::PVFormat& format = src.get_format();
 
-	size_t mapped_size = 0;
-	for (size_t i = 0; i < column_count; i++) {
-		const Squey::PVMappingProperties& mapping_properties = Squey::PVMappingProperties(format, PVCol(i));
-		mapped_size += mapping_properties.get_mapping_filter()->is_computed() * sizeof(Squey::PVScalingFilter::value_type) * row_count;
+		size_t computed_column_count = 0;
+		for (size_t i = 0; i < column_count; i++) {
+			const Squey::PVMappingProperties mapping_properties(format, PVCol(i));
+			computed_column_count += mapping_properties.get_mapping_filter()->is_computed();
+		}
+
+		// Each zone holds both a zone tree and a zoomed zone tree, hence the factor 2.
+		_fixed_bytes =
+		    2 * column_count * sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS;
+
+		_bytes_per_row = computed_column_count * sizeof(Squey::PVScalingFilter::value_type) +
+		                 column_count * sizeof(Squey::PVScaled::value_type) +
+		                 2 * column_count * sizeof(PVRow);
 	}
 
-	size_t scaled_size = sizeof(Squey::PVScaled::value_type) * row_count * column_count;
+	/**
+	 * Memory consumption increase once "row_count" rows have been imported, in bytes.
+	 */
+	size_t operator()(size_t row_count) const { return _fixed_bytes + _bytes_per_row * row_count; }
 
-	size_t zones_size = 2 * column_count * (sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS + sizeof(PVRow) * row_count);
+  private:
+	size_t _fixed_bytes;   //!< Part that does not depend on the number of rows.
+	size_t _bytes_per_row; //!< Part that each imported row adds.
+};
 
-	return mapped_size + scaled_size + zones_size;
-}
+//! Period between two checks of the available memory while importing.
+constexpr std::chrono::seconds memory_check_period{1};
+
+//! Share of the available memory above which the user is warned.
+constexpr double memory_usage_threshold = 0.8;
+
+} // namespace
 
 /******************************************************************************
  *
@@ -1063,7 +1092,9 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 
 		    try {
 			    // launch a thread in order to update the status of the progress bar
+				const PVMemoryConsumptionForecast memory_forecast(*src);
 				bool monitor_memory_consumption = true;
+				auto last_memory_check = std::chrono::steady_clock::now();
 			    while (job_import->running()) {
 				    pbox.set_extended_status(
 				        QString("Number of extracted events: %1\nNumber of rejected events: %2")
@@ -1075,25 +1106,39 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 				            pbox.set_maximum(src->max_size() / mega);
 				        }
 				    pbox.set_value(job_import->get_value() / mega);
-				    if (monitor_memory_consumption and forecasted_memory_consumption_increase(src) > (PVCore::available_memory() * 0.8)) {
-						job_import->pause(true);
+				    const auto now = std::chrono::steady_clock::now();
+				    if (monitor_memory_consumption and
+				        now - last_memory_check >= memory_check_period) {
+					    last_memory_check = now;
 
-						QMessageBox::StandardButton user_choice;
-						pbox.exec_gui([&]() {
-							user_choice = QMessageBox::warning(
-								this,
-								"Low available RAM warning",
-								"Continuing importing data will likely exceed the available RAM and cause system instabilities.\n\n"
-								"Do you want to stop the import process here ?",
-								QMessageBox::Yes | QMessageBox::No);
-						});
-						if (user_choice == QMessageBox::Yes) {
-							job_import->cancel();
-						}
-						else {
-							monitor_memory_consumption = false;
-							job_import->pause(false);
-						}
+					    // A null value means the available memory could not be determined :
+					    // skip the check rather than read it as "no memory left".
+					    const size_t available_memory = PVCore::available_memory();
+					    const bool memory_exceeded =
+					        available_memory != 0 and
+					        memory_forecast(src->get_row_count()) >
+					            available_memory * memory_usage_threshold;
+
+					    if (memory_exceeded) {
+							job_import->pause(true);
+
+							QMessageBox::StandardButton user_choice;
+							pbox.exec_gui([&]() {
+								user_choice = QMessageBox::warning(
+									this,
+									"Low available RAM warning",
+									"Continuing importing data will likely exceed the available RAM and cause system instabilities.\n\n"
+									"Do you want to stop the import process here ?",
+									QMessageBox::Yes | QMessageBox::No);
+							});
+							if (user_choice == QMessageBox::Yes) {
+								job_import->cancel();
+							}
+							else {
+								monitor_memory_consumption = false;
+								job_import->pause(false);
+							}
+					    }
 				    }
 
 				    boost::this_thread::interruption_point();

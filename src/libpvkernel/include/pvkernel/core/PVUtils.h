@@ -89,6 +89,12 @@ std::string join(It it_begin, It it_end, const std::string& separator)
 
 void remove_common_folders(std::vector<std::string>& paths);
 
+/**
+ * Amount of physical memory that can be handed out to the process without swapping.
+ *
+ * @return the available memory in bytes, or 0 if it could not be determined. Callers must
+ *         treat 0 as "unknown" rather than as "no memory left".
+ */
 size_t available_memory();
 
 #if __APPLE__
