@@ -95,7 +95,7 @@ pvcop::db::array Squey::PVMappingFilterHost::operator()(PVCol const col,
 		}
 
 		// Copy mapping value based on computation from dict.
-		auto& core_array = array.to_core_array<string_index_t>();
+		auto& core_array = array.to_core_array<pvcop::string_index_t>();
 #pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			dest_array[row] = ret[core_array[row]];

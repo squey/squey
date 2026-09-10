@@ -133,14 +133,25 @@ void PVRush::PVNraw::init_collection(const std::string& path)
  *
  ****************************************************************************/
 
-bool PVRush::PVNraw::append_column(const pvcop::db::type_t& column_type, const pybind11::array& column)
+bool PVRush::PVNraw::append_column(const pvcop::db::type_t& column_type,
+                                   std::span<const std::byte> values)
 {
 	assert(_collection && "A collection must be open");
-	bool ret = _collection->append_column(column_type, column);
-	if (ret) {
-		_columns.emplace_back(_collection->column(_collection->column_count()-1));
+	return map_appended_column(_collection->append_column(column_type, values));
+}
+
+bool PVRush::PVNraw::append_column(std::span<const std::string_view> values)
+{
+	assert(_collection && "A collection must be open");
+	return map_appended_column(_collection->append_column(values));
+}
+
+bool PVRush::PVNraw::map_appended_column(bool appended)
+{
+	if (appended) {
+		_columns.emplace_back(_collection->column(_collection->column_count() - 1));
 	}
-	return ret;
+	return appended;
 }
 
 /*****************************************************************************

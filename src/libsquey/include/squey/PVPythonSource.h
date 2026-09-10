@@ -62,6 +62,11 @@ public:
     };
 
 private:
+    /**
+     * @return the values of a numpy array of strings, decoded to UTF-8
+     */
+    static std::vector<std::string> to_strings(const pybind11::array& column);
+
     static const std::unordered_map<std::string, std::string> _map_type;
 
 public:

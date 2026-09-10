@@ -125,8 +125,9 @@ target_include_directories(pvhwloc PUBLIC
 # libpvcop
 ###############################################################################
 add_subdirectory(libpvcop)
+# the target carries its own include directories and dependencies; declaring them again
+# from here would put an absolute source path in the interface it exports
 set(PVCOP_LIBRARIES pvcop)
-target_include_directories(pvcop PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/libpvcop/include")
 
 squey_speedup_compilation(pvcop)
 

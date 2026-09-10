@@ -27,7 +27,7 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvcop/core/algo/selection.h> // for bit_count, invert_selection
 #include <pvcop/core/array.h>          // for array<>::data_type, array, etc
-#include <pvcop/core/impl/bit.h>       // for to_mem_size
+#include <pvcop/core/detail/bit.h>       // for to_mem_size
 #include <sys/types.h> // for ssize_t
 #include <cstdlib>     // for rand
 #include <cstring>     // for memset
@@ -469,7 +469,7 @@ PVRow PVCore::PVSelBitField::find_previous_set_bit(const PVRow index, const PVRo
 
 void PVCore::PVSelBitField::serialize_write(PVCore::PVSerializeObject& so) const
 {
-	size_t mem_size = pvcop::core::__impl::bit_manip::to_mem_size(_selection.size());
+	size_t mem_size = pvcop::core::bit_manip::to_mem_size(_selection.size());
 	so.buffer_write("selection_data", _selection.data(), mem_size);
 	int size = _selection.size();
 	so.attribute_write("selection_size", size);
@@ -478,7 +478,7 @@ void PVCore::PVSelBitField::serialize_write(PVCore::PVSerializeObject& so) const
 PVCore::PVSelBitField PVCore::PVSelBitField::serialize_read(PVCore::PVSerializeObject& so)
 {
 	int size = so.attribute_read<int>("selection_size");
-	size_t mem_size = pvcop::core::__impl::bit_manip::to_mem_size(size);
+	size_t mem_size = pvcop::core::bit_manip::to_mem_size(size);
 	PVCore::PVSelBitField sel(size);
 	so.buffer_read("selection_data", sel._selection.data(), mem_size);
 	return sel;

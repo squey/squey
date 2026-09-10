@@ -732,35 +732,52 @@ void Squey::PVView::sort_indexes(PVCol col,
 	BENCH_END(pvcop_sort, "pvcop_sort", 0, 0, 1, idxes.size());
 }
 
-bool Squey::PVView::insert_axis(const pvcop::db::type_t& column_type, const pybind11::array& column, const QString& axis_name)
+bool Squey::PVView::insert_axis(const pvcop::db::type_t& column_type,
+                                std::span<const std::byte> values,
+                                const QString& axis_name)
 {
-	// Insert column in Nraw
-	PVRush::PVNraw& nraw = get_rushnraw_parent();
-	bool ret = nraw.append_column(column_type, column);
-
-	if (ret) {
-		// update format
-		PVCol col(nraw.column_count()-1);
-		auto& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
-		PVRush::PVAxisFormat axis_format(col);
-		axis_format.set_name(axis_name);
-		axis_format.set_type(column_type.c_str());
-		axis_format.set_mapping("default"); // FIXME : use string for string
-		axis_format.set_scaling("default");
-		axis_format.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
-		axis_format.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
-		format.insert_axis(axis_format, PVCombCol(0), true); // FIXME
-		_axes_combination.axis_append(col);
-
-		// compute mapping and scaling
-		auto& mapped = get_parent<PVMapped>();
-		mapped.append_mapped();
-		auto& scaled = get_parent<PVScaled>();
-		scaled.append_scaled();
-		mapped.compute();
+	if (not get_rushnraw_parent().append_column(column_type, values)) {
+		return false;
 	}
 
-	return ret;
+	declare_inserted_axis(column_type, axis_name);
+
+	return true;
+}
+
+bool Squey::PVView::insert_axis(std::span<const std::string_view> values, const QString& axis_name)
+{
+	if (not get_rushnraw_parent().append_column(values)) {
+		return false;
+	}
+
+	declare_inserted_axis("string", axis_name);
+
+	return true;
+}
+
+void Squey::PVView::declare_inserted_axis(const pvcop::db::type_t& column_type,
+                                          const QString& axis_name)
+{
+	// update format
+	PVCol col(get_rushnraw_parent().column_count() - 1);
+	auto& format = const_cast<PVRush::PVFormat&>(get_parent<PVSource>().get_format()); // FIXME
+	PVRush::PVAxisFormat axis_format(col);
+	axis_format.set_name(axis_name);
+	axis_format.set_type(column_type.c_str());
+	axis_format.set_mapping("default"); // FIXME : use string for string
+	axis_format.set_scaling("default");
+	axis_format.set_color(PVFORMAT_AXIS_COLOR_DEFAULT);
+	axis_format.set_titlecolor(PVFORMAT_AXIS_TITLECOLOR_DEFAULT);
+	format.insert_axis(axis_format, PVCombCol(0), true); // FIXME
+	_axes_combination.axis_append(col);
+
+	// compute mapping and scaling
+	auto& mapped = get_parent<PVMapped>();
+	mapped.append_mapped();
+	auto& scaled = get_parent<PVScaled>();
+	scaled.append_scaled();
+	mapped.compute();
 }
 
 void Squey::PVView::delete_axis(PVCombCol comb_col)

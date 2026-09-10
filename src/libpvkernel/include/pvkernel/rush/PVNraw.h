@@ -26,6 +26,8 @@
 #define PVRUSH_NRAW_H
 
 #include <fstream>
+#include <span>
+#include <string_view>
 
 #include <pvkernel/core/PVBinaryChunk.h>
 #include <pvkernel/core/PVColumnIndexes.h>
@@ -34,11 +36,6 @@
 
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
-
-namespace pybind11
-{
-class array;
-}
 
 namespace PVCore
 {
@@ -128,7 +125,16 @@ class PVNraw
 		return _columns[col];
 	}
 
-	bool append_column(const pvcop::db::type_t& column_type, const pybind11::array& column);
+	/**
+	 * Appends a new column holding @p values, laid out the way @p column_type stores
+	 * them in memory
+	 */
+	bool append_column(const pvcop::db::type_t& column_type, std::span<const std::byte> values);
+
+	/**
+	 * Appends a new column of type "string" holding @p values
+	 */
+	bool append_column(std::span<const std::string_view> values);
 
 	void delete_column(PVCol col);
 
@@ -191,6 +197,13 @@ class PVNraw
 
   private:
 	void init_collection(const std::string& path);
+
+	/**
+	 * Maps the column that append_column() has just written, when it succeeded
+	 *
+	 * @return @p appended
+	 */
+	bool map_appended_column(bool appended);
 
   private:
 	/// Variable usefull for reading

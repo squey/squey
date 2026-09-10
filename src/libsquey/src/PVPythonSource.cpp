@@ -29,6 +29,8 @@
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVRoot.h>
 
+#include <pvcop/db/read_dict.h>
+
 #include <QApplication>
 
 const std::unordered_map<std::string, std::string> Squey::PVPythonSource::_map_type = {
@@ -247,6 +249,7 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
 
     // Check array type
     pvcop::db::type_t column_type;
+    bool is_string = false;
     auto it = std::find_if(_map_type.begin(), _map_type.end(), [&](auto&& pair) {
         return pybind11::dtype(pair.second).is(column.dtype());
     });
@@ -255,6 +258,7 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
         dtype_str << column.dtype();
         if (dtype_str.str().substr(0,2) == "<U") {
             column_type = "string";
+            is_string = true;
         }
         else {
             throw std::invalid_argument("Unsupported array type");
@@ -270,8 +274,19 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
         throw std::invalid_argument("Provided array is not C contiguous");
     }
 
-    // Delegate axis insertion to PVView
-    bool ret = _source.current_view()->insert_axis(column_type, column, axis_name.c_str());
+    // Delegate axis insertion to PVView, handing the values over as plain memory:
+    // libpvcop knows nothing about numpy
+    bool ret;
+    if (is_string) {
+        const std::vector<std::string> strings = to_strings(column);
+        const std::vector<std::string_view> values(strings.begin(), strings.end());
+        ret = _source.current_view()->insert_axis(values, axis_name.c_str());
+    }
+    else {
+        const std::span<const std::byte> values(static_cast<const std::byte*>(column.data()),
+                                                size_t(column.nbytes()));
+        ret = _source.current_view()->insert_axis(column_type, values, axis_name.c_str());
+    }
 
     // Notifify axes combination update on Qt GUI thread
     if (ret) {
@@ -280,7 +295,22 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
         main.attr(GUI_UPDATE_VAR) = pybind11::cast((uint32_t)GuiUpdateType::SCALING);
     }
 }
-    
+
+std::vector<std::string> Squey::PVPythonSource::to_strings(const pybind11::array& column)
+{
+    pybind11::gil_scoped_acquire gil{};
+
+    // tolist() decodes every element to a Python str, which pybind11 hands back as UTF-8
+    const pybind11::list items = column.attr("tolist")();
+
+    std::vector<std::string> strings;
+    strings.reserve(items.size());
+    for (const pybind11::handle& item : items) {
+        strings.emplace_back(item.cast<std::string>());
+    }
+
+    return strings;
+}
 
 void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t position  /* = 0 */)
 {
