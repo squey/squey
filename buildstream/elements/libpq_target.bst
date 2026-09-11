@@ -21,7 +21,6 @@ depends:
       install-commands:
         (>):
         - |
-          %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/libpgtypes.%{dylib-extension}" "%{install-root}%{libdir}/libpgtypes.%{dylib-extension}"
           %{toolchain-dir}/%{host}-install_name_tool -id "@rpath/libpq.%{dylib-extension}" "%{install-root}%{libdir}/libpq.%{dylib-extension}"
 - (target_triple == "x86_64-w64-mingw32"):
     depends:
