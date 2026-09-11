@@ -72,6 +72,22 @@ config:
       Square150x150Logo.png \
       resources.pri \
       "%{install-package-root}"
+
+    # --backup=numbered above never warned about anything: it kept both files and
+    # let the build pass. Compare each backup with the file that displaced it. A
+    # library PostgreSQL installs under both bindir and libdir (src/Makefile.shlib)
+    # lands here as two identical copies and the spare is dropped, while two
+    # genuinely different files of the same name fail the build rather than ship
+    # whichever happened to be copied last.
+    while IFS= read -r backup; do
+      original="${backup%.~*~}"
+      if ! cmp -s "$backup" "$original"; then
+        echo "ERROR: $(basename "$original") was copied from two different sources" >&2
+        exit 1
+      fi
+      rm -f "$backup"
+    done < <(find "%{install-package-root}" -name "*.~[0-9]*~")
+
     cp "Square44x44Logo.png" "%{install-package-root}/Square44x44Logo.targetsize-44_altform-unplated.png"
     cp "Square150x150Logo.png" "%{install-package-root}/Square150x150Logo.targetsize-150_altform-unplated.png"
     cp -r %{libdir}/squey/plugins/* "%{install-package-root}/plugins"
