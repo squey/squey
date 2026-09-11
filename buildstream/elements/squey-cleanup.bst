@@ -53,7 +53,14 @@ config:
         # The executables used to be stripped at link time by a '-s' in
         # CMakeCompilers.txt, which left no symbols to dump. They are stripped
         # here instead, after build.sh has sent the symbols to the crash server.
-        find %{libdir} %{bindir} \( -name "*.dll" -o -name "*.exe" \) ! -name "cygwin1.dll" | xargs %{host}-strip -s # cygwin1.dll doesn't support symbols stripping
+        # %{prefix}/tests is stripped too: make-msix-package.sh zips it whole into
+        # testsuite.zip, and the DWARF of the test binaries was 96% of that archive.
+        # PE keeps its debug information inside the binary, unlike Mach-O, which
+        # leaves it in the object files -- hence no macOS counterpart to this.
+        # A build that skips the testsuite has no such directory.
+        strip_dirs="%{libdir} %{bindir}"
+        [ -d %{prefix}/tests ] && strip_dirs="$strip_dirs %{prefix}/tests"
+        find $strip_dirs \( -name "*.dll" -o -name "*.exe" \) ! -name "cygwin1.dll" | xargs %{host}-strip -s # cygwin1.dll doesn't support symbols stripping
       fi
 
       cp -r %{prefix} %{install-root}

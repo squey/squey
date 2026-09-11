@@ -16,6 +16,15 @@ config:
     - |
       make -j1 DESTDIR="%{install-root}" install
       rm -rf %{install-root}%{libdir}/postgresql # Delete useless server part
+      # ECPG, the embedded SQL preprocessor and its runtime, is dead weight here:
+      # Qt is the only consumer of this element and its sqldrivers plugin links
+      # against libpq alone, while libecpg, libecpg_compat and libpgtypes merely
+      # import one another. Windows installs shared libraries under both bindir
+      # and libdir (src/Makefile.shlib), so both have to be cleaned out.
+      rm -rf %{install-root}%{bindir}/ecpg %{install-root}%{bindir}/ecpg.exe \
+             %{install-root}%{bindir}/{libecpg,libpgtypes}* \
+             %{install-root}%{libdir}/{libecpg,libpgtypes}* \
+             %{install-root}%{libdir}/pkgconfig/{libecpg,libpgtypes}*.pc
 
 depends:
   - freedesktop-sdk.bst:components/bison.bst
