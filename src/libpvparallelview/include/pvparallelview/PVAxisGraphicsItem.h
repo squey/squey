@@ -172,10 +172,12 @@ class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 	uint32_t _axis_length;
 	uint32_t _zone_width;
 	uint32_t _axis_width;
-	QGraphicsTextItem* _axis_min_value;
-	QGraphicsTextItem* _axis_max_value;
-	QGraphicsTextItem* _layer_min_value;
-	QGraphicsTextItem* _layer_max_value;
+	// Named after where they sit rather than after what they hold: the top of an
+	// axis is its smallest position, which belongs to its largest value.
+	QGraphicsTextItem* _axis_top_value;
+	QGraphicsTextItem* _axis_bottom_value;
+	QGraphicsTextItem* _layer_top_value;
+	QGraphicsTextItem* _layer_bottom_value;
 	__impl::PVToolTipEventFilter* _event_filter;
 	bool _minmax_visible;
 	bool _axis_density_enabled = false;

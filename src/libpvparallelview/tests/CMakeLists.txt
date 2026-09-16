@@ -33,6 +33,9 @@ add_squey_compile_test(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zon
 add_squey_test(Tpview_zone_tree_create Tpview_zone_tree_create)
 add_bench(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_tree_create.cpp)
 
+add_squey_compile_test(Tpview_axis_end_labels LINKS ${LINK_LIBRARIES} FILES axis_end_labels.cpp)
+add_squey_test(Tpview_axis_end_labels Tpview_axis_end_labels)
+
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
 add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
