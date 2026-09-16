@@ -32,6 +32,10 @@
  * CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR, is refused with
  * CL_INVALID_DEVICE_TYPE (BugSplat crashes 231 and 234).
  *
+ * It also hands out a context on that GPU but no command queue, which makes it
+ * a driver found usable that fails right after: the device can never be
+ * brought up.
+ *
  * Only what the loader and the start-up reach is answered; the other entries
  * of the dispatch table stay null.
  */
@@ -319,6 +323,29 @@ cl_int CL_API_CALL get_context_info(
 	}
 }
 
+cl_command_queue CL_API_CALL create_command_queue(cl_context /*context*/,
+                                                  cl_device_id /*device*/,
+                                                  cl_command_queue_properties /*properties*/,
+                                                  cl_int* err)
+{
+	if (err != nullptr) {
+		*err = CL_OUT_OF_RESOURCES;
+	}
+	return nullptr;
+}
+
+cl_command_queue CL_API_CALL create_command_queue_with_properties(
+    cl_context /*context*/,
+    cl_device_id /*device*/,
+    const cl_queue_properties* /*properties*/,
+    cl_int* err)
+{
+	if (err != nullptr) {
+		*err = CL_OUT_OF_RESOURCES;
+	}
+	return nullptr;
+}
+
 void* CL_API_CALL get_extension_function_address(const char* name);
 
 cl_icd_dispatch make_dispatch()
@@ -333,9 +360,11 @@ cl_icd_dispatch make_dispatch()
 	table.clRetainContext = retain_context;
 	table.clReleaseContext = release_context;
 	table.clGetContextInfo = get_context_info;
+	table.clCreateCommandQueue = create_command_queue;
 	table.clGetExtensionFunctionAddress = get_extension_function_address;
 	table.clRetainDevice = retain_device;
 	table.clReleaseDevice = release_device;
+	table.clCreateCommandQueueWithProperties = create_command_queue_with_properties;
 	return table;
 }
 
