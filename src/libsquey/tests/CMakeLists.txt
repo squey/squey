@@ -220,6 +220,9 @@ add_bench(Tsquey_export_scaled LINKS ${LINK_LIBRARIES} FILES export_scaled.cpp $
 add_squey_compile_test(Tsquey_scaling_one_value LINKS ${LINK_LIBRARIES} FILES scaling_one_value.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_scaling_one_value Tsquey_scaling_one_value ${TESTS_FILES_DIR}/picviz/scaling_one_value.csv ${TESTS_FILES_DIR}/picviz/scaling_one_value.csv.format)
 
+add_squey_compile_test(Tsquey_scaled_axis_ends LINKS ${LINK_LIBRARIES} FILES scaled_axis_ends.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_scaled_axis_ends Tsquey_scaled_axis_ends)
+
 add_squey_compile_test(Tsquey_axis_gradient LINKS ${LINK_LIBRARIES} FILES axis_gradient.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_axis_gradient Tsquey_axis_gradient ${TESTS_FILES_DIR}/picviz/axis_gradient.csv ${TESTS_FILES_DIR}/picviz/axis_gradient.csv.format)
 add_bench(Tsquey_axis_gradient LINKS ${LINK_LIBRARIES} FILES axis_gradient.cpp ${COMMON_FILES})
