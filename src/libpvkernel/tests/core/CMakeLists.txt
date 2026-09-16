@@ -53,5 +53,23 @@ set_tests_properties(SQUEY_TEST_Tcore_crash_report_generation PROPERTIES
 add_squey_compile_test(Tcore_streaming_compressor LINKS ${LINK_LIBRARIES} FILES streaming_compressor.cpp)
 add_squey_test(Tcore_streaming_compressor Tcore_streaming_compressor)
 
+# An OpenCL driver standing in for one that misbehaves, for the tests of the
+# OpenCL start-up. They have the loader of the Linux runtime, ocl-icd, load it:
+# the Windows one ignores the environment in the elevated process the CI runs
+# the tests in, and macOS has no loader.
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	add_library(squey_test_opencl_icd MODULE EXCLUDE_FROM_ALL opencl_test_icd.cpp)
+	# The compile definitions of Squey::OpenCL, not the target itself: a driver
+	# has no business linking against the loader that loads it.
+	target_compile_definitions(squey_test_opencl_icd PRIVATE
+		$<TARGET_PROPERTY:Squey::OpenCL,INTERFACE_COMPILE_DEFINITIONS>)
+
+	add_squey_compile_test(Tcore_opencl_device_type LINKS ${LINK_LIBRARIES} FILES opencl_device_type.cpp)
+	target_compile_definitions(SQUEY_TEST_Tcore_opencl_device_type PRIVATE
+		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd>\")
+	add_dependencies(SQUEY_TEST_Tcore_opencl_device_type squey_test_opencl_icd)
+	add_squey_test(Tcore_opencl_device_type Tcore_opencl_device_type)
+endif()
+
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)
