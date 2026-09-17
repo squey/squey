@@ -107,6 +107,9 @@ add_squey_test(Trush_pcap_tshark_escape Trush_pcap_tshark_escape ${PVRUSH_TEST_F
 # outside a packaged install, where tshark_path() is not resolvable).
 set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_escape PROPERTIES SKIP_RETURN_CODE 77)
 
+add_squey_compile_test(Trush_pcap_split_without_progress LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_split_without_progress.cpp helpers.cpp)
+add_squey_test(Trush_pcap_split_without_progress Trush_pcap_split_without_progress)
+
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)
 

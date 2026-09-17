@@ -679,8 +679,15 @@ split_pcaps(const std::vector<std::string>& input_pcap_filenames,
 		splitted_files_t f = split_pcap(input_pcap_filename, output_pcap_dir, preserve_flows,
 		                                canceled, [&](size_t s) {
 			                                current_datasize += s;
-			                                f_progression(current_datasize);
-			                            });
+			                                // This lambda is always handed over, so the one
+			                                // it forwards to has to be checked here: a caller
+			                                // that wants no progress passes nothing, and the
+			                                // split only reports past a first chunk -- which
+			                                // is why a small capture never showed it.
+			                                if (f_progression) {
+				                                f_progression(current_datasize);
+			                                }
+		                                });
 		std::move(f.begin(), f.end(), back_inserter(files));
 	}
 	if (f_progression) {
