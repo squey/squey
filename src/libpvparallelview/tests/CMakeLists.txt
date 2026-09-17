@@ -35,6 +35,8 @@ add_bench(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_tree_create
 
 add_squey_compile_test(Tpview_axis_end_labels LINKS ${LINK_LIBRARIES} FILES axis_end_labels.cpp)
 add_squey_test(Tpview_axis_end_labels Tpview_axis_end_labels)
+add_squey_compile_test(Tpview_scene_outlived_by_context LINKS ${LINK_LIBRARIES} FILES scene_outlived_by_context.cpp)
+add_squey_test(Tpview_scene_outlived_by_context Tpview_scene_outlived_by_context)
 
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)

@@ -129,6 +129,20 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void on_view_about_to_be_deleted();
 	void on_context_about_to_be_deleted();
 
+	/**
+	 * Have the densities of the axes showing these columns drawn again.
+	 *
+	 * The columns are the scaling's, which the axes are not numbered by: an axis's
+	 * position is its place in the combination, which may leave columns out, repeat
+	 * them or reorder them.
+	 *
+	 * Connected through sigc::mem_fun, which the scene being a sigc::trackable
+	 * disconnects as it is destroyed. A lambda capturing the scene is not, and the
+	 * scaling outlives every scene built on it -- one in a dock goes as the dock is
+	 * closed -- so the next rescaling would call into a scene that is gone.
+	 */
+	void refresh_densities(const QList<PVCol>& columns);
+
 	void update_number_of_visible_zones();
 	void update_zones_position(bool update_all = true, bool scale = true);
 	void translate_and_update_zones_position();

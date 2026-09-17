@@ -188,12 +188,7 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	connect(_timer_render, &QTimer::timeout, this, &PVFullParallelScene::render_all_zones_all_imgs);
 
 	_lib_view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
-	    [this](const QList<PVCol>& scaleds_updated) {
-		    for (PVCol col : scaleds_updated) {
-				_axes[col]->refresh_density();
-			}
-		}
-	);
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::refresh_densities));
 }
 
 /******************************************************************************
@@ -252,6 +247,15 @@ void PVParallelView::PVFullParallelScene::on_view_about_to_be_deleted()
 	// outlive it.
 	about_to_be_deleted();
 	delete graphics_view();
+}
+
+void PVParallelView::PVFullParallelScene::refresh_densities(const QList<PVCol>& columns)
+{
+	for (PVAxisGraphicsItem* axis : _axes) {
+		if (axis != nullptr and columns.contains(axis->get_original_axis_column())) {
+			axis->refresh_density();
+		}
+	}
 }
 
 void PVParallelView::PVFullParallelScene::on_context_about_to_be_deleted()
