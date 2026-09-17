@@ -49,12 +49,12 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
 	view._axis_combination_updated.connect(
 	    sigc::mem_fun(*this, &PVGuiQt::PVListingModel::axes_comb_changed));
 
-	// Call update_filter on selection update
-	view._update_output_selection.connect([&](){
-		QMetaObject::invokeMethod(qApp, [&](){
-            update_filter();
-        }, Qt::QueuedConnection);
-	});
+	// Call update_filter on selection update. Through sigc::mem_fun, as every
+	// connection to the view here: this model being a sigc::trackable, they go as it
+	// goes, and the view outlives any listing of it -- one in a dock goes as the dock
+	// is closed. A lambda capturing the model is not disconnected.
+	view._update_output_selection.connect(
+	    sigc::mem_fun(*this, &PVGuiQt::PVListingModel::update_filter_async));
 
 	// Update filter if we change layer content
 	view._update_output_layer.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingModel::update_filter));
@@ -65,7 +65,8 @@ PVGuiQt::PVListingModel::PVListingModel(Squey::PVView& view, QObject* parent)
 	// Update display of unselected lines on option toogling
 	view._toggle_unselected.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingModel::update_filter));
 
-	view._about_to_be_delete.connect([this](){ _view = nullptr; });
+	view._about_to_be_delete.connect(
+	    sigc::mem_fun(*this, &PVGuiQt::PVListingModel::on_view_about_to_be_deleted));
 
 	// Set listing view on visible_selection_listing selection.
 	update_filter();
@@ -331,6 +332,16 @@ QString PVGuiQt::PVListingModel::export_line(int /*row*/, const QString& /*fsep*
  * PVGuiQt::PVListingModel::update_filter
  *
  *****************************************************************************/
+void PVGuiQt::PVListingModel::update_filter_async()
+{
+	QMetaObject::invokeMethod(this, &PVListingModel::update_filter, Qt::QueuedConnection);
+}
+
+void PVGuiQt::PVListingModel::on_view_about_to_be_deleted()
+{
+	_view = nullptr;
+}
+
 void PVGuiQt::PVListingModel::update_filter()
 {
     if (_view == nullptr) {
