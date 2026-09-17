@@ -39,6 +39,8 @@ add_squey_compile_test(Tpview_scene_outlived_by_context LINKS ${LINK_LIBRARIES} 
 add_squey_test(Tpview_scene_outlived_by_context Tpview_scene_outlived_by_context)
 add_squey_compile_test(Tpview_zoomed_view_rescaled LINKS ${LINK_LIBRARIES} FILES zoomed_view_rescaled.cpp)
 add_squey_test(Tpview_zoomed_view_rescaled Tpview_zoomed_view_rescaled)
+add_squey_compile_test(Tpview_rescaled_off_gui_thread LINKS ${LINK_LIBRARIES} FILES rescaled_off_gui_thread.cpp)
+add_squey_test(Tpview_rescaled_off_gui_thread Tpview_rescaled_off_gui_thread)
 
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)

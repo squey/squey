@@ -83,12 +83,22 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	Squey::PVView& lib_view() { return _lib_view; }
 	Squey::PVView const& lib_view() const { return _lib_view; }
 
+	/**
+	 * Stop drawing, or draw again.
+	 *
+	 * Called as zones are rebuilt, from whichever thread rebuilds them: a scaling
+	 * asked for from the GUI is computed in the thread of its progress box. The
+	 * drawing is cancelled there and then, the widget -- which belongs to the GUI
+	 * thread -- is switched from the GUI thread.
+	 */
 	void set_enabled(bool value)
 	{
 		if (!value) {
 			_lines_view.cancel_and_wait_all_rendering();
 		}
-		_full_parallel_view->setDisabled(!value);
+		QMetaObject::invokeMethod(
+		    _full_parallel_view, [view = _full_parallel_view, value] { view->setDisabled(!value); },
+		    Qt::AutoConnection);
 	}
 
 	void update_new_selection_async();

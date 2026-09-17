@@ -203,7 +203,10 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 		if (!value) {
 			cancel_and_wait_all_rendering();
 		}
-		_zpview->setDisabled(!value);
+		// The widget belongs to the GUI thread, and zones are rebuilt in whichever
+		// thread a scaling is computed in: see PVFullParallelScene::set_enabled.
+		QMetaObject::invokeMethod(
+		    _zpview, [view = _zpview, value] { view->setDisabled(!value); }, Qt::AutoConnection);
 	}
 
 	/**
