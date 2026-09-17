@@ -84,35 +84,6 @@ bool PVOpenCL::force_cpu()
 	return env != nullptr && std::string(env) == "1";
 }
 
-std::pair<std::string, bool> PVOpenCL::opencl_infos()
-{
-	static std::string s_opencl_version;
-	static bool accelerated = true;
-	if (s_opencl_version.empty()) {
-		if (force_cpu()) {
-			accelerated = false;
-		}
-		for (size_t i = 0; i < (size_t)(accelerated + 1); i++) {
-			accelerated = (not (bool) i) && accelerated;
-			bool found = false;
-			find_first_usable_context(accelerated, [&found](auto&, cl::Device& device) {
-				found = true;
-				cl_int err;
-				if (s_opencl_version.empty()) {
-					std::string clversion = device.getInfo<CL_DEVICE_VERSION>(&err);
-					s_opencl_version += clversion;
-				}
-				std::string dname = device.getInfo<CL_DEVICE_NAME>(&err);
-				std::string dvendor = device.getInfo<CL_DEVICE_VENDOR>(&err);
-				std::string ddriver = device.getInfo<CL_DRIVER_VERSION>(&err);
-				s_opencl_version += "<br/>[" + dname + " (" + dvendor + " " + ddriver + ")]";
-			});
-			if (found) break;
-		}
-	}
-	return std::make_pair(s_opencl_version, accelerated);
-}
-
 /*****************************************************************************
  * PVOpenCL::visit_usable_devices
  *****************************************************************************/

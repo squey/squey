@@ -21,6 +21,15 @@ add_squey_compile_test(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort
 add_squey_test(Tpvguiqt_sort_filter Tpvguiqt_sort_filter)
 add_bench(Tpvguiqt_sort_filter LINKS ${COMMON_LIBRARIES} FILES sort_filter.cpp)
 
+# Linux only, the OpenCL driver it loads being built there only (see the tests of libpvkernel).
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	add_squey_compile_test(Tpvguiqt_about_box_opencl LINKS ${COMMON_LIBRARIES} FILES about_box_opencl.cpp)
+	target_compile_definitions(SQUEY_TEST_Tpvguiqt_about_box_opencl PRIVATE
+		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd>\")
+	add_dependencies(SQUEY_TEST_Tpvguiqt_about_box_opencl squey_test_opencl_icd)
+	add_squey_test(Tpvguiqt_about_box_opencl Tpvguiqt_about_box_opencl -platform offscreen)
+endif()
+
 add_squey_compile_test(Tpvguiqt_table_view_navigation LINKS ${COMMON_LIBRARIES} FILES table_view_navigation.cpp)
 add_squey_test(Tpvguiqt_table_view_navigation Tpvguiqt_table_view_navigation)
 

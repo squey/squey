@@ -43,10 +43,11 @@
 //#include <QtWebEngineWidgets/QWebEngineView>
 #include <QDebug>
 
-#include <pvkernel/opencl/common.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVLogger.h>
 #include <pvkernel/core/PVTheme.h>
+
+#include <pvparallelview/PVParallelView.h>
 
 #include <cassert>
 
@@ -317,6 +318,7 @@ PVGuiQt::PVAboutBoxDialog::PVAboutBoxDialog(Tab tab /*= SOFTWARE*/, QWidget* par
 	}
 
 	_software_info_label = new QLabel();
+	_software_info_label->setObjectName("software_info");
 	set_software_info_content();
 	connect(&PVCore::PVTheme::get(), &PVCore::PVTheme::color_scheme_changed, this, &PVGuiQt::PVAboutBoxDialog::set_software_info_content);
 	_software_info_label->setAlignment(Qt::AlignCenter);
@@ -384,9 +386,18 @@ void PVGuiQt::PVAboutBoxDialog::set_software_info_content()
 	//} else {
 	//	content += "<br/>No EGL™/OpenGL® support; using software fallback";
 	//}
-	if (auto [openclver, accel] = PVOpenCL::opencl_infos(); not openclver.empty()) {
-		content += QString("<br/><b>OpenCL™ support: %1</b><br/>").arg(accel ? "hardware": "software");
-		content += QString::fromStdString(openclver);
+	// What the views are drawn on, as the drawing backend has it. A search for
+	// devices of its own made the about box announce a GPU the backend had given
+	// up on for the CPU, while the status bar warned about running without one.
+	const auto& backend = PVParallelView::common::backend();
+	if (const auto devices = backend.opencl_devices(); not devices.empty()) {
+		content += QString("<br/><b>OpenCL™ support: %1</b><br/>")
+		               .arg(backend.is_gpu_accelerated() ? "hardware" : "software");
+		content += QString::fromStdString(devices.front().opencl_version);
+		for (const auto& device : devices) {
+			content += QString::fromStdString("<br/>[" + device.name + " (" + device.vendor + " " +
+			                                  device.driver_version + ")]");
+		}
 	} else {
 		content += "<br/>No OpenCL™ support; using software fallback";
 	}

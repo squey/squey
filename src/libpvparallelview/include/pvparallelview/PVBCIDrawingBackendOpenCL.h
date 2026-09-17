@@ -62,6 +62,7 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
   public:
 	bool is_gpu_accelerated() const override { return _is_gpu_accelerated; }
 	size_t device_count() const { return _devices.size(); }
+	std::vector<opencl_device_t> opencl_devices() const override;
 
 	/**
 	 * Compiles every kernel the views will ask for, so that none of them has to

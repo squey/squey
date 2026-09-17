@@ -25,40 +25,45 @@
 
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/squey_assert.h>
-#include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
+
+#include <pvguiqt/PVAboutBoxDialog.h>
+
+#include <pvparallelview/PVParallelView.h>
+
+#include <QApplication>
+#include <QLabel>
+
+#include <string>
 
 /**
- * Checks that a GPU the backend fails to set up leaves the drawing to the CPU
- * device rather than to the QPainter backend.
+ * Checks that the about box tells what the views are drawn on, not what a
+ * search for OpenCL devices of its own turns up.
  *
- * The driver loaded here hands out a context on its GPU but no command queue
- * (see opencl_test_icd.cpp in the tests of libpvkernel). ocl-icd lists the
- * drivers named by OCL_ICD_FILENAMES before those of the vendor files, and
- * OCL_ICD_PLATFORM_SORT=none keeps that order, so that this GPU is the one
- * found whatever else the machine has. PortableCL comes from the vendor files,
- * as it does for Topencl_cpu_device.
- *
- * FORCE_CPU is cleared rather than read from the environment: the GPU has to be
- * tried for its failure to matter.
+ * The driver loaded here offers a GPU on which no command queue can be created
+ * (see opencl_test_icd.cpp in the tests of libpvkernel), so the backend draws
+ * on PortableCL instead, as Topencl_gpu_fallback checks. The about box used to
+ * find that GPU by itself and announce hardware OpenCL support on it, next to
+ * a status bar warning about the lack of GPU acceleration. The driver comes
+ * first in the platform list for the reasons given in Topencl_gpu_fallback.
  */
-int main()
+int main(int argc, char** argv)
 {
 	PVCore::setenv("OCL_ICD_FILENAMES", SQUEY_TEST_OPENCL_ICD, 1);
 	PVCore::setenv("OCL_ICD_PLATFORM_SORT", "none", 1);
 	PVCore::setenv("FORCE_CPU", "0", 1);
 
-	auto& backend = PVParallelView::PVBCIDrawingBackendOpenCL::get();
+	QApplication app(argc, argv); // argv carries "-platform offscreen"
 
-	// No device means PVParallelViewImpl would take the QPainter backend.
-	PV_ASSERT_VALID(backend.device_count() > 0, "device count", backend.device_count());
-	PV_VALID(backend.is_gpu_accelerated(), false);
+	PVParallelView::common::RAII_backend_init backend_resources;
+	PV_VALID(PVParallelView::common::is_gpu_accelerated(), false);
 
-	// What the backend reports drawing on is what it set up, the GPU left out.
-	const auto devices = backend.opencl_devices();
-	PV_VALID(devices.size(), backend.device_count());
-	for (const auto& device : devices) {
-		PV_ASSERT_VALID(device.name != "Squey test GPU", "device", device.name);
-	}
+	const PVGuiQt::PVAboutBoxDialog about_box;
+	const auto* software_info = about_box.findChild<QLabel*>("software_info");
+	PV_ASSERT_VALID(software_info != nullptr);
+
+	const std::string text = software_info->text().toStdString();
+	PV_ASSERT_VALID(text.find("OpenCL™ support: software") != std::string::npos, "text", text);
+	PV_ASSERT_VALID(text.find("Squey test GPU") == std::string::npos, "text", text);
 
 	return 0;
 }

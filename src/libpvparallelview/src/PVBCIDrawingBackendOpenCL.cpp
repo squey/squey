@@ -425,6 +425,26 @@ PVParallelView::PVBCIDrawingBackendOpenCL& PVParallelView::PVBCIDrawingBackendOp
 }
 
 /*****************************************************************************
+ * PVParallelView::PVBCIDrawingBackendOpenCL::opencl_devices
+ *****************************************************************************/
+
+auto PVParallelView::PVBCIDrawingBackendOpenCL::opencl_devices() const
+    -> std::vector<opencl_device_t>
+{
+	std::vector<opencl_device_t> devices;
+
+	// The devices set up without error only, in the order the backend draws on
+	// them. A description the driver refuses comes back empty, not as an error.
+	for (const auto& it : _devices) {
+		const cl::Device& dev = it.second.dev;
+		devices.push_back({dev.getInfo<CL_DEVICE_NAME>(), dev.getInfo<CL_DEVICE_VENDOR>(),
+		                   dev.getInfo<CL_DRIVER_VERSION>(), dev.getInfo<CL_DEVICE_VERSION>()});
+	}
+
+	return devices;
+}
+
+/*****************************************************************************
  * PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels
  *****************************************************************************/
 
