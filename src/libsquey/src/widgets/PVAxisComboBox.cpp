@@ -42,16 +42,18 @@ PVWidgets::PVAxisComboBox::PVAxisComboBox(Squey::PVAxesCombination const& axes_c
     : QComboBox(parent), _axes_comb(axes_comb), _axes_shown(shown), _axes_filter(axes_filter)
 {
 	refresh_axes();
+	// Once per change: the listeners switch views over, which is not cheap and not
+	// always silent -- splitting series asks before a slow split.
 	connect(this, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
 		if (index < 0) {
 			Q_EMIT current_axis_changed(PVCol(), PVCombCol());
-		}
-		if (_axes_shown == AxesShown::CombinationAxes or
-		    (_axes_shown == AxesShown::BothOriginalCombinationAxes and
-		     index < count() - _axes_comb.get_nraw_axes_count())) {
+		} else if (_axes_shown == AxesShown::CombinationAxes or
+		           (_axes_shown == AxesShown::BothOriginalCombinationAxes and
+		            index < count() - _axes_comb.get_nraw_axes_count())) {
 			Q_EMIT current_axis_changed(current_axis(), PVCombCol(index));
+		} else {
+			Q_EMIT current_axis_changed(current_axis(), PVCombCol());
 		}
-		Q_EMIT current_axis_changed(current_axis(), PVCombCol());
 	});
 	setAcceptDrops(true);
 }

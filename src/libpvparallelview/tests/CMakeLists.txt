@@ -37,6 +37,8 @@ add_squey_compile_test(Tpview_axis_end_labels LINKS ${LINK_LIBRARIES} FILES axis
 add_squey_test(Tpview_axis_end_labels Tpview_axis_end_labels)
 add_squey_compile_test(Tpview_scene_outlived_by_context LINKS ${LINK_LIBRARIES} FILES scene_outlived_by_context.cpp)
 add_squey_test(Tpview_scene_outlived_by_context Tpview_scene_outlived_by_context)
+add_squey_compile_test(Tpview_zoomed_view_rescaled LINKS ${LINK_LIBRARIES} FILES zoomed_view_rescaled.cpp)
+add_squey_test(Tpview_zoomed_view_rescaled Tpview_zoomed_view_rescaled)
 
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)

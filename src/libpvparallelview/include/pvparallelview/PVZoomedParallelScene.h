@@ -313,6 +313,11 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	void on_context_about_to_be_deleted();
 
 	/**
+	 * What follows a rebuild of the zones, in the GUI thread: see on_zones_updated.
+	 */
+	void finish_zones_update();
+
+	/**
 	 * Get the zoom level corresponding to the current mouse wheel state.
 	 */
 	inline int get_zoom_level() { return _wheel_value / zoom_steps; }
