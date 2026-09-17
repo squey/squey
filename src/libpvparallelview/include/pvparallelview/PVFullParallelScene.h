@@ -175,6 +175,12 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
   private:
 	// Rendering-context (PVViewRenderingContext) signal handlers
+	//
+	// Connected through sigc::mem_fun, which the scene being a sigc::trackable
+	// disconnects as it is destroyed. A lambda capturing the scene is not, and the
+	// context outlives every scene built on it -- one in a dock goes as the dock is
+	// closed -- so the next emission would call into a scene that is gone.
+	void on_selection_updated_rescale();
 	void on_axes_combination_changed(bool async);
 	void on_zones_about_to_be_updated(std::unordered_set<PVZoneID> const& zones);
 	void on_zones_updated(std::unordered_set<PVZoneID> const& zones);

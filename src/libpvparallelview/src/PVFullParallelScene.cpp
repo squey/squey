@@ -117,10 +117,8 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	// Connected before the repaint below, and posted to the same queue: the wait
 	// for a rescaling has to be under way by the time update_new_selection() asks
 	// whether one is coming.
-	context.selection_updated.connect([this]() {
-		PVCore::invokeMethod(this, &PVFullParallelScene::rescale_on_selection_if_automatic,
-		                     Qt::QueuedConnection);
-	});
+	context.selection_updated.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVFullParallelScene::on_selection_updated_rescale));
 
 	context.selection_updated.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_new_selection_async));
@@ -270,6 +268,12 @@ void PVParallelView::PVFullParallelScene::on_view_about_to_be_deleted()
 	// outlive it.
 	about_to_be_deleted();
 	delete graphics_view();
+}
+
+void PVParallelView::PVFullParallelScene::on_selection_updated_rescale()
+{
+	PVCore::invokeMethod(this, &PVFullParallelScene::rescale_on_selection_if_automatic,
+	                     Qt::QueuedConnection);
 }
 
 void PVParallelView::PVFullParallelScene::refresh_densities(const QList<PVCol>& columns)
