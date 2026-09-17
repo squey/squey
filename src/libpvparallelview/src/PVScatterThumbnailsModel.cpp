@@ -93,9 +93,14 @@ PVParallelView::PVScatterThumbnailsModel::PVScatterThumbnailsModel(Squey::PVView
 	// A scaling pass rewrites the very columns a render walks. It recomputes
 	// them in place (see PVScaled::create_table), so an in-flight render reads
 	// mixed values rather than freed memory, but the images it produces are
-	// stale either way.
+	// stale either way. Handled in the GUI thread, which the cache and the
+	// model's signals belong to: a scaling asked for from the GUI is computed in
+	// the thread of its progress box, and tells its listeners from there.
 	_scaling_connection = _view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
-	    [this](QList<PVCol> const&) { on_scaling_changed(); });
+	    [this](QList<PVCol> const&) {
+		    QMetaObject::invokeMethod(this, &PVScatterThumbnailsModel::on_scaling_changed,
+		                              Qt::AutoConnection);
+	    });
 
 	// Not routed through the rendering context: this is a display setting, not
 	// zone state, so it comes straight from the model (see the connection rule
@@ -611,6 +616,11 @@ void PVParallelView::PVScatterThumbnailsModel::on_output_layer_changed()
 
 void PVParallelView::PVScatterThumbnailsModel::on_scaling_changed()
 {
+	// Posted, so it can come after detach().
+	if (_shutting_down) {
+		return;
+	}
+
 	// Scaling rewrites the very values the ranking was computed from, so the
 	// order on screen would otherwise stay the one of the previous values --
 	// wrong, and with nothing to show that it is.
