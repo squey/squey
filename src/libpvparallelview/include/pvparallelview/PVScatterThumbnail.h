@@ -156,6 +156,9 @@ class PVScatterThumbnail
 		double sum = 0.;
 		double sum_sq = 0.;
 		size_t count = 0;
+		//! The ends of what was read, which is how a column of one value is told.
+		uint32_t lowest = std::numeric_limits<uint32_t>::max();
+		uint32_t highest = 0;
 	};
 
 	/**

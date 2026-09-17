@@ -199,6 +199,8 @@ PVParallelView::PVScatterThumbnail::column_moments(Squey::PVView const& view,
 		moments.sum += vi;
 		moments.sum_sq += vi * vi;
 		++moments.count;
+		moments.lowest = std::min(moments.lowest, v[i]);
+		moments.highest = std::max(moments.highest, v[i]);
 	}
 
 	return moments;
@@ -214,6 +216,14 @@ double PVParallelView::PVScatterThumbnail::correlation(Squey::PVView const& view
 	const PVRow row_count = view.get_row_count();
 	const size_t n = x_moments.count;
 	if (row_count < 2 or n < 2 or y_moments.count != n) {
+		return 0.;
+	}
+
+	// A column of one value has no variance and so no correlation to report. Told
+	// from its ends rather than from the variance: worked out from sums of values
+	// that a binary fraction does not hold exactly, that one comes out as a residue
+	// of either sign, and a positive residue scores the pair.
+	if (x_moments.lowest == x_moments.highest or y_moments.lowest == y_moments.highest) {
 		return 0.;
 	}
 
@@ -234,8 +244,8 @@ double PVParallelView::PVScatterThumbnail::correlation(Squey::PVView const& view
 	const double var_x = x_moments.sum_sq - x_moments.sum * x_moments.sum / double(n);
 	const double var_y = y_moments.sum_sq - y_moments.sum * y_moments.sum / double(n);
 
-	// A constant column has no variance and so no correlation to report; it
-	// would otherwise divide by zero.
+	// Nor has a column whose spread rounding erased; it would otherwise divide by
+	// zero.
 	if (var_x <= 0. or var_y <= 0.) {
 		return 0.;
 	}
