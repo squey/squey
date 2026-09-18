@@ -7,6 +7,8 @@ variables:
   archive_ref: "ad18b70e287954c3d62bc7e0b86e7b7af2adf87bcfce21c15fe717f101d7aace"
   debug_flags: "-g1"
   optimize-debug: "false"
+  # The backends LLVM is built with, which clang_host.bst extends on Linux
+  llvm-targets: "X86;AArch64;AMDGPU;NVPTX"
   # LLVM_INCLUDE_BENCHMARKS is off because the benchmarks are never wanted.
   cmake-local: >-
     -DLLVM_ENABLE_PROJECTS='clang;compiler-rt'
@@ -30,7 +32,7 @@ variables:
     -DLLVM_BINUTILS_INCDIR=%{includedir}
     -DCLANG_LINK_CLANG_DYLIB=ON
     -DLLVM_INSTALL_TOOLCHAIN_ONLY:BOOL=OFF
-    -DLLVM_TARGETS_TO_BUILD="X86;AArch64;AMDGPU;NVPTX"
+    -DLLVM_TARGETS_TO_BUILD="%{llvm-targets}"
     %{cmake-local-extra}
   cmake: |
     cmake -B%{build-dir} -Hllvm -G"%{generator}" %{cmake-args}
