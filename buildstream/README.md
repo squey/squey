@@ -50,11 +50,13 @@ builds/x86_64-linux-gnu/Clang/RelWithDebInfo/squey.sh
 
 Pass `debug` to `squey.sh` to start it under gdb.
 
-Rendering falls back to the CPU. For an NVIDIA GPU, open `.devcontainer/gpu/`
-rather than the default configuration: an editor offers the choice when
-reopening, and the CLI takes `--config .devcontainer/gpu/devcontainer.json`. It
-is a separate configuration because it names devices that have to exist, so on a
-machine without an NVIDIA card it would refuse to start.
+Rendering uses the NVIDIA GPU of the machine when it has one, and the CPU
+otherwise; `FORCE_CPU=1` in front of the command takes the CPU anyway. The GPU
+comes through the flatpak runtimes the development shell uses too:
+`org.freedesktop.Platform.GL.default`, and the
+`org.freedesktop.Platform.GL.nvidia-*` of the driver. The log of the container
+creation gives the command that installs whichever is missing. The container
+takes the GPU when it is created, so rebuild it after installing one.
 
 ### If the image will not pull
 

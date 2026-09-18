@@ -15,7 +15,10 @@ if ! mkdir -p "$OCL_ICD_VENDORS" 2> /dev/null; then
 	mkdir -p "$OCL_ICD_VENDORS"
 fi
 
-NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"|sed -e "s/nvidia-//"`
+# Anchored, dash included: as a regular expression "nvidia-*" matches any name
+# containing "nvidia", and the devcontainer mounts the driver next to a plain
+# "nvidia" alias of it, which would read as a second version.
+NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "^nvidia-"|sed -e "s/nvidia-//"`
 NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed 's/-/./g'`
 
 # export PYTHONPATH

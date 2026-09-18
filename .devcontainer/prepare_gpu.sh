@@ -1,27 +1,51 @@
 #!/bin/bash
 #
-# Gathers the host GPU userspace under one fixed path, so that the GPU
-# devcontainer configuration can name it without knowing anything about this
-# machine.
+# Gathers what the GPU of this machine needs under fixed paths, its devices and
+# its userspace, so that .devcontainer/devcontainer.json can name them without
+# knowing anything about this machine.
 #
-# Runs on the host, as the "initializeCommand" of .devcontainer/gpu, before the
-# container exists. The flatpak runtime carrying the NVIDIA userspace is named
-# after the driver version and can be installed for the user or system wide, so
-# there is no path to commit: this builds a copy of it at a stable location and
-# lets the container mount that instead. It is the same set of directories
+# Runs on the host, as the "initializeCommand", before the container is created
+# or started. The flatpak runtime carrying the NVIDIA userspace is named after
+# the driver version and can be installed for the user or system wide, so there
+# is no path to commit: this builds a copy of it at a stable location and lets
+# the container mount that instead. It is the same set of directories
 # buildstream/.common.sh hands to "bst shell".
 #
 # Finding nothing is not an error. The container starts either way; it simply
-# renders on the CPU, as the default configuration does.
+# renders on the CPU.
 
 set -e
 
-FARM="${XDG_CACHE_HOME:-$HOME/.cache}/squey-devcontainer/gl"
-GL_RUNTIME="runtime/org.freedesktop.Platform.GL.default/x86_64/25.08/active/files"
-GL_EXTRA_RUNTIME="runtime/org.freedesktop.Platform.GL.default/x86_64/25.08-extra/active/files"
+# The paths .devcontainer/devcontainer.json names, which cannot follow
+# XDG_CACHE_HOME
+DEVICES="$HOME/.cache/squey-devcontainer/dev"
+FARM="$HOME/.cache/squey-devcontainer/gl"
+# The GL runtime of the freedesktop SDK the image is made of, which
+# buildstream/.common.sh names for the sandbox
+GL_BRANCH="$(sed -n 's/^[[:space:]]*GL_BRANCH="\(.*\)"$/\1/p' "$(dirname "${BASH_SOURCE[0]}")/../buildstream/.common.sh")"
+[ -n "$GL_BRANCH" ] || { echo "buildstream/.common.sh names no GL_BRANCH." >&2; exit 1; }
+GL_RUNTIME="runtime/org.freedesktop.Platform.GL.default/x86_64/$GL_BRANCH/active/files"
+GL_EXTRA_RUNTIME="runtime/org.freedesktop.Platform.GL.default/x86_64/$GL_BRANCH-extra/active/files"
 
-rm -rf "$FARM"
+# A device the container is created with has to exist, or the container refuses
+# to start, and devcontainer.json cannot say "if present". It names these links
+# instead, which always exist: each points at the device when this machine has
+# it, and at /dev/null otherwise, a harmless stand-in for the container to get.
+# The container runtime resolves them when it creates the container, after this
+# script.
+mkdir -p "$DEVICES"
+for device in /dev/dri /dev/nvidia0 /dev/nvidiactl /dev/nvidia-uvm; do
+    target="$device"
+    [ -e "$target" ] || target=/dev/null
+    ln -sfn "$target" "$DEVICES/${device##*/}"
+done
+
+# Emptied rather than removed: a running container keeps this very directory
+# mounted and would be left holding a deleted one, and this script runs again
+# whenever the CLI opens a container, running or not, as well as whenever
+# another checkout creates one.
 mkdir -p "$FARM"
+find "$FARM" -mindepth 1 -delete
 
 for root in "$HOME/.local/share/flatpak" /var/lib/flatpak; do
     [ -d "$root/$GL_RUNTIME" ] || continue
@@ -31,7 +55,7 @@ done
 
 if [ -z "$FLATPAK_ROOT" ]; then
     echo "No org.freedesktop.Platform.GL.default runtime; the container will render on the CPU." >&2
-    echo "Install it with: flatpak install flathub org.freedesktop.Platform.GL.default//25.08" >&2
+    echo "Install it with: flatpak install flathub org.freedesktop.Platform.GL.default//$GL_BRANCH" >&2
     exit 0
 fi
 
@@ -42,7 +66,9 @@ fi
 # flatpak install's own absolute host path, would dangle in there -- that path
 # was never mounted in, and the container has no way to resolve it.
 cp -al "$FLATPAK_ROOT/$GL_RUNTIME/." "$FARM/"
-[ -d "$FLATPAK_ROOT/$GL_EXTRA_RUNTIME" ] && cp -al "$FLATPAK_ROOT/$GL_EXTRA_RUNTIME" "$FARM/default"
+# Into the empty "default" directory GL.default ships for it, where the sandbox
+# mounts it too: the trailing "/." is explained below.
+[ -d "$FLATPAK_ROOT/$GL_EXTRA_RUNTIME" ] && cp -al "$FLATPAK_ROOT/$GL_EXTRA_RUNTIME/." "$FARM/default"
 
 DRIVER="$(flatpak --gl-drivers 2>/dev/null | grep '^nvidia' | head -1)"
 if [ -z "$DRIVER" ]; then
@@ -64,7 +90,7 @@ for root in "$HOME/.local/share/flatpak" /var/lib/flatpak; do
         cp -al "$root/$NVIDIA_RUNTIME/." "$FARM/$DRIVER"
         # A second, driver-version-independent name, relative and staying inside
         # the farm so it survives the bind mount same as everything else here:
-        # .devcontainer/gpu/devcontainer.json is static text and cannot glob for
+        # .devcontainer/devcontainer.json is static text and cannot glob for
         # whichever directory this run created, so LD_LIBRARY_PATH there is
         # written against this fixed alias instead.
         ln -sfn "$DRIVER" "$FARM/nvidia"

@@ -19,10 +19,7 @@ set -e
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 REPO_DIR="$( cd "$DIR/.." && pwd )"
-# Every configuration under .devcontainer/ pins the same image; the first one
-# is the reference the checks read, the others are kept in step.
 DEVCONTAINER_JSON="$REPO_DIR/.devcontainer/devcontainer.json"
-mapfile -t DEVCONTAINER_JSONS < <(find "$REPO_DIR/.devcontainer" -name devcontainer.json | sort)
 
 pinned_image() {
   sed -n 's/^[[:space:]]*"image"[[:space:]]*:[[:space:]]*"\(.*\)".*$/\1/p' "$DEVCONTAINER_JSON"
@@ -49,7 +46,5 @@ IMAGE="$1"
 
 # Only the "image" line is touched, so that whatever else the file grows over
 # time survives the rewrite untouched.
-for json in "${DEVCONTAINER_JSONS[@]}"; do
-  sed -i "s|^\([[:space:]]*\"image\"[[:space:]]*:[[:space:]]*\"\).*\(\"\)|\1$IMAGE\2|" "$json"
-  echo "Pinned $IMAGE in ${json#$REPO_DIR/}"
-done
+sed -i "s|^\([[:space:]]*\"image\"[[:space:]]*:[[:space:]]*\"\).*\(\"\)|\1$IMAGE\2|" "$DEVCONTAINER_JSON"
+echo "Pinned $IMAGE in ${DEVCONTAINER_JSON#$REPO_DIR/}"

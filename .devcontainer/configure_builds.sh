@@ -24,9 +24,8 @@ declare -A COMPILERS=( [Clang]="$TOOLCHAIN_DIR/clang++" [GCC]="$TOOLCHAIN_DIR/g+
 # No OpenCL setup here, on purpose. The sysroot does carry a PortableCL that
 # registers itself as an ICD -- libpocl.so.2 alongside its vendor file -- so the
 # container has a CPU device to offer, and run_cmd.sh is what points the loader
-# at it when the application starts. What the container has no way to offer is a
-# GPU: the default configuration names no device, which is what the FORCE_CPU of
-# devcontainer.json accounts for. Open .devcontainer/gpu/ for the other case.
+# at it when the application starts -- and at the NVIDIA driver too, when
+# prepare_gpu.sh found one on the host.
 
 # A clone without --recursive leaves the submodules empty, and cmake then fails
 # with "does not contain a CMakeLists.txt file" for each of them, under a couple
