@@ -11,6 +11,15 @@ cmake_minimum_required(VERSION 3.30...4.4)
 # which the resource files of the application and of the tests are compiled with.
 project(squey)
 
+# Every dependency lives in the development sandbox, or in the devcontainer made
+# from it. Anywhere else the configuration would stop on the first dependency it
+# misses, far from the actual cause.
+if (NOT EXISTS /etc/target_env_vars.sh AND NOT SQUEY_ALLOW_HOST_BUILD)
+	message(FATAL_ERROR "Configure Squey inside the development sandbox that "
+		"buildstream/dev_shell.sh starts (see CONTRIBUTING.md), or pass "
+		"-DSQUEY_ALLOW_HOST_BUILD=ON to try without it.")
+endif()
+
 # Write compile_commands.json into every build tree, whichever way it was
 # configured, for clangd and the other tools that read the compile commands.
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
