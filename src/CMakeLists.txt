@@ -11,6 +11,19 @@ cmake_minimum_required(VERSION 3.30...4.4)
 # which the resource files of the application and of the tests are compiled with.
 project(squey)
 
+# Every dependency lives in the development sandbox, or in the devcontainer made
+# from it. Anywhere else the configuration would stop on the first dependency it
+# misses, far from the actual cause.
+if (NOT EXISTS /etc/target_env_vars.sh AND NOT SQUEY_ALLOW_HOST_BUILD)
+	message(FATAL_ERROR "Configure Squey inside the development sandbox that "
+		"buildstream/dev_shell.sh starts (see CONTRIBUTING.md), or pass "
+		"-DSQUEY_ALLOW_HOST_BUILD=ON to try without it.")
+endif()
+
+# Write compile_commands.json into every build tree, whichever way it was
+# configured, for clangd and the other tools that read the compile commands.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 ###############################################################################
 # Define testing environment
 ###############################################################################
@@ -84,8 +97,11 @@ add_custom_target(squey_testsuite)
 if (CMAKE_CONFIGURATION_TYPES)
     set(BUILD_CONF_OPTION "--build-config $<CONFIGURATION>")
 endif()
+# -FS: the dependency below has built the test suite already, and building it again
+# from ctest would run a second ninja in the build tree the first one is working on.
 add_custom_target(
     squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
+    -FS squey_testsuite_built
     --force-new-ctest-process --output-on-failure
     ${BUILD_CONF_OPTION}
 )
@@ -94,6 +110,20 @@ add_dependencies(squey_testsuite squey)
 add_dependencies(squey_run_testsuite squey_testsuite)
 add_custom_target(squey_bench COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_BENCH_)
 add_dependencies(squey_bench squey_testsuite)
+
+# The test executables are not part of "all", and a stale one crashes in misleading
+# ways once a header has changed its layout: ctest builds them, along with the plugins
+# they load, before it runs any test. Cross-compiled tests run elsewhere, from an
+# installed copy of the suite.
+if (NOT CMAKE_CROSSCOMPILING)
+	add_test(NAME build_testsuite
+		COMMAND ${CMAKE_COMMAND} -DBUILD_DIR=${CMAKE_BINARY_DIR}
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildTestsuite.cmake)
+	set_tests_properties(build_testsuite PROPERTIES
+		FIXTURES_SETUP squey_testsuite_built
+		# A build from scratch outlasts the default timeout of ctest
+		TIMEOUT 0)
+endif()
 
 # ###############################################################################
 # # furl

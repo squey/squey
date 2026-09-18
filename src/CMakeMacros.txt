@@ -83,7 +83,9 @@ set(SQUEY_TEST_TIMEOUT 600 CACHE STRING "Timeout in seconds after which a test i
 
 function(add_squey_test test_exe test_name)
 	add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX} ${ARGN})
-	set_tests_properties(SQUEY_TEST_${test_exe} PROPERTIES TIMEOUT ${SQUEY_TEST_TIMEOUT})
+	set_tests_properties(SQUEY_TEST_${test_exe} PROPERTIES
+		TIMEOUT ${SQUEY_TEST_TIMEOUT}
+		FIXTURES_REQUIRED squey_testsuite_built)
 endfunction()
 
 function(add_bench bench_name)

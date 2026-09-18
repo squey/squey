@@ -1,0 +1,9 @@
+{
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "enabledPlugins": {
+    "clangd-lsp@claude-plugins-official": false
+  }
+}
