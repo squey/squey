@@ -84,35 +84,6 @@ bool PVOpenCL::force_cpu()
 	return env != nullptr && std::string(env) == "1";
 }
 
-std::pair<std::string, bool> PVOpenCL::opencl_infos()
-{
-	static std::string s_opencl_version;
-	static bool accelerated = true;
-	if (s_opencl_version.empty()) {
-		if (force_cpu()) {
-			accelerated = false;
-		}
-		for (size_t i = 0; i < (size_t)(accelerated + 1); i++) {
-			accelerated = (not (bool) i) && accelerated;
-			bool found = false;
-			find_first_usable_context(accelerated, [&found](auto&, cl::Device& device) {
-				found = true;
-				cl_int err;
-				if (s_opencl_version.empty()) {
-					std::string clversion = device.getInfo<CL_DEVICE_VERSION>(&err);
-					s_opencl_version += clversion;
-				}
-				std::string dname = device.getInfo<CL_DEVICE_NAME>(&err);
-				std::string dvendor = device.getInfo<CL_DEVICE_VENDOR>(&err);
-				std::string ddriver = device.getInfo<CL_DRIVER_VERSION>(&err);
-				s_opencl_version += "<br/>[" + dname + " (" + dvendor + " " + ddriver + ")]";
-			});
-			if (found) break;
-		}
-	}
-	return std::make_pair(s_opencl_version, accelerated);
-}
-
 /*****************************************************************************
  * PVOpenCL::visit_usable_devices
  *****************************************************************************/
@@ -147,22 +118,47 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 	int platform_index = 0;
 
 	for (const auto& platform : platforms) {
-		cl_context_properties prop[] = {CL_CONTEXT_PLATFORM,
-		                                reinterpret_cast<cl_context_properties>(platform()), 0};
-
-		cl::Context ctx(type, prop, nullptr, nullptr, &err);
+		/* Ask the driver for all of its devices and match the type here, on what
+		 * each device reports. The Adreno driver of Windows on ARM machines
+		 * refuses CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR with
+		 * CL_INVALID_DEVICE_TYPE, although the specification makes the type a
+		 * bit-field: handed to clCreateContextFromType, it cost those machines
+		 * their GPU, and before that the whole session. CL_DEVICE_TYPE_ALL is
+		 * what every tool listing devices asks for, the one value a driver
+		 * cannot get away with refusing.
+		 */
+		std::vector<cl::Device> platform_devices;
+		err = platform.getDevices(CL_DEVICE_TYPE_ALL, &platform_devices);
 
 		if (err == CL_DEVICE_NOT_FOUND) {
+			// the platform has no device at all
+			continue;
+		}
+
+		if (squey_opencl_failed(err)) {
+			continue;
+		}
+
+		std::vector<cl::Device> devices;
+		for (const auto& device : platform_devices) {
+			if ((info<CL_DEVICE_TYPE>(device) & type) != 0) {
+				devices.push_back(device);
+			}
+		}
+
+		if (devices.empty()) {
 			// there is no matching device
 			continue;
 		}
 
-		/* A platform that will not hand out a context is one to walk past. It
-		 * used to end the process instead, which is how a Windows on ARM
-		 * machine -- where the x64 build runs under emulation, next to a driver
-		 * that answers the enumeration but not much else -- lost the session at
-		 * start-up, when the platform right after it, or the QPainter backend,
-		 * would have drawn its views.
+		cl_context_properties prop[] = {CL_CONTEXT_PLATFORM,
+		                                reinterpret_cast<cl_context_properties>(platform()), 0};
+
+		cl::Context ctx(devices, prop, nullptr, nullptr, &err);
+
+		/* A platform that will not hand out a context is one to walk past, not
+		 * a reason to end the process: the next platform, or the QPainter
+		 * backend, can still draw the views.
 		 */
 		if (squey_opencl_failed(err)) {
 			continue;
@@ -174,37 +170,27 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 			continue;
 		}
 
-		std::vector<cl::Device> devices = ctx.getInfo<CL_CONTEXT_DEVICES>(&err);
-		if (squey_opencl_failed(err)) {
-			continue;
+		PVLOG_INFO("OpenCL backend found: %s, Version: %s, Vendor: %s, Profil: %s\n",
+		           info<CL_PLATFORM_NAME>(platform).c_str(),
+		           info<CL_PLATFORM_VERSION>(platform).c_str(),
+		           info<CL_PLATFORM_VENDOR>(platform).c_str(),
+		           info<CL_PLATFORM_PROFILE>(platform).c_str());
+
+		PVLOG_INFO("OpenCL backend extensions: %s\n",
+		           info<CL_PLATFORM_EXTENSIONS>(platform).c_str());
+
+		for (auto& device : devices) {
+			f(ctx, device);
+
+			PVLOG_INFO("OpenCL device found: %s, Version: %s, Vendor: %s, Profil, %s LocalMemSize: %d\n",
+			           info<CL_DEVICE_NAME>(device).c_str(),
+			           info<CL_DEVICE_VERSION>(device).c_str(),
+			           info<CL_DEVICE_VENDOR>(device).c_str(),
+			           info<CL_DEVICE_PROFILE>(device).c_str(),
+			           info<CL_DEVICE_LOCAL_MEM_SIZE>(device));
 		}
 
-		if (devices.size() != 0) {
-
-			PVLOG_INFO("OpenCL backend found: %s, Version: %s, Vendor: %s, Profil: %s\n",
-			           info<CL_PLATFORM_NAME>(platform).c_str(),
-			           info<CL_PLATFORM_VERSION>(platform).c_str(),
-			           info<CL_PLATFORM_VENDOR>(platform).c_str(),
-			           info<CL_PLATFORM_PROFILE>(platform).c_str());
-
-			PVLOG_INFO("OpenCL backend extensions: %s\n",
-			           info<CL_PLATFORM_EXTENSIONS>(platform).c_str());
-
-			for (auto& device : devices) {
-				f(ctx, device);
-
-				PVLOG_INFO("OpenCL device found: %s, Version: %s, Vendor: %s, Profil, %s LocalMemSize: %d\n",
-				           info<CL_DEVICE_NAME>(device).c_str(),
-				           info<CL_DEVICE_VERSION>(device).c_str(),
-				           info<CL_DEVICE_VENDOR>(device).c_str(),
-				           info<CL_DEVICE_PROFILE>(device).c_str(),
-				           info<CL_DEVICE_LOCAL_MEM_SIZE>(device));
-			}
-
-			return ctx;
-		}
-
-		++platform_index;
+		return ctx;
 	}
 
 	PVLOG_INFO("No %s OpenCL backend found\n", type_name);

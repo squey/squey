@@ -43,6 +43,15 @@ add_squey_test(Topencl_build_test Topencl_build_test)
 add_squey_compile_test(Topencl_cpu_device LINKS ${LINK_LIBRARIES} FILES opencl_cpu_device.cpp)
 add_squey_test(Topencl_cpu_device Topencl_cpu_device)
 
+# Linux only, the driver it loads being built there only (see the tests of libpvkernel).
+if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
+	add_squey_compile_test(Topencl_gpu_fallback LINKS ${LINK_LIBRARIES} FILES opencl_gpu_fallback.cpp)
+	target_compile_definitions(SQUEY_TEST_Topencl_gpu_fallback PRIVATE
+		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd>\")
+	add_dependencies(SQUEY_TEST_Topencl_gpu_fallback squey_test_opencl_icd)
+	add_squey_test(Topencl_gpu_fallback Topencl_gpu_fallback)
+endif()
+
 add_squey_compile_test(Topencl_render LINKS ${LINK_LIBRARIES} FILES opencl_render.cpp bci_helpers.cpp)
 add_squey_test(Topencl_render Topencl_render)
 

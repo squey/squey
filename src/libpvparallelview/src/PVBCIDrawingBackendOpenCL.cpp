@@ -262,6 +262,34 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 	PVCore::setenv("POCL_LINKER_DIR", libdir.c_str(), 1);
 #endif
 
+	/* The CPU device gets its turn whenever the accelerated one fails, not only
+	 * when there is none: a GPU found and then refusing a queue, a buffer or the
+	 * kernel used to leave the backend without a device, and the views to the
+	 * QPainter backend while PortableCL could have drawn them.
+	 */
+	if (not PVOpenCL::force_cpu() and initialize_devices(true)) {
+		return true;
+	}
+
+	_is_gpu_accelerated = false;
+
+	return initialize_devices(false);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVBCIDrawingBackendOpenCL::initialize_devices
+ *****************************************************************************/
+
+bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize_devices(bool accelerated)
+{
+	// Whatever a previous attempt set up goes first, the kernel before the
+	// context it was built in.
+	_kernel = cl::Kernel();
+	_devices.clear();
+	_context = cl::Context();
+
+	const char* const kind = accelerated ? "accelerated" : "software";
+
 	size_t size = PVParallelView::MaxBciCodes * sizeof(PVBCICodeBase);
 	int dev_idx = 0;
 	cl_int err;
@@ -269,8 +297,6 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 	const cl_uint image_height = PVParallelView::constants<Bbits>::image_height;
 	const size_t column_mem_size = image_height * sizeof(cl_uint);
 	const uint64_t max_mem = column_mem_size * PARALLELVIEW_ZONE_MAX_WIDTH;
-
-	const bool force_cpu = PVOpenCL::force_cpu();
 
 	// List all usable OpenCL devices and create appropriate structures
 	const auto fun = [&](cl::Context& ctx, cl::Device& dev) {
@@ -293,20 +319,10 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 		++dev_idx;
 	};
 
-	if (force_cpu == false) {
-		_context = PVOpenCL::find_first_usable_context(true, fun);
-	}
-	else {
-		_is_gpu_accelerated = false;
-	}
+	_context = PVOpenCL::find_first_usable_context(accelerated, fun);
 
 	if (_context() == nullptr) {
-		_context = PVOpenCL::find_first_usable_context(false, fun);
-		_is_gpu_accelerated = false;
-	}
-
-	if (_context() == nullptr) {
-		PVLOG_INFO("No OpenCL support: no context available.\n");
+		PVLOG_INFO("No %s OpenCL support: no context available.\n", kind);
 		return false;
 	}
 
@@ -315,7 +331,7 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 	 * have reported.
 	 */
 	if (_devices.empty()) {
-		PVLOG_INFO("No OpenCL support: no usable device in the context.\n");
+		PVLOG_INFO("No %s OpenCL support: no usable device in the context.\n", kind);
 		return false;
 	}
 
@@ -406,6 +422,26 @@ PVParallelView::PVBCIDrawingBackendOpenCL& PVParallelView::PVBCIDrawingBackendOp
 {
 	static PVBCIDrawingBackendOpenCL backend;
 	return backend;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVBCIDrawingBackendOpenCL::opencl_devices
+ *****************************************************************************/
+
+auto PVParallelView::PVBCIDrawingBackendOpenCL::opencl_devices() const
+    -> std::vector<opencl_device_t>
+{
+	std::vector<opencl_device_t> devices;
+
+	// The devices set up without error only, in the order the backend draws on
+	// them. A description the driver refuses comes back empty, not as an error.
+	for (const auto& it : _devices) {
+		const cl::Device& dev = it.second.dev;
+		devices.push_back({dev.getInfo<CL_DEVICE_NAME>(), dev.getInfo<CL_DEVICE_VENDOR>(),
+		                   dev.getInfo<CL_DRIVER_VERSION>(), dev.getInfo<CL_DEVICE_VERSION>()});
+	}
+
+	return devices;
 }
 
 /*****************************************************************************

@@ -62,6 +62,7 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
   public:
 	bool is_gpu_accelerated() const override { return _is_gpu_accelerated; }
 	size_t device_count() const { return _devices.size(); }
+	std::vector<opencl_device_t> opencl_devices() const override;
 
 	/**
 	 * Compiles every kernel the views will ask for, so that none of them has to
@@ -105,13 +106,28 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 
   private:
 	/**
-	 * Bring up the OpenCL context, devices and kernel this backend draws with.
+	 * Bring up the OpenCL context, devices and kernel this backend draws with:
+	 * on an accelerated device unless the CPU is forced, and on a CPU device
+	 * when it is, when there is no accelerated one, or when that one fails.
 	 *
 	 * @return true once the backend can draw; false when the OpenCL stack could
 	 * not be brought up, which leaves the backend without a device and has the
 	 * QPainter backend take over.
 	 */
 	bool initialize();
+
+	/**
+	 * Bring up the context, devices and kernel on the first OpenCL platform
+	 * offering a device of the kind asked for, after releasing those of a
+	 * previous attempt.
+	 *
+	 * @param accelerated whether the device must be a GPU or an accelerator
+	 * rather than a CPU
+	 *
+	 * @return true once the backend can draw; false when no platform offers
+	 * such a device, or when the one found fails to be set up.
+	 */
+	bool initialize_devices(bool accelerated);
 
 	/**
 	 * Callback function called once image creation is done and back on computer.

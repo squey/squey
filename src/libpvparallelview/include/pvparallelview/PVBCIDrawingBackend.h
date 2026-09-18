@@ -30,6 +30,8 @@
 #include <pvparallelview/PVBCIBackendImage_types.h>
 
 #include <functional>
+#include <string>
+#include <vector>
 
 namespace PVParallelView
 {
@@ -45,11 +47,31 @@ class PVBCIDrawingBackend
 
 	typedef enum { Serial = 1, Parallel = 2 } Flags;
 
+	/**
+	 * What an OpenCL device a backend draws on says of itself.
+	 */
+	struct opencl_device_t {
+		std::string name;
+		std::string vendor;
+		std::string driver_version;
+		std::string opencl_version;
+	};
+
   public:
 	virtual ~PVBCIDrawingBackend() = default;
 
   public:
 	virtual bool is_gpu_accelerated() const = 0;
+
+	/**
+	 * @return the OpenCL devices this backend draws on; none for a backend that
+	 * does not draw through OpenCL.
+	 *
+	 * Whoever reports what the views are drawn on asks here rather than
+	 * searching for devices on its own: the OpenCL backend may well have found a
+	 * GPU and then drawn on the CPU.
+	 */
+	virtual std::vector<opencl_device_t> opencl_devices() const { return {}; }
 
   public:
 	virtual backend_image_p_t create_image(size_t img_width, uint8_t height_bits) = 0;
