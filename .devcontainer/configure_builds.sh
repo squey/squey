@@ -66,15 +66,22 @@ for combination in "${@:-Clang/RelWithDebInfo}"; do
         -DCMAKE_CXX_COMPILER="$cxx" \
         -DCMAKE_BUILD_TYPE="$build_type" \
         -DCMAKE_INSTALL_PREFIX="$PREFIX" \
-        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
-        -DCMAKE_EXPORT_COMPILE_COMMANDS=ON
+        -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 done
 
 # clangd looks for the compilation database at the root of the source tree it is
-# given, and src/ is where the top level CMakeLists.txt lives.
+# given, and src/ is where the top level CMakeLists.txt lives. Point it at the
+# database buildstream/clangd.sh gives clangd rather than at the one CMake
+# writes, which lists the unity sources instead of the files they include and
+# names a precompiled header clangd cannot read. clangd.sh rewrites it whenever
+# CMake rewrites its own; a clangd started otherwise sees the last rewrite.
 first_build_folder="builds/$TARGET_TRIPLE/Clang/RelWithDebInfo"
-if [ -f "$first_build_folder/compile_commands.json" ] && [ ! -e src/compile_commands.json ]; then
-    ln -s "../$first_build_folder/compile_commands.json" src/compile_commands.json
+if [ -f "$first_build_folder/compile_commands.json" ]; then
+    python3 buildstream/scripts/clangd_compile_commands.py \
+        "$first_build_folder/compile_commands.json" "$first_build_folder/clangd/compile_commands.json"
+    if [ -L src/compile_commands.json ] || [ ! -e src/compile_commands.json ]; then
+        ln -sfn "../$first_build_folder/clangd/compile_commands.json" src/compile_commands.json
+    fi
 fi
 
 cat << 'EOF'
