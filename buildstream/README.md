@@ -58,22 +58,25 @@ machine without an NVIDIA card it would refuse to start.
 
 ### If the image will not pull
 
-A branch pins the image of its own dependency graph, and that image is published
-by the merge request pipeline. On a branch that never had one the pull fails
-with `manifest unknown`: open the merge request and let the CI publish it, or
-build it yourself.
+The pin names the image of a dependency graph, and its tag is a digest of that
+graph, so only a commit that changes a dependency calls for a new image. The
+`ensure devcontainer image` CI job builds and pushes that image by itself, on
+every merge request, and the pipeline its merge into `main` starts commits the
+new tag there. Until then a branch keeps the image of `main`. To use the new
+one sooner, pin the tag the job printed:
+
+```
+buildstream/scripts/update_devcontainer_pin.sh registry.gitlab.com/squey/squey/devcontainer:<tag>
+```
+
+A pull that fails with `manifest unknown` names an image nobody has published
+yet: open the merge request and let the CI publish it, or build it yourself.
+Staging the sysroot takes around 11 GB, so point `TMPDIR` at a disk with room if
+`/tmp` is a tmpfs.
 
 ```
 buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true
 ```
-
-The tag is a digest of the dependency graph, so only a commit that changes a
-dependency calls for a new image. The `ensure devcontainer image` CI job builds
-and pushes that image by itself, on every merge request. The one thing it will
-not do is write the new tag into your branch, so when a dependency moves it
-stops and prints the one-line command that does -- the image is already waiting
-by then. Staging the sysroot takes around 11 GB, so point `TMPDIR` at a disk
-with room if `/tmp` is a tmpfs.
 
 ## Development shell
 

@@ -32,9 +32,9 @@ builds and tests the native Linux version.
 
 - On creation, it configures `builds/x86_64-linux-gnu/Clang/RelWithDebInfo`.
 - It binds the Wayland socket of the host, to show the GUI: the host needs a Wayland session.
-- `.devcontainer/devcontainer.json` pins the image by a digest of the dependency graph. A branch
-  that changes a dependency gets its image from the merge request pipeline, and has to update
-  the pin with `buildstream/scripts/update_devcontainer_pin.sh`, as that pipeline tells.
+- `.devcontainer/devcontainer.json` pins the image by a digest of the dependency graph. When a
+  branch changes a dependency, its merge request pipeline publishes the new image, and the
+  merge commits the new pin to `main`. Until then, the branch keeps the image of `main`.
 
 ### Editors and coding assistants
 

@@ -56,6 +56,16 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
+    # A merge into the default branch that moves a dependency, for the image job to
+    # publish the image of the branch and commit its pin there: the only pipeline a
+    # push starts. The commit of the pin touches neither path, and starts none.
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - buildstream/**/*
+        - project.conf
+      variables:
+        CONTAINER_SCANNING_DISABLED: "true"
+        SAST_DISABLED: "true"
 
 # Filters a job out of a scheduled pipeline that has nothing to rebuild. Must come
 # first in the "rules" list of every job that can run in a scheduled pipeline.
@@ -174,13 +184,14 @@ builder appstream-linter:
 # digest of the dependency graph, and .devcontainer/devcontainer.json pins it
 # the same way this file pins BASE_IMAGE_NAME.
 #
-# The two halves are one job on purpose. Checking the pin and publishing the
-# image are separate concerns, but splitting them races: whichever runs first
-# either fails on an image the other has not built yet, or publishes under a
-# pin nobody has validated. Run in order inside a single job, a merge request
-# only goes green once its pin matches its dependency graph AND names an image
-# the registry really holds -- which is what makes the pin safe to merge, with
-# no window where the default branch points at something nobody can pull.
+# The steps are one job on purpose. Publishing the image and pinning it are
+# separate concerns, but splitting them races: whichever runs first either pins
+# an image the other has not published yet, or publishes one nothing pins. Run
+# in order inside a single job, the pin that reaches the default branch always
+# names an image the registry already holds, with no window where that branch
+# points at something nobody can pull. A merge request only reports a pin that
+# moved, which the pipeline its merge starts then commits (see
+# commit_devcontainer_pin.sh).
 ensure devcontainer image:
   stage: build
   image:
@@ -216,12 +227,11 @@ ensure devcontainer image:
     # itself, so a branch that moves a dependency gets its image built here
     # rather than on a contributor's machine. Idempotent: it exits early when
     # the registry already holds the tag, which is what nearly every merge
-    # request hits.
-    - buildstream/scripts/build_devcontainer_image.sh --push=true
-    # What no job should do is write the new tag into the branch -- that is a
-    # pipeline committing to someone's work. So it stops here instead, with the
-    # image already published, and prints the one command that finishes the job.
-    - buildstream/scripts/update_devcontainer_pin.sh --check
+    # request hits. It then writes the tag into .devcontainer/.
+    - buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true
+    # A tag that moved is reported in a merge request, and committed on the
+    # default branch by the pipeline its merge starts.
+    - buildstream/scripts/commit_devcontainer_pin.sh
     # A pin agreeing with the graph still says nothing about the image being
     # pullable.
     - buildstream/scripts/update_devcontainer_pin.sh --verify-image
@@ -420,6 +430,9 @@ build and run testsuite linux:
   coverage: '/lines: (\d+\.\d+)% \(\d+ out of \d+\)/'
   rules:
     - !reference [.skip_if_already_built, rules]
+    # A push only starts a pipeline for the image job, see "workflow"
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: never
     - if: '$CI_COMMIT_TAG =~ "/^$/"'
   artifacts:
     when: always

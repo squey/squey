@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Rewrites, or checks, the image reference pinned in
+# Rewrites, or verifies, the image reference pinned in
 # .devcontainer/devcontainer.json.
 #
 # The pin travels with the branch, exactly like the BASE_IMAGE_NAME of
@@ -11,7 +11,6 @@
 #
 # Usage:
 #   update_devcontainer_pin.sh <image_reference>   pin that reference
-#   update_devcontainer_pin.sh --check             fail if the pin is stale
 #   update_devcontainer_pin.sh --verify-image      fail if the pin names an
 #                                                  image the registry does not
 #                                                  hold
@@ -29,26 +28,10 @@ pinned_image() {
   sed -n 's/^[[:space:]]*"image"[[:space:]]*:[[:space:]]*"\(.*\)".*$/\1/p' "$DEVCONTAINER_JSON"
 }
 
-if [ "$1" = "--check" ]; then
-  expected_tag="$("$DIR/scripts/devcontainer_image_tag.sh")"
-  pinned="$(pinned_image)"
-  if [ "${pinned##*:}" = "$expected_tag" ]; then
-    echo "devcontainer.json pins $pinned, which matches the dependency graph."
-    exit 0
-  fi
-  echo >&2 "devcontainer.json pins '$pinned', but this branch's dependency graph resolves to tag '$expected_tag'."
-  echo >&2 "Refresh the pin and commit it:"
-  echo >&2 "  buildstream/scripts/update_devcontainer_pin.sh ${pinned%:*}:$expected_tag"
-  echo >&2 "The image itself needs no action in CI, where it has just been published."
-  echo >&2 "Elsewhere, build and push it with:"
-  echo >&2 "  buildstream/scripts/build_devcontainer_image.sh --push=true"
-  exit 1
-fi
-
-# Checking that the tag matches the dependency graph says nothing about the
-# image being published: without this, a merge request can go green on a pin
-# that names something nobody can pull, and the devcontainer of the default
-# branch stays broken until someone notices.
+# A pin agreeing with the dependency graph says nothing about the image being
+# published: without this, a merge request can go green on a pin that names
+# something nobody can pull, and the devcontainer of the default branch stays
+# broken until someone notices.
 if [ "$1" = "--verify-image" ]; then
   pinned="$(pinned_image)"
   if skopeo inspect "docker://$pinned" &> /dev/null; then
@@ -62,7 +45,7 @@ if [ "$1" = "--verify-image" ]; then
 fi
 
 IMAGE="$1"
-[ -n "$IMAGE" ] || { echo >&2 "Usage: $0 <image_reference> | --check | --verify-image"; exit 1; }
+[ -n "$IMAGE" ] || { echo >&2 "Usage: $0 <image_reference> | --verify-image"; exit 1; }
 
 # Only the "image" line is touched, so that whatever else the file grows over
 # time survives the rewrite untouched.
