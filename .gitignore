@@ -46,3 +46,7 @@ buildstream/sshd/sshd.pid*
 !.vscode/tasks.json
 !.vscode/launch.json
 !.vscode/.cmaketools.json
+
+# Claude Code: personal settings, and the worktrees "claude --worktree" creates
+.claude/settings.local.json
+.claude/worktrees/
