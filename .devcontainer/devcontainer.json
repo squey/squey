@@ -64,7 +64,8 @@
     "source=${localEnv:HOME}/.cache/squey-devcontainer/gl,target=/usr/lib/x86_64-linux-gnu/GL,type=bind,readonly"
   ],
 
-  // The devices the driver needs. Named directly, one that does not exist would
+  // The devices the drivers need: /dev/dri for Mesa, which drives AMD and Intel
+  // GPUs, the others for NVIDIA's. Named directly, one that does not exist would
   // keep the container from starting, and nothing here can say "if present". So
   // these name the links prepare_gpu.sh makes, which always exist: each resolves
   // to the device on a machine that has it, and to /dev/null otherwise. The

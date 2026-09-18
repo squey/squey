@@ -24,8 +24,8 @@ declare -A COMPILERS=( [Clang]="$TOOLCHAIN_DIR/clang++" [GCC]="$TOOLCHAIN_DIR/g+
 # No OpenCL setup here, on purpose. The sysroot does carry a PortableCL that
 # registers itself as an ICD -- libpocl.so.2 alongside its vendor file -- so the
 # container has a CPU device to offer, and run_cmd.sh is what points the loader
-# at it when the application starts -- and at the NVIDIA driver too, when
-# prepare_gpu.sh found one on the host.
+# at it when the application starts -- and at the GPU drivers too: NVIDIA's
+# when prepare_gpu.sh found one on the host, Mesa's for an AMD or Intel GPU.
 
 # Under podman the workspace is the container user's only with --userns=keep-id,
 # which the devcontainer CLI passes by itself and Zed only when told it drives

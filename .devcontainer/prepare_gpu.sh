@@ -72,7 +72,7 @@ cp -al "$FLATPAK_ROOT/$GL_RUNTIME/." "$FARM/"
 
 DRIVER="$(flatpak --gl-drivers 2>/dev/null | grep '^nvidia' | head -1)"
 if [ -z "$DRIVER" ]; then
-    echo "No NVIDIA flatpak driver in use; the container will render on the CPU." >&2
+    echo "No NVIDIA flatpak driver in use; the container will draw on an AMD or Intel GPU if there is one, on the CPU otherwise." >&2
     exit 0
 fi
 
@@ -99,5 +99,5 @@ for root in "$HOME/.local/share/flatpak" /var/lib/flatpak; do
     fi
 done
 
-echo "Driver $DRIVER is in use but its flatpak runtime is missing; the container will render on the CPU." >&2
+echo "Driver $DRIVER is in use but its flatpak runtime is missing; the container will not draw on that GPU." >&2
 echo "Install it with: flatpak install flathub org.freedesktop.Platform.GL.$DRIVER" >&2

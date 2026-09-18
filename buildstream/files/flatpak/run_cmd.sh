@@ -61,6 +61,39 @@ if [ -n "$NVIDIA_VERSION" ]; then
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NVIDIA_EXTRA_LIBS_PATH
 fi
 
+# Whether the machine has a GPU that Mesa drives, an AMD or an Intel one
+has_mesa_gpu() {
+	local driver
+	for driver in /sys/class/drm/renderD*/device/driver; do
+		case "$(basename "$(readlink "$driver")")" in
+		amdgpu | radeon | i915 | xe) return 0 ;;
+		esac
+	done
+	return 1
+}
+
+# AMD and Intel GPUs go through rusticl, the OpenCL implementation of Mesa,
+# which the GL runtime carries: in GL/default, where the flatpak mounts it and
+# where the sandbox and the devcontainer put its -extra variant, or else at the
+# top of GL, where they mount GL.default itself. It is only brought in where it
+# has a GPU to drive: elsewhere it would add nothing but a warning from Mesa
+# about every GPU of another vendor.
+if has_mesa_gpu; then
+	for rusticl_dir in "$GL_TARGET_DIR/default/lib" "$GL_TARGET_DIR/lib"; do
+		[ -e "$rusticl_dir/libRusticlOpenCL.so.1" ] || continue
+		# The sandbox reads the vendor files of the runtime itself, which lists
+		# rusticl by soname already. Rewritten with the path of the sandbox, that
+		# file would lose it for every other flatpak application of the machine.
+		[ -e "$OCL_ICD_VENDORS/rusticl.icd" ] ||
+			write_if_changed "$rusticl_dir/libRusticlOpenCL.so.1" "$OCL_ICD_VENDORS/rusticl.icd"
+		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$rusticl_dir
+		# Its drivers stay off until named. llvmpipe is left out, PortableCL
+		# being the CPU device.
+		export RUSTICL_ENABLE="${RUSTICL_ENABLE:-radeonsi,iris}"
+		break
+	done
+fi
+
 # DCV compatibility
 : "${DCV_GL_DIR:=/var/lib/dcv-gl/lib64}"
 : "${DCV_GL_FLATPAK_DIR:=/var/lib/dcv-gl/flatpak}"
