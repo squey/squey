@@ -25,9 +25,20 @@ export PYTHONPATH="$PYTHONPATH:$(echo $XDG_DATA_HOME/python/lib/python${PYTHON_V
 # export LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/app/lib:$LD_LIBRARY_PATH
 
-echo "/app/lib/libpocl.so" > $OCL_ICD_VENDORS/pocl.icd
+# Instances can start side by side, two windows opened at once for one. So a
+# vendor file or a library link is only replaced when it says something else,
+# and then in a single rename from a name the loaders ignore: another instance
+# would otherwise find the file truncated or the link missing, and no OpenCL
+# platform behind it.
+write_if_changed() {
+	local current
+	IFS= read -r current 2> /dev/null < "$2" && [ "$current" = "$1" ] && return
+	echo "$1" > "$2.$$" && mv -f "$2.$$" "$2"
+}
+
+write_if_changed "/app/lib/libpocl.so" "$OCL_ICD_VENDORS/pocl.icd"
 if [ -n "$NVIDIA_VERSION" ]; then
-	echo "$GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > $OCL_ICD_VENDORS/nvidia.icd
+	write_if_changed "$GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" "$OCL_ICD_VENDORS/nvidia.icd"
 	# The OpenCL implementation dlopens its compiler at the first clBuildProgram,
 	# and finds it by soname alone: libnvidia-ptxjitcompiler.so.1, and
 	# libnvidia-nvvm.so.4 with it since the 5xx drivers. Missing either one, the
@@ -40,7 +51,9 @@ if [ -n "$NVIDIA_VERSION" ]; then
 	mkdir -p $NVIDIA_EXTRA_LIBS_PATH
 	for nvidia_lib in $GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-*.so.*; do
 		[ -e "$nvidia_lib" ] || continue
-		ln -sf "$nvidia_lib" "$NVIDIA_EXTRA_LIBS_PATH/$(basename "$nvidia_lib")"
+		link="$NVIDIA_EXTRA_LIBS_PATH/${nvidia_lib##*/}"
+		[ "$link" -ef "$nvidia_lib" ] && continue
+		ln -sf "$nvidia_lib" "$link.$$" && mv -fT "$link.$$" "$link"
 	done
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NVIDIA_EXTRA_LIBS_PATH
 fi
