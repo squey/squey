@@ -37,9 +37,20 @@ while read -r NAME; do
     fi
 done < <(git -C "$WORKTREE" config -f .gitmodules --name-only --get-regexp '^submodule\..*\.path$' \
              | sed 's/^submodule\.\(.*\)\.path$/\1/')
-git -C "$WORKTREE" -c protocol.file.allow=always "${OVERRIDES[@]}" submodule update --init
+# A local copy lacks the commits recorded since it was last fetched: the update
+# then stops at the first one, and leaves the submodules it had not reached yet
+# cloned but not checked out.
+LOCAL_COPIES_COMPLETE=true
+git -C "$WORKTREE" -c protocol.file.allow=always "${OVERRIDES[@]}" submodule update --init 2> /dev/null ||
+    LOCAL_COPIES_COMPLETE=false
 git -C "$WORKTREE" submodule init
 git -C "$WORKTREE" submodule sync
+if [ "$LOCAL_COPIES_COMPLETE" = false ]; then
+    # From the actual remotes this time. --force also checks out the submodules
+    # whose HEAD already names the recorded commit, as an unfinished clone can.
+    echo "Fetching the submodule commits the local copies lack" >&2
+    git -C "$WORKTREE" submodule update --force
+fi
 
 read -r -a SSH_OPTS <<< "$SQUEY_SANDBOX_SSH_OPTS"
 SSH=(ssh -T -o BatchMode=yes -o ClearAllForwardings=yes -o LogLevel=ERROR "${SSH_OPTS[@]}"
