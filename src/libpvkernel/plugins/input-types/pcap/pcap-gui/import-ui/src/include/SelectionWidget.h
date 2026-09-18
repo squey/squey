@@ -58,7 +58,11 @@ class SelectionWidget : public QWidget
 	}
 	QDomDocument get_format() const { return pvpcap::get_format(_json_data, _pcap_paths.size()); }
 
-	bool is_canceled() const { return _progress_widget->is_canceled(); }
+	//! Also when tshark refused the captures, which leaves nothing to import.
+	bool is_canceled() const
+	{
+		return _progress_widget->is_canceled() or not _progress_widget->trouble().empty();
+	}
 
 	void add_files(const QStringList& pcap_paths);
 

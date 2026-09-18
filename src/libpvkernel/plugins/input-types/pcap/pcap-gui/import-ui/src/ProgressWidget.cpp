@@ -92,7 +92,7 @@ void PcapPreprocessingThread::run()
 	                        [&](size_t progress) { Q_EMIT split_progress(progress); }),
 	    _tshark_cmd, _canceled,
 	    [&](size_t packets_count) { Q_EMIT extract_packetscount(packets_count); },
-	    [&](size_t progress) { Q_EMIT extract_progress(progress); });
+	    [&](size_t progress) { Q_EMIT extract_progress(progress); }, &_trouble);
 
 	Q_EMIT finished();
 }
