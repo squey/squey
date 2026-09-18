@@ -114,8 +114,19 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 		csv_format->addOneField("pcap_path", "string");
 	}
 
+	// "All occurrences" joins every value a frame holds for a field into one cell,
+	// separated by the aggregator. Only text can hold that: a frame carrying two
+	// ports would write "80|443" into a number, which reads back as nothing at
+	// all -- the column would be there, and empty, for exactly the frames that
+	// had the most to say.
+	const bool every_occurrence =
+	    json_data["options"].HasMember("occurrence") and
+	    std::string(json_data["options"]["occurrence"].GetString()) == "a";
+
 	for (const auto& field : selected_fields.GetObj()) {
-		const QString& type = QString::fromStdString(ws_map_type(field.value["type"].GetString()));
+		const QString& type =
+		    every_occurrence ? QString("string")
+		                     : QString::fromStdString(ws_map_type(field.value["type"].GetString()));
 		const QString& name = field.name.GetString();
 		PVRush::PVXmlTreeNodeDom* node = csv_format->addOneField(name, type);
 		if (type == "time") {

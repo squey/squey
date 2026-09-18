@@ -111,6 +111,9 @@ add_squey_compile_test(Trush_pcap_tshark_refusal LINKS ${LINK_LIBRARIES} pvpcap 
 add_squey_test(Trush_pcap_tshark_refusal Trush_pcap_tshark_refusal ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
 set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_refusal PROPERTIES SKIP_RETURN_CODE 77)
 
+add_squey_compile_test(Trush_pcap_every_occurrence_format LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_every_occurrence_format.cpp helpers.cpp)
+add_squey_test(Trush_pcap_every_occurrence_format Trush_pcap_every_occurrence_format)
+
 add_squey_compile_test(Trush_pcap_split_without_progress LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_split_without_progress.cpp helpers.cpp)
 add_squey_test(Trush_pcap_split_without_progress Trush_pcap_split_without_progress)
 
