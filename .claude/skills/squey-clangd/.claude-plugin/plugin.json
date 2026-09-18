@@ -1,0 +1,20 @@
+{
+  "name": "squey-clangd",
+  "description": "C/C++ code intelligence for Squey: clangd run inside the BuildStream development sandbox, on the build tree of the session's checkout",
+  "lspServers": {
+    "clangd": {
+      "command": "${CLAUDE_PROJECT_DIR}/buildstream/clangd.sh",
+      "args": ["--background-index", "-j=4"],
+      "extensionToLanguage": {
+        ".c": "c",
+        ".h": "cpp",
+        ".cpp": "cpp",
+        ".cc": "cpp",
+        ".cxx": "cpp",
+        ".hpp": "cpp",
+        ".hxx": "cpp",
+        ".ipp": "cpp"
+      }
+    }
+  }
+}
