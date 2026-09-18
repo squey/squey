@@ -97,8 +97,11 @@ add_custom_target(squey_testsuite)
 if (CMAKE_CONFIGURATION_TYPES)
     set(BUILD_CONF_OPTION "--build-config $<CONFIGURATION>")
 endif()
+# -FS: the dependency below has built the test suite already, and building it again
+# from ctest would run a second ninja in the build tree the first one is working on.
 add_custom_target(
     squey_run_testsuite COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_TEST_
+    -FS squey_testsuite_built
     --force-new-ctest-process --output-on-failure
     ${BUILD_CONF_OPTION}
 )
@@ -107,6 +110,20 @@ add_dependencies(squey_testsuite squey)
 add_dependencies(squey_run_testsuite squey_testsuite)
 add_custom_target(squey_bench COMMAND ${CMAKE_CTEST_COMMAND} -R SQUEY_BENCH_)
 add_dependencies(squey_bench squey_testsuite)
+
+# The test executables are not part of "all", and a stale one crashes in misleading
+# ways once a header has changed its layout: ctest builds them, along with the plugins
+# they load, before it runs any test. Cross-compiled tests run elsewhere, from an
+# installed copy of the suite.
+if (NOT CMAKE_CROSSCOMPILING)
+	add_test(NAME build_testsuite
+		COMMAND ${CMAKE_COMMAND} -DBUILD_DIR=${CMAKE_BINARY_DIR}
+			-P ${CMAKE_CURRENT_SOURCE_DIR}/cmake/BuildTestsuite.cmake)
+	set_tests_properties(build_testsuite PROPERTIES
+		FIXTURES_SETUP squey_testsuite_built
+		# A build from scratch outlasts the default timeout of ctest
+		TIMEOUT 0)
+endif()
 
 # ###############################################################################
 # # furl
