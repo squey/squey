@@ -16,14 +16,10 @@ host needs nothing but a container engine. Budget around 12 GB of disk for the
 image. It produces a native Linux build only -- cross-compilation and packaging
 go through the [development shell](#development-shell).
 
-**With podman, set this once**, in `~/.config/containers/containers.conf`.
-Without it the container user owns nothing in the workspace and cannot even
-write to it. Docker needs nothing.
-
-```
-[containers]
-userns = "keep-id"
-```
+Under podman the container has to run with `--userns=keep-id`, or its user owns
+nothing in the workspace and cannot even write to it. The devcontainer CLI
+passes it by itself whenever it finds podman, even behind a `docker` command,
+and Zed does once its settings say `"use_podman": true`. Docker needs nothing.
 
 Then open the repository in an editor supporting the
 [Development Containers specification](https://containers.dev) -- VS Code,

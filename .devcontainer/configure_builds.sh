@@ -27,6 +27,18 @@ declare -A COMPILERS=( [Clang]="$TOOLCHAIN_DIR/clang++" [GCC]="$TOOLCHAIN_DIR/g+
 # at it when the application starts -- and at the NVIDIA driver too, when
 # prepare_gpu.sh found one on the host.
 
+# Under podman the workspace is the container user's only with --userns=keep-id,
+# which the devcontainer CLI passes by itself and Zed only when told it drives
+# podman. Without it the workspace is root's in here, and the first cmake fails
+# on a directory it cannot create, which says nothing about why. Say it here
+# instead, and let the container start anyway, as below.
+if [ ! -w . ]; then
+    echo >&2 "Not configuring anything: $(id -un) cannot write to $SOURCE_DIR."
+    echo >&2 "Under podman the container needs --userns=keep-id. Zed passes it once its"
+    echo >&2 "settings say \"use_podman\": true; rebuild the container then."
+    exit 0
+fi
+
 # A clone without --recursive leaves the submodules empty, and cmake then fails
 # with "does not contain a CMakeLists.txt file" for each of them, under a couple
 # of hundred lines of consequences -- while the editor reports only that the
