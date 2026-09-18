@@ -39,5 +39,16 @@ X11UseLocalhost no
 AcceptEnv XDG_RUNTIME_DIR
 EOF
 
+# An ssh session starts from a bare environment: hand it the one the development
+# shell has set up, which building, testing and running Squey rely on.
+SET_ENV=""
+for VAR in PATH LD_LIBRARY_PATH PKG_CONFIG_PATH C_INCLUDE_PATH CPLUS_INCLUDE_PATH \
+           PYTHONPATH OCL_ICD_VENDORS __EGL_VENDOR_LIBRARY_DIRS LANG LC_ALL SOURCE_DIR \
+           PREFIX HOST TOOLCHAIN_DIR TARGET_PLATFORM TARGET_TRIPLE DEPLOYMENT_TARGET_VERSION; do
+    eval "VALUE=\${${VAR}}"
+    [ -n "${VALUE}" ] && SET_ENV="${SET_ENV} \"${VAR}=${VALUE}\""
+done
+[ -n "${SET_ENV}" ] && echo "SetEnv${SET_ENV}" >> "${CONFIG_FILE}"
+
 /app/sbin/sshd -f "${CONFIG_FILE}" -E "${DIR}/sshd.log.${TARGET}"
 /app/bin/waypipe-c --socket /tmp/squey-waypipe-socket-server server
