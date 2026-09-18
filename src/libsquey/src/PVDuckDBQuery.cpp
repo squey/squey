@@ -614,6 +614,23 @@ bool select_with_pvcop(const pvcop::db::array& array,
 		return false;
 	}
 
+	// There is a second way of failing to convert, which is not reported as one:
+	// a literal can land in the column's invalid domain, keeping its place in
+	// the converted array and marked unreadable. That is what an address column
+	// makes of "167772161" -- how DuckDB writes 10.0.0.1 for a column it stores
+	// as a number, and no way at all of writing an address.
+	//
+	// Left alone, subselect() matches such a literal against the rows that are
+	// themselves unreadable: a search for an address came back holding every row
+	// that had no address at all, whatever address was asked for. DuckDB never
+	// means that -- an unreadable row reaches it as NULL, and is asked about as
+	// NULL -- so this is a conversion that failed, whatever it is called.
+	for (size_t at = 0; at < wanted.size(); at++) {
+		if (not wanted.is_valid(at)) {
+			return false;
+		}
+	}
+
 	// subselect() intersects with its input selection, so filters compose by
 	// being applied one after the other.
 	out.select_none();

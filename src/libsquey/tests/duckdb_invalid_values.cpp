@@ -56,6 +56,8 @@
 
 #include <pvcop/db/array.h>
 
+#include <cstdio>
+#include <fstream>
 #include <string>
 
 #include "common.h"
@@ -181,6 +183,50 @@ int main()
 
 		PV_VALID(count_rows(query, txt + " = ''"), empty_cells);
 		PV_VALID(count_rows(query, txt + " IS NULL"), size_t(0));
+	}
+
+	// --- An address, which cannot be written the way the column stores it ------
+	// The scan is handed its constant as the number the column holds -- DuckDB
+	// writes 10.0.0.1 as 167772161 -- and an address type cannot read that back.
+	// Failing to convert that way used to pass for a literal that had converted
+	// into an unreadable value, and pvcop matches those against the rows that are
+	// themselves unreadable: a search for an address answered with every row that
+	// had no address at all, for any address asked for.
+	//
+	// A number column cannot show this, its literals being written the same way
+	// either side, which is why everything above ran on one.
+	{
+		const std::string addresses = pvtest::get_tmp_filename() + ".csv";
+		const std::string addresses_format = addresses + ".format";
+		{
+			std::ofstream(addresses) << "a,10.0.0.1\nb,\nc,10.0.0.1\nd,10.0.0.2\n";
+			std::ofstream(addresses_format)
+			    << R"(<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE PVParamXml>)"
+			       R"(<param version="9" first_line="0"><splitter type="csv" sep=",">)"
+			       R"(<field><axis name="who" type="string"/></field>)"
+			       R"(<field><axis name="addr" type="ipv4"/></field>)"
+			       R"(</splitter></param>)";
+		}
+
+		Squey::PVSource& source =
+		    env.add_source(std::vector<std::string>{addresses}, addresses_format, 1, false);
+		env.compute_mapping(0, 1);
+		env.compute_scaling(0, 1, 0).emplace_add_child();
+
+		Squey::PVDuckDBQuery addressed(source);
+		PV_VALID(count_rows(addressed, "addr IS NULL"), size_t(1));
+		PV_VALID(count_rows(addressed, "addr = ipv4('10.0.0.1')"), size_t(2));
+		PV_VALID(count_rows(addressed, "addr = ipv4('10.0.0.2')"), size_t(1));
+		// An address the file does not hold matches nothing. It used to answer
+		// with the unreadable rows, which is how the whole thing came to light.
+		PV_VALID(count_rows(addressed, "addr = ipv4('10.0.0.9')"), size_t(0));
+		// The same three ways of spelling a membership as above.
+		PV_VALID(count_rows(addressed, "addr = ipv4('10.0.0.1') OR addr = ipv4('10.0.0.2')"),
+		         size_t(3));
+		PV_VALID(count_rows(addressed, "addr IN (ipv4('10.0.0.1'), ipv4('10.0.0.2'))"), size_t(3));
+
+		std::remove(addresses.c_str());
+		std::remove(addresses_format.c_str());
 	}
 
 	return 0;
