@@ -69,6 +69,18 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd>\")
 	add_dependencies(SQUEY_TEST_Tcore_opencl_device_type squey_test_opencl_icd)
 	add_squey_test(Tcore_opencl_device_type Tcore_opencl_device_type)
+
+	# The same driver standing for a hybrid laptop instead, its GPU built into
+	# the processor listed before its dedicated one.
+	add_library(squey_test_opencl_icd_hybrid MODULE EXCLUDE_FROM_ALL opencl_test_icd.cpp)
+	target_compile_definitions(squey_test_opencl_icd_hybrid PRIVATE SQUEY_TEST_ICD_HYBRID
+		$<TARGET_PROPERTY:Squey::OpenCL,INTERFACE_COMPILE_DEFINITIONS>)
+
+	add_squey_compile_test(Tcore_opencl_dedicated_gpu LINKS ${LINK_LIBRARIES} FILES opencl_dedicated_gpu.cpp)
+	target_compile_definitions(SQUEY_TEST_Tcore_opencl_dedicated_gpu PRIVATE
+		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd_hybrid>\")
+	add_dependencies(SQUEY_TEST_Tcore_opencl_dedicated_gpu squey_test_opencl_icd_hybrid)
+	add_squey_test(Tcore_opencl_dedicated_gpu Tcore_opencl_dedicated_gpu)
 endif()
 
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
