@@ -11,6 +11,10 @@ cmake_minimum_required(VERSION 3.30...4.4)
 # which the resource files of the application and of the tests are compiled with.
 project(squey)
 
+# Write compile_commands.json into every build tree, whichever way it was
+# configured, for clangd and the other tools that read the compile commands.
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+
 ###############################################################################
 # Define testing environment
 ###############################################################################
