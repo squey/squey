@@ -85,6 +85,15 @@ PVParallelView::PVLinesView::PVLinesView(PVBCIDrawingBackend& backend,
 	_list_of_zone_width_with_zoom_level.resize(nb_of_managed_zones);
 }
 
+PVParallelView::PVLinesView::~PVLinesView()
+{
+	// The renderings read this object as they compute their lines, and report to
+	// the receiver, which owns it: none may outlive it. The receiver usually
+	// drains them before it goes (see PVFullParallelScene::about_to_be_deleted),
+	// but a view closed by the user is simply deleted.
+	cancel_and_wait_all_rendering();
+}
+
 void PVParallelView::PVLinesView::call_refresh_slots(size_t zone_index)
 {
 	// Call both zr_sel_finished and zr_bg_finished slots on _img_update_receiver
@@ -102,8 +111,30 @@ void PVParallelView::PVLinesView::call_refresh_slots(size_t zone_index)
 
 void PVParallelView::PVLinesView::cancel_and_wait_all_rendering()
 {
+	std::vector<std::weak_ptr<PVZoneRenderingBCIBase>> renderings;
+	{
+		std::lock_guard<std::mutex> lock(_renderings_mutex);
+		renderings.swap(_renderings);
+	}
+
+	// All of them are cancelled before waiting for any: a cancelled rendering
+	// skips its drawing, and the ones held up behind it get through sooner.
+	for (auto const& rendering : renderings) {
+		if (PVZoneRenderingBCIBase_p zr = rendering.lock()) {
+			zr->cancel();
+		}
+	}
+
 	for (SingleZoneImages& single_zone_images : _list_of_single_zone_images) {
 		single_zone_images.cancel_all_and_wait();
+	}
+
+	// The zone images only know about their last renderings: the ones launched
+	// for images dropped since are waited for here.
+	for (auto const& rendering : renderings) {
+		if (PVZoneRenderingBCIBase_p zr = rendering.lock()) {
+			zr->wait_end();
+		}
 	}
 }
 
@@ -112,6 +143,15 @@ void PVParallelView::PVLinesView::connect_zr(PVZoneRenderingBCIBase* zr, const c
 	if (_img_update_receiver) {
 		zr->set_render_finished_slot(_img_update_receiver, slot);
 	}
+}
+
+void PVParallelView::PVLinesView::track_rendering(PVZoneRenderingBCIBase_p const& zr)
+{
+	std::lock_guard<std::mutex> lock(_renderings_mutex);
+	// An expired handle is a rendering already over: dropping them as they come
+	// keeps the list as short as the renderings still alive.
+	std::erase_if(_renderings, [](auto const& rendering) { return rendering.expired(); });
+	_renderings.emplace_back(zr);
 }
 
 uint32_t
@@ -275,6 +315,7 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(size_t zone_index,
 	    ));
 
 	connect_zr(zr.get(), "zr_bg_finished");
+	track_rendering(zr);
 
 	PVZoneRenderingBCIBase_p last_zr = single_zone_images.last_zr_bg;
 	if (last_zr) {
@@ -309,6 +350,7 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(size_t zone_index
 	    ));
 
 	connect_zr(zr.get(), "zr_sel_finished");
+	track_rendering(zr);
 
 	PVZoneRenderingBCIBase_p last_zr = single_zone_images.last_zr_sel;
 	if (last_zr) {
