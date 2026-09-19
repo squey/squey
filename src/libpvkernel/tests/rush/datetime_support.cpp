@@ -69,6 +69,7 @@ int main()
 	testcases.emplace_back("datetime", "d/M/yy H:m:s", "19/02/14 15:55:47");
 	testcases.emplace_back("datetime", "H:m:s", "22:59:01");
 	testcases.emplace_back("datetime", "H%m%s", "22%59%01");
+	testcases.emplace_back("datetime", "EE yyyy-MM-dd HH:mm", "Fri 2014-11-07 12:12");
 	// the numeric UTC offsets, which pvcop reads itself on every platform
 	testcases.emplace_back("datetime", "yyyy/MM/dd HH:mm:ss Z", "2014/11/07 12:12:01 -0800",
 	                       "2014/11/07 20:12:01 +0000");
@@ -107,6 +108,8 @@ int main()
 	testcases.emplace_back("datetime_ms", "hh 'o''clock' a, zzzz",
 	                       "12 o'clock PM, Pacific Daylight Time", "07 o'clock PM, GMT+00:00");
 	testcases.emplace_back("datetime_ms", "K:mm a, z", "0:00 PM, PST", "8:00 PM, GMT+0");
+	testcases.emplace_back("datetime_ms", "yyyy-MM-dd K:mm a", "2014-11-07 1:08 PM");
+	testcases.emplace_back("datetime_ms", "yyyy-DDD HH:mm", "2014-311 12:12");
 	testcases.emplace_back("datetime_ms", "epochS", "1452520190588");
 	testcases.emplace_back("datetime_ms", "epoch.S", "1334036784.745");
 	testcases.emplace_back("datetime_ms", "epoch.SSS", "1452654558.123");

@@ -193,15 +193,24 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	 *                            - no timezone: boost reads none into a ptime
 	 *                            - no milliseconds not preceded by a dot, which boost's %f
 	 *                              reads itself
-	 * 3. "datetime_ms" (ICU)   : in any other cases
+	 * 3. "datetime_ms" (ICU)   : in any other cases, and whenever the pattern has a field the
+	 *                            conversion below does not translate, which would otherwise
+	 *                            be matched as literal text and refuse every value
 	 */
+	bool no_epoch = not contains(tf, "epoch");
+	bool untranslated_field =
+	    no_epoch and contains_one_of(tf, {"G", "Y", "u", "U", "r", "Q", "q", "L", "l", "w", "W",
+	                                      "D", "F", "g", "c", "b", "B", "K", "k", "A", "O"});
+	if (untranslated_field) {
+		return {"datetime_ms", tf};
+	}
+
 	// the UTC offsets formatter_datetime reads: X to XXX, x to xxx, Z to ZZZ and ZZZZZ
 	const size_t longest_Z = longest_run('Z');
 	bool numeric_utc_offset = not contains_one_of(tf, {"z", "v", "V"}) and longest_run('X') <= 3 and
 	                          longest_run('x') <= 3 and (longest_Z <= 3 or longest_Z == 5);
 	bool no_timezone = not contains_one_of(tf, {"x", "X", "z", "Z", "v", "V"});
 	bool no_millisec_precision = not contains(tf, "S");
-	bool no_epoch = not contains(tf, "epoch");
 	bool no_12h_format = not contains(tf, "h") && no_epoch;
 	bool no_two_digit_year = not(contains(tf, "yy") && not contains(tf, "yyyy"));
 
@@ -231,6 +240,8 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"e", "%a"},
 	                                                               {"EEEE", "%a"},
 	                                                               {"EEE", "%a"},
+	                                                               {"EE", "%a"},
+	                                                               {"E", "%a"},
 
 	                                                               // month
 	                                                               {"MMMM", "%b"},
@@ -247,7 +258,6 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"H", "%H"},
 	                                                               {"hh", "%I"},
 	                                                               {"h", "%I"},
-	                                                               {"K", "%h"},
 
 	                                                               // minute
 	                                                               {"mm", "%M"},
