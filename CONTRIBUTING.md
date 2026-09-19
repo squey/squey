@@ -9,7 +9,8 @@ on Linux, and the Windows and macOS versions are cross-compiled from sandboxes r
 
 The toolchain and every dependency (Qt, Arrow, sigc++, DuckDB…) live under `/app`, which two
 environments provide. The host has none of them, and the CMake configuration stops there.
-[buildstream/README.md](buildstream/README.md) explains how to set each one up.
+[buildstream/README.md](buildstream/README.md) explains how to set each one up; this file only
+says what each one is for, and how to work in it.
 
 ### The BuildStream development sandbox
 
@@ -18,11 +19,11 @@ The reference environment, and the only one that cross-compiles and packages.
 - `cd buildstream && ./dev_shell.sh` starts the Linux sandbox and keeps an interactive shell open.
   `--target_triple=` selects another target: `x86_64-w64-mingw32`, `aarch64-apple-darwin` or
   `x86_64-apple-darwin`. Sandboxes for different targets can run side by side.
-- Each sandbox runs an ssh server. `buildstream/sshd/ssh_config.squey` names them `SqueyLinux`
-  (port 6666), `SqueyWin` (6667) and `SqueyMac` (6668); authentication is by key only.
-- From the host, run commands with `ssh SqueyLinux '<command>'`. The session gets the
-  environment of the sandbox shell, and the sandbox sees the host filesystem at the same paths:
-  `cd` to the same absolute path.
+- Each sandbox runs an ssh server, which the
+  [ssh configuration](buildstream/README.md#reaching-the-sandbox-from-the-host) names
+  `SqueyLinux`, `SqueyWin` and `SqueyMac`. From the host, run commands with
+  `ssh SqueyLinux '<command>'`. The session gets the environment of the sandbox shell, and the
+  sandbox sees the host filesystem at the same paths: `cd` to the same absolute path.
 
 ### The devcontainer
 
@@ -30,11 +31,8 @@ The reference environment, and the only one that cross-compiles and packages.
 containers and for the `devcontainer` CLI. It is quicker to enter than the sandbox, but only
 builds and tests the native Linux version.
 
-- On creation, it configures `builds/x86_64-linux-gnu/Clang/RelWithDebInfo`.
-- It binds the Wayland socket of the host, to show the GUI: the host needs a Wayland session.
-- `.devcontainer/devcontainer.json` pins the image by a digest of the dependency graph. When a
-  branch changes a dependency, its merge request pipeline publishes the new image, and the
-  merge commits the new pin to `main`. Until then, the branch keeps the image of `main`.
+A branch that changes a dependency keeps the image of `main` until it is merged, as
+[buildstream/README.md](buildstream/README.md#if-the-image-will-not-pull) explains.
 
 ### Editors and coding assistants
 
@@ -48,7 +46,8 @@ start the clangd they find.
 ## Building
 
 - On first start, `dev_shell.sh` configures `builds/<target triple>/<Clang|GCC>/<Debug|RelWithDebInfo>`.
-  Run `ninja` inside one of them; it runs `cmake` again by itself when a `CMakeLists.txt` changes.
+  The devcontainer configures `builds/x86_64-linux-gnu/Clang/RelWithDebInfo` on creation. Run
+  `ninja` inside one of them; it runs `cmake` again by itself when a `CMakeLists.txt` changes.
 - Validate changes in `builds/x86_64-linux-gnu/Clang/RelWithDebInfo`. It builds like the CI
   (Clang, `-O3 -ffast-math`), which a GCC or Debug build does not reproduce.
 - The CI treats warnings as errors: a build log must contain no `warning:`.

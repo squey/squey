@@ -1,6 +1,10 @@
 
 # Development
 
+This page sets up an environment to build Squey in. How to work in it -- where
+to validate a change, how to run the tests, what a commit and a merge request
+look like -- is in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
 ## Clone the project
 
 Note : you should have `git` and `git-lfs` installed.
@@ -37,8 +41,8 @@ does not, hence the explicit call. Running it twice costs nothing.
 
 ### Running the GUI
 
-The Wayland socket is bound into the container, so the window lands on your
-desktop like any other application:
+Under a Wayland session, the container gets the socket of the compositor, so
+the window lands on your desktop like any other application:
 
 ```
 builds/x86_64-linux-gnu/Clang/RelWithDebInfo/squey.sh
@@ -88,13 +92,32 @@ Note : you should have `python` installed.
 cd squey/buildstream && ./dev_shell.sh
 ```
 
-From then you can choose to use the development shell to compile and run the software as such:
+From then you can choose to use the development shell to compile and run the
+software as such, and likewise in the [other build trees](../CONTRIBUTING.md#building):
 
 ```
-cd builds/{x86_64-linux-gnu,x86_64-apple-darwin,aarch64-apple-darwin}/{Clang,GCC}/{Debug,RelWithDebInfo} && cmake --build . [ && ./squey.sh ]
+cd builds/x86_64-linux-gnu/Clang/RelWithDebInfo && ninja && ./squey.sh
 ```
 
 or you can continue to configure an IDE.
+
+### Reaching the sandbox from the host
+
+`dev_shell.sh` embeds an SSH server and a
+[waypipe](https://gitlab.freedesktop.org/mstoeckl/waypipe) tunnel, so keep it
+running: that is what lets an editor open the project and debug the GUI inside
+the sandbox under Wayland, and a command run from the host reach it.
+
+Append the [preconfigured SSH host configuration](sshd/ssh_config.squey) to your
+own. Login is by SSH key only -- password login is not supported.
+
+```
+cat buildstream/sshd/ssh_config.squey | tee -a ~/.ssh/config
+```
+
+Each target has its own port, so several sandboxes can run at once:
+`SqueyLinux` (6666), `SqueyWin` for `--target_triple=x86_64-w64-mingw32` (6667),
+`SqueyMac` for `*-apple-darwin` (6668).
 
 ### Configure Visual Studio Code
 
@@ -105,22 +128,7 @@ Install the following extensions :
 3. [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
 4. [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
 
-`dev_shell.sh` embeds an SSH server and a
-[waypipe](https://gitlab.freedesktop.org/mstoeckl/waypipe) tunnel, so keep it
-running: that is what lets vscode open the project and debug the GUI inside the
-sandbox under Wayland.
-
-Append the [preconfigured SSH host configuration](sshd/ssh_config.squey) to your
-own, then connect with the `Remote Explorer` extension using an SSH key --
-password login is not supported.
-
-```
-cat buildstream/sshd/ssh_config.squey | tee -a ~/.ssh/config
-```
-
-Each target has its own port, so several sandboxes can run at once:
-`SqueyLinux` (6666), `SqueyWin` for `--target_triple=x86_64-w64-mingw32` (6667),
-`SqueyMac` for `*-apple-darwin` (6668).
+Then connect to the sandbox with the `Remote Explorer` extension.
 
 Remote Explorer            | Open folder
 :-------------------------:|:-------------------------:
@@ -130,6 +138,12 @@ Remote Explorer            | Open folder
 CodeLLDB           | 
 :-------------------------:
 ![](doc/vscode_codelldb_extension.png)
+
+### Other editors
+
+Other editors and coding assistants get their C++ support from
+`buildstream/clangd.sh`: see
+[Editors and coding assistants](../CONTRIBUTING.md#editors-and-coding-assistants).
 
 # Flatpak
 
