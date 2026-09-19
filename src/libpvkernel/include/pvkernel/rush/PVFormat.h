@@ -38,7 +38,6 @@
 #include <pvkernel/core/PVSerializeArchive.h>
 #include <pvkernel/filter/PVChunkFilter.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
-#include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
@@ -109,8 +108,6 @@ class PVFormat
 	/* Methods */
 	void debug() const;
 
-	PVFilter::PVChunkFilterByEltCancellable
-	create_tbb_filters_autodetect(float timeout, bool* cancellation = nullptr);
 	PVFilter::PVChunkFilterByElt create_tbb_filters() const;
 	std::unique_ptr<PVFilter::PVElementFilter> create_tbb_filters_elt() const;
 

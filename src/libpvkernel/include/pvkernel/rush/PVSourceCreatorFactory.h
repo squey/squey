@@ -35,7 +35,6 @@
 #include <utility>
 
 #include "pvkernel/rush/PVFormat.h"
-#include "pvkernel/rush/PVInputDescription.h"
 
 namespace PVRush
 {
@@ -48,9 +47,6 @@ class PVSourceCreatorFactory
 {
   public:
 	static PVSourceCreator_p get_by_input_type(PVInputType_p in_t);
-	static float discover_input(pair_format_creator format,
-	                            PVInputDescription_p input,
-	                            bool* cancellation = nullptr);
 };
 } // namespace PVRush
 

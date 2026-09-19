@@ -166,9 +166,6 @@ add_bench(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
 add_squey_compile_test(Trush_format LINKS ${LINK_LIBRARIES} FILES format.cpp helpers.cpp)
 add_squey_test(Trush_format Trush_format ${PVRUSH_TEST_FILES}/formats)
 
-add_squey_compile_test(Trush_ticket_1 LINKS ${LINK_LIBRARIES} FILES ticket_1.cpp)
-add_squey_test(Trush_ticket_1 Trush_ticket_1 ${PVRUSH_TEST_FILES})
-
 add_squey_compile_test(Trush_ticket_2 LINKS ${LINK_LIBRARIES} FILES ticket_2.cpp)
 add_squey_test(LONG_Trush_ticket_2 Trush_ticket_2)
 

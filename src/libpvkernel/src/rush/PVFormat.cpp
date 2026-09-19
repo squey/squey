@@ -30,7 +30,6 @@
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
-#include <pvkernel/filter/PVChunkFilterByEltCancellable.h>
 #include <pvkernel/filter/PVElementFilterByAxes.h>
 #include <pvkernel/filter/PVFieldsMappingFilter.h>
 #include <pvkernel/filter/PVFieldFilterGrep.h>
@@ -577,12 +576,6 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata) c
 PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters() const
 {
 	return PVFilter::PVChunkFilterByElt{create_tbb_filters_elt()};
-}
-
-PVFilter::PVChunkFilterByEltCancellable
-PVRush::PVFormat::create_tbb_filters_autodetect(float timeout, bool* cancellation)
-{
-	return PVFilter::PVChunkFilterByEltCancellable{create_tbb_filters_elt(), timeout, cancellation};
 }
 
 std::unique_ptr<PVFilter::PVElementFilter> PVRush::PVFormat::create_tbb_filters_elt() const
