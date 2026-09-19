@@ -167,29 +167,45 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 		                   [&](const std::string& token) { return contains(tf, token); });
 	};
 
+	auto longest_run = [&](char letter) {
+		size_t longest = 0;
+		size_t run = 0;
+		bool literal = false;
+		for (char c : tf) {
+			if (c == delimiter) {
+				literal = not literal;
+				run = 0;
+			} else {
+				run = (not literal and c == letter) ? run + 1 : 0;
+				longest = std::max(longest, run);
+			}
+		}
+		return longest;
+	};
+
 	/**
 	 * The proper formatter is determined this way :
 	 *
-	 * 1. "datetime"    (libc)  : if no milliseconds and no timezone
+	 * 1. "datetime"    (libc)  : if no milliseconds, and no timezone but a numeric UTC offset
 	 * 2. "datetime_us" (boost) : if milliseconds but
-	 *                            - no 2 digit year
-	 *                            - no 12h format,
-	 *                            - no timezone
-	 *                            - no milliseconds not preceded by a dot
+	 *                            - no 2 digit year: boost reads "85" as 2085
+	 *                            - no 12h format: boost reads neither %I nor %p
+	 *                            - no timezone: boost reads none into a ptime
+	 *                            - no milliseconds not preceded by a dot, which boost's %f
+	 *                              reads itself
 	 * 3. "datetime_ms" (ICU)   : in any other cases
 	 */
-	// rfc_timezone = X, XX, x, xx, Z, ZZ, ZZZ
-	bool rfc_timezone = (contains_one_of(tf, {"X"}) && not contains_one_of(tf, {"XXX"})) ||
-	                    (contains_one_of(tf, {"x"}) && not contains_one_of(tf, {"xxx"})) ||
-	                    (contains_one_of(tf, {"Z"}) && not contains_one_of(tf, {"ZZZZ"}));
+	// the UTC offsets formatter_datetime reads: X to XXX, x to xxx, Z to ZZZ and ZZZZZ
+	const size_t longest_Z = longest_run('Z');
+	bool numeric_utc_offset = not contains_one_of(tf, {"z", "v", "V"}) and longest_run('X') <= 3 and
+	                          longest_run('x') <= 3 and (longest_Z <= 3 or longest_Z == 5);
 	bool no_timezone = not contains_one_of(tf, {"x", "X", "z", "Z", "v", "V"});
-	bool no_extended_timezone = no_timezone || rfc_timezone;
 	bool no_millisec_precision = not contains(tf, "S");
 	bool no_epoch = not contains(tf, "epoch");
 	bool no_12h_format = not contains(tf, "h") && no_epoch;
 	bool no_two_digit_year = not(contains(tf, "yy") && not contains(tf, "yyyy"));
 
-	if (no_millisec_precision && no_extended_timezone) {
+	if (no_millisec_precision && numeric_utc_offset) {
 		formatter = "datetime";
 	} else {
 		bool dot_before_millisec = contains(tf, ".S");
@@ -255,7 +271,16 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"a", "%p"},
 
 	                                                               // timezone
+	                                                               {"ZZZZZ", "%z"},
+	                                                               {"ZZZ", "%z"},
+	                                                               {"ZZ", "%z"},
 	                                                               {"Z", "%z"},
+	                                                               {"XXX", "%z"},
+	                                                               {"XX", "%z"},
+	                                                               {"X", "%z"},
+	                                                               {"xxx", "%z"},
+	                                                               {"xx", "%z"},
+	                                                               {"x", "%z"},
 	                                                               {"zzzz", "%Z"},
 	                                                               {"zzz", "%Z"},
 	                                                               {"zz", "%Z"},

@@ -69,8 +69,25 @@ int main()
 	testcases.emplace_back("datetime", "d/M/yy H:m:s", "19/02/14 15:55:47");
 	testcases.emplace_back("datetime", "H:m:s", "22:59:01");
 	testcases.emplace_back("datetime", "H%m%s", "22%59%01");
+	// the numeric UTC offsets, which pvcop reads itself on every platform
 	testcases.emplace_back("datetime", "yyyy/MM/dd HH:mm:ss Z", "2014/11/07 12:12:01 -0800",
 	                       "2014/11/07 20:12:01 +0000");
+	testcases.emplace_back("datetime", "yyyy-MM-dd HH:mm:ss ZZ", "2014-11-07 12:12:01 -0800",
+	                       "2014-11-07 20:12:01 +0000");
+	testcases.emplace_back("datetime", "yyyy-MM-dd HH:mm:ss X", "2014-11-07 12:12:01 -08",
+	                       "2014-11-07 20:12:01 +0000");
+	testcases.emplace_back("datetime", "yyyy-MM-dd HH:mm:ss XX", "2014-11-07 12:12:01 -0800",
+	                       "2014-11-07 20:12:01 +0000");
+	testcases.emplace_back("datetime", "yyyy-MM-dd HH:mm:ss XXX", "2014-11-07 12:12:01 -08:00",
+	                       "2014-11-07 20:12:01 +0000");
+	testcases.emplace_back("datetime", "yyyy-MM-dd HH:mm:ss xx", "2014-11-07 12:12:01 +0530",
+	                       "2014-11-07 06:42:01 +0000");
+	testcases.emplace_back("datetime", "yyyy-MM-dd'T'HH:mm:ssX", "2014-11-07T12:12:01Z",
+	                       "2014-11-07T12:12:01+0000");
+	testcases.emplace_back("datetime", "yyyy-MM-dd'T'HH:mm:ssZZZZZ", "2014-11-07T12:12:01+01:00",
+	                       "2014-11-07T11:12:01+0000");
+	testcases.emplace_back("datetime", "eee MMM d H:m:s Z yyyy", "Tue Nov 9 13:11:46 +0100 2010",
+	                       "Tue Nov 09 12:11:46 +0000 2010");
 
 	// boost
 	testcases.emplace_back("datetime_us", "yyyy-M-d H:m:ss.S", "2017-03-19 10:00:59.001000");
