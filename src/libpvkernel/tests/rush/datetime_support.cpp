@@ -69,10 +69,8 @@ int main()
 	testcases.emplace_back("datetime", "d/M/yy H:m:s", "19/02/14 15:55:47");
 	testcases.emplace_back("datetime", "H:m:s", "22:59:01");
 	testcases.emplace_back("datetime", "H%m%s", "22%59%01");
-#ifndef _WIN32
 	testcases.emplace_back("datetime", "yyyy/MM/dd HH:mm:ss Z", "2014/11/07 12:12:01 -0800",
 	                       "2014/11/07 20:12:01 +0000");
-#endif
 
 	// boost
 	testcases.emplace_back("datetime_us", "yyyy-M-d H:m:ss.S", "2017-03-19 10:00:59.001000");
@@ -84,6 +82,14 @@ int main()
 	testcases.emplace_back("datetime_us", "H%m%s.S", "05%35%02.506000");
 
 	// ICU
+	// A zone read with a pattern used to stay on the calendar of the thread, and the
+	// patterns without one read the following strings in it: the next cases would fail.
+	testcases.emplace_back("datetime_ms", "yyyy-MM-dd HH:mm:ss.SSS ZZZZ",
+	                       "2014-11-07 12:12:01.123 GMT-08:00",
+	                       "2014-11-07 20:12:01.123 GMT+00:00");
+	testcases.emplace_back("datetime_ms", "hh 'o''clock' a, zzzz",
+	                       "12 o'clock PM, Pacific Daylight Time", "07 o'clock PM, GMT+00:00");
+	testcases.emplace_back("datetime_ms", "K:mm a, z", "0:00 PM, PST", "8:00 PM, GMT+0");
 	testcases.emplace_back("datetime_ms", "epochS", "1452520190588");
 	testcases.emplace_back("datetime_ms", "epoch.S", "1334036784.745");
 	testcases.emplace_back("datetime_ms", "epoch.SSS", "1452654558.123");
@@ -99,14 +105,6 @@ int main()
 	testcases.emplace_back("datetime_ms", "yy-M-d H:mm:ss.SSS z", "15-3-26 23:42:35.123 GMT",
 	                       "15-3-26 23:42:35.123 GMT+0");
 
-	// testcases.emplace_back("datetime_ms", "hh 'o''clock' a, zzzz", 	"12 o'clock PM, Pacific
-	// Daylight Time"); // bug in ICU
-	// testcases.emplace_back("datetime_ms", "K:mm a, z", 				"0:00 PM, PST");
-	// //
-	// bug
-	// in
-	// ICU
-	// : http://bugs.icu-project.org/trac/ticket/11982
 	// testcases.emplace_back("datetime_ms", "yyyy-M-dH:m:s.SZ",
 	// "2015-3-2700:00:07.1882+01:00");
 	// // bug in ICU : not deterministic
