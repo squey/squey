@@ -1,8 +1,9 @@
 #!/bin/bash
 #
 # Gathers what the GPU of this machine needs under fixed paths, its devices and
-# its userspace, so that .devcontainer/devcontainer.json can name them without
-# knowing anything about this machine.
+# its userspace, and the Wayland socket with them, so that
+# .devcontainer/devcontainer.json can name them without knowing anything about
+# this machine.
 #
 # Runs on the host, as the "initializeCommand", before the container is created
 # or started. The flatpak runtime carrying the NVIDIA userspace is named after
@@ -12,13 +13,14 @@
 # buildstream/.common.sh hands to "bst shell".
 #
 # Finding nothing is not an error. The container starts either way; it simply
-# renders on the CPU.
+# renders on the CPU, and shows no window without a Wayland session.
 
 set -e
 
 # The paths .devcontainer/devcontainer.json names, which cannot follow
 # XDG_CACHE_HOME
 DEVICES="$HOME/.cache/squey-devcontainer/dev"
+WAYLAND_SOCKET="$HOME/.cache/squey-devcontainer/wayland"
 FARM="$HOME/.cache/squey-devcontainer/gl"
 # The GL runtime of the freedesktop SDK the image is made of, which
 # buildstream/.common.sh names for the sandbox
@@ -39,6 +41,13 @@ for device in /dev/dri /dev/nvidia0 /dev/nvidiactl /dev/nvidia-uvm; do
     [ -e "$target" ] || target=/dev/null
     ln -sfn "$target" "$DEVICES/${device##*/}"
 done
+# The same goes for the source of a bind mount, and so for the Wayland socket,
+# which a host without a Wayland session lacks. WAYLAND_DISPLAY names it,
+# relative to XDG_RUNTIME_DIR unless it is a path.
+wayland="${WAYLAND_DISPLAY:-wayland-0}"
+[[ "$wayland" == /* ]] || wayland="$XDG_RUNTIME_DIR/$wayland"
+[ -S "$wayland" ] || wayland=/dev/null
+ln -sfn "$wayland" "$WAYLAND_SOCKET"
 
 # Emptied rather than removed: a running container keeps this very directory
 # mounted and would be left holding a deleted one, and this script runs again
