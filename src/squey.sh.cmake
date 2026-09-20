@@ -6,6 +6,28 @@
 ISRD=@CMAKE_SOURCE_DIR@
 IBRD=@CMAKE_BINARY_DIR@
 
+# run_cmd.sh is what the packaged launcher runs -- squey_launcher.sh is one line,
+# "run_cmd.sh squey $@" -- and it does two things a build tree binary needs just
+# as much: it writes the OpenCL vendor files, and it puts the prefix first on the
+# library path. Without it there is no OpenCL platform at all and the views fall
+# back to the QPainter renderer, some five times slower on a full parallel view.
+#
+# The library path is not a nicety either. A devcontainer carries two libLLVM
+# with the same soname, the prefix one that PortableCL was linked against and the
+# SDK one the compiler needs, and neither has an RPATH; whichever comes first
+# wins. The container keeps the compiler working and leaves the application to
+# ask for what it needs, here.
+#
+# Re-exec through it once, before the branches below, so that a debugger session
+# gets the environment a plain run gets. Where run_cmd.sh is not staged next to
+# the source -- a BuildStream build has no buildstream/ directory -- this is
+# skipped and nothing changes.
+RUN_CMD="$ISRD/../buildstream/files/flatpak/run_cmd.sh"
+if [ -z "$SQUEY_RUN_CMD_WRAPPED" ] && [ -x "$RUN_CMD" ]; then
+	export SQUEY_RUN_CMD_WRAPPED=1
+	exec "$RUN_CMD" "$0" "$@"
+fi
+
 export PVKERNEL_PLUGIN_PATH=$IBRD/libpvkernel/plugins
 export SQUEY_PLUGIN_PATH=$IBRD/libsquey/plugins
 export COPYING_DIR=$ISRD/COPYING

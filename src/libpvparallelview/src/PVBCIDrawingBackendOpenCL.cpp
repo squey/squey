@@ -610,10 +610,12 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 	err = data->event.setCallback(CL_COMPLETE, &PVBCIDrawingBackendOpenCL::termination_cb, data);
 	squey_verify_opencl_var(err);
 
-	// CPU drivers need to do an explicit clFlush to make event happen... strange...
-	if (not _is_gpu_accelerated) {
-		dev.queue.flush();
-	}
+	/* Nothing obliges a driver to start on enqueued commands before they are
+	 * flushed. The NVIDIA one does anyway; PortableCL and Mesa's rusticl wait
+	 * for it, and without it the callback above never came: the zone stayed
+	 * undrawn and whoever waited on it, forever.
+	 */
+	dev.queue.flush();
 }
 
 /*****************************************************************************

@@ -91,7 +91,16 @@ endif()
 set(SQUEY_TEST_TIMEOUT ${SQUEY_DEFAULT_TEST_TIMEOUT} CACHE STRING "Timeout in seconds after which a test is killed and reported as failed")
 
 function(add_squey_test test_exe test_name)
-	add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX} ${ARGN})
+	# Naming the target is what runs the test through the TEST_LAUNCHER of that
+	# target, but it writes the path of the build tree into CTestTestfile.cmake.
+	# Without a launcher, keep the name relative to the test directory: an
+	# installed copy of the suite, which is how the tests of a cross-compiled
+	# build run, can only find the executable by that name.
+	if (CMAKE_TEST_LAUNCHER)
+		add_test(NAME SQUEY_TEST_${test_exe} COMMAND SQUEY_TEST_${test_name} ${ARGN})
+	else()
+		add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX} ${ARGN})
+	endif()
 	set_tests_properties(SQUEY_TEST_${test_exe} PROPERTIES
 		TIMEOUT ${SQUEY_TEST_TIMEOUT}
 		FIXTURES_REQUIRED squey_testsuite_built)

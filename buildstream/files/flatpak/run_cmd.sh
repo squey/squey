@@ -15,7 +15,10 @@ if ! mkdir -p "$OCL_ICD_VENDORS" 2> /dev/null; then
 	mkdir -p "$OCL_ICD_VENDORS"
 fi
 
-NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "nvidia-*"|sed -e "s/nvidia-//"`
+# Anchored, dash included: as a regular expression "nvidia-*" matches any name
+# containing "nvidia", and the devcontainer mounts the driver next to a plain
+# "nvidia" alias of it, which would read as a second version.
+NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "^nvidia-"|sed -e "s/nvidia-//"`
 NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed 's/-/./g'`
 
 # export PYTHONPATH
@@ -25,9 +28,20 @@ export PYTHONPATH="$PYTHONPATH:$(echo $XDG_DATA_HOME/python/lib/python${PYTHON_V
 # export LD_LIBRARY_PATH
 export LD_LIBRARY_PATH=/app/lib:$LD_LIBRARY_PATH
 
-echo "/app/lib/libpocl.so" > $OCL_ICD_VENDORS/pocl.icd
+# Instances can start side by side, two windows opened at once for one. So a
+# vendor file or a library link is only replaced when it says something else,
+# and then in a single rename from a name the loaders ignore: another instance
+# would otherwise find the file truncated or the link missing, and no OpenCL
+# platform behind it.
+write_if_changed() {
+	local current
+	IFS= read -r current 2> /dev/null < "$2" && [ "$current" = "$1" ] && return
+	echo "$1" > "$2.$$" && mv -f "$2.$$" "$2"
+}
+
+write_if_changed "/app/lib/libpocl.so" "$OCL_ICD_VENDORS/pocl.icd"
 if [ -n "$NVIDIA_VERSION" ]; then
-	echo "$GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" > $OCL_ICD_VENDORS/nvidia.icd
+	write_if_changed "$GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-opencl.so.$NVIDIA_VERSION" "$OCL_ICD_VENDORS/nvidia.icd"
 	# The OpenCL implementation dlopens its compiler at the first clBuildProgram,
 	# and finds it by soname alone: libnvidia-ptxjitcompiler.so.1, and
 	# libnvidia-nvvm.so.4 with it since the 5xx drivers. Missing either one, the
@@ -40,9 +54,44 @@ if [ -n "$NVIDIA_VERSION" ]; then
 	mkdir -p $NVIDIA_EXTRA_LIBS_PATH
 	for nvidia_lib in $GL_TARGET_DIR/nvidia-$NVIDIA_VERSION_NAME/lib/libnvidia-*.so.*; do
 		[ -e "$nvidia_lib" ] || continue
-		ln -sf "$nvidia_lib" "$NVIDIA_EXTRA_LIBS_PATH/$(basename "$nvidia_lib")"
+		link="$NVIDIA_EXTRA_LIBS_PATH/${nvidia_lib##*/}"
+		[ "$link" -ef "$nvidia_lib" ] && continue
+		ln -sf "$nvidia_lib" "$link.$$" && mv -fT "$link.$$" "$link"
 	done
 	export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$NVIDIA_EXTRA_LIBS_PATH
+fi
+
+# Whether the machine has a GPU that Mesa drives, an AMD or an Intel one
+has_mesa_gpu() {
+	local driver
+	for driver in /sys/class/drm/renderD*/device/driver; do
+		case "$(basename "$(readlink "$driver")")" in
+		amdgpu | radeon | i915 | xe) return 0 ;;
+		esac
+	done
+	return 1
+}
+
+# AMD and Intel GPUs go through rusticl, the OpenCL implementation of Mesa,
+# which the GL runtime carries: in GL/default, where the flatpak mounts it and
+# where the sandbox and the devcontainer put its -extra variant, or else at the
+# top of GL, where they mount GL.default itself. It is only brought in where it
+# has a GPU to drive: elsewhere it would add nothing but a warning from Mesa
+# about every GPU of another vendor.
+if has_mesa_gpu; then
+	for rusticl_dir in "$GL_TARGET_DIR/default/lib" "$GL_TARGET_DIR/lib"; do
+		[ -e "$rusticl_dir/libRusticlOpenCL.so.1" ] || continue
+		# The sandbox reads the vendor files of the runtime itself, which lists
+		# rusticl by soname already. Rewritten with the path of the sandbox, that
+		# file would lose it for every other flatpak application of the machine.
+		[ -e "$OCL_ICD_VENDORS/rusticl.icd" ] ||
+			write_if_changed "$rusticl_dir/libRusticlOpenCL.so.1" "$OCL_ICD_VENDORS/rusticl.icd"
+		export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$rusticl_dir
+		# Its drivers stay off until named. llvmpipe is left out, PortableCL
+		# being the CPU device.
+		export RUSTICL_ENABLE="${RUSTICL_ENABLE:-radeonsi,iris}"
+		break
+	done
 fi
 
 # DCV compatibility

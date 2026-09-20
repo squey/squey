@@ -242,8 +242,6 @@ add_squey_test(Trush_apache_parquet Trush_apache_parquet ${PARQUET_MULTIINPUTS_C
 add_squey_compile_test(Trush_apache_parquet_import_export LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_import_export.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_import_export Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïchunks.csv)
 add_squey_test(Trush_apache_parquet_offset Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.csv)
-add_squey_test(Trush_apache_parquet_import_export Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/parquet_multïchunks.csv)
-add_squey_test(Trush_apache_parquet_offset Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.csv)
 add_squey_test(Trush_apache_parquet_nested_complex_types Trush_apache_parquet_import_export ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/nested_complex_types_parquet.csv)
 add_squey_compile_test(Trush_apache_parquet_extended_types LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_extended_types.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_extended_types Trush_apache_parquet_extended_types)

@@ -34,7 +34,14 @@
  *
  * It also hands out a context on that GPU but no command queue, which makes it
  * a driver found usable that fails right after: the device can never be
- * brought up.
+ * brought up. The GPU says it is a dedicated one, and those are tried before
+ * any GPU built into a processor: Topencl_gpu_fallback and
+ * Tpvguiqt_about_box_opencl count on it being found first, whatever the
+ * machine running them has.
+ *
+ * Built with SQUEY_TEST_ICD_HYBRID, it stands for the two GPUs of a hybrid
+ * laptop instead: two platforms of a GPU each, the first built into the
+ * processor, the second dedicated.
  *
  * Only what the loader and the start-up reach is answered; the other entries
  * of the dispatch table stay null.
@@ -42,8 +49,10 @@
 
 #include <CL/cl_icd.h>
 
+#include <algorithm>
 #include <cstddef>
 #include <cstring>
+#include <iterator>
 #include <string_view>
 
 struct _cl_platform_id {
@@ -57,6 +66,7 @@ struct _cl_device_id {
 struct _cl_context {
 	const cl_icd_dispatch* dispatch;
 	cl_uint reference_count;
+	cl_device_id device;
 };
 
 namespace
@@ -66,8 +76,48 @@ using notify_t = void(CL_CALLBACK*)(const char*, const void*, size_t, void*);
 
 extern const cl_icd_dispatch dispatch;
 
-_cl_platform_id platform{&dispatch};
-_cl_device_id gpu{&dispatch};
+struct gpu_spec_t {
+	std::string_view platform_name;
+	std::string_view device_name;
+	cl_bool host_unified_memory;
+};
+
+// The GPUs on offer, a platform each, in the order the driver lists them
+#ifdef SQUEY_TEST_ICD_HYBRID
+constexpr gpu_spec_t gpu_specs[] = {
+    {"Squey test integrated platform", "Squey test integrated GPU", CL_TRUE},
+    {"Squey test dedicated platform", "Squey test dedicated GPU", CL_FALSE}};
+_cl_platform_id platforms[] = {{&dispatch}, {&dispatch}};
+_cl_device_id gpus[] = {{&dispatch}, {&dispatch}};
+#else
+constexpr gpu_spec_t gpu_specs[] = {{"Squey test platform", "Squey test GPU", CL_FALSE}};
+_cl_platform_id platforms[] = {{&dispatch}};
+_cl_device_id gpus[] = {{&dispatch}};
+#endif
+
+constexpr cl_uint gpu_count = std::size(gpu_specs);
+
+// The position of a platform of this driver, gpu_count for any other
+cl_uint index_of(cl_platform_id id)
+{
+	for (cl_uint i = 0; i < gpu_count; ++i) {
+		if (id == &platforms[i]) {
+			return i;
+		}
+	}
+	return gpu_count;
+}
+
+// The position of a device of this driver, gpu_count for any other
+cl_uint index_of(cl_device_id id)
+{
+	for (cl_uint i = 0; i < gpu_count; ++i) {
+		if (id == &gpus[i]) {
+			return i;
+		}
+	}
+	return gpu_count;
+}
 
 cl_int answer(size_t size, void* value, size_t* size_ret, const void* data, size_t data_size)
 {
@@ -116,20 +166,21 @@ bool matches_gpu(cl_device_type type)
 	return type == CL_DEVICE_TYPE_DEFAULT or (type & CL_DEVICE_TYPE_GPU) != 0;
 }
 
-cl_int CL_API_CALL
-get_platform_ids(cl_uint num_entries, cl_platform_id* platforms, cl_uint* num_platforms)
+cl_int CL_API_CALL get_platform_ids(cl_uint num_entries, cl_platform_id* ids, cl_uint* num_platforms)
 {
-	if (platforms == nullptr and num_platforms == nullptr) {
+	if (ids == nullptr and num_platforms == nullptr) {
 		return CL_INVALID_VALUE;
 	}
-	if (platforms != nullptr) {
+	if (ids != nullptr) {
 		if (num_entries == 0) {
 			return CL_INVALID_VALUE;
 		}
-		platforms[0] = &platform;
+		for (cl_uint i = 0; i < std::min(num_entries, gpu_count); ++i) {
+			ids[i] = &platforms[i];
+		}
 	}
 	if (num_platforms != nullptr) {
-		*num_platforms = 1;
+		*num_platforms = gpu_count;
 	}
 	return CL_SUCCESS;
 }
@@ -140,7 +191,8 @@ cl_int CL_API_CALL get_platform_info(cl_platform_id id,
                                      void* value,
                                      size_t* size_ret)
 {
-	if (id != &platform) {
+	const cl_uint index = index_of(id);
+	if (index == gpu_count) {
 		return CL_INVALID_PLATFORM;
 	}
 
@@ -152,7 +204,7 @@ cl_int CL_API_CALL get_platform_info(cl_platform_id id,
 		// reference counted
 		return answer(size, value, size_ret, "OpenCL 3.0 Squey test ICD");
 	case CL_PLATFORM_NAME:
-		return answer(size, value, size_ret, "Squey test platform");
+		return answer(size, value, size_ret, gpu_specs[index].platform_name);
 	case CL_PLATFORM_VENDOR:
 		return answer(size, value, size_ret, "Squey");
 	case CL_PLATFORM_EXTENSIONS:
@@ -170,7 +222,8 @@ cl_int CL_API_CALL get_device_ids(cl_platform_id id,
                                   cl_device_id* devices,
                                   cl_uint* num_devices)
 {
-	if (id != &platform) {
+	const cl_uint index = index_of(id);
+	if (index == gpu_count) {
 		return CL_INVALID_PLATFORM;
 	}
 	if (not is_single_type(type)) {
@@ -186,7 +239,7 @@ cl_int CL_API_CALL get_device_ids(cl_platform_id id,
 		if (num_entries == 0) {
 			return CL_INVALID_VALUE;
 		}
-		devices[0] = &gpu;
+		devices[0] = &gpus[index];
 	}
 	if (num_devices != nullptr) {
 		*num_devices = 1;
@@ -197,7 +250,8 @@ cl_int CL_API_CALL get_device_ids(cl_platform_id id,
 cl_int CL_API_CALL
 get_device_info(cl_device_id id, cl_device_info name, size_t size, void* value, size_t* size_ret)
 {
-	if (id != &gpu) {
+	const cl_uint index = index_of(id);
+	if (index == gpu_count) {
 		return CL_INVALID_DEVICE;
 	}
 
@@ -205,9 +259,11 @@ get_device_info(cl_device_id id, cl_device_info name, size_t size, void* value, 
 	case CL_DEVICE_TYPE:
 		return answer_value(size, value, size_ret, cl_device_type{CL_DEVICE_TYPE_GPU});
 	case CL_DEVICE_PLATFORM:
-		return answer_value(size, value, size_ret, cl_platform_id{&platform});
+		return answer_value(size, value, size_ret, cl_platform_id{&platforms[index]});
+	case CL_DEVICE_HOST_UNIFIED_MEMORY:
+		return answer_value(size, value, size_ret, gpu_specs[index].host_unified_memory);
 	case CL_DEVICE_NAME:
-		return answer(size, value, size_ret, "Squey test GPU");
+		return answer(size, value, size_ret, gpu_specs[index].device_name);
 	case CL_DEVICE_VENDOR:
 		return answer(size, value, size_ret, "Squey");
 	case CL_DEVICE_VERSION:
@@ -225,20 +281,20 @@ get_device_info(cl_device_id id, cl_device_info name, size_t size, void* value, 
 
 cl_int CL_API_CALL retain_device(cl_device_id id)
 {
-	return id == &gpu ? CL_SUCCESS : CL_INVALID_DEVICE;
+	return index_of(id) != gpu_count ? CL_SUCCESS : CL_INVALID_DEVICE;
 }
 
 cl_int CL_API_CALL release_device(cl_device_id id)
 {
-	return id == &gpu ? CL_SUCCESS : CL_INVALID_DEVICE;
+	return index_of(id) != gpu_count ? CL_SUCCESS : CL_INVALID_DEVICE;
 }
 
-cl_context new_context(cl_int* err)
+cl_context new_context(cl_device_id device, cl_int* err)
 {
 	if (err != nullptr) {
 		*err = CL_SUCCESS;
 	}
-	return new _cl_context{&dispatch, 1};
+	return new _cl_context{&dispatch, 1, device};
 }
 
 cl_context fail_context(cl_int* err, cl_int code)
@@ -260,14 +316,14 @@ cl_context CL_API_CALL create_context(const cl_context_properties* /*properties*
 		return fail_context(err, CL_INVALID_VALUE);
 	}
 	for (cl_uint i = 0; i < num_devices; ++i) {
-		if (devices[i] != &gpu) {
+		if (index_of(devices[i]) == gpu_count) {
 			return fail_context(err, CL_INVALID_DEVICE);
 		}
 	}
-	return new_context(err);
+	return new_context(devices[0], err);
 }
 
-cl_context CL_API_CALL create_context_from_type(const cl_context_properties* /*properties*/,
+cl_context CL_API_CALL create_context_from_type(const cl_context_properties* properties,
                                                 cl_device_type type,
                                                 notify_t /*notify*/,
                                                 void* /*user_data*/,
@@ -279,7 +335,17 @@ cl_context CL_API_CALL create_context_from_type(const cl_context_properties* /*p
 	if (not matches_gpu(type)) {
 		return fail_context(err, CL_DEVICE_NOT_FOUND);
 	}
-	return new_context(err);
+	// The GPU of the platform the properties name, of the first one otherwise
+	cl_uint index = 0;
+	for (auto* property = properties; property != nullptr and *property != 0; property += 2) {
+		if (property[0] == CL_CONTEXT_PLATFORM) {
+			index = index_of(reinterpret_cast<cl_platform_id>(property[1]));
+		}
+	}
+	if (index == gpu_count) {
+		return fail_context(err, CL_INVALID_PLATFORM);
+	}
+	return new_context(&gpus[index], err);
 }
 
 cl_int CL_API_CALL retain_context(cl_context context)
@@ -315,7 +381,7 @@ cl_int CL_API_CALL get_context_info(
 	case CL_CONTEXT_NUM_DEVICES:
 		return answer_value(size, value, size_ret, cl_uint{1});
 	case CL_CONTEXT_DEVICES:
-		return answer_value(size, value, size_ret, cl_device_id{&gpu});
+		return answer_value(size, value, size_ret, context->device);
 	case CL_CONTEXT_PROPERTIES:
 		return answer(size, value, size_ret, nullptr, 0);
 	default:

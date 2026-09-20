@@ -13,6 +13,9 @@ buildstream/squey_win/
 buildstream/files/org.squey.Squey.metainfo.xml
 .bst/
 
+#Compilation database symlink the devcontainer points clangd at
+src/compile_commands.json
+
 #Reports extracted from the build sandbox by build.sh
 /junit.xml
 /code_coverage_report/

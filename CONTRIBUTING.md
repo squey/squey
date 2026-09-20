@@ -5,29 +5,49 @@ These rules apply to every contribution, whoever writes it and whatever tools th
 ## Development environment
 
 Development currently requires a Linux machine: the BuildStream development sandbox only runs
-on Linux. The Windows and macOS versions are cross-compiled from sandboxes running on Linux.
+on Linux, and the Windows and macOS versions are cross-compiled from sandboxes running there.
 
-The toolchain and every dependency (Qt, Arrow, sigc++, DuckDB…) live in the BuildStream
-development sandbox, under `/app`. The host has none of them, and the CMake configuration stops
-there. [buildstream/README.md](buildstream/README.md) explains the setup. In short:
+The toolchain and every dependency (Qt, Arrow, sigc++, DuckDB…) live under `/app`, which two
+environments provide. The host has none of them, and the CMake configuration stops there.
+[buildstream/README.md](buildstream/README.md) explains how to set each one up; this file only
+says what each one is for, and how to work in it.
+
+### The BuildStream development sandbox
+
+The reference environment, and the only one that cross-compiles and packages.
 
 - `cd buildstream && ./dev_shell.sh` starts the Linux sandbox and keeps an interactive shell open.
   `--target_triple=` selects another target: `x86_64-w64-mingw32`, `aarch64-apple-darwin` or
   `x86_64-apple-darwin`. Sandboxes for different targets can run side by side.
-- Each sandbox runs an ssh server. `buildstream/sshd/ssh_config.squey` names them `SqueyLinux`
-  (port 6666), `SqueyWin` (6667) and `SqueyMac` (6668); authentication is by key only.
-- From the host, run commands with `ssh SqueyLinux '<command>'`. The session gets the
-  environment of the sandbox shell, and the sandbox sees the host filesystem at the same paths:
-  `cd` to the same absolute path.
-- A clangd started on the host cannot see the headers under `/app`, and reports errors that do
-  not exist. Use `buildstream/clangd.sh` as the clangd binary of your editor or coding
-  assistant. It runs clangd inside the sandbox, on the build tree of the checkout it is started
-  from.
+- Each sandbox runs an ssh server, which the
+  [ssh configuration](buildstream/README.md#reaching-the-sandbox-from-the-host) names
+  `SqueyLinux`, `SqueyWin` and `SqueyMac`. From the host, run commands with
+  `ssh SqueyLinux '<command>'`. The session gets the environment of the sandbox shell, and the
+  sandbox sees the host filesystem at the same paths: `cd` to the same absolute path.
+
+### The devcontainer
+
+`.devcontainer/` describes an image of the same `/app`, for the editors that support development
+containers and for the `devcontainer` CLI. It is quicker to enter than the sandbox, but only
+builds and tests the native Linux version.
+
+A branch that changes a dependency keeps the image of `main` until it is merged, as
+[buildstream/README.md](buildstream/README.md#if-the-image-will-not-pull) explains.
+
+### Editors and coding assistants
+
+A clangd started on the host cannot see the headers under `/app`, and reports errors that do not
+exist. Use `buildstream/clangd.sh` as the clangd binary of your editor or coding assistant. It
+runs clangd on the build tree of the checkout it is started from: through the ssh server of the
+sandbox from the host, directly inside the sandbox or the devcontainer. The devcontainer also
+points `src/compile_commands.json` at the compile commands it gives clangd, for the editors that
+start the clangd they find.
 
 ## Building
 
 - On first start, `dev_shell.sh` configures `builds/<target triple>/<Clang|GCC>/<Debug|RelWithDebInfo>`.
-  Run `ninja` inside one of them; it runs `cmake` again by itself when a `CMakeLists.txt` changes.
+  The devcontainer configures `builds/x86_64-linux-gnu/Clang/RelWithDebInfo` on creation. Run
+  `ninja` inside one of them; it runs `cmake` again by itself when a `CMakeLists.txt` changes.
 - Validate changes in `builds/x86_64-linux-gnu/Clang/RelWithDebInfo`. It builds like the CI
   (Clang, `-O3 -ffast-math`), which a GCC or Debug build does not reproduce.
 - The CI treats warnings as errors: a build log must contain no `warning:`.
@@ -39,6 +59,9 @@ there. [buildstream/README.md](buildstream/README.md) explains the setup. In sho
 - `ctest` first builds what the tests need, so it never runs a stale test executable. While
   iterating, run only the relevant tests (`ctest -R <pattern>`). Keep the full suite
   (`ninja squey_run_testsuite`) for before a commit.
+- `ctest` runs each test through `buildstream/files/flatpak/run_cmd.sh`, which sets up OpenCL and
+  the library path as it does for the packaged application. Run a test executable by hand
+  through it too.
 - `src/libpvcop` is a repository of its own, tested there. Squey only registers its tests to
   measure the code coverage.
 

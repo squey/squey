@@ -91,6 +91,9 @@ bool force_cpu();
 /**
  * find the first OpenCL plateform matching @p accelerated and call @p f on each of its devices
  *
+ * When looking for accelerated devices, dedicated GPUs are tried before those
+ * built into the processor, which share its memory.
+ *
  * @param accelerated a boolean to indicate if the found backend must use decidated hardware or must
  * used software implementation
  * @param f a function to call on each device of the found context

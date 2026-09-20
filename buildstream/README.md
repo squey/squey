@@ -1,6 +1,10 @@
 
 # Development
 
+This page sets up an environment to build Squey in. How to work in it -- where
+to validate a change, how to run the tests, what a commit and a merge request
+look like -- is in [CONTRIBUTING.md](../CONTRIBUTING.md).
+
 ## Clone the project
 
 Note : you should have `git` and `git-lfs` installed.
@@ -9,7 +13,78 @@ Note : you should have `git` and `git-lfs` installed.
 git clone --recursive https://gitlab.com/squey/squey.git
 ```
 
+## Build in the devcontainer
+
+The quickest way in: a prebuilt image carrying the whole build sysroot, so the
+host needs nothing but a container engine. Budget around 12 GB of disk for the
+image. It produces a native Linux build only -- cross-compilation and packaging
+go through the [development shell](#development-shell).
+
+Under podman the container has to run with `--userns=keep-id`, or its user owns
+nothing in the workspace and cannot even write to it. The devcontainer CLI
+passes it by itself whenever it finds podman, even behind a `docker` command,
+and Zed does once its settings say `"use_podman": true`. Docker needs nothing.
+
+Then open the repository in an editor supporting the
+[Development Containers specification](https://containers.dev) -- VS Code,
+GitHub Codespaces, JetBrains Gateway -- and accept "Reopen in Container".
+Or use the [CLI](https://github.com/devcontainers/cli):
+
+```
+devcontainer up --workspace-folder .
+devcontainer exec --workspace-folder . .devcontainer/configure_builds.sh
+devcontainer exec --workspace-folder . cmake --build builds/x86_64-linux-gnu/Clang/RelWithDebInfo
+```
+
+An editor runs `configure_builds.sh` for you as the `postCreateCommand`; the CLI
+does not, hence the explicit call. Running it twice costs nothing.
+
+### Running the GUI
+
+Under a Wayland session, the container gets the socket of the compositor, so
+the window lands on your desktop like any other application:
+
+```
+builds/x86_64-linux-gnu/Clang/RelWithDebInfo/squey.sh
+```
+
+Pass `debug` to `squey.sh` to start it under gdb.
+
+Rendering uses the GPU of the machine when it has one, a dedicated one before
+one built into the processor, and the CPU otherwise; `FORCE_CPU=1` in front of
+the command takes the CPU anyway. The GPU comes through the flatpak runtimes
+the development shell uses too: `org.freedesktop.Platform.GL.default`, whose
+Mesa drives AMD and Intel GPUs, and for an NVIDIA one the
+`org.freedesktop.Platform.GL.nvidia-*` of the driver. The log of the container
+creation gives the command that installs whichever is missing. The container
+takes the GPU when it is created, so rebuild it after installing one.
+
+### If the image will not pull
+
+The pin names the image of a dependency graph, and its tag is a digest of that
+graph, so only a commit that changes a dependency calls for a new image. The
+`ensure devcontainer image` CI job builds and pushes that image by itself, on
+every merge request, and the pipeline its merge into `main` starts commits the
+new tag there. Until then a branch keeps the image of `main`. To use the new
+one sooner, pin the tag the job printed:
+
+```
+buildstream/scripts/update_devcontainer_pin.sh registry.gitlab.com/squey/squey/devcontainer:<tag>
+```
+
+A pull that fails with `manifest unknown` names an image nobody has published
+yet: open the merge request and let the CI publish it, or build it yourself.
+Staging the sysroot takes around 11 GB, so point `TMPDIR` at a disk with room if
+`/tmp` is a tmpfs.
+
+```
+buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true
+```
+
 ## Development shell
+
+The BuildStream sandbox: slower to enter than the devcontainer, and the only way
+to cross-compile and to produce a package.
 
 Note : you should have `python` installed.
 
@@ -17,15 +92,34 @@ Note : you should have `python` installed.
 cd squey/buildstream && ./dev_shell.sh
 ```
 
-From then you can choose to use the development shell to compile and run the software as such:
+From then you can choose to use the development shell to compile and run the
+software as such, and likewise in the [other build trees](../CONTRIBUTING.md#building):
 
 ```
-cd builds/{x86_64-linux-gnu,x86_64-apple-darwin,aarch64-apple-darwin}/{Clang,GCC}/{Debug,RelWithDebInfo} && cmake --build . [ && ./squey.sh ]
+cd builds/x86_64-linux-gnu/Clang/RelWithDebInfo && ninja && ./squey.sh
 ```
 
 or you can continue to configure an IDE.
 
-## Configure Visual Studio Code
+### Reaching the sandbox from the host
+
+`dev_shell.sh` embeds an SSH server and a
+[waypipe](https://gitlab.freedesktop.org/mstoeckl/waypipe) tunnel, so keep it
+running: that is what lets an editor open the project and debug the GUI inside
+the sandbox under Wayland, and a command run from the host reach it.
+
+Append the [preconfigured SSH host configuration](sshd/ssh_config.squey) to your
+own. Login is by SSH key only -- password login is not supported.
+
+```
+cat buildstream/sshd/ssh_config.squey | tee -a ~/.ssh/config
+```
+
+Each target has its own port, so several sandboxes can run at once:
+`SqueyLinux` (6666), `SqueyWin` for `--target_triple=x86_64-w64-mingw32` (6667),
+`SqueyMac` for `*-apple-darwin` (6668).
+
+### Configure Visual Studio Code
 
 Install the following extensions :
 
@@ -34,21 +128,7 @@ Install the following extensions :
 3. [Remote Development](https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.vscode-remote-extensionpack)
 4. [CodeLLDB](https://marketplace.visualstudio.com/items?itemName=vadimcn.vscode-lldb)
 
-The `dev_shell.sh` script is embedding a local SSH server as well as a [waypipe](https://gitlab.freedesktop.org/mstoeckl/waypipe) tunnel that permit to debug the GUI application inside BuildStream development sandbox under Wayland. So don't forget to have it running to be able to open the project in vscode :
-
-```
-cd squey/buildstream && ./dev_shell.sh
-```
-
-Just append the [preconfigured SSH host configuration](sshd/ssh_config.squey) to your local SSH configuration file:
-
-```
-cat buildstream/sshd/ssh_config.squey | tee -a ~/.ssh/config
-```
-
-Then use the vscode `Remote Explorer` extension to connect to the `SqueyLinux` hostname using a ssh key (note: password login is not supported).
-
-Each target platform uses its own port, so sandboxes for several targets can run at the same time: connect to `SqueyLinux` for a native Linux sandbox (port 6666), `SqueyWin` when it was started with `--target_triple=x86_64-w64-mingw32` (port 6667), and `SqueyMac` for an `*-apple-darwin` one (port 6668).
+Then connect to the sandbox with the `Remote Explorer` extension.
 
 Remote Explorer            | Open folder
 :-------------------------:|:-------------------------:
@@ -59,12 +139,18 @@ CodeLLDB           |
 :-------------------------:
 ![](doc/vscode_codelldb_extension.png)
 
+### Other editors
+
+Other editors and coding assistants get their C++ support from
+`buildstream/clangd.sh`: see
+[Editors and coding assistants](../CONTRIBUTING.md#editors-and-coding-assistants).
+
 # Flatpak
 
 ## Generating and installing a local flatpak package
 
 ```
-cd buildstream && ./build.sh --flatpak-export=true --flatpak-repo=local_repo
+cd buildstream && ./build.sh --export=true --export-dir=local_repo
 ```
 
 Adding the flatpak local remote (once):

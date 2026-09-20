@@ -39,7 +39,12 @@
   <url type="homepage">https://squey.org</url>
   <url type="donation">https://liberapay.com/Squey/</url>
   <url type="vcs-browser">https://gitlab.com/squey/squey</url>
-  <url type="bugtracker">https://gitlab.com/squey/squey/-/issues</url>
+  <!-- The issue list is /-/issues, but GitLab has closed that path to
+       anonymous visitors: it answers 404 there for every project, its own
+       included, while a single issue and this board stay readable. A
+       bugtracker nobody can open without an account is worse than the
+       canonical URL, so point at the view that still renders. -->
+  <url type="bugtracker">https://gitlab.com/squey/squey/-/boards</url>
   <url type="help">https://doc.squey.org</url>
   <url type="contribute">https://gitlab.com/squey/squey/-/blob/main/CONTRIBUTING.md</url>
 

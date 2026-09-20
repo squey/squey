@@ -1,0 +1,100 @@
+{
+  "name": "Squey (native Linux build)",
+
+  // Pinned by buildstream/scripts/update_devcontainer_pin.sh, the same way
+  // .gitlab-ci.yml pins BASE_IMAGE_NAME: the tag is a digest of the dependency
+  // graph, so a branch that does not touch buildstream/ inherits the image of
+  // the branch it forked from. Never edit this line by hand.
+  "image": "registry.gitlab.com/squey/squey/devcontainer:97343038f6375826",
+
+  // No "workspaceFolder" here. Setting it does not move the bind mount, which
+  // the runtime places at /workspaces/<name of the local directory>: naming a
+  // path that does not match leaves ${containerWorkspaceFolder}, and every
+  // command run through it, pointing at nothing. Left out, the two agree
+  // whatever the clone is called.
+
+  // The image only carries a "dev" user because the BuildStream sandbox mounts
+  // /etc/passwd from the host and the staged sysroot therefore has none.
+  // updateRemoteUserUID remaps it onto the host uid, which is what keeps the
+  // files written in the workspace owned by the user rather than by root.
+  "remoteUser": "dev",
+  "updateRemoteUserUID": true,
+
+  // Gathers what the GPU of this machine needs under fixed paths before the
+  // container is created, so that the mounts and the devices below need to know
+  // neither where flatpak keeps its runtimes, nor which driver version is
+  // loaded, nor whether there is a GPU at all. On a machine without one it finds
+  // nothing, and the container renders on the CPU. It links the Wayland socket
+  // the same way.
+  "initializeCommand": "${localWorkspaceFolder}/.devcontainer/prepare_gpu.sh",
+
+  "containerEnv": {
+    // buildstream/dev_shell_bashrc reads SOURCE_DIR to find the tree to build;
+    // the scripts shared with it expect the same variable here.
+    "SOURCE_DIR": "${containerWorkspaceFolder}",
+    // The socket mounted below. Drop both, and mount /tmp/.X11-unix instead, to
+    // run against an X server.
+    "WAYLAND_DISPLAY": "/tmp/wayland-0",
+    "QT_QPA_PLATFORM": "wayland",
+    // The search path buildstream/dev_shell_bashrc gives the sandbox: the one of
+    // the image, then the GL runtime, where the EGL vendor files name the NVIDIA
+    // libraries by soname alone. After the image, so that the compiler keeps the
+    // libLLVM of the SDK, whose name the GL runtime carries too; run_cmd.sh adds
+    // what OpenCL needs. "nvidia" is the fixed alias prepare_gpu.sh creates next
+    // to the driver-versioned directory it cannot predict.
+    "LD_LIBRARY_PATH": "/usr/lib/x86_64-linux-gnu:/app/lib:/usr/lib/x86_64-linux-gnu/GL/nvidia/lib:/usr/lib/x86_64-linux-gnu/GL/lib",
+    // The EGL vendor files of the GL runtime, NVIDIA's included, which
+    // buildstream/dev_shell_bashrc lists for the sandbox the same way
+    "__EGL_VENDOR_LIBRARY_DIRS": "/usr/lib/x86_64-linux-gnu/GL/nvidia/glvnd/egl_vendor.d:/usr/lib/x86_64-linux-gnu/GL/share/glvnd/egl_vendor.d:/usr/lib/x86_64-linux-gnu/GL/default/share/glvnd/egl_vendor.d"
+  },
+
+  "mounts": [
+    // A full build is long enough that losing the compiler cache every time the
+    // container is rebuilt would defeat the point of the whole thing.
+    "source=squey-ccache,target=/home/dev/.cache/ccache,type=volume",
+    // Squey keeps its settings, its recent sources and its lists here. Left in
+    // the image layer they would go with the container, and every start would
+    // be a first start.
+    "source=squey-config,target=/home/dev/.squey,type=volume",
+    // Lets the built binary put a window on the host compositor, through the
+    // link prepare_gpu.sh makes to its socket. On a host without a Wayland
+    // session the link points at /dev/null, since a missing source would keep
+    // the container from starting.
+    "source=${localEnv:HOME}/.cache/squey-devcontainer/wayland,target=/tmp/wayland-0,type=bind",
+    // What prepare_gpu.sh gathered, empty on a machine without the GL runtime.
+    // run_cmd.sh reads the driver out of it and writes the matching OpenCL
+    // vendor file.
+    "source=${localEnv:HOME}/.cache/squey-devcontainer/gl,target=/usr/lib/x86_64-linux-gnu/GL,type=bind,readonly"
+  ],
+
+  // The devices the drivers need: /dev/dri for Mesa, which drives AMD and Intel
+  // GPUs, the others for NVIDIA's. Named directly, one that does not exist would
+  // keep the container from starting, and nothing here can say "if present". So
+  // these name the links prepare_gpu.sh makes, which always exist: each resolves
+  // to the device on a machine that has it, and to /dev/null otherwise. The
+  // runtime reads them when it creates the container, after initializeCommand.
+  // The destinations are spelled out because Docker would otherwise use the
+  // path of the link.
+  "runArgs": [
+    "--device=${localEnv:HOME}/.cache/squey-devcontainer/dev/dri:/dev/dri",
+    "--device=${localEnv:HOME}/.cache/squey-devcontainer/dev/nvidia0:/dev/nvidia0",
+    "--device=${localEnv:HOME}/.cache/squey-devcontainer/dev/nvidiactl:/dev/nvidiactl",
+    "--device=${localEnv:HOME}/.cache/squey-devcontainer/dev/nvidia-uvm:/dev/nvidia-uvm"
+  ],
+
+  "postCreateCommand": "${containerWorkspaceFolder}/.devcontainer/configure_builds.sh",
+
+  "customizations": {
+    "vscode": {
+      // Same set as the one buildstream/README.md asks for when attaching to
+      // the BuildStream sandbox over ssh, minus Remote Development which is
+      // what gets you here in the first place. The build settings themselves
+      // live in the workspace .vscode/settings.json and apply unchanged.
+      "extensions": [
+        "ms-vscode.cpptools-extension-pack",
+        "twxs.cmake",
+        "vadimcn.vscode-lldb"
+      ]
+    }
+  }
+}

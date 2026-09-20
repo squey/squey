@@ -97,6 +97,23 @@ add_custom_target(squey_testsuite)
 if (CMAKE_CONFIGURATION_TYPES)
     set(BUILD_CONF_OPTION "--build-config $<CONFIGURATION>")
 endif()
+
+# Run each test through the wrapper the packaged application goes through, for
+# the same reason squey.sh does: it writes the OpenCL vendor files and puts the
+# prefix first on the library path. Without it the tests that need an OpenCL
+# device find none -- in a devcontainer they would also pick the wrong one of the
+# two libLLVM that share a soname there -- and the rendering ones quietly measure
+# the QPainter fallback instead of what they meant to. Set on each test rather
+# than around the suite, it holds for a plain ctest too.
+#
+# Only a checkout has run_cmd.sh next to src/. A BuildStream build stages it
+# inside the source directory and runs ctest through it already, and the tests
+# of a cross-compiled build run elsewhere: both keep their tests as they were.
+if (NOT CMAKE_TEST_LAUNCHER AND NOT CMAKE_CROSSCOMPILING
+		AND EXISTS "${CMAKE_SOURCE_DIR}/../buildstream/files/flatpak/run_cmd.sh")
+	set(CMAKE_TEST_LAUNCHER "${CMAKE_SOURCE_DIR}/../buildstream/files/flatpak/run_cmd.sh")
+endif()
+
 # -FS: the dependency below has built the test suite already, and building it again
 # from ctest would run a second ninja in the build tree the first one is working on.
 add_custom_target(

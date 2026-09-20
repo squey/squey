@@ -15,9 +15,9 @@ files, through the `buildstream/clangd.sh` script that CONTRIBUTING.md describes
   `builds/x86_64-linux-gnu/Clang/RelWithDebInfo`, else `builds/linux-release`.
 - **What it writes.** It rewrites the compile commands (unity builds, precompiled headers) into
   `<build tree>/clangd/`, and keeps its index there.
-- **Requirements.** The sandbox must be running and reachable without a password. If ssh needs
-  options, put them in `SQUEY_SANDBOX_SSH_OPTS`, for instance in the `env` of
-  `.claude/settings.local.json`.
+- **Requirements.** From the host, the sandbox must be running and reachable without a password.
+  If ssh needs options, put them in `SQUEY_SANDBOX_SSH_OPTS`, for instance in the `env` of
+  `.claude/settings.local.json`. Inside the sandbox or the devcontainer, clangd runs directly.
 - **Official plugin disabled.** `.claude/settings.json` disables the official `clangd-lsp`
   plugin: it runs the host clangd, which cannot see `/app`.
 - **When it loads.** The plugin loads for sessions started at the root of a checkout that
@@ -25,7 +25,7 @@ files, through the `buildstream/clangd.sh` script that CONTRIBUTING.md describes
   `~/.claude/skills/` shadows it.
 - **Limits.**
   - Definitions in third-party headers point to `/app/...`, a path that exists only inside the
-    sandbox.
+    sandbox and the devcontainer.
   - Diagnostics only cover the open files, with the Linux flags, so the build remains the
     reference.
   - The first indexing of a build tree takes about ten minutes.

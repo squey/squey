@@ -56,6 +56,16 @@ workflow:
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
+    # A merge into the default branch that moves a dependency, for the image job to
+    # publish the image of the branch and commit its pin there: the only pipeline a
+    # push starts. The commit of the pin touches neither path, and starts none.
+    - if: '$CI_PIPELINE_SOURCE == "push" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+      changes:
+        - buildstream/**/*
+        - project.conf
+      variables:
+        CONTAINER_SCANNING_DISABLED: "true"
+        SAST_DISABLED: "true"
 
 # Filters a job out of a scheduled pipeline that has nothing to rebuild. Must come
 # first in the "rules" list of every job that can run in a scheduled pipeline.
@@ -167,6 +177,100 @@ builder appstream-linter:
         - buildstream/files/org.squey.Squey.metainfo.xml.j2
   interruptible: true
   allow_failure: false
+
+# The devcontainer image is the staged build dependencies of squey.bst turned
+# into a container root filesystem, so that a contributor can compile Squey
+# without running BuildStream at all (see buildstream/README.md). Its tag is a
+# digest of the dependency graph, and .devcontainer/devcontainer.json pins it
+# the same way this file pins BASE_IMAGE_NAME.
+#
+# The steps are one job on purpose. Publishing the image and pinning it are
+# separate concerns, but splitting them races: whichever runs first either pins
+# an image the other has not published yet, or publishes one nothing pins. Run
+# in order inside a single job, the pin that reaches the default branch always
+# names an image the registry already holds, with no window where that branch
+# points at something nobody can pull. A merge request only reports a pin that
+# moved, which the pipeline its merge starts then commits (see
+# commit_devcontainer_pin.sh).
+ensure devcontainer image:
+  stage: build
+  image:
+    name: "$BASE_IMAGE_NAME"
+    pull_policy: [if-not-present]
+  tags:
+    - privileged-docker
+  needs: [] # start as soon as the pipeline does, do not wait for the earlier stages
+  # The image is made of the build dependencies of the Linux builds, so it uses
+  # their cache, and with it their resource_group: see ".build".
+  resource_group: bst-slot-linux
+  variables:
+    # Two merge request pipelines can reach this job at once, see ".build".
+    GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
+    # The staged sysroot is around 11 GB and /tmp is not always backed by a
+    # disk, so keep the scratch checkout beside the clone instead.
+    TMPDIR: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/devcontainer-scratch
+    BST_SLOT: linux
+  before_script:
+    - export XDG_CACHE_HOME="$HOME/.cache/bst-slots/bst-slot-${BST_SLOT}"
+    - mkdir -p "$TMPDIR"
+    # Reading the registry to find out whether the image is already there needs
+    # no credentials, and that is all a pipeline does when the dependency graph
+    # is untouched. Only a pipeline that really has an image to publish needs to
+    # be logged in, and that one fails on the push rather than here -- which is
+    # what keeps a fork pipeline, whose token cannot write to this registry,
+    # from failing on every merge request that has nothing to publish.
+    - skopeo login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
+      || echo "Registry login failed; this job can still verify, but not publish."
+  script:
+    # Publishing comes first and does not wait on the pin being right. The tag
+    # is a pure function of the dependency graph, which this job computes for
+    # itself, so a branch that moves a dependency gets its image built here
+    # rather than on a contributor's machine. Idempotent: it exits early when
+    # the registry already holds the tag, which is what nearly every merge
+    # request hits. It then writes the tag into .devcontainer/.
+    - buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true
+    # A tag that moved is reported in a merge request, and committed on the
+    # default branch by the pipeline its merge starts.
+    - buildstream/scripts/commit_devcontainer_pin.sh
+    # A pin agreeing with the graph still says nothing about the image being
+    # pullable.
+    - buildstream/scripts/update_devcontainer_pin.sh --verify-image
+  after_script:
+    # build_devcontainer_image.sh gives back the checkout and the image layout
+    # itself. This is the safety net for the paths that never reach it -- a
+    # cancelled job, a runner killed mid-push -- and it reports what it found
+    # rather than swallowing the answer: a slot quietly keeping a dozen
+    # gigabytes is one the next pipeline will not fit into.
+    - |
+      if [ -d "$TMPDIR" ]; then
+        echo "scratch left behind: $(du -sh "$TMPDIR" 2>/dev/null | cut -f1)"
+        rm -rf "$TMPDIR" || echo "warning: $TMPDIR survived"
+      fi
+      df -h "$CI_BUILDS_DIR" | tail -1
+  rules:
+    - !reference [.skip_if_already_built, rules]
+    # Deliberately not narrowed to the paths the tag is computed from. Gating it
+    # on "changes" would be correct as long as those paths and that list agree,
+    # and would quietly stop protecting anything the day they drift apart -- or
+    # the day the registry loses an image while the repository stands still.
+    # Running every time costs a "bst show" and a registry query, seconds
+    # against the pipeline it sits in, and never builds an image that already
+    # exists.
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+  # GitLab only auto-cancels a pipeline when every job still running in it is
+  # interruptible, so marking this one otherwise held up the whole pipeline --
+  # every job around it is interruptible, and this was the single exception. The
+  # reasoning behind it, not paying twice for a half pushed image, produced the
+  # opposite: three pushes in a row meant three concurrent twelve-minute builds
+  # of a tag that is a digest and was therefore the same one all three times.
+  #
+  # Cancelling costs nothing. The tag names its own content, the manifest goes up
+  # after the blob it points at, so an interrupted push leaves loose blobs for the
+  # registry to collect rather than a tag pointing at nothing. And the next
+  # pipeline rebuilds what is missing, which is what this job is for.
+  interruptible: true
+
 
 .build:
   stage: build
@@ -326,6 +430,9 @@ build and run testsuite linux:
   coverage: '/lines: (\d+\.\d+)% \(\d+ out of \d+\)/'
   rules:
     - !reference [.skip_if_already_built, rules]
+    # A push only starts a pipeline for the image job, see "workflow"
+    - if: '$CI_PIPELINE_SOURCE == "push"'
+      when: never
     - if: '$CI_COMMIT_TAG =~ "/^$/"'
   artifacts:
     when: always
