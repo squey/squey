@@ -98,6 +98,21 @@ int main()
 	testcases.emplace_back("datetime_us", "d/M/yyyy H:m:s.S", "19/02/2014 15:55:47.723000");
 	testcases.emplace_back("datetime_us", "H:m:s.S", "05:35:02.506000");
 	testcases.emplace_back("datetime_us", "H%m%s.S", "05%35%02.506000");
+	// the formats that went to ICU, and lost their microseconds on the way
+	testcases.emplace_back("datetime_us", "yyyy-MM-dd'T'HH:mm:ss.SSSSSSX",
+	                       "2026-01-14T00:06:46.532856Z", "2026-01-14T00:06:46.532856+0000");
+	testcases.emplace_back("datetime_us", "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX",
+	                       "2026-01-14T02:06:46.532856+02:00", "2026-01-14T00:06:46.532856+0000");
+	testcases.emplace_back("datetime_us", "yyyy-MM-dd HH:mm:ss.SSS Z",
+	                       "2014-11-07 12:12:01.123 -0800", "2014-11-07 20:12:01.123000 +0000");
+	testcases.emplace_back("datetime_us", "yyyy-MM-dd HH:mm:ss,SSS", "2016-01-01 12:00:00,123",
+	                       "2016-01-01 12:00:00,123000");
+	testcases.emplace_back("datetime_us", "epoch.SSSSSS", "1334036784.745123");
+	testcases.emplace_back("datetime_us", "epoch.S", "1334036784.745", "1334036784.745000");
+	testcases.emplace_back("datetime_us", "epoch.SSS", "1452654558.123", "1452654558.123000");
+	testcases.emplace_back("datetime_us", "epoch.SSS", "1452654558.123456");
+	testcases.emplace_back("datetime_us", "epoch.S", "1334036784:745", "1334036784.745000");
+	testcases.emplace_back("datetime_us", "epoch.S", "1334036784,745", "1334036784.745000");
 
 	// ICU
 	// A zone read with a pattern used to stay on the calendar of the thread, and the
@@ -111,11 +126,6 @@ int main()
 	testcases.emplace_back("datetime_ms", "yyyy-MM-dd K:mm a", "2014-11-07 1:08 PM");
 	testcases.emplace_back("datetime_ms", "yyyy-DDD HH:mm", "2014-311 12:12");
 	testcases.emplace_back("datetime_ms", "epochS", "1452520190588");
-	testcases.emplace_back("datetime_ms", "epoch.S", "1334036784.745");
-	testcases.emplace_back("datetime_ms", "epoch.SSS", "1452654558.123");
-	testcases.emplace_back("datetime_ms", "epoch.SSS", "1452654558.123456", "1452654558.123");
-	testcases.emplace_back("datetime_ms", "epoch.S", "1334036784:745", "1334036784.745");
-	testcases.emplace_back("datetime_ms", "epoch.S", "1334036784,745", "1334036784.745");
 	testcases.emplace_back("datetime_ms", "yy-M-d H:mm:ss.SSS", "15-03-26 23:42:35.123",
 	                       "15-3-26 23:42:35.123");
 	testcases.emplace_back("datetime_ms", "dd-M-yy H:mm:ss:S", "19-02-14 15:55:47:123",

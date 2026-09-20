@@ -183,16 +183,32 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 		return longest;
 	};
 
+	auto separator_before = [&](char letter) {
+		bool literal = false;
+		char previous = '\0';
+		for (char c : tf) {
+			if (c == delimiter) {
+				literal = not literal;
+			} else if (not literal and c == letter) {
+				return previous != '\0' and not std::isalnum(static_cast<unsigned char>(previous));
+			} else {
+				previous = c;
+			}
+		}
+		return false;
+	};
+
 	/**
 	 * The proper formatter is determined this way :
 	 *
-	 * 1. "datetime"    (libc)  : if no milliseconds, and no timezone but a numeric UTC offset
-	 * 2. "datetime_us" (boost) : if milliseconds but
-	 *                            - no 2 digit year: boost reads "85" as 2085
-	 *                            - no 12h format: boost reads neither %I nor %p
-	 *                            - no timezone: boost reads none into a ptime
-	 *                            - no milliseconds not preceded by a dot, which boost's %f
-	 *                              reads itself
+	 * 1. "datetime"    (libc)  : if no fraction of a second, and no timezone but a numeric
+	 *                            UTC offset
+	 * 2. "datetime_us" (pvcop) : if a fraction of a second behind a separator, which is what
+	 *                            tells it from the milliseconds of an epoch, but
+	 *                            - no 2 digit year: ICU reads "50" as 1950, where the pivot of
+	 *                              POSIX, which pvcop follows, reads 2050
+	 *                            - no 12h format
+	 *                            - no timezone: reading a named one needs the zone database
 	 * 3. "datetime_ms" (ICU)   : in any other cases, and whenever the pattern has a field the
 	 *                            conversion below does not translate, which would otherwise
 	 *                            be matched as literal text and refuse every value
@@ -209,22 +225,18 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	const size_t longest_Z = longest_run('Z');
 	bool numeric_utc_offset = not contains_one_of(tf, {"z", "v", "V"}) and longest_run('X') <= 3 and
 	                          longest_run('x') <= 3 and (longest_Z <= 3 or longest_Z == 5);
-	bool no_timezone = not contains_one_of(tf, {"x", "X", "z", "Z", "v", "V"});
-	bool no_millisec_precision = not contains(tf, "S");
-	bool no_12h_format = not contains(tf, "h") && no_epoch;
+	bool no_fraction = not contains(tf, "S");
+	// "epoch" holds an "h", and an epoch is no 12h format
+	bool no_12h_format = not no_epoch or not contains(tf, "h");
 	bool no_two_digit_year = not(contains(tf, "yy") && not contains(tf, "yyyy"));
 
-	if (no_millisec_precision && numeric_utc_offset) {
+	if (no_fraction && numeric_utc_offset) {
 		formatter = "datetime";
+	} else if (separator_before('S') && numeric_utc_offset && no_two_digit_year && no_12h_format) {
+		formatter = "datetime_us";
 	} else {
-		bool dot_before_millisec = contains(tf, ".S");
-
-		if (dot_before_millisec && no_epoch && no_timezone && no_two_digit_year && no_12h_format) {
-			formatter = "datetime_us";
-		} else {
-			// No need to make any format conversion as our input format is already good (ICU)
-			return {"datetime_ms", tf};
-		}
+		// No need to make any format conversion as our input format is already good (ICU)
+		return {"datetime_ms", tf};
 	}
 
 	static std::vector<std::pair<std::string, std::string>> map = {// epoch

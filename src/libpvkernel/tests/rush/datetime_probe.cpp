@@ -256,10 +256,25 @@ std::vector<std::string> generate(size_t n, const bench_case_t& b)
 		char buf[128];
 		const auto d = t.date();
 		const auto tod = t.time_of_day();
+		if (b.strftime_like == "epoch") {
+			std::snprintf(buf, sizeof(buf), "%lld", static_cast<long long>(us / 1000000));
+			s = buf;
+			std::snprintf(buf, sizeof(buf), ".%06d", int(us % 1000000));
+			s += buf;
+			continue;
+		}
 		if (b.strftime_like == "iso") {
 			std::snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d", int(d.year()),
 			              int(d.month()), int(d.day()), int(tod.hours()), int(tod.minutes()),
 			              int(tod.seconds()));
+		} else if (b.strftime_like == "comma") {
+			std::snprintf(buf, sizeof(buf), "%04d-%02d-%02d %02d:%02d:%02d", int(d.year()),
+			              int(d.month()), int(d.day()), int(tod.hours()), int(tod.minutes()),
+			              int(tod.seconds()));
+			s = buf;
+			std::snprintf(buf, sizeof(buf), ",%06d", int(tod.fractional_seconds()));
+			s += buf;
+			continue;
 		} else { // "isoT"
 			std::snprintf(buf, sizeof(buf), "%04d-%02d-%02dT%02d:%02d:%02d", int(d.year()),
 			              int(d.month()), int(d.day()), int(tod.hours()), int(tod.minutes()),
@@ -395,6 +410,10 @@ int bench(size_t n, int rounds)
 	    {"secZ+2", "datetime", "%Y-%m-%dT%H:%M:%S%z", "isoT", false, "+02:00"},
 	    {"secZ+2", "datetime_ms", "yyyy-MM-dd'T'HH:mm:ssXXX", "isoT", false, "+02:00"},
 	    {"micZ+2", "datetime_ms", "yyyy-MM-dd'T'HH:mm:ss.SSSSSSXXX", "isoT", true, "+02:00"},
+	    {"epoch", "datetime_ms", "epoch.S", "epoch", false, ""},
+	    {"epoch", "datetime_us", "%s.%f", "epoch", false, ""},
+	    {"comma", "datetime_ms", "yyyy-MM-dd HH:mm:ss,SSS", "comma", true, ""},
+	    {"comma", "datetime_us", "%Y-%m-%d %H:%M:%S,%f", "comma", true, ""},
 	};
 
 	struct result_t {
