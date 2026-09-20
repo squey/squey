@@ -166,39 +166,72 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 		                   [&](const std::string& token) { return contains(tf, token); });
 	};
 
+	auto longest_run = [&](char letter) {
+		size_t longest = 0;
+		size_t run = 0;
+		bool literal = false;
+		for (char c : tf) {
+			if (c == delimiter) {
+				literal = not literal;
+				run = 0;
+			} else {
+				run = (not literal and c == letter) ? run + 1 : 0;
+				longest = std::max(longest, run);
+			}
+		}
+		return longest;
+	};
+
+	auto separator_before = [&](char letter) {
+		bool literal = false;
+		char previous = '\0';
+		for (char c : tf) {
+			if (c == delimiter) {
+				literal = not literal;
+			} else if (not literal and c == letter) {
+				return previous != '\0' and not std::isalnum(static_cast<unsigned char>(previous));
+			} else {
+				previous = c;
+			}
+		}
+		return false;
+	};
+
 	/**
 	 * The proper formatter is determined this way :
 	 *
-	 * 1. "datetime"    (libc)  : if no milliseconds and no timezone
-	 * 2. "datetime_us" (boost) : if milliseconds but
-	 *                            - no 2 digit year
-	 *                            - no 12h format,
-	 *                            - no timezone
-	 *                            - no milliseconds not preceded by a dot
-	 * 3. "datetime_ms" (ICU)   : in any other cases
+	 * 1. "datetime"    (libc)  : if no fraction of a second, and no timezone but a numeric
+	 *                            UTC offset
+	 * 2. "datetime_us" (pvcop) : if a fraction of a second behind a separator, which is what
+	 *                            tells it from the milliseconds of an epoch, and no timezone
+	 *                            but a numeric UTC offset: reading a named one needs the zone
+	 *                            database. A year on two digits reads with the pivot of POSIX,
+	 *                            where ICU reads "50" as 1950 and this one as 2050.
+	 * 3. "datetime_ms" (ICU)   : in any other cases, and whenever the pattern has a field the
+	 *                            conversion below does not translate, which would otherwise
+	 *                            be matched as literal text and refuse every value
 	 */
-	// rfc_timezone = X, XX, x, xx, Z, ZZ, ZZZ
-	bool rfc_timezone = (contains_one_of(tf, {"X"}) && not contains_one_of(tf, {"XXX"})) ||
-	                    (contains_one_of(tf, {"x"}) && not contains_one_of(tf, {"xxx"})) ||
-	                    (contains_one_of(tf, {"Z"}) && not contains_one_of(tf, {"ZZZZ"}));
-	bool no_timezone = not contains_one_of(tf, {"x", "X", "z", "Z", "v", "V"});
-	bool no_extended_timezone = no_timezone || rfc_timezone;
-	bool no_millisec_precision = not contains(tf, "S");
 	bool no_epoch = not contains(tf, "epoch");
-	bool no_12h_format = not contains(tf, "h") && no_epoch;
-	bool no_two_digit_year = not(contains(tf, "yy") && not contains(tf, "yyyy"));
+	bool untranslated_field =
+	    no_epoch and contains_one_of(tf, {"G", "Y", "u", "U", "r", "Q", "q", "L", "l", "w", "W",
+	                                      "D", "F", "g", "c", "b", "B", "K", "k", "A", "O"});
+	if (untranslated_field) {
+		return {"datetime_ms", tf};
+	}
 
-	if (no_millisec_precision && no_extended_timezone) {
+	// the UTC offsets formatter_datetime reads: X to XXX, x to xxx, Z to ZZZ and ZZZZZ
+	const size_t longest_Z = longest_run('Z');
+	bool numeric_utc_offset = not contains_one_of(tf, {"z", "v", "V"}) and longest_run('X') <= 3 and
+	                          longest_run('x') <= 3 and (longest_Z <= 3 or longest_Z == 5);
+	bool no_fraction = not contains(tf, "S");
+
+	if (no_fraction && numeric_utc_offset) {
 		formatter = "datetime";
+	} else if (separator_before('S') && numeric_utc_offset) {
+		formatter = "datetime_us";
 	} else {
-		bool dot_before_millisec = contains(tf, ".S");
-
-		if (dot_before_millisec && no_epoch && no_timezone && no_two_digit_year && no_12h_format) {
-			formatter = "datetime_us";
-		} else {
-			// No need to make any format conversion as our input format is already good (ICU)
-			return {"datetime_ms", tf};
-		}
+		// No need to make any format conversion as our input format is already good (ICU)
+		return {"datetime_ms", tf};
 	}
 
 	static std::vector<std::pair<std::string, std::string>> map = {// epoch
@@ -214,6 +247,8 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"e", "%a"},
 	                                                               {"EEEE", "%a"},
 	                                                               {"EEE", "%a"},
+	                                                               {"EE", "%a"},
+	                                                               {"E", "%a"},
 
 	                                                               // month
 	                                                               {"MMMM", "%b"},
@@ -230,7 +265,6 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"H", "%H"},
 	                                                               {"hh", "%I"},
 	                                                               {"h", "%I"},
-	                                                               {"K", "%h"},
 
 	                                                               // minute
 	                                                               {"mm", "%M"},
@@ -254,7 +288,16 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"a", "%p"},
 
 	                                                               // timezone
+	                                                               {"ZZZZZ", "%z"},
+	                                                               {"ZZZ", "%z"},
+	                                                               {"ZZ", "%z"},
 	                                                               {"Z", "%z"},
+	                                                               {"XXX", "%z"},
+	                                                               {"XX", "%z"},
+	                                                               {"X", "%z"},
+	                                                               {"xxx", "%z"},
+	                                                               {"xx", "%z"},
+	                                                               {"x", "%z"},
 	                                                               {"zzzz", "%Z"},
 	                                                               {"zzz", "%Z"},
 	                                                               {"zz", "%Z"},
@@ -262,6 +305,14 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	                                                               {"v", "%Z"},
 	                                                               {"VVV", "%Z"},
 	                                                               {"V", "%z"}};
+
+	/**
+	 * A pattern letter written once asks ICU for a field of no fixed width: "M" reads "3" as
+	 * well as "03". The libc reads its own "%m" that way already, and pvcop is told so by a
+	 * "-" before the letter, which it still writes padded.
+	 */
+	static const std::vector<std::pair<std::string, std::string>> unfixed_width = {
+	    {"M", "%-m"}, {"d", "%-d"}, {"H", "%-H"}, {"h", "%-I"}, {"m", "%-M"}, {"s", "%-S"}};
 
 	std::string time_format = tf;
 
@@ -272,7 +323,14 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 	for (const auto& token : map) {
 
 		const std::string& key = token.first;
-		const std::string& value = token.second;
+		std::string value = token.second;
+		if (formatter == "datetime_us") {
+			const auto unfixed = std::find_if(unfixed_width.begin(), unfixed_width.end(),
+			                                  [&](const auto& t) { return t.first == key; });
+			if (unfixed != unfixed_width.end()) {
+				value = unfixed->second;
+			}
+		}
 
 		int pos = -value.size();
 		while ((pos = time_format.find(key, pos + value.size())) != (int)std::string::npos) {
@@ -282,8 +340,10 @@ pvcop::formatter_desc PVRush::PVFormat::get_datetime_formatter_desc(const std::s
 			    std::count(time_format.begin(), time_format.begin() + pos, delimiter) % 2 == 1;
 			if (not verbatim) {
 
-				// Don't try to replace an already replaced token
-				bool already_replaced_token = (pos > 0 && time_format[pos - 1] == '%');
+				// Don't try to replace an already replaced token, "%m" or "%-m"
+				bool already_replaced_token =
+				    (pos > 0 && time_format[pos - 1] == '%') ||
+				    (pos > 1 && time_format[pos - 1] == '-' && time_format[pos - 2] == '%');
 				if (not already_replaced_token) {
 					time_format.replace(pos, key.size(), value);
 				}

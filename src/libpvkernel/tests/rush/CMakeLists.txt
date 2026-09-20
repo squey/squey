@@ -178,6 +178,10 @@ add_squey_test(Trush_agg_index_with_grow Trush_agg_index_with_grow)
 # Datetime ICU to boost
 add_squey_compile_test(Trush_datetime_support LINKS ${LINK_LIBRARIES} FILES datetime_support.cpp)
 add_squey_test(Trush_datetime_support Trush_datetime_support)
+# Compares the time libraries on the same strings, which ctest does not run
+if (NOT WIN32)
+	add_squey_compile_test(Trush_datetime_probe LINKS ${LINK_LIBRARIES} FILES datetime_probe.cpp)
+endif()
 
 # Format ignore axes
 add_squey_compile_test(Trush_format_import_export LINKS ${LINK_LIBRARIES} FILES format_import_export.cpp)
