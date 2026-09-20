@@ -79,7 +79,16 @@ endfunction()
 # carry that file. A test hanging there kept the whole job running until the CI killed
 # it after its timeout, discarding the test output -- and with it any clue as to what hung.
 # The slowest test observed on the Windows CI takes about two minutes.
-set(SQUEY_TEST_TIMEOUT 600 CACHE STRING "Timeout in seconds after which a test is killed and reported as failed")
+# The code coverage build runs the same tests unoptimized, instrumented, and with the
+# assertions of the standard library enabled, several times slower: there, importing a
+# hundred thousand lines through a regular expression (LONG_Trush_ticket_2) takes nearly
+# four minutes on a desktop, and more than ten on the CI.
+if (CODE_COVERAGE)
+	set(SQUEY_DEFAULT_TEST_TIMEOUT 1800)
+else()
+	set(SQUEY_DEFAULT_TEST_TIMEOUT 600)
+endif()
+set(SQUEY_TEST_TIMEOUT ${SQUEY_DEFAULT_TEST_TIMEOUT} CACHE STRING "Timeout in seconds after which a test is killed and reported as failed")
 
 function(add_squey_test test_exe test_name)
 	add_test(SQUEY_TEST_${test_exe} SQUEY_TEST_${test_name}${CMAKE_EXECUTABLE_SUFFIX} ${ARGN})

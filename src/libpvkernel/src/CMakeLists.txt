@@ -70,7 +70,6 @@ set(OPENCL_SRC_FILES
 
 set(FILTER_SRC_FILES
 filter/PVChunkFilterByElt.cpp
-filter/PVChunkFilterByEltCancellable.cpp
 filter/PVChunkFilterDumpElts.cpp
 filter/PVChunkFilterRemoveInvalidElts.cpp
 filter/PVElementFilterByFields.cpp

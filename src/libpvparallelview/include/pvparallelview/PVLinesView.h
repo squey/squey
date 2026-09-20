@@ -26,6 +26,9 @@
 #define PVPARALLELVIEW_PVLINESVIEW_H
 
 #include <functional>
+#include <memory>
+#include <mutex>
+#include <vector>
 
 #include <pvkernel/core/PVAlgorithms.h>
 
@@ -115,9 +118,18 @@ class PVLinesView
 	            QObject* img_update_receiver = nullptr,
 	            uint32_t zone_width = PVParallelView::ZoneMaxWidth);
 
+	~PVLinesView();
+
   public:
 	inline PVBCIDrawingBackend& backend() const { return _backend; }
 
+	/**
+	 * Cancel every rendering launched so far and wait for all of them to end,
+	 * including the ones launched for zone images that have been dropped since.
+	 *
+	 * Once this returns, no rendering reports to the image update receiver nor
+	 * reads this object anymore, until the next one is launched.
+	 */
 	void cancel_and_wait_all_rendering();
 
 	inline size_t get_first_visible_zone_index() const { return _first_zone; }
@@ -207,6 +219,7 @@ class PVLinesView
 	void set_nb_drawable_zones(size_t nb_zones);
 
 	void connect_zr(PVZoneRenderingBCIBase* zr, const char* slot);
+	void track_rendering(PVZoneRenderingBCIBase_p const& zr);
 	void call_refresh_slots(size_t zone_index);
 
   private:
@@ -230,6 +243,15 @@ class PVLinesView
 	uint32_t _zone_max_width;
 
 	uint32_t _axis_width = PVParallelView::AxisWidth;
+
+	// Every rendering launched and possibly not over yet. The zone images only
+	// keep their last renderings, and they are dropped as fewer zones become
+	// visible while those renderings go on, reporting to the receiver and
+	// reading this object. The handles are weak, so as not to hold the images
+	// of the dropped zones. Guarded by a mutex: the zones are rebuilt, hence
+	// the renderings cancelled, from outside the GUI thread too.
+	std::mutex _renderings_mutex;
+	std::vector<std::weak_ptr<PVZoneRenderingBCIBase>> _renderings;
 };
 } // namespace PVParallelView
 

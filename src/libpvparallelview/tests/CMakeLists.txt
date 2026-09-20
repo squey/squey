@@ -58,6 +58,10 @@ add_squey_test(Topencl_render Topencl_render)
 add_squey_compile_test(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
 add_bench(bcicodes_opencl LINKS ${LINK_LIBRARIES} FILES bcicodes_opencl.cpp bci_helpers.cpp)
 
+qt6_wrap_cpp(LINES_VIEW_MOC_SRC lines_view_dropped_renderings.h OPTIONS)
+add_squey_compile_test(Tpview_lines_view_dropped_renderings LINKS ${LINK_LIBRARIES} FILES ${LINES_VIEW_MOC_SRC} lines_view_dropped_renderings.cpp)
+add_squey_test(Tpview_lines_view_dropped_renderings Tpview_lines_view_dropped_renderings)
+
 add_squey_compile_test(Trendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)
 add_squey_test(Trendering_pipeline_base Trendering_pipeline_base 1000)
 add_bench(rendering_pipeline_base LINKS ${LINK_LIBRARIES} FILES rendering_pipeline_base.cpp)

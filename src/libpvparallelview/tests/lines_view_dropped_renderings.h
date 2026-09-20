@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2026
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,36 +22,29 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef PVFILTER_PVCHUNKFILTERBYELTCANCELLABLE_H
-#define PVFILTER_PVCHUNKFILTERBYELTCANCELLABLE_H
+#ifndef __LINES_VIEW_DROPPED_RENDERINGS_H__
+#define __LINES_VIEW_DROPPED_RENDERINGS_H__
 
-#include <pvkernel/filter/PVChunkFilter.h>   // for PVChunkFilter
-#include <pvkernel/filter/PVElementFilter.h> // for PVElementFilter
+#include <QObject>
 
-#include <memory> // for unique_ptr
+#include <pvparallelview/common.h>
+#include <pvparallelview/PVZoneRendering.h>
 
-namespace PVCore
+// Stands for the scene a PVLinesView reports its renderings to, and counts the
+// reports.
+class RenderingsReceiver : public QObject
 {
-class PVTextChunk;
-} // namespace PVCore
+	Q_OBJECT
 
-namespace PVFilter
-{
-
-class PVChunkFilterByEltCancellable : public PVChunkFilter
-{
   public:
-	PVChunkFilterByEltCancellable(std::unique_ptr<PVElementFilter> elt_filter,
-	                              float timeout,
-	                              bool* cancellation = nullptr);
-	PVCore::PVTextChunk* operator()(PVCore::PVTextChunk* chunk) const;
+	int reports() const { return _reports; }
+
+  public Q_SLOTS:
+	void zr_bg_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zid);
+	void zr_sel_finished(PVParallelView::PVZoneRendering_p zr, PVZoneID zid);
 
   private:
-	std::unique_ptr<PVElementFilter> _elt_filter;
-
-	float _timeout;
-	bool* _cancellation;
+	int _reports = 0;
 };
-} // namespace PVFilter
 
-#endif
+#endif // __LINES_VIEW_DROPPED_RENDERINGS_H__
