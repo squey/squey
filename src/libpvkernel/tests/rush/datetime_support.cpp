@@ -113,6 +113,16 @@ int main()
 	testcases.emplace_back("datetime_us", "epoch.SSS", "1452654558.123456");
 	testcases.emplace_back("datetime_us", "epoch.S", "1334036784:745", "1334036784.745000");
 	testcases.emplace_back("datetime_us", "epoch.S", "1334036784,745", "1334036784.745000");
+	// a year on two digits and a twelve hour clock, which ICU used to read
+	testcases.emplace_back("datetime_us", "yy-M-d H:mm:ss.SSS", "15-03-26 23:42:35.123",
+	                       "15-03-26 23:42:35.123000");
+	testcases.emplace_back("datetime_us", "dd-M-yy H:mm:ss:S", "19-02-14 15:55:47:123",
+	                       "19-02-14 15:55:47:123000");
+	testcases.emplace_back("datetime_us", "yyyy-M-d h:mm:ss.S a", "2017-03-19 1:08:07.123 PM",
+	                       "2017-03-19 01:08:07.123000 PM");
+	// a field a pattern spells with a single letter is read whatever its width
+	testcases.emplace_back("datetime_us", "yyyy-M-d H:m:ss.S", "2017-3-9 10:0:59.001",
+	                       "2017-03-09 10:00:59.001000");
 
 	// ICU
 	// A zone read with a pattern used to stay on the calendar of the thread, and the
@@ -126,10 +136,7 @@ int main()
 	testcases.emplace_back("datetime_ms", "yyyy-MM-dd K:mm a", "2014-11-07 1:08 PM");
 	testcases.emplace_back("datetime_ms", "yyyy-DDD HH:mm", "2014-311 12:12");
 	testcases.emplace_back("datetime_ms", "epochS", "1452520190588");
-	testcases.emplace_back("datetime_ms", "yy-M-d H:mm:ss.SSS", "15-03-26 23:42:35.123",
-	                       "15-3-26 23:42:35.123");
-	testcases.emplace_back("datetime_ms", "dd-M-yy H:mm:ss:S", "19-02-14 15:55:47:123",
-	                       "19-2-14 15:55:47:1");
+
 	// ICU 78 renders the 'z' pattern for GMT as "GMT+0" where ICU 77 rendered
 	// "GMT", so the round trip no longer gives the input back verbatim.
 	testcases.emplace_back("datetime_ms", "yy-M-d H:mm:ss.SSS z", "15-3-26 23:42:35.123 GMT",
