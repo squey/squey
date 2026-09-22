@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// © ESI Group, 2015
+// © Squey, 2026
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -149,7 +149,7 @@ pybind11::array Squey::PVPythonSource::column(const std::string& column_name, si
 std::string Squey::PVPythonSource::column_name(size_t column_index) const
 {
     const QStringList names =
-        _source.current_view()->get_axes_combination().get_nraw_names();
+        active_view().get_axes_combination().get_nraw_names();
     if (column_index >= size_t(names.size())) {
         throw std::out_of_range("Out of range column index");
     }
@@ -238,13 +238,13 @@ static Squey::PVPythonSelection as_python_selection(Squey::PVView& view,
 
 Squey::PVPythonSelection Squey::PVPythonSource::selection()
 {
-    Squey::PVView* view = _source.current_view();
+    Squey::PVView* view = &active_view();
     return as_python_selection(*view, view->get_post_filter_layer().get_selection());
 }
 
 Squey::PVPythonSelection Squey::PVPythonSource::layers()
 {
-    Squey::PVView* view = _source.current_view();
+    Squey::PVView* view = &active_view();
     return as_python_selection(*view, view->get_layer_stack_output_layer().get_selection());
 }
 
@@ -260,7 +260,7 @@ Squey::PVPythonSelection Squey::PVPythonSource::layer(int layer_index)
 
 Squey::PVPythonSelection Squey::PVPythonSource::layer(const std::string& layer_name, size_t position  /* = 0 */)
 {
-    Squey::PVView* view = _source.current_view();
+    Squey::PVView* view = &active_view();
     Squey::PVLayerStack& layerstack = view->edit_layer_stack();
     {
         std::vector<size_t> matching_layers_indexes;
@@ -286,7 +286,7 @@ Squey::PVDuckDBQuery& Squey::PVPythonSource::sql()
     // not here: this object is handed to Python, which lets go of it only when
     // the interpreter is finalized, and by then the program is inside exit()
     // where a DuckDB database can no longer be closed safely.
-    return _source.current_view()->sql();
+    return active_view().sql();
 }
 
 Squey::PVPythonSqlResult Squey::PVPythonSource::query(const std::string& sql_text)
@@ -294,14 +294,14 @@ Squey::PVPythonSqlResult Squey::PVPythonSource::query(const std::string& sql_tex
     // The current selection is handed over, which is what makes a bare
     // condition narrow what is already selected rather than read the whole
     // stack. Same rule as the console's.
-    const Squey::PVView* view = _source.current_view();
+    const Squey::PVView* view = &active_view();
     return PVPythonSqlResult(
         sql().run_columns(sql_text, &view->get_real_output_selection()));
 }
 
 pybind11::array Squey::PVPythonSource::select(const std::string& sql_text)
 {
-    Squey::PVView* view = _source.current_view();
+    Squey::PVView* view = &active_view();
     Squey::PVSelection selected(_source.get_row_count());
     sql().select(sql_text, view->get_real_output_selection(), selected);
 
