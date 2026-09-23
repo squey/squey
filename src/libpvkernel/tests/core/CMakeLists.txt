@@ -7,6 +7,9 @@ add_squey_compile_test(Tcore_file_helper LINKS ${LINK_LIBRARIES} FILES file_help
 add_squey_test(Tcore_file_helper Tcore_file_helper)
 endif()
 
+add_squey_compile_test(Tcore_directory_remove LINKS ${LINK_LIBRARIES} FILES directory_remove.cpp)
+add_squey_test(Tcore_directory_remove Tcore_directory_remove)
+
 add_squey_compile_test(Tcore_intrinsics LINKS ${LINK_LIBRARIES} FILES intrinsics.cpp)
 add_squey_test(Tcore_intrinsics Tcore_intrinsics)
 
