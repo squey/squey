@@ -39,9 +39,18 @@
 
 #include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
+
+#include <QDir>
+#include <QFileInfo>
+#include <QString>
 
 #include <string>
 #include <vector>
+
+#ifdef __linux__
+#include <unistd.h>
+#endif
 
 #include "common.h"
 
@@ -141,6 +150,57 @@ int main()
 		must_run(query, "SUMMARIZE layers");
 		// And a bare predicate, which is the form the console teaches.
 		must_run(query, "rowid < 3");
+	}
+
+	// --- Nor all of the disk, nor all of the memory ---------------------------
+	// Left to itself DuckDB spills under ".tmp" in whatever directory the process
+	// started in, up to 90 % of the free disk, and takes 80 % of the memory: one
+	// query sorting thirty million rows spilled 30 GB in minutes that way. The
+	// spill goes under the collections directory, one directory per engine, gone
+	// with it; the disk and the memory it may take are halved.
+	{
+		const auto setting = [](const Squey::PVDuckDBQuery& engine, const std::string& name) {
+			const auto shown = engine.run_tabular(
+			    "SELECT value FROM duckdb_settings() WHERE name = '" + name + "'", nullptr, 1);
+			return shown.rows.at(0).at(0);
+		};
+
+		// Compared with the separators Qt writes: nraw_dir() uses the native one.
+		const std::string spill = setting(query, "temp_directory");
+		const QString collections =
+		    QDir::fromNativeSeparators(PVRush::PVNrawCacheManager::nraw_dir());
+		PV_ASSERT_VALID(QDir::fromNativeSeparators(QString::fromStdString(spill))
+		                    .startsWith(collections + "/duckdb_spill_"),
+		                "spills outside the collections directory", spill, "collections",
+		                collections.toStdString());
+		PV_ASSERT_VALID(QFileInfo(QString::fromStdString(spill)).isDir(),
+		                "the spill directory is missing", spill);
+		PV_ASSERT_VALID(setting(query, "max_temp_directory_size") != "90% of available disk space",
+		                "the spill is not bounded", setting(query, "max_temp_directory_size"));
+
+		std::string other;
+		{
+			const Squey::PVDuckDBQuery second(*view);
+			other = setting(second, "temp_directory");
+			PV_ASSERT_VALID(other != spill, "two engines share a spill directory", other);
+		}
+		PV_ASSERT_VALID(not QFileInfo::exists(QString::fromStdString(other)),
+		                "the spill directory outlived its engine", other);
+
+#ifdef __linux__
+		// DuckDB's own measure of the memory can be a cgroup's, below the
+		// machine's: this bounds it from above rather than pinning it.
+		const std::string shown = setting(query, "memory_limit");
+		const double amount = std::stod(shown);
+		const double unit = shown.ends_with("TiB")   ? 1024.0 * 1024 * 1024 * 1024
+		                    : shown.ends_with("GiB") ? 1024.0 * 1024 * 1024
+		                    : shown.ends_with("MiB") ? 1024.0 * 1024
+		                    : shown.ends_with("KiB") ? 1024.0
+		                                             : 1.0;
+		const double physical = double(sysconf(_SC_PHYS_PAGES)) * double(sysconf(_SC_PAGESIZE));
+		PV_ASSERT_VALID(amount * unit <= 0.55 * physical, "the memory is not bounded", shown,
+		                "physical bytes", physical);
+#endif
 	}
 
 	// --- The source is still there --------------------------------------------

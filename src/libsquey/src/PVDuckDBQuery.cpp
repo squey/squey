@@ -24,8 +24,12 @@
 
 #include <squey/PVDuckDBQuery.h>
 
+#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVSelBitField.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include <pvcop/db/algo.h>
 #include <pvcop/db/array.h>
@@ -34,6 +38,7 @@
 
 #include <duckdb.hpp>
 #include <duckdb/catalog/catalog.hpp>
+#include <duckdb/common/file_system.hpp>
 #include <duckdb/execution/expression_executor.hpp>
 #include <duckdb/function/table_function.hpp>
 #include <duckdb/parser/parsed_data/create_table_function_info.hpp>
@@ -45,6 +50,10 @@
 #include <duckdb/planner/filter/in_filter.hpp>
 #include <duckdb/planner/filter/optional_filter.hpp>
 #include <duckdb/planner/table_filter.hpp>
+
+#include <QDir>
+#include <QString>
+#include <QVariant>
 
 #include <algorithm>
 #include <atomic>
@@ -1351,7 +1360,57 @@ struct Squey::PVDuckDBQuery::impl {
 		create_source_schemas();
 		create_source_listing();
 		create_conversions();
+		bound();
 		confine();
+	}
+
+	/**
+	 * Keep what a query spills, and the memory it takes, within bounds.
+	 *
+	 * Left to itself DuckDB spills what does not fit in memory under ".tmp" in
+	 * the working directory -- wherever the process happened to start: a build
+	 * tree, a home, a root it cannot write to -- lets that grow to 90 % of the
+	 * free disk, and takes 80 % of the machine's memory for itself, in a process
+	 * whose own tables already hold much of it. One query sorting thirty million
+	 * rows spilled 30 GB in minutes and pushed the machine into swap.
+	 *
+	 * The spill goes under the collections directory instead, where the
+	 * application keeps what it writes to disk -- a run that clears it clears
+	 * this too -- and may take half of what is free there; the memory, half of
+	 * the machine's. A query that needs more fails, with a message naming the
+	 * setting, rather than taking the disk or the memory from everything else.
+	 * Both halves are settings: duckdb/max_temp_percent and duckdb/memory_percent.
+	 *
+	 * Before confine(), whose lock would refuse these.
+	 */
+	void bound()
+	{
+		const auto share = [](const char* setting, uint64_t whole) {
+			const QVariant stored = PVCore::PVConfig::value(setting);
+			const int percent = stored.isValid() ? std::clamp(stored.toInt(), 1, 100) : 50;
+			return std::to_string(whole / 100 * uint64_t(percent)) + "B";
+		};
+
+		const QString collections = PVRush::PVNrawCacheManager::nraw_dir();
+		QDir().mkpath(collections);
+		spill.path = PVCore::mkdtemp(QDir(collections).filePath("duckdb_spill_XXXXXX"));
+		if (not spill.path.isEmpty()) {
+			const std::string path = spill.path.toStdString();
+			expect_success(con.Query("SET temp_directory = " +
+			                         duckdb::KeywordHelper::WriteQuoted(path, '\'')));
+			const duckdb::optional_idx available = duckdb::FileSystem::GetAvailableDiskSpace(path);
+			if (available.IsValid()) {
+				expect_success(con.Query("SET max_temp_directory_size = '" +
+				                         share("duckdb/max_temp_percent", available.GetIndex()) +
+				                         "'"));
+			}
+		}
+
+		const duckdb::optional_idx memory = duckdb::FileSystem::GetAvailableMemory();
+		if (memory.IsValid()) {
+			expect_success(con.Query("SET memory_limit = '" +
+			                         share("duckdb/memory_percent", memory.GetIndex()) + "'"));
+		}
 	}
 
 	/**
@@ -1659,6 +1718,20 @@ struct Squey::PVDuckDBQuery::impl {
 			throw std::runtime_error(result->GetError());
 		}
 	}
+
+	/**
+	 * Where the database spills. Declared before it, so removed after it is
+	 * closed: DuckDB takes its own files away, not a directory it did not make.
+	 */
+	struct spill_directory {
+		QString path;
+		~spill_directory()
+		{
+			if (not path.isEmpty()) {
+				PVCore::PVDirectory::remove_rec(path);
+			}
+		}
+	} spill;
 
 	duckdb::DuckDB db;
 	duckdb::Connection con;
