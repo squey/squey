@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// © ESI Group, 2015
+// © Squey, 2026
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -47,7 +47,6 @@
 #include <QDir>
 #include <QHashIterator>
 #include <QFileInfo>
-#include <QTextStream>
 #include <algorithm>
 #include <cstdio>
 #include <memory>
@@ -731,10 +730,11 @@ void PVRush::PVFormat::serialize_write(PVCore::PVSerializeObject& so) const
 	so.set_current_status("Saving format...");
 	so.attribute_write("name", format_name);
 
-	QString str;
-	QTextStream stream(&str, QIODevice::WriteOnly);
-	stream << _dom.toString();
-
-	so.buffer_write("format", str.toUtf8().constData(), str.size());
+	// Counted in bytes, not characters: an axis named with an accent takes two
+	// bytes in UTF-8 for one character, and a length counted in characters cut
+	// that many bytes off the end of the document -- an archive that could not
+	// be opened again.
+	const QByteArray xml = _dom.toString().toUtf8();
+	so.buffer_write("format", xml.constData(), size_t(xml.size()));
 	so.attribute_write("filename", format_name);
 }
