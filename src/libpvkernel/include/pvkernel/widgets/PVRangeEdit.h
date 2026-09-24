@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2026
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -40,6 +40,7 @@
 #include <pvkernel/widgets/PVLongLongSpinBox.h>
 #include <pvcop/db/array.h>
 #include <pvcop/formatter_desc.h>
+#include <pvcop/types/factory.h>
 
 namespace PVWidgets
 {
@@ -222,6 +223,7 @@ class PVDateTimeRangeEdit : public PVRangeEdit
 {
   private:
 	static constexpr const char parse_format_us_squey[] = "yyyy-MM-dd HH:mm:ss.S";
+	static constexpr const char parse_format_us_icu[] = "yyyy-MM-dd HH:mm:ss.SSSSSS";
 	static constexpr const char parse_format_sec_squey[] = "yyyy-MM-dd HH:mm:ss";
 	static constexpr const char parse_format_us_qt[] = "yyyy-MM-dd HH:mm:ss.zzz";
 	static constexpr const char parse_format_sec_qt[] = "yyyy-MM-dd HH:mm:ss";
@@ -282,9 +284,20 @@ class PVDateTimeRangeEdit : public PVRangeEdit
 			trim_size = 3;
 		}
 
-		const pvcop::formatter_desc& formatter_desc =
-		    PVRush::PVFormat::get_datetime_formatter_desc(std::string(parse_format_squey));
-		_minmax.formatter()->set_parameters(formatter_desc.parameters().c_str());
+		// A formatter of the copy's own. The copy shares the column's, and setting
+		// parameters on that one rewrote how the whole column reads for the rest of
+		// the session: an ICU column, handed a strftime pattern, read "%2020-%0-%1"
+		// everywhere once its series view had opened. Of the column's own kind still,
+		// since that kind is what the values are counted in; ICU takes its pattern as
+		// it is, with the six decimals the trimming above expects.
+		const std::string kind = _minmax.formatter()->name();
+		const std::string parameters =
+		    kind == "datetime_ms"
+		        ? std::string(parse_format_us_icu)
+		        : PVRush::PVFormat::get_datetime_formatter_desc(std::string(parse_format_squey))
+		              .parameters();
+		_minmax.set_formatter(pvcop::types::formatter_interface::shared_ptr(
+		    pvcop::types::factory::create(kind, parameters)));
 
 		const std::string& min_date_str = _minmax.at(0);
 		const std::string& max_date_str = _minmax.at(1);
