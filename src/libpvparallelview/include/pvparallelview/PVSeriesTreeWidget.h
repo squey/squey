@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2026
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -345,7 +345,11 @@ class PVSeriesTreeView : public QTreeView
 			~filtered_guard() { p->_filtered = false; }
 		} fguard{this};
 
-		QItemSelection new_total_sel(selected_items);
+		// The whole selection, not only what was just added to it: SelectCurrent below
+		// replaces Qt's current selection, which after a ClearAndSelect holds everything
+		// that was named. From the change alone, the series that stayed selected would
+		// be dropped and only the new ones drawn.
+		QItemSelection new_total_sel = selectionModel()->selection();
 		QItemSelection new_total_unsel(unselected_items);
 
 		bool unsel = false;

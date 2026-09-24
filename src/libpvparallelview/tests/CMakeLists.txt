@@ -41,6 +41,8 @@ add_squey_compile_test(Tpview_zoomed_view_rescaled LINKS ${LINK_LIBRARIES} FILES
 add_squey_test(Tpview_zoomed_view_rescaled Tpview_zoomed_view_rescaled)
 add_squey_compile_test(Tpview_rescaled_off_gui_thread LINKS ${LINK_LIBRARIES} FILES rescaled_off_gui_thread.cpp)
 add_squey_test(Tpview_rescaled_off_gui_thread Tpview_rescaled_off_gui_thread)
+add_squey_compile_test(Tseries_tree_selection LINKS ${LINK_LIBRARIES} FILES series_tree_selection.cpp)
+add_squey_test(Tseries_tree_selection Tseries_tree_selection)
 
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
