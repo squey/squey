@@ -37,6 +37,7 @@
 #include <QDebug>
 
 #include <assert.h>
+#include <cmath>
 
 #include <squey/PVView.h>
 #include <squey/PVRangeSubSampler.h>
@@ -214,18 +215,29 @@ class PVSeriesTreeModel : public QAbstractItemModel
   private:
 	void setup_model_data(Squey::PVView* _view, const Squey::PVRangeSubSampler& sampler)
 	{
+		// Colours from a fixed walk around the hue circle, a golden-angle step per item,
+		// rather than at random: the same source is drawn in the same colours from one
+		// opening to the next, so a picture can be read against what the series are
+		// said to be drawn in; and each group of a split series takes a colour of its
+		// own, where all of them used to share their series' -- superposed in one
+		// colour, which is exactly when they needed telling apart.
+		size_t step = 0;
+		const auto next_colour = [&step] {
+			const double hue = std::fmod(0.13 + 0.618033988749895 * double(step++), 1.0);
+			return QColor::fromHsvF(float(hue), 0.6f, 0.95f);
+		};
+
 		const Squey::PVAxesCombination& axes_comb = _view->get_axes_combination();
 		PVCol column_count = _view->get_rushnraw_parent().column_count();
 		for (PVCol col(0); col < column_count; col++) {
 			const PVRush::PVAxisFormat& axis = axes_comb.get_axis(col);
 			if (axis.get_type().startsWith("number_") or axis.get_type().startsWith("duration")) {
-				QColor color(rand() % 156 + 100, rand() % 156 + 100, rand() % 156 + 100);
 				PVSeriesTreeItem* item =
-				    new PVSeriesTreeItem(axis.get_name(), color, col, _root_item);
+				    new PVSeriesTreeItem(axis.get_name(), next_colour(), col, _root_item);
 				_root_item->append_child(item);
 				for (size_t i = 0; i < sampler.group_count() and sampler.group_count() > 1; i++) {
 					PVSeriesTreeItem* subitem =
-					    new PVSeriesTreeItem(sampler.group_name(i).c_str(), color,
+					    new PVSeriesTreeItem(sampler.group_name(i).c_str(), next_colour(),
 					                         PVCol(sampler.group_count() * col + i), item);
 					item->append_child(subitem);
 				}
