@@ -717,7 +717,9 @@ void PVParallelView::PVScatterView::drawBackground(QPainter* painter, const QRec
 
 void PVParallelView::PVScatterView::set_enabled(bool en)
 {
-	setEnabled(en);
+	// This widget belongs to the GUI thread, and zones are rebuilt in whichever
+	// thread a scaling is computed in: see PVFullParallelScene::set_enabled.
+	QMetaObject::invokeMethod(this, [this, en] { setEnabled(en); }, Qt::AutoConnection);
 	if (!en and _backend) {
 		_backend->get_images_manager().cancel_all_and_wait();
 	}

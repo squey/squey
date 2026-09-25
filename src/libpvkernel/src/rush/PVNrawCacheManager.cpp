@@ -30,6 +30,8 @@
 #include <pvkernel/core/PVFileHelper.h> // for PVFileHelper
 #include <pvkernel/core/PVUtils.h>
 #include <pvbase/general.h> // for SQUEY_PATH_SEPARATOR_CHAR
+
+#include <cstdlib> // for atexit
 #include <qchar.h>
 #include <qcontainerfwd.h>
 #include <qlist.h>
@@ -144,8 +146,46 @@ QStringList PVRush::PVNrawCacheManager::list_nraws_used_by_investigations()
 	return relative_to_absolute_nraws(used_nraws);
 }
 
+namespace
+{
+//! The directory SQUEY_NRAW_DIR named, for the handler that clears it at exit.
+const QString& nraw_dir_owner()
+{
+	static const QString owner = QString::fromLocal8Bit(qgetenv("SQUEY_NRAW_DIR"));
+	return owner;
+}
+} // namespace
+
 QString PVRush::PVNrawCacheManager::nraw_dir()
 {
+	// A run told where to put its collections is a run that clears them away.
+	// Through the environment rather than the configuration: the configuration
+	// is the machine's, and writing where collections go into it would outlive
+	// the run that wanted it.
+	//
+	// This is what a test run uses -- see add_squey_test(), which gives each
+	// test a directory of its own. Doing it here rather than from the tests
+	// themselves is what makes it hold for all of them: a test that writes a
+	// file beside the collections without importing one is still a test whose
+	// files go somewhere that gets cleared.
+	const QString overridden = QString::fromLocal8Bit(qgetenv("SQUEY_NRAW_DIR"));
+	if (not overridden.isEmpty()) {
+		static const QString dir = [&overridden]() {
+			const QString owned = overridden + QDir::separator() + PVCore::PVConfig::username();
+			// Cleared on the way in: a run killed outright -- a crash, a timeout
+			// -- leaves its collections behind, and the next run of the same test
+			// is what removes them. Only its own directory is touched, so this is
+			// safe while the rest of a suite is running.
+			PVCore::PVDirectory::remove_rec(overridden);
+			QDir().mkpath(owned);
+			// And on the way out. atexit() rather than a destructor: a failing
+			// assertion calls exit(), which unwinds nothing but does run these.
+			std::atexit([]() { PVCore::PVDirectory::remove_rec(nraw_dir_owner()); });
+			return owned;
+		}();
+		return dir;
+	}
+
 	return PVCore::PVConfig::get()
 	           .config()
 	           .value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp),

@@ -172,6 +172,7 @@ set_source_files_properties(PVHitGraphDataOMP_kernels_baseline.cpp
     PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON SKIP_PRECOMPILE_HEADERS ON)
 
 add_library(pvparallelview SHARED ${SRC_FILES} ${MOC_SRC})
+target_compile_definitions(pvparallelview PRIVATE PVPARALLELVIEW_LIBRARY)
 set_target_properties(pvparallelview PROPERTIES SOVERSION 1)
 squey_speedup_compilation(pvparallelview QT)
 

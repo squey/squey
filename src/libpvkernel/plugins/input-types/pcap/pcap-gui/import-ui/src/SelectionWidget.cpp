@@ -189,6 +189,16 @@ void SelectionWidget::on_process_import_button_clicked()
 
 	progess_dialog->exec();
 
+	// In tshark's own words, which name the field it does not know or the place
+	// the filter stops making sense. Going on would import nothing and leave
+	// whoever reads it to suspect the captures, which are fine.
+	const std::string trouble = _progress_widget->trouble();
+	if (not trouble.empty()) {
+		QMessageBox::critical(this, tr("Import failed"),
+		                      tr("tshark could not read these captures:\n\n%1")
+		                          .arg(QString::fromStdString(trouble)));
+	}
+
 	Q_EMIT closed();
 }
 

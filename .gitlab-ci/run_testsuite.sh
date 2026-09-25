@@ -12,6 +12,10 @@ appdir="$CI_PROJECT_DIR/Squey.app/Contents/MacOS"
 testsuitedir="$CI_PROJECT_DIR/builds/$TARGET_TRIPLE/Clang/RelWithDebInfo"
 export PATH="$appdir:/opt/homebrew/bin:$PATH"
 export DYLD_LIBRARY_PATH="$appdir/../Frameworks"
+# Python is a framework, which dyld looks up through DYLD_FRAMEWORK_PATH and
+# not DYLD_LIBRARY_PATH: this finds it should the rpath rewrite below not take,
+# as it silently did not on some runners.
+export DYLD_FRAMEWORK_PATH="$appdir/../Frameworks"
 export PVKERNEL_PLUGIN_PATH="$appdir/../Frameworks/squey/plugins"
 export SQUEY_PLUGIN_PATH="$PVKERNEL_PLUGIN_PATH"
 # Qt platform plugins ship inside the bundle while the test binaries are extracted outside
@@ -38,7 +42,15 @@ mkdir -p "$testsuitedir"
 unzip -qq "$packagedir/testsuite.zip" -d "$testsuitedir"
 
 # Sign libraries and binaries
-find "$testsuitedir" -name "SQUEY_TEST*" -exec install_name_tool -rpath "/mac/lib" "$appdir/../Frameworks" "{}" \; 2> /dev/null
+# The test binaries carry the rpath of the build sandbox, /mac/lib, pointed at
+# the bundle's frameworks here. The warnings about the signatures this breaks
+# are dropped, everything being signed again below, but not the errors.
+find "$testsuitedir" -name "SQUEY_TEST*" -exec install_name_tool -rpath "/mac/lib" "$appdir/../Frameworks" "{}" \; 2>&1 \
+    | grep -v "invalidate the code signature" || true
+probe=$(find "$testsuitedir" -name "SQUEY_TEST*" -type f | head -1)
+if otool -l "$probe" | grep -q "path /mac/lib "; then
+    echo "warning: the rpath of the test binaries still names /mac/lib ($(command -v install_name_tool))" >&2
+fi
 # The crash report generation test spawns crashpad_handler, which is installed
 # next to it rather than in the bundle: it needs the dylibs of the bundle just
 # like the test binaries do, and macOS will not run it unsigned.

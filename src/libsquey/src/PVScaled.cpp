@@ -43,6 +43,8 @@
 
 #include <boost/thread/thread.hpp>
 
+#include <omp.h>
+
 #include <QList>   // for QList
 #include <QString> // for QString
 
@@ -55,9 +57,6 @@
 #include <memory>     // for allocator, __shared_ptr
 #include <string>     // for string, operator+, etc
 #include <vector>     // for vector
-#include <mutex>
-
-std::mutex gg_mutex;
 
 Squey::PVScaled::PVScaled(PVMapped& mapped, std::string const& name)
     : PVCore::PVDataTreeChild<PVMapped, PVScaled>(mapped), _name(name)
@@ -272,54 +271,67 @@ void Squey::PVScaled::get_col_minmax(PVRow& min,
 	max = local_max;
 }
 
-/******************************************************************************
- * get_col_minmax
- *
- * Use a parallele reduction to compute the indices of the row with min and max
- * value
- *****************************************************************************/
-
 void Squey::PVScaled::get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const
 {
-	uint32_t vmin = PVScaled::MAX_VALUE;
-	uint32_t vmax = 0;
 	const PVRow nrows = get_row_count();
-// TODO: use the SSE4.2 optimised version here
-#pragma omp parallel
-	{
-		// Define thread local variables for local minmax extraction
-		uint32_t local_min = PVScaled::MAX_VALUE;
-		uint32_t local_max = 0;
-		PVRow local_min_col = 0;
-		PVRow local_max_col = 0;
 
-// Share work among threads
-#pragma omp for
-		for (PVRow i = 0; i < nrows; i++) {
-			const uint32_t v = this->get_value(i, col);
-			if (v > local_max) {
-				local_max = v;
-				local_max_col = i;
-			} else if (v < local_min) {
-				local_min = v;
-				local_min_col = i;
+	min = 0;
+	max = 0;
+
+	if (nrows == 0) {
+		return;
+	}
+
+	// One range per thread, reduced below in range order, as the selection version
+	// does. Each thread used to keep a running minimum and maximum and weigh a row
+	// against the minimum only when it was no new maximum, which the first row a
+	// thread visits always is: a column whose smallest position was held by the
+	// first row of a range alone -- row 0 among them -- came back with another row.
+	// Reducing in range order rather than in the order the threads finish also
+	// settles a tie the same way on every run: the first row holding the value.
+	const int thread_count = omp_get_max_threads();
+	const PVRow chunk = (nrows + thread_count - 1) / thread_count;
+	const uint32_t* const values = get_column_pointer(col);
+
+	std::vector<PVRow> thread_min(thread_count, 0);
+	std::vector<PVRow> thread_max(thread_count, 0);
+
+#pragma omp parallel for
+	for (int t = 0; t < thread_count; t++) {
+		const PVRow begin = (PVRow)t * chunk;
+		const PVRow end = std::min(begin + chunk, nrows);
+		if (begin >= end) {
+			continue;
+		}
+
+		// Started from the range's own first row, which is then weighed like any
+		// other rather than skipped by a sentinel.
+		PVRow local_min = begin;
+		PVRow local_max = begin;
+		uint32_t vmin = values[begin];
+		uint32_t vmax = values[begin];
+		for (PVRow i = begin + 1; i < end; i++) {
+			const uint32_t v = values[i];
+			if (v < vmin) {
+				vmin = v;
+				local_min = i;
+			}
+			if (v > vmax) {
+				vmax = v;
+				local_max = i;
 			}
 		}
 
-// Perform final reduction. This is not a parallel reduction but it should
-// not be really expensive.
-// TODO : As it is a two arguments reduction, it can be done using
-// OpenMP 3.1 but maybe with custom reduction from OpenMP 4.0
-		std::lock_guard<std::mutex> guard(gg_mutex);
-		{
-			if (local_min < vmin) {
-				vmin = local_min;
-				min = local_min_col;
-			}
-			if (local_max > vmax) {
-				vmax = local_max;
-				max = local_max_col;
-			}
+		thread_min[t] = local_min;
+		thread_max[t] = local_max;
+	}
+
+	for (int t = 0; t < thread_count and (PVRow)t * chunk < nrows; t++) {
+		if (values[thread_min[t]] < values[min]) {
+			min = thread_min[t];
+		}
+		if (values[thread_max[t]] > values[max]) {
+			max = thread_max[t];
 		}
 	}
 }

@@ -83,12 +83,22 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	Squey::PVView& lib_view() { return _lib_view; }
 	Squey::PVView const& lib_view() const { return _lib_view; }
 
+	/**
+	 * Stop drawing, or draw again.
+	 *
+	 * Called as zones are rebuilt, from whichever thread rebuilds them: a scaling
+	 * asked for from the GUI is computed in the thread of its progress box. The
+	 * drawing is cancelled there and then, the widget -- which belongs to the GUI
+	 * thread -- is switched from the GUI thread.
+	 */
 	void set_enabled(bool value)
 	{
 		if (!value) {
 			_lines_view.cancel_and_wait_all_rendering();
 		}
-		_full_parallel_view->setDisabled(!value);
+		QMetaObject::invokeMethod(
+		    _full_parallel_view, [view = _full_parallel_view, value] { view->setDisabled(!value); },
+		    Qt::AutoConnection);
 	}
 
 	void update_new_selection_async();
@@ -128,6 +138,20 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	void on_zones_updated(std::unordered_set<PVZoneID> const& zones);
 	void on_view_about_to_be_deleted();
 	void on_context_about_to_be_deleted();
+
+	/**
+	 * Have the densities of the axes showing these columns drawn again.
+	 *
+	 * The columns are the scaling's, which the axes are not numbered by: an axis's
+	 * position is its place in the combination, which may leave columns out, repeat
+	 * them or reorder them.
+	 *
+	 * Connected through sigc::mem_fun, which the scene being a sigc::trackable
+	 * disconnects as it is destroyed. A lambda capturing the scene is not, and the
+	 * scaling outlives every scene built on it -- one in a dock goes as the dock is
+	 * closed -- so the next rescaling would call into a scene that is gone.
+	 */
+	void refresh_densities(const QList<PVCol>& columns);
 
 	void update_number_of_visible_zones();
 	void update_zones_position(bool update_all = true, bool scale = true);

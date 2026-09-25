@@ -29,6 +29,8 @@
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
+#include <tbb/task_group.h>
+
 #include <map>
 #include <vector>
 
@@ -42,7 +44,15 @@ class PVBCIDrawingBackendQPainter : public PVBCIDrawingBackendAsync
 	using backend_image_t = PVBCIBackendImageQPainter;
 
   public:
-	~PVBCIDrawingBackendQPainter() override = default;
+	//! Explicit, and not just to wait: leaving a task_group with work still in it
+	//! is an error TBB reports by throwing, from a destructor that may not throw.
+	~PVBCIDrawingBackendQPainter() noexcept override
+	{
+		try {
+			_jobs.wait();
+		} catch (...) {
+		}
+	}
 
   public:
 	bool is_gpu_accelerated() const override { return false; }
@@ -75,9 +85,14 @@ class PVBCIDrawingBackendQPainter : public PVBCIDrawingBackendAsync
 	            bool reverse = false,
 	            std::function<void()> const& render_done = std::function<void()>()) override;
 
-	void wait_all() const override {}
+	//! Waits for every drawing job. Detached threads used to make this promise
+	//! impossible to keep.
+	void wait_all() const override;
 
 	std::shared_ptr<backend_image_t> _backend_image;
+
+  private:
+	mutable tbb::task_group _jobs;
 };
 
 } // namespace PVParallelView

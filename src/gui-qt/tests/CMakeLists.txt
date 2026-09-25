@@ -31,7 +31,7 @@ add_squey_compile_test(Tpvguiqt_import_export LINKS ${COMMON_LIBRARIES} FILES ${
 target_include_directories(SQUEY_TEST_Tpvguiqt_import_export
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include" "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 add_squey_test(Tpvguiqt_import_export Tpvguiqt_import_export -platform offscreen)
-set_property(TEST SQUEY_TEST_Tpvguiqt_import_export PROPERTY ENVIRONMENT "FORCE_CPU=1")
+set_property(TEST SQUEY_TEST_Tpvguiqt_import_export APPEND PROPERTY ENVIRONMENT "FORCE_CPU=1")
 
 ###################################################################
 # The handover of files between instances, which "open with" rests on

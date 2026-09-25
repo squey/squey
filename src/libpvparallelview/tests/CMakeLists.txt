@@ -33,9 +33,25 @@ add_squey_compile_test(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zon
 add_squey_test(Tpview_zone_tree_create Tpview_zone_tree_create)
 add_bench(Tpview_zone_tree_create LINKS ${LINK_LIBRARIES} FILES zone_tree_create.cpp)
 
+add_squey_compile_test(Tpview_axis_end_labels LINKS ${LINK_LIBRARIES} FILES axis_end_labels.cpp)
+add_squey_test(Tpview_axis_end_labels Tpview_axis_end_labels)
+add_squey_compile_test(Tpview_scene_outlived_by_context LINKS ${LINK_LIBRARIES} FILES scene_outlived_by_context.cpp)
+add_squey_test(Tpview_scene_outlived_by_context Tpview_scene_outlived_by_context)
+add_squey_compile_test(Tpview_zoomed_view_rescaled LINKS ${LINK_LIBRARIES} FILES zoomed_view_rescaled.cpp)
+add_squey_test(Tpview_zoomed_view_rescaled Tpview_zoomed_view_rescaled)
+add_squey_compile_test(Tpview_rescaled_off_gui_thread LINKS ${LINK_LIBRARIES} FILES rescaled_off_gui_thread.cpp)
+add_squey_test(Tpview_rescaled_off_gui_thread Tpview_rescaled_off_gui_thread)
+add_squey_compile_test(Tseries_tree_selection LINKS ${LINK_LIBRARIES} FILES series_tree_selection.cpp)
+add_squey_test(Tseries_tree_selection Tseries_tree_selection)
+add_squey_compile_test(Tseries_date_range_formatter LINKS ${LINK_LIBRARIES} FILES series_date_range_formatter.cpp)
+add_squey_test(Tseries_date_range_formatter Tseries_date_range_formatter)
+
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
 add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
+
+add_squey_compile_test(Tpview_zone_tree_bci_codes LINKS ${LINK_LIBRARIES} FILES zone_tree_bci_codes.cpp)
+add_squey_test(Tpview_zone_tree_bci_codes Tpview_zone_tree_bci_codes)
 
 add_squey_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)
 add_squey_test(Topencl_build_test Topencl_build_test)

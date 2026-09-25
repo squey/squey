@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// © ESI Group, 2015
+// © Squey, 2026
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -43,10 +43,17 @@ bool PVCore::PVDirectory::remove_rec(QString const& dirName)
 		for (QFileInfo info : dir.entryInfoList(QDir::NoDotAndDotDot | QDir::System | QDir::Hidden |
 		                                            QDir::AllDirs | QDir::Files,
 		                                        QDir::DirsFirst)) {
-			if (info.isDir()) {
-				result = remove_rec(info.absoluteFilePath());
+			const QString path = info.absoluteFilePath();
+			if (info.isSymLink() or info.isJunction()) {
+				// A link goes as a link. isDir() answers for what it points to, and
+				// following it emptied that -- somewhere else, the collections a
+				// link in a cleared directory pointed at. On Windows a link to a
+				// directory is one itself, which only rmdir() takes away.
+				result = QFile::remove(path) or QDir().rmdir(path);
+			} else if (info.isDir()) {
+				result = remove_rec(path);
 			} else {
-				result = QFile::remove(info.absoluteFilePath());
+				result = QFile::remove(path);
 			}
 
 			if (!result) {

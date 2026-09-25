@@ -160,6 +160,18 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	void update_filter();
 
   private:
+	/**
+	 * Have the filter updated once back in the event loop.
+	 *
+	 * Posted to the model itself, so that an update still waiting as the model goes
+	 * is dropped with it.
+	 */
+	void update_filter_async();
+
+	//! The view this model lists is going, and there is nothing left to list.
+	void on_view_about_to_be_deleted();
+
+  private:
 	Squey::PVView const* _view = nullptr; //!< Observed view
 };
 } // namespace PVGuiQt

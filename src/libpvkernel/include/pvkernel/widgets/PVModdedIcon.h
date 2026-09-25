@@ -25,6 +25,13 @@ public:
 protected:
     QPixmap pixmap(const QSize &size, QIcon::Mode mode, QIcon::State state) override;
 
+    /**
+     * The pixmap for a given device pixel ratio, which Qt passes rather than
+     * leaving it to be guessed from whichever window happens to hold the focus.
+     */
+    QPixmap scaledPixmap(const QSize &size, QIcon::Mode mode, QIcon::State state,
+                         qreal scale) override;
+
     void paint(QPainter *painter, const QRect &rect, QIcon::Mode mode, QIcon::State state) override;
 
     QIconEngine* clone() const override;

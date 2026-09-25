@@ -61,13 +61,16 @@ size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(
 
 		if (simde_mm_testz_si128(see_cmp, sse_ff)) {
 
-			simde__m128i sse_lr = simde_mm_set_epi32(b, b + 1, b + 2, b + 3);
+			// setr: the first argument goes to lane 0, as the diagrams below read.
+			// set_epi32 takes its arguments from the highest lane down, and paired each
+			// row with the bucket and the colour of another row of the four.
+			simde__m128i sse_lr = simde_mm_setr_epi32(b, b + 1, b + 2, b + 3);
 
 			//  +------------+------------++------------+------------+
 			//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
 			//  +------------+------------++------------+------------+
 
-			simde__m128i sse_color = simde_mm_set_epi32(colors[simde_mm_extract_epi32(sse_index, 0)].h(),
+			simde__m128i sse_color = simde_mm_setr_epi32(colors[simde_mm_extract_epi32(sse_index, 0)].h(),
 			                                  colors[simde_mm_extract_epi32(sse_index, 1)].h(),
 			                                  colors[simde_mm_extract_epi32(sse_index, 2)].h(),
 			                                  colors[simde_mm_extract_epi32(sse_index, 3)].h());

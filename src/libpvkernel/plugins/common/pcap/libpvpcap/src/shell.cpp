@@ -173,9 +173,39 @@ extract_csv(splitted_files_t files,
             const std::vector<std::string>& cmd,
             bool& canceled,
             const std::function<void(size_t total_datasize)>& f_total_datasize /* = {} */,
-            const std::function<void(size_t current_datasize)>& f_progression /* = {} */)
+            const std::function<void(size_t current_datasize)>& f_progression /* = {} */,
+            std::string* trouble /* = nullptr */)
 {
 	splitted_files_t filenames;
+
+	// What tshark said as it failed, kept from the first one that did: every
+	// child is running the same command line, so the second has nothing to add.
+	std::mutex trouble_mutex;
+	const auto keep_trouble = [&](const std::string& said) {
+		if (trouble == nullptr or said.empty()) {
+			return;
+		}
+		const std::lock_guard<std::mutex> holding(trouble_mutex);
+		if (trouble->empty()) {
+			*trouble = said;
+		}
+	};
+
+	// Read back what a child wrote on its standard error, at most a few lines of
+	// it: what went wrong is said at once, and a capture full of malformed
+	// packets could otherwise complain for megabytes.
+	const auto said_on_stderr = [](const std::string& path) {
+		constexpr std::streamsize most = 2000;
+		std::ifstream file(path);
+		std::string said(most, '\0');
+		file.read(said.data(), most);
+		said.resize(size_t(file.gcount()));
+		// Trailing whitespace only gets in the way of whoever shows this.
+		while (not said.empty() and std::isspace(static_cast<unsigned char>(said.back()))) {
+			said.pop_back();
+		}
+		return said;
+	};
 
 	std::atomic<size_t> processed_pcap_packets_count(0);
 	size_t total_packets_count =
@@ -280,10 +310,17 @@ extract_csv(splitted_files_t files,
 							return;
 						}
 
+						const std::string complaint_path = csv_path + ".stderr";
+						std::wstring complaint_wpath =
+							std::filesystem::path(complaint_path).wstring();
+						HANDLE hStderr = CreateFileW(complaint_wpath.c_str(), GENERIC_WRITE, FILE_SHARE_READ, &sa, CREATE_ALWAYS, FILE_ATTRIBUTE_NORMAL, NULL);
+
 						si.cb = sizeof(STARTUPINFOA);
 						si.hStdInput = hStdin;
 						si.hStdOutput = hStdout;
-						si.hStdError = GetStdHandle(STD_ERROR_HANDLE);
+						si.hStdError = hStderr == INVALID_HANDLE_VALUE
+						                   ? GetStdHandle(STD_ERROR_HANDLE)
+						                   : hStderr;
 						si.dwFlags |= STARTF_USESTDHANDLES;
 
 						std::string cmdline = boost::algorithm::join(cmd, " ");
@@ -326,6 +363,11 @@ extract_csv(splitted_files_t files,
 						pids.erase(pi.hProcess);
 						pids_mutex.unlock();
 
+						CloseHandle(hStdin);
+						if (hStderr != INVALID_HANDLE_VALUE) {
+							CloseHandle(hStderr);
+						}
+
 						if (exit_code == 0) {
 							if (f_progression) {
 								processed_pcap_packets_count += pcap.packets_count();
@@ -333,9 +375,14 @@ extract_csv(splitted_files_t files,
 							}
 						}
 						else if (status) {
-							pvlogger::error() << "'" << cmdline << "' exit code: " << exit_code << std::endl;
+							// Only when it went badly: a run that worked may still have
+							// remarked on something, and a remark is not a refusal.
+							const std::string said = said_on_stderr(complaint_path);
+							pvlogger::error() << "'" << cmdline << "' exit code: " << exit_code
+							                  << " " << said << std::endl;
+							keep_trouble(said);
 						}
-						CloseHandle(hStdin);
+						std::remove(complaint_path.c_str());
 						CloseHandle(hStdout);
 						CloseHandle(pi.hProcess);
 						CloseHandle(pi.hThread);
@@ -358,8 +405,15 @@ extract_csv(splitted_files_t files,
 							return;
 						}
 
+						const std::string complaint_path = csv_path + ".stderr";
+						int fd_err = open(complaint_path.c_str(),
+						                  O_CREAT | O_WRONLY | O_TRUNC | O_CLOEXEC, 0666);
+
 						posix_spawn_file_actions_adddup2(&actions, fd_out, STDOUT_FILENO);
 						posix_spawn_file_actions_adddup2(&actions, fd_in, STDIN_FILENO);
+						if (fd_err != -1) {
+							posix_spawn_file_actions_adddup2(&actions, fd_err, STDERR_FILENO);
+						}
 
 						pid_t pid = 0;
 						int status = posix_spawnp(
@@ -374,6 +428,9 @@ extract_csv(splitted_files_t files,
 						posix_spawn_file_actions_destroy(&actions);
 						close(fd_in);
 						close(fd_out);
+						if (fd_err != -1) {
+							close(fd_err);
+						}
 
 						if (status != 0) {
 							// posix_spawnp returns the error number instead of setting errno,
@@ -381,6 +438,9 @@ extract_csv(splitted_files_t files,
 							// actually went wrong.
 							pvlogger::error() << "Unable to execute '" << cmd_opts[0]
 							                  << "': " << std::strerror(status) << std::endl;
+							keep_trouble(std::string("cannot run '") + cmd_opts[0] +
+							             "': " + std::strerror(status));
+							std::remove(complaint_path.c_str());
 							return;
 						}
 
@@ -402,7 +462,15 @@ extract_csv(splitted_files_t files,
 								processed_pcap_packets_count += pcap.packets_count();
 								f_progression(processed_pcap_packets_count);
 							}
+						} else {
+							// Only when it went badly: a run that worked may still have
+							// remarked on something, and a remark is not a refusal.
+							const std::string said = said_on_stderr(complaint_path);
+							pvlogger::error() << "'" << cmd_opts[0] << "' failed: " << said
+							                  << std::endl;
+							keep_trouble(said);
 						}
+						std::remove(complaint_path.c_str());
 
 						// remove pcap file
 						std::remove(pcap.path().c_str());

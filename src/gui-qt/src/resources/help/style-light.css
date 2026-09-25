@@ -38,6 +38,10 @@ td {
 
 td.shortcuts {
   text-align: right;
+  /* The label ends on a colon and the description starts in the next cell.
+     Borders are collapsed and cells carry no padding, so without this the two
+     touch and the colon reads as part of the description. */
+  padding-right: 6px;
 }
 
 div {

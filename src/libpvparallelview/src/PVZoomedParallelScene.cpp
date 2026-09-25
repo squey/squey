@@ -248,12 +248,25 @@ void PVParallelView::PVZoomedParallelScene::on_zones_updated(
 	}
 	_zones_update_pending = false;
 
-	set_enabled(true);
+	// Built here, in the thread the update runs in, under whatever progress box it
+	// was asked for from.
 	if (_context != nullptr) {
 		_context->request_zoomed_zone_trees(_axis_index);
 	}
+
+	// The rest is widgets', which belong to the GUI thread, and a rescaling comes
+	// from the thread of its progress box. The axis menu rebuilt from there sent
+	// its signals back queued, past the blocking meant to silence them, and each
+	// one switched the view to the row the menu was on as it was refilled.
+	PVCore::invokeMethod(this, &PVZoomedParallelScene::finish_zones_update,
+	                     Qt::QueuedConnection);
+}
+
+void PVParallelView::PVZoomedParallelScene::finish_zones_update()
+{
+	set_enabled(true);
 	update_zones();
-	update_all_async();
+	update_all();
 }
 
 void PVParallelView::PVZoomedParallelScene::on_view_about_to_be_deleted()
@@ -495,6 +508,11 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 
 void PVParallelView::PVZoomedParallelScene::change_to_col(PVCombCol index)
 {
+	// An axis the combination has, which is not what a menu being emptied says.
+	if (index < 0 or index >= _pvview.get_axes_combination().get_axes_count()) {
+		return;
+	}
+
 	_axis_index = index;
 	_nraw_col = _pvview.get_axes_combination().get_nraw_axis(index);
 
@@ -503,11 +521,15 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(PVCombCol index)
 		_selection_sliders = nullptr;
 	}
 
+	// Taken out of _sliders_group before its zoom sliders go: on_zoom_sliders_del
+	// takes the removal of the group this view holds for a request to close it.
 	removeItem(_sliders_group.get());
-	_sliders_group->delete_own_zoom_slider();
+	std::unique_ptr<PVParallelView::PVSlidersGroup> previous = std::move(_sliders_group);
+	previous->delete_own_zoom_slider();
 
 	_sliders_group =
 	    std::make_unique<PVParallelView::PVSlidersGroup>(_sliders_manager_p, _axis_index);
+	previous.reset();
 	_sliders_group->setPos(0., 0.);
 	_sliders_group->add_zoom_sliders(0, 1024);
 

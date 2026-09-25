@@ -52,6 +52,8 @@ class PcapPreprocessingThread : public QThread
 
   public:
 	pvpcap::splitted_files_t csv_paths() const { return _csv_paths; }
+	//! What tshark said as it refused the captures; empty when it did not.
+	std::string trouble() const { return _trouble; }
 
   protected:
 	void run();
@@ -69,6 +71,7 @@ class PcapPreprocessingThread : public QThread
   private:
 	const QStringList& _filenames;
 	pvpcap::splitted_files_t _csv_paths;
+	std::string _trouble;
 	std::vector<std::string> _tshark_cmd;
 	bool _canceled = false;
 };
@@ -89,6 +92,7 @@ class ProgressWidget : public QWidget
   public:
 	void run();
 	pvpcap::splitted_files_t csv_paths() const { return _thread.csv_paths(); }
+	std::string trouble() const { return _thread.trouble(); }
 	bool is_canceled() const { return _canceled; }
 
   private Q_SLOTS:

@@ -52,6 +52,22 @@ Squey::PVPythonSource::PVPythonSource(Squey::PVSource& source)
 {
 }
 
+Squey::PVView& Squey::PVPythonSource::active_view() const
+{
+    // The view squey.source(N) works through. The window's current view when it
+    // belongs to this source; otherwise this source's own view, so a source that
+    // is not the focused one -- or none being focused at all -- still answers
+    // rather than dereferencing a null current view.
+    if (Squey::PVView* view = _source.current_view()) {
+        return *view;
+    }
+    const auto views = _source.get_children<Squey::PVView>();
+    if (not views.empty()) {
+        return *views.front();
+    }
+    throw std::runtime_error("this source has no view to work on");
+}
+
 size_t Squey::PVPythonSource::row_count()
 {
     return _source.get_rushnraw().row_count();
@@ -129,15 +145,14 @@ pybind11::array Squey::PVPythonSource::column(const std::string& column_name, si
     return column(column_name, PVPythonSource::StringColumnAs::STRING, position);
 }
 
-pybind11::array Squey::PVPythonSource::column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/
+PVCol Squey::PVPythonSource::nraw_column_index(const std::string& column_name,
+                                               size_t position) const
 {
-    const Squey::PVView* view = *_source.get_children<Squey::PVView>().begin();
-    size_t column_count = view->get_column_count();
+    const QStringList names = active_view().get_axes_combination().get_nraw_names();
     std::vector<PVCol> matching_columns_indexes;
-    for (PVCombCol comb_col(0); comb_col < (PVCombCol) column_count; comb_col++) {
-        if (column_name == view->get_axis_name(comb_col).toStdString()) {
-            PVCol col = view->get_nraw_axis_index(comb_col);
-            matching_columns_indexes.emplace_back(col);
+    for (int i = 0; i < names.size(); i++) {
+        if (column_name == names[i].toStdString()) {
+            matching_columns_indexes.emplace_back(PVCol(i));
         }
     }
     if (matching_columns_indexes.empty()) {
@@ -146,7 +161,12 @@ pybind11::array Squey::PVPythonSource::column(const std::string& column_name, St
     if (position >= matching_columns_indexes.size()) {
         throw std::domain_error(std::string("The count of column named \"") + column_name + "\" is <= " + std::to_string(position));
     }
-    return column(matching_columns_indexes[position], string_as);
+    return matching_columns_indexes[position];
+}
+
+pybind11::array Squey::PVPythonSource::column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/
+{
+    return column(nraw_column_index(column_name, position), string_as);
 }
 
 std::string Squey::PVPythonSource::column_type(size_t column_index)
@@ -170,22 +190,7 @@ std::string Squey::PVPythonSource::column_type(size_t column_index)
 
 std::string Squey::PVPythonSource::column_type(const std::string& column_name, size_t position)
 {
-    const Squey::PVView* view = _source.current_view();
-    size_t column_count = view->get_column_count();
-    std::vector<PVCol> matching_columns_indexes;
-    for (PVCombCol comb_col(0); comb_col < (PVCombCol) column_count; comb_col++) {
-        if (column_name == view->get_axis_name(comb_col).toStdString()) {
-            PVCol col = view->get_nraw_axis_index(comb_col);
-            matching_columns_indexes.emplace_back(col);
-        }
-    }
-    if (matching_columns_indexes.empty()) {
-        throw std::domain_error(std::string("No column named \"") + column_name + "\"");
-    }
-    if (position >= matching_columns_indexes.size()) {
-        throw std::domain_error(std::string("The count of column named \"") + column_name + "\" is <= " + std::to_string(position));
-    }
-    return column_type(matching_columns_indexes[position]);
+    return column_type(nraw_column_index(column_name, position));
 }
 
 Squey::PVPythonSelection Squey::PVPythonSource::selection()
@@ -195,7 +200,7 @@ Squey::PVPythonSelection Squey::PVPythonSource::selection()
 
 Squey::PVPythonSelection Squey::PVPythonSource::selection(int layer_index)
 {
-    Squey::PVView* view = _source.current_view();
+    Squey::PVView* view = &active_view();
     Squey::PVLayerStack& layerstack = view->get_layer_stack();
     Squey::PVSelection* selection = nullptr;
 
@@ -217,7 +222,7 @@ Squey::PVPythonSelection Squey::PVPythonSource::selection(int layer_index)
 
 Squey::PVPythonSelection Squey::PVPythonSource::selection(const std::string& layer_name, size_t position  /* = 0 */)
 {
-    Squey::PVView* view = _source.current_view();
+    Squey::PVView* view = &active_view();
     Squey::PVLayerStack& layerstack = view->get_layer_stack();
     if (layer_name == "") {
         return selection(-1);
@@ -280,12 +285,12 @@ void Squey::PVPythonSource::insert_column(const pybind11::array& column, const s
     if (is_string) {
         const std::vector<std::string> strings = to_strings(column);
         const std::vector<std::string_view> values(strings.begin(), strings.end());
-        ret = _source.current_view()->insert_axis(values, axis_name.c_str());
+        ret = active_view().insert_axis(values, axis_name.c_str());
     }
     else {
         const std::span<const std::byte> values(static_cast<const std::byte*>(column.data()),
                                                 size_t(column.nbytes()));
-        ret = _source.current_view()->insert_axis(column_type, values, axis_name.c_str());
+        ret = active_view().insert_axis(column_type, values, axis_name.c_str());
     }
 
     // Notifify axes combination update on Qt GUI thread
@@ -314,7 +319,10 @@ std::vector<std::string> Squey::PVPythonSource::to_strings(const pybind11::array
 
 void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t position  /* = 0 */)
 {
-    Squey::PVView* view = _source.current_view();
+    // Among the axes rather than among the source's columns, unlike everything
+    // that reads: what this removes is an axis of the view, so the name is
+    // looked up where the axes are.
+    Squey::PVView* view = &active_view();
     size_t column_count = view->get_column_count();
     std::vector<PVCombCol> matching_columns_indexes;
     for (PVCombCol comb_col(0); comb_col < (PVCombCol) column_count; comb_col++) {
@@ -330,7 +338,7 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
     }
 
     // Delete column from disk
-    _source.current_view()->delete_axis(matching_columns_indexes[position]);
+    active_view().delete_axis(matching_columns_indexes[position]);
 
     // TODO : edit format ? Investigation ?
 }
@@ -342,7 +350,7 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
  
  void Squey::PVPythonSource::insert_layer(const std::string& layer_name, const pybind11::array& sel_array)
  {
-    Squey::PVView* view = _source.current_view();
+    Squey::PVView* view = &active_view();
     Squey::PVLayer* layer = view->get_layer_stack().append_new_layer(row_count(), layer_name.c_str());
     if (sel_array.size() != 0) {
         if (not pybind11::dtype("bool").is(sel_array.dtype())) {

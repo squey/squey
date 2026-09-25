@@ -203,7 +203,10 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 		if (!value) {
 			cancel_and_wait_all_rendering();
 		}
-		_zpview->setDisabled(!value);
+		// The widget belongs to the GUI thread, and zones are rebuilt in whichever
+		// thread a scaling is computed in: see PVFullParallelScene::set_enabled.
+		QMetaObject::invokeMethod(
+		    _zpview, [view = _zpview, value] { view->setDisabled(!value); }, Qt::AutoConnection);
 	}
 
 	/**
@@ -311,6 +314,11 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	void on_zones_updated(std::unordered_set<PVZoneID> const& zones);
 	void on_view_about_to_be_deleted();
 	void on_context_about_to_be_deleted();
+
+	/**
+	 * What follows a rebuild of the zones, in the GUI thread: see on_zones_updated.
+	 */
+	void finish_zones_update();
 
 	/**
 	 * Get the zoom level corresponding to the current mouse wheel state.

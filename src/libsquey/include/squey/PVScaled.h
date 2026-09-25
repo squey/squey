@@ -180,15 +180,18 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
 		return get_column_pointer(j)[i];
 	}
 
+	/**
+	 * The rows holding a column's smallest and largest positions, among the selected ones.
+	 *
+	 * Positions and not values: positions are stored inverted, so the smallest one is
+	 * the top of the axis and belongs to the largest value. On a tie, the first row.
+	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVSelection const& sel, PVCol col) const;
 
-	/** get_col_minmax
+	/**
+	 * The rows holding a column's smallest and largest positions.
 	 *
-	 * Compute row indices for containing min and max value for a given column.
-	 *
-	 * @param[out] min : Minimum value of the column
-	 * @param[out] max : Maximum value of the column
-	 * @param[in] col : Column where we want to extra minmax
+	 * As above, over every row.
 	 */
 	void get_col_minmax(PVRow& min, PVRow& max, PVCol const col) const;
 

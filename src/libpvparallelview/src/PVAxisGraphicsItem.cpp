@@ -134,26 +134,26 @@ PVParallelView::PVAxisGraphicsItem::PVAxisGraphicsItem(PVParallelView::PVSliders
 	_label->setRotation(label_rotation);
 	_label->setPos(0, -6 * axis_extend);
 
-	_axis_min_value = new QGraphicsTextItem(this);
-	_axis_min_value->installEventFilter(_event_filter);
-	addToGroup(_axis_min_value);
+	_axis_bottom_value = new QGraphicsTextItem(this);
+	_axis_bottom_value->installEventFilter(_event_filter);
+	addToGroup(_axis_bottom_value);
 
-	_axis_max_value = new QGraphicsTextItem(this);
-	_axis_max_value->installEventFilter(_event_filter);
-	addToGroup(_axis_max_value);
+	_axis_top_value = new QGraphicsTextItem(this);
+	_axis_top_value->installEventFilter(_event_filter);
+	addToGroup(_axis_top_value);
 
-	_layer_min_value = new QGraphicsTextItem(this);
-	QFont font = _layer_min_value->font();
+	_layer_bottom_value = new QGraphicsTextItem(this);
+	QFont font = _layer_bottom_value->font();
 	font.setStyle(QFont::StyleItalic);
-	_layer_min_value->setFont(font);
-	_layer_min_value->installEventFilter(_event_filter);
-	addToGroup(_layer_min_value);
-	_layer_max_value = new QGraphicsTextItem(this);
-	font = _layer_max_value->font();
+	_layer_bottom_value->setFont(font);
+	_layer_bottom_value->installEventFilter(_event_filter);
+	addToGroup(_layer_bottom_value);
+	_layer_top_value = new QGraphicsTextItem(this);
+	font = _layer_top_value->font();
 	font.setStyle(QFont::StyleItalic);
-	_layer_max_value->setFont(font);
-	_layer_max_value->installEventFilter(_event_filter);
-	addToGroup(_layer_max_value);
+	_layer_top_value->setFont(font);
+	_layer_top_value->installEventFilter(_event_filter);
+	addToGroup(_layer_top_value);
 
 	set_min_max_visible(false);
 
@@ -196,10 +196,10 @@ QRectF PVParallelView::PVAxisGraphicsItem::boundingRect() const
 
 	QRectF ret = _label->mapToParent(_label->boundingRect()).boundingRect();
 	if (show_min_max_values()) {
-		ret |= _axis_min_value->mapToParent(_axis_min_value->boundingRect()).boundingRect() |
-		       _axis_max_value->mapToParent(_axis_max_value->boundingRect()).boundingRect() |
-		       _layer_min_value->mapToParent(_layer_min_value->boundingRect()).boundingRect() |
-		       _layer_max_value->mapToParent(_layer_max_value->boundingRect()).boundingRect();
+		for (QGraphicsTextItem* value :
+		     {_axis_top_value, _axis_bottom_value, _layer_top_value, _layer_bottom_value}) {
+			ret |= value->mapToParent(value->boundingRect()).boundingRect();
+		}
 	} else {
 		int new_bottom = ret.bottom() + _axis_length + 2 * axis_extend;
 		ret.setBottom(new_bottom);
@@ -292,11 +292,17 @@ void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_info()
 {
 	const PVCombCol combined_col = get_combined_axis_column();
 
-	const PVRow min_row = _lib_view.get_scaled_col_min_row(combined_col);
-	const PVRow max_row = _lib_view.get_scaled_col_max_row(combined_col);
+	// Positions are stored inverted, so the smallest one is drawn at the top of the
+	// axis. The labels used to be filled by name -- the minimum's row into the label
+	// called min -- and from 2016 on that printed each end's value at the other end:
+	// a swap that accounted for the inversion was dropped a day before the inversion
+	// itself came back. The labels are named after where they sit now, so that what
+	// goes into them is a matter of position only.
+	const PVRow top_row = _lib_view.get_scaled_col_min_row(combined_col);
+	const PVRow bottom_row = _lib_view.get_scaled_col_max_row(combined_col);
 
-	set_axis_text_value(_axis_min_value, min_row);
-	set_axis_text_value(_axis_max_value, max_row);
+	set_axis_text_value(_axis_top_value, top_row);
+	set_axis_text_value(_axis_bottom_value, bottom_row);
 }
 
 void PVParallelView::PVAxisGraphicsItem::set_axis_text_value(QGraphicsTextItem* item, PVRow const r)
@@ -314,8 +320,8 @@ void PVParallelView::PVAxisGraphicsItem::set_axis_text_value(QGraphicsTextItem* 
 
 void PVParallelView::PVAxisGraphicsItem::update_axis_min_max_position()
 {
-	_axis_min_value->setPos(0, _axis_length + axis_extend);
-	_axis_max_value->setPos(0, -5 * axis_extend);
+	_axis_bottom_value->setPos(0, _axis_length + axis_extend);
+	_axis_top_value->setPos(0, -5 * axis_extend);
 }
 
 /*****************************************************************************
@@ -327,21 +333,23 @@ void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_info()
 	const Squey::PVLayer::list_row_indexes_t& vmins = _lib_view.get_current_layer().get_mins();
 	const Squey::PVLayer::list_row_indexes_t& vmaxs = _lib_view.get_current_layer().get_maxs();
 
+	// The layer's rows are the smallest and largest positions too, so the same
+	// holds: the smallest one is the top of the axis.
 	const PVCol original_col = get_original_axis_column();
-	PVRow min_row;
-	PVRow max_row;
+	PVRow top_row;
+	PVRow bottom_row;
 	if ((size_t)original_col >= vmins.size() || (size_t)original_col >= vmaxs.size()) {
 		// Min/max values haven't been computed ! Take them from the scaled.
 		const PVCombCol combined_col = get_combined_axis_column();
-		min_row = _lib_view.get_scaled_col_min_row(combined_col);
-		max_row = _lib_view.get_scaled_col_max_row(combined_col);
+		top_row = _lib_view.get_scaled_col_min_row(combined_col);
+		bottom_row = _lib_view.get_scaled_col_max_row(combined_col);
 	} else {
-		min_row = vmins[original_col];
-		max_row = vmaxs[original_col];
+		top_row = vmins[original_col];
+		bottom_row = vmaxs[original_col];
 	}
 
-	set_axis_text_value(_layer_min_value, min_row);
-	set_axis_text_value(_layer_max_value, max_row);
+	set_axis_text_value(_layer_top_value, top_row);
+	set_axis_text_value(_layer_bottom_value, bottom_row);
 }
 
 /*****************************************************************************
@@ -358,8 +366,8 @@ void PVParallelView::PVAxisGraphicsItem::highlight(bool start)
 
 void PVParallelView::PVAxisGraphicsItem::update_layer_min_max_position()
 {
-	_layer_min_value->setPos(0, _axis_length + 3 * axis_extend);
-	_layer_max_value->setPos(0, -3 * axis_extend);
+	_layer_bottom_value->setPos(0, _axis_length + 3 * axis_extend);
+	_layer_top_value->setPos(0, -3 * axis_extend);
 }
 
 /*****************************************************************************
@@ -371,10 +379,10 @@ void PVParallelView::PVAxisGraphicsItem::set_min_max_visible(const bool visible)
 	prepareGeometryChange();
 
 	_minmax_visible = visible;
-	_axis_min_value->setVisible(visible);
-	_axis_max_value->setVisible(visible);
-	_layer_min_value->setVisible(visible);
-	_layer_max_value->setVisible(visible);
+	_axis_bottom_value->setVisible(visible);
+	_axis_top_value->setVisible(visible);
+	_layer_bottom_value->setVisible(visible);
+	_layer_top_value->setVisible(visible);
 }
 
 /*****************************************************************************
@@ -385,7 +393,7 @@ QRectF PVParallelView::PVAxisGraphicsItem::get_top_decoration_scene_bbox() const
 {
 	QRectF ret = _label->get_scene_bbox();
 	if (show_min_max_values()) {
-		ret |= _axis_max_value->sceneBoundingRect() | _layer_max_value->sceneBoundingRect();
+		ret |= _axis_top_value->sceneBoundingRect() | _layer_top_value->sceneBoundingRect();
 	}
 	ret.setTop(ret.top() - axis_extend);
 	return ret;
@@ -395,7 +403,7 @@ QRectF PVParallelView::PVAxisGraphicsItem::get_bottom_decoration_scene_bbox() co
 {
 	QRectF ret;
 	if (show_min_max_values()) {
-		ret = _axis_min_value->sceneBoundingRect() | _layer_min_value->sceneBoundingRect();
+		ret = _axis_bottom_value->sceneBoundingRect() | _layer_bottom_value->sceneBoundingRect();
 		ret.setBottom(ret.bottom() + axis_extend);
 	} else {
 		ret = mapToScene(QRectF(0, axis_extend, 0.1, axis_extend)).boundingRect();

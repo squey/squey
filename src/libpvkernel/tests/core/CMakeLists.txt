@@ -7,6 +7,9 @@ add_squey_compile_test(Tcore_file_helper LINKS ${LINK_LIBRARIES} FILES file_help
 add_squey_test(Tcore_file_helper Tcore_file_helper)
 endif()
 
+add_squey_compile_test(Tcore_directory_remove LINKS ${LINK_LIBRARIES} FILES directory_remove.cpp)
+add_squey_test(Tcore_directory_remove Tcore_directory_remove)
+
 add_squey_compile_test(Tcore_intrinsics LINKS ${LINK_LIBRARIES} FILES intrinsics.cpp)
 add_squey_test(Tcore_intrinsics Tcore_intrinsics)
 
@@ -46,9 +49,9 @@ install(PROGRAMS $<TARGET_FILE:crashpad::crashpad_handler>
 # packaged testsuite of Windows and macOS.
 # 77 is returned where ptrace is forbidden, which keeps Crashpad from capturing
 # anything: the test reports a skip rather than a failure there.
-set_tests_properties(SQUEY_TEST_Tcore_crash_report_generation PROPERTIES
-	ENVIRONMENT "SQUEY_CONFIG_DIR=crash_report_generation_config"
-	SKIP_RETURN_CODE 77)
+set_tests_properties(SQUEY_TEST_Tcore_crash_report_generation PROPERTIES SKIP_RETURN_CODE 77)
+set_property(TEST SQUEY_TEST_Tcore_crash_report_generation APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=crash_report_generation_config")
 
 add_squey_compile_test(Tcore_streaming_compressor LINKS ${LINK_LIBRARIES} FILES streaming_compressor.cpp)
 add_squey_test(Tcore_streaming_compressor Tcore_streaming_compressor)

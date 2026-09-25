@@ -107,6 +107,16 @@ add_squey_test(Trush_pcap_tshark_escape Trush_pcap_tshark_escape ${PVRUSH_TEST_F
 # outside a packaged install, where tshark_path() is not resolvable).
 set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_escape PROPERTIES SKIP_RETURN_CODE 77)
 
+add_squey_compile_test(Trush_pcap_tshark_refusal LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_tshark_refusal.cpp helpers.cpp)
+add_squey_test(Trush_pcap_tshark_refusal Trush_pcap_tshark_refusal ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
+set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_refusal PROPERTIES SKIP_RETURN_CODE 77)
+
+add_squey_compile_test(Trush_pcap_every_occurrence_format LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_every_occurrence_format.cpp helpers.cpp)
+add_squey_test(Trush_pcap_every_occurrence_format Trush_pcap_every_occurrence_format)
+
+add_squey_compile_test(Trush_pcap_split_without_progress LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_split_without_progress.cpp helpers.cpp)
+add_squey_test(Trush_pcap_split_without_progress Trush_pcap_split_without_progress)
+
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)
 
@@ -259,7 +269,9 @@ add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/ti
 # CMAKE_CURRENT_BINARY_DIR is the build sandbox path, which does not exist on the
 # machine running a cross-compiled test: use a path relative to the test working
 # directory, as TESTS_FILES_DIR already does for the test data.
-set_tests_properties(SQUEY_TEST_Trush_recent_items PROPERTIES ENVIRONMENT "SQUEY_CONFIG_DIR=recent_items_test_config")
+# Appended: add_squey_test() already told this one where to put its
+# collections, and PROPERTIES would drop that.
+set_property(TEST SQUEY_TEST_Trush_recent_items APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=recent_items_test_config")
 
 add_squey_compile_test(Trush_sample_dataset LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES sample_dataset.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_sample_dataset Trush_sample_dataset ${TESTS_FILES_DIR}/../../samples/sample-network-traffic.parquet)

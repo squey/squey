@@ -76,19 +76,26 @@ PVParallelView::PVSeriesViewWidget::PVSeriesViewWidget(Squey::PVView* view,
 
 	set_abscissa(axis);
 
-	// Subscribe to scaling changes
+	// Subscribe to scaling changes. Sampled again from the GUI thread, which the
+	// progress box has to be opened from, while a scaling asked for from the GUI is
+	// computed in the thread of its own progress box and tells its listeners there.
 	_scaling_change_connection = _view->get_parent<Squey::PVScaled>()._scaled_updated.connect(
 	    [this](const QList<PVCol>& scaleds_updated) {
-		    if (_sampler) {
-			    std::unordered_set<size_t> updated_timeseries(scaleds_updated.begin(),
-			                                                  scaleds_updated.end());
-			    PVCore::PVProgressBox::progress(
-			        [this, &updated_timeseries](PVCore::PVProgressBox& pbox) {
-				        pbox.set_enable_cancel(false);
-				        _sampler->resubsample(updated_timeseries);
-			        },
-			        QObject::tr("Sampling..."), this);
-		    }
+		    QMetaObject::invokeMethod(
+		        this,
+		        [this, scaleds_updated] {
+			        if (_sampler) {
+				        std::unordered_set<size_t> updated_timeseries(scaleds_updated.begin(),
+				                                                      scaleds_updated.end());
+				        PVCore::PVProgressBox::progress(
+				            [this, &updated_timeseries](PVCore::PVProgressBox& pbox) {
+					            pbox.set_enable_cancel(false);
+					            _sampler->resubsample(updated_timeseries);
+				            },
+				            QObject::tr("Sampling..."), this);
+			        }
+		        },
+		        Qt::AutoConnection);
 	    });
 	// Subscribe to selection changes
 	_selection_change_connection = _view->_update_output_selection.connect([this]() {
