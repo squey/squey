@@ -39,6 +39,7 @@ class QPropertyAnimation;
 #include <squey/PVView.h>
 
 #include <pvparallelview/common.h>
+#include <pvparallelview/export.h>
 #include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVSlidersGroup.h>
 
@@ -58,7 +59,7 @@ class PVAxisSelectedAnimation;
 class PVAxisLabel;
 class PVFullParallelScene;
 
-class PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
+class PVPARALLELVIEW_EXPORT PVAxisGraphicsItem : public QObject, public QGraphicsItemGroup
 {
 	Q_OBJECT
 

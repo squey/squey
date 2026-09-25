@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2026
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -21,41 +21,10 @@
  * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
+#include <QtCore/QtGlobal>
 
-#ifndef PVPARALLELVIEW_PVZOOMEDPARALLELVIEWPARAMSWIDGET_H
-#define PVPARALLELVIEW_PVZOOMEDPARALLELVIEWPARAMSWIDGET_H
-
-#include <QToolBar>
-
-#include <pvbase/types.h>
-#include <pvparallelview/export.h>
-#include <squey/widgets/PVAxisComboBox.h>
-
-#include <QStringList>
-class QMenu;
-class QToolButton;
-
-namespace PVParallelView
-{
-class PVZoomedParallelView;
-
-class PVPARALLELVIEW_EXPORT PVZoomedParallelViewParamsWidget : public QToolBar
-{
-	Q_OBJECT
-
-  public:
-	explicit PVZoomedParallelViewParamsWidget(Squey::PVAxesCombination const& axes_comb,
-	                                          QWidget* parent);
-
-  public:
-	void build_axis_menu(PVCombCol active_axis);
-
-  Q_SIGNALS:
-	void change_to_col(PVCombCol new_axis);
-
-  private:
-	PVWidgets::PVAxisComboBox* _menu;
-};
-} // namespace PVParallelView
-
-#endif // PVPARALLELVIEW_ZOOMEDPARALLELVIEWPARAMSWIDGET_H
+#ifdef PVPARALLELVIEW_LIBRARY
+	#define PVPARALLELVIEW_EXPORT Q_DECL_EXPORT
+#else
+	#define PVPARALLELVIEW_EXPORT Q_DECL_IMPORT
+#endif
