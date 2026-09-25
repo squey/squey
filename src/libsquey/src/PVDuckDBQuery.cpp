@@ -35,6 +35,7 @@
 #include <pvcop/db/array.h>
 #include <pvcop/db/read_dict.h>
 #include <pvcop/db/string_index_types.h>
+#include <pvcop/types/datetime_us.h>
 
 #include <duckdb.hpp>
 #include <duckdb/catalog/catalog.hpp>
@@ -120,6 +121,10 @@ struct column_binding {
 	 */
 	bool missing_values = false;
 
+	// A datetime_us column, emitted as the TIMESTAMP its stored ptime converts
+	// to rather than read as it is stored: see ptime_micros().
+	bool ptime_as_timestamp = false;
+
 	// Whether pvcop may answer a filter on this column instead of DuckDB.
 	//
 	// False for every column of a text-mode scan: what SQL sees there is the
@@ -180,11 +185,34 @@ const std::unordered_map<std::string, storage_type>& zero_copy_types()
 	    // silently wrong, so the type falls back to text there instead.
 	    {"ipv6", {duckdb::LogicalTypeId::UHUGEINT, 16}},
 #endif
-	    // Deliberately absent: datetime_us, stored as a boost::posix_time::ptime
-	    // whose layout is not guaranteed, and duration, a
-	    // boost::posix_time::time_duration. Both keep the textual fallback.
+	    // Not here: datetime_us, whose stored ptime is converted into a TIMESTAMP
+	    // rather than read as it is (see ptime_micros()), and duration, a
+	    // boost::posix_time::time_duration, which keeps the textual fallback.
 	};
 	return types;
+}
+
+/**
+ * The microseconds since 1970 a datetime_us column stores, as a TIMESTAMP holds
+ * them.
+ *
+ * pvcop keeps a boost ptime per row, whose 64 bits count microseconds from a date
+ * of boost's own: pvcop reads and writes its dates by that arithmetic, and tests
+ * that the count is linear. Less the count of 1970-01-01, it is a TIMESTAMP.
+ */
+int64_t ptime_micros(uint64_t stored)
+{
+	static const int64_t epoch = int64_t(pvcop::types::formatter_datetime_us::cal(
+	                                         boost::posix_time::ptime(boost::gregorian::date(1970, 1, 1)))
+	                                         .as_value);
+	return int64_t(stored) - epoch;
+}
+
+//! Whether a stored ptime is one of boost's special values -- not a date, or
+//! either infinity -- which count nothing and have no TIMESTAMP.
+bool special_ptime(uint64_t stored)
+{
+	return pvcop::types::formatter_datetime_us::cal(stored).as_time.is_special();
 }
 
 /**
@@ -732,7 +760,24 @@ duckdb::unique_ptr<duckdb::FunctionData> scan_bind(duckdb::ClientContext&,
 			binding.null_on_invalid =
 			    binding.zero_copy && array.has_invalid() != pvcop::db::NONE;
 		}
-		if (not binding.zero_copy) {
+		// A datetime_us column is an instant in SQL rather than its text: the
+		// stored ptime converts into a TIMESTAMP by a subtraction, so a date keeps
+		// its microseconds, sorts and compares as one, and needs no conversion
+		// written in the query. Converted per row, which costs the copy the
+		// zero-copy types avoid.
+		if (not binding.zero_copy && not bind_data->text && array.type() == "datetime_us" &&
+		    array.data() != nullptr) {
+			binding.type = duckdb::LogicalType::TIMESTAMP;
+			binding.elem_size = sizeof(uint64_t);
+			binding.data = static_cast<const uint8_t*>(array.data());
+			binding.ptime_as_timestamp = true;
+			binding.null_on_invalid = array.has_invalid() != pvcop::db::NONE;
+			// pvcop compares a literal as the column's own pattern reads it, and
+			// DuckDB does not write a TIMESTAMP in that pattern -- it can even
+			// read as another instant -- so DuckDB filters these itself.
+			binding.pushdown = false;
+		}
+		if (not binding.zero_copy && not binding.ptime_as_timestamp) {
 			// Everything the mapping does not cover is exposed through its
 			// textual form. That keeps any source queryable, but such a column
 			// sorts lexicographically: extend zero_copy_types() rather than
@@ -1093,6 +1138,30 @@ void gather_selected_rows(const PVCore::PVSelBitField& selection, scan_local_sta
 }
 
 /**
+ * Fill @a out with the TIMESTAMPs of a datetime_us column, output position i
+ * holding the row row_of(i). A row the source had no date for, and a special
+ * ptime, come out as NULL.
+ */
+template <typename RowOf>
+void emit_ptime_micros(const column_binding& binding, const pvcop::db::array& array, size_t count,
+                       RowOf row_of, duckdb::Vector& out)
+{
+	out.SetVectorType(duckdb::VectorType::FLAT_VECTOR);
+	auto* instants = duckdb::FlatVector::GetData<duckdb::timestamp_t>(out);
+	auto& validity = duckdb::FlatVector::Validity(out);
+	validity.SetAllValid(count);
+	const auto* stored = reinterpret_cast<const uint64_t*>(binding.data);
+	for (size_t i = 0; i < count; ++i) {
+		const size_t row = row_of(i);
+		if (special_ptime(stored[row]) || (binding.null_on_invalid && not array.is_valid(row))) {
+			validity.SetInvalid(i);
+		} else {
+			instants[i] = duckdb::timestamp_t(ptime_micros(stored[row]));
+		}
+	}
+}
+
+/**
  * Fill one output column with a contiguous run of rows.
  */
 void emit_dense_column(const column_binding& binding, const pvcop::db::array& array,
@@ -1140,6 +1209,11 @@ void emit_dense_column(const column_binding& binding, const pvcop::db::array& ar
 				}
 			}
 		}
+		return;
+	}
+
+	if (binding.ptime_as_timestamp) {
+		emit_ptime_micros(binding, array, count, [offset](size_t i) { return offset + i; }, out);
 		return;
 	}
 
@@ -1208,6 +1282,11 @@ void emit_sparse_column(const column_binding& binding, const pvcop::db::array& a
 				}
 			}
 		}
+		return;
+	}
+
+	if (binding.ptime_as_timestamp) {
+		emit_ptime_micros(binding, array, count, [&rows](size_t i) { return size_t(rows[i]); }, out);
 		return;
 	}
 

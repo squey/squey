@@ -83,7 +83,9 @@ class PVView;
  * table lists what can be named.
  *
  * A business type is exposed as the integer it is stored as, whose order is its
- * own order -- an IPv4 as a UINTEGER, a datetime as an epoch. Named conversions
+ * own order -- an IPv4 as a UINTEGER, a datetime as an epoch -- except a date to
+ * the microsecond, stored as a boost ptime, which is the TIMESTAMP it converts
+ * into. Named conversions
  * bridge the two: "ipv4('192.168.1.1')" is an address, to compare a column
  * against, and "ipv4_text(column)" is the address a column holds, as text. The
  * literal-side one is the one to reach for, since it leaves the comparison on

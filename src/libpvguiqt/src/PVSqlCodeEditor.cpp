@@ -540,6 +540,8 @@ const axis_conversion CONVERSIONS[] = {
      "to_timestamp(column) — the instant a column holds"},
     {"datetime_ms", "date and time (epoch milliseconds)", nullptr, nullptr, "epoch_ms()",
      "epoch_ms(column) — the instant a column holds"},
+    // To the microsecond, a date is an instant already: nothing to convert.
+    {"datetime_us", "date and time (TIMESTAMP)", nullptr, nullptr, nullptr, nullptr},
     {"ipv6", "IPv6 address", nullptr, nullptr, nullptr, nullptr},
 };
 } // namespace

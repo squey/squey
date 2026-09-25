@@ -64,6 +64,8 @@ add_squey_compile_test(Tsquey_duckdb_functions LINKS ${LINK_LIBRARIES} FILES duc
 add_squey_test(Tsquey_duckdb_functions Tsquey_duckdb_functions)
 add_squey_compile_test(Tsquey_duckdb_time_zone LINKS ${LINK_LIBRARIES} FILES duckdb_time_zone.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_time_zone Tsquey_duckdb_time_zone)
+add_squey_compile_test(Tsquey_duckdb_datetime_us LINKS ${LINK_LIBRARIES} FILES duckdb_datetime_us.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_datetime_us Tsquey_duckdb_datetime_us)
 
 # The parquet source is what produces a text column with missing values, so this
 # one is built against it the way the libpvkernel tests are. Its packages are
