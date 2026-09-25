@@ -25,6 +25,10 @@
 #ifndef PVPARALLELVIEW_PVZOOMCONVERTERSCALEDPOWEROFTWO_H
 #define PVPARALLELVIEW_PVZOOMCONVERTERSCALEDPOWEROFTWO_H
 
+// The base class, which this header used to expect its includer to have brought
+// in: a file that was the first of a unity batch to reach it did not compile.
+#include <pvparallelview/PVZoomConverter.h>
+
 namespace PVParallelView
 {
 
