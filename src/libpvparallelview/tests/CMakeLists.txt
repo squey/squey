@@ -37,6 +37,9 @@ add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zon
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
 add_bench(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 
+add_squey_compile_test(Tpview_zone_tree_bci_codes LINKS ${LINK_LIBRARIES} FILES zone_tree_bci_codes.cpp)
+add_squey_test(Tpview_zone_tree_bci_codes Tpview_zone_tree_bci_codes)
+
 add_squey_compile_test(Topencl_build_test LINKS ${LINK_LIBRARIES} FILES opencl_build_test.cpp)
 add_squey_test(Topencl_build_test Topencl_build_test)
 
