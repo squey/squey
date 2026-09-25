@@ -101,6 +101,17 @@ private:
      */
     Squey::PVView& active_view() const;
 
+    /**
+     * The column a script names, @a position telling namesakes apart.
+     *
+     * Looked up among the source's own columns rather than among the axes the
+     * view shows. Those can be hidden, reordered and repeated from the
+     * interface, and a script reading by name would then answer to what
+     * somebody last did on screen -- hiding an axis put a column still readable
+     * by its index out of reach of its own name.
+     */
+    PVCol nraw_column_index(const std::string& column_name, size_t position) const;
+
 private:
     Squey::PVSource& _source;
 };

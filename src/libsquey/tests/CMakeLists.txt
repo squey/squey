@@ -255,6 +255,8 @@ add_squey_test(Tsquey_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR
 add_squey_test(Tsquey_embeded_python_scripting Tsquey_python_scripting ${TESTS_FILES_DIR}/sources/proxy_sample1.log ${TESTS_FILES_DIR}/sources/proxy_sample1_with_embeded_python_script.log.format ${TESTS_FILES_DIR}/exports/Tsquey_python_scripting)
 add_squey_compile_test(Tsquey_python_other_source LINKS ${LINK_LIBRARIES} FILES python_other_source.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_python_other_source Tsquey_python_other_source)
+add_squey_compile_test(Tsquey_python_column_names LINKS ${LINK_LIBRARIES} FILES python_column_names.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_python_column_names Tsquey_python_column_names)
 # numpy sits in the sandbox prefix rather than beside the interpreter, so the
 # script cannot import it unless PYTHONPATH says where to look. CI exports that
 # before calling ctest; carrying it on the tests makes a bare "ctest" work too,
@@ -265,6 +267,7 @@ if(SQUEY_PYTHON_SITE_PACKAGES)
     set_property(TEST SQUEY_TEST_Tsquey_python_scripting
                       SQUEY_TEST_Tsquey_embeded_python_scripting
                       SQUEY_TEST_Tsquey_python_other_source
+                      SQUEY_TEST_Tsquey_python_column_names
                  APPEND PROPERTY ENVIRONMENT "PYTHONPATH=${SQUEY_PYTHONPATH}")
 endif()
 
