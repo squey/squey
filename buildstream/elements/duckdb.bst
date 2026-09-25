@@ -46,6 +46,17 @@ sources:
           (>):
           - |
             rm -f "%{install-root}%{bindir}/libduckdb.dll" "%{install-root}%{libdir}/libduckdb.dll.a"
+  # The ICU extension is built against the ICU Squey already ships, rather than
+  # the copy DuckDB carries (see WITH_INTERNAL_ICU below): the SDK's on Linux,
+  # the one icu.bst cross-builds elsewhere.
+  - target_triple == "x86_64-linux-gnu":
+      build-depends:
+        (>):
+        - freedesktop-sdk.bst:components/icu.bst
+  - target_triple != "x86_64-linux-gnu":
+      build-depends:
+        (>):
+        - icu.bst
 
 variables:
   source-dir: "."
@@ -59,6 +70,16 @@ variables:
   # emits its own into a COMDAT section, and ld merges neither into the other.
   # Only PE calls that a multiple definition -- ELF quietly lets the strong one
   # win -- so build the library in the standard its consumer compiles against.
+  # BUILD_EXTENSIONS=icu links the ICU extension in, beside the core functions
+  # and parquet the build always links. to_timestamp() answers a TIMESTAMP WITH
+  # TIME ZONE, and turning one into a DATE, a string (strftime) or a truncated
+  # instant (date_trunc) is ICU's work: without it DuckDB tries to autoload the
+  # extension, which Squey turns off, and the query fails. Linked in, it loads
+  # with the database -- on Windows through the lib*_extension.a Squey collects.
+  # WITH_INTERNAL_ICU=OFF builds it against the ICU the package already holds
+  # for pvcop and Qt, instead of the copy DuckDB vendors: ICU 66, from 2020,
+  # with its own collation and time zone data, and 10 MB more in libduckdb.
+  # One ICU in the process, and the one that gets updated.
   cmake-local: >-
     -DCMAKE_BUILD_TYPE=Release
     -DBUILD_SHELL=OFF
@@ -68,6 +89,8 @@ variables:
     -DENABLE_UBSAN=OFF
     -DENABLE_EXTENSION_AUTOLOADING=OFF
     -DENABLE_EXTENSION_AUTOINSTALL=OFF
+    -DBUILD_EXTENSIONS=icu
+    -DWITH_INTERNAL_ICU=OFF
     -DOVERRIDE_GIT_DESCRIBE=v1.5.5
     -DDUCKDB_EXPLICIT_PLATFORM=%{duckdb-platform}
     -DCMAKE_CXX_STANDARD=17

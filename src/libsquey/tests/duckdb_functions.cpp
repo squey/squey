@@ -70,8 +70,10 @@ int main()
 			PV_ASSERT_VALID((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '_',
 			                "a name no keystroke reaches", name);
 		}
-		// The catalogue's own readers are not what a query is written with.
+		// The catalogue's own readers are not what a query is written with, nor
+		// the functions ICU runs a collation through.
 		PV_ASSERT_VALID(name.rfind("duckdb_", 0) != 0, "a catalogue reader was offered", name);
+		PV_ASSERT_VALID(name.rfind("icu_collate_", 0) != 0, "a collation was offered", name);
 		// One entry per name: overloads differ by their arguments, which a list
 		// of names has nowhere to show, so several rows would read as repeats.
 		PV_ASSERT_VALID(names.insert(name).second, "the same function twice", name);

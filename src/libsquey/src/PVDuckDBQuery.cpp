@@ -1361,8 +1361,24 @@ struct Squey::PVDuckDBQuery::impl {
 		create_source_listing();
 		create_conversions();
 		bound();
+		read_instants_in_utc();
 		confine();
 	}
+
+	/**
+	 * Read every instant in UTC, as Squey reads the dates it imports.
+	 *
+	 * A time axis reaches a query as its epoch, and to_timestamp() makes an
+	 * instant of it. Its day, its hour and its text then come from the ICU
+	 * extension, in the zone that extension found when the database was made: the
+	 * machine's, or GMT when an import has set TZ by then, as pvcop's formatters
+	 * do. Squey reads a date written without a zone as UTC, and its listing shows
+	 * it so; in any other zone a query would put a night's events on the next
+	 * day, and not on the same one from one machine to the next.
+	 *
+	 * Before confine(), whose lock would refuse it.
+	 */
+	void read_instants_in_utc() { expect_success(con.Query("SET TimeZone = 'UTC'")); }
 
 	/**
 	 * Keep what a query spills, and the memory it takes, within bounds.
@@ -2113,11 +2129,16 @@ std::vector<std::pair<std::string, std::string>> Squey::PVDuckDBQuery::functions
 	// And only what reads as an identifier: the catalogue lists the operators
 	// too, under the names they are spelt with -- "&&", "%", "!__postfix" --
 	// and those are not reached by typing the beginning of a word.
+	//
+	// Nor the collations: ICU registers one function per language, from
+	// icu_collate_af to icu_collate_zu, which is what COLLATE fr runs and not
+	// what a query is written with -- well over a hundred names, none described.
 	auto result = _d->con.Query("SELECT function_name, COALESCE(min(description), '') "
 	                            "FROM duckdb_functions() "
 	                            "WHERE function_type IN ('scalar', 'aggregate') "
 	                            "  AND regexp_full_match(function_name, '[a-z][a-z0-9_]*') "
 	                            "  AND NOT starts_with(function_name, 'duckdb_') "
+	                            "  AND NOT starts_with(function_name, 'icu_collate_') "
 	                            "GROUP BY function_name "
 	                            "ORDER BY function_name");
 	if (result->HasError()) {

@@ -118,11 +118,14 @@ if (DUCKDB_INCLUDE_DIR AND DUCKDB_LIBRARY)
     get_filename_component(DUCKDB_LIBRARY_DIR ${DUCKDB_LIBRARY} DIRECTORY)
     file(GLOB DUCKDB_EXTENSION_LIBRARIES "${DUCKDB_LIBRARY_DIR}/lib*_extension.a")
     message(STATUS " DuckDB extensions: ${DUCKDB_EXTENSION_LIBRARIES}")
-    # And repeat the system libraries DuckDB links into libduckdb on Windows.
+    # And repeat the system libraries DuckDB links into libduckdb on Windows,
+    # with ICU, which the ICU extension is built against (see duckdb.bst): an
+    # archive finds a symbol only in what follows it on the line, and without
+    # it the link relies on ICU coming back later through pvkernel.
     set(DUCKDB_LIBRARIES -Wl,--start-group ${DUCKDB_LIBRARIES}
                          ${DUCKDB_EXTENSION_LOADER_LIBRARY}
                          ${DUCKDB_EXTENSION_LIBRARIES} -Wl,--end-group
-                         ws2_32 rstrtmgr)
+                         ws2_32 rstrtmgr ICU::data ICU::i18n ICU::uc)
     # Keeps the headers from declaring anything __declspec(dllimport), which
     # would look for import thunks no static archive provides.
     add_definitions(-DDUCKDB_STATIC_BUILD)
