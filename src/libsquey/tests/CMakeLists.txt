@@ -257,6 +257,8 @@ add_squey_compile_test(Tsquey_python_other_source LINKS ${LINK_LIBRARIES} FILES 
 add_squey_test(Tsquey_python_other_source Tsquey_python_other_source)
 add_squey_compile_test(Tsquey_python_column_names LINKS ${LINK_LIBRARIES} FILES python_column_names.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_python_column_names Tsquey_python_column_names)
+add_squey_compile_test(Tsquey_nraw_delete_column LINKS ${LINK_LIBRARIES} FILES nraw_delete_column.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_nraw_delete_column Tsquey_nraw_delete_column)
 # numpy sits in the sandbox prefix rather than beside the interpreter, so the
 # script cannot import it unless PYTHONPATH says where to look. CI exports that
 # before calling ctest; carrying it on the tests makes a bare "ctest" work too,

@@ -162,6 +162,13 @@ bool PVRush::PVNraw::map_appended_column(bool appended)
 
 void PVRush::PVNraw::delete_column(PVCol col)
 {
+	// Our own array of that column goes first: this vector has to stay lined up
+	// with the collection, or column() and at_string() answer for the neighbour of
+	// every column past this one. The array is also what holds the column's storage
+	// mapped, with a reference on the read handler that keeps the file open, and
+	// Windows refuses to remove an open file, which the collection does next.
+	_columns.erase(_columns.begin() + col);
+
 	_collection->delete_column(col);
 }
 
