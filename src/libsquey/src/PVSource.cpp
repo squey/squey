@@ -66,7 +66,7 @@ Squey::PVSource::~PVSource()
 Squey::PVView* Squey::PVSource::current_view()
 {
 	PVView* view = get_parent<PVRoot>().current_view();
-	if (&view->get_parent<PVSource>() == this) {
+	if (view != nullptr && &view->get_parent<PVSource>() == this) {
 		return view;
 	}
 	return nullptr;
@@ -75,7 +75,7 @@ Squey::PVView* Squey::PVSource::current_view()
 Squey::PVView const* Squey::PVSource::current_view() const
 {
 	PVView const* view = get_parent<PVRoot>().current_view();
-	if (&view->get_parent<PVSource>() == this) {
+	if (view != nullptr && &view->get_parent<PVSource>() == this) {
 		return view;
 	}
 	return nullptr;

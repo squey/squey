@@ -94,6 +94,14 @@ public:
     PYBIND11_EXPORT void insert_layer(const std::string& layer_name, const pybind11::array& sel_array);
 
 private:
+    /**
+     * The view this source is worked through: the window's current one when it
+     * belongs here, otherwise this source's own. Never null -- it throws when
+     * the source has no view at all, rather than handing back one to dereference.
+     */
+    Squey::PVView& active_view() const;
+
+private:
     Squey::PVSource& _source;
 };
 
