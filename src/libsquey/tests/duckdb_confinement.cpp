@@ -165,10 +165,11 @@ int main()
 			return shown.rows.at(0).at(0);
 		};
 
-		// Compared with the separators Qt writes: nraw_dir() uses the native one.
+		// Compared as the absolute paths Qt writes. nraw_dir() uses the native
+		// separator and, on Windows, can leave out the drive the spill directory
+		// was created with: "/tmp/..." against "C:/tmp/...".
 		const std::string spill = setting(query, "temp_directory");
-		const QString collections =
-		    QDir::fromNativeSeparators(PVRush::PVNrawCacheManager::nraw_dir());
+		const QString collections = QDir(PVRush::PVNrawCacheManager::nraw_dir()).absolutePath();
 		PV_ASSERT_VALID(QDir::fromNativeSeparators(QString::fromStdString(spill))
 		                    .startsWith(collections + "/duckdb_spill_"),
 		                "spills outside the collections directory", spill, "collections",
