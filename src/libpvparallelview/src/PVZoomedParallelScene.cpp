@@ -551,6 +551,25 @@ void PVParallelView::PVZoomedParallelScene::change_to_col(PVCombCol index)
 
 void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param)
 {
+	// The zones go before anything else. Their identifiers are computed from
+	// _axis_index, which the caller has already moved, and the progress box below
+	// runs the pending events: a repaint among them would render the zones left
+	// over under identifiers of the new axis -- one of them past the end of the
+	// zones manager's table when the new axis is the first one.
+	if (_left_zone) {
+		removeItem(_left_zone->item);
+		delete _left_zone->item;
+		_left_zone.reset();
+	}
+
+	if (_right_zone) {
+		removeItem(_right_zone->item);
+		delete _right_zone->item;
+		_right_zone.reset();
+	}
+
+	_renderable_zone_number = 0;
+
 	if (reset_view_param) {
 		/* reset zoom
 		 */
@@ -585,20 +604,6 @@ void PVParallelView::PVZoomedParallelScene::configure_axis(bool reset_view_param
 	 */
 	// needed pixmap to create QGraphicsPixmapItem
 	QPixmap dummy_pixmap;
-
-	if (_left_zone) {
-		removeItem(_left_zone->item);
-		delete _left_zone->item;
-		_left_zone.reset();
-	}
-
-	if (_right_zone) {
-		removeItem(_right_zone->item);
-		delete _right_zone->item;
-		_right_zone.reset();
-	}
-
-	_renderable_zone_number = 0;
 
 	if (_axis_index > 0) {
 		_left_zone = std::make_unique<zone_desc_t>();
@@ -822,7 +827,9 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, PV
 	assert(QThread::currentThread() == this->thread());
 	bool zr_catch = true;
 
-	if (zone_id == left_zone_id()) {
+	// Either zone may be gone by now: configure_axis removes them before running
+	// the pending events, this call among them.
+	if (_left_zone and zone_id == left_zone_id()) {
 		if (_left_zone->last_zr_sel == zr) {
 			_left_zone->last_zr_sel.reset();
 		} else if (_left_zone->last_zr_bg == zr) {
@@ -830,6 +837,8 @@ void PVParallelView::PVZoomedParallelScene::zr_finished(PVZoneRendering_p zr, PV
 		} else {
 			zr_catch = false;
 		}
+	} else if (not _right_zone) {
+		zr_catch = false;
 	} else {
 		if (_right_zone->last_zr_sel == zr) {
 			_right_zone->last_zr_sel.reset();

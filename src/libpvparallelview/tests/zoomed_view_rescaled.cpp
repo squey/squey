@@ -222,9 +222,11 @@ int main(int argc, char** argv)
 	                zoomed_view->get_vertical_scrollbar()->maximum());
 
 	// Picking the first axis, which shows column 1 -- the number of the axis left --
-	// switches once, to that one.
+	// switches once, to that one. With a repaint still queued, which the progress box
+	// fetching the zones of the new axis runs in the middle of the switch.
 	auto* menu = params->findChild<PVWidgets::PVAxisComboBox*>();
 	PV_ASSERT_VALID(menu != nullptr, "the axis menu", "was not found");
+	view.process_output_layer();
 	menu->setCurrentIndex(0);
 	pump(500);
 	std::cout << "after picking the first axis: " << switches.size() << " switches asked";
