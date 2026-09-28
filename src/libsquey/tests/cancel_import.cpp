@@ -33,9 +33,6 @@
 
 #include <pvkernel/core/squey_assert.h>
 
-#include <boost/thread.hpp>
-#include <ctime>
-
 int main(int argc, char** argv)
 {
 	if (argc <= 2) {
@@ -63,7 +60,9 @@ int main(int argc, char** argv)
 	Squey::PVSource& source = scene.emplace_add_child(src_desc);
 
 	PVRush::PVControllerJob_p job_import = source.extract(0);
-	boost::this_thread::sleep(boost::posix_time::milliseconds(100));
+	// Held as it starts, as the GUI holds an import before asking whether to cancel it: a held
+	// job cannot reach the end of the file, however fast the machine reads it.
+	job_import->pause(true);
 
 	PV_VALID(job_import->running(), true);
 
