@@ -41,7 +41,6 @@
 #include <pvkernel/rush/PVNraw.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
-#include <QDir>
 #include <QFileInfo>
 #include <QString>
 
@@ -165,12 +164,15 @@ int main()
 			return shown.rows.at(0).at(0);
 		};
 
-		// Compared as the absolute paths Qt writes. nraw_dir() uses the native
-		// separator and, on Windows, can leave out the drive the spill directory
-		// was created with: "/tmp/..." against "C:/tmp/...".
+		// Compared as the absolute paths QFileInfo writes. nraw_dir() uses the native
+		// separator and, on Windows, can leave out the drive the spill directory was
+		// created with: "/tmp/..." against "C:/tmp/...". QDir::absolutePath() would
+		// keep such a path as it is, since it starts from a root.
 		const std::string spill = setting(query, "temp_directory");
-		const QString collections = QDir(PVRush::PVNrawCacheManager::nraw_dir()).absolutePath();
-		PV_ASSERT_VALID(QDir::fromNativeSeparators(QString::fromStdString(spill))
+		const QString collections =
+		    QFileInfo(PVRush::PVNrawCacheManager::nraw_dir()).absoluteFilePath();
+		PV_ASSERT_VALID(QFileInfo(QString::fromStdString(spill))
+		                    .absoluteFilePath()
 		                    .startsWith(collections + "/duckdb_spill_"),
 		                "spills outside the collections directory", spill, "collections",
 		                collections.toStdString());
