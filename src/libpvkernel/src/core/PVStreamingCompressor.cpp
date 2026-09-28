@@ -103,7 +103,9 @@ const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
     PVCore::__impl::PVStreamingBase::_supported_compressors = {
 #ifdef _WIN32
 		{"zip", {"7z a dummy.zip -si\"" OUTPUT_FILENAME_PLACEHOLDER "\" -tzip -so -bb0 -bso0 -bse0 -bsp0", "funzip"}},
-		{"bz2", {"pbzip2 -z", "pbzip2 -d"}},
+		// 7-Zip rather than pbzip2, whose only Windows build runs on Cygwin: on a loaded
+		// 2-CPU machine, it took up to a minute to decompress what 7-Zip did in 2 s.
+		{"bz2", {"7z a dummy.bz2 -tbzip2 -si -so -bb0 -bso0 -bsp0", "7z x -tbzip2 -si -so -bb0 -bso0 -bsp0"}},
 #elif __APPLE__
 		// bsdtar properly handles the data descriptors used by streamed zip archives,
 		// unlike funzip which exits with an error on them
