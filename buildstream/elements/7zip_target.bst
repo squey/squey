@@ -23,7 +23,9 @@ config:
       install-commands:
       - |
         7zzs x 7z2603-x64.exe
-        install -D 7z.exe -t %{install-root}/%{bindir}
+        # 7z.exe holds no codec of its own: without 7z.dll next to it, it looks for an
+        # installed 7-Zip and fails on a machine that has none
+        install -D 7z.exe 7z.dll -t %{install-root}/%{bindir}
   - (target_triple == "x86_64-apple-darwin" or target_triple == "aarch64-apple-darwin"):
       install-commands:
       - |
