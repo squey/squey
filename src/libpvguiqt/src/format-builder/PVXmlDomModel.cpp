@@ -796,7 +796,7 @@ bool App::PVXmlDomModel::openXml(QString url)
 	tmpTextXml.setEncoding(QStringConverter::Utf8); // by default anyway
 	QDomDocument doc;
 
-	QDomDocument::ParseResult res = doc.setContent(tmpTextXml.readAll());
+	QDomDocument::ParseResult res = PVRush::PVFormatVersion::set_content(doc, tmpTextXml.readAll());
 	if (not res) {
 		QMessageBox msg(QMessageBox::Critical, tr("Unable to open format"),
 		                tr("Unable to open format '%1'").arg(url), QMessageBox::Ok);

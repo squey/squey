@@ -24,7 +24,7 @@
 //
 
 #include <pvkernel/rush/PVAxisFormat.h>    // for PVAxisFormat, etc
-#include <pvkernel/rush/PVFormatVersion.h> // for to_current
+#include <pvkernel/rush/PVFormatVersion.h> // for set_content, to_current
 #include <pvkernel/rush/PVFormat_types.h>
 #include <pvkernel/rush/PVXmlParamParser.h> // for PVXmlParamParser, etc
 #include <pvkernel/rush/PVXmlParamParserData.h>
@@ -64,7 +64,8 @@ PVRush::PVXmlParamParser::PVXmlParamParser(QString const& nameFile,
 	}
 	QTextStream tmpTextXml(&xmlfile); // file stream creation
 	QDomDocument docXml;
-	QDomDocument::ParseResult res = docXml.setContent(tmpTextXml.readAll());
+	QDomDocument::ParseResult res =
+	    PVRush::PVFormatVersion::set_content(docXml, tmpTextXml.readAll());
 	if (not res) {
 		throw PVInvalidFile((res.errorMessage + " at line : " + QString::number(res.errorLine) + " col:" +
 		                     QString::number(res.errorColumn) + " in file : " + nameFile)

@@ -7,6 +7,8 @@
 #include <functional>
 #include <QFile>
 #include <QFileDialog>
+#include <QInputDialog>
+#include <QMessageBox>
 #include <QRegularExpression>
 #include <QTemporaryDir>
 #include <QTimer>
@@ -16,13 +18,19 @@
 #include <chrono>
 #include <memory>
 #include <thread>
+#include <utility>
+#include <vector>
 
 #include <import_export.h>
 
+#include <pvbase/general.h>
 #include <pvkernel/core/PVStreamingCompressor.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
+#include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <squey/common.h>
+#include <squey/PVRoot.h>
+#include <squey/PVSource.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <PVMainWindow.h>
 #include <pvguiqt/common.h>
@@ -388,6 +396,84 @@ void ImportExportTest::import_pcap()
 
     QVERIFY(pcap_exported);
     QVERIFY(csv_exported);
+}
+
+void ImportExportTest::import_guessed_formats()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	// Two files without a format, of different widths: neither format reads the
+	// other file.
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QStringList files = {tmp_dir.filePath("narrow.csv"), tmp_dir.filePath("wide.csv")};
+	for (int i = 0; i < files.size(); i++) {
+		QFile file(files[i]);
+		QVERIFY(file.open(QIODevice::WriteOnly));
+		const int columns = 3 + 2 * i;
+		for (int row = 0; row < 100; row++) {
+			QStringList fields;
+			for (int col = 0; col < columns; col++) {
+				fields << QString::number(row * columns + col);
+			}
+			file.write((fields.join(',') + '\n').toUtf8());
+		}
+	}
+
+	// What the import dialog hands over for several files and the default format.
+	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
+	PVRush::hash_formats formats;
+	PVRush::PVInputType::list_inputs inputs;
+	PVCore::PVArgumentList args;
+	QString format;
+	QVERIFY(in_file->create_widget_with_input_files(files, formats, inputs, format, args,
+	                                                &main_window));
+	QCOMPARE(format, QString(SQUEY_LOCAL_FORMAT_STR));
+
+	// With no format next to the files, the import guesses one for each, and asks
+	// about it as a user would be asked: the format is only used once saved.
+	const std::vector<std::pair<QString, QMessageBox::StandardButton>> answers_by_question = {
+	    {"Do you want to automatically add that splitter", QMessageBox::Yes},
+	    {"do you want to manually enter column names", QMessageBox::No},
+	    {"The format has been modified", QMessageBox::Save}};
+	QStringList unexpected;
+	ModalDriver answers(&main_window, [&]() -> bool {
+		QWidget* modal = qApp->activeModalWidget();
+		if (modal == nullptr or not modal->isVisible()) {
+			return false;
+		}
+		if (auto* box = qobject_cast<QMessageBox*>(modal)) {
+			for (auto const& [question, answer] : answers_by_question) {
+				if (box->text().contains(question)) {
+					box->button(answer)->click();
+					return false;
+				}
+			}
+			unexpected << box->text() + " " + box->informativeText();
+			box->reject();
+		} else if (qobject_cast<QInputDialog*>(modal) or qobject_cast<QFileDialog*>(modal)) {
+			unexpected << modal->windowTitle();
+			static_cast<QDialog*>(modal)->reject();
+		}
+		// One question after the other, until the import is over.
+		return false;
+	});
+	answers.start();
+
+	PVRush::hash_format_creator format_creator;
+	main_window.import_type(in_file, inputs, formats, format_creator, format);
+
+	QVERIFY2(unexpected.isEmpty(), qPrintable(unexpected.join('\n')));
+	// A source of its own for each file, read with the format guessed from it.
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(files.size()));
+	for (Squey::PVSource const* source : sources) {
+		QCOMPARE(source->get_inputs().size(), qsizetype(1));
+		QCOMPARE(source->get_original_format().get_full_path(),
+		         source->get_inputs().front()->human_name() + ".format");
+	}
 }
 
 QTEST_MAIN(ImportExportTest)
