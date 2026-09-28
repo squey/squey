@@ -25,8 +25,10 @@
 
 #include "common.h"
 
+#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVUtils.h>
+#include <pvkernel/rush/PVXmlParamParser.h>
 
 #include <pvkernel/core/squey_assert.h>
 
@@ -76,6 +78,38 @@ int main()
 
 	std::cout << res_file << "/" << xml_ref << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(res_file, xml_ref));
+
+	// A CSV splitter without an escape character, as Squey 5.1.1 to 5.1.3 saved it: with a
+	// NUL character in its place, which no XML document may hold.
+	pvtest::init_ctxt();
+	const QString nul_escape = QString::fromStdString(pvtest::get_tmp_filename());
+	{
+		QByteArray xml = R"(<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="9">
+ <splitter escape="@" quote="&quot;" sep="," type="csv">
+  <field>
+   <axis mapping="default" name="first" scaling="default" type="string" type_format=""/>
+  </field>
+  <field>
+   <axis mapping="default" name="second" scaling="default" type="string" type_format=""/>
+  </field>
+ </splitter>
+</param>
+)";
+		xml.replace('@', '\0');
+		QFile file(nul_escape);
+		PV_ASSERT_VALID(file.open(QIODevice::WriteOnly), "format file", nul_escape.toStdString());
+		file.write(xml);
+	}
+	// Such a format still reads, with no escape character.
+	const PVRush::PVFormat format("nul_escape", nul_escape);
+	PV_VALID(format.get_axes().size(), qsizetype(2));
+	const PVRush::PVXmlParamParser parser(nul_escape);
+	const PVCore::PVArgumentList& splitter_args = parser.getFields().front().filter_args;
+	PV_ASSERT_VALID(splitter_args.at("escape").toChar().isNull(), "escape",
+	                splitter_args.at("escape").toString().toStdString());
+	QFile::remove(nul_escape);
 
 	return 0;
 }

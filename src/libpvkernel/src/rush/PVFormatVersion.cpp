@@ -92,6 +92,12 @@ QString PVRush::PVFormatVersion::__impl::get_version(QDomDocument const& doc)
 	return doc.documentElement().attribute("version", "0");
 }
 
+QDomDocument::ParseResult PVRush::PVFormatVersion::set_content(QDomDocument& doc, QString xml)
+{
+	xml.remove(QChar(u'\0'));
+	return doc.setContent(xml);
+}
+
 void PVRush::PVFormatVersion::to_current(QDomDocument& doc)
 {
 	QString version = __impl::get_version(doc);

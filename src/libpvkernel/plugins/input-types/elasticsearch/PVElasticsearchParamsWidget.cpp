@@ -27,6 +27,7 @@
 #include "PVInputTypeElasticsearch.h"
 
 #include <pvkernel/core/PVProgressBox.h>
+#include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVUtils.h>
 #include <pvkernel/widgets/PVFilterableComboBox.h>
 #include <pvkernel/widgets/PVExportDlg.h>
@@ -524,7 +525,7 @@ static size_t get_first_level_fields_count(const QString& format_path)
 		return {};
 	QTextStream in(&f);
 
-	doc.setContent(in.readAll());
+	PVRush::PVFormatVersion::set_content(doc, in.readAll());
 
 	const QDomElement& root = doc.documentElement();
 

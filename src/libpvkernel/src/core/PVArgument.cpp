@@ -58,7 +58,10 @@ QString PVCore::PVArgument_to_QString(const PVCore::PVArgument& v)
 		str = static_cast<PVArgumentTypeBase*>(const_cast<PVCore::PVArgument*>(&v)->data())
 		          ->to_string();
 	} else { // builtin type
-		if (v.canConvert<QString>()) {
+		if (v.typeId() == QMetaType::QChar and v.toChar().isNull()) {
+			// No character, as a disabled CSV escape, is left empty: an XML attribute
+			// cannot hold a NUL character, and an empty value reads as the default one.
+		} else if (v.canConvert<QString>()) {
 			str = v.toString();
 		} else if (v.canConvert<QStringList>()) {
 			str = v.toStringList().join(",");

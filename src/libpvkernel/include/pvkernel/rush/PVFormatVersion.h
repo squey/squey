@@ -36,6 +36,15 @@ namespace PVFormatVersion
 {
 void to_current(QDomDocument& doc);
 
+/**
+ * Set @a doc from the text of a format, as any version of Squey saved it.
+ *
+ * Squey 5.1.1 to 5.1.3 saved a CSV splitter without an escape character with a NUL
+ * character in its place, which no XML document may hold. It is dropped, which leaves
+ * the escape empty: none, as meant.
+ */
+QDomDocument::ParseResult set_content(QDomDocument& doc, QString xml);
+
 namespace __impl
 {
 void from0to1(QDomDocument& doc);

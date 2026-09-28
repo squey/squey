@@ -27,6 +27,7 @@
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVAxisFormat.h>
 #include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/filter/PVChunkFilterByElt.h>
@@ -47,6 +48,7 @@
 #include <QDir>
 #include <QHashIterator>
 #include <QFileInfo>
+#include <QTextStream>
 #include <algorithm>
 #include <cstdio>
 #include <memory>
@@ -588,7 +590,8 @@ bool PVRush::PVFormat::populate_from_xml(QString filename)
         //assert(false && "Error when opening file");
         return false;
 	}
-	_dom.setContent(&file);
+	QTextStream text(&file);
+	PVRush::PVFormatVersion::set_content(_dom, text.readAll());
 
 	PVRush::PVXmlParamParser xml_parser(filename);
 	return populate_from_parser(xml_parser);

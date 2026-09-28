@@ -250,6 +250,11 @@ int main()
 	// Cleanup
 	QFile::remove(iniFilename);
 
+	// No character at all, as a disabled CSV escape, is written empty: an XML attribute
+	// cannot hold a NUL character.
+	bool nul_char_passed = PVCore::PVArgument_to_QString(QVariant(QChar())).isEmpty();
+	PVLOG_INFO("NUL character test passed: %d\n", nul_char_passed);
+
 	return !(serialization_passed && deserialization_passed && qsettings_passed &&
-	         bad_deserialization_passed);
+	         bad_deserialization_passed && nul_char_passed);
 }
