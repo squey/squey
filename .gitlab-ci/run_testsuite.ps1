@@ -34,18 +34,27 @@ try {
     $env:SQUEY_PYTHONPATH="$env:SQUEY_PYTHONHOME\site-packages"
     $env:LIBRARY_PATH="-L$appdir"
 
+    # The tar.exe of Windows unpacks these zip files several times faster than
+    # Expand-Archive does. It is named in full: a tar found earlier in the PATH, such as
+    # the one of Git, may not read zip files.
+    function Expand-Zip([string]$zip, [string]$destination) {
+        New-Item -ItemType Directory -Path $destination -Force | Out-Null
+        & "$env:SystemRoot\System32\tar.exe" -xf $zip -C $destination
+        if ($LASTEXITCODE -ne 0) { throw "tar could not unpack $zip" }
+    }
+
     # Extract app and testsuite
     Remove-Item -Recurse -Force "$appdir" -ErrorAction SilentlyContinue
     New-Item -ItemType Directory -Path "$appdir" -Force
     Get-ChildItem -Path export/x86_64-w64-mingw32/*.msix | ForEach-Object { makeappx unpack /p $_.FullName /d "$appdir" > $null }
-    Expand-Archive -Path "export\x86_64-w64-mingw32\testsuite.zip" -DestinationPath "$appdir" -Force
+    Expand-Zip "export\x86_64-w64-mingw32\testsuite.zip" "$appdir"
 
     # tshark ships zipped at the root of the package and is normally unpacked on first
     # run by PVUtilitiesDecompressor, which looks for archives next to the running
     # executable and unpacks them into a cache directory named after it. Test binaries
     # satisfy neither condition -- they live in subdirectories of the package and are
     # named after the test -- so unpack it here and point them at it explicitly.
-    Expand-Archive -Path "$appdir\tshark.zip" -DestinationPath "$appdir\tshark" -Force
+    Expand-Zip "$appdir\tshark.zip" "$appdir\tshark"
     $env:SQUEY_TSHARK_PATH = "$appdir\tshark\tshark.exe"
 
     # Setup Squey config file
