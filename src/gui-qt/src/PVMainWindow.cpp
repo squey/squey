@@ -411,6 +411,7 @@ void App::PVMainWindow::import_type(
 {
 	PVRush::PVSourceCreator_p sc = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 
+	// The inputs to load, under the name 'formats' gives the format that reads them.
 	QHash<QString, PVRush::PVInputType::list_inputs> discovered;
 	QHash<QString, std::pair<QString, QString>> formats_error; // Errors w/ some formats
 
@@ -453,6 +454,11 @@ void App::PVMainWindow::import_type(
 				formats[format_name] = format;
 				PVRush::hash_format_creator::mapped_type v(format, sc);
 				format_creator[format_name] = v;
+			} else {
+				// The input type made the format itself, and holds it alone in 'formats',
+				// under a name of its own: the pcap one only saves it where choosenFormat
+				// points.
+				format_name = formats.firstKey();
 			}
 			if (fi.isReadable()) {
 				file_type_found = true;
@@ -578,35 +584,21 @@ void App::PVMainWindow::import_type(
 	 * const one... I hate Qt!
 	 */
 	for (auto it = discovered.constBegin(); it != discovered.constEnd(); it++) {
-		// Create scene and source
+		// With the format these inputs were discovered for: 'formats' can hold others,
+		// found next to some of the files when they did not all agree on one.
+		PVRush::PVSourceDescription src_desc(it.value(), sc, formats.value(it.key()));
 
-		const PVRush::PVInputType::list_inputs& inputs = it.value();
-
-		size_t input_index = 0;
-		for (PVRush::PVFormat const& format : formats) {
-			PVRush::PVInputType::list_inputs in;
-
-			if (formats.size() > 1 and not concatenation) {
-				in.append(inputs[input_index++]);
-			} else {
-				in = inputs;
+		try {
+			if (load_source_from_description_Slot(src_desc)) {
+				one_extraction_successful = true;
 			}
-
-			PVRush::PVSourceDescription src_desc(in, sc, format);
-
-			try {
-				if (load_source_from_description_Slot(src_desc)) {
-					one_extraction_successful = true;
-				}
-			} catch (Squey::InvalidScalingMapping const& e) {
-				invalid_formats.append(it.key() + ": " + e.what());
-			} catch (PVRush::PVInvalidFile const& e) {
-				invalid_formats.append(it.key() + ": " + e.what());
-			}
-			catch (const std::runtime_error& e) {
-				QMessageBox::critical(this, "Runtime error", e.what());
-				return;
-			}
+		} catch (Squey::InvalidScalingMapping const& e) {
+			invalid_formats.append(it.key() + ": " + e.what());
+		} catch (PVRush::PVInvalidFile const& e) {
+			invalid_formats.append(it.key() + ": " + e.what());
+		} catch (const std::runtime_error& e) {
+			QMessageBox::critical(this, "Runtime error", e.what());
+			return;
 		}
 
 		if (not invalid_formats.isEmpty()) {
