@@ -51,6 +51,6 @@ void dump_chunk_csv(PVTextChunk& c, std::ostream& out)
 			PVField& f = *itf;
 			out << "'" << std::string(f.begin(), f.size()) << "'";
 		}
-		out << std::endl;
+		out << '\n';
 	}
 }

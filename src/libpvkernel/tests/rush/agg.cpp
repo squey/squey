@@ -89,6 +89,7 @@ int main(int argc, char** argv)
 	out << "Process from 1 to 701..." << std::endl;
 	agg.process_indexes(1, 701);
 	dump_agg(agg, out);
+	out.close();
 
 #ifndef SQUEY_BENCH
 	const std::string ref_file = std::string(argv[2]) + ".strict.out";

@@ -41,11 +41,12 @@ static fs::path TEST_DIR;
 
 static std::string make_content()
 {
-	// several megabytes to exercise chunked pipe I/O, with enough entropy to
-	// require multiple compressed chunks
+	// Over the 1 MiB that compress_file() writes at a time and over two 900 kB bzip2
+	// blocks, with enough entropy to require multiple compressed chunks. No bigger: xz,
+	// single-threaded at this size, makes most of the duration of the test.
 	std::string content;
 	std::mt19937 gen(42);
-	for (size_t i = 0; i < 200'000; i++) {
+	for (size_t i = 0; i < 80'000; i++) {
 		content += "line " + std::to_string(i) + " value " + std::to_string(gen()) + "\n";
 	}
 	return content;

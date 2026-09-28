@@ -58,18 +58,15 @@ static QByteArray framed(const QStringList& files)
 	return message;
 }
 
-// flush() hands the bytes to the socket, and waitForBytesWritten() is only for
-// what it could not take at once. On a Windows pipe that call reports a timeout
-// even when there is nothing left to wait for -- and blocks for the whole of it
-// first, which is what used to spread a burst of messages well past the window
-// they were meant to be batched in. Best effort, then, rather than an
+// On Windows, QLocalServer gives its pipes no buffer: a write completes only once
+// the server has read it, and the server runs in this very thread. There,
+// waitForBytesWritten() would block it for its whole timeout; waiting with the
+// event loop running lets the server read. Best effort rather than an
 // assertion: what the receiver ends up with is what the test reads.
 static void drain(QLocalSocket& socket)
 {
 	socket.flush();
-	if (socket.bytesToWrite() > 0) {
-		socket.waitForBytesWritten(2000);
-	}
+	(void)QTest::qWaitFor([&socket]() { return socket.bytesToWrite() == 0; }, 2000);
 }
 
 SingleInstanceTest::SingleInstanceTest(App::PVSingleInstanceApplication& app,

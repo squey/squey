@@ -102,7 +102,7 @@ UNICODE_MAIN()
 		std::string output_file2 = import_export(output_file, format, test_selection);
 		output_file2 = std::filesystem::path(output_file2).make_preferred().string();
 		uncompressed_file = output_file2.substr(0, output_file2.find_last_of("."));
-		if (cmd == "funzip" or cmd == "bsdtar -xOf -") {
+		if (cmd == "funzip" or cmd == "bsdtar -xOf -" or cmd.starts_with("7z x")) {
 #ifdef _WIN32
 			cmd = "7z x -y -o" + boost::filesystem::path(output_file2).parent_path().string();
 #else

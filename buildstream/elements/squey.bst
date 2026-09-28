@@ -331,5 +331,4 @@ depends:
         - 7zip_target.bst
         - zip.bst
         - pigz_bin.bst
-        - pbzip2.bst
         - python3-pip_bin.bst
