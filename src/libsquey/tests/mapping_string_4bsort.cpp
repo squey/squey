@@ -67,8 +67,9 @@ int main()
 	std::ofstream ofs{std::filesystem::path(res_file)};
 
 	for (size_t i = 0; i < column.size(); i++) {
-		ofs << mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[i] << std::endl;
+		ofs << mapped.get_column(PVCol(0)).to_core_array<uint32_t>()[i] << '\n';
 	}
+	ofs.close();
 
 	std::cout << res_file << "/" << ref_file << std::endl;
 	PV_ASSERT_VALID(PVRush::PVUtils::files_have_same_content(res_file, ref_file));
