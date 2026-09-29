@@ -51,7 +51,7 @@ class PVFileDialog : public QFileDialog
 	             const QString& directory = QString(),
 	             const QString& filter = QString());
 
-	virtual ~PVFileDialog(){};
+	~PVFileDialog() override;
 
   public:
 	static QString getOpenFileName(QWidget* parent = nullptr,
