@@ -140,8 +140,13 @@ upload_debug_symbols() {
 }
 
 # The dependencies reach the shared pool before Squey is built, so that a
-# failing build or test suite does not keep them from the next pipelines.
+# failing build or test suite does not keep them from the next pipelines. Those
+# a cross build shares with the Linux one, it leaves to the Linux builds.
 if [ "$PUSH_ARTIFACTS" = true ] && [ -n "$ARTIFACT_CACHE_URL" ]; then
+  if [ "$TARGET_TRIPLE" != "x86_64-linux-gnu" ]; then
+    # shellcheck disable=SC2086 # one option per word
+    scripts/wait_for_shared_dependencies.sh $BUILD_OPTIONS
+  fi
   # shellcheck disable=SC2086 # one option per word
   scripts/push_dependencies.sh $BUILD_OPTIONS
 fi

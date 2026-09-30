@@ -1,8 +1,10 @@
 #!/bin/bash
 #
-# Builds the dependencies of squey.bst, then hands them over to the shared
-# artifact cache (ARTIFACT_CACHE_URL, the pool the CI runner hosts), where later
-# builds find them instead of building them again.
+# Builds the dependencies of squey.bst, handing each one over to the shared
+# artifact cache (ARTIFACT_CACHE_URL, the pool the CI runner hosts) as soon as it
+# is there, where later builds find it instead of building it again. The cross
+# builds of a pipeline can be waiting for those they share with the Linux one,
+# see wait_for_shared_dependencies.sh.
 #
 # Usage: push_dependencies.sh <bst options>
 #
@@ -27,8 +29,11 @@ set -e
 
 # "--deps build" is the whole build plan of squey.bst, minus the element itself
 DEPENDENCIES=$(bst "$@" show --deps build --format '%{name}' squey.bst)
+# A push remote makes the build push every element of the plan once cached,
+# whether built or pulled. A pool that cannot be reached is left out with a
+# warning, but a push failing on the way stops the build: it is then finished
+# without the pool, as a failed push costs a redundant rebuild later on, never a
+# job. A build failure of its own fails the second run as well, from the cache.
 # shellcheck disable=SC2086 # one element name per word
-bst "$@" build --retry-failed $DEPENDENCIES
-# A failed push costs a redundant rebuild later on, never a job.
-# shellcheck disable=SC2086 # one element name per word
-bst "$@" artifact push --artifact-remote "$ARTIFACT_CACHE_URL" $DEPENDENCIES || true
+bst "$@" build --retry-failed --artifact-remote "$ARTIFACT_CACHE_URL" $DEPENDENCIES ||
+    bst "$@" build $DEPENDENCIES

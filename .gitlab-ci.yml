@@ -18,6 +18,10 @@ variables:
   # service. The path is the one seen from inside the job container, where the
   # /home/gitlab-runner/cache volume is mounted on /root/.cache.
   ARTIFACT_CACHE_URL: "unix:/root/.cache/artifact-cas.sock"
+  # The jobs that build the Linux dependencies and push them to that pool one by
+  # one, which the cross builds wait for when they share dependencies with them,
+  # see buildstream/scripts/wait_for_shared_dependencies.sh.
+  LINUX_DEPENDENCY_JOBS: "ensure devcontainer image,build and run testsuite linux,build release linux"
 
 stages:
   - check
@@ -42,30 +46,6 @@ stages:
     $FORCE_REBUILD != "true" &&
     (($CODE_COVERAGE != "true" && $CI_COMMIT_SHA == $LAST_NIGHTLY_SHA) ||
     ($CODE_COVERAGE == "true" && $CI_COMMIT_SHA == $LAST_COVERAGE_SHA))
-  # The files of the elements every platform builds under the same cache key,
-  # qt6_host.bst first: those "bst show --deps build --format '%{full-key} %{name}'
-  # squey.bst" lists with the same key for every target. When a merge request
-  # changes them, the image job builds the Linux dependencies and pushes them to
-  # the shared pool first, and the builds wait for it: the cross builds take the
-  # shared elements from the pool instead of building their own copy, and the
-  # Linux build, which shares its cache, cannot slip in before it and hold them
-  # up. They still run if it fails. A file missing here only costs duplicate work.
-  wait_for_linux_dependencies: &wait_for_linux_dependencies
-    changes:
-      - project.conf
-      - buildstream/app.yml
-      - buildstream/elements/freedesktop-sdk.bst
-      - buildstream/elements/base.bst
-      - buildstream/elements/base/{sdk,usrmerge,buildstream-plugins,bst-plugins-community}.bst
-      - buildstream/files/links/*
-      - buildstream/elements/*_host.bst
-      - buildstream/elements/{qt6,libpq,mariadb-connector-c}.yml
-      - buildstream/elements/{breakpad-tools,mold,openssh-portable,procps,pwgen,waypipe}.bst
-      - buildstream/patches/{qt6,breakpad}/*
-    needs:
-      - job: ensure devcontainer image
-        artifacts: false
-    when: always
 
 workflow:
   rules:
@@ -247,9 +227,9 @@ ensure devcontainer image:
       || echo "Registry login failed; this job can still verify, but not publish."
     - !reference [.push_artifacts, before_script]
   script:
-    # The Linux dependencies go to the shared pool before the image is made of
-    # them: the builds of a merge request can be waiting for them, see
-    # wait_for_linux_dependencies.
+    # The Linux dependencies go to the shared pool as they are built, before the
+    # image is made of them: the cross builds can be waiting for those they
+    # share, see wait_for_shared_dependencies.sh.
     - |
       if [ "$PUSH_ARTIFACTS" = true ]; then
         buildstream/scripts/push_dependencies.sh \
@@ -473,8 +453,6 @@ build and run testsuite linux:
     # A push only starts a pipeline for the image job, see "workflow"
     - if: '$CI_PIPELINE_SOURCE == "push"'
       when: never
-    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
-      <<: *wait_for_linux_dependencies
     - if: '$CI_COMMIT_TAG =~ "/^$/"'
   artifacts:
     when: always
@@ -510,8 +488,6 @@ build testsuite windows:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
-      <<: *wait_for_linux_dependencies
-    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
       when: always
@@ -545,8 +521,6 @@ build testsuite macos:
     - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
-    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
-      <<: *wait_for_linux_dependencies
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
