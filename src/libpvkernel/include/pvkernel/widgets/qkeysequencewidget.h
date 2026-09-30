@@ -105,7 +105,7 @@ class PVKERNEL_EXPORT QKeySequenceWidget : public QWidget
 	};
 
 	Q_DECLARE_FLAGS(ClearButtonShow, ClearButton);
-	Q_FLAGS(ClearButtonShow)
+	Q_FLAG(ClearButtonShow)
 
 	QKeySequenceWidget::ClearButtonShow clearButtonShow() const;
 
