@@ -139,24 +139,11 @@ upload_debug_symbols() {
     < files/upload_symbols.sh
 }
 
-# Hand over to the shared artifact cache (ARTIFACT_CACHE_URL, the pool the CI
-# runner hosts) what a later build can reuse. Its remotes are declared pull-only
-# in the runner configuration, so a build never uploads anything by itself: this
-# is the only place that pushes, and it leaves squey.bst out. That one is the
-# largest artifact of the build and the next commit makes it obsolete, whereas
-# its dependencies are worth the room they take, the freedesktop-sdk included:
-# once upstream retention drops them, the alternative is to build them from
-# source again. Sources stay out of the pool altogether, they are quick to fetch
-# and stable enough to not be worth the room.
-# The dependencies are pushed before Squey is built, so that they reach the pool
-# even when Squey fails to build: the cross builds of a merge request may be
-# waiting for them (see wait_for_linux_build in .gitlab-ci.yml).
-# A failed push costs a redundant rebuild later on, never a job.
+# The dependencies reach the shared pool before Squey is built, so that a
+# failing build or test suite does not keep them from the next pipelines.
 if [ "$PUSH_ARTIFACTS" = true ] && [ -n "$ARTIFACT_CACHE_URL" ]; then
-  # "--deps build" is the whole build plan of squey.bst, minus the element itself
-  DEPENDENCIES=$(bst $BUILD_OPTIONS show --deps build --format '%{name}' squey.bst)
-  bst $BUILD_OPTIONS build --retry-failed $DEPENDENCIES
-  bst $BUILD_OPTIONS artifact push --artifact-remote "$ARTIFACT_CACHE_URL" $DEPENDENCIES || true
+  # shellcheck disable=SC2086 # one option per word
+  scripts/push_dependencies.sh $BUILD_OPTIONS
 fi
 
 if [ "$EXPORT_BUILD" = false ]; then
