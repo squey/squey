@@ -42,6 +42,28 @@ stages:
     $FORCE_REBUILD != "true" &&
     (($CODE_COVERAGE != "true" && $CI_COMMIT_SHA == $LAST_NIGHTLY_SHA) ||
     ($CODE_COVERAGE == "true" && $CI_COMMIT_SHA == $LAST_COVERAGE_SHA))
+  # The files of the elements every platform builds under the same cache key,
+  # qt6_host.bst first: those "bst show --deps build --format '%{full-key} %{name}'
+  # squey.bst" lists with the same key for every target. When a merge request
+  # changes them, the cross builds wait for the Linux one, which pushes them to the
+  # shared pool before it builds Squey, rather than all building them at once. They
+  # still run if it fails. A file missing here only costs that duplicate work.
+  wait_for_linux_build: &wait_for_linux_build
+    changes:
+      - project.conf
+      - buildstream/app.yml
+      - buildstream/elements/freedesktop-sdk.bst
+      - buildstream/elements/base.bst
+      - buildstream/elements/base/{sdk,usrmerge,buildstream-plugins,bst-plugins-community}.bst
+      - buildstream/files/links/*
+      - buildstream/elements/*_host.bst
+      - buildstream/elements/{qt6,libpq,mariadb-connector-c}.yml
+      - buildstream/elements/{breakpad-tools,mold,openssh-portable,procps,pwgen,waypipe}.bst
+      - buildstream/patches/{qt6,breakpad}/*
+    needs:
+      - job: build and run testsuite linux
+        artifacts: false
+    when: always
 
 workflow:
   rules:
@@ -468,6 +490,8 @@ build testsuite windows:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
+      <<: *wait_for_linux_build
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
       when: always
@@ -501,6 +525,8 @@ build testsuite macos:
     - !reference [.skip_if_already_built, rules]
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
+    - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
+      <<: *wait_for_linux_build
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
