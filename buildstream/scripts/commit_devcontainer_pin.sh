@@ -65,10 +65,12 @@ chmod 600 "$KEY_DIR/key"
 # SHA256:eUXGGm1YGsMAS7vkcx6JOJdOGHPem5gQp4taiCfCLB8, so that ssh only talks to
 # the server holding it. An impostor could not steal the deploy key, which ssh
 # never sends, but it could hand this job a forged branch and swallow its push.
-echo "gitlab.com ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf" \
+# altssh.gitlab.com serves the same key on port 443: the network of the runner
+# lets HTTPS out, but not port 22.
+echo "[altssh.gitlab.com]:443 ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAfuCHKVTjquxvt6CM6tdG4SLp1Btn/nOeHHE5UOzRdf" \
     > "$KEY_DIR/known_hosts"
 export GIT_SSH_COMMAND="ssh -i $KEY_DIR/key -o IdentitiesOnly=yes -o StrictHostKeyChecking=yes -o UserKnownHostsFile=$KEY_DIR/known_hosts"
-REMOTE="git@gitlab.com:$CI_PROJECT_PATH.git"
+REMOTE="ssh://git@altssh.gitlab.com:443/$CI_PROJECT_PATH.git"
 
 for attempt in 1 2 3; do
     if git push --quiet "$REMOTE" "HEAD:refs/heads/$CI_DEFAULT_BRANCH"; then
