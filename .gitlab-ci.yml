@@ -45,10 +45,12 @@ stages:
   # The files of the elements every platform builds under the same cache key,
   # qt6_host.bst first: those "bst show --deps build --format '%{full-key} %{name}'
   # squey.bst" lists with the same key for every target. When a merge request
-  # changes them, the cross builds wait for the Linux one, which pushes them to the
-  # shared pool before it builds Squey, rather than all building them at once. They
-  # still run if it fails. A file missing here only costs that duplicate work.
-  wait_for_linux_build: &wait_for_linux_build
+  # changes them, the image job builds the Linux dependencies and pushes them to
+  # the shared pool first, and the builds wait for it: the cross builds take the
+  # shared elements from the pool instead of building their own copy, and the
+  # Linux build, which shares its cache, cannot slip in before it and hold them
+  # up. They still run if it fails. A file missing here only costs duplicate work.
+  wait_for_linux_dependencies: &wait_for_linux_dependencies
     changes:
       - project.conf
       - buildstream/app.yml
@@ -61,7 +63,7 @@ stages:
       - buildstream/elements/{breakpad-tools,mold,openssh-portable,procps,pwgen,waypipe}.bst
       - buildstream/patches/{qt6,breakpad}/*
     needs:
-      - job: build and run testsuite linux
+      - job: ensure devcontainer image
         artifacts: false
     when: always
 
@@ -243,8 +245,17 @@ ensure devcontainer image:
     # from failing on every merge request that has nothing to publish.
     - skopeo login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" "$CI_REGISTRY"
       || echo "Registry login failed; this job can still verify, but not publish."
+    - !reference [.push_artifacts, before_script]
   script:
-    # Publishing comes first and does not wait on the pin being right. The tag
+    # The Linux dependencies go to the shared pool before the image is made of
+    # them: the builds of a merge request can be waiting for them, see
+    # wait_for_linux_dependencies.
+    - |
+      if [ "$PUSH_ARTIFACTS" = true ]; then
+        buildstream/scripts/push_dependencies.sh \
+          --option target_triple x86_64-linux-gnu --option cxx_compiler clang++
+      fi
+    # Publishing comes before the pin and does not wait on it being right. The tag
     # is a pure function of the dependency graph, which this job computes for
     # itself, so a branch that moves a dependency gets its image built here
     # rather than on a contributor's machine. Idempotent: it exits early when
@@ -294,6 +305,28 @@ ensure devcontainer image:
   interruptible: true
 
 
+.push_artifacts:
+  before_script:
+    - |
+      # Only offer the build dependencies to the shared pool when this pipeline
+      # can bring new ones: an untouched buildstream directory means they are
+      # all there already (squey.bst itself is never pushed, see
+      # push_dependencies.sh). The comparison point is the target branch of a
+      # merge request, the previous commit of a push, and the parent commit for
+      # scheduled and web pipelines (they carry no "before" sha at all). A base
+      # commit the shallow clone does not have falls back to pushing rather than
+      # starving the pool.
+      base_sha="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}"
+      git cat-file -e "${base_sha}^{commit}" 2> /dev/null || base_sha="${CI_COMMIT_SHA}~1"
+      if [ "$FORCE_PUSH_ARTIFACTS" = "true" ] || ! git cat-file -e "${base_sha}^{commit}" 2> /dev/null; then
+        export PUSH_ARTIFACTS=true
+      elif git diff --quiet "$base_sha" "$CI_COMMIT_SHA" -- buildstream project.conf; then
+        export PUSH_ARTIFACTS=false
+      else
+        export PUSH_ARTIFACTS=true
+      fi
+      echo "Pushing artifacts to the shared cache: $PUSH_ARTIFACTS"
+
 .build:
   stage: build
   image:
@@ -324,23 +357,8 @@ ensure devcontainer image:
       # pass-through. The recc action cache is a third daemon (recc-cas.sock), shared
       # by every job whatever its platform, and is untouched by this.
       export XDG_CACHE_HOME="$HOME/.cache/bst-slots/bst-slot-${BST_SLOT:-linux}"
-      # Only offer the build dependencies to the shared pool when this pipeline
-      # can bring new ones: an untouched buildstream directory means they are
-      # all there already (squey.bst itself is never pushed, see build.sh). The
-      # comparison point is the target branch of a merge request, the previous
-      # commit of a push, and the parent commit for scheduled and web pipelines
-      # (they carry no "before" sha at all). A base commit the shallow clone
-      # does not have falls back to pushing rather than starving the pool.
-      base_sha="${CI_MERGE_REQUEST_DIFF_BASE_SHA:-$CI_COMMIT_BEFORE_SHA}"
-      git cat-file -e "${base_sha}^{commit}" 2> /dev/null || base_sha="${CI_COMMIT_SHA}~1"
-      if [ "$FORCE_PUSH_ARTIFACTS" = "true" ] || ! git cat-file -e "${base_sha}^{commit}" 2> /dev/null; then
-        export PUSH_ARTIFACTS=true
-      elif git diff --quiet "$base_sha" "$CI_COMMIT_SHA" -- buildstream project.conf; then
-        export PUSH_ARTIFACTS=false
-      else
-        export PUSH_ARTIFACTS=true
-      fi
-      echo "Pushing artifacts to the shared cache: $PUSH_ARTIFACTS"
+    - !reference [.push_artifacts, before_script]
+    - |
       # The submodules the top-level GIT_SUBMODULE_PATHS does not update: the ones
       # it leaves out entirely, and, as it only ever matches top-level paths,
       # anything below src/libpvcop. squey-utils is needed by every build
@@ -455,6 +473,8 @@ build and run testsuite linux:
     # A push only starts a pipeline for the image job, see "workflow"
     - if: '$CI_PIPELINE_SOURCE == "push"'
       when: never
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+      <<: *wait_for_linux_dependencies
     - if: '$CI_COMMIT_TAG =~ "/^$/"'
   artifacts:
     when: always
@@ -490,7 +510,7 @@ build testsuite windows:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
-      <<: *wait_for_linux_build
+      <<: *wait_for_linux_dependencies
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_windows_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
@@ -526,7 +546,7 @@ build testsuite macos:
     - if: '$CI_PIPELINE_SOURCE == "schedule" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH && $CODE_COVERAGE != "true"'
       when: always
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
-      <<: *wait_for_linux_build
+      <<: *wait_for_linux_dependencies
     - if: "$CI_MERGE_REQUEST_LABELS =~ /(^|,)export_macos_package(,|$)/"
       when: always
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
