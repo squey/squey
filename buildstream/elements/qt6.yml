@@ -14,6 +14,10 @@ sources:
     path: buildstream/patches/qt6/Fix-rectangle-intersection-issue-because-of-floating.patch
     strip-level: 1
 
+  - kind: patch
+    path: buildstream/patches/qt6/QMainWindowLayout-allocate-the-platform-drag-on-the-heap.patch
+    strip-level: 1
+
 variables:
   cmake-local: >-
     -DCMAKE_INSTALL_PREFIX=%{prefix}
