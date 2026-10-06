@@ -32,6 +32,23 @@
 
 #include <tbb/task_group.h>
 
+namespace
+{
+
+/**
+ * The order the OpenCL kernel settles crossing lines in when they are drawn by
+ * density, pixel_value() in bci_z24.cl: the line with the lowest is drawn.
+ */
+template <size_t Bbits>
+uint32_t density_order(PVParallelView::PVBCICode<Bbits> const& code)
+{
+	const uint32_t black = code.s.color == HSV_COLOR_BLACK.h();
+	const uint32_t transparency = 255 - code.opacity();
+	return black << 31 | transparency << 23 | (code.s.idx >> 17) << 8 | code.s.color;
+}
+
+} // namespace
+
 PVParallelView::PVBCIDrawingBackendQPainter& PVParallelView::PVBCIDrawingBackendQPainter::get()
 {
 	static PVBCIDrawingBackendQPainter backend;
@@ -52,6 +69,7 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
                                                          size_t n,
                                                          const float zoom_y,
                                                          bool reverse,
+                                                         bool density,
                                                          std::function<void()> const& render_done)
 {
 	_jobs.run([=] {
@@ -64,41 +82,56 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 
 		QPainter painter(&paint_image);
 
-		// The OpenCL kernel settles overlapping lines by keeping the lowest row
-		// index, so here the lowest index has to be drawn last, over the others.
-		// Sorting on the whole code instead ordered by position, which decides
-		// nothing, and left the two backends disagreeing about what is on top.
-		std::sort(codes, codes + n, [](PVBCICodeBase const& a, PVBCICodeBase const& b) {
-			return a.as_10.s.idx > b.as_10.s.idx;
-		});
+		size_t valid_begin = 0;
+		if (density) {
+			std::sort(codes, codes + n,
+			          [height_bits](PVBCICodeBase const& a, PVBCICodeBase const& b) {
+				          return height_bits == 10 ? density_order(a.as_10) > density_order(b.as_10)
+				                                   : density_order(a.as_11) > density_order(b.as_11);
+			          });
+			// The line drawn last replaces what it crosses, opacity included, as the
+			// kernel keeps one line per pixel rather than blending them.
+			painter.setCompositionMode(QPainter::CompositionMode_Source);
+		} else {
+			// The OpenCL kernel settles overlapping lines by keeping the lowest row
+			// index, so here the lowest index has to be drawn last, over the others.
+			// Sorting on the whole code instead ordered by position, which decides
+			// nothing, and left the two backends disagreeing about what is on top.
+			std::sort(codes, codes + n, [](PVBCICodeBase const& a, PVBCICodeBase const& b) {
+				return a.as_10.s.idx > b.as_10.s.idx;
+			});
 
-		size_t valid_begin =
-		    std::distance(codes, std::lower_bound(codes, codes + n, PVBCICodeBase{},
-		                                          [](auto const& a, auto const&) {
-			                                          return a.as_10.int_v < PVROW_INVALID_VALUE;
-		                                          }));
+			valid_begin =
+			    std::distance(codes, std::lower_bound(codes, codes + n, PVBCICodeBase{},
+			                                          [](auto const& a, auto const&) {
+				                                          return a.as_10.int_v < PVROW_INVALID_VALUE;
+			                                          }));
+		}
 
 		const int x1 = reverse ? width : 0;
 		const int x2 = reverse ? 0 : width;
 
-		int last_color = -1;
-		const auto use_color = [&](uint8_t color) {
-			if (color != last_color) {
-				painter.setPen(PVCore::PVHSVColor(color).toQColor());
-				last_color = color;
+		int last_pen = -1;
+		const auto use_pen = [&](uint8_t color, uint8_t opacity) {
+			const int pen = color | opacity << 8;
+			if (pen != last_pen) {
+				QColor pen_color = PVCore::PVHSVColor(color).toQColor();
+				pen_color.setAlpha(opacity);
+				painter.setPen(pen_color);
+				last_pen = pen;
 			}
 		};
 
 		if (height_bits == 10) {
 			for (size_t i = valid_begin; i < n; ++i) {
-				use_color(codes[i].as_10.s.color);
+				use_pen(codes[i].as_10.s.color, density ? codes[i].as_10.opacity() : 255);
 				float left = codes[i].as_10.s.l / float(1 << height_bits);
 				float right = codes[i].as_10.s.r / float(1 << height_bits);
 				painter.drawLine(x1, left * height, x2, right * height);
 			}
 		} else {
 			for (size_t i = valid_begin; i < n; ++i) {
-				use_color(codes[i].as_11.s.color);
+				use_pen(codes[i].as_11.s.color, density ? codes[i].as_11.opacity() : 255);
 				if (codes[i].as_11.s.type == PVBCICode<11>::STRAIGHT) {
 					float left = codes[i].as_11.s.l;
 					float right = codes[i].as_11.s.r;

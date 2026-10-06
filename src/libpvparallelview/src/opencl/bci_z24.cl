@@ -72,6 +72,42 @@ uint hue2rgb(uint hue)
 	return 0xFF000000 | (uint)(0xFF * r.x) << 16 | (uint)(0xFF * r.y) << 8 | (uint)(0xFF * r.z);
 }
 
+/* What a pixel keeps the lowest of, among the lines crossing it; the colour
+ * takes the 8 lower bits.
+ *
+ * The line of the lowest row wins, on the 24 upper bits of its index, and black
+ * lines -- the zombies -- stay behind all the others. Drawn by density, a code
+ * carries its opacity in the 8 lower bits of its index instead, and the most
+ * opaque line wins, then the line of the lowest row, on the 15 upper bits of its
+ * index; black lines still stay behind. PVBCIDrawingBackendQPainter orders its
+ * lines the same way.
+ */
+uint pixel_value(const uint row, const uint color, const uint density)
+{
+	const uint black = color == HSV_COLOR_BLACK;
+
+	if (density) {
+		const uint transparency = 255 - (row & 0xFF);
+		return black << 31 | transparency << 23 | (row >> 17) << 8 | color;
+	}
+
+	if (black) {
+		return 0xFFFFFF00 | color;
+	}
+
+	return (row & 0xFFFFFF00) | color;
+}
+
+//! The image is a QImage::Format_ARGB32_Premultiplied one.
+uint premultiplied(const uint rgb, const uint opacity)
+{
+	const uint r = (((rgb >> 16) & 0xFF) * opacity + 127) / 255;
+	const uint g = (((rgb >> 8) & 0xFF) * opacity + 127) / 255;
+	const uint b = ((rgb & 0xFF) * opacity + 127) / 255;
+
+	return opacity << 24 | r << 16 | g << 8 | b;
+}
+
 kernel void DRAW(const global uint2* bci_codes,
                  const uint n,
                  const uint width,
@@ -82,7 +118,8 @@ kernel void DRAW(const global uint2* bci_codes,
                  const float zoom_y,
                  const uint bit_shift,
                  const uint bit_mask,
-                 const uint reverse)
+                 const uint reverse,
+                 const uint density)
 {
 	local uint shared_img[LOCAL_MEMORY_SIZE / sizeof(uint)];
 
@@ -111,9 +148,7 @@ kernel void DRAW(const global uint2* bci_codes,
 	barrier(CLK_LOCAL_MEM_FENCE);
 
 	for (uint idx_codes = y_start; draws && idx_codes < n; idx_codes += y_pitch) {
-		uint2 code0 = bci_codes[idx_codes];
-
-		code0.x &= 0xFFFFFF00;
+		const uint2 code0 = bci_codes[idx_codes];
 
 		const float l0 = (float) (code0.y & bit_mask);
 		const int r0i = (code0.y >> bit_shift) & bit_mask;
@@ -165,12 +200,7 @@ kernel void DRAW(const global uint2* bci_codes,
 		}
 
 		const uint color0 = (code0.y >> 2*bit_shift) & 0xFF;
-
-		if (color0 == HSV_COLOR_BLACK) {
-			code0.x = 0xFFFFFF00;
-		}
-
-		const uint shared_v = color0 | code0.x;
+		const uint shared_v = pixel_value(code0.x, color0, density);
 
 		/* The work-items of a work-group that share an image column draw into the
 		 * same pixels: the lowest value has to be kept atomically, or the line a
@@ -205,6 +235,9 @@ kernel void DRAW(const global uint2* bci_codes,
 
 		if (pixel_shared != 0xFFFFFFFF) {
 			pixel = hue2rgb(pixel_shared & 0x000000FF);
+			if (density) {
+				pixel = premultiplied(pixel, 255 - ((pixel_shared >> 23) & 0xFF));
+			}
 		} else {
 			pixel = 0x00000000;
 		}

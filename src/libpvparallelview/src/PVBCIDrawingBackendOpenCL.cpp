@@ -68,7 +68,8 @@ struct opencl_kernel {
 	                    const cl_uint image_width,
 	                    const cl_uint image_x_start,
 	                    const cl_float zoom_y,
-	                    const bool reverse)
+	                    const bool reverse,
+	                    const bool density)
 	{
 		const cl_uint bit_shift = Bbits;
 		const cl_uint bit_mask = PVParallelView::constants<Bbits>::mask_int_ycoord;
@@ -76,6 +77,7 @@ struct opencl_kernel {
 		const size_t column_mem_size = image_height * sizeof(cl_uint);
 		// bool is not a valid type as kernel parameter
 		const cl_uint reverse_flag = reverse;
+		const cl_uint density_flag = density;
 
 		squey_verify_opencl(kernel.setArg(0, dev.buffer()));
 		squey_verify_opencl(kernel.setArg(1, n));
@@ -88,6 +90,7 @@ struct opencl_kernel {
 		squey_verify_opencl(kernel.setArg(8, bit_shift));
 		squey_verify_opencl(kernel.setArg(9, bit_mask));
 		squey_verify_opencl(kernel.setArg(10, reverse_flag));
+		squey_verify_opencl(kernel.setArg(11, density_flag));
 
 		/* We make fit the highest number of image columns in the work group local
 		 * memory. The shape must not follow the zone width, though: PortableCL
@@ -559,6 +562,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
                                                        size_t n,
                                                        const float zoom_y,
                                                        bool reverse,
+                                                       bool density,
                                                        std::function<void()> const& render_done)
 {
 #ifdef NDEBUG
@@ -590,11 +594,11 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 		assert(reverse == false && "no reverse mode allowed in kernel<10>");
 
 		err = opencl_kernel<10>::start(dev, _kernel, n, width, dst_img->device_buffer(),
-		                               dst_img->width(), x_start, zoom_y, reverse);
+		                               dst_img->width(), x_start, zoom_y, reverse, density);
 		break;
 	case 11:
 		err = opencl_kernel<11>::start(dev, _kernel, n, width, dst_img->device_buffer(),
-		                               dst_img->width(), x_start, zoom_y, reverse);
+		                               dst_img->width(), x_start, zoom_y, reverse, density);
 		break;
 	default:
 		assert(false);

@@ -29,6 +29,7 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
+#include <pvparallelview/PVBCIDrawingBackendQPainter.h>
 
 #include "bci_helpers.h"
 
@@ -38,12 +39,16 @@
 
 #include <chrono>
 #include <condition_variable>
+#include <cstdlib>
 #include <cstdint>
 #include <filesystem>
 #include <iostream>
 #include <memory>
 #include <mutex>
+#include <set>
 #include <string>
+#include <utility>
+#include <vector>
 
 /**
  * Checks that a zone actually comes back drawn from the OpenCL backend.
@@ -91,17 +96,18 @@ struct render_waiter {
 	bool done = false;
 };
 
-bool render_and_wait(PVParallelView::PVBCIDrawingBackendOpenCL& backend,
+bool render_and_wait(PVParallelView::PVBCIDrawingBackendAsync& backend,
                      PVParallelView::PVBCIBackendImage_p& image,
                      PVParallelView::PVBCICodeBase* codes,
                      size_t n,
-                     size_t width = ZONE_WIDTH)
+                     size_t width = ZONE_WIDTH,
+                     bool density = false)
 {
 	// Shared with the OpenCL callback thread so that giving up on the wait
 	// below cannot leave that thread writing to a destroyed object.
 	auto waiter = std::make_shared<render_waiter>();
 
-	backend.render(image, 0, width, codes, n, 1.0f, false, [waiter]() {
+	backend.render(image, 0, width, codes, n, 1.0f, false, density, [waiter]() {
 		std::lock_guard<std::mutex> lock(waiter->mutex);
 		waiter->done = true;
 		waiter->cv.notify_all();
@@ -174,6 +180,135 @@ size_t cached_kernel_count(const std::filesystem::path& cache_dir)
 	}
 
 	return count;
+}
+
+using pixels_t = std::set<std::pair<int, int>>;
+
+//! Where a rendering drew, however faintly.
+pixels_t drawn_at(const QImage& image)
+{
+	pixels_t drawn;
+
+	for (int y = 0; y < image.height(); ++y) {
+		const auto* line = reinterpret_cast<const uint32_t*>(image.constScanLine(y));
+
+		for (int x = 0; x < image.width(); ++x) {
+			if (qAlpha(line[x]) != 0) {
+				drawn.emplace(x, y);
+			}
+		}
+	}
+
+	return drawn;
+}
+
+uint32_t pixel_at(const QImage& image, std::pair<int, int> const& at)
+{
+	return reinterpret_cast<const uint32_t*>(image.constScanLine(at.second))[at.first];
+}
+
+PVParallelView::PVBCICode<BBITS>
+line_code(PVRow row, uint8_t opacity, uint32_t left, uint32_t right, uint8_t color)
+{
+	PVParallelView::PVBCICode<BBITS> code;
+	code.int_v = 0;
+	code.s.idx = row;
+	code.set_opacity(opacity);
+	code.s.l = left;
+	code.s.r = right;
+	code.s.color = color;
+	return code;
+}
+
+QImage render_lines(PVParallelView::PVBCIDrawingBackendAsync& backend,
+                    std::vector<PVParallelView::PVBCICode<BBITS>> codes,
+                    bool density)
+{
+	PVParallelView::PVBCIBackendImage_p image = backend.create_image(ZONE_WIDTH, BBITS);
+
+	PV_ASSERT_VALID(render_and_wait(backend, image,
+	                                reinterpret_cast<PVParallelView::PVBCICodeBase*>(codes.data()),
+	                                codes.size(), ZONE_WIDTH, density),
+	                "rendering", "lines");
+
+	return image->qimage().copy();
+}
+
+/**
+ * Drawn by density, each line carries its own opacity, and where lines cross,
+ * the most opaque one shows rather than the one of the lowest row. Black lines,
+ * the zombies, still stay behind every other, however opaque.
+ *
+ * Both backends owe the same, and the views fall back on QPainter when there is
+ * no OpenCL device: they are checked alike, on the opacity of what they draw.
+ * The OpenCL image is a premultiplied one, which its colours are checked for.
+ */
+void check_density(PVParallelView::PVBCIDrawingBackendAsync& backend,
+                   std::string const& name,
+                   bool premultiplied)
+{
+	// A faint line of a low row, rising across the zone, and level ones crossing
+	// it: two diagonals can pass through each other without sharing a pixel.
+	const auto faint = line_code(0, 40, 0, 1023, 10);
+	const auto opaque = line_code(1 << 20, 200, 300, 300, 100);
+	const auto zombie = line_code(0, 255, 700, 700, HSV_COLOR_BLACK.h());
+
+	const QImage faint_alone = render_lines(backend, {faint}, true);
+	const pixels_t faint_at = drawn_at(faint_alone);
+	PV_ASSERT_VALID(not faint_at.empty(), "backend", name, "faint line", "not drawn");
+
+	for (auto const& at : faint_at) {
+		PV_ASSERT_VALID(qAlpha(pixel_at(faint_alone, at)) == 40, "backend", name, "x", at.first,
+		                "y", at.second, "opacity", qAlpha(pixel_at(faint_alone, at)));
+	}
+
+	if (premultiplied) {
+		// Drawn opaque, the same line gives the colour the opacity scales.
+		const QImage faint_opaque = render_lines(backend, {faint}, false);
+
+		for (auto const& at : faint_at) {
+			const QRgb opaque_pixel = pixel_at(faint_opaque, at);
+			const QRgb expected = qPremultiply(
+			    qRgba(qRed(opaque_pixel), qGreen(opaque_pixel), qBlue(opaque_pixel), 40));
+			const QRgb drawn = pixel_at(faint_alone, at);
+			const auto close = [](int a, int b) { return std::abs(a - b) <= 1; };
+
+			PV_ASSERT_VALID(close(qRed(drawn), qRed(expected)) and
+			                    close(qGreen(drawn), qGreen(expected)) and
+			                    close(qBlue(drawn), qBlue(expected)),
+			                "backend", name, "x", at.first, "y", at.second, "drawn", drawn,
+			                "premultiplied", expected);
+		}
+	}
+
+	const pixels_t opaque_at = drawn_at(render_lines(backend, {opaque}, true));
+	const pixels_t zombie_at = drawn_at(render_lines(backend, {zombie}, true));
+
+	const QImage crossing = render_lines(backend, {faint, opaque}, true);
+	const QImage behind = render_lines(backend, {zombie, faint}, true);
+	size_t crossed_opaque = 0;
+	size_t crossed_zombie = 0;
+
+	for (auto const& at : faint_at) {
+		if (opaque_at.count(at) != 0) {
+			++crossed_opaque;
+			PV_ASSERT_VALID(qAlpha(pixel_at(crossing, at)) == 200, "backend", name, "x", at.first,
+			                "y", at.second, "opacity where it crosses the opaque line",
+			                qAlpha(pixel_at(crossing, at)));
+		}
+		if (zombie_at.count(at) != 0) {
+			++crossed_zombie;
+			PV_ASSERT_VALID(qAlpha(pixel_at(behind, at)) == 40, "backend", name, "x", at.first,
+			                "y", at.second, "opacity where it crosses the zombie",
+			                qAlpha(pixel_at(behind, at)));
+		}
+	}
+
+	PV_ASSERT_VALID(crossed_opaque > 0, "backend", name, "the opaque line", "never crossed");
+	PV_ASSERT_VALID(crossed_zombie > 0, "backend", name, "the zombie", "never crossed");
+
+	std::cout << name << " by density: " << crossed_opaque << " pixels where the opaque line crosses, "
+	          << crossed_zombie << " where the zombie does" << std::endl;
 }
 
 } // namespace
@@ -266,6 +401,9 @@ int main()
 	if (kernels > 0) {
 		PV_ASSERT_VALID(kernels < widths, "cached kernels", kernels, "zone widths", widths);
 	}
+
+	check_density(backend, "OpenCL", true);
+	check_density(PVParallelView::PVBCIDrawingBackendQPainter::get(), "QPainter", false);
 
 	PVParallelView::PVBCICode<BBITS>::free_codes(codes);
 

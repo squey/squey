@@ -83,6 +83,7 @@ class PVBCIDrawingBackendQPainter : public PVBCIDrawingBackendAsync
 	            size_t n,
 	            const float zoom_y = 1.0f,
 	            bool reverse = false,
+	            bool density = false,
 	            std::function<void()> const& render_done = std::function<void()>()) override;
 
 	//! Waits for every drawing job. Detached threads used to make this promise
