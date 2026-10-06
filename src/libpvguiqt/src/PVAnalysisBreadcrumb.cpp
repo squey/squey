@@ -370,8 +370,18 @@ void PVGuiQt::PVAnalysisBreadcrumb::refresh_crumb(QToolButton* crumb,
 	if (not step.details().isEmpty()) {
 		tip += rule + block(step.details());
 	}
-	tip += rule + block(tr("%1 event(s) selected")
-	                        .arg(QLocale().toString(qulonglong(step.selected_row_count()))));
+	/* In English, as the parallel view counts its rows: the application runs
+	 * under the C locale, which groups no digits.
+	 */
+	const QLocale english(QLocale::English);
+	const QString selected = english.toString(qulonglong(step.selected_row_count()));
+	tip += rule + block(step.valid_row_count() == 0
+	                        ? tr("%1 event(s) selected").arg(selected)
+	                        : tr("%1 event(s) selected (%2%)")
+	                              .arg(selected,
+	                                   english.toString(100. * double(step.selected_row_count()) /
+	                                                        double(step.valid_row_count()),
+	                                                    'f', 1)));
 
 	crumb->setToolTip(tip);
 

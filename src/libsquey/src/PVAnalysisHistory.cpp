@@ -25,6 +25,7 @@
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVRoot.h>
 #include <squey/PVSelection.h>
+#include <squey/PVSource.h>
 #include <squey/PVView.h>
 
 #include <algorithm>
@@ -215,6 +216,7 @@ Squey::PVAnalysisStep Squey::PVAnalysisHistory::capture(QString label,
 
 	if (PVView const* view = _root.current_view()) {
 		step._selected_row_count = view->get_real_output_selection().bit_count();
+		step._valid_row_count = view->get_parent<PVSource>().get_valid_row_count();
 	}
 
 	for (auto const& [id, contributor] : _contributors) {

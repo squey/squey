@@ -99,6 +99,12 @@ class PVAnalysisStep
 	size_t selected_row_count() const { return _selected_row_count; }
 
 	/**
+	 * How many rows that view holds once the invalid ones are left out, which is
+	 * what the selected ones are a share of.
+	 */
+	size_t valid_row_count() const { return _valid_row_count; }
+
+	/**
 	 * Whether this step is the one the views are currently showing.
 	 */
 	bool is_empty() const { return _states.empty(); }
@@ -121,6 +127,7 @@ class PVAnalysisStep
 	std::string _merge_key;
 	std::chrono::steady_clock::time_point _taken_at;
 	size_t _selected_row_count = 0;
+	size_t _valid_row_count = 0;
 	std::vector<std::pair<PVView*, PVViewState>> _states;
 	std::map<size_t, PVAnalysisAttachment> _attachments;
 };

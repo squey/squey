@@ -10,6 +10,7 @@
 #include <QFile>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QLocale>
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QTemporaryDir>
@@ -264,6 +265,14 @@ void ImportExportTest::undo_redo()
         qApp->setStyleSheet(QString::fromUtf8(stylesheet.readAll()));
     }
 
+    // The locale the application runs under, see main.cpp, whatever the one of
+    // the machine: the C locale groups no digits.
+    struct CLocale {
+        QLocale previous;
+        CLocale() { QLocale::setDefault(QLocale::c()); }
+        ~CLocale() { QLocale::setDefault(previous); }
+    } c_locale;
+
     App::PVMainWindow main_window;
     main_window.show();
     main_window.raise();
@@ -308,6 +317,16 @@ void ImportExportTest::undo_redo()
     }
     QVERIFY2(std::any_of(crumbs.begin(), crumbs.end(),
                          [](QString const& t) { return t.contains("Empty selection"); }),
+             qPrintable(crumbs.join(" | ")));
+
+    // And what it left selected, digits grouped and as a share of the rows.
+    const QString all_selected = QString(">%1 event(s) selected (100.0%)<")
+                                     .arg(QLocale(QLocale::English).toString(qulonglong(all_rows)));
+    QVERIFY2(std::any_of(crumbs.begin(), crumbs.end(),
+                         [&](QString const& t) { return t.contains(all_selected); }),
+             qPrintable(crumbs.join(" | ")));
+    QVERIFY2(std::any_of(crumbs.begin(), crumbs.end(),
+                         [](QString const& t) { return t.contains(">0 event(s) selected (0.0%)<"); }),
              qPrintable(crumbs.join(" | ")));
 
     // The strip is meant to cost as little height as the toolbar row above it,

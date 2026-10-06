@@ -24,6 +24,7 @@
 
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVRoot.h>
+#include <squey/PVSource.h>
 #include <squey/PVView.h>
 
 #include <pvkernel/core/squey_assert.h>
@@ -68,6 +69,10 @@ int main()
 	PV_ASSERT_VALID(history.step(1).label() == QString("Empty selection"));
 	PV_VALID(history.step(1).selected_row_count(), size_t(0));
 	PV_VALID(history.step(0).selected_row_count(), all_rows);
+	PV_VALID(history.step(0).valid_row_count(),
+	         size_t(view->get_parent<Squey::PVSource>().get_valid_row_count()));
+	PV_VALID(history.step(0).selected_row_count(), history.step(0).valid_row_count(), "why",
+	         "every row is selected at first, the bad line not being one");
 	PV_VALID(changes_seen, size_t(1));
 	PV_ASSERT_VALID(history.can_undo() and not history.can_redo());
 
