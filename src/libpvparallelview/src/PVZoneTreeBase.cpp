@@ -29,6 +29,7 @@
 #include <pvparallelview/PVZoneTree.h>
 
 #include <cassert>
+#include <cmath>
 
 PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 {
@@ -37,21 +38,59 @@ PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 }
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVCore::PVHSVColor const* colors,
-                                                       PVBCICode<NBITS_INDEX>* codes) const
+                                                       PVBCICode<NBITS_INDEX>* codes,
+                                                       float line_opacity) const
 {
-	return browse_tree_bci_from_buffer(_bg_elts, colors, codes);
+	return browse_tree_bci_from_buffer(_bg_elts, _bg_counts, colors, codes, line_opacity);
 }
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVCore::PVHSVColor const* colors,
-                                                           PVBCICode<NBITS_INDEX>* codes) const
+                                                           PVBCICode<NBITS_INDEX>* codes,
+                                                           float line_opacity) const
 {
-	return browse_tree_bci_from_buffer(_sel_elts, colors, codes);
+	return browse_tree_bci_from_buffer(_sel_elts, _sel_counts, colors, codes, line_opacity);
 }
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(
-    const PVRow* elts, PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
+    const PVRow* elts,
+    std::vector<uint32_t> const& counts,
+    PVCore::PVHSVColor const* colors,
+    PVBCICode<NBITS_INDEX>* codes,
+    float line_opacity) const
 {
 	size_t idx_code = 0;
+
+	if (line_opacity < 1.f) {
+		// The counts follow the list of occupied buckets, which is walked however
+		// full it is.
+		const bool counted = counts.size() == _occupied_branches.size();
+		const float log_transparency = std::log1p(-line_opacity);
+
+		for (size_t i = 0; i < _occupied_branches.size(); i++) {
+			const uint32_t b = _occupied_branches[i];
+			const PVRow r = elts[b];
+			if (r == PVROW_INVALID_VALUE) {
+				continue;
+			}
+
+			// A bucket with a row of the layer counts that row at least: none means
+			// it was not counted.
+			const uint32_t rows = counted ? counts[i] : 0;
+			const float opacity = rows > 0 ? -std::expm1(rows * log_transparency) : 1.f;
+			const auto opacity8 = static_cast<uint8_t>(opacity * 255.f + .5f);
+			if (opacity8 == 0) {
+				continue;
+			}
+
+			PVBCICode<NBITS_INDEX> bci;
+			bci.int_v = r | ((uint64_t)b << 32);
+			bci.s.color = colors[r].h();
+			bci.set_opacity(opacity8);
+			codes[idx_code] = bci;
+			idx_code++;
+		}
+		return idx_code;
+	}
 
 	// Only occupied buckets can name a row here: filter_by_sel and
 	// filter_by_sel_background leave every other entry of `elts` alone. Reading

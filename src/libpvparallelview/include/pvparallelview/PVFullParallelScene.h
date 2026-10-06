@@ -42,6 +42,7 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVSlidersManager.h>
+#include <pvparallelview/PVViewRenderingContext.h>
 
 #include <atomic>
 #include <optional>
@@ -121,6 +122,14 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	QRectF axes_scene_bounding_box() const;
 
 	void enable_density_on_axes(bool enable_density);
+
+	/**
+	 * Draw the lines by density, the line of a single row having @p opacity, in
+	 * ]0, 1]; at 1, lines are opaque, as they are otherwise. See
+	 * PVLinesView::set_line_opacity.
+	 */
+	void set_line_opacity(float opacity);
+	float line_opacity() const { return _lines_view.get_line_opacity(); }
 
 	/**
 	 * Selection scaling: spread the selection over the whole axes.
@@ -346,6 +355,9 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 
 	bool _show_min_max_values;
 	bool _density_on_axes_enabled = false;
+
+	// Held while the lines are drawn by density.
+	PVViewRenderingContext::RowCounting _row_counting;
 
 	// Only zoom once per whole physical wheel notch (ignore high-resolution sub-notch events).
 	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;

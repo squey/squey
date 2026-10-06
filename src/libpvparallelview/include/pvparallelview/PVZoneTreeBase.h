@@ -88,14 +88,32 @@ class PVZoneTreeBase
 	 */
 	inline std::vector<uint32_t> const& occupied_branches() const { return _occupied_branches; }
 
-	size_t browse_tree_bci(PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const;
+	/**
+	 * Encode the lines of the background as BCI codes, one per bucket holding a
+	 * row of it; browse_tree_bci_sel does the same for the selection.
+	 *
+	 * @param line_opacity the opacity of the line of a single row, in ]0, 1].
+	 * Below 1, the lines are drawn by density (see PVBCIDrawingBackend::render):
+	 * each code carries the opacity of the n rows of its bucket laid over one
+	 * another, 1 - (1 - line_opacity)^n, from the counts of the last filtering
+	 * (see get_bg_counts() and get_sel_counts()). A bucket the filtering did not
+	 * count is drawn opaque; one too faint to show at all is left out.
+	 *
+	 * @return the number of codes written to @p codes.
+	 */
+	size_t browse_tree_bci(PVCore::PVHSVColor const* colors,
+	                       PVBCICode<NBITS_INDEX>* codes,
+	                       float line_opacity = 1.f) const;
 	size_t browse_tree_bci_sel(PVCore::PVHSVColor const* colors,
-	                           PVBCICode<NBITS_INDEX>* codes) const;
+	                           PVBCICode<NBITS_INDEX>* codes,
+	                           float line_opacity = 1.f) const;
 
   private:
 	size_t browse_tree_bci_from_buffer(const PVRow* elts,
+	                                   std::vector<uint32_t> const& counts,
 	                                   PVCore::PVHSVColor const* colors,
-	                                   PVBCICode<NBITS_INDEX>* codes) const;
+	                                   PVBCICode<NBITS_INDEX>* codes,
+	                                   float line_opacity) const;
 
   public:
 	PVRow DECLARE_ALIGN(16) _first_elts[NBUCKETS];

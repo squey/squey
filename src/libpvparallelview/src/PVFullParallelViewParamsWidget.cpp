@@ -40,8 +40,13 @@
 #include <QMenu>
 #include <QLineEdit>
 #include <QLabel>
+#include <QLocale>
+#include <QSlider>
 #include <QToolButton>
 #include <QDebug>
+
+#include <algorithm>
+#include <cmath>
 
 /*****************************************************************************
  * PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget
@@ -72,6 +77,35 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
 		scene->update_number_of_zones_async();
 		dll_action->setVisible(pushed);
 		adjustSize();
+	});
+
+	_lines_by_density = addAction(PVModdedIcon("density-lines"), tr("Lines by density"));
+	_lines_by_density->setCheckable(true);
+	_lines_by_density->setToolTip(
+	    tr("Lines by density: the more rows a line stands for, the more opaque it is"));
+	// Tenths of a decade of the opacity of the line of a single row.
+	_line_opacity_slider = new QSlider(Qt::Horizontal);
+	_line_opacity_slider->setRange(-70, -1);
+	// The most opaque to start with.
+	_line_opacity_slider->setValue(_line_opacity_slider->maximum());
+	_line_opacity_slider->setFixedWidth(120);
+	auto line_opacity_action = addWidget(_line_opacity_slider);
+	line_opacity_action->setVisible(false);
+	connect(_lines_by_density, &QAction::toggled, [this, line_opacity_action](bool pushed) {
+		auto* s = scene();
+		if (s == nullptr) {
+			return;
+		}
+		update_line_opacity_tooltip();
+		line_opacity_action->setVisible(pushed);
+		s->set_line_opacity(pushed ? line_opacity() : 1.f);
+		adjustSize();
+	});
+	connect(_line_opacity_slider, &QSlider::valueChanged, [this]() {
+		update_line_opacity_tooltip();
+		if (auto* s = scene(); s != nullptr and _lines_by_density->isChecked()) {
+			s->set_line_opacity(line_opacity());
+		}
 	});
 
 	// Selection scaling: the button turns it on for every axis, its menu rescales
@@ -144,6 +178,28 @@ void PVParallelView::PVFullParallelViewParamsWidget::update_widgets()
 PVParallelView::PVFullParallelScene* PVParallelView::PVFullParallelViewParamsWidget::scene() const
 {
 	return static_cast<PVParallelView::PVFullParallelScene*>(parent_fpv()->scene());
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelViewParamsWidget::line_opacity
+ *****************************************************************************/
+
+float PVParallelView::PVFullParallelViewParamsWidget::line_opacity() const
+{
+	return std::pow(10.f, _line_opacity_slider->value() / 10.f);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelViewParamsWidget::update_line_opacity_tooltip
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelViewParamsWidget::update_line_opacity_tooltip()
+{
+	// 1 - (1 - opacity)^rows = 1/2
+	const double rows = std::log(.5) / std::log1p(-double(line_opacity()));
+	_line_opacity_slider->setToolTip(
+	    tr("A line of %1 row(s) is half opaque")
+	        .arg(QLocale(QLocale::English).toString(qlonglong(std::max(1., std::round(rows))))));
 }
 
 /*****************************************************************************

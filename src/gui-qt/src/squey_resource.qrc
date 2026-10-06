@@ -625,6 +625,14 @@
     <file>rc.dark/count-by_focus@2x.png</file>
     <file>rc.dark/count-by_pressed.png</file>
     <file>rc.dark/count-by_pressed@2x.png</file>
+    <file>rc.dark/density-lines.png</file>
+    <file>rc.dark/density-lines@2x.png</file>
+    <file>rc.dark/density-lines_disabled.png</file>
+    <file>rc.dark/density-lines_disabled@2x.png</file>
+    <file>rc.dark/density-lines_focus.png</file>
+    <file>rc.dark/density-lines_focus@2x.png</file>
+    <file>rc.dark/density-lines_pressed.png</file>
+    <file>rc.dark/density-lines_pressed@2x.png</file>
     <file>rc.dark/play.png</file>
     <file>rc.dark/play@2x.png</file>
     <file>rc.dark/play_disabled.png</file>
@@ -1724,6 +1732,14 @@
     <file>rc.light/count-by_focus@2x.png</file>
     <file>rc.light/count-by_pressed.png</file>
     <file>rc.light/count-by_pressed@2x.png</file>
+    <file>rc.light/density-lines.png</file>
+    <file>rc.light/density-lines@2x.png</file>
+    <file>rc.light/density-lines_disabled.png</file>
+    <file>rc.light/density-lines_disabled@2x.png</file>
+    <file>rc.light/density-lines_focus.png</file>
+    <file>rc.light/density-lines_focus@2x.png</file>
+    <file>rc.light/density-lines_pressed.png</file>
+    <file>rc.light/density-lines_pressed@2x.png</file>
     <file>rc.light/play.png</file>
     <file>rc.light/play@2x.png</file>
     <file>rc.light/play_disabled.png</file>

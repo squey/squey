@@ -30,6 +30,7 @@
 class QToolBar;
 class QCheckBox;
 class QSignalMapper;
+class QSlider;
 class QToolButton;
 
 namespace PVParallelView
@@ -66,6 +67,10 @@ class PVFullParallelViewParamsWidget : public QToolBar
 	 */
 	PVFullParallelScene* scene() const;
 
+	//! The opacity of the line of a single row, as the slider sets it.
+	float line_opacity() const;
+	void update_line_opacity_tooltip();
+
   private:
 	QAction* _autofit;
 	QAction* _use_log_color;
@@ -75,6 +80,8 @@ class PVFullParallelViewParamsWidget : public QToolBar
 	QToolButton* _scale_on_selection_button;
 	QAction* _rescale_now;
 	QAction* _auto_rescale;
+	QAction* _lines_by_density;
+	QSlider* _line_opacity_slider;
 };
 } // namespace PVParallelView
 

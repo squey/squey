@@ -75,6 +75,7 @@ class PVViewRenderingContext : public sigc::trackable
 		RowCounting& operator=(RowCounting&& other) noexcept;
 		~RowCounting() { release(); }
 
+		explicit operator bool() const { return _context != nullptr; }
 		void release();
 
 	  private:

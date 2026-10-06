@@ -304,15 +304,17 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(size_t zone_index,
 	const uint32_t width = get_zone_width(zone_index);
 	single_zone_images.bg->set_width(width);
 
+	const float line_opacity = _line_opacity;
 	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(
 	    _zm.get_zone_id(zone_index),
-	    [&](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
-	        PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
-		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci(colors, codes);
+	    [&, line_opacity](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
+	                      PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
+		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci(colors, codes,
+		                                                                            line_opacity);
 	    },
 	    single_zone_images.bg, 0, width, zoom_y,
-	    false // not reversed
-	    ));
+	    false, // not reversed
+	    line_opacity < 1.f));
 
 	connect_zr(zr.get(), "zr_bg_finished");
 	track_rendering(zr);
@@ -338,16 +340,17 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(size_t zone_index
 	const uint32_t width = get_zone_width(zone_index);
 	single_zone_images.sel->set_width(width);
 
+	const float line_opacity = _line_opacity;
 	PVZoneRenderingBCI_p<PARALLELVIEW_ZT_BBITS> zr(new PVZoneRenderingBCI<PARALLELVIEW_ZT_BBITS>(
 	    _zm.get_zone_id(zone_index),
-	    [&](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
-	        PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
-		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci_sel(colors,
-		                                                                                codes);
+	    [&, line_opacity](PVZoneID zone_id, PVCore::PVHSVColor const* colors,
+	                      PVBCICode<PARALLELVIEW_ZT_BBITS>* codes) {
+		    return this->get_zones_manager().get_zone_tree(zone_id).browse_tree_bci_sel(
+		        colors, codes, line_opacity);
 	    },
 	    single_zone_images.sel, 0, width, zoom_y,
-	    false // not reversed
-	    ));
+	    false, // not reversed
+	    line_opacity < 1.f));
 
 	connect_zr(zr.get(), "zr_sel_finished");
 	track_rendering(zr);

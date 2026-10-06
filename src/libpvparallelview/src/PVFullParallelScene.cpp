@@ -233,6 +233,7 @@ void PVParallelView::PVFullParallelScene::about_to_be_deleted()
 	graphics_view()->setDisabled(true);
 	// Cancel everything!
 	_lines_view.cancel_and_wait_all_rendering();
+	_row_counting.release();
 }
 
 /******************************************************************************
@@ -1045,6 +1046,22 @@ void PVParallelView::PVFullParallelScene::enable_density_on_axes(bool enable_den
 	for (auto axis : _axes) {
 		axis->enable_density(enable_density);
 	}
+}
+
+void PVParallelView::PVFullParallelScene::set_line_opacity(float opacity)
+{
+	if (_detached) {
+		return;
+	}
+
+	if (opacity >= 1.f) {
+		_row_counting.release();
+	} else if (not _row_counting) {
+		_row_counting = _context->count_rows_per_bucket();
+	}
+
+	_lines_view.set_line_opacity(opacity);
+	update_all_with_timer();
 }
 
 /******************************************************************************
