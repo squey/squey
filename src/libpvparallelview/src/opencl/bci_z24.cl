@@ -171,16 +171,22 @@ kernel void DRAW(const global uint2* bci_codes,
 		}
 
 		const uint shared_v = color0 | code0.x;
-		
+
+		/* The work-items of a work-group that share an image column draw into the
+		 * same pixels: the lowest value has to be kept atomically, or the line a
+		 * pixel shows depends on which work-item happens to write last. Values only
+		 * ever decrease, so reading first spares the atomic operation whenever the
+		 * pixel already holds a lower one.
+		 */
 		size_t idx = get_local_id(0) + pixel_y00*get_local_size(0);
 		if (shared_img[idx] > shared_v) {
-			shared_img[idx] = shared_v;
+			atomic_min(&shared_img[idx], shared_v);
 		}
 
 		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
 			idx = get_local_id(0) + pixel_y0*get_local_size(0);
 			if (shared_img[idx] > shared_v) {
-				shared_img[idx] = shared_v;
+				atomic_min(&shared_img[idx], shared_v);
 			}
 		}
 	}
