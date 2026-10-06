@@ -33,6 +33,7 @@
 
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVRoot.h>
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
 
 #include <QGraphicsScene>
@@ -47,6 +48,15 @@ const QColor PVParallelView::PVSelectionRectangle::handle_color = QColor(255, 12
 const int PVParallelView::PVSelectionRectangle::handle_transparency = 50;
 const int PVParallelView::PVSelectionRectangle::delay_msec = 300;
 
+namespace
+{
+
+struct DrawnSelectionRectangle {
+	QRectF rect;
+	size_t scaling_generation;
+};
+} // namespace
+
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangle::PVSelectionRectangle
  *****************************************************************************/
@@ -58,6 +68,9 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	view._selection_view_changed.connect(
 	    sigc::mem_fun(*this, &PVSelectionRectangle::view_selection_changed));
 
+	view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	    sigc::mem_fun(*this, &PVSelectionRectangle::scaling_updated));
+
 	/* The rectangle belongs to the step it drew. Without this, going back to a
 	 * step lands on the right rows with no rectangle around them: the selection
 	 * changing under the rectangle is exactly what clears it, so restoring one
@@ -67,14 +80,21 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	    [this]() -> Squey::PVAnalysisAttachment {
 		    const QRectF rect = get_rect();
 		    return rect.isNull() ? Squey::PVAnalysisAttachment()
-		                         : std::make_shared<const QRectF>(rect);
+		                         : std::make_shared<const DrawnSelectionRectangle>(
+		                               DrawnSelectionRectangle{rect, _scaling_generation});
 	    },
 	    [this](const Squey::PVAnalysisAttachment& attachment) {
-		    if (attachment) {
+		    const auto* drawn = static_cast<const DrawnSelectionRectangle*>(attachment.get());
+
+		    // Only onto the axes it was drawn on: once they have been rescaled,
+		    // its edges frame other rows. Under a stretch on each selection, the
+		    // one being restored included, it would otherwise flash on screen
+		    // until that stretch dropped it.
+		    if (drawn != nullptr and drawn->scaling_generation == _scaling_generation) {
 			    // Put back rather than drawn: the selection it describes has
 			    // just been restored, and drawing it anew would only push the
 			    // very step being landed on.
-			    _rect->restore_rect(*static_cast<const QRectF*>(attachment.get()));
+			    _rect->restore_rect(drawn->rect);
 		    } else {
 			    clear();
 		    }
@@ -309,6 +329,17 @@ void PVParallelView::PVSelectionRectangle::view_selection_changed()
 
 	_timer->stop();
 	clear();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::scaling_updated
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangle::scaling_updated(QList<PVCol> const& columns)
+{
+	if (not columns.empty()) {
+		++_scaling_generation;
+	}
 }
 
 /*****************************************************************************

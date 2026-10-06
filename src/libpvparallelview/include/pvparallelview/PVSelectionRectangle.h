@@ -27,14 +27,18 @@
 
 #include <QObject>
 #include <QCursor>
+#include <QList>
 #include <QPen>
 #include <QTimer>
 #include <QColor>
 
 #include <sigc++/sigc++.h>
 
+#include <atomic>
 #include <memory>
 #include <vector>
+
+#include <pvbase/types.h>
 
 #include <pvparallelview/PVSelectionRectangleItem.h>
 
@@ -329,9 +333,23 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 */
 	void view_selection_changed();
 
+	/**
+	 * Called from the thread the scaling was computed in, so it touches nothing
+	 * but _scaling_generation.
+	 */
+	void scaling_updated(QList<PVCol> const& columns);
+
   private:
 	Squey::PVView& _view;
 	size_t _contributor;
+
+	/**
+	 * How many times the scaled values have changed, so that a step only brings
+	 * back a rectangle drawn on the axes as they are now.
+	 *
+	 * Bumped from the thread a scaling is computed in, read from the GUI thread.
+	 */
+	std::atomic<size_t> _scaling_generation{0};
 
 	/**
 	 * Open for as long as a mouse gesture lasts, so that everything the gesture
