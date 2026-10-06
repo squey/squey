@@ -321,6 +321,23 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 */
 	virtual void commit(bool use_selection_modifiers) = 0;
 
+  protected:
+	/**
+	 * Where the shown rectangle stands, as a step keeps it: its scene coordinates
+	 * by default.
+	 *
+	 * Those only hold for the layout they were read in. A scene whose layout
+	 * changes under the rectangle keeps it in terms of that layout instead, and
+	 * puts it back on the layout of the moment.
+	 */
+	virtual QRectF placement() const;
+
+	/**
+	 * Shows the rectangle again where placement() said it stood, without
+	 * committing it.
+	 */
+	virtual void restore_placement(QRectF const& placement);
+
   private:
 	void move_by(qreal hstep, qreal vstep);
 	void grow_by(qreal hratio, qreal vratio);

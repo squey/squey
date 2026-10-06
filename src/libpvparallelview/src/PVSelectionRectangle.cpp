@@ -52,7 +52,7 @@ namespace
 {
 
 struct DrawnSelectionRectangle {
-	QRectF rect;
+	QRectF placement;
 	size_t scaling_generation;
 };
 } // namespace
@@ -78,10 +78,10 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	 */
 	_contributor = view.get_parent<Squey::PVRoot>().history().add_contributor(
 	    [this]() -> Squey::PVAnalysisAttachment {
-		    const QRectF rect = get_rect();
-		    return rect.isNull() ? Squey::PVAnalysisAttachment()
-		                         : std::make_shared<const DrawnSelectionRectangle>(
-		                               DrawnSelectionRectangle{rect, _scaling_generation});
+		    return get_rect().isNull()
+		               ? Squey::PVAnalysisAttachment()
+		               : std::make_shared<const DrawnSelectionRectangle>(
+		                     DrawnSelectionRectangle{placement(), _scaling_generation});
 	    },
 	    [this](const Squey::PVAnalysisAttachment& attachment) {
 		    const auto* drawn = static_cast<const DrawnSelectionRectangle*>(attachment.get());
@@ -94,7 +94,7 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 			    // Put back rather than drawn: the selection it describes has
 			    // just been restored, and drawing it anew would only push the
 			    // very step being landed on.
-			    _rect->restore_rect(drawn->rect);
+			    restore_placement(drawn->placement);
 		    } else {
 			    clear();
 		    }
@@ -329,6 +329,24 @@ void PVParallelView::PVSelectionRectangle::view_selection_changed()
 
 	_timer->stop();
 	clear();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::placement
+ *****************************************************************************/
+
+QRectF PVParallelView::PVSelectionRectangle::placement() const
+{
+	return get_rect();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::restore_placement
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangle::restore_placement(QRectF const& placement)
+{
+	_rect->restore_rect(placement);
 }
 
 /*****************************************************************************

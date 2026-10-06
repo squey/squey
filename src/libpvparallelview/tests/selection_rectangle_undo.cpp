@@ -24,10 +24,13 @@
 
 // Steps brought back with the selection rectangle that drew them.
 //
-// A step keeps the rectangle in the coordinates of the scene, which only mean
-// something on the axes as they were scaled when it was drawn. Once the axes have
-// been stretched over a selection, the same edges frame other rows, and the
-// rectangle must not come back.
+// Where a step keeps the rectangle only means something on the axes as they were
+// scaled when it was drawn. Once the axes have been stretched over a selection,
+// the same edges frame other rows, and the rectangle must not come back.
+//
+// Nor do the coordinates of the scene outlast its layout -- zones widened, axes
+// made taller. The rectangle comes back where its zones now stand, and follows
+// them from then on, as one just drawn does.
 //
 // Under a stretch on each selection, every step lands on axes rescaled since its
 // rectangle was drawn, and the selection being restored sets off a stretch of its
@@ -57,6 +60,7 @@
 #include <QThread>
 
 #include <atomic>
+#include <cmath>
 #include <fstream>
 #include <iostream>
 #include <string>
@@ -107,6 +111,18 @@ void pump(int ms)
 bool shown(PVParallelView::PVSelectionRectangleItem const& item)
 {
 	return item.isVisible() and not item.get_rect().isNull();
+}
+
+/**
+ * Whether two rectangles stand at the same place, give or take the rounding of
+ * coordinates computed along different paths.
+ */
+bool close_to(QRectF const& a, QRectF const& b)
+{
+	const auto close = [](qreal x, qreal y) { return std::abs(x - y) < 0.5; };
+
+	return close(a.left(), b.left()) and close(a.top(), b.top()) and close(a.right(), b.right()) and
+	       close(a.bottom(), b.bottom());
 }
 
 /**
@@ -280,6 +296,45 @@ int main(int argc, char** argv)
 	history.redo();
 	seen = watch(*item, 1000, second);
 	PV_ASSERT_VALID(not seen.ever_hidden and not seen.ever_elsewhere);
+
+	// ---------------------------------------------------- across a change of layout
+
+	history.clear();
+
+	draw(*scene, first_from, first_to);
+	pump(200);
+	PV_ASSERT_VALID(shown(*item), "the first rectangle", "is not shown");
+	const QRectF drawn = item->get_rect();
+
+	// Taller axes and wider zones, which the rectangle shown follows.
+	widget->resize(1100, 700);
+	pump(200);
+	scene->reset_zones_layout_to_default();
+	pump(200);
+	const QRectF followed = item->get_rect();
+	PV_ASSERT_VALID(std::abs(followed.left() - drawn.left()) >= 1 and
+	                    std::abs(followed.top() - drawn.top()) >= 1,
+	                "the layout", "did not change");
+
+	const double wide_left = lines_view.get_left_border_position_of_zone_in_scene(0);
+	const double wide_width = lines_view.get_zone_width(0);
+	draw(*scene, QPointF(wide_left + wide_width * 0.1, 450),
+	     QPointF(wide_left + wide_width * 0.5, 550));
+	pump(200);
+	PV_ASSERT_VALID(shown(*item) and not close_to(item->get_rect(), followed),
+	                "the second rectangle", "is not shown");
+
+	history.undo();
+	pump(200);
+	PV_ASSERT_VALID(shown(*item) and close_to(item->get_rect(), followed), "why",
+	                "a step brings its rectangle back where its zones now stand");
+
+	widget->resize(800, 500);
+	pump(200);
+	scene->reset_zones_layout_to_default();
+	pump(200);
+	PV_ASSERT_VALID(shown(*item) and close_to(item->get_rect(), drawn), "why",
+	                "a rectangle brought back follows the zones as a drawn one does");
 
 	// ----------------------------------------------------------- stretch on demand
 

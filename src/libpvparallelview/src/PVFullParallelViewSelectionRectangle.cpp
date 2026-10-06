@@ -31,6 +31,7 @@
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVSelectionGenerator.h>
 
+#include <algorithm>
 #include <iostream>
 
 /*****************************************************************************
@@ -74,13 +75,8 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::update_position()
 		return;
 	}
 
-	double factor1 = _barycenter.factor1;
-	double factor2 = _barycenter.factor2;
-
-	double new_left = lines_view.get_left_border_position_of_zone_in_scene(zone_index1) +
-	                  double(lines_view.get_zone_width(zone_index1)) * factor1;
-	double new_right = lines_view.get_left_border_position_of_zone_in_scene(zone_index2) +
-	                   double(lines_view.get_zone_width(zone_index2)) * factor2;
+	double new_left = scene_x(zone_index1, _barycenter.factor1);
+	double new_right = scene_x(zone_index2, _barycenter.factor2);
 	double abs_top = get_rect().top();
 	double abs_bottom = get_rect().bottom();
 
@@ -143,6 +139,16 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::commit(bool use_selec
 
 void PVParallelView::PVFullParallelViewSelectionRectangle::store()
 {
+	_barycenter = barycenter_of(get_rect());
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelViewSelectionRectangle::barycenter_of
+ *****************************************************************************/
+
+PVParallelView::PVFullParallelViewSelectionRectangle::barycenter
+PVParallelView::PVFullParallelViewSelectionRectangle::barycenter_of(QRectF const& rect) const
+{
 	auto const& lines_view = get_lines_view();
 	auto const& scene = *scene_parent();
 	const auto axis_width = lines_view.get_axis_width();
@@ -155,8 +161,70 @@ void PVParallelView::PVFullParallelViewSelectionRectangle::store()
 		const double alpha = std::max(0., x_pos - axis_width);
 		factor = alpha / zone_width;
 	};
-	barycenter_store(_barycenter.zone_index1, _barycenter.factor1, get_rect().left());
-	barycenter_store(_barycenter.zone_index2, _barycenter.factor2, get_rect().right());
+
+	barycenter b;
+	barycenter_store(b.zone_index1, b.factor1, rect.left());
+	barycenter_store(b.zone_index2, b.factor2, rect.right());
+	return b;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelViewSelectionRectangle::scene_x
+ *****************************************************************************/
+
+double PVParallelView::PVFullParallelViewSelectionRectangle::scene_x(size_t zone_index,
+                                                                     double factor) const
+{
+	auto const& lines_view = get_lines_view();
+
+	return lines_view.get_left_border_position_of_zone_in_scene(zone_index) +
+	       double(lines_view.get_zone_width(zone_index)) * factor;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelViewSelectionRectangle::placement
+ *****************************************************************************/
+
+QRectF PVParallelView::PVFullParallelViewSelectionRectangle::placement() const
+{
+	// Across, in zones: the index of the zone a side falls in, plus how far into
+	// it. Down, before the vertical zoom.
+	const QRectF rect = get_rect();
+	const barycenter b = barycenter_of(rect);
+	const double zoom_y = scene_parent()->_zoom_y;
+
+	return QRectF(QPointF(double(b.zone_index1) + b.factor1, rect.top() / zoom_y),
+	              QPointF(double(b.zone_index2) + b.factor2, rect.bottom() / zoom_y));
+}
+
+/*****************************************************************************
+ * PVParallelView::PVFullParallelViewSelectionRectangle::restore_placement
+ *****************************************************************************/
+
+void PVParallelView::PVFullParallelViewSelectionRectangle::restore_placement(
+    QRectF const& placement)
+{
+	const size_t zones = get_lines_view().get_number_of_managed_zones();
+	if (zones == 0) {
+		clear();
+		return;
+	}
+
+	// A side past the last axis is still in the last zone, further into it than
+	// it is wide.
+	const auto side = [zones](double x, size_t& zone_index, double& factor) {
+		zone_index = std::min(size_t(x), zones - 1);
+		factor = x - double(zone_index);
+	};
+	side(placement.left(), _barycenter.zone_index1, _barycenter.factor1);
+	side(placement.right(), _barycenter.zone_index2, _barycenter.factor2);
+
+	const double zoom_y = scene_parent()->_zoom_y;
+	const QPointF top_left(scene_x(_barycenter.zone_index1, _barycenter.factor1),
+	                       placement.top() * zoom_y);
+	const QPointF bottom_right(scene_x(_barycenter.zone_index2, _barycenter.factor2),
+	                           placement.bottom() * zoom_y);
+	PVSelectionRectangle::restore_placement(QRectF(top_left, bottom_right));
 }
 
 /*****************************************************************************
