@@ -487,6 +487,8 @@ void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 
 	constexpr size_t density_spread = 3;
 	const size_t histo_size = histogram.size();
+	// Counted once rather than for each pixel: bit_count() goes through the whole selection.
+	const double selected = selection.bit_count();
 	for (size_t i = 0; i < histo_size; ++i) {
 		size_t sum = 0;
 		for (size_t j = i >= density_spread ? i - density_spread : 0;
@@ -495,9 +497,8 @@ void PVParallelView::PVAxisGraphicsItem::render_density(int axis_length)
 		}
 		_axis_density_worker_result.setPixelColor(
 		    0, axis_length - 1 - i,
-		    QColor::fromHsvF(std::max(0., 1. - double(sum) / double(selection.bit_count())) * 2. /
-		                         3.,
-		                     1, histogram[i] > 0, 1.));
+		    QColor::fromHsvF(std::max(0., 1. - double(sum) / selected) * 2. / 3., 1,
+		                     histogram[i] > 0, 1.));
 	}
 
 	BENCH_END(render_density, "render_density", _comb_col, 1, _comb_col, 1);
