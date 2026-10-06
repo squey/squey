@@ -251,6 +251,8 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 		total_occupied += occupied;
 	}
 	_occupied_branches.resize(total_occupied);
+	_sel_counts.assign(total_occupied, 0);
+	_bg_counts.assign(total_occupied, 0);
 
 	tbb::parallel_for(uint32_t(0), NPARTS, [&](uint32_t p) {
 		const size_t base = (size_t)p * PART_BUCKETS;
@@ -266,20 +268,24 @@ void PVParallelView::PVZoneTree::process_tbb_sse_treeb(PVZoneProcessing const& z
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Squey::PVSelection const& sel,
-                                                         PVRow* buf_elts)
+                                                         PVRow* buf_elts,
+                                                         uint32_t* counts)
 {
 	reset_elts(buf_elts);
 
 	tbb::parallel_for(tbb::blocked_range<size_t>(0, _occupied_branches.size(), GRAINSIZE),
-	                  [this, &sel, buf_elts](tbb::blocked_range<size_t> const& br) {
+	                  [this, &sel, buf_elts, counts](tbb::blocked_range<size_t> const& br) {
+		                  const auto selected = [&sel](PVRow v) { return sel.get_line_fast(v); };
 		                  for (size_t i = br.begin(); i != br.end(); i++) {
 			                  const uint32_t b = _occupied_branches[i];
 			                  PVRow* end = _treeb[b].p + _treeb[b].count;
-			                  PVRow* res = std::find_if(_treeb[b].p, end, [&sel](PVRow v) {
-				                  return sel.get_line_fast(v);
-				              });
+			                  PVRow* res = std::find_if(_treeb[b].p, end, selected);
 			                  if (res != end) {
 				                  buf_elts[b] = *res;
+			                  }
+			                  if (counts != nullptr) {
+				                  counts[i] =
+				                      res != end ? 1 + std::count_if(res + 1, end, selected) : 0;
 			                  }
 		                  }
 		              },
@@ -287,13 +293,19 @@ void PVParallelView::PVZoneTree::filter_by_sel_tbb_treeb(Squey::PVSelection cons
 }
 
 void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Squey::PVSelection const& sel,
-                                                                    PVRow* buf_elts)
+                                                                    PVRow* buf_elts,
+                                                                    uint32_t* counts)
 {
 	// returns a zone tree with only the selected events
 	Squey::PVSelection::const_pointer sel_buf = sel.get_buffer();
 	if (sel_buf == nullptr) {
 		// Empty selection
 		memcpy(buf_elts, _first_elts, sizeof(PVRow) * NBUCKETS);
+		if (counts != nullptr) {
+			for (size_t i = 0; i < _occupied_branches.size(); i++) {
+				counts[i] = _treeb[_occupied_branches[i]].count;
+			}
+		}
 		return;
 	}
 	BENCH_START(subtree2);
@@ -302,19 +314,22 @@ void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Squey::PVSel
 	                  [&](const tbb::blocked_range<size_t>& range) {
 		                  PVRow* buf_elts_ = buf_elts;
 		                  PVZoneTree* tree = this;
+		                  const auto selected = [sel_buf](PVRow r) {
+			                  return (sel_buf[PVSelection::line_index_to_chunk(r)] &
+			                          ((PVSelection::chunk_t)1
+			                           << (PVSelection::line_index_to_chunk_bit(r)))) != 0;
+		                  };
 		                  for (size_t i = range.begin(); i != range.end(); i++) {
 			                  const uint32_t b = tree->_occupied_branches[i];
 			                  PVRow res = PVROW_INVALID_VALUE;
 			                  if (tree->branch_valid(b)) {
 				                  const PVRow r = tree->get_first_elt_of_branch(b);
-				                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-				                      ((PVSelection::chunk_t)1 << (PVSelection::line_index_to_chunk_bit(r)))) {
+				                  if (selected(r)) {
 					                  res = r;
 				                  } else {
 					                  for (size_t i = 0; i < tree->_treeb[b].count; i++) {
 						                  const PVRow r = tree->_treeb[b].p[i];
-						                  if ((sel_buf[PVSelection::line_index_to_chunk(r)]) &
-						                      ((PVSelection::chunk_t)1 << (PVSelection::line_index_to_chunk_bit(r)))) {
+						                  if (selected(r)) {
 							                  res = r;
 							                  break;
 						                  }
@@ -324,6 +339,13 @@ void PVParallelView::PVZoneTree::filter_by_sel_background_tbb_treeb(Squey::PVSel
 				                  // zombie one)
 				                  if (res == PVROW_INVALID_VALUE) {
 					                  res = r;
+				                  }
+				                  if (counts != nullptr) {
+					                  // A zombie stands for every row of its bucket.
+					                  const PVRow* rows = tree->_treeb[b].p;
+					                  const uint32_t count = tree->_treeb[b].count;
+					                  const auto kept = std::count_if(rows, rows + count, selected);
+					                  counts[i] = kept > 0 ? kept : count;
 				                  }
 			                  }
 			                  buf_elts_[b] = res;

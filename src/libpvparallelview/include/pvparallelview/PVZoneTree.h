@@ -98,13 +98,25 @@ class PVZoneTree : public PVZoneTreeBase
 		process_tbb_sse_treeb(zp, pdata);
 	}
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void filter_by_sel(Squey::PVSelection const& sel)
+	/**
+	 * Keep the first row of each bucket @p sel selects.
+	 *
+	 * @param count also count the rows it selects in each bucket, into
+	 * get_sel_counts(). Looking for the first row usually stops at once; counting
+	 * goes through every row of the zone.
+	 */
+	inline void filter_by_sel(Squey::PVSelection const& sel, bool count = false)
 	{
-		filter_by_sel_tbb_treeb(sel, _sel_elts);
+		filter_by_sel_tbb_treeb(sel, _sel_elts, count ? _sel_counts.data() : nullptr);
 	}
-	inline void filter_by_sel_background(Squey::PVSelection const& sel)
+
+	/**
+	 * As filter_by_sel, for the background, into get_bg_elts() and
+	 * get_bg_counts().
+	 */
+	inline void filter_by_sel_background(Squey::PVSelection const& sel, bool count = false)
 	{
-		filter_by_sel_background_tbb_treeb(sel, _bg_elts);
+		filter_by_sel_background_tbb_treeb(sel, _bg_elts, count ? _bg_counts.data() : nullptr);
 	}
 
 	inline uint32_t get_branch_count(uint32_t branch_id) const { return _treeb[branch_id].count; }
@@ -134,8 +146,11 @@ class PVZoneTree : public PVZoneTreeBase
 	}
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 
-	void filter_by_sel_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts);
-	void filter_by_sel_background_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts);
+	//! @p counts is indexed like occupied_branches(); nullptr leaves rows uncounted.
+	void filter_by_sel_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts, uint32_t* counts);
+	void filter_by_sel_background_tbb_treeb(Squey::PVSelection const& sel,
+	                                        PVRow* buf_elts,
+	                                        uint32_t* counts);
 
   protected:
 	PVBranch _treeb[NBUCKETS];

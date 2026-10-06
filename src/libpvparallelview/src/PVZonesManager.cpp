@@ -290,13 +290,13 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id,
                                                         const Squey::PVSelection& sel)
 {
-	get_zone(zone_id).filter_by_sel(sel);
+	get_zone(zone_id).filter_by_sel(sel, _count_rows_per_bucket);
 }
 
 void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id,
                                                                    const Squey::PVSelection& sel)
 {
-	get_zone(zone_id).filter_by_sel_background(sel);
+	get_zone(zone_id).filter_by_sel_background(sel, _count_rows_per_bucket);
 }
 
 /******************************************************************************

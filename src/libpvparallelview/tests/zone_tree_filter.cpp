@@ -30,6 +30,7 @@
 
 #include <chrono>
 #include <iostream>
+#include <string>
 
 #ifdef SQUEY_BENCH
 constexpr size_t SCALING_SIZE = 10000; // Means X ** 2 total lines
@@ -37,6 +38,54 @@ constexpr size_t SCALING_SIZE = 10000; // Means X ** 2 total lines
 // Number of line on each scaling axe (use all combination between these values)
 constexpr size_t SCALING_SIZE = (size_t)1 << 11;
 #endif
+
+namespace
+{
+
+uint32_t selected_rows(PVParallelView::PVZoneTree const& zt,
+                       uint32_t bucket,
+                       Squey::PVSelection const& sel)
+{
+	uint32_t selected = 0;
+	for (uint32_t i = 0; i < zt.get_branch_count(bucket); ++i) {
+		selected += sel.get_line(zt.get_branch_element(bucket, i));
+	}
+	return selected;
+}
+
+/**
+ * Filter asking for the rows of each bucket to be counted, and check the counts
+ * against the rows of the bucket tested one by one.
+ */
+void check_counts(PVParallelView::PVZoneTree& zt, Squey::PVSelection const& sel, std::string name)
+{
+	zt.filter_by_sel(sel, true);
+	zt.filter_by_sel_background(sel, true);
+
+	const std::vector<uint32_t>& occupied = zt.occupied_branches();
+	PV_ASSERT_VALID(zt.get_sel_counts().size() == occupied.size(), "selection", name,
+	                "selection counts", zt.get_sel_counts().size(), "occupied buckets",
+	                occupied.size());
+	PV_ASSERT_VALID(zt.get_bg_counts().size() == occupied.size(), "selection", name,
+	                "background counts", zt.get_bg_counts().size(), "occupied buckets",
+	                occupied.size());
+
+	for (size_t i = 0; i < occupied.size(); ++i) {
+		const uint32_t bucket = occupied[i];
+		const uint32_t selected = selected_rows(zt, bucket, sel);
+		PV_ASSERT_VALID(zt.get_sel_counts()[i] == selected, "selection", name, "bucket", bucket,
+		                "counted", zt.get_sel_counts()[i], "selected", selected);
+
+		// A bucket the selection keeps none of shows its first row, a zombie
+		// standing for all of them.
+		const uint32_t background = selected > 0 ? selected : zt.get_branch_count(bucket);
+		PV_ASSERT_VALID(zt.get_bg_counts()[i] == background, "selection", name, "bucket", bucket,
+		                "counted in the background", zt.get_bg_counts()[i], "expected",
+		                background);
+	}
+}
+
+} // namespace
 
 /**
  * Check ZoneTree building from two scaled axes and its bucket creations.
@@ -79,6 +128,27 @@ int main()
 	}
 #else
 	PV_VALID(zt->get_sel_elts()[0], 0U);
+
+	// Not counted unless asked for.
+	PV_ASSERT_VALID(zt->get_sel_counts()[0] == 0, "uncounted rows", zt->get_sel_counts()[0]);
+
+	check_counts(*zt, sel, "odd rows");
+
+	Squey::PVSelection all(SCALING_SIZE * SCALING_SIZE);
+	all.select_all();
+	check_counts(*zt, all, "every row");
+
+	Squey::PVSelection none(SCALING_SIZE * SCALING_SIZE);
+	none.select_none();
+	check_counts(*zt, none, "no row");
+
+	// Some buckets with none of their rows selected, others with one or two.
+	Squey::PVSelection some(SCALING_SIZE * SCALING_SIZE);
+	some.select_none();
+	for (PVRow r = 0; r < SCALING_SIZE * SCALING_SIZE; r += 7) {
+		some.set_bit_fast(r);
+	}
+	check_counts(*zt, some, "one row in seven");
 #endif
 
 	return 0;

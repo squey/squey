@@ -51,17 +51,17 @@ class PVZone
 	PVZoomedZoneTree& zoomed_ztree() { return *_zoomed_ztree; }
 	PVZoomedZoneTree const& zoomed_ztree() const { return *_zoomed_ztree; }
 
-	inline void filter_by_sel(const Squey::PVSelection& sel)
+	inline void filter_by_sel(const Squey::PVSelection& sel, bool count = false)
 	{
-		_ztree->filter_by_sel(sel);
+		_ztree->filter_by_sel(sel, count);
 		if (_zoomed_ztree->is_initialized()) {
 			_zoomed_ztree->compute_min_indexes_sel(sel);
 		}
 	}
 
-	inline void filter_by_sel_background(const Squey::PVSelection& sel)
+	inline void filter_by_sel_background(const Squey::PVSelection& sel, bool count = false)
 	{
-		_ztree->filter_by_sel_background(sel);
+		_ztree->filter_by_sel_background(sel, count);
 	}
 
   private:

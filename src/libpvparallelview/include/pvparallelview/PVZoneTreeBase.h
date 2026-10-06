@@ -64,6 +64,20 @@ class PVZoneTreeBase
 	inline const PVRow* get_bg_elts() const { return _bg_elts; }
 
 	/**
+	 * How many selected rows each occupied bucket holds, in the order of
+	 * occupied_branches(), as of the last PVZoneTree::filter_by_sel asked to count
+	 * them; zeros until then.
+	 */
+	inline std::vector<uint32_t> const& get_sel_counts() const { return _sel_counts; }
+
+	/**
+	 * As get_sel_counts(), for PVZoneTree::filter_by_sel_background: the rows of
+	 * its selection in each bucket, or all of them where it selects none and the
+	 * bucket's first row stands for them as a zombie.
+	 */
+	inline std::vector<uint32_t> const& get_bg_counts() const { return _bg_counts; }
+
+	/**
 	 * The buckets that hold at least one row, in ascending order.
 	 *
 	 * There are a million buckets and a zone rarely fills more than a handful of
@@ -90,6 +104,12 @@ class PVZoneTreeBase
 
   protected:
 	std::vector<uint32_t> _occupied_branches;
+
+	// Sized along with _occupied_branches rather than when counted: a rendering
+	// may read them while a selection is being counted, and must not see them
+	// reallocated.
+	std::vector<uint32_t> _sel_counts;
+	std::vector<uint32_t> _bg_counts;
 };
 } // namespace PVParallelView
 

@@ -25,6 +25,7 @@
 #ifndef PVPARALLELVIEW_PVZONESMANAGER_H
 #define PVPARALLELVIEW_PVZONESMANAGER_H
 
+#include <atomic>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -128,6 +129,13 @@ class PVZonesManager : public QObject
 	void filter_zone_by_sel(PVZoneID zone_id, const Squey::PVSelection& sel);
 	void filter_zone_by_sel_background(PVZoneID zone_id, const Squey::PVSelection& sel);
 
+	/**
+	 * Whether filtering a zone also counts the rows of each bucket (see
+	 * PVZoneTree::filter_by_sel). May be changed while zones are being filtered:
+	 * those already under way keep counting or not.
+	 */
+	void count_rows_per_bucket(bool count) { _count_rows_per_bucket = count; }
+
   public:
 	/* Get the number of managed zones from axes combination. Some zones are independant (e.g. a
 	 * random scatter view) and thus not counted. */
@@ -174,6 +182,8 @@ class PVZonesManager : public QObject
 	std::unordered_multimap<PVZoneID, decltype(_zones)::size_type> _zone_indices;
 	// reference counting for non-managed zones, works with ZoneRetainer.
 	std::unordered_multiset<PVZoneID> _zones_ref_count;
+	// Read by the threads zones are filtered on.
+	std::atomic<bool> _count_rows_per_bucket{false};
 
   protected:
 	/**
