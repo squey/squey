@@ -54,7 +54,7 @@
 
 PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
     PVFullParallelView* parent)
-    : QToolBar(parent)
+    : PVFloatingToolBar(parent)
 {
 	auto density_action = addAction(QIcon(":/density-axis"), "Density on axes");
 	density_action->setCheckable(true);

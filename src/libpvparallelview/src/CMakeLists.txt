@@ -16,6 +16,7 @@ PVAxisHeader.cpp
 PVBCIBuffers.cpp
 PVBCIBackendImageQPainter.cpp
 PVBCIDrawingBackendQPainter.cpp
+PVFloatingToolBar.cpp
 PVFullParallelScene.cpp
 PVFullParallelView.cpp
 PVFullParallelViewParamsWidget.cpp
@@ -155,6 +156,7 @@ set(MOC_HEADERS
 ../include/pvparallelview/PVRenderingJob.h
 ../include/pvparallelview/PVFullParallelView.h
 ../include/pvparallelview/PVFullParallelScene.h
+../include/pvparallelview/PVFloatingToolBar.h
 ../include/pvparallelview/PVFullParallelViewParamsWidget.h
 ../include/pvparallelview/PVSelectionRectangleItem.h
 ../include/pvparallelview/PVSelectionRectangle.h

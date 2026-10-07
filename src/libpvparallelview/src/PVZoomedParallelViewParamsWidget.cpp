@@ -36,7 +36,7 @@
 
 PVParallelView::PVZoomedParallelViewParamsWidget::PVZoomedParallelViewParamsWidget(
     Squey::PVAxesCombination const& axes_comb, QWidget* parent)
-    : QToolBar(parent)
+    : PVFloatingToolBar(parent)
 {
 	setIconSize(QSize(17, 17));
 

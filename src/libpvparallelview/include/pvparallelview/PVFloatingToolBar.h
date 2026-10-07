@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2026
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,40 +22,34 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef PVPARALLELVIEW_PVZOOMEDPARALLELVIEWPARAMSWIDGET_H
-#define PVPARALLELVIEW_PVZOOMEDPARALLELVIEWPARAMSWIDGET_H
+#ifndef PVPARALLELVIEW_PVFLOATINGTOOLBAR_H
+#define PVPARALLELVIEW_PVFLOATINGTOOLBAR_H
 
-#include <pvparallelview/PVFloatingToolBar.h>
-
-#include <pvbase/types.h>
 #include <pvparallelview/export.h>
-#include <squey/widgets/PVAxisComboBox.h>
 
-#include <QStringList>
-class QMenu;
-class QToolButton;
+#include <QToolBar>
 
 namespace PVParallelView
 {
-class PVZoomedParallelView;
 
-class PVPARALLELVIEW_EXPORT PVZoomedParallelViewParamsWidget : public PVFloatingToolBar
+/**
+ * A toolbar floating over a view, where no layout resizes it.
+ *
+ * It fits its contents again whenever they change size -- a colour scheme
+ * applied after it was built, or a menu showing a longer name, is enough --
+ * rather than leaving the last of them behind the extension button.
+ */
+class PVPARALLELVIEW_EXPORT PVFloatingToolBar : public QToolBar
 {
 	Q_OBJECT
 
   public:
-	explicit PVZoomedParallelViewParamsWidget(Squey::PVAxesCombination const& axes_comb,
-	                                          QWidget* parent);
+	explicit PVFloatingToolBar(QWidget* parent);
 
-  public:
-	void build_axis_menu(PVCombCol active_axis);
-
-  Q_SIGNALS:
-	void change_to_col(PVCombCol new_axis);
-
-  private:
-	PVWidgets::PVAxisComboBox* _menu;
+  protected:
+	bool event(QEvent* event) override;
 };
+
 } // namespace PVParallelView
 
-#endif // PVPARALLELVIEW_ZOOMEDPARALLELVIEWPARAMSWIDGET_H
+#endif

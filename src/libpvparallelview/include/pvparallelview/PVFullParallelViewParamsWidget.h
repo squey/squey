@@ -25,7 +25,7 @@
 #ifndef PVPARALLELVIEW_PVFULLPARALLELVIEWPARAMSWIDGET_H
 #define PVPARALLELVIEW_PVFULLPARALLELVIEWPARAMSWIDGET_H
 
-#include <QToolBar>
+#include <pvparallelview/PVFloatingToolBar.h>
 
 class QToolBar;
 class QCheckBox;
@@ -39,7 +39,7 @@ namespace PVParallelView
 class PVFullParallelView;
 class PVFullParallelScene;
 
-class PVFullParallelViewParamsWidget : public QToolBar
+class PVFullParallelViewParamsWidget : public PVFloatingToolBar
 {
 	Q_OBJECT
 
