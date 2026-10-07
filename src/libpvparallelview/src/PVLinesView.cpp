@@ -35,7 +35,6 @@
 #include <QObject>
 #include <QMetaMethod>
 #include <QThread>
-#include <QDebug>
 
 constexpr static int zoom_divisor = 5;
 constexpr static double zoom_root_value =
@@ -376,9 +375,6 @@ size_t PVParallelView::PVLinesView::set_new_view(int32_t new_view_x, uint32_t vi
 	_last_zone = get_zone_index_from_scene_pos(new_view_x + view_width);
 
 	set_nb_drawable_zones(get_number_of_visible_zones());
-
-	qDebug() << "set_new_view: " << get_number_of_visible_zones() << "("
-	         << get_first_visible_zone_index() << "->" << get_last_visible_zone_index() << ")";
 
 	// Returns the previous first zone index
 	return previous_first_zone;
