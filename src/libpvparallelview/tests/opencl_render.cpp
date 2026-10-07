@@ -252,9 +252,11 @@ int main()
 	}
 
 	/* Zone widths must not each cost their own kernel: the work-group shape is
-	 * rounded up to a power of two precisely so that they share one. Counting
-	 * what landed in the cache is what tells the two apart -- the pixels are
-	 * identical either way.
+	 * rounded up to a power of two precisely so that they share one. On the
+	 * processor, a work-group draws a few columns whatever the zone width (see
+	 * PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE), so the widths below share a single
+	 * shape, all but the one-pixel zone. Counting what landed in the cache is what
+	 * tells them apart -- the pixels are identical either way.
 	 */
 	const size_t kernels = cached_kernel_count(cache_dir.toStdString());
 	const size_t widths = sizeof(ZONE_WIDTHS) / sizeof(ZONE_WIDTHS[0]);
@@ -264,7 +266,7 @@ int main()
 	// Zero means the cache was not laid out as expected -- another ICD, or a
 	// PortableCL that moved things around -- and there is nothing to conclude.
 	if (kernels > 0) {
-		PV_ASSERT_VALID(kernels < widths, "cached kernels", kernels, "zone widths", widths);
+		PV_ASSERT_VALID(kernels <= 2, "cached kernels", kernels, "zone widths", widths);
 	}
 
 	PVParallelView::PVBCICode<BBITS>::free_codes(codes);

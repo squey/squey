@@ -72,7 +72,16 @@ static constexpr const int PARALLELVIEW_ZONE_DEFAULT_WIDTH = 256;
 static constexpr const int PARALLELVIEW_ZONE_MAX_WIDTH = 1024;
 static constexpr const int PARALLELVIEW_MAX_DRAWN_ZONES = 30;
 
-static constexpr const int PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE = PARALLELVIEW_ZONE_MAX_WIDTH * PARALLELVIEW_ZONE_MAX_WIDTH * 5;
+/* The local memory PortableCL gives a work-group on the processor, where it runs
+ * each work-group on a single thread. It sets how many image columns a work-group
+ * draws (see opencl_kernel in PVBCIDrawingBackendOpenCL.cpp): room for a whole
+ * zone draws it on a single core. 32 KiB makes work-groups of four columns of the
+ * full view and two of the zoomed one, which spreads a zone over enough
+ * work-groups to keep every core busy, and gives every zone width the same
+ * work-group shape. It has to hold two columns of the zoomed view at least, 2048
+ * pixels high: opencl_kernel keeps one spare.
+ */
+static constexpr const int PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE = 32 * 1024;
 
 static_assert((1 << (boost::static_log2<PARALLELVIEW_ZONE_MIN_WIDTH>::value) ==
                PARALLELVIEW_ZONE_MIN_WIDTH),
