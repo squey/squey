@@ -94,6 +94,10 @@ class PVBCIDrawingBackend
 	 * index (see PVBCICode::set_opacity), and where lines cross, the most opaque
 	 * one is drawn. Otherwise lines are opaque, and the line of the lowest row is
 	 * drawn.
+	 * @param antialiased a line covers the pixels it passes near in part, which
+	 * scales its opacity there. Where lines cross, the one covering the most of a
+	 * pixel is drawn, as the most opaque one is by density: the line of the
+	 * lowest row only wins when they cover it as much.
 	 * @param render_done called once drawn; ignored by a synchronous backend.
 	 */
 	virtual void render(PVBCIBackendImage_p& dst_img,
@@ -104,6 +108,7 @@ class PVBCIDrawingBackend
 	                    const float zoom_y = 1.0f,
 	                    bool reverse = false,
 	                    bool density = false,
+	                    bool antialiased = false,
 	                    std::function<void()> const& render_done = std::function<void()>()) = 0;
 };
 

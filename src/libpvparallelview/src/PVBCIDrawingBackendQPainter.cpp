@@ -70,6 +70,7 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
                                                          const float zoom_y,
                                                          bool reverse,
                                                          bool density,
+                                                         bool antialiased,
                                                          std::function<void()> const& render_done)
 {
 	_jobs.run([=] {
@@ -81,6 +82,12 @@ void PVParallelView::PVBCIDrawingBackendQPainter::render(PVBCIBackendImage_p& ba
 		paint_image.fill(Qt::transparent);
 
 		QPainter painter(&paint_image);
+		if (antialiased) {
+			painter.setRenderHint(QPainter::Antialiasing);
+			// The OpenCL kernel centres rows on whole values, where QPainter puts
+			// their edges.
+			painter.translate(0, 0.5);
+		}
 
 		size_t valid_begin = 0;
 		if (density) {

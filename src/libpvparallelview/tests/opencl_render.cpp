@@ -38,6 +38,7 @@
 #include <QString>
 
 #include <chrono>
+#include <cmath>
 #include <condition_variable>
 #include <cstdlib>
 #include <cstdint>
@@ -101,13 +102,14 @@ bool render_and_wait(PVParallelView::PVBCIDrawingBackendAsync& backend,
                      PVParallelView::PVBCICodeBase* codes,
                      size_t n,
                      size_t width = ZONE_WIDTH,
-                     bool density = false)
+                     bool density = false,
+                     bool antialiased = false)
 {
 	// Shared with the OpenCL callback thread so that giving up on the wait
 	// below cannot leave that thread writing to a destroyed object.
 	auto waiter = std::make_shared<render_waiter>();
 
-	backend.render(image, 0, width, codes, n, 1.0f, false, density, [waiter]() {
+	backend.render(image, 0, width, codes, n, 1.0f, false, density, antialiased, [waiter]() {
 		std::lock_guard<std::mutex> lock(waiter->mutex);
 		waiter->done = true;
 		waiter->cv.notify_all();
@@ -222,13 +224,15 @@ line_code(PVRow row, uint8_t opacity, uint32_t left, uint32_t right, uint8_t col
 
 QImage render_lines(PVParallelView::PVBCIDrawingBackendAsync& backend,
                     std::vector<PVParallelView::PVBCICode<BBITS>> codes,
-                    bool density)
+                    bool density,
+                    bool antialiased = false,
+                    size_t width = ZONE_WIDTH)
 {
-	PVParallelView::PVBCIBackendImage_p image = backend.create_image(ZONE_WIDTH, BBITS);
+	PVParallelView::PVBCIBackendImage_p image = backend.create_image(width, BBITS);
 
 	PV_ASSERT_VALID(render_and_wait(backend, image,
 	                                reinterpret_cast<PVParallelView::PVBCICodeBase*>(codes.data()),
-	                                codes.size(), ZONE_WIDTH, density),
+	                                codes.size(), width, density, antialiased),
 	                "rendering", "lines");
 
 	return image->qimage().copy();
@@ -309,6 +313,136 @@ void check_density(PVParallelView::PVBCIDrawingBackendAsync& backend,
 
 	std::cout << name << " by density: " << crossed_opaque << " pixels where the opaque line crosses, "
 	          << crossed_zombie << " where the zombie does" << std::endl;
+}
+
+/**
+ * Antialiased, a line covers the pixels it passes near in part, by how close it
+ * passes to their centre along its minor axis. Its opacity is shared out between
+ * the pixels it passes between: each column of a flat line, and each row of a
+ * steep one, holds the whole of it. Where lines meet, a pixel keeps the line
+ * covering it the most, black lines staying behind the others.
+ */
+void check_antialiasing(PVParallelView::PVBCIDrawingBackendAsync& backend)
+{
+	const auto alpha_at = [](QImage const& image, int x, int y) {
+		return qAlpha(pixel_at(image, {x, y}));
+	};
+
+	// On a whole row, a level line covers that row entirely, and nothing else.
+	const auto level = line_code(0, 255, 300, 300, 100);
+	const QImage level_aliased = render_lines(backend, {level}, false);
+	const QImage level_alone = render_lines(backend, {level}, false, true);
+	PV_ASSERT_VALID(level_alone == level_aliased, "level line on a whole row",
+	                "differs from the aliased one");
+
+	const auto flat = line_code(0, 255, 300, 301, 100);
+	const QImage flat_alone = render_lines(backend, {flat}, false, true);
+	size_t partial = 0;
+
+	for (int x = 0; x < static_cast<int>(ZONE_WIDTH); ++x) {
+		int column = 0;
+
+		for (int y = 0; y < flat_alone.height(); ++y) {
+			const int alpha = alpha_at(flat_alone, x, y);
+			PV_ASSERT_VALID(alpha == 0 or y == 300 or y == 301, "flat line x", x, "y", y,
+			                "opacity", alpha);
+			partial += alpha != 0 and alpha != 255;
+			column += alpha;
+		}
+
+		PV_ASSERT_VALID(std::abs(column - 255) <= 1, "flat line column", x, "opacity", column);
+	}
+
+	PV_ASSERT_VALID(partial > 0, "flat line", "covers no pixel in part");
+
+	constexpr size_t steep_width = 64;
+	const auto steep = line_code(0, 255, 0, 1023, 100);
+	const QImage steep_alone = render_lines(backend, {steep}, false, true, steep_width);
+
+	// Short of the ends, where the line leaves the zone with part of a row.
+	for (int y = 32; y < 1023 - 32; ++y) {
+		int row = 0;
+
+		for (int x = 0; x < static_cast<int>(steep_width); ++x) {
+			row += alpha_at(steep_alone, x, y);
+		}
+
+		PV_ASSERT_VALID(std::abs(row - 255) <= 2, "steep line row", y, "opacity", row);
+	}
+
+	// Drawn by density as well, the coverage scales the opacity of the line.
+	const QImage faint_alone = render_lines(backend, {line_code(0, 40, 300, 301, 100)}, true, true);
+
+	for (int x = 0; x < static_cast<int>(ZONE_WIDTH); ++x) {
+		for (int y : {300, 301}) {
+			const double expected = 40. * alpha_at(flat_alone, x, y) / 255.;
+			PV_ASSERT_VALID(std::abs(alpha_at(faint_alone, x, y) - expected) <= 1., "faint line x",
+			                x, "y", y, "opacity", alpha_at(faint_alone, x, y), "expected",
+			                expected);
+		}
+	}
+
+	// The line of the lowest row wins where both cover a pixel as much.
+	const auto diagonal = line_code(1 << 20, 255, 0, 1023, 50);
+	const auto zombie = line_code(0, 255, 700, 700, HSV_COLOR_BLACK.h());
+	const QImage diagonal_alone = render_lines(backend, {diagonal}, false, true);
+	const QImage zombie_alone = render_lines(backend, {zombie}, false, true);
+	const QImage met = render_lines(backend, {level, diagonal}, false, true);
+	const QImage behind = render_lines(backend, {zombie, diagonal}, false, true);
+	size_t shared_with_level = 0;
+	size_t shared_with_zombie = 0;
+
+	for (int y = 0; y < met.height(); ++y) {
+		for (int x = 0; x < met.width(); ++x) {
+			const QRgb by_diagonal = pixel_at(diagonal_alone, {x, y});
+			const QRgb by_level = pixel_at(level_alone, {x, y});
+			const QRgb by_zombie = pixel_at(zombie_alone, {x, y});
+
+			if (qAlpha(by_diagonal) == 0) {
+				continue;
+			}
+
+			if (qAlpha(by_level) != 0) {
+				++shared_with_level;
+				const QRgb expected = qAlpha(by_diagonal) > qAlpha(by_level) ? by_diagonal : by_level;
+				PV_ASSERT_VALID(pixel_at(met, {x, y}) == expected, "x", x, "y", y, "drawn",
+				                pixel_at(met, {x, y}), "expected", expected);
+			}
+
+			if (qAlpha(by_zombie) != 0) {
+				++shared_with_zombie;
+				PV_ASSERT_VALID(pixel_at(behind, {x, y}) == by_diagonal, "x", x, "y", y, "drawn",
+				                pixel_at(behind, {x, y}), "over the zombie", by_diagonal);
+			}
+		}
+	}
+
+	PV_ASSERT_VALID(shared_with_level > 0, "the diagonal", "never meets the level line");
+	PV_ASSERT_VALID(shared_with_zombie > 0, "the diagonal", "never meets the zombie");
+
+	std::cout << "OpenCL antialiased: " << partial << " pixels of the flat line covered in part, "
+	          << shared_with_level << " shared with the level line, " << shared_with_zombie
+	          << " with the zombie" << std::endl;
+}
+
+/**
+ * QPainter antialiases on its own terms, blending where lines meet: only check
+ * that it covers pixels in part, around the rows the line passes between.
+ */
+void check_antialiasing_qpainter()
+{
+	auto& backend = PVParallelView::PVBCIDrawingBackendQPainter::get();
+	const QImage flat_alone =
+	    render_lines(backend, {line_code(0, 255, 300, 301, 100)}, false, true);
+	size_t partial = 0;
+
+	for (auto const& at : drawn_at(flat_alone)) {
+		PV_ASSERT_VALID(at.second >= 299 and at.second <= 302, "QPainter flat line x",
+		                at.first, "y", at.second);
+		partial += qAlpha(pixel_at(flat_alone, at)) != 255;
+	}
+
+	PV_ASSERT_VALID(partial > 0, "QPainter flat line", "covers no pixel in part");
 }
 
 } // namespace
@@ -406,6 +540,9 @@ int main()
 
 	check_density(backend, "OpenCL", true);
 	check_density(PVParallelView::PVBCIDrawingBackendQPainter::get(), "QPainter", false);
+
+	check_antialiasing(backend);
+	check_antialiasing_qpainter();
 
 	PVParallelView::PVBCICode<BBITS>::free_codes(codes);
 
