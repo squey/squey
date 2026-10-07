@@ -38,6 +38,7 @@
 #include <pvparallelview/PVZoomedSelectionAxisSliders.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
+#include <pvparallelview/PVAntialiasingAction.h>
 #include <pvparallelview/PVZoomedParallelViewSelectionLine.h>
 
 #include <QMetaObject>
@@ -118,6 +119,8 @@ PVParallelView::PVZoomedParallelScene::PVZoomedParallelScene(
 
 	connect(_zpview->params_widget(), &PVZoomedParallelViewParamsWidget::change_to_col, this,
 	        &PVZoomedParallelScene::change_to_col);
+	connect(_zpview->antialiasing_action(), &QAction::toggled, this,
+	        &PVZoomedParallelScene::set_antialiased);
 	
 	_zpview->update_window_title(_pvview, axis_index);
 
@@ -503,6 +506,16 @@ bool PVParallelView::PVZoomedParallelScene::update_zones()
 }
 
 /*****************************************************************************
+ * PVParallelView::PVZoomedParallelScene::set_antialiased
+ *****************************************************************************/
+
+void PVParallelView::PVZoomedParallelScene::set_antialiased(bool antialiased)
+{
+	_antialiased = antialiased;
+	update_all();
+}
+
+/*****************************************************************************
  * PVParallelView::PVZoomedParallelScene::change_to_col
  *****************************************************************************/
 
@@ -742,8 +755,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			    _left_zone->bg_image,
 			    0, // x_start
 			    image_width,
-			    alpha,  // zoom_y
-			    true)); // reversed
+			    alpha, // zoom_y
+			    true,  // reversed
+			    false, // not by density
+			    _antialiased));
 
 			connect_zr(zr.get(), "zr_finished");
 			_left_zone->last_zr_bg = zr;
@@ -763,8 +778,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		    _left_zone->sel_image,
 		    0, // x_start
 		    image_width,
-		    alpha,  // zoom_y
-		    true)); // reversed
+		    alpha, // zoom_y
+		    true,  // reversed
+		    false, // not by density
+		    _antialiased));
 
 		connect_zr(zr.get(), "zr_finished");
 		_left_zone->last_zr_sel = zr;
@@ -786,8 +803,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 			    _right_zone->bg_image,
 			    0, // x_start
 			    image_width,
-			    alpha,   // zoom_y
-			    false)); // reversed
+			    alpha, // zoom_y
+			    false, // not reversed
+			    false, // not by density
+			    _antialiased));
 
 			connect_zr(zr.get(), "zr_finished");
 			_right_zone->last_zr_bg = zr;
@@ -807,8 +826,10 @@ void PVParallelView::PVZoomedParallelScene::update_display()
 		    _right_zone->sel_image,
 		    0, // x_start
 		    image_width,
-		    alpha,   // zoom_y
-		    false)); // reversed
+		    alpha, // zoom_y
+		    false, // not reversed
+		    false, // not by density
+		    _antialiased));
 
 		connect_zr(zr.get(), "zr_finished");
 		_right_zone->last_zr_sel = zr;

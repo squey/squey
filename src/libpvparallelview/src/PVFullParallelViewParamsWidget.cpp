@@ -29,6 +29,7 @@
 #include <pvparallelview/PVFullParallelScene.h>
 
 #include <pvkernel/widgets/PVModdedIcon.h>
+#include <pvparallelview/PVAntialiasingAction.h>
 
 #include <squey/PVScaled.h>
 
@@ -105,6 +106,14 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
 		update_line_opacity_tooltip();
 		if (auto* s = scene(); s != nullptr and _lines_by_density->isChecked()) {
 			s->set_line_opacity(line_opacity());
+		}
+	});
+
+	auto* antialiased = new PVAntialiasingAction(this);
+	addAction(antialiased);
+	connect(antialiased, &QAction::toggled, [this](bool pushed) {
+		if (auto* s = scene()) {
+			s->set_antialiased(pushed);
 		}
 	});
 

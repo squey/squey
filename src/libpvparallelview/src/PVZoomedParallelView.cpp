@@ -25,9 +25,12 @@
 
 #include <pvkernel/widgets/PVHelpWidget.h>
 
+#include <pvparallelview/PVAntialiasingAction.h>
+#include <pvparallelview/PVFloatingToolBar.h>
 #include <pvparallelview/PVZoomedParallelView.h>
 #include <pvparallelview/PVZoomedParallelScene.h>
 #include <pvparallelview/PVZoomedParallelViewParamsWidget.h>
+#include <pvparallelview/common.h>
 
 #include <QGuiApplication>
 #include <QScrollBar>
@@ -58,6 +61,13 @@ PVParallelView::PVZoomedParallelView::PVZoomedParallelView(
 	_params_widget = new PVZoomedParallelViewParamsWidget(axes_comb, this);
 	_params_widget->adjustSize();
 
+	_antialiasing_bar = new PVFloatingToolBar(this);
+	_antialiasing_bar->setIconSize(QSize(17, 17));
+	_antialiasing_bar->setAutoFillBackground(true);
+	_antialiasing = new PVAntialiasingAction(_antialiasing_bar);
+	_antialiasing_bar->addAction(_antialiasing);
+	_antialiasing_bar->adjustSize();
+
 	_mouse_buttons_default_legend = PVWidgets::PVMouseButtonsLegend("Select", "Pan view", "Zoom");
 	_mouse_buttons_current_legend = _mouse_buttons_default_legend;
 }
@@ -81,6 +91,18 @@ void PVParallelView::PVZoomedParallelView::resizeEvent(QResizeEvent* event)
 		bool need_recomputation = event->oldSize().height() != event->size().height();
 		zps->resize_display(need_recomputation);
 	}
+
+	// Over the axis menu, which can reach this far in a narrow view.
+	set_antialiasing_bar_position();
+}
+
+void PVParallelView::PVZoomedParallelView::set_antialiasing_bar_position()
+{
+	QPoint pos(get_viewport()->width() - frame_offsets.right(), frame_offsets.top());
+
+	pos -= QPoint(_antialiasing_bar->width(), 0);
+	_antialiasing_bar->move(pos);
+	_antialiasing_bar->raise();
 }
 
 void PVParallelView::PVZoomedParallelView::update_window_title(Squey::PVView& view, PVCombCol combcol)

@@ -241,6 +241,22 @@
 	</qresource>
 	
  <qresource prefix="qss_icons/dark">
+    <file>rc.dark/antialiasing-off.png</file>
+    <file>rc.dark/antialiasing-off@2x.png</file>
+    <file>rc.dark/antialiasing-off_disabled.png</file>
+    <file>rc.dark/antialiasing-off_disabled@2x.png</file>
+    <file>rc.dark/antialiasing-off_focus.png</file>
+    <file>rc.dark/antialiasing-off_focus@2x.png</file>
+    <file>rc.dark/antialiasing-off_pressed.png</file>
+    <file>rc.dark/antialiasing-off_pressed@2x.png</file>
+    <file>rc.dark/antialiasing-on.png</file>
+    <file>rc.dark/antialiasing-on@2x.png</file>
+    <file>rc.dark/antialiasing-on_disabled.png</file>
+    <file>rc.dark/antialiasing-on_disabled@2x.png</file>
+    <file>rc.dark/antialiasing-on_focus.png</file>
+    <file>rc.dark/antialiasing-on_focus@2x.png</file>
+    <file>rc.dark/antialiasing-on_pressed.png</file>
+    <file>rc.dark/antialiasing-on_pressed@2x.png</file>
     <file>rc.dark/arrow-down-long.png</file>
     <file>rc.dark/arrow-down-long@2x.png</file>
     <file>rc.dark/arrow-down-long_disabled.png</file>
@@ -1348,6 +1364,22 @@
   </qresource>
 
   <qresource prefix="qss_icons/light">
+    <file>rc.light/antialiasing-off.png</file>
+    <file>rc.light/antialiasing-off@2x.png</file>
+    <file>rc.light/antialiasing-off_disabled.png</file>
+    <file>rc.light/antialiasing-off_disabled@2x.png</file>
+    <file>rc.light/antialiasing-off_focus.png</file>
+    <file>rc.light/antialiasing-off_focus@2x.png</file>
+    <file>rc.light/antialiasing-off_pressed.png</file>
+    <file>rc.light/antialiasing-off_pressed@2x.png</file>
+    <file>rc.light/antialiasing-on.png</file>
+    <file>rc.light/antialiasing-on@2x.png</file>
+    <file>rc.light/antialiasing-on_disabled.png</file>
+    <file>rc.light/antialiasing-on_disabled@2x.png</file>
+    <file>rc.light/antialiasing-on_focus.png</file>
+    <file>rc.light/antialiasing-on_focus@2x.png</file>
+    <file>rc.light/antialiasing-on_pressed.png</file>
+    <file>rc.light/antialiasing-on_pressed@2x.png</file>
     <file>rc.light/arrow-down-long.png</file>
     <file>rc.light/arrow-down-long@2x.png</file>
     <file>rc.light/arrow-down-long_disabled.png</file>

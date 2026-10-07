@@ -49,6 +49,8 @@ namespace PVParallelView
 {
 
 // forward declaration
+class PVAntialiasingAction;
+class PVFloatingToolBar;
 class PVZoomedParallelScene;
 class PVZoomedParallelViewParamsWidget;
 
@@ -90,6 +92,7 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
   protected:
 	PVWidgets::PVHelpWidget* help_widget() { return _help_widget; }
 	PVZoomedParallelViewParamsWidget* params_widget() { return _params_widget; }
+	PVAntialiasingAction* antialiasing_action() { return _antialiasing; }
 
   protected:
 	void enterEvent(QEnterEvent* event) override;
@@ -102,8 +105,17 @@ class PVZoomedParallelView : public PVWidgets::PVGraphicsView
 	void clear_status_bar_mouse_legend();
 
   private:
+	/**
+	 * Keep the antialiasing toolbar in the top right corner of the viewport, where
+	 * the scatter view keeps its own buttons.
+	 */
+	void set_antialiasing_bar_position();
+
+  private:
 	PVWidgets::PVHelpWidget* _help_widget;
 	PVZoomedParallelViewParamsWidget* _params_widget;
+	PVFloatingToolBar* _antialiasing_bar;
+	PVAntialiasingAction* _antialiasing;
 	PVWidgets::PVMouseButtonsLegend _mouse_buttons_current_legend;
 	PVWidgets::PVMouseButtonsLegend _mouse_buttons_default_legend;
 };

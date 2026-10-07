@@ -132,17 +132,17 @@ size_t drawn(std::array<size_t, 256> const& pixels)
 	return std::accumulate(pixels.begin() + 1, pixels.end(), size_t(0));
 }
 
-QAction* lines_by_density(PVParallelView::PVFullParallelView& widget)
+QAction* toolbar_action(PVParallelView::PVFullParallelView& widget, QString const& text)
 {
 	auto* params = widget.findChild<PVParallelView::PVFullParallelViewParamsWidget*>();
 	PV_ASSERT_VALID(params != nullptr, "the toolbar", "is not in the view");
 
 	for (QAction* action : params->actions()) {
-		if (action->text() == "Lines by density") {
+		if (action->text() == text) {
 			return action;
 		}
 	}
-	PV_ASSERT_VALID(false, "the toolbar", "has no lines by density");
+	PV_ASSERT_VALID(false, "the toolbar has no action", text.toStdString());
 	return nullptr;
 }
 
@@ -199,6 +199,9 @@ int main(int argc, char** argv)
 	auto* scene = new PVParallelView::PVFullParallelScene(widget.get(), view, context,
 	                                                      PVParallelView::common::backend());
 	widget->setScene(scene);
+	// The opacities counted below are those of whole pixels, which antialiasing
+	// would spread over the edges of the lines.
+	toolbar_action(*widget, "Antialiasing")->setChecked(false);
 	scene->first_render();
 	widget->resize(800, 500);
 	widget->show();
@@ -209,7 +212,7 @@ int main(int argc, char** argv)
 	PV_ASSERT_VALID(drawn(pixels) > 0 and pixels[255] == drawn(pixels), "opaque pixels",
 	                pixels[255], "drawn", drawn(pixels));
 
-	QAction* by_density = lines_by_density(*widget);
+	QAction* by_density = toolbar_action(*widget, "Lines by density");
 	by_density->setChecked(true);
 	pump(1500);
 

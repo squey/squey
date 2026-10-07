@@ -10,6 +10,7 @@ set(SRC_FILES
 PVAbstractAxisSlider.cpp
 PVAbstractAxisSliders.cpp
 PVAbstractRangeAxisSliders.cpp
+PVAntialiasingAction.cpp
 PVAxisGraphicsItem.cpp
 PVAxisLabel.cpp
 PVAxisHeader.cpp

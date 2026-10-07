@@ -132,6 +132,12 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	float line_opacity() const { return _lines_view.get_line_opacity(); }
 
 	/**
+	 * Antialias the lines (see PVLinesView::set_antialiased).
+	 */
+	void set_antialiased(bool antialiased);
+	bool is_antialiased() const { return _lines_view.is_antialiased(); }
+
+	/**
 	 * Selection scaling: spread the selection over the whole axes.
 	 *
 	 * The setting lives on the Squey::PVScaled, so it reaches every view built on

@@ -1064,6 +1064,16 @@ void PVParallelView::PVFullParallelScene::set_line_opacity(float opacity)
 	update_all_with_timer();
 }
 
+void PVParallelView::PVFullParallelScene::set_antialiased(bool antialiased)
+{
+	if (_detached) {
+		return;
+	}
+
+	_lines_view.set_antialiased(antialiased);
+	update_all_with_timer();
+}
+
 /******************************************************************************
  *
  * PVParallelView::PVFullParallelScene::update_scene

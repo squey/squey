@@ -314,7 +314,7 @@ void PVParallelView::PVLinesView::render_single_zone_bg_image(size_t zone_index,
 	    },
 	    single_zone_images.bg, 0, width, zoom_y,
 	    false, // not reversed
-	    line_opacity < 1.f));
+	    line_opacity < 1.f, _antialiased));
 
 	connect_zr(zr.get(), "zr_bg_finished");
 	track_rendering(zr);
@@ -350,7 +350,7 @@ void PVParallelView::PVLinesView::render_single_zone_sel_image(size_t zone_index
 	    },
 	    single_zone_images.sel, 0, width, zoom_y,
 	    false, // not reversed
-	    line_opacity < 1.f));
+	    line_opacity < 1.f, _antialiased));
 
 	connect_zr(zr.get(), "zr_sel_finished");
 	track_rendering(zr);
