@@ -1,3 +1,51 @@
+5.2 (2026-10-08)
+----------------
+
+This major release adds the following features:
+* scatter thumbnails gallery
+* SQL console with autocompletion
+* undo/redo with breadcrumbs
+* selection stretch over the whole axes of the parallel view
+* lines density opacity in the parallel view
+* antialiased lines in the parallel and zoomed view
+* [linux] support rendering on AMD and Intel GPUs
+* draw each group of a split series in its own colour
+
+This major release fixes or improves:
+* fix searching an IP address selecting the rows without address
+* fix dates read in the time zone of a previous date
+* fix PCAP fields kept in all their occurrences coming out empty
+* fix the values printed at the ends of the axes being swapped
+* fix opening CSV formats and investigations saved by 5.1.1 to 5.1.3
+* fix a crash when importing a file with a guessed format
+* fix crashes when closing views and removing sources
+* fix a crash when closing a file dialog
+* fix opening investigations whose format holds non-ASCII characters
+* fix a hang when switching the axis of a zoomed view
+* fix a hang when removing a column
+* rendering up to 10 times faster on the processor without GPU
+* compile the rendering kernels behind the splash screen
+* fix opening compressed files with "open with"
+* open the files a second launch hands over to the running Squey
+* fix the low memory warning raised while importing
+* speed up computations on a selection up to 5 times
+* speed up the building of zones and the series view
+* speed up reading and writing dates to the microsecond
+* read more dates to the microsecond
+* prefer a dedicated GPU over the processor
+* report the error tshark gives when it refuses a capture
+* [linux] declare the file types Squey opens, for "open with"
+* [linux] render through OpenCL backend instead of QPainter
+* [linux] fix invalid values lost on file systems that cannot allocate
+* [macos] fix a crash when importing columns with invalid values
+* [windows] keep the compiled rendering kernels across reboots
+* [windows] ship 7z.dll so that 7-Zip no longer needs installing
+* [windows] fix selecting time ranges longer than half an hour
+* [windows] read the UTC offsets of dates
+* [windows] fix a handle leaked by every file mapping
+* [windows] divide by 8 the memory taken by selections
+* update freedesktop runtime from 25.08 to 26.08 and all libraries to latest versions
+
 5.1.3 (2026-08-28)
 ------------------
 
