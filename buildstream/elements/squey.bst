@@ -262,7 +262,6 @@ build-depends:
 
 depends:
 - libhwloc.bst
-- pwgen.bst
 - mm-common.bst
 - libsigcplusplus.bst
 - rapidjson.bst

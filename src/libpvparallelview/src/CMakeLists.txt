@@ -203,8 +203,10 @@ endif()
 
 add_custom_command(
   OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
-  COMMAND ${squey_SOURCE_DIR}/scripts/obfuscate-ocl-kernel.sh ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h
-  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
+  COMMAND ${CMAKE_COMMAND} -DINPUT=${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl
+          -DOUTPUT=${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h -DNAME=bci_z24_str
+          -P ${squey_SOURCE_DIR}/cmake/EmbedSource.cmake
+  DEPENDS ${CMAKE_CURRENT_SOURCE_DIR}/opencl/bci_z24.cl ${squey_SOURCE_DIR}/cmake/EmbedSource.cmake
 )
 
 list(APPEND SRC_FILES ${OPENCL_SRC_FILES} ${CMAKE_CURRENT_BINARY_DIR}/bci_z24.h)

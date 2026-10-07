@@ -43,11 +43,6 @@ set_target_properties(Squey::OpenCL PROPERTIES
 set(OPENCL_FOUND ON)
 message(STATUS "OpenCL runtime library: ${OPENCL_LIBRARY}")
 
-find_program(PWGEN_BIN pwgen)
-if(NOT PWGEN_BIN)
-	message(FATAL_ERROR "pwgen does not seem to installed")
-endif()
-
 ###############################################################################
 # Define variables for Boost library
 ###############################################################################
