@@ -29,6 +29,7 @@
 #include <pvparallelview/PVZoneTree.h>
 
 #include <cassert>
+#include <cmath>
 
 PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 {
@@ -37,89 +38,87 @@ PVParallelView::PVZoneTreeBase::PVZoneTreeBase()
 }
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci(PVCore::PVHSVColor const* colors,
-                                                       PVBCICode<NBITS_INDEX>* codes) const
+                                                       PVBCICode<NBITS_INDEX>* codes,
+                                                       float line_opacity) const
 {
-	return browse_tree_bci_from_buffer(_bg_elts, colors, codes);
+	return browse_tree_bci_from_buffer(_bg_elts, _bg_counts, colors, codes, line_opacity);
 }
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_sel(PVCore::PVHSVColor const* colors,
-                                                           PVBCICode<NBITS_INDEX>* codes) const
+                                                           PVBCICode<NBITS_INDEX>* codes,
+                                                           float line_opacity) const
 {
-	return browse_tree_bci_from_buffer(_sel_elts, colors, codes);
+	return browse_tree_bci_from_buffer(_sel_elts, _sel_counts, colors, codes, line_opacity);
 }
 
 size_t PVParallelView::PVZoneTreeBase::browse_tree_bci_from_buffer(
-    const PVRow* elts, PVCore::PVHSVColor const* colors, PVBCICode<NBITS_INDEX>* codes) const
+    const PVRow* elts,
+    std::vector<uint32_t> const& counts,
+    PVCore::PVHSVColor const* colors,
+    PVBCICode<NBITS_INDEX>* codes,
+    float line_opacity) const
 {
 	size_t idx_code = 0;
 
-	for (uint64_t b = 0; b < NBUCKETS; b += 4) {
+	if (line_opacity < 1.f) {
+		// The counts follow the list of occupied buckets, which is walked however
+		// full it is.
+		const bool counted = counts.size() == _occupied_branches.size();
+		const float log_transparency = std::log1p(-line_opacity);
 
-		simde__m128i sse_ff = simde_mm_set1_epi32(0xFFFFFFFF);
-		simde__m128i sse_index = simde_mm_load_si128((const simde__m128i*)&elts[b]);
-		simde__m128i see_cmp = simde_mm_cmpeq_epi32(sse_ff, sse_index);
-
-		if (simde_mm_testz_si128(see_cmp, sse_ff)) {
-
-			// setr: the first argument goes to lane 0, as the diagrams below read.
-			// set_epi32 takes its arguments from the highest lane down, and paired each
-			// row with the bucket and the colour of another row of the four.
-			simde__m128i sse_lr = simde_mm_setr_epi32(b, b + 1, b + 2, b + 3);
-
-			//  +------------+------------++------------+------------+
-			//  |        lr3 |        lr2 ||        lr1 |        lr0 | (sse_lr)
-			//  +------------+------------++------------+------------+
-
-			simde__m128i sse_color = simde_mm_setr_epi32(colors[simde_mm_extract_epi32(sse_index, 0)].h(),
-			                                  colors[simde_mm_extract_epi32(sse_index, 1)].h(),
-			                                  colors[simde_mm_extract_epi32(sse_index, 2)].h(),
-			                                  colors[simde_mm_extract_epi32(sse_index, 3)].h());
-			;
-			sse_color = simde_mm_slli_epi32(sse_color, NBITS_INDEX * 2);
-
-			//  +------------+------------++------------+------------+
-			//  |color3 << 20|color2 << 20||color1 << 20|color0 << 20| (sse_color)
-			//  +------------+------------++------------+------------+
-
-			simde__m128i sse_lrcolor = simde_mm_or_si128(sse_color, sse_lr);
-
-			//  +------------+------------++------------+------------+
-			//  |   lrcolor3 |   lrcolor2 ||   lrcolor1 |   lrcolor0 | (sse_lrcolor)
-			//  +------------+------------++------------+------------+
-
-			simde__m128i sse_bcicodes0_1 = simde_mm_unpacklo_epi32(sse_index, sse_lrcolor);
-			simde__m128i sse_bcicodes2_3 = simde_mm_unpackhi_epi32(sse_index, sse_lrcolor);
-
-			//  +------------+------------++------------+------------+
-			//  |   lrcolor1 | index (r1) ||   lrcolor0 | index (r0) |
-			//  (sse_bcicodes0_1)
-			//  +------------+------------++------------+------------+
-			//  +------------+------------++------------+------------+
-			//  |   lrcolor3 | index (r3) ||   lrcolor2 | index (r2) |
-			//  (sse_bcicodes2_3)
-			//  +------------+------------++------------+------------+
-
-			if ((idx_code & 1) == 0) {
-				simde_mm_stream_si128((simde__m128i*)&codes[idx_code + 0], sse_bcicodes0_1);
-				simde_mm_stream_si128((simde__m128i*)&codes[idx_code + 2], sse_bcicodes2_3);
-			} else {
-				simde_mm_storeu_si128((simde__m128i*)&codes[idx_code + 0], sse_bcicodes0_1);
-				simde_mm_storeu_si128((simde__m128i*)&codes[idx_code + 2], sse_bcicodes2_3);
+		for (size_t i = 0; i < _occupied_branches.size(); i++) {
+			const uint32_t b = _occupied_branches[i];
+			const PVRow r = elts[b];
+			if (r == PVROW_INVALID_VALUE) {
+				continue;
 			}
 
-			idx_code += 4;
-		} else {
-			for (int i = 0; i < 4; i++) {
-				uint64_t b0 = b + i;
-				PVRow r = elts[b0];
-				if (r != PVROW_INVALID_VALUE) {
-					PVBCICode<NBITS_INDEX> bci;
-					bci.int_v = r | (b0 << 32);
-					bci.s.color = colors[r].h();
-					codes[idx_code] = bci;
-					idx_code++;
-				}
+			// A bucket with a row of the layer counts that row at least: none means
+			// it was not counted.
+			const uint32_t rows = counted ? counts[i] : 0;
+			const float opacity = rows > 0 ? -std::expm1(rows * log_transparency) : 1.f;
+			const auto opacity8 = static_cast<uint8_t>(opacity * 255.f + .5f);
+			if (opacity8 == 0) {
+				continue;
 			}
+
+			PVBCICode<NBITS_INDEX> bci;
+			bci.int_v = r | ((uint64_t)b << 32);
+			bci.s.color = colors[r].h();
+			bci.set_opacity(opacity8);
+			codes[idx_code] = bci;
+			idx_code++;
+		}
+		return idx_code;
+	}
+
+	// Only occupied buckets can name a row here: filter_by_sel and
+	// filter_by_sel_background leave every other entry of `elts` alone. Reading
+	// the bucket numbers back costs a buffer of its own, so this stops paying
+	// once nearly every bucket is occupied and the sweep it replaces no longer
+	// wastes a branch on anything; measured, the two meet at about 15/16 full.
+	if (_occupied_branches.size() < (NBUCKETS / 16) * 15) {
+		for (const uint32_t b : _occupied_branches) {
+			const PVRow r = elts[b];
+			if (r != PVROW_INVALID_VALUE) {
+				PVBCICode<NBITS_INDEX> bci;
+				bci.int_v = r | ((uint64_t)b << 32);
+				bci.s.color = colors[r].h();
+				codes[idx_code] = bci;
+				idx_code++;
+			}
+		}
+		return idx_code;
+	}
+
+	for (uint32_t b = 0; b < NBUCKETS; b++) {
+		const PVRow r = elts[b];
+		if (r != PVROW_INVALID_VALUE) {
+			PVBCICode<NBITS_INDEX> bci;
+			bci.int_v = r | ((uint64_t)b << 32);
+			bci.s.color = colors[r].h();
+			codes[idx_code] = bci;
+			idx_code++;
 		}
 	}
 

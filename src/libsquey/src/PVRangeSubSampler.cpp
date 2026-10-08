@@ -54,17 +54,8 @@ Squey::PVRangeSubSampler::PVRangeSubSampler(
 	set_sampling_count(
 	    sampling_count); // should be the number of horizontal visible pixels in the plot
 
-	BENCH_START(sort);
+	update_time_ordering();
 
-	if (not _time.get().is_sorted()) { // FIXME
-		_sorted_indexes = time.parallel_sort();
-		_sort = _sorted_indexes.to_core_array();
-	}
-
-	BENCH_END(sort, "sort", _time.get().size(), sizeof(uint64_t), _time.get().size(),
-	          sizeof(uint64_t));
-
-	_minmax = pvcop::db::algo::minmax(_time);
 	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
 
 	set_sampling_mode<SAMPLING_MODE::MEAN>();
@@ -76,6 +67,32 @@ void Squey::PVRangeSubSampler::set_sampling_count(size_t sampling_count)
 {
 	_sampling_count = sampling_count;
 	_reset = true;
+}
+
+void Squey::PVRangeSubSampler::update_time_ordering()
+{
+	// The chronological order only depends on the time column, which never changes for a
+	// given sampler, so this is computed once rather than on every resize.
+	//
+	// It is computed even where the column is already chronological, which looks like
+	// waste and is not: equal_range and histogram take this ordering, and an empty one
+	// means "the array is already in order" to them. Leaving it empty is a state the
+	// sampler never used to reach -- set_split_column filled it unconditionally on the way
+	// out of the constructor -- and on Windows histogram() answers an all-zero histogram
+	// for it, which is a blank plot rather than a wrong one.
+	BENCH_START(sort);
+
+	_sorted_indexes = _time.get().parallel_sort();
+	_sort = _sorted_indexes.to_core_array();
+
+	BENCH_END(sort, "sort", _time.get().size(), sizeof(uint64_t), _time.get().size(),
+	          sizeof(uint64_t));
+
+	// algo::minmax rather than the member of the same name : the two are meant to agree,
+	// but only this one is what the sampler has always called, and _minmax is what decides
+	// the range every later zoom is taken as a ratio of. A minmax that is off by anything
+	// leaves equal_range with nothing to return and every sample without a value.
+	_minmax = pvcop::db::algo::minmax(_time);
 }
 
 pvcop::db::array Squey::PVRangeSubSampler::ratio_to_minmax(zoom_f ratio1, zoom_f ratio2) const
@@ -193,10 +210,8 @@ void Squey::PVRangeSubSampler::set_split_column(const pvcop::db::array* split)
 	} else {
 		_time = std::cref(_original_time);
 	}
-	_minmax = _time.get().minmax();
+	// The chronological order is unaffected by the split column : see update_time_ordering().
 	_last_params = SamplingParams(0, 0, _minmax, 0, 0);
-	_sorted_indexes = _time.get().parallel_sort();
-	_sort = _sorted_indexes.to_core_array();
 
 	_ts_matrix.resize(_timeseries.size() * _split_count);
 	for (auto& vec : _ts_matrix) {

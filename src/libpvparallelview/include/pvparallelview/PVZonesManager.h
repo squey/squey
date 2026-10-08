@@ -25,6 +25,7 @@
 #ifndef PVPARALLELVIEW_PVZONESMANAGER_H
 #define PVPARALLELVIEW_PVZONESMANAGER_H
 
+#include <atomic>
 #include <unordered_map>
 #include <unordered_set>
 
@@ -93,6 +94,15 @@ class PVZonesManager : public QObject
 	void update_from_axes_comb(std::vector<PVCol> const& ac);
 	void update_from_axes_comb(Squey::PVView const& view);
 	void update_zone(PVZoneID zone);
+
+	/**
+	 * Rebuild several zones at once.
+	 *
+	 * Rebuilt together rather than one after another, as the first build already
+	 * does (see update_all): the cores are shared out between the zones, so a zone
+	 * with few rows in it does not leave most of the machine idle waiting on it.
+	 */
+	void update_zones(std::unordered_set<PVZoneID> const& zones);
 	[[nodiscard]] auto acquire_zone(PVZoneID zone) -> ZoneRetainer;
 	void release_zone(PVZoneID zone);
 
@@ -118,6 +128,13 @@ class PVZonesManager : public QObject
 
 	void filter_zone_by_sel(PVZoneID zone_id, const Squey::PVSelection& sel);
 	void filter_zone_by_sel_background(PVZoneID zone_id, const Squey::PVSelection& sel);
+
+	/**
+	 * Whether filtering a zone also counts the rows of each bucket (see
+	 * PVZoneTree::filter_by_sel). May be changed while zones are being filtered:
+	 * those already under way keep counting or not.
+	 */
+	void count_rows_per_bucket(bool count) { _count_rows_per_bucket = count; }
 
   public:
 	/* Get the number of managed zones from axes combination. Some zones are independant (e.g. a
@@ -165,8 +182,15 @@ class PVZonesManager : public QObject
 	std::unordered_multimap<PVZoneID, decltype(_zones)::size_type> _zone_indices;
 	// reference counting for non-managed zones, works with ZoneRetainer.
 	std::unordered_multiset<PVZoneID> _zones_ref_count;
+	// Read by the threads zones are filtered on.
+	std::atomic<bool> _count_rows_per_bucket{false};
 
   protected:
+	/**
+	 * Rebuild one zone using caller-provided scratch space.
+	 */
+	void rebuild_zone(PVZoneID zone, PVZoneTree::ProcessData& pdata);
+
 	PVZone& get_zone(PVZoneID z)
 	{
 		assert(_zone_indices.count(z) > 0);

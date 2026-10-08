@@ -35,6 +35,7 @@
 
 #include <bit>     // for bit_cast
 #include <cstdint> // for uint32_t
+#include <limits>  // for numeric_limits
 #include <memory>  // for shared_ptr
 #include <set>     // for set
 #include <string>  // for string
@@ -105,10 +106,43 @@ class PVScalingFilter : public PVFilter::PVFilterFunctionBase<pvcop::core::array
 	using scaling_capability = std::pair<std::string, std::string>;
 
   public:
+	/**
+	 * Place every row of a column on its axis.
+	 *
+	 * @param mapped the column's mapped values
+	 * @param minmax the bounds to spread over the axis
+	 * @param invalid_selection the rows that hold no orderable value
+	 * @param domain_selection the rows the bounds were taken from, empty when they
+	 *        were taken from the whole column. Under selection scaling a row
+	 *        outside these bounds is pinned to the end of the axis it falls past,
+	 *        which every filter has to do anyway: converting a value from outside
+	 *        the bounds would otherwise run off the range of an unsigned integer.
+	 * @param dest where the positions are written
+	 */
 	virtual void operator()(pvcop::db::array const& mapped,
 	                        pvcop::db::array const& minmax,
 	                        const pvcop::db::selection& invalid_selection,
+	                        const pvcop::db::selection& domain_selection,
 	                        pvcop::core::array<value_type>& dest) = 0;
+
+	/**
+	 * The position a value takes on the axis, pinned to its ends.
+	 *
+	 * Values outside the bounds the axis was scaled over are what selection
+	 * scaling leaves behind, and they are pinned rather than dropped. The bound
+	 * below is the reserved range invalid values are given, which valid ones stay
+	 * clear of.
+	 */
+	static value_type clamp_to_axis(double position, size_t valid_offset)
+	{
+		if (not(position > (double)valid_offset)) {
+			return (value_type)valid_offset;
+		}
+		if (position >= (double)std::numeric_limits<value_type>::max()) {
+			return std::numeric_limits<value_type>::max();
+		}
+		return (value_type)position;
+	}
 
 	virtual QString get_human_name() const = 0;
 	virtual std::set<scaling_capability> list_usable_type() const = 0;

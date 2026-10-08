@@ -26,6 +26,8 @@
 #define PVRUSH_NRAW_H
 
 #include <fstream>
+#include <mutex>
+#include <shared_mutex>
 #include <span>
 #include <string_view>
 
@@ -49,6 +51,28 @@ namespace PVRush
 class NrawLoadingFail : public std::runtime_error
 {
 	using std::runtime_error::runtime_error;
+};
+
+/**
+ * A mutex that lets its owner stay movable.
+ *
+ * A lock is not part of a value: moving an nraw moves its columns, and each
+ * object keeps the lock guarding its own. std::shared_mutex is neither copyable
+ * nor movable, so saying so takes writing it down.
+ */
+class PVMovableSharedMutex
+{
+  public:
+	PVMovableSharedMutex() = default;
+	PVMovableSharedMutex(PVMovableSharedMutex&&) noexcept {}
+	PVMovableSharedMutex& operator=(PVMovableSharedMutex&&) noexcept { return *this; }
+	PVMovableSharedMutex(const PVMovableSharedMutex&) = delete;
+	PVMovableSharedMutex& operator=(const PVMovableSharedMutex&) = delete;
+
+	operator std::shared_mutex&() const { return _mutex; }
+
+  private:
+	mutable std::shared_mutex _mutex;
 };
 
 class PVControllerJob;
@@ -128,15 +152,42 @@ class PVNraw
 	/**
 	 * Appends a new column holding @p values, laid out the way @p column_type stores
 	 * them in memory
+	 *
+	 * Takes the structure lock: it moves the column vector, so anything holding a
+	 * pointer into it has to be gone first.
 	 */
 	bool append_column(const pvcop::db::type_t& column_type, std::span<const std::byte> values);
 
 	/**
 	 * Appends a new column of type "string" holding @p values
+	 *
+	 * Takes the structure lock, for the same reason.
 	 */
 	bool append_column(std::span<const std::string_view> values);
 
+	//! Remove a column. Takes the structure lock, for the same reason.
 	void delete_column(PVCol col);
+
+	/**
+	 * Hold the set of columns still.
+	 *
+	 * column() hands back a reference into a vector that append_column() and
+	 * delete_column() rewrite, and pvcop's arrays hand out pointers into mmapped
+	 * storage that closing a column unmaps. A reader that walks those pointers
+	 * for longer than one call -- an SQL scan runs for the length of a query,
+	 * across several threads -- has to say so, and the two writers wait.
+	 *
+	 * Shared between readers: they only need the layout not to move.
+	 *
+	 * @code
+	 *   const auto held = nraw.lock_structure();
+	 *   // columns stay where they are until `held` goes out of scope
+	 * @endcode
+	 */
+	[[nodiscard]] std::shared_lock<std::shared_mutex> lock_structure() const
+	{
+		return std::shared_lock<std::shared_mutex>(_structure_lock);
+	}
 
 	const pvcop::db::read_dict* column_dict(PVCol col) const { return _collection->dict(col); }
 
@@ -209,6 +260,8 @@ class PVNraw
 	/// Variable usefull for reading
 	std::unique_ptr<pvcop::collection> _collection = nullptr; //!< Structure to read NRaw content.
 	std::vector<pvcop::db::array> _columns;
+	//! Guards the shape of `_columns`, not the values in it. See lock_structure().
+	PVMovableSharedMutex _structure_lock;
 
 	/// Variable usefull for loading
 	size_t _real_nrows;                                     //!< Current number of line in the NRaw.

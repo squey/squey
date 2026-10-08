@@ -31,6 +31,8 @@
 
 #include <pvkernel/core/PVSerializedSource.h>
 
+#include <QMetaType>
+
 namespace PVRush
 {
 
@@ -81,5 +83,12 @@ class PVSourceDescription
 	PVRush::PVFormat _format;
 };
 } // namespace PVRush
+
+/* Declared beside the type rather than beside one of its users: a translation
+ * unit that instantiates QMetaTypeId for it before seeing the specialization
+ * fails to compile, and which unit that is depends on how the unity build
+ * happens to group the sources.
+ */
+Q_DECLARE_METATYPE(PVRush::PVSourceDescription)
 
 #endif /* PVSOURCEDESCRIPTION_H_ */

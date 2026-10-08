@@ -27,15 +27,22 @@
 
 #include <QObject>
 #include <QCursor>
+#include <QList>
 #include <QPen>
 #include <QTimer>
 #include <QColor>
 
 #include <sigc++/sigc++.h>
 
+#include <atomic>
+#include <memory>
 #include <vector>
 
+#include <pvbase/types.h>
+
 #include <pvparallelview/PVSelectionRectangleItem.h>
+
+#include <squey/PVAnalysisHistory.h>
 
 class QGraphicsScene;
 class QActionGroup;
@@ -80,8 +87,7 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 * @param view the view whose selection is driven by the rectangle
 	 */
 	PVSelectionRectangle(QGraphicsScene* scene, Squey::PVView& view);
-	~PVSelectionRectangle() override = default;
-	;
+	~PVSelectionRectangle() override;
 
   public:
 	/**
@@ -93,6 +99,8 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 * show and start a mouse interaction
 	 */
 	void begin(const QPointF& p);
+
+
 
 	/**
 	 * process a mouse interaction step
@@ -313,6 +321,23 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 */
 	virtual void commit(bool use_selection_modifiers) = 0;
 
+  protected:
+	/**
+	 * Where the shown rectangle stands, as a step keeps it: its scene coordinates
+	 * by default.
+	 *
+	 * Those only hold for the layout they were read in. A scene whose layout
+	 * changes under the rectangle keeps it in terms of that layout instead, and
+	 * puts it back on the layout of the moment.
+	 */
+	virtual QRectF placement() const;
+
+	/**
+	 * Shows the rectangle again where placement() said it stood, without
+	 * committing it.
+	 */
+	virtual void restore_placement(QRectF const& placement);
+
   private:
 	void move_by(qreal hstep, qreal vstep);
 	void grow_by(qreal hratio, qreal vratio);
@@ -325,7 +350,32 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 */
 	void view_selection_changed();
 
+	/**
+	 * Called from the thread the scaling was computed in, so it touches nothing
+	 * but _scaling_generation.
+	 */
+	void scaling_updated(QList<PVCol> const& columns);
+
   private:
+	Squey::PVView& _view;
+	size_t _contributor;
+
+	/**
+	 * How many times the scaled values have changed, so that a step only brings
+	 * back a rectangle drawn on the axes as they are now.
+	 *
+	 * Bumped from the thread a scaling is computed in, read from the GUI thread.
+	 */
+	std::atomic<size_t> _scaling_generation{0};
+
+	/**
+	 * Open for as long as a mouse gesture lasts, so that everything the gesture
+	 * commits on its way -- which is what lets a selection be tried out before it
+	 * is settled -- falls into one step of the analysis instead of leaving one
+	 * behind at every commit. Steps opened underneath it nest into it, and the
+	 * step is written when this one closes, on release.
+	 */
+	std::unique_ptr<Squey::PVAnalysisHistory::Scope> _gesture_step;
 	PVSelectionRectangleItem* _rect;
 	QTimer* _timer;
 	bool _use_selection_modifiers;

@@ -23,6 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
@@ -60,6 +61,7 @@ void PVGuiQt::PVAxesCombinationDialog::reset_used_axes()
 
 void PVGuiQt::PVAxesCombinationDialog::commit_axes_comb_to_view()
 {
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Axes combination"), "parallel-coordinates");
 	lib_view().set_axes_combination(_temp_axes_comb.get_combination());
 }
 

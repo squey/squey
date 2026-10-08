@@ -1,0 +1,24 @@
+<!-- @file -->
+<p>What a query gives back</p>
+<table>
+<tr>
+  <td class="shortcuts"><b>a condition</b>&nbsp;:</td>
+  <td>port = 80 AND host LIKE '%.fr' — the shortest form, and the one to
+      reach for. It becomes the selection</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>SELECT rowid …</b>&nbsp;:</td>
+  <td>the same, said in full, for what a condition cannot express:
+      subqueries, aggregates, WITH</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>anything else</b>&nbsp;:</td>
+  <td>a GROUP BY, a COUNT — shown in a panel beside the views, leaving the
+      selection alone. Two columns of value and count are drawn like the
+      distinct-values listing</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>an error</b>&nbsp;:</td>
+  <td>appears under the console, and names what would have worked</td>
+</tr>
+</table>

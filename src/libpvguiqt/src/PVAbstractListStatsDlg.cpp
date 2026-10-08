@@ -29,6 +29,7 @@
 #include <pvkernel/widgets/PVAbstractRangePicker.h>
 #include <pvkernel/widgets/PVLayerNamingPatternDialog.h>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
@@ -345,7 +346,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 			_select_groupbox->setVisible(false);
 			groupBox_2->setVisible(false);
 		} else {
-			_select_groupbox->setVisible(true);
+			_select_groupbox->setVisible(_selection_actions_enabled);
 			groupBox_2->setVisible(true);
 			_select_picker->set_relative_max_count(model().relative_max_count());
 			_select_picker->set_relative_min_count(model().relative_min_count());
@@ -396,6 +397,7 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 		model().current_selection().visit_selected_lines(
 		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
+		Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("Selection from the values listed"), "chart-simple-horizontal");
 		multiple_search(_msearch_action_for_layer_creation, values, false);
 	});
 
@@ -498,6 +500,29 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 }
 
 /******************************************************************************
+ * disable_selection_actions
+ *****************************************************************************/
+
+void PVGuiQt::PVAbstractListStatsDlg::disable_selection_actions()
+{
+	_selection_actions_enabled = false;
+
+	// Removed rather than greyed out: an entry that can never apply is noise.
+	// Only the copy entry the base class installed is kept -- the others are
+	// the search-multiple ones and the two layer creations, all of which read a
+	// value back into a column of the source.
+	for (QAction* act : _ctxt_menu->actions()) {
+		if (act != _copy_values_act) {
+			_ctxt_menu->removeAction(act);
+		}
+	}
+
+	// The range picker selects the values whose count falls in an interval,
+	// which is that same search reached by another route.
+	_select_groupbox->setVisible(false);
+}
+
+/******************************************************************************
  * show_hhead_ctxt_menu
  *****************************************************************************/
 
@@ -544,6 +569,7 @@ bool PVGuiQt::PVAbstractListStatsDlg::process_context_menu(QAction* act)
 		model().current_selection().visit_selected_lines(
 		    [&](int row_id) { values << QString::fromStdString(model().value_col().at(row_id)); });
 
+		Squey::PVAnalysisHistory::Scope step(*lib_view(), act->text(), "magnifying-glass");
 		multiple_search(act, values);
 		return true;
 	}
@@ -651,6 +677,14 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
                                                       const QStringList& sl,
                                                       bool hide_dialog)
 {
+	// Every route from a listed value to a view selection ends here -- the
+	// context menu, the range picker, the layer creations and committing rows
+	// in the listing -- so this is where the whole behaviour is switched off.
+	// Guarding here rather than on the signal keeps committing rows working,
+	// since that is also how values are copied.
+	if (not _selection_actions_enabled) {
+		return;
+	}
 
 	// Get the filter associated with that menu entry
 	QString filter_name = act->data().toString();
@@ -742,7 +776,12 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	QString text = dlg.get_name_pattern();
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
 
-	Squey::PVLayerStack& ls = lib_view()->get_layer_stack();
+	/* All of what follows -- a search, a layer, a visibility toggle, a commit
+	 * and a move -- is one thing the user asked for.
+	 */
+	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("New layer from the selected values"), "layer-from-selection");
+
+	Squey::PVLayerStack& ls = lib_view()->edit_layer_stack();
 
 	text.replace("%l", ls.get_selected_layer().get_name());
 	text.replace("%a", lib_view()->get_axes_combination().get_axis(_col).get_name());
@@ -783,7 +822,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 	multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 	lib_view()->add_new_layer(text);
-	Squey::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
+	Squey::PVLayer& layer = lib_view()->edit_layer_stack().edit_selected_layer();
 	int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
 	lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 
@@ -818,7 +857,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layer_with_selected_values()
 
 void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 {
-	Squey::PVLayerStack& ls = lib_view()->get_layer_stack();
+	Squey::PVLayerStack& ls = lib_view()->edit_layer_stack();
 
 	int layer_num = model().current_selection().bit_count();
 	int layer_max = SQUEY_LAYER_STACK_MAX_DEPTH - ls.get_layer_count();
@@ -843,6 +882,11 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 
 	QString text = dlg.get_name_pattern();
 	PVWidgets::PVLayerNamingPatternDialog::insert_mode mode = dlg.get_insertion_mode();
+
+	/* A search, then a layer per value, each hidden, committed and moved:
+	 * one thing the user asked for.
+	 */
+	Squey::PVAnalysisHistory::Scope step(*lib_view(), tr("One layer per selected value"), "layer-group");
 
 	/* some "static" formatting
 	 */
@@ -891,7 +935,7 @@ void PVGuiQt::PVAbstractListStatsDlg::create_layers_for_selected_values()
 		multiple_search(_msearch_action_for_layer_creation, sl, false);
 
 		lib_view()->add_new_layer(layer_name);
-		Squey::PVLayer& layer = lib_view()->get_layer_stack().get_selected_layer();
+		Squey::PVLayer& layer = lib_view()->edit_layer_stack().edit_selected_layer();
 		int ls_index = lib_view()->get_layer_stack().get_selected_layer_index();
 		lib_view()->toggle_layer_stack_layer_n_visible_state(ls_index);
 

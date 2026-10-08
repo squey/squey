@@ -31,6 +31,7 @@
 #include <squey/widgets/PVMappingScalingEditDialog.h>
 #include <squey/PVView.h>
 #include <squey/PVScaled.h>
+#include <squey/PVScalingProperties.h>
 #include <squey/PVMapped.h>
 
 #include <QActionGroup>
@@ -116,4 +117,53 @@ void PVDisplays::PVDisplayViewMappingScaling::add_to_axis_menu(
             });
 		}
 	}
+
+	add_selection_scaling_menu(menu, scaled, plp, *view);
+}
+
+/**
+ * Whether this axis spreads the selection over its whole length.
+ *
+ * The scaling as a whole has a setting of this kind, which every axis follows
+ * unless told otherwise here; the two entries below are that "otherwise". See
+ * Squey::PVScaled::set_scale_on_selection.
+ */
+void PVDisplays::PVDisplayViewMappingScaling::add_selection_scaling_menu(
+    QMenu& menu,
+    Squey::PVScaled& scaled,
+    Squey::PVScalingProperties& props,
+    Squey::PVView& view)
+{
+	using ESelectionScaling = Squey::PVScalingProperties::ESelectionScaling;
+
+	QMenu* sub = menu.addMenu(QObject::tr("Stretch on selection"));
+	sub->setAttribute(Qt::WA_TranslucentBackground);
+	sub->setIcon(PVModdedIcon("scaling"));
+	menu.addSeparator();
+
+	auto* group = new QActionGroup(sub);
+
+	const auto add = [&](ESelectionScaling stance, QString const& text) {
+		QAction* action = sub->addAction(text);
+		group->addAction(action);
+		action->setCheckable(true);
+		action->setChecked(props.get_selection_scaling() == stance);
+		QObject::connect(action, &QAction::triggered, [&scaled, &props, &view, stance]() {
+			props.set_selection_scaling(stance);
+			const Squey::PVSelection& sel = view.get_real_output_selection();
+			PVCore::PVProgressBox::progress(
+			    [&scaled, &sel](PVCore::PVProgressBox& /*pbox*/) {
+				    // Rescaling over the selection also gives back the bounds of every
+				    // row to an axis that just stopped following it.
+				    scaled.update_scaling_on_selection(sel);
+			    },
+			    QObject::tr("Updating scaling..."), nullptr);
+		});
+	};
+
+	add(ESelectionScaling::Inherit,
+	    QObject::tr("Follow the view (%1)")
+	        .arg(scaled.scale_on_selection() ? QObject::tr("on") : QObject::tr("off")));
+	add(ESelectionScaling::Enabled, QObject::tr("Always on"));
+	add(ESelectionScaling::Disabled, QObject::tr("Always off"));
 }

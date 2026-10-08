@@ -190,6 +190,12 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	PVCombCol get_axis_index() const { return _axis_index; }
 
 	/**
+	 * Antialias the lines (see PVBCIDrawingBackend::render), which the view does
+	 * unless set otherwise, from the next rendering on, which this starts.
+	 */
+	void set_antialiased(bool antialiased);
+
+	/**
 	 * Enable/disable the scene.
 	 *
 	 * In some case, the scene must be updated without having any side effect (Qt event,
@@ -565,6 +571,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	uint32_t _last_y_min;
 	uint32_t _last_y_max;
 	bool _show_bg;
+	bool _antialiased = true;
 
 	// about rendering
 	QTimer _updateall_timer;

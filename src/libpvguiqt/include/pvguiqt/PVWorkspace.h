@@ -137,6 +137,19 @@ class PVWorkspaceBase : public PVDisplays::PVDisplaysContainer
 	                                 PVDisplays::PVDisplaySourceIf& display_if,
 	                                 Squey::PVSource* src);
 
+	/*! \brief Show or hide the one display of its kind this view has.
+	 *
+	 *  For a display flagged UniquePerParameters: the toolbar button is a state
+	 *  rather than a command, so a second press puts the dock away instead of
+	 *  building a second one beside the first. The dock is kept when hidden, so
+	 *  whatever was typed into it is still there on the way back.
+	 *
+	 *  \param[in] button the toolbar button, kept checked while the dock shows.
+	 */
+	void toggle_unique_view_widget(QToolButton* button,
+	                               PVDisplays::PVDisplayViewIf& display_if,
+	                               Squey::PVView* view);
+
 	/*! \brief Return the workspace located under the mouse.
 	 */
 	static PVWorkspaceBase* workspace_under_mouse();

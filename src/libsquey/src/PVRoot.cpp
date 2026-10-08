@@ -119,6 +119,7 @@ void Squey::PVRoot::view_being_deleted(Squey::PVView* view)
 	if (_current_view == view) {
 		_current_view = nullptr;
 	}
+	_history.forget(view);
 }
 
 void Squey::PVRoot::scene_being_deleted(Squey::PVScene* scene)

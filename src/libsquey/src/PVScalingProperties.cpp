@@ -99,6 +99,20 @@ void Squey::PVScalingProperties::set_mode(std::string const& mode)
 	set_args(_args);
 }
 
+void Squey::PVScalingProperties::set_selection_scaling(ESelectionScaling scaling)
+{
+	if (_selection_scaling == scaling) {
+		return;
+	}
+
+	_selection_scaling = scaling;
+
+	// Whether the column now scales over the selection depends on the scaling's
+	// own setting, which is not known here: invalidate whatever the new stance
+	// is and let the scaling pass sort out what actually has to be recomputed.
+	_is_uptodate = false;
+}
+
 Squey::PVScalingFilter::p_type Squey::PVScalingProperties::get_scaling_filter()
 {
 	return _scaling_filter;
@@ -111,7 +125,14 @@ Squey::PVScalingProperties::serialize_read(PVCore::PVSerializeObject& so)
 
 	PVCore::PVArgumentList args;
 	so.arguments_read("properties", args, args);
-	return {mode.toStdString(), args};
+	PVScalingProperties props(mode.toStdString(), args);
+
+	// Investigations written before selection scaling existed have no such
+	// attribute; an absent one reads as zero, which is Inherit.
+	props._selection_scaling =
+	    static_cast<ESelectionScaling>(so.attribute_read<int>("selection_scaling"));
+
+	return props;
 }
 
 void Squey::PVScalingProperties::serialize_write(PVCore::PVSerializeObject& so) const
@@ -119,4 +140,5 @@ void Squey::PVScalingProperties::serialize_write(PVCore::PVSerializeObject& so) 
 	QString mode = QString::fromStdString(_mode);
 	so.attribute_write("mode", mode);
 	so.arguments_write("properties", _args);
+	so.attribute_write("selection_scaling", static_cast<int>(_selection_scaling));
 }

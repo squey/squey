@@ -24,11 +24,16 @@
 //
 
 #include <pvparallelview/PVSelectionRectangle.h>
+#include <pvparallelview/PVSelectionGenerator.h>
+#include <QApplication>
 #include <pvparallelview/PVSelectionRectangleItem.h>
 #include <pvparallelview/PVSelectionHandleItem.h>
 
 #include <pvkernel/widgets/PVModdedIcon.h>
 
+#include <squey/PVAnalysisHistory.h>
+#include <squey/PVRoot.h>
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
 
 #include <QGraphicsScene>
@@ -43,16 +48,57 @@ const QColor PVParallelView::PVSelectionRectangle::handle_color = QColor(255, 12
 const int PVParallelView::PVSelectionRectangle::handle_transparency = 50;
 const int PVParallelView::PVSelectionRectangle::delay_msec = 300;
 
+namespace
+{
+
+struct DrawnSelectionRectangle {
+	QRectF placement;
+	size_t scaling_generation;
+};
+} // namespace
+
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangle::PVSelectionRectangle
  *****************************************************************************/
 
 PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene,
                                                            Squey::PVView& view)
-    : QObject(static_cast<QObject*>(scene)), _use_selection_modifiers(true)
+    : QObject(static_cast<QObject*>(scene)), _view(view), _use_selection_modifiers(true)
 {
 	view._selection_view_changed.connect(
 	    sigc::mem_fun(*this, &PVSelectionRectangle::view_selection_changed));
+
+	view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	    sigc::mem_fun(*this, &PVSelectionRectangle::scaling_updated));
+
+	/* The rectangle belongs to the step it drew. Without this, going back to a
+	 * step lands on the right rows with no rectangle around them: the selection
+	 * changing under the rectangle is exactly what clears it, so restoring one
+	 * would otherwise always throw the other away.
+	 */
+	_contributor = view.get_parent<Squey::PVRoot>().history().add_contributor(
+	    [this]() -> Squey::PVAnalysisAttachment {
+		    return get_rect().isNull()
+		               ? Squey::PVAnalysisAttachment()
+		               : std::make_shared<const DrawnSelectionRectangle>(
+		                     DrawnSelectionRectangle{placement(), _scaling_generation});
+	    },
+	    [this](const Squey::PVAnalysisAttachment& attachment) {
+		    const auto* drawn = static_cast<const DrawnSelectionRectangle*>(attachment.get());
+
+		    // Only onto the axes it was drawn on: once they have been rescaled,
+		    // its edges frame other rows. Under a stretch on each selection, the
+		    // one being restored included, it would otherwise flash on screen
+		    // until that stretch dropped it.
+		    if (drawn != nullptr and drawn->scaling_generation == _scaling_generation) {
+			    // Put back rather than drawn: the selection it describes has
+			    // just been restored, and drawing it anew would only push the
+			    // very step being landed on.
+			    restore_placement(drawn->placement);
+		    } else {
+			    clear();
+		    }
+	    });
 
 	_rect = new PVParallelView::PVSelectionRectangleItem();
 	scene->addItem(_rect);
@@ -79,6 +125,11 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	        &PVSelectionRectangle::commit);
 }
 
+PVParallelView::PVSelectionRectangle::~PVSelectionRectangle()
+{
+	_view.get_parent<Squey::PVRoot>().history().remove_contributor(_contributor);
+}
+
 /*****************************************************************************
  * PVParallelView::PVSelectionRectangle::clear
  *****************************************************************************/
@@ -94,6 +145,32 @@ void PVParallelView::PVSelectionRectangle::clear()
 
 void PVParallelView::PVSelectionRectangle::begin(const QPointF& p)
 {
+	/* One step for the whole gesture, opened here so that it holds the selection
+	 * as it stands before the drag begins. Every commit the drag makes on its way
+	 * nests into this one and writes nothing of its own; the step is written when
+	 * this closes, on release.
+	 *
+	 * What it is called is read from the modifiers now, which is when the user
+	 * says what kind of selection this is going to be.
+	 */
+	const unsigned int modifiers =
+	    (unsigned int)QApplication::keyboardModifiers() & ~Qt::KeypadModifier;
+
+	QString label = QObject::tr("Selection");
+	std::string icon = "selection-square";
+	if (modifiers == PVSelectionGenerator::AND_MODIFIER) {
+		label = QObject::tr("Narrow the selection");
+		icon = "intersection";
+	} else if (modifiers == PVSelectionGenerator::NAND_MODIFIER) {
+		label = QObject::tr("Subtract from the selection");
+		icon = "difference";
+	} else if (modifiers == PVSelectionGenerator::OR_MODIFIER) {
+		label = QObject::tr("Add to the selection");
+		icon = "union";
+	}
+
+	_gesture_step = std::make_unique<Squey::PVAnalysisHistory::Scope>(_view, label, icon);
+
 	_rect->begin(p);
 	start_timer();
 }
@@ -121,6 +198,10 @@ void PVParallelView::PVSelectionRectangle::end(const QPointF& p, bool use_sel_mo
 	} else {
 		start_timer();
 	}
+
+	// Closed last, once the gesture's own commit has gone through: this is what
+	// writes the step, and it is written on release rather than on the way.
+	_gesture_step.reset();
 }
 
 /*****************************************************************************
@@ -248,6 +329,35 @@ void PVParallelView::PVSelectionRectangle::view_selection_changed()
 
 	_timer->stop();
 	clear();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::placement
+ *****************************************************************************/
+
+QRectF PVParallelView::PVSelectionRectangle::placement() const
+{
+	return get_rect();
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::restore_placement
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangle::restore_placement(QRectF const& placement)
+{
+	_rect->restore_rect(placement);
+}
+
+/*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::scaling_updated
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangle::scaling_updated(QList<PVCol> const& columns)
+{
+	if (not columns.empty()) {
+		++_scaling_generation;
+	}
 }
 
 /*****************************************************************************

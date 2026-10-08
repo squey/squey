@@ -100,6 +100,8 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	            size_t n,
 	            const float zoom_y = 1.0f,
 	            bool reverse = false,
+	            bool density = false,
+	            bool antialiased = false,
 	            std::function<void()> const& render_done = std::function<void()>()) override;
 
 	void wait_all() const override;

@@ -10,6 +10,7 @@
 
 set(LIBGUIQT_SRC_FILES
 common.cpp
+PVAnalysisBreadcrumb.cpp
 PVAxesCombinationDialog.cpp
 PVAxesCombinationWidget.cpp
 PVCredentialDialog.cpp
@@ -39,6 +40,9 @@ PVExportSelectionDlg.cpp
 PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
 PVPythonCodeEditor.cpp
+PVSqlCodeEditor.cpp
+PVSqlResultModel.cpp
+PVDisplayViewSqlConsole.cpp
 PVDockWidgetTitleBar.cpp
 PVStatusBar.cpp
 PVImportWorkflowTabBar.cpp
@@ -76,6 +80,7 @@ PVDisplayViewFilters.cpp
 )
 
 set(LIBGUIQT_MOC_HEADERS
+../include/pvguiqt/PVAnalysisBreadcrumb.h
 ../include/pvguiqt/PVAxesCombinationDialog.h
 ../include/pvguiqt/PVAxesCombinationWidget.h
 ../include/pvguiqt/PVLayerFilterProcessWidget.h
@@ -101,6 +106,8 @@ set(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVAboutBoxDialog.h
 ../include/pvguiqt/PVPythonScriptWidget.h
 ../include/pvguiqt/PVPythonCodeEditor.h
+../include/pvguiqt/PVSqlCodeEditor.h
+../include/pvguiqt/PVSqlResultModel.h
 ../include/pvguiqt/PVDockWidgetTitleBar.h
 ../include/pvguiqt/PVStatusBar.h
 ../include/pvguiqt/PVErrorsAndWarnings.h
@@ -160,6 +167,14 @@ add_library(pvguiqt SHARED ${SRC_FILES} ${MOC_SRC} ${QRC_FILES_SRCS} ${UI_FILES}
 target_compile_definitions(pvguiqt PRIVATE PVGUIQT_LIBRARY)
 set_target_properties(pvguiqt PROPERTIES SOVERSION 1)
 squey_speedup_compilation(pvguiqt QT)
+
+# Adding these files shifted the jumbo unit boundaries, which surfaced an
+# existing conflict: PVRecentItemsManager.h declares a Q_DECLARE_METATYPE that
+# only compiles when its header is the first in its unit to instantiate the
+# type. Keeping the SQL console out of the jumbo units restores the previous
+# grouping without moving unrelated files around.
+set_source_files_properties(PVSqlCodeEditor.cpp PVSqlResultModel.cpp PVDisplayViewSqlConsole.cpp
+	PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON)
 
 target_include_directories(pvguiqt PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_CURRENT_BINARY_DIR}/../include>

@@ -1,0 +1,41 @@
+<!-- @file -->
+<p>All of the above, in one query</p>
+<table>
+<tr><td style="font-family: monospace; white-space: pre; padding-bottom: 8px;">SELECT rowid FROM layers
+WHERE src = ipv4('192.168.1.10')
+  AND to_timestamp("start-time") &gt;= '2024-01-01'
+  AND host IN (SELECT host
+               FROM layer('All events')
+               GROUP BY host
+               HAVING COUNT(DISTINCT "user-agent") = 1)</td></tr>
+</table>
+<table>
+<tr>
+  <td class="shortcuts"><b>SELECT rowid</b>&nbsp;:</td>
+  <td>the row index alone, which is what turns a result into the selection.
+      Project anything else and the result is shown in a panel instead</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>FROM layers</b>&nbsp;:</td>
+  <td>the rows to read — here everything the layer stack lets through</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>ipv4('…')</b>&nbsp;:</td>
+  <td>the address as text. Converting the value rather than the column is what
+      keeps the comparison on the stored number, and fast</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>to_timestamp(…)</b>&nbsp;:</td>
+  <td>a date is stored as an epoch; this reads it back as an instant</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>"start-time"</b>&nbsp;:</td>
+  <td>double quotes name a column — needed here for the dash. Single quotes
+      hold a string, which is the reverse of most languages</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>IN (SELECT …)</b>&nbsp;:</td>
+  <td>a query may read a second table, here every row, to work out which hosts
+      qualify before narrowing the first</td>
+</tr>
+</table>

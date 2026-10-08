@@ -92,6 +92,22 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 
 	void init(Squey::PVView& view);
 
+	/**
+	 * Drop every action that turns the listed values into a selection of the
+	 * view.
+	 *
+	 * Values normally come from one column of the source, so acting on a row
+	 * means "search for this value in that column". A listing built over an
+	 * arbitrary expression -- a SQL group-by, say -- has no such column, and
+	 * _col then designates an unrelated axis: those actions would select
+	 * rows having nothing to do with what is shown, so they are removed rather
+	 * than left to misfire.
+	 *
+	 * Selecting rows to copy or export them is unaffected, and the listing
+	 * still follows the view's selection.
+	 */
+	void disable_selection_actions();
+
   public:
 	/**
 	 * Get the model with correct type.
@@ -218,6 +234,7 @@ class PVAbstractListStatsDlg : public PVListDisplayDlg
 	int _field_size_scientific;
 	int _field_size_percentage;
 	bool _counts_are_integers;
+	bool _selection_actions_enabled = true;
 
 	PVCore::PVDisconnector _selection_change_connection;
 };

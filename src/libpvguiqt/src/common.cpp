@@ -35,6 +35,7 @@
 #include <pvguiqt/PVDisplayViewLayerStack.h>
 #ifdef PYTHON_SUPPORT
 #include <pvguiqt/PVDisplayViewPythonConsole.h>
+#include <pvguiqt/PVDisplayViewSqlConsole.h>
 #endif
 #include <pvguiqt/PVDisplayViewFilters.h>
 
@@ -52,6 +53,7 @@ void PVGuiQt::common::register_displays()
 	REGISTER_CLASS("guiqt_average-by", PVDisplays::PVDisplayViewAverageBy);
 	REGISTER_CLASS("guiqt_layer-stack", PVDisplays::PVDisplayViewLayerStack);
 	REGISTER_CLASS("guiqt_listing", PVDisplays::PVDisplayViewListing);
+	REGISTER_CLASS("guiqt_sql-console", PVDisplays::PVDisplayViewSqlConsole);
 #ifdef PYTHON_SUPPORT
 	REGISTER_CLASS("guiqt_pythonconsole", PVDisplays::PVDisplayViewPythonConsole);
 #endif

@@ -33,6 +33,7 @@
 #include <pvkernel/core/PVSerializeArchiveFixError.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
@@ -568,6 +569,34 @@ void App::PVMainWindow::quit_Slot()
  * App::PVMainWindow::selection_inverse_Slot()
  *
  *****************************************************************************/
+void App::PVMainWindow::undo_Slot()
+{
+	get_root().history().undo();
+}
+
+void App::PVMainWindow::redo_Slot()
+{
+	get_root().history().redo();
+}
+
+void App::PVMainWindow::refresh_history_actions()
+{
+	const Squey::PVAnalysisHistory& history = get_root().history();
+
+	undo_Action->setEnabled(history.can_undo());
+	redo_Action->setEnabled(history.can_redo());
+
+	/* Naming the step each one leads to, so that the menu says where it goes
+	 * rather than merely that it can go somewhere.
+	 */
+	undo_Action->setText(history.can_undo()
+	                         ? tr("&Undo %1").arg(history.step(history.position()).label())
+	                         : tr("&Undo"));
+	redo_Action->setText(history.can_redo()
+	                         ? tr("&Redo %1").arg(history.step(history.position() + 1).label())
+	                         : tr("&Redo"));
+}
+
 void App::PVMainWindow::selection_all_Slot()
 {
 	PVLOG_DEBUG("App::PVMainWindow::%s\n", __FUNCTION__);
@@ -575,6 +604,7 @@ void App::PVMainWindow::selection_all_Slot()
 		return;
 	}
 
+	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Select all events"), "square-check");
 	current_view()->select_all();
 }
 
@@ -590,6 +620,7 @@ void App::PVMainWindow::selection_none_Slot()
 		return;
 	}
 
+	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Empty selection"), "square");
 	current_view()->select_none();
 }
 
@@ -605,6 +636,7 @@ void App::PVMainWindow::selection_inverse_Slot()
 		return;
 	}
 
+	Squey::PVAnalysisHistory::Scope step(*current_view(), tr("Invert selection"), "swap");
 	current_view()->select_inverse();
 }
 
@@ -799,6 +831,10 @@ void App::PVMainWindow::edit_format_Slot(QDomDocument& doc, QWidget* parent)
 void App::PVMainWindow::selection_set_from_current_layer_Slot()
 {
 	if (current_view()) {
+		Squey::PVAnalysisHistory::Scope step(
+		    *current_view(),
+		    tr("Selection from layer \"%1\"").arg(current_view()->get_current_layer().get_name()),
+		    "selection-from-layer");
 		current_view()->set_selection_from_layer(current_view()->get_current_layer());
 	}
 }
@@ -807,13 +843,20 @@ void App::PVMainWindow::selection_set_from_layer_Slot()
 {
 	if (current_view()) {
 		PVCore::PVArgumentList args;
+		/* Named, not written to -- the picker only has to point at a layer, and
+		 * asking for a writable one would copy it for nothing. The cast is what
+		 * the picker itself does; see PVLayerEnumEditor.
+		 */
 		args[PVCore::PVArgumentKey("sel-layer", tr("Choose a layer"))].setValue<Squey::PVLayer*>(
-		    &current_view()->get_current_layer());
+		    const_cast<Squey::PVLayer*>(&current_view()->get_current_layer()));
 		bool ret = PVWidgets::PVArgumentListWidget::modify_arguments_dlg(
 		    PVWidgets::PVArgumentListWidgetFactory::create_layer_widget_factory(*current_view()),
 		    args, this);
 		if (ret) {
 			auto* layer = args["sel-layer"].value<Squey::PVLayer*>();
+			Squey::PVAnalysisHistory::Scope step(
+			    *current_view(), tr("Selection from layer \"%1\"").arg(layer->get_name()),
+			    "selection-from-layer");
 			current_view()->set_selection_from_layer(*layer);
 		}
 	}

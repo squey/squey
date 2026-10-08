@@ -46,6 +46,7 @@ class PVLayerFilterMultipleSearch : public PVLayerFilter
 	void operator()(PVLayer const& in, PVLayer& out) override;
 	PVCore::PVArgumentKeyList get_args_keys_for_preset() const override;
 	QString menu_name() const override { return "Text Search/Multiple values"; }
+	std::string icon_name() const override { return "magnifying-glass"; }
 
   public:
 	static PVCore::PVArgumentList

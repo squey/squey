@@ -180,6 +180,22 @@ class PVLinesView
 	uint32_t get_axis_width() const { return _axis_width; }
 	void set_axis_width(uint32_t width);
 
+	/**
+	 * The opacity of the line of a single row, in ]0, 1]: below 1, the lines are
+	 * drawn by density (see PVZoneTreeBase::browse_tree_bci), which takes the
+	 * rows of each bucket counted (see PVViewRenderingContext::RowCounting).
+	 * Applies from the next rendering on.
+	 */
+	float get_line_opacity() const { return _line_opacity; }
+	void set_line_opacity(float opacity) { _line_opacity = opacity; }
+
+	/**
+	 * Whether the lines are antialiased (see PVBCIDrawingBackend::render), which
+	 * they are unless set otherwise. Applies from the next rendering on.
+	 */
+	bool is_antialiased() const { return _antialiased; }
+	void set_antialiased(bool antialiased) { _antialiased = antialiased; }
+
 	void translate(int32_t view_x, uint32_t view_width, const float zoom_y);
 
 	int update_number_of_zones(int view_x, uint32_t view_width);
@@ -243,6 +259,8 @@ class PVLinesView
 	uint32_t _zone_max_width;
 
 	uint32_t _axis_width = PVParallelView::AxisWidth;
+	float _line_opacity = 1.f;
+	bool _antialiased = true;
 
 	// Every rendering launched and possibly not over yet. The zone images only
 	// keep their last renderings, and they are dropped as fewer zones become

@@ -38,6 +38,7 @@
 #include <memory>
 #include <functional>
 
+#include <tbb/enumerable_thread_specific.h>
 #include <tbb/tick_count.h>
 #include <tbb/parallel_for.h>
 #include <tbb/blocked_range2d.h>

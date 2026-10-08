@@ -99,14 +99,14 @@ void PVParallelView::PVZonesManager::update_all(bool reinit_zones)
  * PVParallelView::PVZonesManager::update_zone
  *
  *****************************************************************************/
-void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
+void PVParallelView::PVZonesManager::rebuild_zone(PVZoneID zone_id,
+                                                  PVParallelView::PVZoneTree::ProcessData& pdata)
 {
 	PVZone& zone = get_zone(zone_id);
 
 	zone = PVZone();
 
 	PVZoneProcessing zp = get_zone_processing(zone_id);
-	PVParallelView::PVZoneTree::ProcessData pdata;
 	pdata.clear();
 
 	PVZoneTree& ztree = zone.ztree();
@@ -114,6 +114,39 @@ void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
 
 	PVZoomedZoneTree& zztree = zone.zoomed_ztree();
 	zztree.reset();
+}
+
+void PVParallelView::PVZonesManager::update_zone(PVZoneID zone_id)
+{
+	PVParallelView::PVZoneTree::ProcessData pdata;
+	rebuild_zone(zone_id, pdata);
+}
+
+void PVParallelView::PVZonesManager::update_zones(std::unordered_set<PVZoneID> const& zones)
+{
+	if (zones.empty()) {
+		return;
+	}
+
+	const std::vector<PVZoneID> ids(zones.begin(), zones.end());
+
+	const size_t cores = pvhwloc::core_count();
+
+	// How many zones are built side by side, and how many cores each one gets:
+	// their product is the whole machine. A zone in flight holds a couple of bytes
+	// per row on top of its own row store, so building every one of them with
+	// every core would ask for that many times over.
+	const size_t parallel_zones = std::max<size_t>(1, std::min(ids.size(), cores));
+	const size_t grain = (ids.size() + parallel_zones - 1) / parallel_zones;
+	const auto tasks_per_zone = (uint32_t)std::max<size_t>(1, cores / parallel_zones);
+
+	tbb::parallel_for(tbb::blocked_range<size_t>(0, ids.size(), grain),
+	                  [this, &ids, tasks_per_zone](tbb::blocked_range<size_t> const& r) {
+		                  PVParallelView::PVZoneTree::ProcessData pdata(tasks_per_zone);
+		                  for (size_t i = r.begin(); i != r.end(); ++i) {
+			                  rebuild_zone(ids[i], pdata);
+		                  }
+	                  });
 }
 
 /******************************************************************************
@@ -257,13 +290,13 @@ void PVParallelView::PVZonesManager::request_zoomed_zone(PVZoneID zone_id)
 void PVParallelView::PVZonesManager::filter_zone_by_sel(PVZoneID zone_id,
                                                         const Squey::PVSelection& sel)
 {
-	get_zone(zone_id).filter_by_sel(sel);
+	get_zone(zone_id).filter_by_sel(sel, _count_rows_per_bucket);
 }
 
 void PVParallelView::PVZonesManager::filter_zone_by_sel_background(PVZoneID zone_id,
                                                                    const Squey::PVSelection& sel)
 {
-	get_zone(zone_id).filter_by_sel_background(sel);
+	get_zone(zone_id).filter_by_sel_background(sel, _count_rows_per_bucket);
 }
 
 /******************************************************************************

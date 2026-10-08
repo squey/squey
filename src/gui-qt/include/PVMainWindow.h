@@ -40,6 +40,7 @@
 #include <pvkernel/widgets/PVFileDialog.h>
 
 
+#include <sigc++/sigc++.h>
 #include <squey/PVSelection.h>
 
 #include <pvguiqt/PVProjectsTabWidget.h>
@@ -147,6 +148,9 @@ class PVMainWindow : public QMainWindow
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	void quit_Slot();
+	void undo_Slot();
+	void redo_Slot();
+	void refresh_history_actions();
 	void selection_all_Slot();
 	void selection_inverse_Slot();
 	void selection_none_Slot();
@@ -227,6 +231,10 @@ class PVMainWindow : public QMainWindow
 	QAction* new_scene_Action;
 	QAction* quit_Action;
 	QAction* select_scene_Action;
+	sigc::connection _history_changed;
+
+	QAction* undo_Action;
+	QAction* redo_Action;
 	QAction* selection_all_Action;
 	QAction* selection_inverse_Action;
 	QAction* selection_none_Action;

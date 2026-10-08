@@ -16,6 +16,10 @@ add_squey_test(Thitgraph-buffer Thitgraph-buffer)
 add_squey_compile_test(Thitgraph_kernels_agree LINKS ${LINK_LIBRARIES} FILES hitgraph_kernels_agree.cpp)
 add_squey_test(Thitgraph_kernels_agree Thitgraph_kernels_agree)
 
+add_squey_compile_test(Tseries_renderers_agree LINKS ${LINK_LIBRARIES} FILES series_renderers_agree.cpp)
+add_squey_test(Tseries_renderers_agree Tseries_renderers_agree)
+add_bench(series_render_bench LINKS ${LINK_LIBRARIES} FILES series_render_bench.cpp)
+
 add_squey_compile_test(Tpview_zone_tree_dump_load LINKS ${LINK_LIBRARIES} FILES zone_tree_dump_load.cpp)
 add_squey_test(Tpview_zone_tree_dump_load Tpview_zone_tree_dump_load 0 50 2)
 
@@ -37,6 +41,10 @@ add_squey_compile_test(Tpview_axis_end_labels LINKS ${LINK_LIBRARIES} FILES axis
 add_squey_test(Tpview_axis_end_labels Tpview_axis_end_labels)
 add_squey_compile_test(Tpview_scene_outlived_by_context LINKS ${LINK_LIBRARIES} FILES scene_outlived_by_context.cpp)
 add_squey_test(Tpview_scene_outlived_by_context Tpview_scene_outlived_by_context)
+add_squey_compile_test(Tpview_selection_rectangle_undo LINKS ${LINK_LIBRARIES} FILES selection_rectangle_undo.cpp)
+add_squey_test(Tpview_selection_rectangle_undo Tpview_selection_rectangle_undo)
+add_squey_compile_test(Tpview_lines_by_density LINKS ${LINK_LIBRARIES} FILES lines_by_density.cpp)
+add_squey_test(Tpview_lines_by_density Tpview_lines_by_density)
 add_squey_compile_test(Tpview_zoomed_view_rescaled LINKS ${LINK_LIBRARIES} FILES zoomed_view_rescaled.cpp)
 add_squey_test(Tpview_zoomed_view_rescaled Tpview_zoomed_view_rescaled)
 add_squey_compile_test(Tpview_rescaled_off_gui_thread LINKS ${LINK_LIBRARIES} FILES rescaled_off_gui_thread.cpp)
@@ -45,6 +53,9 @@ add_squey_compile_test(Tseries_tree_selection LINKS ${LINK_LIBRARIES} FILES seri
 add_squey_test(Tseries_tree_selection Tseries_tree_selection)
 add_squey_compile_test(Tseries_date_range_formatter LINKS ${LINK_LIBRARIES} FILES series_date_range_formatter.cpp)
 add_squey_test(Tseries_date_range_formatter Tseries_date_range_formatter)
+
+add_squey_compile_test(Tpview_scatter_thumbnail_orientation LINKS ${LINK_LIBRARIES} FILES scatter_thumbnail_orientation.cpp)
+add_squey_test(Tpview_scatter_thumbnail_orientation Tpview_scatter_thumbnail_orientation)
 
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)

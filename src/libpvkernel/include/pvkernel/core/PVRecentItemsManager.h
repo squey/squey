@@ -39,7 +39,6 @@ namespace PVRush
 class PVFormat;
 } // namespace PVRush
 
-Q_DECLARE_METATYPE(PVRush::PVSourceDescription)
 
 namespace PVCore
 {

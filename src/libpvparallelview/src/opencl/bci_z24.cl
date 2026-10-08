@@ -72,6 +72,91 @@ uint hue2rgb(uint hue)
 	return 0xFF000000 | (uint)(0xFF * r.x) << 16 | (uint)(0xFF * r.y) << 8 | (uint)(0xFF * r.z);
 }
 
+/* What a pixel keeps the lowest of, among the lines crossing it, for a line of
+ * an opacity of its own; the colour takes the 8 lower bits.
+ *
+ * The most opaque line wins, then the line of the lowest row, on the 15 upper
+ * bits of its index, and black lines -- the zombies -- stay behind all the
+ * others.
+ */
+uint translucent_pixel_value(const uint row, const uint color, const uint opacity)
+{
+	const uint black = color == HSV_COLOR_BLACK;
+
+	return black << 31 | (255 - opacity) << 23 | (row >> 17) << 8 | color;
+}
+
+/* The line of the lowest row wins, on the 24 upper bits of its index, and black
+ * lines stay behind all the others. Drawn by density, a code carries its opacity
+ * in the 8 lower bits of its index instead, and lines are ordered as
+ * translucent_pixel_value orders them. PVBCIDrawingBackendQPainter orders its
+ * lines the same way.
+ */
+uint pixel_value(const uint row, const uint color, const uint density)
+{
+	if (density) {
+		return translucent_pixel_value(row, color, row & 0xFF);
+	}
+
+	if (color == HSV_COLOR_BLACK) {
+		return 0xFFFFFF00 | color;
+	}
+
+	return (row & 0xFFFFFF00) | color;
+}
+
+/* Antialiased, a line covers each pixel of a column by how close it passes to
+ * its centre along the line's minor axis: vertically for a line flatter than a
+ * diagonal, horizontally for a steeper one, as in Xiaolin Wu's algorithm. The
+ * coverage scales the opacity of the line, which decides what the pixel keeps
+ * (see translucent_pixel_value): where lines meet, the one covering the most of
+ * the pixel is drawn, without blending with the others.
+ *
+ * y is the row the line passes at in the middle of the column, rows being
+ * centred on whole values, and slope the rows it moves by per column. column
+ * points to the first pixel of the column, pitch pixels apart from one row to
+ * the next.
+ */
+void draw_covered(local uint* column,
+                  const uint pitch,
+                  const uint image_height,
+                  const float y,
+                  const float slope,
+                  const uint row,
+                  const uint color,
+                  const uint opacity)
+{
+	const float reach = fmax(1.0f, fabs(slope));
+	const float inverse_reach = 1.0f / reach;
+	const int first = max((int)ceil(y - reach), 0);
+	const int last = min((int)floor(y + reach), (int)image_height - 1);
+
+	for (int pixel_y = first; pixel_y <= last; pixel_y++) {
+		const float coverage = 1.0f - fabs((float)pixel_y - y) * inverse_reach;
+		const uint alpha = (uint)(opacity * coverage + 0.5f);
+
+		if (alpha == 0) {
+			continue;
+		}
+
+		const uint value = translucent_pixel_value(row, color, alpha);
+		local uint* const pixel = column + pixel_y * pitch;
+		if (*pixel > value) {
+			atomic_min(pixel, value);
+		}
+	}
+}
+
+//! The image is a QImage::Format_ARGB32_Premultiplied one.
+uint premultiplied(const uint rgb, const uint opacity)
+{
+	const uint r = (((rgb >> 16) & 0xFF) * opacity + 127) / 255;
+	const uint g = (((rgb >> 8) & 0xFF) * opacity + 127) / 255;
+	const uint b = ((rgb & 0xFF) * opacity + 127) / 255;
+
+	return opacity << 24 | r << 16 | g << 8 | b;
+}
+
 kernel void DRAW(const global uint2* bci_codes,
                  const uint n,
                  const uint width,
@@ -82,7 +167,9 @@ kernel void DRAW(const global uint2* bci_codes,
                  const float zoom_y,
                  const uint bit_shift,
                  const uint bit_mask,
-                 const uint reverse)
+                 const uint reverse,
+                 const uint density,
+                 const uint antialiased)
 {
 	local uint shared_img[LOCAL_MEMORY_SIZE / sizeof(uint)];
 
@@ -98,6 +185,7 @@ kernel void DRAW(const global uint2* bci_codes,
 
 	const float alpha0 = (float)(width-band_x)/(float)width;
 	const float alpha1 = (float)(width-(band_x+1))/(float)width;
+	const float alpha_middle = ((float)(width-band_x) - 0.5f)/(float)width;
 	const uint y_start = get_local_id(1) + get_group_id(1)*get_local_size(1);
 	const uint y_pitch = get_local_size(1)*get_num_groups(1);
 
@@ -111,13 +199,38 @@ kernel void DRAW(const global uint2* bci_codes,
 	barrier(CLK_LOCAL_MEM_FENCE);
 
 	for (uint idx_codes = y_start; draws && idx_codes < n; idx_codes += y_pitch) {
-		uint2 code0 = bci_codes[idx_codes];
-
-		code0.x &= 0xFFFFFF00;
+		const uint2 code0 = bci_codes[idx_codes];
 
 		const float l0 = (float) (code0.y & bit_mask);
 		const int r0i = (code0.y >> bit_shift) & bit_mask;
 		const int type = (code0.y >> ((2*bit_shift) + 8)) & 3;
+
+		if (antialiased) {
+			float y;
+			float slope;
+
+			if (type == 0) {
+				const float r0 = (float) r0i;
+
+				y = (r0 + ((l0-r0)*alpha_middle)) * zoom_y;
+				slope = (r0-l0) * zoom_y / (float)width;
+			} else {
+				if (band_x > r0i) {
+					continue;
+				}
+
+				// A line leaving the image within its first column keeps a finite slope.
+				const float r0 = fmax((float) r0i, 1.0f);
+				const float alpha_x = (type == 1 ? -l0 : (float)bit_mask-l0) / r0;
+
+				y = (l0 + (alpha_x*((float)band_x + 0.5f))) * zoom_y;
+				slope = alpha_x * zoom_y;
+			}
+
+			draw_covered(shared_img + get_local_id(0), get_local_size(0), image_height, y, slope,
+			             code0.x, (code0.y >> 2*bit_shift) & 0xFF, density ? code0.x & 0xFF : 255);
+			continue;
+		}
 
 		if (type == 0) {
 			const float r0 = (float) r0i;
@@ -165,22 +278,23 @@ kernel void DRAW(const global uint2* bci_codes,
 		}
 
 		const uint color0 = (code0.y >> 2*bit_shift) & 0xFF;
+		const uint shared_v = pixel_value(code0.x, color0, density);
 
-		if (color0 == HSV_COLOR_BLACK) {
-			code0.x = 0xFFFFFF00;
-		}
-
-		const uint shared_v = color0 | code0.x;
-		
+		/* The work-items of a work-group that share an image column draw into the
+		 * same pixels: the lowest value has to be kept atomically, or the line a
+		 * pixel shows depends on which work-item happens to write last. Values only
+		 * ever decrease, so reading first spares the atomic operation whenever the
+		 * pixel already holds a lower one.
+		 */
 		size_t idx = get_local_id(0) + pixel_y00*get_local_size(0);
 		if (shared_img[idx] > shared_v) {
-			shared_img[idx] = shared_v;
+			atomic_min(&shared_img[idx], shared_v);
 		}
 
 		for (int pixel_y0 = pixel_y00+1; pixel_y0 < pixel_y01; pixel_y0++) {
 			idx = get_local_id(0) + pixel_y0*get_local_size(0);
 			if (shared_img[idx] > shared_v) {
-				shared_img[idx] = shared_v;
+				atomic_min(&shared_img[idx], shared_v);
 			}
 		}
 	}
@@ -199,6 +313,9 @@ kernel void DRAW(const global uint2* bci_codes,
 
 		if (pixel_shared != 0xFFFFFFFF) {
 			pixel = hue2rgb(pixel_shared & 0x000000FF);
+			if (density || antialiased) {
+				pixel = premultiplied(pixel, 255 - ((pixel_shared >> 23) & 0xFF));
+			}
 		} else {
 			pixel = 0x00000000;
 		}

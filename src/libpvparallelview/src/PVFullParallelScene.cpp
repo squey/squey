@@ -31,6 +31,7 @@
 #include <pvkernel/widgets/PVMouseButtonsLegend.h>
 
 #include <squey/PVStateMachine.h>
+#include <squey/PVScaled.h>
 #include <squey/PVView.h>
 #include <squey/PVSource.h>
 
@@ -43,6 +44,8 @@
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZonesManager.h>
 #include <pvparallelview/PVSelectionGenerator.h>
+#include <pvparallelview/PVFullParallelViewParamsWidget.h>
+#include <pvparallelview/PVSlidersGroup.h>
 
 #include <QtCore>
 #include <QKeyEvent>
@@ -111,6 +114,12 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	// every event tied to the zones manager / processors state goes through
 	// the context, which invalidates its shared state before emitting.
 	// Disconnection is automatic (sigc::trackable).
+	// Connected before the repaint below, and posted to the same queue: the wait
+	// for a rescaling has to be under way by the time update_new_selection() asks
+	// whether one is coming.
+	context.selection_updated.connect(sigc::mem_fun(
+	    *this, &PVParallelView::PVFullParallelScene::on_selection_updated_rescale));
+
 	context.selection_updated.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::update_new_selection_async));
 
@@ -187,6 +196,15 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_timer_render->setInterval(RENDER_TIMER_TIMEOUT);
 	connect(_timer_render, &QTimer::timeout, this, &PVFullParallelScene::render_all_zones_all_imgs);
 
+	// Waits out a selection still being drawn before rescaling on it, see
+	// rescale_on_selection_if_automatic. A touch longer than the rectangle's own
+	// commit delay, so that a drag goes through as one rescaling instead of one
+	// per step.
+	_timer_rescale = new QTimer(this);
+	_timer_rescale->setSingleShot(true);
+	_timer_rescale->setInterval(PVSelectionRectangle::delay_msec + 100);
+	connect(_timer_rescale, &QTimer::timeout, this, &PVFullParallelScene::rescale_on_selection);
+
 	_lib_view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::refresh_densities));
 }
@@ -209,9 +227,13 @@ PVParallelView::PVFullParallelScene::~PVFullParallelScene()
 void PVParallelView::PVFullParallelScene::about_to_be_deleted()
 {
 	_detached = true;
+	if (_timer_rescale != nullptr) {
+		_timer_rescale->stop();
+	}
 	graphics_view()->setDisabled(true);
 	// Cancel everything!
 	_lines_view.cancel_and_wait_all_rendering();
+	_row_counting.release();
 }
 
 /******************************************************************************
@@ -247,6 +269,12 @@ void PVParallelView::PVFullParallelScene::on_view_about_to_be_deleted()
 	// outlive it.
 	about_to_be_deleted();
 	delete graphics_view();
+}
+
+void PVParallelView::PVFullParallelScene::on_selection_updated_rescale()
+{
+	PVCore::invokeMethod(this, &PVFullParallelScene::rescale_on_selection_if_automatic,
+	                     Qt::QueuedConnection);
 }
 
 void PVParallelView::PVFullParallelScene::refresh_densities(const QList<PVCol>& columns)
@@ -344,6 +372,19 @@ void PVParallelView::PVFullParallelScene::first_render()
 
 	// Change view's internal counter
 	update_selected_event_number();
+
+	// The toolbar was built with the graphics view, before this scene existed and
+	// was attached to it: only now can it read back what the investigation was
+	// saved with.
+	_full_parallel_view->_params_widget->update_widgets();
+
+	// An investigation saved under selection scaling comes back with its columns
+	// scaled over their every row -- the domain itself is not saved -- so give
+	// them the restored selection.
+	if (_lib_view.get_parent<Squey::PVScaled>().scale_on_selection()) {
+		PVCore::invokeMethod(this, &PVFullParallelScene::rescale_on_selection,
+		                     Qt::QueuedConnection);
+	}
 
 	update_all();
 }
@@ -669,6 +710,20 @@ void PVParallelView::PVFullParallelScene::translate_and_update_zones_position()
 void PVParallelView::PVFullParallelScene::update_all()
 {
 	assert(QThread::currentThread() == this->thread());
+
+	update_selected_event_number();
+
+	// A rescaling is on its way and repaints all of this once the axes are settled.
+	// Painting now would show the selection against axes that are about to be
+	// recomputed -- a reading nobody asked for, and one that says the selection
+	// sits on a sliver of the axis when the whole point is to spread it -- and the
+	// painting would be thrown away, cancelled part-drawn when the zone trees are
+	// rebuilt. The count above still goes through, so the selection is answered at
+	// once.
+	if (_timer_rescale != nullptr and _timer_rescale->isActive()) {
+		return;
+	}
+
 	render_all_zones_all_imgs();
 	if (_show_min_max_values) {
 		for (PVAxisGraphicsItem* axis : _axes) {
@@ -676,7 +731,6 @@ void PVParallelView::PVFullParallelScene::update_all()
 			axis->update_layer_min_max_info();
 		}
 	}
-	update_selected_event_number();
 }
 
 /******************************************************************************
@@ -723,6 +777,16 @@ void PVParallelView::PVFullParallelScene::update_new_selection()
 	// Change view's internal counter
 	update_selected_event_number();
 
+	// A rescaling is on its way and repaints everything, selection included.
+	// Painting it here would show it against axes that are about to be recomputed
+	// -- a reading nobody asked for, and one that says the selection sits on a
+	// sliver of the axis when the whole point is to spread it -- and the painting
+	// would be thrown away, cancelled part-drawn when the zone trees are rebuilt.
+	// The count above still goes through, so the selection is answered at once.
+	if (_timer_rescale != nullptr and _timer_rescale->isActive()) {
+		return;
+	}
+
 	const uint32_t view_x = _full_parallel_view->horizontalScrollBar()->value();
 	const uint32_t view_width = _full_parallel_view->width();
 	_lines_view.render_all_zones_sel_image(view_x, view_width, _zoom_y);
@@ -742,6 +806,161 @@ void PVParallelView::PVFullParallelScene::update_new_selection_async()
 	// QMetaObject::invokeMethod(this, &PVFullParallelScene::update_new_selection,
 	// Qt::QueuedConnection);
 	PVCore::invokeMethod(this, &PVFullParallelScene::update_new_selection, Qt::QueuedConnection);
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::set_scale_on_selection
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::set_scale_on_selection(bool enabled)
+{
+	Squey::PVScaled& scaled = _lib_view.get_parent<Squey::PVScaled>();
+
+	scaled.set_scale_on_selection(enabled);
+
+	if (enabled) {
+		rescale_on_selection();
+	} else {
+		// Every axis that was following the setting is owed the bounds of its every
+		// row back; the ones switched on through their own header menu keep theirs.
+		PVCore::PVProgressBox::progress(
+		    [&scaled](PVCore::PVProgressBox&) { scaled.clear_selection_domain(); },
+		    QObject::tr("Updating scaling..."), _full_parallel_view);
+	}
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::set_auto_scale_on_selection
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::set_auto_scale_on_selection(bool enabled)
+{
+	// Only records what to do from now on. Rescaling here would recompute every
+	// column against a selection nobody has changed yet -- on first use the whole
+	// source, which spreads over the axes exactly as it already does.
+	_lib_view.get_parent<Squey::PVScaled>().set_auto_scale_on_selection(enabled);
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::rescale_on_selection
+ *
+ *****************************************************************************/
+std::optional<std::pair<int64_t, int64_t>>
+PVParallelView::PVFullParallelScene::selection_band(PVCombCol col) const
+{
+	const Squey::PVSelection& sel = _lib_view.get_real_output_selection();
+
+	if (sel.is_empty()) {
+		return std::nullopt;
+	}
+
+	const Squey::PVScaled& scaled = _lib_view.get_parent<Squey::PVScaled>();
+	const PVCol nraw_col = _lib_view.get_axes_combination().get_nraw_axis(col);
+
+	PVRow min_row;
+	PVRow max_row;
+	scaled.get_col_minmax(min_row, max_row, sel, nraw_col);
+
+	// A scaled value is what a slider value is: the axis spans the whole range of
+	// a uint32, see PVAbstractAxisSlider::max_value.
+	return std::make_pair((int64_t)scaled.get_value(min_row, nraw_col),
+	                      (int64_t)scaled.get_value(max_row, nraw_col));
+}
+
+void PVParallelView::PVFullParallelScene::rescale_on_selection()
+{
+	if (_timer_rescale != nullptr) {
+		_timer_rescale->stop();
+	}
+
+	if (_detached) {
+		return;
+	}
+
+	Squey::PVScaled& scaled = _lib_view.get_parent<Squey::PVScaled>();
+
+	// Asking to rescale is asking for selection scaling. An axis switched on
+	// through its own header menu carries it alone, but with none in force the
+	// request would recompute nothing at all.
+	if (not scaled.scale_on_selection_anywhere()) {
+		scaled.set_scale_on_selection(true);
+		_full_parallel_view->_params_widget->update_widgets();
+	}
+
+	const Squey::PVSelection& sel = _lib_view.get_real_output_selection();
+
+	// Recomputes every column that scales over the selection and rebuilds the
+	// zones behind them, which is worth a progress box on a large source.
+	// Where the selected rows reach on each axis, measured on both sides of the
+	// rescaling: that band is what the sliders are carried by, so that they keep
+	// framing the values they were set around.
+	std::vector<std::optional<std::pair<int64_t, int64_t>>> axes_bands_before(_axes.size());
+	for (size_t axis = 0; axis < _axes.size(); axis++) {
+		if (not _axes[axis]->get_selection_ranges().empty()) {
+			axes_bands_before[axis] = selection_band(PVCombCol(axis));
+		}
+	}
+
+	bool rescaled = false;
+	PVCore::PVProgressBox::progress(
+	    [&scaled, &sel, &rescaled](PVCore::PVProgressBox&) {
+		    rescaled = scaled.update_scaling_on_selection(sel);
+	    },
+	    QObject::tr("Stretching axes on selection..."), _full_parallel_view);
+
+	if (not rescaled) {
+		// Every column sits where it sat, so nothing downstream was rebuilt and
+		// nothing will repaint on its own: whatever was held back while this
+		// rescaling was pending is owed its painting now.
+		update_all_async();
+		return;
+	}
+
+	for (size_t axis = 0; axis < _axes.size(); axis++) {
+		const auto& before = axes_bands_before[axis];
+		if (not before) {
+			continue;
+		}
+		if (const auto after = selection_band(PVCombCol(axis))) {
+			_axes[axis]->get_sliders_group()->rescale_selection_sliders(*before, *after);
+		}
+	}
+
+	// The rectangle is dropped rather than carried across. It holds one height for
+	// all the axes it spans, while a rescaling gives each of them a transform of
+	// its own -- its own bounds, its own mode -- so past a single axis there is no
+	// one place to carry it to, only a compromise between answers that disagree.
+	//
+	// Nor does it frame the selection: that is the intersection of what it asks of
+	// every axis it spans, and whatever selection modifier was held. A rectangle
+	// drawn wider than the rows it caught would be stretched as though it were
+	// them, and end up covering an axis it never framed.
+	//
+	// The selection itself stands -- those rows stay selected and drawn -- and the
+	// rectangle has already done its work by producing it. Clearing it is what the
+	// scene does anyway when a selection comes from the sliders instead, see
+	// update_selection_from_sliders_Slot.
+	_sel_rect.clear();
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::rescale_on_selection_if_automatic
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::rescale_on_selection_if_automatic()
+{
+	if (_detached or not _lib_view.get_parent<Squey::PVScaled>().auto_scale_on_selection()) {
+		return;
+	}
+
+	// Restarts the wait: only the selection left standing is rescaled on.
+	if (_timer_rescale != nullptr) {
+		_timer_rescale->start();
+	}
 }
 
 /******************************************************************************
@@ -827,6 +1046,32 @@ void PVParallelView::PVFullParallelScene::enable_density_on_axes(bool enable_den
 	for (auto axis : _axes) {
 		axis->enable_density(enable_density);
 	}
+}
+
+void PVParallelView::PVFullParallelScene::set_line_opacity(float opacity)
+{
+	if (_detached) {
+		return;
+	}
+
+	if (opacity >= 1.f) {
+		_row_counting.release();
+	} else if (not _row_counting) {
+		_row_counting = _context->count_rows_per_bucket();
+	}
+
+	_lines_view.set_line_opacity(opacity);
+	update_all_with_timer();
+}
+
+void PVParallelView::PVFullParallelScene::set_antialiased(bool antialiased)
+{
+	if (_detached) {
+		return;
+	}
+
+	_lines_view.set_antialiased(antialiased);
+	update_all_with_timer();
 }
 
 /******************************************************************************

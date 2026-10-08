@@ -45,13 +45,20 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 	typedef PVZoneRenderingBCIBase_p p_type;
 
   public:
+	/**
+	 * @param density @p f_bci gives each code its opacity (see
+	 * PVBCIDrawingBackend::render).
+	 * @param antialiased see PVBCIDrawingBackend::render.
+	 */
 	PVZoneRenderingBCIBase(PVZoneID zone_id,
 	                       bci_func_type f_bci,
 	                       PVBCIBackendImage_p& dst_img,
 	                       uint32_t x_start,
 	                       size_t width,
 	                       float zoom_y = 1.0f,
-	                       bool reversed = false)
+	                       bool reversed = false,
+	                       bool density = false,
+	                       bool antialiased = false)
 	    : PVZoneRendering(zone_id)
 	    , _f_bci(std::move(f_bci))
 	    , _dst_img(dst_img)
@@ -59,6 +66,8 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 	    , _x_start(x_start)
 	    , _zoom_y(zoom_y)
 	    , _reversed(reversed)
+	    , _density(density)
+	    , _antialiased(antialiased)
 	{
 	}
 
@@ -74,6 +83,8 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 
 	inline float render_zoom_y() const { return _zoom_y; }
 	inline bool render_reversed() const { return _reversed; }
+	inline bool render_density() const { return _density; }
+	inline bool render_antialiased() const { return _antialiased; }
 
 	inline bool valid() const
 	{
@@ -95,7 +106,7 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 	                       std::function<void()> const& render_done = std::function<void()>())
 	{
 		backend.render(_dst_img, img_x_start(), img_width(), codes, n, render_zoom_y(),
-		               render_reversed(), render_done);
+		               render_reversed(), render_density(), render_antialiased(), render_done);
 	}
 
   private:
@@ -110,6 +121,8 @@ class PVZoneRenderingBCIBase : public PVZoneRendering
 	float _zoom_y;
 
 	bool _reversed;
+	bool _density = false;
+	bool _antialiased = false;
 };
 
 // Helper class
@@ -124,7 +137,9 @@ class PVZoneRenderingBCI : public PVZoneRenderingBCIBase
 	                   uint32_t x_start,
 	                   size_t width,
 	                   float zoom_y = 1.0f,
-	                   bool reversed = false)
+	                   bool reversed = false,
+	                   bool density = false,
+	                   bool antialiased = false)
 	    : PVZoneRenderingBCIBase(
 	          zone_id,
 	          [=](PVZoneID z, PVCore::PVHSVColor const* colors, PVBCICodeBase* codes) {
@@ -134,7 +149,9 @@ class PVZoneRenderingBCI : public PVZoneRenderingBCIBase
 	          x_start,
 	          width,
 	          zoom_y,
-	          reversed)
+	          reversed,
+	          density,
+	          antialiased)
 	{
 	}
 };

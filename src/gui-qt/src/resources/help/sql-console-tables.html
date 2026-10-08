@@ -1,0 +1,40 @@
+<!-- @file -->
+<p>Which rows a query reads</p>
+<table>
+<tr>
+  <td class="shortcuts"><b>selection</b>&nbsp;:</td>
+  <td>the currently selected rows — what the listing shows. A condition written on its own
+      reads this, so asking narrows what you already have</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>layers</b>&nbsp;:</td>
+  <td>every row the layer stack lets through</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>layer('name')</b>&nbsp;:</td>
+  <td>one layer, by the name it carries in the layer stack. The base layer —
+      the one that cannot be removed, called <b>All events</b> until you rename
+      it — holds every row of the source, so naming it is how a query reaches
+      past everything else</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>(text := true)</b>&nbsp;:</td>
+  <td>every column as it was written, on any of the three. The only way to
+      see a cell the format could not read, which is NULL otherwise</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>source.selection</b>&nbsp;:</td>
+  <td>the selection of another source, under that source's own name — which
+      is how a query joins across sources</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>(source := 'name')</b>&nbsp;:</td>
+  <td>the same reach, spelt out. Two sources may carry one name, and
+      source_position&nbsp;:= 1 then picks the second of them</td>
+</tr>
+<tr>
+  <td class="shortcuts"><b>sources</b>&nbsp;:</td>
+  <td>every source a query can name, with its position, its size and which
+      one this console sits on</td>
+</tr>
+</table>

@@ -30,6 +30,7 @@
 #include <QMenu>
 #include <QInputDialog>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVSelection.h>
 
 #include <pvguiqt/PVCustomQtRoles.h>
@@ -207,7 +208,7 @@ void PVGuiQt::PVLayerStackView::keyPressEvent(QKeyEvent* event)
 	switch (event->key()) {
 	case Qt::Key_F2:
 		int model_index = ls_model()->lib_layer_stack().get_selected_layer_index();
-		Squey::PVLayer& layer = ls_model()->lib_layer_stack().get_layer_n(model_index);
+		Squey::PVLayer& layer = ls_model()->edit_lib_layer_stack().edit_layer_n(model_index);
 		QString current_name = layer.get_name();
 		QString name = QInputDialog::getText(this, "Rename current layer", "New layer name:",
 		                                     QLineEdit::Normal, current_name);
@@ -316,6 +317,7 @@ void PVGuiQt::PVLayerStackView::boolean_op_on_selection_with_this_layer(int laye
 
 	Squey::PVSelection selection = (view.get_real_output_selection().*f)(layer.get_selection());
 
+	Squey::PVAnalysisHistory::Scope step(view, tr("Selection from a layer"), "selection-from-layer");
 	view.set_selection_view(selection, true);
 }
 

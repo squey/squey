@@ -77,6 +77,13 @@ void App::PVMainWindow::create_actions()
 	/************************
 	 * For the "Selection" menu entry
 	 ************************/
+	undo_Action = new QAction(tr("&Undo"), this);
+	undo_Action->setShortcut(QKeySequence::Undo);
+	undo_Action->setIcon(PVModdedIcon("arrow-rotate-left"));
+
+	redo_Action = new QAction(tr("&Redo"), this);
+	redo_Action->setShortcut(QKeySequence::Redo);
+
 	selection_all_Action = new QAction(tr("Select &all events"), this);
 	selection_all_Action->setShortcut(QKeySequence(Qt::Key_A));
 	selection_all_Action->setIcon(PVModdedIcon("square-full"));
@@ -200,6 +207,9 @@ void App::PVMainWindow::create_menus()
 
 	selection_Menu = menubar->addMenu(tr("S&election"));
 	selection_Menu->setAttribute(Qt::WA_TranslucentBackground);
+	selection_Menu->addAction(undo_Action);
+	selection_Menu->addAction(redo_Action);
+	selection_Menu->addSeparator();
 	selection_Menu->addAction(selection_all_Action);
 	selection_Menu->addAction(selection_none_Action);
 	selection_Menu->addAction(selection_inverse_Action);
@@ -288,6 +298,15 @@ void App::PVMainWindow::connect_actions()
 
 	connect(set_color_Action, &QAction::triggered, this, &PVMainWindow::set_color_Slot);
 
+	connect(undo_Action, &QAction::triggered, this, &PVMainWindow::undo_Slot);
+	connect(redo_Action, &QAction::triggered, this, &PVMainWindow::redo_Slot);
+	/* Straight from the history rather than through the breadcrumb: the strip
+	 * lives in the workspaces, which come and go with the sources, while these
+	 * two actions are here for as long as the window is.
+	 */
+	_history_changed = get_root().history()._changed.connect(
+	    sigc::mem_fun(*this, &PVMainWindow::refresh_history_actions));
+	refresh_history_actions();
 	connect(commit_selection_to_new_layer_Action, &QAction::triggered, this,
 	        &PVMainWindow::commit_selection_to_new_layer_Slot);
 	connect(move_selection_to_new_layer_Action, &QAction::triggered, this,

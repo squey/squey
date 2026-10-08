@@ -38,86 +38,42 @@
 
 #include <memory>
 
-#include <boost/array.hpp>
-#include <boost/static_assert.hpp>
-
-#include <tbb/enumerable_thread_specific.h>
-#include <tbb/scalable_allocator.h>
-#include <tbb/global_control.h>
-
+//! Smallest share of rows worth giving a task of its own.
 constexpr uint32_t TREE_CREATION_GRAINSIZE = 1024;
-static_assert(TREE_CREATION_GRAINSIZE % 4 == 0, "TREE_CREATION_GRAINSIZE must be a multiple of 4!");
 
 namespace PVParallelView
 {
-
-namespace __impl
-{
-class TBBMergeTreesTask;
-class TBBCreateTreeTask;
-class TBBComputeAllocSizeAndFirstElts;
-class TBBSelFilterMaxCount;
-} // namespace __impl
 
 struct PVZoneProcessing;
 
 class PVZoneTree : public PVZoneTreeBase
 {
-	friend class __impl::TBBCreateTreeTask;
-	friend class __impl::TBBMergeTreesTask;
-	friend class __impl::TBBComputeAllocSizeAndFirstElts;
-	friend class __impl::TBBSelFilterMaxCount;
-
   public:
 	typedef std::shared_ptr<PVZoneTree> p_type;
 
-  protected:
-	typedef std::vector<PVRow, tbb::scalable_allocator<PVRow>> vec_rows_t;
-	typedef boost::array<PVRow, NBUCKETS> nbuckets_array_t;
-	typedef boost::array<vec_rows_t, NBUCKETS> nbuckets_array_vector_t;
-	typedef nbuckets_array_t pdata_array_t;
-	typedef nbuckets_array_vector_t pdata_tree_t;
-	typedef pdata_tree_t* pdata_tree_pointer_t;
-
   public:
+	/**
+	 * How many tasks a build may be split over.
+	 *
+	 * This used to carry the buffers a build worked in -- one growable list per
+	 * bucket per task, tens of megabytes each -- which is why callers hold on to
+	 * it between zones. Sorting the rows by partition first left nothing worth
+	 * keeping: a build now counts into one small array per task, sized in
+	 * kilobytes, and allocates it where it uses it.
+	 */
 	struct ProcessData {
-		friend class PVZoneTree;
-		friend class __impl::TBBCreateTreeTask;
-		friend class __impl::TBBMergeTreesTask;
-		friend class __impl::TBBComputeAllocSizeAndFirstElts;
-
 		explicit ProcessData(uint32_t n = pvhwloc::core_count())
-		    : ntasks(n)
+		    : _max_tasks(std::max<uint32_t>(1, n))
 		{
-			char* buf = tbb::scalable_allocator<char>().allocate(sizeof(pdata_tree_t) * ntasks +
-			                                                     sizeof(pdata_array_t) * ntasks);
-			trees = (pdata_tree_t*)buf;
-			first_elts = (pdata_array_t*)(trees + ntasks);
-			for (uint32_t t = 0; t < ntasks; t++) {
-				new (&trees[t]) pdata_tree_t();
-				new (&first_elts[t]) pdata_array_t();
-			}
 		}
 
-		void clear()
-		{
-			for (uint32_t t = 0; t < ntasks; t++) {
-				std::fill(first_elts[t].begin(), first_elts[t].end(), PVROW_INVALID_VALUE);
-				for (uint32_t b = 0; b < NBUCKETS; b++) {
-					trees[t][b].clear();
-				}
-			}
-		}
+		//! Kept for callers that used to have to hand the buffers back.
+		void clear() {}
 
-		~ProcessData()
-		{
-			tbb::scalable_allocator<char>().deallocate(
-			    (char*)trees, sizeof(pdata_tree_t) * ntasks + sizeof(pdata_array_t) * ntasks);
-		}
+		inline uint32_t max_tasks() const { return _max_tasks; }
 
-		pdata_tree_t* trees;
-		pdata_array_t* first_elts;
-		uint32_t ntasks;
+	  private:
+		uint32_t _max_tasks;
 	};
 
 	struct PVBranch {
@@ -125,54 +81,13 @@ class PVZoneTree : public PVZoneTreeBase
 		size_t count;
 	};
 
-  protected:
-	struct PVTreeParams {
-		// This range is goes from begin (included) to end (*not* included)
-		struct PVRange {
-			PVRow begin;
-			PVRow end;
-		};
-
-	  public:
-		PVTreeParams(PVZoneProcessing const& zp, PVZoneTree::ProcessData& pdata, uint32_t nrows)
-		    : _zp(zp), _pdata(pdata)
-		{
-			// We compute ranges of row to handle with a min threshold for range size.
-			size_t step =
-			    (((std::max((nrows + pdata.ntasks - 1) / pdata.ntasks, TREE_CREATION_GRAINSIZE) +
-			       3) /
-			      4) *
-			     4);
-			pdata.ntasks = (nrows + step - 1) / step;
-
-			_ranges.resize(pdata.ntasks);
-			PVRow cur_r = 0;
-			for (uint32_t t = 0; t < pdata.ntasks - 1; t++) {
-				_ranges[t].begin = cur_r;
-				cur_r += step;
-				_ranges[t].end = cur_r;
-			}
-			_ranges[pdata.ntasks - 1].begin = cur_r;
-			_ranges[pdata.ntasks - 1].end = nrows;
-		}
-
-	  public:
-		inline PVZoneProcessing const& zp() const { return _zp; }
-		inline ProcessData& pdata() const { return _pdata; }
-		inline const PVRange& range(uint32_t task_num) const { return _ranges[task_num]; }
-		inline uint32_t tasks_count() const { return _pdata.ntasks; }
-
-	  private:
-		PVZoneProcessing const& _zp;
-		ProcessData& _pdata;
-		std::vector<PVRange> _ranges;
-	};
-
   public:
 	PVZoneTree();
 	~PVZoneTree() override
 	{
 		if (_tree_data) {
+			// The alignment plays no part in freeing -- deallocate just calls free --
+			// and asking for 16 here only makes the compiler doubt the pointer.
 			PVCore::PVAlignedAllocator<PVRow, 4>().deallocate(_tree_data, 0);
 		}
 	}
@@ -183,13 +98,25 @@ class PVZoneTree : public PVZoneTreeBase
 		process_tbb_sse_treeb(zp, pdata);
 	}
 	inline void process(PVZoneProcessing const& zp) { process_tbb_sse_treeb(zp); }
-	inline void filter_by_sel(Squey::PVSelection const& sel)
+	/**
+	 * Keep the first row of each bucket @p sel selects.
+	 *
+	 * @param count also count the rows it selects in each bucket, into
+	 * get_sel_counts(). Looking for the first row usually stops at once; counting
+	 * goes through every row of the zone.
+	 */
+	inline void filter_by_sel(Squey::PVSelection const& sel, bool count = false)
 	{
-		filter_by_sel_tbb_treeb(sel, _sel_elts);
+		filter_by_sel_tbb_treeb(sel, _sel_elts, count ? _sel_counts.data() : nullptr);
 	}
-	inline void filter_by_sel_background(Squey::PVSelection const& sel)
+
+	/**
+	 * As filter_by_sel, for the background, into get_bg_elts() and
+	 * get_bg_counts().
+	 */
+	inline void filter_by_sel_background(Squey::PVSelection const& sel, bool count = false)
 	{
-		filter_by_sel_background_tbb_treeb(sel, _bg_elts);
+		filter_by_sel_background_tbb_treeb(sel, _bg_elts, count ? _bg_counts.data() : nullptr);
 	}
 
 	inline uint32_t get_branch_count(uint32_t branch_id) const { return _treeb[branch_id].count; }
@@ -219,12 +146,17 @@ class PVZoneTree : public PVZoneTreeBase
 	}
 	void process_tbb_sse_treeb(PVZoneProcessing const& zp, ProcessData& pdata);
 
-	void filter_by_sel_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts);
-	void filter_by_sel_background_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts);
+	//! @p counts is indexed like occupied_branches(); nullptr leaves rows uncounted.
+	void filter_by_sel_tbb_treeb(Squey::PVSelection const& sel, PVRow* buf_elts, uint32_t* counts);
+	void filter_by_sel_background_tbb_treeb(Squey::PVSelection const& sel,
+	                                        PVRow* buf_elts,
+	                                        uint32_t* counts);
 
   protected:
 	PVBranch _treeb[NBUCKETS];
 	PVRow* _tree_data = nullptr;
+	//! Rows the store was allocated for, so a rebuild at the same size keeps it.
+	size_t _tree_data_size = 0;
 };
 
 typedef PVZoneTree::p_type PVZoneTree_p;

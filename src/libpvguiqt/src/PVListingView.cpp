@@ -32,6 +32,7 @@
 #include <pvkernel/widgets/PVFilterableMenu.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVLayerFilter.h>
 #include <squey/PVView.h>
 #include <squey/PVRoot.h>
@@ -241,6 +242,8 @@ void PVGuiQt::PVListingView::update_view_selection_from_listing_selection()
 	// Substract new selection on Ctrl
 	// Expand the selection on Shift
 	// Replace the old selection without modifiers
+	Squey::PVAnalysisHistory::Scope step(lib_view(), tr("Selection in the listing"), "table-list");
+
 	if ((modifiers & Qt::ShiftModifier) and (modifiers & Qt::ControlModifier)) {
 		lib_view().set_selection_view(lib_view().get_real_output_selection() &
 		                              table_model()->current_selection());
@@ -486,7 +489,7 @@ void PVGuiQt::PVListingView::process_ctxt_menu_set_color()
  *****************************************************************************/
 void PVGuiQt::PVListingView::set_color_selected(const PVCore::PVHSVColor& color)
 {
-	Squey::PVLayer& layer = lib_view().get_current_layer();
+	Squey::PVLayer& layer = lib_view().edit_current_layer();
 	Squey::PVLinesProperties& lines_properties = layer.get_lines_properties();
 
 	// Color every lines in the current selection

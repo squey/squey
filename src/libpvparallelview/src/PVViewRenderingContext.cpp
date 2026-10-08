@@ -30,6 +30,8 @@
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVViewRenderingContext.h>
 
+#include <utility>
+
 PVParallelView::PVViewRenderingContext::PVViewRenderingContext(Squey::PVView& view_sp)
     : _view(&view_sp)
     , _zones_manager(view_sp)
@@ -76,6 +78,46 @@ PVParallelView::PVViewRenderingContext::~PVViewRenderingContext()
 	// object and detach, before the members below are destroyed (see the
 	// about_to_be_deleted signal contract).
 	about_to_be_deleted.emit();
+}
+
+PVParallelView::PVViewRenderingContext::RowCounting::RowCounting(PVViewRenderingContext& context)
+    : _context(&context)
+{
+	if (_context->_row_countings++ > 0) {
+		return;
+	}
+
+	PVZonesManager& zm = _context->_zones_manager;
+	zm.count_rows_per_bucket(true);
+
+	// Filtered without counting until now.
+	for (size_t z = 0; z < zm.get_number_of_zones(); ++z) {
+		_context->_processor_sel.invalidate_zone_preprocessing(zm.get_zone_id(z));
+		_context->_processor_bg.invalidate_zone_preprocessing(zm.get_zone_id(z));
+	}
+}
+
+PVParallelView::PVViewRenderingContext::RowCounting::RowCounting(RowCounting&& other) noexcept
+    : _context(std::exchange(other._context, nullptr))
+{
+}
+
+auto PVParallelView::PVViewRenderingContext::RowCounting::operator=(RowCounting&& other) noexcept
+    -> RowCounting&
+{
+	if (this != &other) {
+		release();
+		_context = std::exchange(other._context, nullptr);
+	}
+	return *this;
+}
+
+void PVParallelView::PVViewRenderingContext::RowCounting::release()
+{
+	if (_context != nullptr and --_context->_row_countings == 0) {
+		_context->_zones_manager.count_rows_per_bucket(false);
+	}
+	_context = nullptr;
 }
 
 void PVParallelView::PVViewRenderingContext::request_zoomed_zone_trees(const PVCombCol axis)
@@ -161,8 +203,12 @@ void PVParallelView::PVViewRenderingContext::on_scaling_updated(QList<PVCol> con
 
 	zones_about_to_be_updated.emit(zones_to_update);
 
+	// Rebuilt together: a zone tree costs a fixed sweep of its buckets whatever
+	// the rows put in them, so a run of them one after another spends most of its
+	// time on one core. See PVZonesManager::update_zones.
+	get_zones_manager().update_zones(zones_to_update);
+
 	for (PVZoneID z : zones_to_update) {
-		get_zones_manager().update_zone(z);
 		_processor_bg.invalidate_zone_preprocessing(z);
 		_processor_sel.invalidate_zone_preprocessing(z);
 	}

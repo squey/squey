@@ -169,6 +169,12 @@
 	<file alias="help-style-dark">resources/help/style-dark.css</file>
   <file alias="help-style-light">resources/help/style-light.css</file>
 	<file alias="help-application">resources/help/application.html</file>
+	<file alias="help-sql-console-example">resources/help/sql-console-example.html</file>
+	<file alias="help-sql-console-tables">resources/help/sql-console-tables.html</file>
+	<file alias="help-sql-console-writing">resources/help/sql-console-writing.html</file>
+	<file alias="help-sql-console-types">resources/help/sql-console-types.html</file>
+	<file alias="help-sql-console-shortcuts">resources/help/sql-console-shortcuts.html</file>
+	<file alias="help-sql-console-completion">resources/help/sql-console-completion.html</file>
 	<file alias="help-selection">resources/help/selection.html</file>
 	<file alias="help-layers">resources/help/layers.html</file>
 	<file alias="help-lines">resources/help/lines.html</file>
@@ -183,6 +189,8 @@
 	<file alias="help-mouse-zoomed-parallel-view">resources/help/view-mouse-zoomed-parallel.html</file>
 	<file alias="help-mouse-hit-count-view">resources/help/view-mouse-hit-count.html</file>
 	<file alias="help-shortcuts-hit-count-view">resources/help/view-shortcuts-hit-count.html</file>
+	<file alias="help-mouse-scatter-thumbnails-view">resources/help/view-mouse-scatter-thumbnails.html</file>
+	<file alias="help-shortcuts-scatter-thumbnails-view">resources/help/view-shortcuts-scatter-thumbnails.html</file>
 	<file alias="help-mouse-scatter-view">resources/help/view-mouse-scatter.html</file>
 	<file alias="help-shortcuts-scatter-view">resources/help/view-shortcuts-scatter.html</file>
 	<file alias="help-series-view-navigation">resources/help/view-series-navigation.html</file>
@@ -233,6 +241,22 @@
 	</qresource>
 	
  <qresource prefix="qss_icons/dark">
+    <file>rc.dark/antialiasing-off.png</file>
+    <file>rc.dark/antialiasing-off@2x.png</file>
+    <file>rc.dark/antialiasing-off_disabled.png</file>
+    <file>rc.dark/antialiasing-off_disabled@2x.png</file>
+    <file>rc.dark/antialiasing-off_focus.png</file>
+    <file>rc.dark/antialiasing-off_focus@2x.png</file>
+    <file>rc.dark/antialiasing-off_pressed.png</file>
+    <file>rc.dark/antialiasing-off_pressed@2x.png</file>
+    <file>rc.dark/antialiasing-on.png</file>
+    <file>rc.dark/antialiasing-on@2x.png</file>
+    <file>rc.dark/antialiasing-on_disabled.png</file>
+    <file>rc.dark/antialiasing-on_disabled@2x.png</file>
+    <file>rc.dark/antialiasing-on_focus.png</file>
+    <file>rc.dark/antialiasing-on_focus@2x.png</file>
+    <file>rc.dark/antialiasing-on_pressed.png</file>
+    <file>rc.dark/antialiasing-on_pressed@2x.png</file>
     <file>rc.dark/arrow-down-long.png</file>
     <file>rc.dark/arrow-down-long@2x.png</file>
     <file>rc.dark/arrow-down-long_disabled.png</file>
@@ -289,6 +313,22 @@
     <file>rc.dark/arrow-rotate-left_focus@2x.png</file>
     <file>rc.dark/arrow-rotate-left_pressed.png</file>
     <file>rc.dark/arrow-rotate-left_pressed@2x.png</file>
+    <file>rc.dark/arrow-left-long.png</file>
+    <file>rc.dark/arrow-left-long@2x.png</file>
+    <file>rc.dark/arrow-left-long_disabled.png</file>
+    <file>rc.dark/arrow-left-long_disabled@2x.png</file>
+    <file>rc.dark/arrow-left-long_focus.png</file>
+    <file>rc.dark/arrow-left-long_focus@2x.png</file>
+    <file>rc.dark/arrow-left-long_pressed.png</file>
+    <file>rc.dark/arrow-left-long_pressed@2x.png</file>
+    <file>rc.dark/arrow-right-long.png</file>
+    <file>rc.dark/arrow-right-long@2x.png</file>
+    <file>rc.dark/arrow-right-long_disabled.png</file>
+    <file>rc.dark/arrow-right-long_disabled@2x.png</file>
+    <file>rc.dark/arrow-right-long_focus.png</file>
+    <file>rc.dark/arrow-right-long_focus@2x.png</file>
+    <file>rc.dark/arrow-right-long_pressed.png</file>
+    <file>rc.dark/arrow-right-long_pressed@2x.png</file>
     <file>rc.dark/arrow-up-long.png</file>
     <file>rc.dark/arrow-up-long@2x.png</file>
     <file>rc.dark/arrow-up-long_disabled.png</file>
@@ -449,6 +489,14 @@
     <file>rc.dark/chart-mixed_focus@2x.png</file>
     <file>rc.dark/chart-mixed_pressed.png</file>
     <file>rc.dark/chart-mixed_pressed@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal.png</file>
+    <file>rc.dark/chart-simple-horizontal@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal_disabled.png</file>
+    <file>rc.dark/chart-simple-horizontal_disabled@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal_focus.png</file>
+    <file>rc.dark/chart-simple-horizontal_focus@2x.png</file>
+    <file>rc.dark/chart-simple-horizontal_pressed.png</file>
+    <file>rc.dark/chart-simple-horizontal_pressed@2x.png</file>
     <file>rc.dark/chart-simple.png</file>
     <file>rc.dark/chart-simple@2x.png</file>
     <file>rc.dark/chart-simple_disabled.png</file>
@@ -593,6 +641,30 @@
     <file>rc.dark/count-by_focus@2x.png</file>
     <file>rc.dark/count-by_pressed.png</file>
     <file>rc.dark/count-by_pressed@2x.png</file>
+    <file>rc.dark/density-lines.png</file>
+    <file>rc.dark/density-lines@2x.png</file>
+    <file>rc.dark/density-lines_disabled.png</file>
+    <file>rc.dark/density-lines_disabled@2x.png</file>
+    <file>rc.dark/density-lines_focus.png</file>
+    <file>rc.dark/density-lines_focus@2x.png</file>
+    <file>rc.dark/density-lines_pressed.png</file>
+    <file>rc.dark/density-lines_pressed@2x.png</file>
+    <file>rc.dark/play.png</file>
+    <file>rc.dark/play@2x.png</file>
+    <file>rc.dark/play_disabled.png</file>
+    <file>rc.dark/play_disabled@2x.png</file>
+    <file>rc.dark/play_focus.png</file>
+    <file>rc.dark/play_focus@2x.png</file>
+    <file>rc.dark/play_pressed.png</file>
+    <file>rc.dark/play_pressed@2x.png</file>
+    <file>rc.dark/database-play.png</file>
+    <file>rc.dark/database-play@2x.png</file>
+    <file>rc.dark/database-play_disabled.png</file>
+    <file>rc.dark/database-play_disabled@2x.png</file>
+    <file>rc.dark/database-play_focus.png</file>
+    <file>rc.dark/database-play_focus@2x.png</file>
+    <file>rc.dark/database-play_pressed.png</file>
+    <file>rc.dark/database-play_pressed@2x.png</file>
     <file>rc.dark/database.png</file>
     <file>rc.dark/database@2x.png</file>
     <file>rc.dark/database_disabled.png</file>
@@ -705,6 +777,14 @@
     <file>rc.dark/folder-plus_focus@2x.png</file>
     <file>rc.dark/folder-plus_pressed.png</file>
     <file>rc.dark/folder-plus_pressed@2x.png</file>
+    <file>rc.dark/grid.png</file>
+    <file>rc.dark/grid@2x.png</file>
+    <file>rc.dark/grid_disabled.png</file>
+    <file>rc.dark/grid_disabled@2x.png</file>
+    <file>rc.dark/grid_focus.png</file>
+    <file>rc.dark/grid_focus@2x.png</file>
+    <file>rc.dark/grid_pressed.png</file>
+    <file>rc.dark/grid_pressed@2x.png</file>
     <file>rc.dark/hitcount.png</file>
     <file>rc.dark/hitcount@2x.png</file>
     <file>rc.dark/hitcount_disabled.png</file>
@@ -1057,6 +1137,14 @@
     <file>rc.dark/split_focus@2x.png</file>
     <file>rc.dark/split_pressed.png</file>
     <file>rc.dark/split_pressed@2x.png</file>
+    <file>rc.dark/sql-file.png</file>
+    <file>rc.dark/sql-file@2x.png</file>
+    <file>rc.dark/sql-file_disabled.png</file>
+    <file>rc.dark/sql-file_disabled@2x.png</file>
+    <file>rc.dark/sql-file_focus.png</file>
+    <file>rc.dark/sql-file_focus@2x.png</file>
+    <file>rc.dark/sql-file_pressed.png</file>
+    <file>rc.dark/sql-file_pressed@2x.png</file>
     <file>rc.dark/square-1.png</file>
     <file>rc.dark/square-1@2x.png</file>
     <file>rc.dark/square-1_disabled.png</file>
@@ -1276,6 +1364,22 @@
   </qresource>
 
   <qresource prefix="qss_icons/light">
+    <file>rc.light/antialiasing-off.png</file>
+    <file>rc.light/antialiasing-off@2x.png</file>
+    <file>rc.light/antialiasing-off_disabled.png</file>
+    <file>rc.light/antialiasing-off_disabled@2x.png</file>
+    <file>rc.light/antialiasing-off_focus.png</file>
+    <file>rc.light/antialiasing-off_focus@2x.png</file>
+    <file>rc.light/antialiasing-off_pressed.png</file>
+    <file>rc.light/antialiasing-off_pressed@2x.png</file>
+    <file>rc.light/antialiasing-on.png</file>
+    <file>rc.light/antialiasing-on@2x.png</file>
+    <file>rc.light/antialiasing-on_disabled.png</file>
+    <file>rc.light/antialiasing-on_disabled@2x.png</file>
+    <file>rc.light/antialiasing-on_focus.png</file>
+    <file>rc.light/antialiasing-on_focus@2x.png</file>
+    <file>rc.light/antialiasing-on_pressed.png</file>
+    <file>rc.light/antialiasing-on_pressed@2x.png</file>
     <file>rc.light/arrow-down-long.png</file>
     <file>rc.light/arrow-down-long@2x.png</file>
     <file>rc.light/arrow-down-long_disabled.png</file>
@@ -1332,6 +1436,22 @@
     <file>rc.light/arrow-rotate-left_focus@2x.png</file>
     <file>rc.light/arrow-rotate-left_pressed.png</file>
     <file>rc.light/arrow-rotate-left_pressed@2x.png</file>
+    <file>rc.light/arrow-left-long.png</file>
+    <file>rc.light/arrow-left-long@2x.png</file>
+    <file>rc.light/arrow-left-long_disabled.png</file>
+    <file>rc.light/arrow-left-long_disabled@2x.png</file>
+    <file>rc.light/arrow-left-long_focus.png</file>
+    <file>rc.light/arrow-left-long_focus@2x.png</file>
+    <file>rc.light/arrow-left-long_pressed.png</file>
+    <file>rc.light/arrow-left-long_pressed@2x.png</file>
+    <file>rc.light/arrow-right-long.png</file>
+    <file>rc.light/arrow-right-long@2x.png</file>
+    <file>rc.light/arrow-right-long_disabled.png</file>
+    <file>rc.light/arrow-right-long_disabled@2x.png</file>
+    <file>rc.light/arrow-right-long_focus.png</file>
+    <file>rc.light/arrow-right-long_focus@2x.png</file>
+    <file>rc.light/arrow-right-long_pressed.png</file>
+    <file>rc.light/arrow-right-long_pressed@2x.png</file>
     <file>rc.light/arrow-up-long.png</file>
     <file>rc.light/arrow-up-long@2x.png</file>
     <file>rc.light/arrow-up-long_disabled.png</file>
@@ -1492,6 +1612,14 @@
     <file>rc.light/chart-mixed_focus@2x.png</file>
     <file>rc.light/chart-mixed_pressed.png</file>
     <file>rc.light/chart-mixed_pressed@2x.png</file>
+    <file>rc.light/chart-simple-horizontal.png</file>
+    <file>rc.light/chart-simple-horizontal@2x.png</file>
+    <file>rc.light/chart-simple-horizontal_disabled.png</file>
+    <file>rc.light/chart-simple-horizontal_disabled@2x.png</file>
+    <file>rc.light/chart-simple-horizontal_focus.png</file>
+    <file>rc.light/chart-simple-horizontal_focus@2x.png</file>
+    <file>rc.light/chart-simple-horizontal_pressed.png</file>
+    <file>rc.light/chart-simple-horizontal_pressed@2x.png</file>
     <file>rc.light/chart-simple.png</file>
     <file>rc.light/chart-simple@2x.png</file>
     <file>rc.light/chart-simple_disabled.png</file>
@@ -1636,6 +1764,30 @@
     <file>rc.light/count-by_focus@2x.png</file>
     <file>rc.light/count-by_pressed.png</file>
     <file>rc.light/count-by_pressed@2x.png</file>
+    <file>rc.light/density-lines.png</file>
+    <file>rc.light/density-lines@2x.png</file>
+    <file>rc.light/density-lines_disabled.png</file>
+    <file>rc.light/density-lines_disabled@2x.png</file>
+    <file>rc.light/density-lines_focus.png</file>
+    <file>rc.light/density-lines_focus@2x.png</file>
+    <file>rc.light/density-lines_pressed.png</file>
+    <file>rc.light/density-lines_pressed@2x.png</file>
+    <file>rc.light/play.png</file>
+    <file>rc.light/play@2x.png</file>
+    <file>rc.light/play_disabled.png</file>
+    <file>rc.light/play_disabled@2x.png</file>
+    <file>rc.light/play_focus.png</file>
+    <file>rc.light/play_focus@2x.png</file>
+    <file>rc.light/play_pressed.png</file>
+    <file>rc.light/play_pressed@2x.png</file>
+    <file>rc.light/database-play.png</file>
+    <file>rc.light/database-play@2x.png</file>
+    <file>rc.light/database-play_disabled.png</file>
+    <file>rc.light/database-play_disabled@2x.png</file>
+    <file>rc.light/database-play_focus.png</file>
+    <file>rc.light/database-play_focus@2x.png</file>
+    <file>rc.light/database-play_pressed.png</file>
+    <file>rc.light/database-play_pressed@2x.png</file>
     <file>rc.light/database.png</file>
     <file>rc.light/database@2x.png</file>
     <file>rc.light/database_disabled.png</file>
@@ -1748,6 +1900,14 @@
     <file>rc.light/folder-plus_focus@2x.png</file>
     <file>rc.light/folder-plus_pressed.png</file>
     <file>rc.light/folder-plus_pressed@2x.png</file>
+    <file>rc.light/grid.png</file>
+    <file>rc.light/grid@2x.png</file>
+    <file>rc.light/grid_disabled.png</file>
+    <file>rc.light/grid_disabled@2x.png</file>
+    <file>rc.light/grid_focus.png</file>
+    <file>rc.light/grid_focus@2x.png</file>
+    <file>rc.light/grid_pressed.png</file>
+    <file>rc.light/grid_pressed@2x.png</file>
     <file>rc.light/hitcount.png</file>
     <file>rc.light/hitcount@2x.png</file>
     <file>rc.light/hitcount_disabled.png</file>
@@ -2100,6 +2260,14 @@
     <file>rc.light/split_focus@2x.png</file>
     <file>rc.light/split_pressed.png</file>
     <file>rc.light/split_pressed@2x.png</file>
+    <file>rc.light/sql-file.png</file>
+    <file>rc.light/sql-file@2x.png</file>
+    <file>rc.light/sql-file_disabled.png</file>
+    <file>rc.light/sql-file_disabled@2x.png</file>
+    <file>rc.light/sql-file_focus.png</file>
+    <file>rc.light/sql-file_focus@2x.png</file>
+    <file>rc.light/sql-file_pressed.png</file>
+    <file>rc.light/sql-file_pressed@2x.png</file>
     <file>rc.light/square-1.png</file>
     <file>rc.light/square-1@2x.png</file>
     <file>rc.light/square-1_disabled.png</file>

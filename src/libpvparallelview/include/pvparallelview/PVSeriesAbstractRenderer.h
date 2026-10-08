@@ -27,6 +27,9 @@
 
 #include <pvparallelview/PVSeriesView.h>
 
+#include <QImage>
+#include <QSize>
+
 namespace PVParallelView
 {
 
@@ -36,10 +39,12 @@ class PVSeriesAbstractRenderer
 	virtual ~PVSeriesAbstractRenderer() = default;
 
 	virtual void set_background_color(QColor const& bgcol) = 0;
-	virtual void resize(QSize const& size) = 0;
-	virtual QPixmap grab() = 0;
-
 	virtual void set_draw_mode(PVSeriesView::DrawMode) = 0;
+
+	// Renderers draw off-screen into an image the view then blits: none of them is a
+	// widget of its own, so the size has to be carried here.
+	virtual void resize(QSize const& size) { _size = size; }
+	virtual QImage grab() = 0;
 
 	void show_series(std::vector<PVSeriesView::SerieDrawInfo> seriesDrawOrder)
 	{
@@ -52,8 +57,12 @@ class PVSeriesAbstractRenderer
 
 	virtual void on_show_series() {}
 
+	int width() const { return _size.width(); }
+	int height() const { return _size.height(); }
+
 	Squey::PVRangeSubSampler const& _rss;
 	std::vector<PVSeriesView::SerieDrawInfo> _series_draw_order;
+	QSize _size;
 };
 
 } // namespace PVParallelView

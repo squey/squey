@@ -28,6 +28,7 @@
 
 #include <QApplication>
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVSelection.h>
 
 #include <pvparallelview/PVSelectionGenerator.h>
@@ -62,16 +63,19 @@ void PVParallelView::PVSelectionGenerator::compute_selection_from_parallel_view_
 	PVLineEqInt line;
 	line.b = -width;
 
+	// Only occupied buckets can select anything, and there are typically far
+	// fewer of them than the million this used to walk.
+	auto const& branches = ztree.occupied_branches();
+	const int64_t branch_count_total = (int64_t)branches.size();
+
 #pragma omp parallel
 	{
 		Squey::PVSelection local_sel(sel.count());
 		local_sel.select_none();
 
 #pragma omp for firstprivate(line) nowait
-		for (uint32_t branch = 0; branch < NBUCKETS; branch++) {
-			if (not ztree.branch_valid(branch)) {
-				continue;
-			}
+		for (int64_t branch_idx = 0; branch_idx < branch_count_total; branch_idx++) {
+			const uint32_t branch = branches[branch_idx];
 
 			PVParallelView::PVBCode code_b;
 			code_b.int_v = branch;
@@ -526,13 +530,25 @@ void PVParallelView::PVSelectionGenerator::process_selection(Squey::PVView& view
 	/* Can't use a switch case here as Qt::ShiftModifier and Qt::ControlModifier
 	 * aren't really
 	 * constants */
+	/* One gesture, one step: a rectangle being dragged commits every 300 ms on
+	 * its way, and each of those is the same act of selecting. The key keeps a
+	 * menu action that happens to follow closely from joining it.
+	 */
 	if (use_modifiers && modifiers == AND_MODIFIER) {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Narrow the selection"),
+		                                     "intersection", "graphical-selection");
 		view_sp.set_selection_view(view_sp.get_real_output_selection() & sel);
 	} else if (use_modifiers && modifiers == NAND_MODIFIER) {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Subtract from the selection"),
+		                                     "difference", "graphical-selection");
 		view_sp.set_selection_view(view_sp.get_real_output_selection() - sel);
 	} else if (use_modifiers && modifiers == OR_MODIFIER) {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Add to the selection"),
+		                                     "union", "graphical-selection");
 		view_sp.set_selection_view(view_sp.get_real_output_selection() | sel);
 	} else {
+		Squey::PVAnalysisHistory::Scope step(view_sp, QObject::tr("Selection"),
+		                                     "selection-square", "graphical-selection");
 		view_sp.set_selection_view(sel);
 	}
 }

@@ -25,10 +25,11 @@
 
 // A parallel view closed while the data it showed is still being worked on.
 //
-// The scaling outlives every parallel view built on the data: one opened in a dock
-// is destroyed as the dock is closed. Whatever such a view hands the scaling has to
-// go with it. A lambda capturing the scene is not disconnected by sigc::trackable,
-// so the next rescaling called into the scene that was gone.
+// The rendering context belongs to the view the data is shown by, and outlives
+// every parallel view built on it: one opened in a dock is destroyed as the dock
+// is closed. Whatever such a view hands the context or the scaling has to go with
+// it. A lambda capturing the scene is not disconnected by sigc::trackable, so the
+// next selection change -- or rescaling -- called into the scene that was gone.
 //
 // And the densities a rescaling invalidates are those of the axes showing the
 // columns it moved, found by column: taken by position in the combination, the
@@ -44,6 +45,7 @@
 #include <pvparallelview/PVViewRenderingContext.h>
 
 #include <squey/PVScaled.h>
+#include <squey/PVScalingProperties.h>
 #include <squey/PVSelection.h>
 #include <squey/PVView.h>
 
@@ -195,12 +197,14 @@ int main(int argc, char** argv)
 	                "after a selection change", "column 0", redrawn[PVCol(0)], "column 2",
 	                redrawn[PVCol(2)]);
 
-	// Rescaling one column: the scaling says which columns moved, and only the axis
-	// showing the one that did has its density to redraw. Column 0 is shown second.
+	// Rescaling one column on the selection: the scaling says which columns moved, and
+	// only the axis showing the one that did has its density to redraw. Column 0 is
+	// shown second.
 	Squey::PVScaled& scaled = view.get_parent<Squey::PVScaled>();
+	using ESelectionScaling = Squey::PVScalingProperties::ESelectionScaling;
 	redrawn.clear();
-	scaled.invalidate_column(PVCol(0));
-	scaled.update_scaling();
+	scaled.get_properties_for_col(PVCol(0)).set_selection_scaling(ESelectionScaling::Enabled);
+	PV_ASSERT_VALID(scaled.update_scaling_on_selection(half), "column 0", "did not move");
 	scene->update();
 	pump(1500);
 	std::cout << "after rescaling column 0, densities redrawn: column 0 " << redrawn[PVCol(0)]
@@ -212,8 +216,8 @@ int main(int argc, char** argv)
 
 	// And column 2, shown first but numbered past the last axis.
 	redrawn.clear();
-	scaled.invalidate_column(PVCol(2));
-	scaled.update_scaling();
+	scaled.get_properties_for_col(PVCol(2)).set_selection_scaling(ESelectionScaling::Enabled);
+	PV_ASSERT_VALID(scaled.update_scaling_on_selection(half), "column 2", "did not move");
 	scene->update();
 	pump(1500);
 	std::cout << "after rescaling column 2, densities redrawn: column 0 " << redrawn[PVCol(0)]

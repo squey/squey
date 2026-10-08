@@ -85,7 +85,7 @@ double save_investigation()
 	const PVRow row_count = view->get_row_count();
 	Squey::PVSelection sel(row_count);
 	sel.select_all();
-	view->get_layer_stack().get_layer_n(2).get_lines_properties().selection_set_color(
+	view->edit_layer_stack().edit_layer_n(2).get_lines_properties().selection_set_color(
 	    sel, HSV_COLOR_GREEN);
 
 	/**

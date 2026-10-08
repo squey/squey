@@ -1,0 +1,7 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+  <qresource prefix="/shaders">
+    <file alias="series.vert.qsb">series.vert.qsb</file>
+    <file alias="series.frag.qsb">series.frag.qsb</file>
+  </qresource>
+</RCC>

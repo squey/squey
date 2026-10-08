@@ -55,6 +55,15 @@ namespace Squey
 class PVScalingProperties
 {
   public:
+	/**
+	 * Whether this column's scaling spreads the selection over the whole axis.
+	 *
+	 * A column normally follows the scaling's own setting; either value below
+	 * overrides it for this column alone.
+	 */
+	enum class ESelectionScaling : int { Inherit = 0, Enabled = 1, Disabled = 2 };
+
+  public:
 	PVScalingProperties(PVRush::PVFormat const& fmt, PVCol idx);
 	explicit PVScalingProperties(PVRush::PVAxisFormat const& axis);
 	PVScalingProperties(std::string mode, PVCore::PVArgumentList args);
@@ -67,6 +76,32 @@ class PVScalingProperties
   public:
 	PVScalingFilter::p_type get_scaling_filter();
 	void set_mode(std::string const& mode);
+
+	/**
+	 * Change this column's stance on selection scaling.
+	 *
+	 * Invalidates the column when the answer it gives changes, so that the next
+	 * scaling pass recomputes it.
+	 */
+	void set_selection_scaling(ESelectionScaling scaling);
+	ESelectionScaling get_selection_scaling() const { return _selection_scaling; }
+
+	/**
+	 * Whether this column scales over the selection, given what the scaling as a
+	 * whole was told to do.
+	 */
+	bool scales_on_selection(bool scaling_default) const
+	{
+		switch (_selection_scaling) {
+		case ESelectionScaling::Enabled:
+			return true;
+		case ESelectionScaling::Disabled:
+			return false;
+		default:
+			return scaling_default;
+		}
+	}
+
 	void set_args(PVCore::PVArgumentList const& args);
 	inline PVCore::PVArgumentList const& get_args() const { return _args; }
 	inline std::string const& get_mode() const { return _mode; }
@@ -83,6 +118,7 @@ class PVScalingProperties
 	std::string _mode;
 	PVScalingFilter::p_type _scaling_filter;
 	PVCore::PVArgumentList _args;
+	ESelectionScaling _selection_scaling = ESelectionScaling::Inherit;
 	bool _is_uptodate = false;
 };
 } // namespace Squey

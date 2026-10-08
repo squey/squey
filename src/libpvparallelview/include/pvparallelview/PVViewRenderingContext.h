@@ -60,6 +60,40 @@ class PVViewRenderingContext : public sigc::trackable
 	~PVViewRenderingContext();
 
   public:
+	/**
+	 * Keeps the rows of each bucket counted while it lives, for a view that draws
+	 * its lines by density. Release it on about_to_be_deleted at the latest: it
+	 * must not outlive the context it was taken from.
+	 */
+	class RowCounting
+	{
+		friend class PVViewRenderingContext;
+
+	  public:
+		RowCounting() = default;
+		RowCounting(RowCounting&& other) noexcept;
+		RowCounting& operator=(RowCounting&& other) noexcept;
+		~RowCounting() { release(); }
+
+		explicit operator bool() const { return _context != nullptr; }
+		void release();
+
+	  private:
+		explicit RowCounting(PVViewRenderingContext& context);
+
+		PVViewRenderingContext* _context = nullptr;
+	};
+
+	/**
+	 * Have the zones count the rows of each bucket when filtered by a selection
+	 * (see PVZoneTreeBase::get_sel_counts). The first one taken invalidates the
+	 * preprocessing of every zone, so that their next rendering counts.
+	 *
+	 * To be called from the thread the views live in.
+	 */
+	[[nodiscard]] RowCounting count_rows_per_bucket() { return RowCounting(*this); }
+
+  public:
 	void request_zoomed_zone_trees(const PVCombCol axis);
 
 	/**
@@ -140,6 +174,9 @@ class PVViewRenderingContext : public sigc::trackable
 
 	PVZonesProcessor _processor_sel;
 	PVZonesProcessor _processor_bg;
+
+	// How many RowCounting are alive. Touched from the thread the views live in.
+	size_t _row_countings = 0;
 };
 } // namespace PVParallelView
 

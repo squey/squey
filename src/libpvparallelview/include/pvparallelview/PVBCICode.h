@@ -60,6 +60,14 @@ struct PVBCICode {
 
 	typedef enum { STRAIGHT = 0, UP = 1, DOWN = 2 } _type_t;
 
+	/**
+	 * Drawn by density (see PVBCIDrawingBackend::render), a code carries its
+	 * opacity, from 0 to 255, in the 8 lower bits of idx: the row it was drawn for
+	 * then only counts by the upper ones.
+	 */
+	void set_opacity(uint8_t opacity) { s.idx = (s.idx & ~uint32_t(0xFF)) | opacity; }
+	uint8_t opacity() const { return s.idx & 0xFF; }
+
 	static PVBCICode* allocate_codes(size_t n)
 	{
 		PVBCICode* ret = PVBCICode::allocator().allocate(n);

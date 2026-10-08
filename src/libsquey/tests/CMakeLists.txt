@@ -6,12 +6,112 @@ set(LINK_LIBRARIES pvkernel pvsquey)
 
 set(COMMON_FILES "common.cpp")
 
+add_squey_compile_test(Tsquey_analysis_history LINKS ${LINK_LIBRARIES} FILES analysis_history.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_analysis_history Tsquey_analysis_history)
+
+add_squey_compile_test(Tsquey_view_state LINKS ${LINK_LIBRARIES} FILES view_state.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_view_state Tsquey_view_state)
+
 add_squey_compile_test(Tsquey_scaling_not_a_number LINKS ${LINK_LIBRARIES} FILES scaling_not_a_number.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_scaling_not_a_number Tsquey_scaling_not_a_number)
+
+add_squey_compile_test(Tsquey_duckdb_stats LINKS ${LINK_LIBRARIES} FILES duckdb_stats.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_stats Tsquey_duckdb_stats)
+
+add_squey_compile_test(Tsquey_duckdb_query LINKS ${LINK_LIBRARIES} FILES duckdb_query.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_query Tsquey_duckdb_query)
+
+add_squey_compile_test(Tsquey_duckdb_query_types LINKS ${LINK_LIBRARIES} FILES duckdb_query_types.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_query_types Tsquey_duckdb_query_types)
+
+# Ordering is where a wrong type mapping hides: the rows still come back, just
+# in the wrong order. One run per business type that claims an order-preserving
+# encoding.
+add_squey_compile_test(Tsquey_duckdb_dictionary LINKS ${LINK_LIBRARIES} FILES duckdb_dictionary.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_dictionary Tsquey_duckdb_dictionary)
+
+add_squey_compile_test(Tsquey_duckdb_pushdown LINKS ${LINK_LIBRARIES} FILES duckdb_pushdown.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_pushdown Tsquey_duckdb_pushdown)
+
+# Cells the format could not read: what SQL answers about them has to be what
+# the search filter answers, which is what the user sees.
+add_squey_compile_test(Tsquey_duckdb_invalid_values LINKS ${LINK_LIBRARIES} FILES duckdb_invalid_values.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_invalid_values Tsquey_duckdb_invalid_values)
+
+# The names a query reads rows by -- selection, layers, layer('...') -- and their
+# text form, which is the only way to see a cell the format could not read.
+add_squey_compile_test(Tsquey_duckdb_scopes LINKS ${LINK_LIBRARIES} FILES duckdb_scopes.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_scopes Tsquey_duckdb_scopes)
+
+add_squey_compile_test(Tsquey_duckdb_sources LINKS ${LINK_LIBRARIES} FILES duckdb_sources.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_sources Tsquey_duckdb_sources)
+
+# What a query typed into the console may reach: the source, and nothing else.
+add_squey_compile_test(Tsquey_duckdb_confinement LINKS ${LINK_LIBRARIES} FILES duckdb_confinement.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_confinement Tsquey_duckdb_confinement)
+
+# The scan holds pointers into the columns for the length of a query, so adding
+# or removing one has to wait.
+add_squey_compile_test(Tsquey_duckdb_concurrency LINKS ${LINK_LIBRARIES} FILES duckdb_concurrency.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_concurrency Tsquey_duckdb_concurrency)
+
+add_squey_compile_test(Tsquey_duckdb_interrupt LINKS ${LINK_LIBRARIES} FILES duckdb_interrupt.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_interrupt Tsquey_duckdb_interrupt)
+
+add_squey_compile_test(Tsquey_duckdb_planner_stats LINKS ${LINK_LIBRARIES} FILES duckdb_planner_stats.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_planner_stats Tsquey_duckdb_planner_stats)
+add_squey_compile_test(Tsquey_duckdb_functions LINKS ${LINK_LIBRARIES} FILES duckdb_functions.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_functions Tsquey_duckdb_functions)
+add_squey_compile_test(Tsquey_duckdb_time_zone LINKS ${LINK_LIBRARIES} FILES duckdb_time_zone.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_time_zone Tsquey_duckdb_time_zone)
+add_squey_compile_test(Tsquey_duckdb_datetime_us LINKS ${LINK_LIBRARIES} FILES duckdb_datetime_us.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_datetime_us Tsquey_duckdb_datetime_us)
+
+# The parquet source is what produces a text column with missing values, so this
+# one is built against it the way the libpvkernel tests are. Its packages are
+# looked up again here: they were found in libpvkernel's scope, which a sibling
+# directory does not inherit.
+find_package(Arrow CONFIG REQUIRED)
+find_package(Parquet CONFIG REQUIRED)
+find_package(Thrift CONFIG REQUIRED)
+find_package(re2 REQUIRED)
+set(PARQUET_LIBS Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
+set(PARQUET_SRC_FILES
+../../libpvkernel/plugins/common/parquet/PVParquetAPI.cpp
+../../libpvkernel/plugins/input-types/parquet/PVParquetExporter.cpp
+)
+add_squey_compile_test(Tsquey_duckdb_null_strings LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES duckdb_null_strings.cpp ${COMMON_FILES} ${PARQUET_SRC_FILES})
+add_squey_test(Tsquey_duckdb_null_strings Tsquey_duckdb_null_strings)
+
+# An address is exposed as the integer it is stored as, so the conversions that
+# bridge the two have to agree with pvcop's own formatter -- in both directions.
+add_squey_compile_test(Tsquey_duckdb_business_types LINKS ${LINK_LIBRARIES} FILES duckdb_business_types.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_ipv4_conversion Tsquey_duckdb_business_types ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv ${TESTS_FILES_DIR}/picviz/ipv4_default_mapping.csv.format ipv4_1 ipv4)
+add_squey_test(Tsquey_duckdb_mac_conversion Tsquey_duckdb_business_types ${TESTS_FILES_DIR}/picviz/mac_address.csv ${TESTS_FILES_DIR}/picviz/mac_address_lin_mapping.format "MAC address" mac_address)
+
+# A pushed constant reaches pvcop as text, so it has to be checked once per type
+# whose SQL form is not that text: an IPv6 seen as a 128-bit integer, a datetime
+# seen as an epoch.
+add_squey_compile_test(Tsquey_duckdb_pushdown_types LINKS ${LINK_LIBRARIES} FILES duckdb_pushdown_types.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_pushdown_ipv6 Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/ipv6_10000.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format col1)
+add_squey_test(Tsquey_duckdb_pushdown_datetime Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/time_mapping.csv ${TESTS_FILES_DIR}/picviz/datetime_default_mapping.csv.format datetime)
+# Floating point for the other reason: the text has to carry every bit back, and
+# these values are near the top of the double range where that is hardest.
+add_squey_test(Tsquey_duckdb_pushdown_double Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/double_default_mapping.csv ${TESTS_FILES_DIR}/picviz/double_default_mapping.csv.format col1)
+add_squey_test(Tsquey_duckdb_pushdown_float Tsquey_duckdb_pushdown_types ${TESTS_FILES_DIR}/picviz/timeserie_fusion.csv ${TESTS_FILES_DIR}/picviz/timeserie_fusion.csv.format "F41 - Mesure tension inducteur 1")
+
+add_squey_compile_test(Tsquey_duckdb_query_order LINKS ${LINK_LIBRARIES} FILES duckdb_query_order.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_duckdb_order_ipv6 Tsquey_duckdb_query_order ${TESTS_FILES_DIR}/picviz/ipv6_10000.csv ${TESTS_FILES_DIR}/picviz/ipv6.csv.format ipv6)
+add_squey_test(Tsquey_duckdb_order_datetime Tsquey_duckdb_query_order ${TESTS_FILES_DIR}/picviz/time_mapping.csv ${TESTS_FILES_DIR}/picviz/datetime_default_mapping.csv.format datetime)
 
 add_squey_compile_test(Tsquey_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_heat_line Tsquey_heat_line)
 add_bench(Tsquey_heat_line LINKS ${LINK_LIBRARIES} FILES heat_line.cpp ${COMMON_FILES})
+
+# Doubles as an agreement oracle between the search filter and the SQL engine at
+# its default size; pass a duplication factor to use it as a benchmark.
+add_squey_compile_test(Tsquey_search_vs_sql LINKS ${LINK_LIBRARIES} FILES search_vs_sql.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_search_vs_sql Tsquey_search_vs_sql)
 
 add_squey_compile_test(Tsquey_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_multiple_search Tsquey_multiple_search)
@@ -223,6 +323,9 @@ add_bench(Tsquey_export_scaled LINKS ${LINK_LIBRARIES} FILES export_scaled.cpp $
 add_squey_compile_test(Tsquey_scaling_one_value LINKS ${LINK_LIBRARIES} FILES scaling_one_value.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_scaling_one_value Tsquey_scaling_one_value ${TESTS_FILES_DIR}/picviz/scaling_one_value.csv ${TESTS_FILES_DIR}/picviz/scaling_one_value.csv.format)
 
+add_squey_compile_test(Tsquey_scaling_on_selection LINKS ${LINK_LIBRARIES} FILES scaling_on_selection.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_scaling_on_selection Tsquey_scaling_on_selection)
+
 add_squey_compile_test(Tsquey_scaled_axis_ends LINKS ${LINK_LIBRARIES} FILES scaled_axis_ends.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_scaled_axis_ends Tsquey_scaled_axis_ends)
 
@@ -247,10 +350,15 @@ add_squey_test(Tsquey_cancel_export Tsquey_cancel_export ${TESTS_FILES_DIR}/sour
 # Range subsampler
 add_squey_compile_test(Tsquey_range_subsampler LINKS ${LINK_LIBRARIES} FILES range_subsampler.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_range_subsampler Tsquey_range_subsampler)
+add_bench(Tsquey_subsample_bench LINKS ${LINK_LIBRARIES} FILES subsample_bench.cpp ${COMMON_FILES})
 
 # multi-inputs
 add_squey_compile_test(Tsquey_multi_inputs LINKS ${LINK_LIBRARIES} FILES multi_inputs.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_multi_inputs Tsquey_multi_inputs)
+
+# python_sql
+add_squey_compile_test(Tsquey_python_sql LINKS ${LINK_LIBRARIES} FILES python_sql.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_python_sql Tsquey_python_sql)
 
 # python_scripting
 add_squey_compile_test(Tsquey_python_scripting LINKS ${LINK_LIBRARIES} FILES python_scripting.cpp ${COMMON_FILES})
@@ -273,6 +381,7 @@ if(SQUEY_PYTHON_SITE_PACKAGES)
                       SQUEY_TEST_Tsquey_embeded_python_scripting
                       SQUEY_TEST_Tsquey_python_other_source
                       SQUEY_TEST_Tsquey_python_column_names
+                      SQUEY_TEST_Tsquey_python_sql
                  APPEND PROPERTY ENVIRONMENT "PYTHONPATH=${SQUEY_PYTHONPATH}")
 endif()
 

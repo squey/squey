@@ -25,7 +25,7 @@
 #ifndef PVPARALLELVIEW_PVZOOMEDPARALLELVIEWPARAMSWIDGET_H
 #define PVPARALLELVIEW_PVZOOMEDPARALLELVIEWPARAMSWIDGET_H
 
-#include <QToolBar>
+#include <pvparallelview/PVFloatingToolBar.h>
 
 #include <pvbase/types.h>
 #include <pvparallelview/export.h>
@@ -39,7 +39,7 @@ namespace PVParallelView
 {
 class PVZoomedParallelView;
 
-class PVPARALLELVIEW_EXPORT PVZoomedParallelViewParamsWidget : public QToolBar
+class PVPARALLELVIEW_EXPORT PVZoomedParallelViewParamsWidget : public PVFloatingToolBar
 {
 	Q_OBJECT
 

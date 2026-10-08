@@ -23,6 +23,7 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVPythonInputDialog.h>
 #include <squey/PVRoot.h>
@@ -94,15 +95,63 @@ Squey::PVPythonInterpreter::PVPythonInterpreter(Squey::PVRoot& root) : _guard(),
     python_source.def("column", pybind11::overload_cast<size_t, PVPythonSource::StringColumnAs>(&PVPythonSource::column), pybind11::arg("column_index"), pybind11::arg("string_as") = PVPythonSource::StringColumnAs::STRING);
     python_source.def("column", pybind11::overload_cast<const std::string&, PVPythonSource::StringColumnAs, size_t>(&PVPythonSource::column), pybind11::arg("column_name"), pybind11::arg("string_as"), pybind11::arg("position") = 0);
     python_source.def("column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
+    // Which rows of a column carry a value: an unreadable cell reads back as a
+    // plain 0 through column(), and this is what tells it from a real one. The
+    // same array a query result carries beside each of its columns.
+    python_source.def("column_name", &PVPythonSource::column_name, pybind11::arg("column_index"),
+        "What the column at that index is called.");
+    python_source.def("valid", pybind11::overload_cast<size_t>(&PVPythonSource::valid), pybind11::arg("column_index"),
+        "Which rows of a column carry a value -- a cell the format could not read holds an encoding rather than one.");
+    python_source.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::valid), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "Which rows of a column carry a value -- a cell the format could not read holds an encoding rather than one.");
     python_source.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSource::column_type), pybind11::arg("column_name"));
     python_source.def("column_type", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::column_type), pybind11::arg("column_name"), pybind11::arg("position") = 0);
-    python_source.def("selection", pybind11::overload_cast<>(&PVPythonSource::selection));
-    python_source.def("selection", pybind11::overload_cast<int>(&PVPythonSource::selection), pybind11::arg("layer_index"));
-    python_source.def("selection", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::selection), pybind11::arg("layer_name"), pybind11::arg("position") = 0);
+    // Named as the SQL console names them, word for word, and documented in the
+    // same sentence: one reader learns the vocabulary once. selection() used to
+    // return what layers() returns, so the name moved rather than stayed on a
+    // different set of rows -- a script calling it now fails instead of quietly
+    // reading something else.
+    python_source.def("selection", pybind11::overload_cast<>(&PVPythonSource::selection),
+        "The currently selected rows -- what the listing shows.");
+    python_source.def("layers", pybind11::overload_cast<>(&PVPythonSource::layers),
+        "Every row the layer stack lets through.");
+    python_source.def("layer", pybind11::overload_cast<int>(&PVPythonSource::layer), pybind11::arg("layer_index"),
+        "One layer, by its position in the layer stack.");
+    python_source.def("layer", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::layer), pybind11::arg("layer_name"), pybind11::arg("position") = 0,
+        "One layer, by the name it carries in the layer stack. Names are not "
+        "unique, so position tells namesakes apart.");
     python_source.def("insert_column", &PVPythonSource::insert_column, pybind11::arg("column"), pybind11::arg("column_name"));
     python_source.def("delete_column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSource::delete_column), pybind11::arg("column_name"), pybind11::arg("position") = 0);
     python_source.def("insert_layer", pybind11::overload_cast<const std::string&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"));
     python_source.def("insert_layer", pybind11::overload_cast<const std::string&, const pybind11::array&>(&PVPythonSource::insert_layer), pybind11::arg("column_name"), pybind11::arg("selection_array"));
+
+    // The console's SQL, from a script. A query that names rows gives the rows
+    // back, ready for insert_layer(); one that summarizes gives a result, read
+    // with the same words a source is read with.
+    python_source.def("query", &PVPythonSource::query, pybind11::arg("sql"),
+        "Run a query and return what it gives back, column by column.");
+    python_source.def("select", &PVPythonSource::select, pybind11::arg("sql"),
+        "Run a query that names rows and return which ones, as a boolean array.");
+
+    pybind11::class_<PVPythonSqlResult> python_sql_result(main, "sql_result");
+    python_sql_result.def("row_count", &PVPythonSqlResult::row_count,
+        "How many rows the query gave back.");
+    python_sql_result.def("column_count", &PVPythonSqlResult::column_count,
+        "How many columns the query projected.");
+    python_sql_result.def("column_name", &PVPythonSqlResult::column_name, pybind11::arg("column_index"),
+        "What the query called the column at that index.");
+    python_sql_result.def("column_type", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_index"),
+        "What DuckDB called the column -- BIGINT, VARCHAR, TIMESTAMP.");
+    python_sql_result.def("column_type", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column_type, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "What DuckDB called the column -- BIGINT, VARCHAR, TIMESTAMP.");
+    python_sql_result.def("column", pybind11::overload_cast<size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_index"),
+        "One column, as an array: whole numbers as int64, real ones as double, everything else as the text it prints as.");
+    python_sql_result.def("column", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::column, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "One column, as an array: whole numbers as int64, real ones as double, everything else as the text it prints as.");
+    python_sql_result.def("valid", pybind11::overload_cast<size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_index"),
+        "Which rows of the column carry a value, NULL being an answer a query gives rather than an accident.");
+    python_sql_result.def("valid", pybind11::overload_cast<const std::string&, size_t>(&PVPythonSqlResult::valid, pybind11::const_), pybind11::arg("column_name"), pybind11::arg("position") = 0,
+        "Which rows of the column carry a value, NULL being an answer a query gives rather than an accident.");
 
     pybind11::class_<PVPythonSelection> python_selection(main, "selection");
     python_selection.def("size", &PVPythonSelection::size);
@@ -163,6 +212,14 @@ Squey::PVPythonInterpreter& Squey::PVPythonInterpreter::get(Squey::PVRoot& root)
 
 void Squey::PVPythonInterpreter::execute_script(const std::string& script, bool is_path)
 {
+    /* One script is one thing the user ran, whatever it does on the way.
+     * Nothing is recorded when it changed nothing.
+     */
+    Squey::PVAnalysisHistory::Scope step(*_root, QObject::tr("Python script"), "python");
+    // Which script, since a session can run several: the path when there is
+    // one, and the script itself when it was typed into the console.
+    step.describe(QString::fromStdString(script));
+
     auto globals = pybind11::globals();
 	if (is_path) {
 		pybind11::eval_file(script, globals);

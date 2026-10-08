@@ -26,15 +26,17 @@
 // Views told of a new scaling from the thread it was computed in.
 //
 // A scaling asked for from the GUI is computed under a progress box, in a thread of
-// its own, and its listeners are told from there. Whatever they do to widgets has
-// to happen in the GUI thread, which it did not: the parallel, zoomed and scatter
-// views disabled and enabled themselves from that thread, and the series view
-// opened its sampling progress box from it.
+// its own, and its listeners are told from there. Whatever they do to widgets and
+// models has to happen in the GUI thread, which it did not: the parallel, zoomed
+// and scatter views disabled and enabled themselves from that thread, the series
+// view opened its sampling progress box from it, and the scatter gallery emptied
+// the cache its view reads and signalled the change from there.
 //
 // Every one of them is open while a column is given another scaling mode, the way
 // the axis menu does it. What reaches a widget from another thread is counted, as
-// are the warnings Qt prints about threads. And the work is still done, from the
-// right thread: every view is enabled again.
+// are the gallery's signals sent from one and the warnings Qt prints about threads.
+// And the work is still done, from the right thread: every view is enabled again,
+// and the gallery says its thumbnails changed.
 
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/squey_assert.h>
@@ -43,6 +45,7 @@
 #include <pvparallelview/PVFullParallelView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZoomConverter.h>
+#include <pvparallelview/PVScatterThumbnailsModel.h>
 #include <pvparallelview/PVScatterView.h>
 #include <pvparallelview/PVSeriesViewWidget.h>
 #include <pvparallelview/PVViewRenderingContext.h>
@@ -59,6 +62,7 @@
 #include <QVBoxLayout>
 #include <QWidget>
 
+#include <atomic>
 #include <fstream>
 #include <iostream>
 #include <mutex>
@@ -230,7 +234,22 @@ int main(int argc, char** argv)
 	series_view->show();
 	series_view->installEventFilter(&watch);
 
+	// The gallery's model, whose signals are watched as they are sent.
+	PVParallelView::PVScatterThumbnailsModel gallery(view);
+	std::atomic<int> gallery_changes{0};
+	QObject::connect(
+	    &gallery, &QAbstractItemModel::dataChanged, &gallery,
+	    [&gallery, &gallery_changes] {
+		    if (QThread::currentThread() != gallery.thread()) {
+			    off_thread("the gallery signalled a change");
+		    } else {
+			    ++gallery_changes;
+		    }
+	    },
+	    Qt::DirectConnection);
+
 	pump(2000);
+	gallery_changes = 0;
 	g_previous_handler = qInstallMessageHandler(on_message);
 
 	// A new mode for the second column, recomputed as the axis menu recomputes it.
@@ -252,6 +271,7 @@ int main(int argc, char** argv)
 	PV_ASSERT_VALID(full_view->isEnabled(), "the parallel view", "was left disabled");
 	PV_ASSERT_VALID(zoomed_view->isEnabled(), "the zoomed view", "was left disabled");
 	PV_ASSERT_VALID(scatter_view->isEnabled(), "the scatter view", "was left disabled");
+	PV_ASSERT_VALID(gallery_changes > 0, "the gallery", "did not signal the change");
 
 	full_view->removeEventFilter(&watch);
 	zoomed_view->removeEventFilter(&watch);

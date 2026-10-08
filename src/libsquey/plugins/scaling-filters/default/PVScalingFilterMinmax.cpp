@@ -87,14 +87,20 @@ static void compute_minmax_scaling(pvcop::db::array const& mapped,
 #pragma omp parallel for
 	for (size_t i = 0; i < values.size(); i++) {
 		bool invalid = is_unplaceable(invalid_selection, values, i);
-		dest[i] = ~scaling_t(invalid ? 0 : (Squey::extract_value(values[i]) - ymin) * ratio +
-		                                        valid_offset);
+		// Pinned to the ends of the axis: under selection scaling the bounds are
+		// the selection's own, and the rows outside them would otherwise land past
+		// either end of the range.
+		dest[i] = ~(invalid ? scaling_t(0)
+		                    : Squey::PVScalingFilter::clamp_to_axis(
+		                          (Squey::extract_value(values[i]) - ymin) * ratio + valid_offset,
+		                          valid_offset));
 	}
 }
 
 void Squey::PVScalingFilterMinmax::operator()(pvcop::db::array const& mapped,
                                                 pvcop::db::array const& minmax,
                                                 const pvcop::db::selection& invalid_selection,
+                                                const pvcop::db::selection& /*domain_selection*/,
                                                 pvcop::core::array<value_type>& dest)
 {
 	assert(dest);

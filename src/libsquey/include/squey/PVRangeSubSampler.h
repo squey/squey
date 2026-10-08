@@ -143,6 +143,7 @@ class PVRangeSubSampler
 
   private:
 	void allocate_internal_structures();
+	void update_time_ordering();
 	void subsample(size_t first,
 	               size_t last,
 	               const pvcop::db::array& minmax,
@@ -262,17 +263,27 @@ void Squey::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 	const std::vector<size_t> columns_to_subsample(columns_to_subsample_set.begin(),
 	                                               columns_to_subsample_set.end());
 
-#pragma omp parallel for firstprivate(accums, selected_values_counts)
-	for (auto it = columns_to_subsample.begin(); it < columns_to_subsample.end(); ++it) {
-		size_t i = *it;
-		size_t start = first;
-		size_t end = first;
+	// Where each sample range starts in the chronological order. Precomputing it makes the
+	// samples independent from one another, so they can be spread over the cores : the
+	// column loop alone leaves all but a handful of them idle, and a single displayed
+	// timeserie is the nominal case.
+	std::vector<size_t> sample_offsets(_histogram.size() + 1);
+	sample_offsets[0] = first;
+	for (size_t j = 0; j < _histogram.size(); j++) {
+		sample_offsets[j + 1] = sample_offsets[j] + _histogram[j];
+	}
+
+	for (size_t i : columns_to_subsample) {
 		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
+		// Hoisted out of the parallel region : this allocates and computes a whole
+		// selection, which would be pure waste once per sample range.
 		const pvcop::db::selection& ts_valid_sel =
 		    _nraw.column(PVCol(i)).valid_selection(valid_sel);
+
+#pragma omp parallel for schedule(guided) firstprivate(accums, selected_values_counts)
 		for (size_t j = 0; j < _histogram.size(); j++) {
-			const size_t values_count = _histogram[j];
-			end += values_count;
+			const size_t start = sample_offsets[j];
+			const size_t end = sample_offsets[j + 1];
 			std::fill(selected_values_counts.begin(), selected_values_counts.end(), 0);
 			std::fill(accums.begin(), accums.end(), F::init());
 			for (size_t k = start; k < end; k++) {
@@ -284,7 +295,6 @@ void Squey::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 					F::map(accum, timeserie[v]);
 				}
 			}
-			start = end;
 			for (size_t group_index = 0; group_index < _split_count; group_index++) {
 				uint64_t& selected_values_count = selected_values_counts[group_index];
 				const size_t ii = (_split_count * i) + group_index;

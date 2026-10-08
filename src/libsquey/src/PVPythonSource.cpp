@@ -1,7 +1,7 @@
 //
 // MIT License
 //
-// © ESI Group, 2015
+// © Squey, 2026
 //
 // Permission is hereby granted, free of charge, to any person obtaining a copy of
 // this software and associated documentation files (the "Software"), to deal in
@@ -25,6 +25,7 @@
 
 #include <pvkernel/core/qmetaobject_helper.h>
 
+#include <squey/PVPythonColumns.h>
 #include <squey/PVPythonSource.h>
 #include <squey/PVPythonInterpreter.h>
 #include <squey/PVRoot.h>
@@ -145,6 +146,16 @@ pybind11::array Squey::PVPythonSource::column(const std::string& column_name, si
     return column(column_name, PVPythonSource::StringColumnAs::STRING, position);
 }
 
+std::string Squey::PVPythonSource::column_name(size_t column_index) const
+{
+    const QStringList names =
+        active_view().get_axes_combination().get_nraw_names();
+    if (column_index >= size_t(names.size())) {
+        throw std::out_of_range("Out of range column index");
+    }
+    return names[int(column_index)].toStdString();
+}
+
 PVCol Squey::PVPythonSource::nraw_column_index(const std::string& column_name,
                                                size_t position) const
 {
@@ -155,18 +166,39 @@ PVCol Squey::PVPythonSource::nraw_column_index(const std::string& column_name,
             matching_columns_indexes.emplace_back(PVCol(i));
         }
     }
-    if (matching_columns_indexes.empty()) {
-        throw std::domain_error(std::string("No column named \"") + column_name + "\"");
-    }
-    if (position >= matching_columns_indexes.size()) {
-        throw std::domain_error(std::string("The count of column named \"") + column_name + "\" is <= " + std::to_string(position));
-    }
-    return matching_columns_indexes[position];
+    return PVPythonColumns::pick(matching_columns_indexes, column_name, position);
 }
 
 pybind11::array Squey::PVPythonSource::column(const std::string& column_name, StringColumnAs string_as, size_t position) /*const*/
 {
     return column(nraw_column_index(column_name, position), string_as);
+}
+
+pybind11::array Squey::PVPythonSource::valid(size_t column_index)
+{
+    PVRush::PVNraw& nraw = _source.get_rushnraw();
+    if (PVCol(column_index) >= nraw.column_count()) {
+        throw std::out_of_range("Out of range column index");
+    }
+    const pvcop::db::array& column = nraw.column(PVCol(column_index));
+
+    pybind11::array array(pybind11::dtype("bool"), column.size());
+    auto* const flags = static_cast<uint8_t*>(array.request().ptr);
+    if (column.has_invalid() == pvcop::db::NONE) {
+        // Nothing was unreadable, which is worth answering without walking the
+        // column: it is the ordinary case.
+        std::fill_n(flags, column.size(), uint8_t(1));
+        return array;
+    }
+    for (size_t row = 0; row < column.size(); row++) {
+        flags[row] = uint8_t(column.is_valid(row));
+    }
+    return array;
+}
+
+pybind11::array Squey::PVPythonSource::valid(const std::string& column_name, size_t position)
+{
+    return valid(nraw_column_index(column_name, position));
 }
 
 std::string Squey::PVPythonSource::column_type(size_t column_index)
@@ -193,41 +225,44 @@ std::string Squey::PVPythonSource::column_type(const std::string& column_name, s
     return column_type(nraw_column_index(column_name, position));
 }
 
-Squey::PVPythonSelection Squey::PVPythonSource::selection()
+//! Wrap @a selection as the read-only numpy array Python sees.
+static Squey::PVPythonSelection as_python_selection(Squey::PVView& view,
+                                                    Squey::PVSelection& selection)
 {
-    return selection(-1);
-}
-
-Squey::PVPythonSelection Squey::PVPythonSource::selection(int layer_index)
-{
-    Squey::PVView* view = &active_view();
-    Squey::PVLayerStack& layerstack = view->get_layer_stack();
-    Squey::PVSelection* selection = nullptr;
-
-    if (layer_index == -1) {
-        selection = &view->get_layer_stack_output_layer().get_selection();
-    }
-    else {
-        if (layer_index >= layerstack.get_layer_count()) {
-            throw std::out_of_range("Out of range layer index");
-        }
-        selection = &layerstack.get_layer_n(layer_index).get_selection();
-    }
     pybind11::str dummy_data_owner; // hack to disable ownership
     pybind11::dtype dt("uint64");
-    auto arr = pybind11::array(dt, selection->chunk_count(), selection->get_buffer(), dummy_data_owner);
+    auto arr = pybind11::array(dt, selection.chunk_count(), selection.get_buffer(), dummy_data_owner);
     reinterpret_cast<pybind11::detail::PyArray_Proxy*>(arr.ptr())->flags &= ~pybind11::detail::npy_api::NPY_ARRAY_WRITEABLE_; // hack to set flags.writable=false
-    return Squey::PVPythonSelection(*view, *selection, arr);
+    return Squey::PVPythonSelection(view, selection, arr);
 }
 
-Squey::PVPythonSelection Squey::PVPythonSource::selection(const std::string& layer_name, size_t position  /* = 0 */)
+Squey::PVPythonSelection Squey::PVPythonSource::selection()
 {
     Squey::PVView* view = &active_view();
-    Squey::PVLayerStack& layerstack = view->get_layer_stack();
-    if (layer_name == "") {
-        return selection(-1);
+    return as_python_selection(*view, view->get_post_filter_layer().get_selection());
+}
+
+Squey::PVPythonSelection Squey::PVPythonSource::layers()
+{
+    Squey::PVView* view = &active_view();
+    return as_python_selection(*view, view->get_layer_stack_output_layer().get_selection());
+}
+
+Squey::PVPythonSelection Squey::PVPythonSource::layer(int layer_index)
+{
+    Squey::PVView* view = &active_view();
+    Squey::PVLayerStack& layerstack = view->edit_layer_stack();
+    if (layer_index < 0 || layer_index >= layerstack.get_layer_count()) {
+        throw std::out_of_range("Out of range layer index");
     }
-    else {
+    return as_python_selection(*view, layerstack.edit_layer_n(layer_index).get_selection());
+}
+
+Squey::PVPythonSelection Squey::PVPythonSource::layer(const std::string& layer_name, size_t position  /* = 0 */)
+{
+    Squey::PVView* view = &active_view();
+    Squey::PVLayerStack& layerstack = view->edit_layer_stack();
+    {
         std::vector<size_t> matching_layers_indexes;
         for (size_t i = 0; i < (size_t)layerstack.get_layer_count(); i++) {
             if (layer_name == layerstack.get_layer_n(i).get_name().toStdString()) {
@@ -240,8 +275,44 @@ Squey::PVPythonSelection Squey::PVPythonSource::selection(const std::string& lay
         if (position >= matching_layers_indexes.size()) {
             throw std::domain_error(std::string("The count of layer named \"") + layer_name + "\" is <= " + std::to_string(position));
         }
-        return selection(matching_layers_indexes[position]);
+        return layer(static_cast<int>(matching_layers_indexes[position]));
     }
+}
+
+Squey::PVDuckDBQuery& Squey::PVPythonSource::sql()
+{
+    // The view's, so "selection" and the layers a query names are the ones this
+    // script is looking at -- a source may carry several views. Held there and
+    // not here: this object is handed to Python, which lets go of it only when
+    // the interpreter is finalized, and by then the program is inside exit()
+    // where a DuckDB database can no longer be closed safely.
+    return active_view().sql();
+}
+
+Squey::PVPythonSqlResult Squey::PVPythonSource::query(const std::string& sql_text)
+{
+    // The current selection is handed over, which is what makes a bare
+    // condition narrow what is already selected rather than read the whole
+    // stack. Same rule as the console's.
+    const Squey::PVView* view = &active_view();
+    return PVPythonSqlResult(
+        sql().run_columns(sql_text, &view->get_real_output_selection()));
+}
+
+pybind11::array Squey::PVPythonSource::select(const std::string& sql_text)
+{
+    Squey::PVView* view = &active_view();
+    Squey::PVSelection selected(_source.get_row_count());
+    sql().select(sql_text, view->get_real_output_selection(), selected);
+
+    // A byte per row rather than the bit field it is: that is the shape
+    // insert_layer() takes, and the shape a selection hands out already.
+    pybind11::array array(pybind11::dtype("bool"), _source.get_row_count());
+    auto* const flags = static_cast<uint8_t*>(array.request().ptr);
+    for (size_t row = 0; row < _source.get_row_count(); row++) {
+        flags[row] = uint8_t(selected.get_line(row));
+    }
+    return array;
 }
 
 void Squey::PVPythonSource::insert_column(const pybind11::array& column, const std::string& axis_name /*= {}*/)
@@ -330,15 +401,9 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
             matching_columns_indexes.emplace_back(comb_col);
         }
     }
-    if (matching_columns_indexes.empty()) {
-        throw std::domain_error(std::string("No column named \"") + column_name + "\"");
-    }
-    if (position >= matching_columns_indexes.size()) {
-        throw std::domain_error(std::string("The count of columns named \"") + column_name + "\" is <= " + std::to_string(position));
-    }
-
     // Delete column from disk
-    active_view().delete_axis(matching_columns_indexes[position]);
+    active_view().delete_axis(
+        PVPythonColumns::pick(matching_columns_indexes, column_name, position));
 
     // TODO : edit format ? Investigation ?
 }
@@ -351,7 +416,7 @@ void Squey::PVPythonSource::delete_column(const std::string& column_name, size_t
  void Squey::PVPythonSource::insert_layer(const std::string& layer_name, const pybind11::array& sel_array)
  {
     Squey::PVView* view = &active_view();
-    Squey::PVLayer* layer = view->get_layer_stack().append_new_layer(row_count(), layer_name.c_str());
+    Squey::PVLayer* layer = view->edit_layer_stack().append_new_layer(row_count(), layer_name.c_str());
     if (sel_array.size() != 0) {
         if (not pybind11::dtype("bool").is(sel_array.dtype())) {
             throw std::invalid_argument(std::string("invalid dtype, should be bool"));

@@ -52,7 +52,7 @@ int main()
 	sel.select_all();
 	sel.clear_bit_fast(1);
 	view->set_selection_view(sel);
-	Squey::PVLayer& current_layer = view->get_current_layer();
+	Squey::PVLayer& current_layer = view->edit_current_layer();
 	view->commit_selection_to_layer(current_layer);
 
 	/**

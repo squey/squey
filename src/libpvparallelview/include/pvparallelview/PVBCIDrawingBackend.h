@@ -87,7 +87,19 @@ class PVBCIDrawingBackend
 	virtual void free_bci(PVBCICodeBase* buf) { return PVBCICode<>::free_codes((PVBCICode<>*)buf); }
 
   public:
-	// If this backend is synchronous, render_done must be ignored.
+	/**
+	 * Draw @p codes into @p dst_img.
+	 *
+	 * @param density each code carries its opacity in the 8 lower bits of its
+	 * index (see PVBCICode::set_opacity), and where lines cross, the most opaque
+	 * one is drawn. Otherwise lines are opaque, and the line of the lowest row is
+	 * drawn.
+	 * @param antialiased a line covers the pixels it passes near in part, which
+	 * scales its opacity there. Where lines cross, the one covering the most of a
+	 * pixel is drawn, as the most opaque one is by density: the line of the
+	 * lowest row only wins when they cover it as much.
+	 * @param render_done called once drawn; ignored by a synchronous backend.
+	 */
 	virtual void render(PVBCIBackendImage_p& dst_img,
 	                    size_t x_start,
 	                    size_t width,
@@ -95,6 +107,8 @@ class PVBCIDrawingBackend
 	                    size_t n,
 	                    const float zoom_y = 1.0f,
 	                    bool reverse = false,
+	                    bool density = false,
+	                    bool antialiased = false,
 	                    std::function<void()> const& render_done = std::function<void()>()) = 0;
 };
 

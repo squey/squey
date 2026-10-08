@@ -5,9 +5,12 @@
 #include <QDir>
 #include <QFileInfo>
 #include <functional>
+#include <algorithm>
+
 #include <QFile>
 #include <QFileDialog>
 #include <QInputDialog>
+#include <QLocale>
 #include <QMessageBox>
 #include <QRegularExpression>
 #include <QTemporaryDir>
@@ -32,6 +35,10 @@
 #include <squey/PVRoot.h>
 #include <squey/PVSource.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvguiqt/PVAnalysisBreadcrumb.h>
+#include <squey/PVAnalysisHistory.h>
+#include <squey/PVView.h>
+#include <QToolButton>
 #include <PVMainWindow.h>
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
@@ -130,6 +137,7 @@ ImportExportTest::ImportExportTest()
 
     Squey::common::load_filters();
     PVGuiQt::common::register_displays();
+
 }
 
 void ImportExportTest::import_file()
@@ -234,6 +242,114 @@ void ImportExportTest::import_file()
     main_window.load_files({source_path});
 
     QCOMPARE(success, true);
+}
+
+// What the history is worth only shows once it is wired to the window: a step
+// has to be recorded by the action the user triggers, the breadcrumb has to
+// hear about it, and going back has to put the rows back on screen.
+void ImportExportTest::undo_redo()
+{
+    // The application stylesheet, because widgets measure differently under it
+    // than under the plain style, and it is those measurements the breadcrumb
+    // row is laid out from: a row that only comes out right under one of the
+    // two would look right here and wrong in the application.
+    //
+    // Read straight from the resources rather than asked of PVTheme, whose
+    // setter writes the chosen scheme into the user's configuration -- which a
+    // test has no business doing, and which several tests at once have no
+    // business doing to the same file. And set here rather than for the whole
+    // class: the import tests drive modal dialogs, and dressing those up made
+    // them crash under a loaded machine.
+    QFile stylesheet(":/theme-light.qss");
+    if (stylesheet.open(QFile::ReadOnly)) {
+        qApp->setStyleSheet(QString::fromUtf8(stylesheet.readAll()));
+    }
+
+    // The locale the application runs under, see main.cpp, whatever the one of
+    // the machine: the C locale groups no digits.
+    struct CLocale {
+        QLocale previous;
+        CLocale() { QLocale::setDefault(QLocale::c()); }
+        ~CLocale() { QLocale::setDefault(previous); }
+    } c_locale;
+
+    App::PVMainWindow main_window;
+    main_window.show();
+    main_window.raise();
+
+    const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
+    QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
+    main_window.load_files({source_path});
+
+    Squey::PVView* view = main_window.current_view();
+    QVERIFY(view != nullptr);
+
+    Squey::PVAnalysisHistory& history = main_window.get_root().history();
+    QCOMPARE(history.size(), size_t(0));
+
+    auto* breadcrumb = main_window.findChild<PVGuiQt::PVAnalysisBreadcrumb*>();
+    QVERIFY(breadcrumb != nullptr);
+
+    const size_t all_rows = view->get_real_output_selection().bit_count();
+    QVERIFY(all_rows > 0);
+
+    main_window.resize(1100, 700);
+    QTest::qWait(200);
+    const int empty_row = breadcrumb->height();
+    QVERIFY(empty_row > 0);
+
+    main_window.selection_none_Slot();
+
+    // The step the action opened, plus the state it started from.
+    QCOMPARE(history.size(), size_t(2));
+    QCOMPARE(history.position(), size_t(1));
+    QCOMPARE(view->get_real_output_selection().bit_count(), size_t(0));
+
+    // The crumb carries the name the action gave it, which is how one can tell
+    // the breadcrumb followed rather than merely existing. It shows an icon and
+    // no text, so the name is in the tooltip -- as rich text, the three things a
+    // crumb says being ruled off from one another.
+    QStringList crumbs;
+    for (QToolButton* button : breadcrumb->findChildren<QToolButton*>()) {
+        if (not button->toolTip().isEmpty()) {
+            crumbs << button->toolTip();
+        }
+    }
+    QVERIFY2(std::any_of(crumbs.begin(), crumbs.end(),
+                         [](QString const& t) { return t.contains("Empty selection"); }),
+             qPrintable(crumbs.join(" | ")));
+
+    // And what it left selected, digits grouped and as a share of the rows.
+    const QString all_selected = QString(">%1 event(s) selected (100.0%)<")
+                                     .arg(QLocale(QLocale::English).toString(qulonglong(all_rows)));
+    QVERIFY2(std::any_of(crumbs.begin(), crumbs.end(),
+                         [&](QString const& t) { return t.contains(all_selected); }),
+             qPrintable(crumbs.join(" | ")));
+    QVERIFY2(std::any_of(crumbs.begin(), crumbs.end(),
+                         [](QString const& t) { return t.contains(">0 event(s) selected (0.0%)<"); }),
+             qPrintable(crumbs.join(" | ")));
+
+    // The strip is meant to cost as little height as the toolbar row above it,
+    // and to cost the same before and after: a row that settles only once a
+    // crumb has joined it jumps under the user on their first step. Waited for,
+    // because a height read before the layout has run is the height from before.
+    QTest::qWait(200);
+    QVERIFY2(breadcrumb->height() <= 24, qPrintable(QString::number(breadcrumb->height())));
+    QCOMPARE(breadcrumb->height(), empty_row);
+
+    main_window.undo_Slot();
+    QCOMPARE(history.position(), size_t(0));
+    QCOMPARE(view->get_real_output_selection().bit_count(), all_rows);
+
+    main_window.redo_Slot();
+    QCOMPARE(history.position(), size_t(1));
+    QCOMPARE(view->get_real_output_selection().bit_count(), size_t(0));
+
+    // Acting after having gone back drops what lay ahead.
+    main_window.undo_Slot();
+    main_window.selection_all_Slot();
+    QCOMPARE(history.size(), size_t(2));
+    QCOMPARE(view->get_real_output_selection().bit_count(), all_rows);
 }
 
 void ImportExportTest::import_pcap()

@@ -63,11 +63,17 @@ class PVFullParallelViewSelectionRectangle : public PVSelectionRectangle
   public:
 	void update_position();
 
+
   protected:
 	void commit(bool use_selection_modifiers) override;
 
+	QRectF placement() const override;
+	void restore_placement(QRectF const& placement) override;
+
   private:
 	void store();
+	barycenter barycenter_of(QRectF const& rect) const;
+	double scene_x(size_t zone_index, double factor) const;
 
 	PVFullParallelScene* scene_parent();
 	PVFullParallelScene const* scene_parent() const;

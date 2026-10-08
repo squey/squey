@@ -21,12 +21,24 @@ endif()
 # rather than picking their own default, and dependencies with a hand written baseline
 # (google-snappy.bst) are expected to match it. Override it with -DARCH_TYPE=x86-64-v3
 # for a build targeting a known machine, or set it empty to leave -march out entirely.
-if(SQUEY_TARGET_X86_64 AND NOT DEFINED ARCH_TYPE)
+#
+# squey-utils caches a default of its own, "native", when it finds no ARCH_TYPE entry,
+# and every configuration after the first would read it back: the entry is cached here,
+# before the submodules are added. A build tree may still hold the one squey-utils
+# created, which is its default rather than a choice: it gives way to the baseline.
+if(SQUEY_TARGET_X86_64)
+    get_property(arch_type_help CACHE ARCH_TYPE PROPERTY HELPSTRING)
+    if(ARCH_TYPE STREQUAL "native"
+            AND arch_type_help STREQUAL "Architecture to tell GCC to optimize for (-march)")
+        message(STATUS "ARCH_TYPE: native was the default of squey-utils, back to the baseline")
+        unset(ARCH_TYPE CACHE)
+    endif()
     # x86-64-v3 requires AVX2/BMI2/FMA, introduced by Haswell in 2013: binaries built
     # against it die with SIGILL on the very first vector instruction on any older CPU,
     # before reaching main(). v2 only asks for SSE4.2/POPCNT (Nehalem, 2009), and simde
     # emulates the wider intrinsics the code uses.
-    set(ARCH_TYPE "x86-64-v2")
+    set(ARCH_TYPE "x86-64-v2" CACHE STRING
+        "Instruction set baseline of the whole tree (-march), empty to leave -march out")
 endif()
 # Guarded by the architecture too: on a non-x86 target the root leaves ARCH_TYPE
 # unset, squey-utils then caches its own default of "native", and the next
