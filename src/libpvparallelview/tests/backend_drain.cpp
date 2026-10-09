@@ -29,6 +29,7 @@
 #include <pvparallelview/PVBCICode.h>
 #include <pvparallelview/PVBCIDrawingBackendOpenCL.h>
 #include <pvparallelview/PVBCIDrawingBackendQPainter.h>
+#include <pvparallelview/PVParallelView.h>
 
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/squey_assert.h>
@@ -89,6 +90,20 @@ int main()
 	PV_ASSERT_VALID(opencl.device_count() > 0, "device count", opencl.device_count());
 	check_wait_all(opencl, "OpenCL", codes);
 	check_wait_all(PVParallelView::PVBCIDrawingBackendQPainter::get(), "QPainter", codes);
+
+	/* The end of the backend resources waits for what still runs on the backend
+	 * it chose, as the end of the application does. The image outlives them, as
+	 * the one of a view does.
+	 */
+	PVParallelView::PVBCIBackendImage_p image;
+	std::shared_ptr<std::atomic<bool>> returned;
+	{
+		PVParallelView::common::RAII_backend_init resources;
+		auto& backend = PVParallelView::common::backend();
+		image = backend.create_image(ZONE_WIDTH, BBITS);
+		returned = render_slowly_done(backend, image, codes);
+	}
+	PV_ASSERT_VALID(returned->load(), "RAII_backend_init", "ended before render_done returned");
 
 	PVParallelView::PVBCICode<BBITS>::free_codes(codes);
 
