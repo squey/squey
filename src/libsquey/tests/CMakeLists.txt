@@ -181,6 +181,9 @@ add_squey_compile_test(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES map
 add_squey_test(Tmapping_string_default Tmapping_string_default)
 add_bench(Tmapping_string_default LINKS ${LINK_LIBRARIES} FILES mapping_string_default.cpp ${COMMON_FILES})
 
+add_squey_compile_test(Tmapping_string_positions LINKS ${LINK_LIBRARIES} FILES mapping_string_positions.cpp ${COMMON_FILES})
+add_squey_test(Tmapping_string_positions Tmapping_string_positions)
+
 add_squey_compile_test(Tmapping_time_default LINKS ${LINK_LIBRARIES} FILES mapping_time_default.cpp ${COMMON_FILES})
 add_squey_test(Tmapping_time_default Tmapping_time_default)
 add_bench(Tmapping_time_default LINKS ${LINK_LIBRARIES} FILES mapping_time_default.cpp ${COMMON_FILES})

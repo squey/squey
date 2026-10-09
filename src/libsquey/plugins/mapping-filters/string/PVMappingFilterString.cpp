@@ -109,11 +109,8 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 	}
 
 	size_t d_bits = shift;
-	// Number of bits in a char sum depend on the number of summed values.
-	uint8_t bits_in_sum = 8 + int_log2(max_remaining_size);
-	shift -= std::max(shift, bits_in_sum);
 	// Mask strong bits and set these values as we want maximal entropy.
-	factor = factor | ((d & ((1 << d_bits) - 1)) << shift);
+	factor = factor | (d & ((1 << d_bits) - 1));
 
 	return factor;
 }
