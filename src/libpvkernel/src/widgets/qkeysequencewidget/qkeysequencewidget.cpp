@@ -280,7 +280,11 @@ void PVWidgets::QKeySequenceWidget::_connectingSlots()
 // Private class implementation
 
 PVWidgets::QKeySequenceWidgetPrivate::QKeySequenceWidgetPrivate()
-    : maxNumKey(4), layout(nullptr), clearButton(nullptr), shortcutButton(nullptr)
+    : maxNumKey(4)
+    , layout(nullptr)
+    , clearButton(nullptr)
+    , shortcutButton(nullptr)
+    , isRecording(false)
 {
 	Q_Q(PVWidgets::QKeySequenceWidget);
 	Q_UNUSED(q);
