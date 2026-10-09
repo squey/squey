@@ -614,9 +614,14 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 
 	auto data = new opencl_job_data_t;
 	data->done_function = render_done;
+	data->pending = _pending_callbacks;
 
 	dst_img->copy_device_to_host_async(&data->event);
 
+	{
+		std::lock_guard<std::mutex> lock(_pending_callbacks->mutex);
+		++_pending_callbacks->count;
+	}
 	err = data->event.setCallback(CL_COMPLETE, &PVBCIDrawingBackendOpenCL::termination_cb, data);
 	squey_verify_opencl_var(err);
 
@@ -638,6 +643,10 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::wait_all() const
 	for (auto& device : _devices) {
 		device.second.queue.finish();
 	}
+
+	auto& pending = *_pending_callbacks;
+	std::unique_lock<std::mutex> lock(pending.mutex);
+	pending.returned.wait(lock, [&pending]() { return pending.count == 0; });
 }
 
 /*****************************************************************************
@@ -649,6 +658,7 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event
                                                                void* data)
 {
 	auto* job_data = reinterpret_cast<opencl_job_data_t*>(data);
+	const auto pending = job_data->pending;
 
 	// Call termination function
 	if (job_data->done_function) {
@@ -656,4 +666,9 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event
 	}
 
 	delete job_data;
+
+	std::lock_guard<std::mutex> lock(pending->mutex);
+	if (--pending->count == 0) {
+		pending->returned.notify_all();
+	}
 }
