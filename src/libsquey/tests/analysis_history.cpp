@@ -51,7 +51,7 @@ int main()
 	Squey::PVAnalysisHistory& history = env.root.history();
 
 	size_t changes_seen = 0;
-	history._changed.connect([&] { ++changes_seen; });
+	auto counting = history._changed.connect([&] { ++changes_seen; });
 
 	const size_t all_rows = shown_rows(*view);
 	PV_ASSERT_VALID(all_rows > 0);
@@ -356,5 +356,7 @@ int main()
 	history.undo();
 	PV_VALID(put_back, -1, "why", "a contributor that was removed is not asked again");
 
+	// Destroying env makes the history report a change, once changes_seen is already gone.
+	counting.disconnect();
 	return 0;
 }
