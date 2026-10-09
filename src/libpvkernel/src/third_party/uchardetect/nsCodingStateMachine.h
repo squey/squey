@@ -39,7 +39,9 @@
 
 #include "nsPkgInt.h"
 
-typedef enum { eStart = 0, eError = 1, eItsMe = 2 } nsSMState;
+// The state tables hold more states than these three: with no fixed underlying type,
+// the values of the enumeration would stop at 3.
+typedef enum : PRUint32 { eStart = 0, eError = 1, eItsMe = 2 } nsSMState;
 
 #define GETCLASS(c) GETFROMPCK(((unsigned char)(c)), mModel->classTable)
 
