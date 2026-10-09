@@ -14,6 +14,9 @@ variables:
   ADDRESS_SANITIZER:
     value: "false"
     description: "Run the test suite under the address sanitizer"
+  UNDEFINED_SANITIZER:
+    value: "false"
+    description: "Run the test suite under the undefined behavior sanitizer"
   FORCE_PUSH_ARTIFACTS:
     value: "false"
     description: "Push the build dependencies to the shared cache, even when the buildstream directory is unchanged"
@@ -413,18 +416,21 @@ build and run testsuite linux:
     TEST_FILES: "true"
   script:
     - |
-      # Both instrumentations are opt-in through their own pipeline variable, so every
-      # schedule picks what it runs, and a single one can ask for both: the builds then
-      # follow each other in this very job, sharing a warm BuildStream cache instead of
-      # waiting for another schedule to get a runner slot. They stay two distinct builds
-      # on purpose, as ASAN aborts the process on the first error it finds, which would
-      # truncate the coverage data gcov only writes at exit.
-      run_testsuite=true; run_coverage=false; sanitize=false
-      [ "$ADDRESS_SANITIZER" = "true" ] && sanitize=true
+      # Each instrumentation is opt-in through its own pipeline variable, so every
+      # schedule picks what it runs, and a single one can ask for several. The two
+      # sanitizers go into one build. The coverage build follows it in this very job,
+      # sharing a warm BuildStream cache instead of waiting for another schedule to get a
+      # runner slot. It stays a distinct build on purpose, as the sanitizers abort the
+      # process on the first error they find, which would truncate the coverage data gcov
+      # only writes at exit.
+      run_testsuite=true; run_coverage=false
+      address_sanitizer=false; undefined_sanitizer=false
+      [ "$ADDRESS_SANITIZER" = "true" ] && address_sanitizer=true
+      [ "$UNDEFINED_SANITIZER" = "true" ] && undefined_sanitizer=true
       if [ "$CODE_COVERAGE" = "true" ]; then
         run_coverage=true
         # A coverage-only pipeline has no test suite build of its own to run
-        [ "$sanitize" = "true" ] || run_testsuite=false
+        [ "$address_sanitizer" = "true" ] || [ "$undefined_sanitizer" = "true" ] || run_testsuite=false
       fi
 
       # A sanitizer failure must not cost the coverage report below: remember it instead
@@ -437,7 +443,8 @@ build and run testsuite linux:
           --export=$(echo $CI_MERGE_REQUEST_LABELS | grep -q "export_linux_package" && echo true || echo false) \
           --export-dir="/srv/flatpak_repo" \
           --code-coverage=false \
-          --address-sanitizer=$sanitize \
+          --address-sanitizer=$address_sanitizer \
+          --undefined-sanitizer=$undefined_sanitizer \
           --push-artifacts="${PUSH_ARTIFACTS}" || status=$?
       fi
       if [ "$run_coverage" = "true" ]; then

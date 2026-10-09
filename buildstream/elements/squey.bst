@@ -70,6 +70,7 @@ variables:
     -DUSER_TARGET=%{user_target}
     -DCODE_COVERAGE=%{code_coverage}
     -DADDRESS_SANITIZER=%{address_sanitizer}
+    -DUNDEFINED_SANITIZER=%{undefined_sanitizer}
     %{cmake-local-extra}
   # recc only recognizes plain compiler basenames (cc, c++, gcc, g++, clang, clang++):
   # a cross compilation prefix makes it report "not a compiler command" and silently
@@ -172,6 +173,11 @@ config:
         if [ "%{address_sanitizer}" = "1" ]; then
           export ASAN_OPTIONS=detect_leaks=0:detect_stack_use_after_return=1
           TESTS="${TESTS} -E Tcore_crash_report_generation"
+        fi
+        # Left to itself, the undefined behavior sanitizer reports and carries on, and
+        # the test passes.
+        if [ "%{undefined_sanitizer}" = "1" ]; then
+          export UBSAN_OPTIONS=halt_on_error=1:print_stacktrace=1:report_error_type=1
         fi
         mkdir -p /tmp/.squey/squey/tmp-squey/tomjon && cp $SOURCE_DIR/pvconfig.ini /tmp/.squey/squey/config.ini && sed 's|\(nraw_tmp=\)/srv/tmp-squey|\1/tmp/.squey/squey/tmp-squey|' -i /tmp/.squey/squey/config.ini
         $SOURCE_DIR/buildstream/files/flatpak/run_cmd.sh ctest -j $(nproc) --output-junit junit.xml --output-on-failure -T test ${CODE_COVERAGE_COMMAND} ${TESTS} || if [ "%{code_coverage}" = "0" ]; then exit 1; fi
