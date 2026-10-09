@@ -34,6 +34,7 @@
 
 #include <fstream>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace
@@ -71,6 +72,14 @@ int main()
 	const size_t long_url = row(url);
 	const size_t changed_url = row(changed);
 
+	// Past the longest length the mapping tells apart, strings stay above the
+	// shorter ones instead of wrapping around.
+	const size_t sixteen_kb = row("h" + std::string(16383, 'a'));
+	std::vector<std::pair<size_t, size_t>> longer;
+	for (size_t length : {32767, 32768, 65536, 65537, 100000}) {
+		longer.emplace_back(length, row("h" + std::string(length - 1, 'a')));
+	}
+
 	QTemporaryDir dir;
 	PV_ASSERT_VALID(dir.isValid(), "a temporary directory", "could not be made");
 	const std::string csv = dir.filePath("strings.csv").toStdString();
@@ -88,6 +97,10 @@ int main()
 
 	PV_ASSERT_VALID(position[long_url] != position[changed_url], "why",
 	                "the bytes past the first tell long strings of a length apart");
+	for (auto const& [length, index] : longer) {
+		PV_ASSERT_VALID(position[index] > position[sixteen_kb], "why",
+		                "a longer string is placed above a shorter one", "length", length);
+	}
 
 	return 0;
 }

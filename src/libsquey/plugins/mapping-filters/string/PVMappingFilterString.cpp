@@ -29,10 +29,10 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvkernel/core/PVSerializeObject.h>
-#include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvcop/db/read_dict.h>
 
+#include <algorithm>
 #include <numeric>
 
 /**
@@ -72,15 +72,17 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 	// c : the first bytes
 	// d : weak bits of the sum of the remaining bytes
 
-	// Compute "a" and set it in the first 4 bits of factor
+	// Compute "a" and set it in the first 4 bits of factor. Longer strings than "a" can tell
+	// are placed as if they had the longest length it can.
 	uint8_t shift = 32 - 4;
-	const uint8_t a = int_log2(PVCore::clamp((size_t)1, size, (size_t)(1 << ((1 << 4) - 1))));
+	const size_t length = std::min(size, (size_t(1) << ((1 << 4) - 1)) - 1);
+	const uint8_t a = int_log2(length);
 	uint32_t factor = (a + 1) << shift; // +1 to separate 1 length strings from 0 length strings
 
 	// Compute "b" and set it in the shortest number of bits that may contains it after "a"
 	// The shortest number of bits is "a"
 	shift -= a;
-	size_t b = (size - (1 << a));
+	size_t b = (length - (1 << a));
 	factor = factor | (b << shift);
 
 	// Set the first bytes in "c"
