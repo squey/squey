@@ -58,7 +58,19 @@ static uint8_t int_log2(uint16_t v)
 	return r;
 }
 
-static inline uint32_t compute_str_factor(char const* buf, size_t size, bool case_sensitive = true)
+/**
+ * The byte the mapping reads, in lower case when case is ignored. ASCII letters only, so that
+ * a string is placed the same way whatever the locale.
+ */
+static char mapped_byte(char byte, bool case_sensitive)
+{
+	if (case_sensitive || byte < 'A' || byte > 'Z') {
+		return byte;
+	}
+	return char(byte - 'A' + 'a');
+}
+
+static inline uint32_t compute_str_factor(char const* buf, size_t size, bool case_sensitive)
 {
 	if (size < 1) {
 		return 0;
@@ -87,7 +99,7 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 
 	// Set the first bytes in "c"
 	shift -= 8;
-	uint8_t c = buf[0];
+	uint8_t c = mapped_byte(buf[0], case_sensitive);
 	factor = factor | (c << shift);
 
 	// Compute the sum of remaining bytes. Truncate it on the remaining bytes (truncate strong bits)
@@ -100,15 +112,10 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 		return factor;
 	}
 
-	size_t d = 0;
-
-	if (case_sensitive) {
-		d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0, std::plus<uint32_t>());
-	} else {
-		d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0, [&](uint8_t a, uint8_t b) {
-			return std::tolower(a) + std::tolower(b);
-		});
-	}
+	size_t d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0,
+	                           [case_sensitive](uint32_t sum, char byte) {
+		                           return sum + uint32_t(mapped_byte(byte, case_sensitive));
+	                           });
 
 	size_t d_bits = shift;
 	// Mask strong bits and set these values as we want maximal entropy.
@@ -154,7 +161,7 @@ pvcop::db::array Squey::PVMappingFilterString::operator()(PVCol const col,
 #pragma omp parallel for
 		for (size_t dict_idx = 0; dict_idx < dict.size(); dict_idx++) {
 			const char* c = dict.key(dict_idx);
-			ret[dict_idx] = compute_str_factor(c, strlen(c));
+			ret[dict_idx] = compute_str_factor(c, strlen(c), _case_sensitive);
 		}
 
 		auto& core_array = array.to_core_array<pvcop::string_index_t>();
@@ -166,7 +173,7 @@ pvcop::db::array Squey::PVMappingFilterString::operator()(PVCol const col,
 #pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			std::string str = array.at(row);
-			dest_array[row] = compute_str_factor(str.c_str(), str.size());
+			dest_array[row] = compute_str_factor(str.c_str(), str.size(), _case_sensitive);
 		}
 	}
 

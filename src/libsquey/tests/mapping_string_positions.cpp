@@ -50,6 +50,12 @@ constexpr const char* FORMAT = R"(<?xml version='1.0' encoding='UTF-8'?>
     <scaling mode="default"/>
    </axis>
   </field>
+  <field>
+   <axis name="text in lower case" type="string">
+    <mapping mode="string" convert-lowercase="true"/>
+    <scaling mode="default"/>
+   </axis>
+  </field>
  </splitter>
 </param>
 )";
@@ -80,6 +86,11 @@ int main()
 		longer.emplace_back(length, row("h" + std::string(length - 1, 'a')));
 	}
 
+	// Asked to, the mapping places strings as if they were in lower case.
+	const size_t capitalized = row("Squey");
+	const size_t lower_case = row("squey");
+	const size_t last_upper = row("squeY");
+
 	QTemporaryDir dir;
 	PV_ASSERT_VALID(dir.isValid(), "a temporary directory", "could not be made");
 	const std::string csv = dir.filePath("strings.csv").toStdString();
@@ -87,13 +98,15 @@ int main()
 	{
 		std::ofstream out(csv);
 		for (std::string const& text : rows) {
-			out << text << "\n";
+			out << text << "," << text << "\n";
 		}
 		std::ofstream(format) << FORMAT;
 	}
 
 	pvtest::TestEnv env(csv, format);
-	auto const& position = env.compute_mapping().get_column(PVCol(0)).to_core_array<uint32_t>();
+	Squey::PVMapped& mapped = env.compute_mapping();
+	auto const& position = mapped.get_column(PVCol(0)).to_core_array<uint32_t>();
+	auto const& lowered_position = mapped.get_column(PVCol(1)).to_core_array<uint32_t>();
 
 	PV_ASSERT_VALID(position[long_url] != position[changed_url], "why",
 	                "the bytes past the first tell long strings of a length apart");
@@ -101,6 +114,14 @@ int main()
 		PV_ASSERT_VALID(position[index] > position[sixteen_kb], "why",
 		                "a longer string is placed above a shorter one", "length", length);
 	}
+	PV_ASSERT_VALID(position[capitalized] != position[lower_case] and
+	                    position[last_upper] != position[lower_case],
+	                "why", "case tells strings apart, unless asked otherwise");
+	PV_ASSERT_VALID(lowered_position[capitalized] == lowered_position[lower_case] and
+	                    lowered_position[last_upper] == lowered_position[lower_case],
+	                "why", "in lower case, strings differing by case are the same");
+	PV_ASSERT_VALID(lowered_position[lower_case] == position[lower_case], "why",
+	                "a string already in lower case keeps its position");
 
 	return 0;
 }
