@@ -128,7 +128,13 @@ class RAII_backend_init
 	 */
 	RAII_backend_init(const std::function<void(size_t, size_t)>& progress = {});
 
-	~RAII_backend_init() { delete _instance; }
+	/**
+	 * Frees the resources of the views, then waits for what still runs on the
+	 * backend, while its threads are still there: on Windows, ExitProcess
+	 * terminates them before it destroys the statics of the DLLs, the backends
+	 * among them, whose destructors would then wait for them forever.
+	 */
+	~RAII_backend_init();
 
   private:
 	PVParallelView::PVParallelViewImpl* _instance; // Singleton pointer of the ParallelViewImpl.

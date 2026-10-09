@@ -34,9 +34,15 @@
 #include <cassert>
 #include <iostream>
 
+// In 64 bits, as zoom 0 shifts by the whole width of y.
 inline static uint32_t y_to_block_idx(const uint32_t y, const uint32_t zoom)
 {
-	return y >> (32 - zoom);
+	return static_cast<uint32_t>(uint64_t(y) >> (32 - zoom));
+}
+
+inline static uint32_t block_idx_to_y(const uint32_t block_idx, const uint32_t zoom)
+{
+	return static_cast<uint32_t>(uint64_t(block_idx) << (32 - zoom));
 }
 
 inline static uint32_t y_to_idx_in_buffer(const uint32_t y, const uint32_t zoom)
@@ -69,7 +75,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
                                                                       double alpha)
 {
 	const uint32_t block_idx = y_to_block_idx(y_min, zoom);
-	const uint32_t y_min_block = block_idx << (32 - zoom);
+	const uint32_t y_min_block = block_idx_to_y(block_idx, zoom);
 
 	const int32_t y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(y_min_block, zoom, alpha);
 	const int32_t last_y_min_idx_in_red_buffer = y_to_idx_in_red_buffer(last_y_min(), zoom, alpha);
@@ -115,7 +121,7 @@ bool PVParallelView::PVHitGraphBlocksManager::change_and_process_view(const uint
 			// The shift was on the left, so let's process the last missing blocks.
 			const int abs_blocks_shift = -blocks_shift;
 			_data_params.block_start = nblocks() - abs_blocks_shift;
-			_data_params.y_min = (block_idx + _data_params.block_start) << (32 - zoom);
+			_data_params.y_min = block_idx_to_y(block_idx + _data_params.block_start, zoom);
 			_data_params.nblocks = abs_blocks_shift;
 		}
 
@@ -204,7 +210,7 @@ uint32_t const* PVParallelView::PVHitGraphBlocksManager::buffer_selected() const
 
 uint32_t PVParallelView::PVHitGraphBlocksManager::y_start() const
 {
-	return y_to_block_idx(_data_params.y_min, _data_params.zoom) << (32 - _data_params.zoom);
+	return block_idx_to_y(y_to_block_idx(_data_params.y_min, _data_params.zoom), _data_params.zoom);
 }
 
 int PVParallelView::PVHitGraphBlocksManager::nbits() const

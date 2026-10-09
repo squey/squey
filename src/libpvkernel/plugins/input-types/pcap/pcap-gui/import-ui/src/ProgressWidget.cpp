@@ -105,12 +105,9 @@ void ProgressWidget::set_split_progress_maximum(size_t max)
 void ProgressWidget::set_split_progress_value(size_t value)
 {
 	_ui->_split_progressbar->setValue(value / MEGABYTE);
-	_ui->_split_progressbar->setFormat(
-	    QString("%L1").arg(_ui->_split_progressbar->value()) + " / " +
-	    QString("%L1").arg(_ui->_split_progressbar->maximum()) + " MB" + " (" +
-	    QString::number((size_t)((double)_ui->_split_progressbar->value() /
-	                             _ui->_split_progressbar->maximum() * 100)) +
-	    "%)");
+	_ui->_split_progressbar->setFormat(QString("%L1 / %L2 MB (%p%)")
+	                                       .arg(_ui->_split_progressbar->value())
+	                                       .arg(_ui->_split_progressbar->maximum()));
 }
 
 void ProgressWidget::set_extract_progress_maximum(size_t max)
@@ -124,10 +121,7 @@ void ProgressWidget::set_extract_progress_maximum(size_t max)
 void ProgressWidget::set_extract_progress_value(size_t value)
 {
 	_ui->_extract_progressbar->setValue(value);
-	_ui->_extract_progressbar->setFormat(
-	    QString("%L1").arg(_ui->_extract_progressbar->value()) + " / " +
-	    QString("%L1").arg(_ui->_extract_progressbar->maximum()) + " packets" + " (" +
-	    QString::number((size_t)((double)_ui->_extract_progressbar->value() /
-	                             _ui->_extract_progressbar->maximum() * 100)) +
-	    "%)");
+	_ui->_extract_progressbar->setFormat(QString("%L1 / %L2 packets (%p%)")
+	                                         .arg(_ui->_extract_progressbar->value())
+	                                         .arg(_ui->_extract_progressbar->maximum()));
 }

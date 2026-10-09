@@ -121,7 +121,11 @@ class PVBCIDrawingBackendAsync : public PVBCIDrawingBackend
 	bool is_sync() const override { return false; }
 
   public:
-	// TODO : Remove this unused method.
+	/**
+	 * Blocks until every rendering asked for is drawn and its render_done has
+	 * returned, not merely been called: it is called from inside the job, which
+	 * goes on, on a thread of the backend or of its driver, once it has returned.
+	 */
 	virtual void wait_all() const = 0;
 };
 } // namespace PVParallelView

@@ -99,24 +99,33 @@ if (ADDRESS_SANITIZER)
     # executables it is linked into carry the runtime themselves.
     add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fsanitize=address;-fno-omit-frame-pointer>")
     add_link_options("$<$<LINK_LANGUAGE:CXX>:-fsanitize=address;-fno-omit-frame-pointer>")
-    # clang looks up its runtime libraries under -print-resource-dir, but the sysroot
-    # installs them under the install prefix instead, which leaves the link step unable
-    # to find libclang_rt.asan. Point at them explicitly when they are missing.
-    if (CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-        execute_process(COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
-                        OUTPUT_VARIABLE CLANG_RESOURCE_DIR
-                        OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
-        file(GLOB ASAN_RUNTIME "${CLANG_RESOURCE_DIR}/lib/*/libclang_rt.asan*")
-        if (NOT ASAN_RUNTIME)
-            file(GLOB ASAN_RESOURCE_DIRS "${CMAKE_INSTALL_PREFIX}/lib/clang/*")
-            if (ASAN_RESOURCE_DIRS)
-                list(GET ASAN_RESOURCE_DIRS 0 ASAN_RESOURCE_DIR)
-                add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-resource-dir=${ASAN_RESOURCE_DIR}>")
-                add_link_options("$<$<LINK_LANGUAGE:CXX>:-resource-dir=${ASAN_RESOURCE_DIR}>")
-            endif()
+    message(STATUS "Address sanitizer instrumentation enabled")
+endif()
+
+if (UNDEFINED_SANITIZER)
+    # On the C++ language alone, for the reasons given for the address sanitizer: gcc
+    # has its own runtime for this one too.
+    add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-fsanitize=undefined;-fno-omit-frame-pointer>")
+    add_link_options("$<$<LINK_LANGUAGE:CXX>:-fsanitize=undefined;-fno-omit-frame-pointer>")
+    message(STATUS "Undefined behavior sanitizer instrumentation enabled")
+endif()
+
+# clang looks up its runtime libraries under -print-resource-dir, but the sysroot
+# installs them under the install prefix instead, which leaves the link step unable
+# to find the sanitizer runtimes. Point at them explicitly when they are missing.
+if ((ADDRESS_SANITIZER OR UNDEFINED_SANITIZER) AND CMAKE_CXX_COMPILER_ID MATCHES "Clang")
+    execute_process(COMMAND ${CMAKE_CXX_COMPILER} -print-resource-dir
+                    OUTPUT_VARIABLE CLANG_RESOURCE_DIR
+                    OUTPUT_STRIP_TRAILING_WHITESPACE ERROR_QUIET)
+    file(GLOB SANITIZER_RUNTIMES "${CLANG_RESOURCE_DIR}/lib/*/libclang_rt.*san*")
+    if (NOT SANITIZER_RUNTIMES)
+        file(GLOB SANITIZER_RESOURCE_DIRS "${CMAKE_INSTALL_PREFIX}/lib/clang/*")
+        if (SANITIZER_RESOURCE_DIRS)
+            list(GET SANITIZER_RESOURCE_DIRS 0 SANITIZER_RESOURCE_DIR)
+            add_compile_options("$<$<COMPILE_LANGUAGE:CXX>:-resource-dir=${SANITIZER_RESOURCE_DIR}>")
+            add_link_options("$<$<LINK_LANGUAGE:CXX>:-resource-dir=${SANITIZER_RESOURCE_DIR}>")
         endif()
     endif()
-    message(STATUS "Address sanitizer instrumentation enabled")
 endif()
 
 string(APPEND CMAKE_CXX_FLAGS " ${CMAKE_CXX_COMMON_FLAGS} ${CODE_COVERAGE_FLAGS}")

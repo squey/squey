@@ -136,4 +136,15 @@ RAII_backend_init::RAII_backend_init(const std::function<void(size_t, size_t)>& 
 		_instance->init_backends<PVBCIDrawingBackendQPainter>();
 	}
 }
+
+RAII_backend_init::~RAII_backend_init()
+{
+	PVBCIDrawingBackend& backend = _instance->backend();
+
+	delete _instance;
+
+	if (not backend.is_sync()) {
+		static_cast<PVBCIDrawingBackendAsync&>(backend).wait_all();
+	}
+}
 } // namespace PVParallelView

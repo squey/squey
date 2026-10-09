@@ -43,6 +43,8 @@
 #include <sys/time.h>
 #include <sys/types.h>
 #include <boost/filesystem/path.hpp>
+#include <cstddef>
+#include <cstring>
 #include <fstream>
 #include <memory>
 #include <sstream>
@@ -117,10 +119,11 @@ static std::pair<in6_addr, in6_addr> srcip_dstip(const sniff_ip* ip, bool ipv4)
 		ip_dst.s6_addr32[3] = ipv4_dst;
 #endif
 	} else {
-		const auto* ipv6_h = reinterpret_cast<const ip6_hdr*>(ip);
+		// Copied out of the bytes, which do not have the alignment of an ip6_hdr.
+		const auto* ipv6_h = reinterpret_cast<const unsigned char*>(ip);
 
-		ip_src = ipv6_h->ip6_src;
-		ip_dst = ipv6_h->ip6_dst;
+		std::memcpy(&ip_src, ipv6_h + offsetof(ip6_hdr, ip6_src), sizeof(ip_src));
+		std::memcpy(&ip_dst, ipv6_h + offsetof(ip6_hdr, ip6_dst), sizeof(ip_dst));
 	}
 
 	return std::make_pair(ip_src, ip_dst);

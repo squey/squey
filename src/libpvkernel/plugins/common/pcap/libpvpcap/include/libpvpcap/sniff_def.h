@@ -39,6 +39,10 @@
 
 #define IP_V(ip) (((ip)->ip_vhl) >> 4)
 
+// Byte-aligned: in a captured frame, these headers follow the 14-byte Ethernet header,
+// which leaves their 16 and 32-bit fields unaligned.
+#pragma pack(push, 1)
+
 // IP header
 struct sniff_ip {
 	u_char ip_vhl;                 /* version << 4 | header length >> 2 */
@@ -88,6 +92,8 @@ struct sniff_udp {
 	uint16_t udp_length;
 	uint16_t udp_sum; /* checksum */
 };
+
+#pragma pack(pop)
 
 #ifdef _WIN32
 

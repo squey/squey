@@ -544,6 +544,14 @@ int main()
 	check_antialiasing(backend);
 	check_antialiasing_qpainter();
 
+	/* A rendering reports its end from inside its job, which is not over yet. Wait for
+	 * the jobs while the threads that run them are still there: on Windows, the statics
+	 * of a DLL are destroyed once every other thread is gone, and the destructor of the
+	 * QPainter backend would wait for the job of the last rendering forever.
+	 */
+	PVParallelView::PVBCIDrawingBackendQPainter::get().wait_all();
+	backend.wait_all();
+
 	PVParallelView::PVBCICode<BBITS>::free_codes(codes);
 
 	std::error_code ec;

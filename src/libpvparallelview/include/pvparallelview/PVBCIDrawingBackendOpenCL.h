@@ -29,8 +29,11 @@
 
 #include <pvparallelview/PVBCIDrawingBackend.h>
 
+#include <condition_variable>
 #include <functional>
 #include <map>
+#include <memory>
+#include <mutex>
 #include <vector>
 
 namespace PVParallelView
@@ -42,9 +45,19 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 {
 	using backend_image_t = PVBCIBackendImageOpenCL;
 
+	//! The callbacks registered by render() that have not returned yet, which
+	//! finishing the queues does not wait for. Each callback holds it too, as one
+	//! may still run once the backend is gone, when a process ends without wait_all().
+	struct pending_callbacks_t {
+		std::mutex mutex;
+		std::condition_variable returned;
+		size_t count = 0; //!< Guarded by mutex.
+	};
+
 	struct opencl_job_data_t {
 		cl::Event event;
 		std::function<void()> done_function;
+		std::shared_ptr<pending_callbacks_t> pending;
 	};
 
   public:
@@ -155,6 +168,8 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	devices_t _devices;
 	devices_t::const_iterator _next_device;
 	bool _is_gpu_accelerated;
+	std::shared_ptr<pending_callbacks_t> _pending_callbacks =
+	    std::make_shared<pending_callbacks_t>();
 };
 
 } // namespace PVParallelView

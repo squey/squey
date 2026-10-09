@@ -294,7 +294,7 @@ class PVMimeticDoubleSpinBox : public QDoubleSpinBox
 
   private:
 	QDoubleSpinBox* _other;
-	bool _use_floating_point;
+	bool _use_floating_point = false;
 };
 } // namespace __impl
 

@@ -29,10 +29,10 @@
 #include <pvkernel/rush/PVNraw.h>
 
 #include <pvkernel/core/PVSerializeObject.h>
-#include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvcop/db/read_dict.h>
 
+#include <algorithm>
 #include <numeric>
 
 /**
@@ -58,7 +58,19 @@ static uint8_t int_log2(uint16_t v)
 	return r;
 }
 
-static inline uint32_t compute_str_factor(char const* buf, size_t size, bool case_sensitive = true)
+/**
+ * The byte the mapping reads, in lower case when case is ignored. ASCII letters only, so that
+ * a string is placed the same way whatever the locale.
+ */
+static char mapped_byte(char byte, bool case_sensitive)
+{
+	if (case_sensitive || byte < 'A' || byte > 'Z') {
+		return byte;
+	}
+	return char(byte - 'A' + 'a');
+}
+
+static inline uint32_t compute_str_factor(char const* buf, size_t size, bool case_sensitive)
 {
 	if (size < 1) {
 		return 0;
@@ -72,20 +84,22 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 	// c : the first bytes
 	// d : weak bits of the sum of the remaining bytes
 
-	// Compute "a" and set it in the first 4 bits of factor
+	// Compute "a" and set it in the first 4 bits of factor. Longer strings than "a" can tell
+	// are placed as if they had the longest length it can.
 	uint8_t shift = 32 - 4;
-	const uint8_t a = int_log2(PVCore::clamp((size_t)1, size, (size_t)(1 << ((1 << 4) - 1))));
+	const size_t length = std::min(size, (size_t(1) << ((1 << 4) - 1)) - 1);
+	const uint8_t a = int_log2(length);
 	uint32_t factor = (a + 1) << shift; // +1 to separate 1 length strings from 0 length strings
 
 	// Compute "b" and set it in the shortest number of bits that may contains it after "a"
 	// The shortest number of bits is "a"
 	shift -= a;
-	size_t b = (size - (1 << a));
+	size_t b = (length - (1 << a));
 	factor = factor | (b << shift);
 
 	// Set the first bytes in "c"
 	shift -= 8;
-	uint8_t c = buf[0];
+	uint8_t c = mapped_byte(buf[0], case_sensitive);
 	factor = factor | (c << shift);
 
 	// Compute the sum of remaining bytes. Truncate it on the remaining bytes (truncate strong bits)
@@ -98,22 +112,14 @@ static inline uint32_t compute_str_factor(char const* buf, size_t size, bool cas
 		return factor;
 	}
 
-	size_t d = 0;
-
-	if (case_sensitive) {
-		d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0, std::plus<uint32_t>());
-	} else {
-		d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0, [&](uint8_t a, uint8_t b) {
-			return std::tolower(a) + std::tolower(b);
-		});
-	}
+	size_t d = std::accumulate(buf + 1, buf + 1 + max_remaining_size, 0,
+	                           [case_sensitive](uint32_t sum, char byte) {
+		                           return sum + uint32_t(mapped_byte(byte, case_sensitive));
+	                           });
 
 	size_t d_bits = shift;
-	// Number of bits in a char sum depend on the number of summed values.
-	uint8_t bits_in_sum = 8 + int_log2(max_remaining_size);
-	shift -= std::max(shift, bits_in_sum);
 	// Mask strong bits and set these values as we want maximal entropy.
-	factor = factor | ((d & ((1 << d_bits) - 1)) << shift);
+	factor = factor | (d & ((1 << d_bits) - 1));
 
 	return factor;
 }
@@ -155,7 +161,7 @@ pvcop::db::array Squey::PVMappingFilterString::operator()(PVCol const col,
 #pragma omp parallel for
 		for (size_t dict_idx = 0; dict_idx < dict.size(); dict_idx++) {
 			const char* c = dict.key(dict_idx);
-			ret[dict_idx] = compute_str_factor(c, strlen(c));
+			ret[dict_idx] = compute_str_factor(c, strlen(c), _case_sensitive);
 		}
 
 		auto& core_array = array.to_core_array<pvcop::string_index_t>();
@@ -167,7 +173,7 @@ pvcop::db::array Squey::PVMappingFilterString::operator()(PVCol const col,
 #pragma omp parallel for
 		for (size_t row = 0; row < array.size(); row++) {
 			std::string str = array.at(row);
-			dest_array[row] = compute_str_factor(str.c_str(), str.size());
+			dest_array[row] = compute_str_factor(str.c_str(), str.size(), _case_sensitive);
 		}
 	}
 
