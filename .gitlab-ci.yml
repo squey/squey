@@ -414,6 +414,9 @@ build and run testsuite linux:
   variables:
     # Runs ctest, unlike the cross-compiled builds which stop before it.
     TEST_FILES: "true"
+    # Its artifacts are text reports, which deflate shrinks tenfold, unlike the
+    # packages the other jobs store as they are.
+    ARTIFACT_COMPRESSION_LEVEL: "fast"
   script:
     - |
       # Each instrumentation is opt-in through its own pipeline variable, so every
@@ -746,6 +749,7 @@ pages:
     - if: '$CODE_COVERAGE == "true"'
       variables:
         PAGES_PREFIX: reports
+        ARTIFACT_COMPRESSION_LEVEL: "fast" # text reports, unlike the release downloads
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
   # Release and code coverage pipelines do not run the same set of jobs, so every
   # dependency has to be optional for the pipeline to be created in both cases
