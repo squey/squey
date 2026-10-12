@@ -23,24 +23,32 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-// The text a listing gives its view for a long value.
+// The text the table models give their views for a long value.
 //
 // Qt lays out the whole text of a cell to elide it: a value of millions of
-// characters took seconds at each repaint, and froze the listing. The listing gives
+// characters took seconds at each repaint, and froze the listing. A table model gives
 // at most DISPLAYED_SIZE_MAX bytes of a value, cut between two characters and
 // followed by an ellipsis, in the cell as in its tooltip.
 
 #include <pvkernel/core/squey_assert.h>
 
+#include <squey/PVDuckDBQuery.h>
 #include <squey/PVRoot.h>
 #include <squey/PVSource.h>
 #include <squey/PVView.h>
 
 #include <pvguiqt/PVListingModel.h>
+#include <pvguiqt/PVSimpleStringListModel.h>
+#include <pvguiqt/PVSqlResultModel.h>
+#include <pvguiqt/PVStatsModel.h>
+
+#include <pvcop/db/algo.h>
+#include <pvcop/db/array.h>
 
 #include <QApplication>
 #include <QTemporaryDir>
 
+#include <algorithm>
 #include <fstream>
 #include <iostream>
 #include <memory>
@@ -99,6 +107,31 @@ std::vector<Value> expected_values()
 	return values;
 }
 
+// The tooltip is checked when the model gives one.
+void check(const char* name,
+           const PVGuiQt::PVAbstractTableModel& model,
+           const std::vector<Value>& expected,
+           bool tooltip)
+{
+	PV_ASSERT_VALID(model.rowCount() == int(expected.size()), "model", name, "rows listed",
+	                model.rowCount());
+
+	for (int row = 0; row < int(expected.size()); ++row) {
+		const QModelIndex index = model.index(row, 0);
+		const QString displayed = model.data(index, Qt::DisplayRole).toString();
+		std::cout << name << ", row " << row << ": " << expected[row].imported.size() << " bytes, "
+		          << displayed.size() << " UTF-16 code units displayed" << std::endl;
+		PV_ASSERT_VALID(displayed == expected[row].displayed, "model", name, "row", row,
+		                "expected code units", expected[row].displayed.size());
+
+		if (tooltip) {
+			const QString text = model.data(index, Qt::ToolTipRole).toString();
+			PV_ASSERT_VALID(QString(text).remove("<br>") == expected[row].displayed, "model", name,
+			                "row", row, "tooltip code units", text.size());
+		}
+	}
+}
+
 } // namespace
 
 int main(int argc, char** argv)
@@ -131,22 +164,38 @@ int main(int argc, char** argv)
 
 	QApplication app(argc, argv);
 
-	PVGuiQt::PVListingModel model(view);
-	PV_ASSERT_VALID(model.rowCount() == int(expected.size()), "rows listed", model.rowCount());
+	check("listing", PVGuiQt::PVListingModel(view), expected, true);
 
-	for (int row = 0; row < int(expected.size()); ++row) {
-		const QModelIndex index = model.index(row, 0);
-		const QString displayed = model.data(index, Qt::DisplayRole).toString();
-		const QString tooltip = model.data(index, Qt::ToolTipRole).toString();
-		std::cout << "row " << row << ": " << expected[row].imported.size() << " bytes imported, "
-		          << displayed.size() << " UTF-16 code units displayed, " << tooltip.size()
-		          << " in the tooltip" << std::endl;
-
-		PV_ASSERT_VALID(displayed == expected[row].displayed, "row", row, "expected code units",
-		                expected[row].displayed.size());
-		PV_ASSERT_VALID(QString(tooltip).remove("<br>") == expected[row].displayed, "row", row,
-		                "expected code units", expected[row].displayed.size());
+	std::vector<std::string> imported;
+	for (const Value& value : expected) {
+		imported.push_back(value.imported);
 	}
+
+	// Each value counted once, as the distinct values of a column.
+	pvcop::db::array counts("number_uint64", expected.size());
+	auto& count = counts.to_core_array<uint64_t>();
+	std::fill(count.begin(), count.end(), 1);
+	pvcop::db::array total("number_uint64", 1);
+	total.to_core_array<uint64_t>()[0] = expected.size();
+	pvcop::db::array minmax = pvcop::db::algo::minmax(counts);
+	check("stats",
+	      PVGuiQt::PVStatsModel("Count", "value", QString(), pvcop::db::make_string_array(imported),
+	                            std::move(counts), std::move(total), std::move(minmax)),
+	      expected, true);
+
+	Squey::PVDuckDBQuery::Table table;
+	table.column_names = {"value"};
+	table.column_types = {"VARCHAR"};
+	for (const std::string& value : imported) {
+		table.rows.push_back({value});
+	}
+	check("SQL result", PVGuiQt::PVSqlResultModel(std::move(table)), expected, false);
+
+	PVGuiQt::PVSimpleStringListModel::container_type lines;
+	for (size_t i = 0; i < imported.size(); ++i) {
+		lines.emplace(i, imported[i]);
+	}
+	check("string list", PVGuiQt::PVSimpleStringListModel(lines), expected, false);
 
 	return 0;
 }
