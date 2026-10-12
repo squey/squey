@@ -55,7 +55,7 @@ QVariant PVGuiQt::PVSqlResultModel::data(QModelIndex const& index, int role) con
 	case Qt::DisplayRole: {
 		const auto& values = _table.rows.at(size_t(rowIndex(index)));
 		const auto col = size_t(index.column());
-		return col < values.size() ? QString::fromStdString(values[col]) : QVariant();
+		return col < values.size() ? get_displayed_string(values[col]) : QVariant();
 	}
 	case Qt::BackgroundRole:
 		if (is_selected(index)) {

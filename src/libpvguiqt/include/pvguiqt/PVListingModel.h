@@ -87,6 +87,9 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
 	 * Provided data are value content,text alignment, background and forground
 	 * colors and font
 	 *
+	 * The value content and its tooltip keep at most DISPLAYED_SIZE_MAX bytes of the
+	 * value, as get_displayed_string says.
+	 *
 	 * @param index : Cell asked for information.
 	 * @param role : Kind of information required.
 	 * @return Matching information depending on role (QVariant)

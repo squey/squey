@@ -28,6 +28,8 @@
 #include <QAbstractTableModel>
 #include <QBrush>
 
+#include <string_view>
+
 #include <pvbase/types.h>
 #include <pvguiqt/PVSortFilter.h>
 #include <squey/PVSelection.h>
@@ -68,6 +70,14 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 * Function to export asked line;
 	 */
 	virtual QString export_line(int, const QString& fsep) const = 0;
+
+	/**
+	 * Most bytes of a value a view is given to display: see get_displayed_string.
+	 *
+	 * The hyperlink delegate opens the text it is given, and 8 KiB keeps whole the URLs
+	 * of up to 8000 octets that RFC 9110 (section 4.1) recommends supporting.
+	 */
+	static constexpr size_t DISPLAYED_SIZE_MAX = 8192;
 
 	/// Selection
 
@@ -289,6 +299,23 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 * @return the wrapped version of @a str
 	 */
 	QString get_wrapped_string(const QString& str) const;
+
+	/**
+	 * Convert @a value, a UTF-8 string, to the text a view is given to display.
+	 *
+	 * Qt lays out the whole text of a cell to elide it, which freezes the view for
+	 * seconds on a value of millions of characters. Of a value longer than
+	 * DISPLAYED_SIZE_MAX bytes, only the characters wholly within that many bytes are
+	 * kept, followed by an ellipsis.
+	 */
+	static QString get_displayed_string(std::string_view value);
+
+	/**
+	 * Convert @a value, a UTF-8 string, to the tooltip of its cell: the text
+	 * get_displayed_string gives, the new lines the value escapes as "\\n" turned into
+	 * line breaks, then wrapped by get_wrapped_string.
+	 */
+	QString get_tooltip_string(std::string_view value) const;
 
   protected:
 	/**

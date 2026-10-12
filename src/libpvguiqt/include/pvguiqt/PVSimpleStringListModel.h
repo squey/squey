@@ -59,7 +59,7 @@ class PVSimpleStringListModel : public PVAbstractTableModel
 		case Qt::DisplayRole: {
 			auto it = _values.begin();
 			std::advance(it, rowIndex(index));
-			return QString::fromStdString(it->second);
+			return get_displayed_string(it->second);
 		}
 		case Qt::BackgroundRole:
 			if (is_selected(index)) {

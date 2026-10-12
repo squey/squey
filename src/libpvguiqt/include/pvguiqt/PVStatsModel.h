@@ -147,15 +147,11 @@ class PVStatsModel : public PVAbstractTableModel
 		switch (role) {
 		case Qt::DisplayRole:
 			if (index.column() == 0) {
-				std::string const& str = _col1.at(row);
-				return QString::fromUtf8(str.c_str(), str.size());
+				return get_displayed_string(_col1.at(row));
 			}
 			break;
-		case Qt::ToolTipRole: {
-			std::string raw_str = _col1.at(row);
-			boost::replace_all(raw_str, "\\n", "<br>"); // Properly show new lines
-			return get_wrapped_string(QString::fromUtf8(raw_str.c_str(), raw_str.size()));
-		}
+		case Qt::ToolTipRole:
+			return get_tooltip_string(_col1.at(row));
 
 		case Qt::UserRole:
 			if (index.column() == 1) {
