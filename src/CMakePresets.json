@@ -53,7 +53,7 @@
       "cacheVariables": {
         "CMAKE_CXX_COMPILER": "/app/osxcross/bin/aarch64-apple-darwin24.5-clang++",
         "CMAKE_FIND_ROOT_PATH": "/mac",
-        "CMAKE_OSX_DEPLOYMENT_TARGET": "10.15",
+        "CMAKE_OSX_DEPLOYMENT_TARGET": "14.4",
         "CMAKE_INSTALL_PREFIX": "/mac",
         "CMAKE_INSTALL_LIBDIR": "lib"
       },

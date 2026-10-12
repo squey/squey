@@ -72,7 +72,7 @@ start the clangd they find.
   - code under `#ifdef`;
   - code depending on type sizes (`long` is 32 bits on Windows);
   - code using recent standard library features (the macOS SDK's libc++, deployment target
-    10.15).
+    14.4).
 - Pushing a branch does not start a pipeline: pipelines run for merge requests, schedules,
   manual runs and release tags.
 

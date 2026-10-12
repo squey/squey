@@ -33,7 +33,7 @@
 	    <string>public.app-category.utilities</string>
 
         <key>LSMinimumSystemVersion</key>
-	    <string>10.9.0</string>
+	    <string>$DEPLOYMENT_TARGET_VERSION</string>
 
         <key>NSHumanReadableCopyright</key>
 	    <string>Copyright 2015, $CURRENT_YEAR Squey</string>
