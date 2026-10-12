@@ -55,6 +55,9 @@ add_squey_test(Tpvguiqt_table_view_navigation Tpvguiqt_table_view_navigation)
 add_squey_compile_test(Tpvguiqt_listing_model_outlived LINKS ${COMMON_LIBRARIES} FILES listing_model_outlived.cpp common.cpp)
 add_squey_test(Tpvguiqt_listing_model_outlived Tpvguiqt_listing_model_outlived -platform offscreen)
 
+add_squey_compile_test(Tpvguiqt_listing_model_long_value LINKS ${COMMON_LIBRARIES} FILES listing_model_long_value.cpp common.cpp)
+add_squey_test(Tpvguiqt_listing_model_long_value Tpvguiqt_listing_model_long_value -platform offscreen)
+
 # Reports are written straight into the database, so the test links against
 # Crashpad as well as the libraries above.
 include_directories(AFTER SYSTEM ${CRASHPAD_INCLUDE_DIRS})

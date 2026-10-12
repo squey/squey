@@ -455,6 +455,28 @@ QString PVAbstractTableModel::get_wrapped_string(const QString& str) const
 	return res;
 }
 
+QString PVAbstractTableModel::get_displayed_string(std::string_view value)
+{
+	if (value.size() <= DISPLAYED_SIZE_MAX) {
+		return QString::fromUtf8(value.data(), value.size());
+	}
+
+	// Leave out the character the cut would split: the bytes continuing the UTF-8
+	// sequence of a character are those of the form 10xxxxxx.
+	size_t size = DISPLAYED_SIZE_MAX;
+	while (size > 0 and (static_cast<unsigned char>(value[size]) & 0xC0) == 0x80) {
+		--size;
+	}
+	return QString::fromUtf8(value.data(), size) + QChar(0x2026); // ellipsis
+}
+
+QString PVAbstractTableModel::get_tooltip_string(std::string_view value) const
+{
+	QString str_with_newlines = get_displayed_string(value);
+	str_with_newlines.replace("\\n", "<br>");
+	return get_wrapped_string(str_with_newlines);
+}
+
 /******************************************************************************
 *
 * PVAbstractTableModel::apply_selection_mode
