@@ -340,6 +340,11 @@ int main(int argc, char** argv)
 
 	history.clear();
 
+	// The previous section leaves a rectangle where this one is drawn, over the
+	// rows this one selects: pressed on it, the mouse would move it by its central
+	// handle instead, and drawn over the same rows, this one would leave no step.
+	view.select_all();
+
 	draw(*scene, first_from, first_to);
 	pump(200);
 	PV_ASSERT_VALID(shown(*item), "the first rectangle", "is not shown");
