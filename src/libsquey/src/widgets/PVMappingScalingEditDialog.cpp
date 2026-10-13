@@ -238,10 +238,20 @@ void PVWidgets::PVMappingScalingEditDialog::save_settings()
 		row++;
 	}
 
-	if (_mapping && !_mapping->is_uptodate()) {
-		_mapping->update_mapping();
-	}
-	if (_scaling && !_scaling->is_uptodate()) {
-		_scaling->update_scaling();
+	const auto update = [this]() {
+		if (_mapping && !_mapping->is_uptodate()) {
+			_mapping->update_mapping();
+		}
+		if (_scaling && !_scaling->is_uptodate()) {
+			_scaling->update_scaling();
+		}
+	};
+
+	// Views are told through a scaling, see Squey::PVScaled::rescale: a mapping
+	// edited alone has none to tell.
+	if (_scaling) {
+		_scaling->rescale(update);
+	} else {
+		update();
 	}
 }

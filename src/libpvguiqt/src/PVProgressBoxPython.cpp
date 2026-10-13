@@ -112,7 +112,8 @@ PVCore::PVProgressBox::CancelState PVGuiQt::PVProgressBoxPython::progress(
 void PVGuiQt::PVProgressBoxPython::do_emit_scaling_updated(Squey::PVView* view)
 {
     view->_axis_combination_updated.emit(false);
-    view->get_parent<Squey::PVScaled>().update_scaling();
+	Squey::PVScaled& scaled = view->get_parent<Squey::PVScaled>();
+	scaled.rescale([&scaled]() { scaled.update_scaling(); });
 }
 
 

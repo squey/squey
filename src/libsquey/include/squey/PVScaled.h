@@ -37,6 +37,8 @@
 #include <QList>
 #include <QString>
 
+#include <atomic>
+#include <functional>
 #include <vector>
 #include <utility>
 #include <limits>
@@ -112,6 +114,32 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
   public:
 	void update_scaling();
 	bool is_uptodate() const;
+
+	/**
+	 * How many scaling passes have moved some column on its axis, which is what
+	 * something placed over the axes compares to tell whether they still stand as
+	 * they did.
+	 *
+	 * Bumped on the thread a scaling is computed on, readable from any.
+	 */
+	size_t scaling_generation() const { return _scaling_generation; }
+
+	/**
+	 * Runs something that may move columns on their axes -- a mapping or a scaling
+	 * recomputed, a stretch over the selection or its end -- between two signals
+	 * to the views of this scaling, emitted on the calling thread: one before,
+	 * while the axes still stand as they did, and one after, saying whether any
+	 * column ended up somewhere else. A view settles there what it draws over the
+	 * axes.
+	 *
+	 * The change may hand its work to another thread, a progress box's for
+	 * instance, provided the work is over when it returns. Only the views of this
+	 * scaling are told, while a mapping recomputed moves the columns of every
+	 * scaling built on it.
+	 *
+	 * @return whether any column ended up somewhere else on its axis
+	 */
+	bool rescale(std::function<void()> const& change);
 
 	void set_name(std::string const& name) { _name = name; }
 	std::string const& get_name() const { return _name; }
@@ -282,6 +310,12 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
   public:
 	sigc::signal<void(QList<PVCol>)> _scaled_updated;
 
+	/**
+	 * Before and after a rescale(), the second one told whether any column moved.
+	 */
+	sigc::signal<void()> _about_to_rescale;
+	sigc::signal<void(bool)> _rescaled;
+
   private:
 	/**
 	 * Recompute the columns the selection domain has a say over.
@@ -316,6 +350,7 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
   private:
 	scaleds_t _scaleds;
 	QList<PVCol> _last_updated_cols; //!< List of column to update for view on this scaled.
+	std::atomic<size_t> _scaling_generation{0};
 	std::vector<MinMax> _minmax_values;
 	std::list<PVScalingProperties> _columns;
 	std::string _name;

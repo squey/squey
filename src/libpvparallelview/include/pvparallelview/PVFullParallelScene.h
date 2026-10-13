@@ -163,16 +163,14 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	std::optional<std::pair<int64_t, int64_t>> selection_band(PVCombCol col) const;
 
 	/**
-	 * Runs a rescaling of the axes behind a progress box, and has what stands on
-	 * them follow: the rectangle first commits what it still holds, on the axes it
-	 * was moved on, and once the axes have moved, the sliders are carried across
-	 * and the rectangle is dropped.
+	 * Runs a rescaling of the axes behind a progress box, through
+	 * Squey::PVScaled::rescale, so that what stands on them follows: see
+	 * on_about_to_rescale.
 	 *
-	 * @param rescale run on the thread of the progress box; returns whether any
-	 *        column ended up somewhere else on its axis
+	 * @param rescale run on the thread of the progress box
 	 * @param message what the progress box says it is doing
 	 */
-	void rescale_axes(std::function<bool()> const& rescale, QString const& message);
+	void rescale_axes(std::function<void()> const& rescale, QString const& message);
 
   public:
 
@@ -228,6 +226,21 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	 * closed -- so the next rescaling would call into a scene that is gone.
 	 */
 	void refresh_densities(const QList<PVCol>& columns);
+
+	/**
+	 * What stands on the axes, settled before a rescaling and following it after,
+	 * whoever asked for it -- this scene, the menu of an axis, the mapping and
+	 * scaling dialog. See Squey::PVScaled::rescale.
+	 *
+	 * Before, the rectangle commits what it still holds, on the axes it was moved
+	 * on, and the band the selected rows occupy on each axis with sliders is
+	 * measured. After, once the axes have moved, the sliders are carried from that
+	 * band to the one those rows occupy now, and the rectangle is dropped.
+	 *
+	 * Connected through sigc::mem_fun, for the same reason as refresh_densities.
+	 */
+	void on_about_to_rescale();
+	void on_rescaled(bool moved);
 
 	void update_number_of_visible_zones();
 	void update_zones_position(bool update_all = true, bool scale = true);
@@ -367,6 +380,9 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	// through queued calls: never left holding whatever was on the stack.
 	QTimer* _timer_render = nullptr;
 	QTimer* _timer_rescale = nullptr;
+
+	//! By axis position, the bands on_about_to_rescale measured for on_rescaled.
+	std::vector<std::optional<std::pair<int64_t, int64_t>>> _axes_bands_before;
 
 	// Set once this scene is detached from its rendering context or model
 	// (teardown): pending render-finished callbacks must then be ignored.

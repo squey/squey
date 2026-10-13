@@ -568,7 +568,22 @@ bool Squey::PVScaled::clear_selection_domain()
 void Squey::PVScaled::update_scaling()
 {
 	create_table();
+	if (not _last_updated_cols.empty()) {
+		++_scaling_generation;
+	}
 	_scaled_updated.emit(_last_updated_cols);
+}
+
+bool Squey::PVScaled::rescale(std::function<void()> const& change)
+{
+	_about_to_rescale.emit();
+
+	const size_t generation = _scaling_generation;
+	change();
+	const bool moved = _scaling_generation != generation;
+
+	_rescaled.emit(moved);
+	return moved;
 }
 
 QList<PVCol> Squey::PVScaled::get_columns_to_update() const
