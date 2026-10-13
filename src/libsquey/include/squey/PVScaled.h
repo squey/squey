@@ -171,8 +171,10 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
 
 	/**
 	 * Give the columns back the bounds of their every row.
+	 *
+	 * @return whether any column ended up somewhere else on its axis
 	 */
-	void clear_selection_domain();
+	bool clear_selection_domain();
 
 	/**
 	 * The rows the columns are currently scaled over, if any.

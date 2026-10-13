@@ -45,6 +45,7 @@
 #include <pvparallelview/PVViewRenderingContext.h>
 
 #include <atomic>
+#include <functional>
 #include <optional>
 #include <unordered_set>
 #include <utility>
@@ -160,6 +161,18 @@ class PVFullParallelScene : public QGraphicsScene, public sigc::trackable
 	 * hold them, which is also what a scene ordinate is derived from.
 	 */
 	std::optional<std::pair<int64_t, int64_t>> selection_band(PVCombCol col) const;
+
+	/**
+	 * Runs a rescaling of the axes behind a progress box, and has what stands on
+	 * them follow: the rectangle first commits what it still holds, on the axes it
+	 * was moved on, and once the axes have moved, the sliders are carried across
+	 * and the rectangle is dropped.
+	 *
+	 * @param rescale run on the thread of the progress box; returns whether any
+	 *        column ended up somewhere else on its axis
+	 * @param message what the progress box says it is doing
+	 */
+	void rescale_axes(std::function<bool()> const& rescale, QString const& message);
 
   public:
 

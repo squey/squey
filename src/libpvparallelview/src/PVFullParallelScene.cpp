@@ -824,9 +824,8 @@ void PVParallelView::PVFullParallelScene::set_scale_on_selection(bool enabled)
 	} else {
 		// Every axis that was following the setting is owed the bounds of its every
 		// row back; the ones switched on through their own header menu keep theirs.
-		PVCore::PVProgressBox::progress(
-		    [&scaled](PVCore::PVProgressBox&) { scaled.clear_selection_domain(); },
-		    QObject::tr("Updating scaling..."), _full_parallel_view);
+		rescale_axes([&scaled]() { return scaled.clear_selection_domain(); },
+		             QObject::tr("Updating scaling..."));
 	}
 }
 
@@ -880,12 +879,6 @@ void PVParallelView::PVFullParallelScene::rescale_on_selection()
 		return;
 	}
 
-	// A rectangle just moved commits only after a delay. Committed now, before the
-	// selection is read: left waiting, the commit would come from the event loop of
-	// the progress box below, in the middle of a stretch on the selection without
-	// the move -- or never, once the stretch has dropped the rectangle.
-	_sel_rect.commit_pending();
-
 	Squey::PVScaled& scaled = _lib_view.get_parent<Squey::PVScaled>();
 
 	// Asking to rescale is asking for selection scaling. An axis switched on
@@ -896,10 +889,29 @@ void PVParallelView::PVFullParallelScene::rescale_on_selection()
 		_full_parallel_view->_params_widget->update_widgets();
 	}
 
-	const Squey::PVSelection& sel = _lib_view.get_real_output_selection();
+	// The selection is read by the rescaling rather than here, after the rectangle
+	// has committed what it still held.
+	rescale_axes(
+	    [this, &scaled]() {
+		    return scaled.update_scaling_on_selection(_lib_view.get_real_output_selection());
+	    },
+	    QObject::tr("Stretching axes on selection..."));
+}
 
-	// Recomputes every column that scales over the selection and rebuilds the
-	// zones behind them, which is worth a progress box on a large source.
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::rescale_axes
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::rescale_axes(std::function<bool()> const& rescale,
+                                                       QString const& message)
+{
+	// A rectangle just moved commits only after a delay. Committed now, on the axes
+	// it was moved on: left waiting, the commit would come from the event loop of
+	// the progress box below, in the middle of the rescaling -- or never, once the
+	// rectangle has been dropped.
+	_sel_rect.commit_pending();
+
 	// Where the selected rows reach on each axis, measured on both sides of the
 	// rescaling: that band is what the sliders are carried by, so that they keep
 	// framing the values they were set around.
@@ -910,12 +922,12 @@ void PVParallelView::PVFullParallelScene::rescale_on_selection()
 		}
 	}
 
+	// Recomputing columns rebuilds the zones behind them, which is worth a progress
+	// box on a large source.
 	bool rescaled = false;
 	PVCore::PVProgressBox::progress(
-	    [&scaled, &sel, &rescaled](PVCore::PVProgressBox&) {
-		    rescaled = scaled.update_scaling_on_selection(sel);
-	    },
-	    QObject::tr("Stretching axes on selection..."), _full_parallel_view);
+	    [&rescale, &rescaled](PVCore::PVProgressBox&) { rescaled = rescale(); }, message,
+	    _full_parallel_view);
 
 	if (not rescaled) {
 		// Every column sits where it sat, so nothing downstream was rebuilt and
