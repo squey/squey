@@ -568,6 +568,9 @@ bool Squey::PVScaled::clear_selection_domain()
 void Squey::PVScaled::update_scaling()
 {
 	create_table();
+	if (not _last_updated_cols.empty()) {
+		++_scaling_generation;
+	}
 	_scaled_updated.emit(_last_updated_cols);
 }
 

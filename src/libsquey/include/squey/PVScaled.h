@@ -37,6 +37,7 @@
 #include <QList>
 #include <QString>
 
+#include <atomic>
 #include <vector>
 #include <utility>
 #include <limits>
@@ -112,6 +113,15 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
   public:
 	void update_scaling();
 	bool is_uptodate() const;
+
+	/**
+	 * How many scaling passes have moved some column on its axis, which is what
+	 * something placed over the axes compares to tell whether they still stand as
+	 * they did.
+	 *
+	 * Bumped on the thread a scaling is computed on, readable from any.
+	 */
+	size_t scaling_generation() const { return _scaling_generation; }
 
 	void set_name(std::string const& name) { _name = name; }
 	std::string const& get_name() const { return _name; }
@@ -316,6 +326,7 @@ class PVScaled : public PVCore::PVDataTreeChild<PVMapped, PVScaled>,
   private:
 	scaleds_t _scaleds;
 	QList<PVCol> _last_updated_cols; //!< List of column to update for view on this scaled.
+	std::atomic<size_t> _scaling_generation{0};
 	std::vector<MinMax> _minmax_values;
 	std::list<PVScalingProperties> _columns;
 	std::string _name;

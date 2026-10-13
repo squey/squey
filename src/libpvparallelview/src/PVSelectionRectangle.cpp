@@ -68,8 +68,7 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	view._selection_view_changed.connect(
 	    sigc::mem_fun(*this, &PVSelectionRectangle::view_selection_changed));
 
-	view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
-	    sigc::mem_fun(*this, &PVSelectionRectangle::scaling_updated));
+	const Squey::PVScaled& scaled = view.get_parent<Squey::PVScaled>();
 
 	/* The rectangle belongs to the step it drew. Without this, going back to a
 	 * step lands on the right rows with no rectangle around them: the selection
@@ -77,20 +76,20 @@ PVParallelView::PVSelectionRectangle::PVSelectionRectangle(QGraphicsScene* scene
 	 * would otherwise always throw the other away.
 	 */
 	_contributor = view.get_parent<Squey::PVRoot>().history().add_contributor(
-	    [this]() -> Squey::PVAnalysisAttachment {
+	    [this, &scaled]() -> Squey::PVAnalysisAttachment {
 		    return get_rect().isNull()
 		               ? Squey::PVAnalysisAttachment()
 		               : std::make_shared<const DrawnSelectionRectangle>(
-		                     DrawnSelectionRectangle{placement(), _scaling_generation});
+		                     DrawnSelectionRectangle{placement(), scaled.scaling_generation()});
 	    },
-	    [this](const Squey::PVAnalysisAttachment& attachment) {
+	    [this, &scaled](const Squey::PVAnalysisAttachment& attachment) {
 		    const auto* drawn = static_cast<const DrawnSelectionRectangle*>(attachment.get());
 
 		    // Only onto the axes it was drawn on: once they have been rescaled,
 		    // its edges frame other rows. Under a stretch on each selection, the
 		    // one being restored included, it would otherwise flash on screen
 		    // until that stretch dropped it.
-		    if (drawn != nullptr and drawn->scaling_generation == _scaling_generation) {
+		    if (drawn != nullptr and drawn->scaling_generation == scaled.scaling_generation()) {
 			    // Put back rather than drawn: the selection it describes has
 			    // just been restored, and drawing it anew would only push the
 			    // very step being landed on.
@@ -358,17 +357,6 @@ QRectF PVParallelView::PVSelectionRectangle::placement() const
 void PVParallelView::PVSelectionRectangle::restore_placement(QRectF const& placement)
 {
 	_rect->restore_rect(placement);
-}
-
-/*****************************************************************************
- * PVParallelView::PVSelectionRectangle::scaling_updated
- *****************************************************************************/
-
-void PVParallelView::PVSelectionRectangle::scaling_updated(QList<PVCol> const& columns)
-{
-	if (not columns.empty()) {
-		++_scaling_generation;
-	}
 }
 
 /*****************************************************************************
