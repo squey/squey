@@ -205,6 +205,17 @@ void PVParallelView::PVSelectionRectangle::end(const QPointF& p, bool use_sel_mo
 }
 
 /*****************************************************************************
+ * PVParallelView::PVSelectionRectangle::commit_pending
+ *****************************************************************************/
+
+void PVParallelView::PVSelectionRectangle::commit_pending()
+{
+	if (_timer->isActive()) {
+		timeout();
+	}
+}
+
+/*****************************************************************************
  * PVParallelView::PVSelectionRectangle::scene
  *****************************************************************************/
 

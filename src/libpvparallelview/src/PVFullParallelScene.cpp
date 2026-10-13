@@ -880,6 +880,12 @@ void PVParallelView::PVFullParallelScene::rescale_on_selection()
 		return;
 	}
 
+	// A rectangle just moved commits only after a delay. Committed now, before the
+	// selection is read: left waiting, the commit would come from the event loop of
+	// the progress box below, in the middle of a stretch on the selection without
+	// the move -- or never, once the stretch has dropped the rectangle.
+	_sel_rect.commit_pending();
+
 	Squey::PVScaled& scaled = _lib_view.get_parent<Squey::PVScaled>();
 
 	// Asking to rescale is asking for selection scaling. An axis switched on

@@ -112,6 +112,12 @@ class PVSelectionRectangle : public QObject, public sigc::trackable
 	 */
 	void end(const QPointF& p, bool use_sel_modifiers = true, bool now = false);
 
+	/**
+	 * Commits now what the end of the commit delay would, if the rectangle has
+	 * moved since it last committed -- as it has when a handle was just let go.
+	 */
+	void commit_pending();
+
   public:
 	/**
 	 */
