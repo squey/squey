@@ -38,7 +38,9 @@ config:
     cp %{build-root}/buildstream/files/macos_bundle/squey.icns Resources
     VERSION=$(cat %{build-root}/VERSION.txt)
     CURRENT_YEAR=$(date +%Y)
-    sed -e "s/\$VERSION/$VERSION/g" -e "s/\$CURRENT_YEAR/$CURRENT_YEAR/g" %{build-root}/buildstream/files/macos_bundle/Info.plist > Info.plist
+    sed -e "s/\$VERSION/$VERSION/g" -e "s/\$CURRENT_YEAR/$CURRENT_YEAR/g" \
+        -e "s/\$DEPLOYMENT_TARGET_VERSION/%{deployment-target-version}/g" \
+        %{build-root}/buildstream/files/macos_bundle/Info.plist > Info.plist
     ln -s /Applications "%{install-root}/bundle_root/Applications"
 
 build-depends:
