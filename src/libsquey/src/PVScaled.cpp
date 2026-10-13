@@ -559,10 +559,10 @@ bool Squey::PVScaled::update_scaling_on_selection(PVSelection const& sel)
 	return refresh_selection_scaling();
 }
 
-void Squey::PVScaled::clear_selection_domain()
+bool Squey::PVScaled::clear_selection_domain()
 {
 	_selection_domain.reset();
-	refresh_selection_scaling();
+	return refresh_selection_scaling();
 }
 
 void Squey::PVScaled::update_scaling()

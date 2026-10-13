@@ -37,6 +37,14 @@
 // own, which drops whatever rectangle is shown: one brought back would blink on
 // screen for the time that stretch waits.
 //
+// Moved by a handle, a rectangle commits once a delay is over. A stretch asked for
+// before then commits it first, and so does turning the stretch off: the step left
+// holds a rectangle placed on the axes of before, which does not come back once they
+// have moved, and a stretch is on the rows the rectangle was moved over.
+//
+// Turning the stretch off drops the rectangle as the stretch does, and carries the
+// sliders back over the rows they framed.
+//
 // Without a stretch, the rectangle comes back where it was drawn, and stays.
 
 #include <pvkernel/core/squey_assert.h>
@@ -46,6 +54,7 @@
 #include <pvparallelview/PVLinesView.h>
 #include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVSelectionRectangleItem.h>
+#include <pvparallelview/PVSlidersManager.h>
 #include <pvparallelview/PVViewRenderingContext.h>
 
 #include <squey/PVAnalysisHistory.h>
@@ -62,6 +71,7 @@
 #include <atomic>
 #include <cmath>
 #include <fstream>
+#include <functional>
 #include <iostream>
 #include <string>
 
@@ -204,6 +214,21 @@ void draw(QGraphicsScene& scene, QPointF from, QPointF to)
 	send_mouse(scene, QEvent::GraphicsSceneMouseRelease, to, Qt::NoButton);
 }
 
+/**
+ * Move the rectangle shown by its central handle, which only takes a press once
+ * hovering the rectangle has raised it. Let go, the rectangle commits after a
+ * delay.
+ */
+void move(QGraphicsScene& scene, PVParallelView::PVSelectionRectangleItem const& item, QPointF by)
+{
+	const QRectF placed = item.get_rect();
+
+	send_mouse(scene, QEvent::GraphicsSceneMouseMove, placed.center(), Qt::NoButton);
+	draw(scene, placed.center(), placed.center() + by);
+	PV_ASSERT_VALID(close_to(item.get_rect(), placed.translated(by)), "the rectangle",
+	                "was not moved");
+}
+
 } // namespace
 
 int main(int argc, char** argv)
@@ -340,6 +365,11 @@ int main(int argc, char** argv)
 
 	history.clear();
 
+	// The previous section leaves a rectangle where this one is drawn, over the
+	// rows this one selects: pressed on it, the mouse would move it by its central
+	// handle instead, and drawn over the same rows, this one would leave no step.
+	view.select_all();
+
 	draw(*scene, first_from, first_to);
 	pump(200);
 	PV_ASSERT_VALID(shown(*item), "the first rectangle", "is not shown");
@@ -363,6 +393,81 @@ int main(int argc, char** argv)
 	seen = watch(*item, 1000, stretched);
 	PV_ASSERT_VALID(not seen.ever_hidden and not seen.ever_elsewhere, "why",
 	                "one drawn on the axes as they still are comes back");
+
+	// ------------------------------------------------ moved, then stretched at once
+
+	// The axes rescaled right after a rectangle was moved, before it has committed
+	// where it was moved to.
+	const auto move_then_rescale = [&](std::function<void()> const& rescale) {
+		history.clear();
+		view.select_all();
+
+		draw(*scene, first_from, first_to);
+		pump(200);
+		PV_ASSERT_VALID(shown(*item), "the first rectangle", "is not shown");
+		const size_t drawn_step = history.position();
+
+		move(*scene, *item, QPointF(0, 60));
+		PV_ASSERT_VALID(history.position() == drawn_step, "the move", "committed at once");
+
+		const int rescalings_before = rescalings;
+		rescale();
+		PV_ASSERT_VALID(rescalings != rescalings_before, "the rescaling", "moved no axis");
+		PV_ASSERT_VALID(not shown(*item), "why",
+		                "a rescaling drops the rectangle it moved the axes of");
+		PV_ASSERT_VALID(history.position() == drawn_step + 1, "why",
+		                "a rescaling takes the rectangle where it was moved to");
+
+		history.undo();
+		history.redo();
+		const Watched landed = watch(*item, 1000);
+		PV_ASSERT_VALID(not landed.ever_shown, "why",
+		                "a rectangle moved before the axes were rescaled frames other rows now");
+	};
+	move_then_rescale([scene]() { scene->rescale_on_selection(); });
+
+	// ---------------------------------------------------------- stretch turned off
+
+	history.clear();
+	scene->set_scale_on_selection(false);
+	view.select_all();
+
+	draw(*scene, first_from, first_to);
+	pump(200);
+
+	// A pair of sliders over the rows just selected, on the first axis, which is
+	// stretched over them and then given its every row back.
+	const auto& scaled = view.get_parent<Squey::PVScaled>();
+	PVRow min_row;
+	PVRow max_row;
+	scaled.get_col_minmax(min_row, max_row, view.get_real_output_selection(), PVCol(0));
+	const std::pair<int64_t, int64_t> framed(scaled.get_value(min_row, PVCol(0)),
+	                                         scaled.get_value(max_row, PVCol(0)));
+
+	PVParallelView::PVSlidersManager& sliders = context.sliders_manager();
+	int pair = 0;
+	sliders.new_selection_sliders(PVCombCol(0), &pair, framed.first, framed.second);
+	const auto pair_range = [&sliders, &pair]() {
+		std::pair<int64_t, int64_t> range;
+		sliders.iterate_selection_sliders(
+		    [&](PVCombCol, PVParallelView::PVSlidersManager::id_t id, auto const& geometry) {
+			    if (id == &pair) {
+				    range = std::make_pair(geometry.y_min, geometry.y_max);
+			    }
+		    });
+		return range;
+	};
+
+	scene->set_scale_on_selection(true);
+	PV_ASSERT_VALID(pair_range() != framed, "the stretch", "left the sliders where they were");
+	scene->set_scale_on_selection(false);
+	const std::pair<int64_t, int64_t> back = pair_range();
+	PV_ASSERT_VALID(
+	    std::abs(back.first - framed.first) <= 2 and std::abs(back.second - framed.second) <= 2,
+	    "why", "turning the stretch off carries the sliders back over the rows they framed");
+
+	scene->set_scale_on_selection(true);
+	move_then_rescale([scene]() { scene->set_scale_on_selection(false); });
 
 	// ------------------------------------------------------ stretch on each selection
 
