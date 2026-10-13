@@ -205,8 +205,13 @@ PVParallelView::PVFullParallelScene::PVFullParallelScene(PVFullParallelView* ful
 	_timer_rescale->setInterval(PVSelectionRectangle::delay_msec + 100);
 	connect(_timer_rescale, &QTimer::timeout, this, &PVFullParallelScene::rescale_on_selection);
 
-	_lib_view.get_parent<Squey::PVScaled>()._scaled_updated.connect(
+	Squey::PVScaled& scaled = _lib_view.get_parent<Squey::PVScaled>();
+	scaled._scaled_updated.connect(
 	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::refresh_densities));
+	scaled._about_to_rescale.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::on_about_to_rescale));
+	scaled._rescaled.connect(
+	    sigc::mem_fun(*this, &PVParallelView::PVFullParallelScene::on_rescaled));
 }
 
 /******************************************************************************
@@ -824,7 +829,7 @@ void PVParallelView::PVFullParallelScene::set_scale_on_selection(bool enabled)
 	} else {
 		// Every axis that was following the setting is owed the bounds of its every
 		// row back; the ones switched on through their own header menu keep theirs.
-		rescale_axes([&scaled]() { return scaled.clear_selection_domain(); },
+		rescale_axes([&scaled]() { scaled.clear_selection_domain(); },
 		             QObject::tr("Updating scaling..."));
 	}
 }
@@ -893,7 +898,7 @@ void PVParallelView::PVFullParallelScene::rescale_on_selection()
 	// has committed what it still held.
 	rescale_axes(
 	    [this, &scaled]() {
-		    return scaled.update_scaling_on_selection(_lib_view.get_real_output_selection());
+		    scaled.update_scaling_on_selection(_lib_view.get_real_output_selection());
 	    },
 	    QObject::tr("Stretching axes on selection..."));
 }
@@ -903,33 +908,57 @@ void PVParallelView::PVFullParallelScene::rescale_on_selection()
  * PVParallelView::PVFullParallelScene::rescale_axes
  *
  *****************************************************************************/
-void PVParallelView::PVFullParallelScene::rescale_axes(std::function<bool()> const& rescale,
+void PVParallelView::PVFullParallelScene::rescale_axes(std::function<void()> const& rescale,
                                                        QString const& message)
 {
+	// Recomputing columns rebuilds the zones behind them, which is worth a progress
+	// box on a large source.
+	_lib_view.get_parent<Squey::PVScaled>().rescale([&]() {
+		PVCore::PVProgressBox::progress([&rescale](PVCore::PVProgressBox&) { rescale(); }, message,
+		                                _full_parallel_view);
+	});
+}
+
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::on_about_to_rescale
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::on_about_to_rescale()
+{
+	if (_detached) {
+		return;
+	}
+
 	// A rectangle just moved commits only after a delay. Committed now, on the axes
-	// it was moved on: left waiting, the commit would come from the event loop of
-	// the progress box below, in the middle of the rescaling -- or never, once the
-	// rectangle has been dropped.
+	// it was moved on: left waiting, the commit would come from the event loop of a
+	// progress box, in the middle of the rescaling -- or never, once the rectangle
+	// has been dropped.
 	_sel_rect.commit_pending();
 
 	// Where the selected rows reach on each axis, measured on both sides of the
 	// rescaling: that band is what the sliders are carried by, so that they keep
 	// framing the values they were set around.
-	std::vector<std::optional<std::pair<int64_t, int64_t>>> axes_bands_before(_axes.size());
+	_axes_bands_before.assign(_axes.size(), std::nullopt);
 	for (size_t axis = 0; axis < _axes.size(); axis++) {
 		if (not _axes[axis]->get_selection_ranges().empty()) {
-			axes_bands_before[axis] = selection_band(PVCombCol(axis));
+			_axes_bands_before[axis] = selection_band(PVCombCol(axis));
 		}
 	}
+}
 
-	// Recomputing columns rebuilds the zones behind them, which is worth a progress
-	// box on a large source.
-	bool rescaled = false;
-	PVCore::PVProgressBox::progress(
-	    [&rescale, &rescaled](PVCore::PVProgressBox&) { rescaled = rescale(); }, message,
-	    _full_parallel_view);
+/******************************************************************************
+ *
+ * PVParallelView::PVFullParallelScene::on_rescaled
+ *
+ *****************************************************************************/
+void PVParallelView::PVFullParallelScene::on_rescaled(bool moved)
+{
+	if (_detached) {
+		return;
+	}
 
-	if (not rescaled) {
+	if (not moved) {
 		// Every column sits where it sat, so nothing downstream was rebuilt and
 		// nothing will repaint on its own: whatever was held back while this
 		// rescaling was pending is owed its painting now.
@@ -937,8 +966,8 @@ void PVParallelView::PVFullParallelScene::rescale_axes(std::function<bool()> con
 		return;
 	}
 
-	for (size_t axis = 0; axis < _axes.size(); axis++) {
-		const auto& before = axes_bands_before[axis];
+	for (size_t axis = 0; axis < std::min(_axes.size(), _axes_bands_before.size()); axis++) {
+		const auto& before = _axes_bands_before[axis];
 		if (not before) {
 			continue;
 		}

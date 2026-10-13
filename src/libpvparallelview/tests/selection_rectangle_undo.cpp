@@ -45,9 +45,15 @@
 // Turning the stretch off drops the rectangle as the stretch does, and carries the
 // sliders back over the rows they framed.
 //
+// So does a rescaling asked for from the menu of an axis -- another mapping or
+// scaling mode, a stretch of that axis alone -- which the scene hears of only
+// through the scaling.
+//
 // Without a stretch, the rectangle comes back where it was drawn, and stays.
 
 #include <pvkernel/core/squey_assert.h>
+
+#include <pvguiqt/PVDisplayViewMappingScaling.h>
 
 #include <pvparallelview/PVFullParallelScene.h>
 #include <pvparallelview/PVFullParallelView.h>
@@ -62,9 +68,11 @@
 #include <squey/PVScaled.h>
 #include <squey/PVView.h>
 
+#include <QAction>
 #include <QApplication>
 #include <QElapsedTimer>
 #include <QGraphicsSceneMouseEvent>
+#include <QMenu>
 #include <QTemporaryDir>
 #include <QThread>
 
@@ -468,6 +476,54 @@ int main(int argc, char** argv)
 
 	scene->set_scale_on_selection(true);
 	move_then_rescale([scene]() { scene->set_scale_on_selection(false); });
+
+	// --------------------------------------------------------- from the axis menu
+
+	// The menu of the first axis, as its header builds it.
+	PVDisplays::PVDisplayViewMappingScaling mapping_scaling;
+	QMenu axis_menu;
+	mapping_scaling.add_to_axis_menu(axis_menu, PVCol(0), PVCombCol(0), &view, nullptr);
+	const auto entry = [&axis_menu](QString const& submenu, auto const& wanted) -> QAction* {
+		for (QAction* sub : axis_menu.actions()) {
+			if (sub->menu() != nullptr and sub->text() == submenu) {
+				for (QAction* action : sub->menu()->actions()) {
+					if (wanted(*action)) {
+						return action;
+					}
+				}
+			}
+		}
+		return nullptr;
+	};
+
+	QAction* other_scaling =
+	    entry("Change scaling to...", [](QAction const& a) { return not a.isChecked(); });
+	QAction* same_scaling =
+	    entry("Change scaling to...", [](QAction const& a) { return a.isChecked(); });
+	PV_ASSERT_VALID(other_scaling != nullptr and same_scaling != nullptr, "the axis menu",
+	                "offers no other scaling");
+	move_then_rescale([other_scaling]() { other_scaling->trigger(); });
+	same_scaling->trigger();
+
+	QAction* always_on =
+	    entry("Stretch on selection", [](QAction const& a) { return a.text() == "Always on"; });
+	QAction* follow = entry("Stretch on selection", [](QAction const& a) {
+		return a.text().startsWith("Follow the view");
+	});
+	PV_ASSERT_VALID(always_on != nullptr and follow != nullptr, "the axis menu",
+	                "offers no stretch of its own");
+	move_then_rescale([always_on]() { always_on->trigger(); });
+	follow->trigger();
+
+	// The text of the numbers rather than their values: another order on the axis.
+	QAction* string_mapping =
+	    entry("Change mapping to...", [](QAction const& a) { return a.text() == "String"; });
+	QAction* same_mapping =
+	    entry("Change mapping to...", [](QAction const& a) { return a.isChecked(); });
+	PV_ASSERT_VALID(string_mapping != nullptr and same_mapping != nullptr, "the axis menu",
+	                "offers no other mapping");
+	move_then_rescale([string_mapping]() { string_mapping->trigger(); });
+	same_mapping->trigger();
 
 	// ------------------------------------------------------ stretch on each selection
 

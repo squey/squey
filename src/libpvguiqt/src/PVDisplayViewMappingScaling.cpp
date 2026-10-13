@@ -67,6 +67,7 @@ void PVDisplays::PVDisplayViewMappingScaling::add_to_axis_menu(
 	Squey::PVMapped& mapped = view->get_parent<Squey::PVMapped>();
 	Squey::PVMappingProperties& mpp =
 	    mapped.get_properties_for_col(axis);
+	Squey::PVScaled& scaled = view->get_parent<Squey::PVScaled>();
 
 	menu.addSeparator();
 	QMenu* chm = menu.addMenu("Change mapping to...");
@@ -82,16 +83,18 @@ void PVDisplays::PVDisplayViewMappingScaling::add_to_axis_menu(
 			chm_filter->setCheckable(true);
             auto filter_name = kvnode.key().toStdString();
 			chm_filter->setChecked(mpp.get_mode() == filter_name);
-			QObject::connect(chm_filter, &QAction::triggered, [&mapped, &mpp, filter_name]() {
-                mpp.set_mode(filter_name);
-                PVCore::PVProgressBox::progress(
-                    [&mapped](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
-                    QObject::tr("Updating mapping..."), nullptr);
-            });
+			QObject::connect(
+			    chm_filter, &QAction::triggered, [&mapped, &mpp, &scaled, filter_name]() {
+				    mpp.set_mode(filter_name);
+				    scaled.rescale([&mapped]() {
+					    PVCore::PVProgressBox::progress(
+					        [&mapped](PVCore::PVProgressBox& /*pbox*/) { mapped.update_mapping(); },
+					        QObject::tr("Updating mapping..."), nullptr);
+				    });
+			    });
 		}
 	}
 
-	Squey::PVScaled& scaled = view->get_parent<Squey::PVScaled>();
 	Squey::PVScalingProperties& plp =
 	    scaled.get_properties_for_col(axis);
 
@@ -109,12 +112,14 @@ void PVDisplays::PVDisplayViewMappingScaling::add_to_axis_menu(
 			chp_filter->setCheckable(true);
             auto filter_name = kvnode.key().toStdString();
 			chp_filter->setChecked(plp.get_mode() == filter_name);
-			QObject::connect(chp_filter, &QAction::triggered,  [&scaled, &plp, filter_name]() {
-                plp.set_mode(filter_name);
-                PVCore::PVProgressBox::progress(
-                    [&scaled](PVCore::PVProgressBox& /*pbox*/) { scaled.update_scaling(); },
-                    QObject::tr("Updating scaling..."), nullptr);
-            });
+			QObject::connect(chp_filter, &QAction::triggered, [&scaled, &plp, filter_name]() {
+				plp.set_mode(filter_name);
+				scaled.rescale([&scaled]() {
+					PVCore::PVProgressBox::progress(
+					    [&scaled](PVCore::PVProgressBox& /*pbox*/) { scaled.update_scaling(); },
+					    QObject::tr("Updating scaling..."), nullptr);
+				});
+			});
 		}
 	}
 
@@ -150,14 +155,16 @@ void PVDisplays::PVDisplayViewMappingScaling::add_selection_scaling_menu(
 		action->setChecked(props.get_selection_scaling() == stance);
 		QObject::connect(action, &QAction::triggered, [&scaled, &props, &view, stance]() {
 			props.set_selection_scaling(stance);
-			const Squey::PVSelection& sel = view.get_real_output_selection();
-			PVCore::PVProgressBox::progress(
-			    [&scaled, &sel](PVCore::PVProgressBox& /*pbox*/) {
-				    // Rescaling over the selection also gives back the bounds of every
-				    // row to an axis that just stopped following it.
-				    scaled.update_scaling_on_selection(sel);
-			    },
-			    QObject::tr("Updating scaling..."), nullptr);
+			scaled.rescale([&scaled, &view]() {
+				PVCore::PVProgressBox::progress(
+				    [&scaled, &view](PVCore::PVProgressBox& /*pbox*/) {
+					    // Rescaling over the selection also gives back the bounds of every
+					    // row to an axis that just stopped following it. The selection is
+					    // read here, once the views have committed what they still held.
+					    scaled.update_scaling_on_selection(view.get_real_output_selection());
+				    },
+				    QObject::tr("Updating scaling..."), nullptr);
+			});
 		});
 	};
 
