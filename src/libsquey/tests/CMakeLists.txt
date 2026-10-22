@@ -14,6 +14,8 @@ add_squey_test(Tsquey_view_state Tsquey_view_state)
 
 add_squey_compile_test(Tsquey_scaling_not_a_number LINKS ${LINK_LIBRARIES} FILES scaling_not_a_number.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_scaling_not_a_number Tsquey_scaling_not_a_number)
+add_squey_compile_test(Tsquey_scaling_logarithmic_signs LINKS ${LINK_LIBRARIES} FILES scaling_logarithmic_signs.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_scaling_logarithmic_signs Tsquey_scaling_logarithmic_signs)
 
 add_squey_compile_test(Tsquey_duckdb_stats LINKS ${LINK_LIBRARIES} FILES duckdb_stats.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_duckdb_stats Tsquey_duckdb_stats)
