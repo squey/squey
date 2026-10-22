@@ -6,7 +6,7 @@
 ISRD=@CMAKE_SOURCE_DIR@
 IBRD=@CMAKE_BINARY_DIR@
 
-# run_cmd.sh is what the packaged launcher runs -- squey_launcher.sh is one line,
+# run_cmd.sh is what the packaged launcher runs -- squey_launcher.sh ends with
 # "run_cmd.sh squey $@" -- and it does two things a build tree binary needs just
 # as much: it writes the OpenCL vendor files, and it puts the prefix first on the
 # library path. Without it there is no OpenCL platform at all and the views fall
