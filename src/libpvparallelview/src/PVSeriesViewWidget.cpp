@@ -371,8 +371,8 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 	    _series_tree_widget, &QWidget::customContextMenuRequested, this,
 	    [this, abscissa](QPoint const& pos) {
 		    const QModelIndex& index = _series_tree_widget->indexAt(pos);
-		    if (index.parent().isValid()) {
-			    return; // not a top level item (aka axis)
+		    if (not index.isValid() or index.parent().isValid()) {
+			    return; // not on a top level item (aka axis)
 		    }
 		    auto col = index.data(Qt::UserRole).value<PVCol>();
 		    QMenu item_menu;
