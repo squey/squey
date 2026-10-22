@@ -53,6 +53,8 @@ add_squey_compile_test(Tseries_tree_selection LINKS ${LINK_LIBRARIES} FILES seri
 add_squey_test(Tseries_tree_selection Tseries_tree_selection)
 add_squey_compile_test(Tseries_tree_context_menu LINKS ${LINK_LIBRARIES} FILES series_tree_context_menu.cpp)
 add_squey_test(Tseries_tree_context_menu Tseries_tree_context_menu)
+add_squey_compile_test(Tseries_cursor_values LINKS ${LINK_LIBRARIES} Qt6::Test FILES series_cursor_values.cpp)
+add_squey_test(Tseries_cursor_values Tseries_cursor_values)
 add_squey_compile_test(Tseries_date_range_formatter LINKS ${LINK_LIBRARIES} FILES series_date_range_formatter.cpp)
 add_squey_test(Tseries_date_range_formatter Tseries_date_range_formatter)
 add_squey_compile_test(Tseries_ordinate_label LINKS ${LINK_LIBRARIES} FILES series_ordinate_label.cpp)

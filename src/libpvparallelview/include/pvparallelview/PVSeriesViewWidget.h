@@ -86,6 +86,13 @@ class PVSeriesViewWidget : public QWidget
 	void minmax_changed(const pvcop::db::array& minmax);
 	void select_all_series(bool use_axes_combination = true);
 
+	/**
+	 * Shows, next to each drawn series, its values in the sample under the cursor, or in the
+	 * closest one within the hole of the crosshair: the value itself, or their range when the
+	 * sample holds several.
+	 */
+	void update_cursor_values();
+
   Q_SIGNALS:
 	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend legend);
 	void clear_status_bar_mouse_legend();
@@ -107,6 +114,8 @@ class PVSeriesViewWidget : public QWidget
 
 	PVCol _abscissa_axis;
 	PVCol _split_axis;
+
+	int _cursor_x = -1; //!< The column of pixels of _zoomer under the cursor, -1 out of it.
 
 	PVCore::PVDisconnector _scaling_change_connection;
 	PVCore::PVDisconnector _selection_change_connection;

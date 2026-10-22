@@ -238,6 +238,16 @@ void PVParallelView::PVSeriesViewWidget::set_abscissa(PVCol abscissa)
 
 	_zoomer = new PVSeriesViewZoomer(_plot, *_sampler);
 
+	_cursor_x = -1;
+	QObject::connect(_zoomer, &PVSeriesViewZoomer::cursor_x_changed, this, [this](int x) {
+		_cursor_x = x;
+		update_cursor_values();
+	});
+	// Queued: a sampling may end in the thread of its progress box, and turns valid only then.
+	_sampler->_subsampled.connect([this] {
+		QMetaObject::invokeMethod(this, [this] { update_cursor_values(); }, Qt::QueuedConnection);
+	});
+
 	setup_series_tree(abscissa);
 	setup_selected_series_tree(abscissa);
 
@@ -485,6 +495,36 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 		    QObject::tr("Sampling..."), this);
 	}
 	_plot->show_series(std::move(series_draw_order));
+}
+
+void PVParallelView::PVSeriesViewWidget::update_cursor_values()
+{
+	QHash<int, QString> values;
+	if (_cursor_x >= 0 and _zoomer->width() > 0) {
+		const size_t sample =
+		    size_t(_cursor_x) * _sampler->samples_count() / size_t(_zoomer->width());
+		// Zoomed in past a row per column of pixels, the closest sample that holds any, within
+		// the hole of the crosshair.
+		const size_t radius = size_t(_zoomer->cross_hairs_radius()) * _sampler->samples_count() /
+		                      size_t(_zoomer->width());
+		const PVRush::PVNraw& nraw = _view->get_rushnraw_parent();
+		for (const QModelIndex& index : _series_tree_widget->selectedIndexes()) {
+			if (not index.parent().isValid() and is_splitted()) {
+				continue;
+			}
+			const int timeserie = index.data(Qt::UserRole).value<PVCol>();
+			if (const auto extrema = _sampler->sample_extrema(sample, size_t(timeserie), radius)) {
+				const pvcop::db::array& column =
+				    nraw.column(PVCol(timeserie / int(_sampler->group_count())));
+				const std::string smallest = column.at(extrema->first);
+				const std::string largest = column.at(extrema->second);
+				values.insert(timeserie, QString::fromStdString(smallest == largest
+				                                                    ? smallest
+				                                                    : smallest + " – " + largest));
+			}
+		}
+	}
+	_tree_model->set_values(std::move(values));
 }
 
 bool PVParallelView::PVSeriesViewWidget::is_in_region(const QRect region, PVCol col) const

@@ -26,6 +26,7 @@
 #define __PVSERIESTREEWIDGET_H__
 
 #include <QAbstractItemModel>
+#include <QHash>
 #include <QModelIndex>
 #include <QVariant>
 #include <QVector>
@@ -110,6 +111,12 @@ class PVSeriesTreeModel : public QAbstractItemModel
 	Q_OBJECT
 
   public:
+	/**
+	 * The role of the value of a series under the cursor.
+	 */
+	static constexpr int ValueRole = Qt::UserRole + 1;
+
+  public:
 	explicit PVSeriesTreeModel(
 	    Squey::PVView* view,
 	    const Squey::PVRangeSubSampler& sampler /*const QString &data, QObject *parent = nullptr*/)
@@ -128,7 +135,31 @@ class PVSeriesTreeModel : public QAbstractItemModel
 
 		PVSeriesTreeItem* item = static_cast<PVSeriesTreeItem*>(index.internalPointer());
 
+		if (role == ValueRole) {
+			return _values.value(item->data(Qt::UserRole).value<PVCol>());
+		}
 		return item->data(role);
+	}
+
+	/**
+	 * Shows @p values next to the series, by their identifier: a column, or a group of one once
+	 * split. The others show none.
+	 */
+	void set_values(QHash<int, QString> values)
+	{
+		if (values == _values) {
+			return;
+		}
+		_values = std::move(values);
+		const auto values_changed = [this](const QModelIndex& parent) {
+			if (const int rows = rowCount(parent); rows > 0) {
+				Q_EMIT dataChanged(index(0, 0, parent), index(rows - 1, 0, parent), {ValueRole});
+			}
+		};
+		values_changed(QModelIndex());
+		for (int row = 0; row < rowCount(); row++) {
+			values_changed(index(row, 0));
+		}
 	}
 
 	Qt::ItemFlags flags(const QModelIndex& index) const override
@@ -247,6 +278,7 @@ class PVSeriesTreeModel : public QAbstractItemModel
 
   private:
 	PVSeriesTreeItem* _root_item;
+	QHash<int, QString> _values;
 };
 
 class PVSeriesTreeFilterProxyModel : public QSortFilterProxyModel
@@ -291,8 +323,18 @@ class PVSeriesTreeStyleDelegate : public QStyledItemDelegate
 		} else {
 			painter->setPen(color);
 		}
-		painter->drawText(option.rect, Qt::AlignLeft,
-		                  index.model()->data(index, Qt::DisplayRole).toString());
+		// The value keeps the right of the row, and the name gives way to it.
+		QRect name_rect = option.rect;
+		const QString value = index.model()->data(index, PVSeriesTreeModel::ValueRole).toString();
+		if (not value.isEmpty()) {
+			painter->drawText(option.rect, Qt::AlignRight, value);
+			name_rect.setRight(option.rect.right() -
+			                   option.fontMetrics.horizontalAdvance(value + ' '));
+		}
+		painter->drawText(
+		    name_rect, Qt::AlignLeft,
+		    option.fontMetrics.elidedText(index.model()->data(index, Qt::DisplayRole).toString(),
+		                                  Qt::ElideRight, name_rect.width()));
 	}
 };
 

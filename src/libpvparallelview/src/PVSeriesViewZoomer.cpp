@@ -351,6 +351,7 @@ void PVSeriesViewZoomer::mouseMoveEvent(QMouseEvent* event)
 	    QSize(std::clamp(event->pos().x(), 0, size().width()) - _selector_rect.left(),
 	          std::clamp(event->pos().y(), 0, size().height()) - _selector_rect.top()));
 	update_selector_and_chronotips();
+	cursor_x_changed(std::clamp(event->pos().x(), 0, width() - 1));
 	if (_selector_mode == SelectorMode::Hunting) {
 		if (event->buttons() & Qt::LeftButton) {
 			cursor_moved(normalized_zoom_rect(_selector_rect, true));
@@ -416,6 +417,7 @@ void PVSeriesViewZoomer::leaveEvent(QEvent*)
 	if (not _left_button_down) {
 		hide_fragments(_selector_fragments);
 		hide_fragments(_chronotips);
+		cursor_x_changed(-1);
 	}
 }
 
