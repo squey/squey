@@ -18,6 +18,7 @@ private Q_SLOTS:
     void undo_redo();
     void import_guessed_formats_without_nraw_dir();
     void import_failure_reported();
+    void rename_source();
 
 private:
     PVParallelView::common::RAII_backend_init backend_resources;

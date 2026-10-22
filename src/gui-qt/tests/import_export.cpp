@@ -43,6 +43,7 @@
 #include <squey/PVSource.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvguiqt/PVAnalysisBreadcrumb.h>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 #include <QToolButton>
@@ -357,6 +358,51 @@ void ImportExportTest::undo_redo()
     main_window.selection_all_Slot();
     QCOMPARE(history.size(), size_t(2));
     QCOMPARE(view->get_real_output_selection().bit_count(), all_rows);
+}
+
+// Several files of the same name are told apart by the names the user gives
+// their sources, which a double click on the tab of a source asks for.
+void ImportExportTest::rename_source()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
+	QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
+	main_window.load_files({source_path});
+
+	Squey::PVView* view = main_window.current_view();
+	QVERIFY(view != nullptr);
+	Squey::PVSource& source = view->get_parent<Squey::PVSource>();
+	QCOMPARE(source.get_name(), std::string("enum_mapping.csv"));
+
+	auto* tab_bar = main_window.findChild<PVGuiQt::PVSceneTabBar*>();
+	QVERIFY(tab_bar != nullptr);
+	QCOMPARE(tab_bar->tabText(0), QString("enum_mapping.csv"));
+
+	// Longer than a tab shows, which then cuts it short and gives it whole in its tooltip.
+	const QString name = "Enumerations mapped from the reference";
+	ModalDriver rename_driver(&main_window, [&]() -> bool {
+		auto* dlg = qobject_cast<QInputDialog*>(qApp->activeModalWidget());
+		if (dlg == nullptr) {
+			return false;
+		}
+		if (dlg->textValue() != QString("enum_mapping.csv")) {
+			dlg->reject();
+			return true;
+		}
+		dlg->setTextValue(name);
+		dlg->accept();
+		return not dlg->isVisible();
+	});
+	rename_driver.start();
+
+	QTest::mouseDClick(tab_bar, Qt::LeftButton, Qt::NoModifier, tab_bar->tabRect(0).center());
+
+	QCOMPARE(source.get_name(), name.toStdString());
+	QCOMPARE(tab_bar->tabText(0), name.left(30) + "...");
+	QCOMPARE(tab_bar->tabToolTip(0), name);
 }
 
 void ImportExportTest::import_pcap()

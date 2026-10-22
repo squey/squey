@@ -35,6 +35,7 @@ static constexpr const char* csv_file_format = TEST_FOLDER "/formats/proxÿ.log.
 static const std::string INVESTIGATION_PATH = PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/tmp_investigation_multisource.pvi";
 static constexpr unsigned int ROW_COUNT = 100000;
 static constexpr unsigned int MINESET_ROW_COUNT = 1000;
+static constexpr const char* RENAMED_SOURCE = "proxy and mineset";
 #ifdef SQUEY_BENCH
 static constexpr unsigned int dupl = 200;
 #else
@@ -58,6 +59,8 @@ double save_investigation()
 	const std::string& source2 = (*it)->get_name();
 	PV_ASSERT_VALID(source1.compare(source1.length() - source2.length(), source2.length(), source2) == 0);
 #endif
+	(*it)->set_name(RENAMED_SOURCE);
+	PV_VALID((*it)->get_name(), std::string(RENAMED_SOURCE));
 
 	env.compute_mappings();
 	env.compute_scalings();
@@ -134,8 +137,7 @@ double load_investigation()
 	PV_VALID((*it)->get_row_count(), ROW_COUNT * dupl);
 	std::advance(it, 1);
 	PV_VALID((*it)->get_row_count(), ROW_COUNT * dupl + MINESET_ROW_COUNT);
-	// FIXME : The name is the one from the archive. It should be a real name given by user.
-	//	PV_VALID((*it)->get_name(), std::string(TEST_FOLDER "/sources"));
+	PV_VALID((*it)->get_name(), std::string(RENAMED_SOURCE));
 
 	/**
 	 * Check mappeds
