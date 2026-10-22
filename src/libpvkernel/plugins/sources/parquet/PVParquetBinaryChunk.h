@@ -57,7 +57,7 @@ class PVParquetBinaryChunk : public PVCore::PVBinaryChunk
 	PVParquetBinaryChunk(
 		bool multi_inputs,
 		bool is_bit_optimizable,
-		size_t input_index,
+		pvcop::db::index_t input_name_index,
 		std::shared_ptr<arrow::Table>& table,
 		const std::vector<size_t>& column_indexes,
 		std::vector<pvcop::db::write_dict*>& dicts,
@@ -67,7 +67,7 @@ class PVParquetBinaryChunk : public PVCore::PVBinaryChunk
 
   private:
 	std::vector<std::vector<void*>> _values;
-	std::vector<pvcop::db::index_t> _input_index;
+	std::vector<pvcop::db::index_t> _input_name_index;
 };
 
 } // namespace PVRush
