@@ -51,6 +51,8 @@ add_squey_compile_test(Tpview_rescaled_off_gui_thread LINKS ${LINK_LIBRARIES} FI
 add_squey_test(Tpview_rescaled_off_gui_thread Tpview_rescaled_off_gui_thread)
 add_squey_compile_test(Tseries_tree_selection LINKS ${LINK_LIBRARIES} FILES series_tree_selection.cpp)
 add_squey_test(Tseries_tree_selection Tseries_tree_selection)
+add_squey_compile_test(Tseries_tree_context_menu LINKS ${LINK_LIBRARIES} FILES series_tree_context_menu.cpp)
+add_squey_test(Tseries_tree_context_menu Tseries_tree_context_menu)
 add_squey_compile_test(Tseries_date_range_formatter LINKS ${LINK_LIBRARIES} FILES series_date_range_formatter.cpp)
 add_squey_test(Tseries_date_range_formatter Tseries_date_range_formatter)
 
