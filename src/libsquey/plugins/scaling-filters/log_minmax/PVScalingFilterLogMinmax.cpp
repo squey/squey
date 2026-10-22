@@ -25,9 +25,31 @@
 
 #include <pvkernel/core/PVLogger.h>
 #include "PVScalingFilterLogMinmax.h"
+#include <algorithm>
 #include <cmath>
 
 #include <omp.h>
+
+/**
+ * Where a logarithmic axis from @p ymin to @p ymax puts @p x: 0 at ymin, in a unit that only the
+ * position of ymax gives a meaning to.
+ *
+ * Positive bounds take the logarithm of the ratio to ymin, and negative ones its mirror. Bounds
+ * around 0 take the logarithm of one plus the distance to 0, signed: 0 stays at 0, and the
+ * magnitudes of both signs spread alike. A value past a bound sits on it.
+ */
+static double log_position(double x, double ymin, double ymax)
+{
+	x = std::clamp(x, ymin, ymax);
+	if (ymin > 0) {
+		return std::log2(x / ymin);
+	}
+	if (ymax < 0) {
+		return std::log2(ymin / ymax) - std::log2(x / ymax);
+	}
+	const auto signed_log = [](double v) { return std::copysign(std::log1p(std::abs(v)), v); };
+	return signed_log(x) - signed_log(ymin);
+}
 
 template <class T>
 static void compute_log_scaling(pvcop::db::array const& mapped,
@@ -53,19 +75,11 @@ static void compute_log_scaling(pvcop::db::array const& mapped,
 		return;
 	}
 
-	int64_t offset = 0;
-	if (ymin <= 0) {
-		// Ensure values are between 0 (exclude) and infinity (and beyond)
-		offset = -ymin + 1;
-		ymin += offset;
-		ymax += offset;
-	}
-
 	const double invalid_range =
 	    invalid_selection ? Squey::PVScalingFilter::INVALID_RESERVED_PERCENT_RANGE : 0;
 	const size_t valid_offset = std::numeric_limits<value_type>::max() * invalid_range;
-	const double ratio =
-	    (std::numeric_limits<value_type>::max() * (1 - invalid_range)) / (std::log2(ymax / ymin));
+	const double ratio = (std::numeric_limits<value_type>::max() * (1 - invalid_range)) /
+	                     log_position(ymax, ymin, ymax);
 	auto& values = mapped.to_core_array<T>();
 
 #pragma omp parallel for
@@ -77,18 +91,14 @@ static void compute_log_scaling(pvcop::db::array const& mapped,
 		// is not enough to go by.
 		bool invalid = (invalid_selection and invalid_selection[i]) or
 		               Squey::is_not_a_number(Squey::extract_value(values[i]));
-		// Pinned to the ends of the axis: under selection scaling the bounds are
-		// the selection's own, and the rows above ymax would otherwise land past
-		// the end of the range. The lower end is already held by the max() below,
-		// which no longer stands for "at ymin" alone once ymin is a bound the
-		// column has values under.
-		dest[i] = ~(invalid ? value_type(0)
-		                    : Squey::PVScalingFilter::clamp_to_axis(
-		                          ratio * (std::log2((std::max<double>(
-		                                       ymin, Squey::extract_value(values[i]) + offset)) /
-		                                   ymin)) +
-		                              valid_offset,
-		                          valid_offset));
+		// Under selection scaling the bounds are the selection's own, and the rows past
+		// them sit on them, which log_position() sees to.
+		dest[i] =
+		    ~(invalid ? value_type(0)
+		              : Squey::PVScalingFilter::clamp_to_axis(
+		                    ratio * log_position(Squey::extract_value(values[i]), ymin, ymax) +
+		                        valid_offset,
+		                    valid_offset));
 	}
 }
 

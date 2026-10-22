@@ -90,6 +90,11 @@ class PVParquetSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	string_dicts_ptr _dicts_ptr;
 	bool _save_dicts = true;
 
+	// The names of the files when they are concatenated, which the first chunk takes over,
+	// and the entry of the name of each file, by position of the file.
+	std::unique_ptr<pvcop::db::write_dict> _input_names_dict;
+	std::vector<pvcop::db::index_t> _input_name_indexes;
+
 };
 
 } // namespace PVRush

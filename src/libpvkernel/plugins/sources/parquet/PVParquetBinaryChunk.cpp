@@ -394,7 +394,7 @@ void* convert_complex_type_as_string(
 PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
     bool multi_inputs,
     bool is_bit_optimizable,
-    size_t input_index,
+    pvcop::db::index_t input_name_index,
     std::shared_ptr<arrow::Table>& table,
     const std::vector<size_t>& column_indexes,
     std::vector<pvcop::db::write_dict*>& dicts,
@@ -407,8 +407,8 @@ PVRush::PVParquetBinaryChunk::PVParquetBinaryChunk(
 		_values.resize(column_indexes.size());
 
 		if (multi_inputs) {
-			_input_index = std::vector<pvcop::db::index_t>(row_count, (pvcop::db::index_t)input_index);
-			set_raw_column_chunk(PVCol(0), (void*)(_input_index.data()), row_count, sizeof(pvcop::db::index_t), "string");
+			_input_name_index = std::vector<pvcop::db::index_t>(row_count, input_name_index);
+			set_raw_column_chunk(PVCol(0), (void*)(_input_name_index.data()), row_count, sizeof(pvcop::db::index_t), "string");
 		}
 
 #pragma omp parallel for schedule(dynamic)

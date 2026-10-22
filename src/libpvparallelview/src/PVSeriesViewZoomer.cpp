@@ -36,6 +36,9 @@
 #include <QTimer>
 #include <QDebug>
 
+#include <algorithm>
+#include <cmath>
+
 namespace PVParallelView
 {
 
@@ -569,6 +572,17 @@ void PVSeriesViewZoomer::update_zoom(Zoom zoom)
 	//     QObject::tr("Sampling..."), this);
 }
 
+QString PVSeriesViewZoomer::ordinate_label(zoom_f ratio, zoom_f row_height)
+{
+	// The 32 bits of the scaled values tell no finer heights apart.
+	constexpr zoom_f max_decimals = 8;
+	const zoom_f decimals =
+	    row_height > 0 ? std::ceil(-std::log10(100 * row_height)) : max_decimals;
+	return QString::number(double(100 * ratio), 'f',
+	                       int(std::clamp(decimals, zoom_f(0), max_decimals))) +
+	       '%';
+}
+
 void PVSeriesViewZoomer::update_chronotips(QPoint point)
 {
 	update_chronotips(QRect(point.x(), point.y(), 1, 1));
@@ -581,8 +595,9 @@ void PVSeriesViewZoomer::update_chronotips(QRect rect_in)
 	pvcop::db::array subrange = _rss.ratio_to_minmax(coveredZoom.minX, coveredZoom.maxX);
 	_chronotips[0]->setText((subrange.at(0) + ">").c_str());
 	_chronotips[1]->setText(QString::fromStdString(std::string("<") + std::string(subrange.at(1)) + std::string("")));
-	_chronotips[2]->setText((std::to_string(coveredZoom.minY) + "%").c_str());
-	_chronotips[3]->setText((std::to_string(coveredZoom.maxY) + "%").c_str());
+	const zoom_f row_height = current_zoom().height() / height();
+	_chronotips[2]->setText(ordinate_label(coveredZoom.minY, row_height));
+	_chronotips[3]->setText(ordinate_label(coveredZoom.maxY, row_height));
 	for (auto* chronotip : _chronotips) {
 		chronotip->adjustSize();
 	}
