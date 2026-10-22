@@ -100,6 +100,12 @@ class PVSeriesViewZoomer : public PVViewZoomer
 
 	enum class SelectorMode { CrossHairs = 0, Zooming = 1, Selecting = 2, Hunting = 3 };
 
+	/**
+	 * @p ratio, a height in the view from 0 at its bottom to 1 at its top, as a percentage with
+	 * the decimals that tell apart two rows of pixels @p row_height apart, in the same unit.
+	 */
+	static QString ordinate_label(zoom_f ratio, zoom_f row_height);
+
 	SelectorMode current_selector_mode() const { return _selector_mode; }
 	void change_selector_mode(SelectorMode const mode);
 	void disable_selecting_mode(bool disabled) // TODO : implement selection mode on splitted series
