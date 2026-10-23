@@ -1,3 +1,22 @@
+5.2.1 (2026-10-23)
+------------------
+
+This minor release fixes or improves:
+* fix rows showing the wrong file name when Parquet files share a name
+* fix strings of 128 bytes and more piling up on the axes
+* fix strings of 32 KB and more placed below the shortest ones
+* fix the "Convert strings to lower case" option having no effect
+* fix the logarithmic scaling of negative values
+* fix the series view crosshair showing percentages 100 times too small
+* fix selection rectangles and sliders left behind when the axes rescale
+* fix a selection rectangle moved right before a stretch being lost
+* fix a crash when right clicking below the list of series
+* fix hangs when tables show values of millions of characters
+* [linux] fix a crash at startup when the host sets QT_PLUGIN_PATH
+* [macos] fix a crash at startup on macOS older than 15.4
+* [macos] require macOS 14.4 or later, as Qt 6.12 does
+* [windows] fix a hang that could occur when quitting
+
 5.2 (2026-10-08)
 ----------------
 
