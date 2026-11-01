@@ -211,6 +211,7 @@ class PVFormatBuilderWidget : public QMainWindow
 
   private:
 	PVRush::PVInputType::list_inputs _inputs; //!< List of input files.
+	bool _loading_log = false;                //!< load_log() is running, and is not reentrant.
 
 	PVWidgets::PVFileDialog _file_dialog;
 

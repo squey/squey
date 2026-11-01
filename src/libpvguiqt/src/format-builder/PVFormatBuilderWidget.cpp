@@ -27,6 +27,7 @@
 #include <QDesktopServices>
 #include <QScreen>
 #include <QInputDialog>
+#include <QScopedValueRollback>
 #include <QWidgetAction>
 
 #include <PVFormatBuilderWidget.h>
@@ -37,6 +38,7 @@
 
 #include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/rush/PVNrawException.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVInput.h>
@@ -1087,6 +1089,15 @@ App::PVFormatBuilderWidget::guess_format(const PVRush::PVInputDescription_p inpu
 
 void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 {
+	// The questions and progress boxes below run event loops of their own, which
+	// deliver the previews queued meanwhile by the changes made to the format.
+	// Loading the log again from there would replace the members this call still
+	// uses, or reset them on error.
+	if (_loading_log) {
+		return;
+	}
+	const QScopedValueRollback<bool> loading(_loading_log, true);
+
 	// If no files where selected, ask for one.
 	if (_inputs.isEmpty()) {
 
@@ -1189,6 +1200,9 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		has_error = true;
 	} catch (PVRush::PVConverterCreationError const& e) {
 		_nraw_widget->set_error_message(QString("Unsupported charset : ") + e.what());
+		has_error = true;
+	} catch (PVRush::PVNrawException const& e) {
+		_nraw_widget->set_error_message(e.what());
 		has_error = true;
 	}
 

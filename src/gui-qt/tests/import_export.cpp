@@ -13,6 +13,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTimer>
 #include <qtest_widgets.h>
@@ -30,6 +31,7 @@
 #include <pvkernel/core/PVStreamingCompressor.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <squey/common.h>
 #include <squey/PVRoot.h>
@@ -615,6 +617,52 @@ void ImportExportTest::import_guessed_formats()
 		QCOMPARE(source->get_original_format().get_full_path(),
 		         source->get_inputs().front()->human_name() + ".format");
 	}
+}
+
+void ImportExportTest::import_guessed_formats_without_nraw_dir()
+{
+	if (qEnvironmentVariableIsEmpty("SQUEY_NRAW_DIR")) {
+		QSKIP("SQUEY_NRAW_DIR is not set: this test would replace the machine's collections");
+	}
+	// A file in place of the directory of the collections: no directory can be
+	// created under it, whoever runs the test.
+	const QString nraw_dir = PVRush::PVNrawCacheManager::nraw_dir();
+	QVERIFY(QDir(nraw_dir).removeRecursively());
+	QFile in_place(nraw_dir);
+	QVERIFY(in_place.open(QIODevice::WriteOnly));
+	in_place.close();
+	// For the tests that run after this one.
+	const auto restore = qScopeGuard([&nraw_dir]() {
+		QFile::remove(nraw_dir);
+		QDir().mkpath(nraw_dir);
+	});
+
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString file = tmp_dir.filePath("guessed.csv");
+	write_csv(file, 3);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	// The format builder previews the file as soon as it adds the guessed splitter,
+	// from the event loop of the question that follows. Neither that preview nor the
+	// import can create the collection: the import fails, and says so.
+	import_guessing_formats(
+	    main_window, {file},
+	    {{"Do you want to automatically add that splitter", QMessageBox::Yes},
+	     {"do you want to manually enter column names", QMessageBox::No},
+	     {"The format has been modified", QMessageBox::Save},
+	     {"Unable to create temporary directory", QMessageBox::Ok}});
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 }
 
 QTEST_MAIN(ImportExportTest)
