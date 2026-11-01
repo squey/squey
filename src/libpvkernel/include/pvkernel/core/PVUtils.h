@@ -104,6 +104,15 @@ int process_running_count(const std::string& process_name);
 QString mkdtemp(QString tmpl);
 QString mkstemp(QString tmpl);
 
+/**
+ * Whether a directory can be created in `dir`: it creates one, and removes it.
+ *
+ * QFileInfo::isWritable() does not tell: unless the NTFS permission checks are
+ * enabled, it only reads the read-only attribute on Windows, which the System32
+ * directory lacks; and it calls a writable file writable.
+ */
+bool can_create_directory_in(const QString& dir);
+
 int setenv(const char* name, const char* value, int overwrite);
 char* getenv(const char* env_var);
 
