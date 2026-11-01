@@ -651,13 +651,14 @@ void ImportExportTest::import_guessed_formats_without_nraw_dir()
 
 	// The format builder previews the file as soon as it adds the guessed splitter,
 	// from the event loop of the question that follows. Neither that preview nor the
-	// import can create the collection: the import fails, and says so.
+	// import can create the collection: the import fails, and says where.
 	import_guessing_formats(
 	    main_window, {file},
 	    {{"Do you want to automatically add that splitter", QMessageBox::Yes},
 	     {"do you want to manually enter column names", QMessageBox::No},
 	     {"The format has been modified", QMessageBox::Save},
-	     {"Unable to create temporary directory", QMessageBox::Ok}});
+	     {"Unable to create a temporary directory in " + QDir::toNativeSeparators(nraw_dir),
+	      QMessageBox::Ok}});
 	if (QTest::currentTestFailed()) {
 		return;
 	}
