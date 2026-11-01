@@ -28,6 +28,7 @@
 #include <QMessageBox>
 
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVNraw.h>
 
 class PVNrawDirectoryMessageBox : public QMessageBox
@@ -38,7 +39,7 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 		const QString& config_nraw_tmp = QString::fromStdString(PVRush::PVNraw::config_nraw_tmp);
 		QString nraw_tmp = PVCore::PVConfig::get().config().value(config_nraw_tmp).toString();
 
-		if (QFileInfo(nraw_tmp).isWritable()) {
+		if (PVCore::can_create_directory_in(nraw_tmp)) {
 			return;
 		}
 
@@ -68,7 +69,7 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 				::exit(0);
 			}
 
-		} while (not QFileInfo(nraw_tmp).isWritable());
+		} while (not PVCore::can_create_directory_in(nraw_tmp));
 	}
 };
 

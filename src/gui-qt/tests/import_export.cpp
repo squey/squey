@@ -13,6 +13,7 @@
 #include <QLocale>
 #include <QMessageBox>
 #include <QRegularExpression>
+#include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTimer>
 #include <qtest_widgets.h>
@@ -30,6 +31,7 @@
 #include <pvkernel/core/PVStreamingCompressor.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/rush/PVPluginsLoad.h>
 #include <squey/common.h>
 #include <squey/PVRoot.h>
@@ -514,31 +516,32 @@ void ImportExportTest::import_pcap()
     QVERIFY(csv_exported);
 }
 
-void ImportExportTest::import_guessed_formats()
+namespace
 {
-	App::PVMainWindow main_window;
-	main_window.show();
-	main_window.raise();
+//! Answers to the questions of an import, each by a part of the text of its question.
+using Answers = std::vector<std::pair<QString, QMessageBox::StandardButton>>;
 
-	// Two files without a format, of different widths: neither format reads the
-	// other file.
-	QTemporaryDir tmp_dir;
-	QVERIFY(tmp_dir.isValid());
-	const QStringList files = {tmp_dir.filePath("narrow.csv"), tmp_dir.filePath("wide.csv")};
-	for (int i = 0; i < files.size(); i++) {
-		QFile file(files[i]);
-		QVERIFY(file.open(QIODevice::WriteOnly));
-		const int columns = 3 + 2 * i;
-		for (int row = 0; row < 100; row++) {
-			QStringList fields;
-			for (int col = 0; col < columns; col++) {
-				fields << QString::number(row * columns + col);
-			}
-			file.write((fields.join(',') + '\n').toUtf8());
+void write_csv(QString const& path, int columns)
+{
+	QFile file(path);
+	QVERIFY(file.open(QIODevice::WriteOnly));
+	for (int row = 0; row < 100; row++) {
+		QStringList fields;
+		for (int col = 0; col < columns; col++) {
+			fields << QString::number(row * columns + col);
 		}
+		file.write((fields.join(',') + '\n').toUtf8());
 	}
+}
 
-	// What the import dialog hands over for several files and the default format.
+// Imports the files as the import dialog hands them over with the default
+// format. With no format next to the files, the import guesses one for each, and
+// asks about it as a user would be asked: a question gets the first answer whose
+// key is part of its text, and any other dialog fails the test.
+void import_guessing_formats(App::PVMainWindow& main_window,
+                             QStringList const& files,
+                             Answers const& answers_by_question)
+{
 	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
 	PVRush::hash_formats formats;
 	PVRush::PVInputType::list_inputs inputs;
@@ -548,12 +551,6 @@ void ImportExportTest::import_guessed_formats()
 	                                                &main_window));
 	QCOMPARE(format, QString(SQUEY_LOCAL_FORMAT_STR));
 
-	// With no format next to the files, the import guesses one for each, and asks
-	// about it as a user would be asked: the format is only used once saved.
-	const std::vector<std::pair<QString, QMessageBox::StandardButton>> answers_by_question = {
-	    {"Do you want to automatically add that splitter", QMessageBox::Yes},
-	    {"do you want to manually enter column names", QMessageBox::No},
-	    {"The format has been modified", QMessageBox::Save}};
 	QStringList unexpected;
 	ModalDriver answers(&main_window, [&]() -> bool {
 		QWidget* modal = qApp->activeModalWidget();
@@ -582,6 +579,36 @@ void ImportExportTest::import_guessed_formats()
 	main_window.import_type(in_file, inputs, formats, format_creator, format);
 
 	QVERIFY2(unexpected.isEmpty(), qPrintable(unexpected.join('\n')));
+}
+} // namespace
+
+void ImportExportTest::import_guessed_formats()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	// Two files without a format, of different widths: neither format reads the
+	// other file.
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QStringList files = {tmp_dir.filePath("narrow.csv"), tmp_dir.filePath("wide.csv")};
+	for (int i = 0; i < files.size(); i++) {
+		write_csv(files[i], 3 + 2 * i);
+	}
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	// The format is only used once saved.
+	import_guessing_formats(main_window, files,
+	                        {{"Do you want to automatically add that splitter", QMessageBox::Yes},
+	                         {"do you want to manually enter column names", QMessageBox::No},
+	                         {"The format has been modified", QMessageBox::Save}});
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
 	// A source of its own for each file, read with the format guessed from it.
 	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
 	QCOMPARE(sources.size(), size_t(files.size()));
@@ -590,6 +617,53 @@ void ImportExportTest::import_guessed_formats()
 		QCOMPARE(source->get_original_format().get_full_path(),
 		         source->get_inputs().front()->human_name() + ".format");
 	}
+}
+
+void ImportExportTest::import_guessed_formats_without_nraw_dir()
+{
+	if (qEnvironmentVariableIsEmpty("SQUEY_NRAW_DIR")) {
+		QSKIP("SQUEY_NRAW_DIR is not set: this test would replace the machine's collections");
+	}
+	// A file in place of the directory of the collections: no directory can be
+	// created under it, whoever runs the test.
+	const QString nraw_dir = PVRush::PVNrawCacheManager::nraw_dir();
+	QVERIFY(QDir(nraw_dir).removeRecursively());
+	QFile in_place(nraw_dir);
+	QVERIFY(in_place.open(QIODevice::WriteOnly));
+	in_place.close();
+	// For the tests that run after this one.
+	const auto restore = qScopeGuard([&nraw_dir]() {
+		QFile::remove(nraw_dir);
+		QDir().mkpath(nraw_dir);
+	});
+
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString file = tmp_dir.filePath("guessed.csv");
+	write_csv(file, 3);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	// The format builder previews the file as soon as it adds the guessed splitter,
+	// from the event loop of the question that follows. Neither that preview nor the
+	// import can create the collection: the import fails, and says where.
+	import_guessing_formats(
+	    main_window, {file},
+	    {{"Do you want to automatically add that splitter", QMessageBox::Yes},
+	     {"do you want to manually enter column names", QMessageBox::No},
+	     {"The format has been modified", QMessageBox::Save},
+	     {"Unable to create a temporary directory in " + QDir::toNativeSeparators(nraw_dir),
+	      QMessageBox::Ok}});
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 }
 
 QTEST_MAIN(ImportExportTest)

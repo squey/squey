@@ -10,6 +10,9 @@ endif()
 add_squey_compile_test(Tcore_directory_remove LINKS ${LINK_LIBRARIES} FILES directory_remove.cpp)
 add_squey_test(Tcore_directory_remove Tcore_directory_remove)
 
+add_squey_compile_test(Tcore_create_directory_in LINKS ${LINK_LIBRARIES} FILES create_directory_in.cpp)
+add_squey_test(Tcore_create_directory_in Tcore_create_directory_in)
+
 add_squey_compile_test(Tcore_compressed_selection LINKS ${LINK_LIBRARIES} FILES compressed_selection.cpp)
 add_squey_test(Tcore_compressed_selection Tcore_compressed_selection)
 

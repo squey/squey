@@ -94,11 +94,12 @@ PVRush::PVNraw::PVNraw() : _real_nrows(0), _valid_rows_sel(0)
 void PVRush::PVNraw::prepare_load(pvcop::formatter_desc_list const& format)
 {
 	// Generate random path
-	QString collector_path =
-	    PVRush::PVNrawCacheManager::nraw_dir() + "/" + QString::fromStdString(nraw_tmp_pattern);
-	collector_path = PVCore::mkdtemp(collector_path);
+	const QString nraw_dir = PVRush::PVNrawCacheManager::nraw_dir();
+	const QString collector_path =
+	    PVCore::mkdtemp(nraw_dir + "/" + QString::fromStdString(nraw_tmp_pattern));
 	if (collector_path.isEmpty()) {
-		QString error = QString("Unable to create temporary directory %1").arg(collector_path);
+		QString error = QString("Unable to create a temporary directory in %1")
+		                    .arg(QDir::toNativeSeparators(nraw_dir));
 		throw PVNrawException(error.toStdString());
 	}
 

@@ -33,6 +33,7 @@
 #include <algorithm>
 #include <iterator>
 #include <limits>
+#include <QDir>
 #include <QTemporaryDir>
 #include <QTemporaryFile>
 
@@ -111,6 +112,12 @@ QString PVCore::mkdtemp(QString tmpl)
 	}
 
 	return tmp_dir.path();
+}
+
+bool PVCore::can_create_directory_in(const QString& dir)
+{
+	// An empty path would name the current directory.
+	return not dir.isEmpty() and QTemporaryDir(QDir(dir).filePath("squey-XXXXXX")).isValid();
 }
 
 QString PVCore::mkstemp(QString tmpl)
