@@ -96,6 +96,7 @@ void run_tests(Squey::PVLayerFilter::p_type& plugin,
 	    {{{{0, 0, 1, 1, 0, 1}}, "test1\n\ntest2\n1073348608"}, 12},
 	    {{{{0, 0, 1, 1, 1, 2}}, "test.*"}, 5},
 	    {{{{0, 0, 1, 1, 0, 0}}, "0"}, 0},
+	    {{{{0, 0, 0, 0, 0, 2}}, "no such value"}, 0}, // CASE_INSENSITIVE, matching no value
 	};
 
 	for (const testcase_t& test : tests) {
