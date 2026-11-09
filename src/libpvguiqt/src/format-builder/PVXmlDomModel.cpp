@@ -30,6 +30,7 @@
 #include <pvkernel/rush/PVFormat_types.h>
 #include <pvkernel/rush/PVFormatVersion.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
+#include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVUtils.h>
 
 #include <QString>
@@ -796,30 +797,44 @@ bool App::PVXmlDomModel::openXml(QString url)
 	tmpTextXml.setEncoding(QStringConverter::Utf8); // by default anyway
 	QDomDocument doc;
 
-	QDomDocument::ParseResult res = PVRush::PVFormatVersion::set_content(doc, tmpTextXml.readAll());
-	if (not res) {
+	auto refuse = [&](QString const& reason) {
 		QMessageBox msg(QMessageBox::Critical, tr("Unable to open format"),
 		                tr("Unable to open format '%1'").arg(url), QMessageBox::Ok);
-		msg.setInformativeText(
-		    QString("XML parsing error at line %1 and column %2: %3").arg(res.errorLine).arg(res.errorColumn).arg(res.errorMessage));
+		msg.setInformativeText(reason);
 		msg.exec();
 		return false;
+	};
+
+	QDomDocument::ParseResult res = PVRush::PVFormatVersion::set_content(doc, tmpTextXml.readAll());
+	if (not res) {
+		return refuse(QString("XML parsing error at line %1 and column %2: %3")
+		                  .arg(res.errorLine)
+		                  .arg(res.errorColumn)
+		                  .arg(res.errorMessage));
 	}
 
-	openXml(doc);
+	try {
+		openXml(doc);
+	} catch (PVCore::InvalidPlugin const& e) {
+		return refuse(QString::fromUtf8(e.what()));
+	}
 	return true;
 }
 
 void App::PVXmlDomModel::openXml(QDomDocument& doc)
 {
 	PVRush::PVFormatVersion::to_current(doc);
+	// Parsed before the model changes, as it throws on a plugin unknown here. A
+	// PVRush::PVFormat would also refuse the formats without any axis, which the builder
+	// saves if the user insists.
+	PVRush::PVXmlParamParser parser(doc.documentElement());
+
 	xmlFile = doc;
 	_original_xml_content = xmlFile.toString();
 	xmlRootDom = doc.documentElement();
 
 	// Get axes combination and remove it from the DOM
-	PVRush::PVFormat format(getRootDom());
-	_axes_combination.set_combination(format.get_axes_comb());
+	_axes_combination.set_combination(parser.getAxesCombination());
 	updateAxesCombination();
 
 	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);

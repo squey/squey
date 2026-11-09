@@ -149,8 +149,16 @@ class PVXmlDomModel : public QAbstractItemModel
 	void moveUp(const QModelIndex& index);
 	QModelIndex selectNext(const QModelIndex& index);
 
-	// open a pcre
+	/**
+	 * Opens a format file, which may have fewer than two axes.
+	 * @return false, after telling the user why in a modal message box, for a file that cannot
+	 * be read or parsed, or that names a plugin unknown here; the format open stays.
+	 */
 	bool openXml(QString file);
+	/**
+	 * Opens the format of doc, after bringing it to the current version.
+	 * @throw PVCore::InvalidPlugin for a plugin unknown here; the format open stays.
+	 */
 	void openXml(QDomDocument& doc);
 
 	bool hasFormatChanged() const;
