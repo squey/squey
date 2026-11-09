@@ -59,7 +59,7 @@ add_squey_compile_test(Tpvguiqt_table_models_long_value LINKS ${COMMON_LIBRARIES
 add_squey_test(Tpvguiqt_table_models_long_value Tpvguiqt_table_models_long_value -platform offscreen)
 
 add_squey_compile_test(Tpvguiqt_format_builder_open LINKS ${COMMON_LIBRARIES} FILES format_builder_open.cpp)
-add_squey_test(Tpvguiqt_format_builder_open Tpvguiqt_format_builder_open)
+add_squey_test(Tpvguiqt_format_builder_open Tpvguiqt_format_builder_open -platform offscreen)
 
 # Reports are written straight into the database, so the test links against
 # Crashpad as well as the libraries above.
