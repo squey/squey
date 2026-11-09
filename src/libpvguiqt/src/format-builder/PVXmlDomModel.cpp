@@ -817,9 +817,10 @@ void App::PVXmlDomModel::openXml(QDomDocument& doc)
 	_original_xml_content = xmlFile.toString();
 	xmlRootDom = doc.documentElement();
 
-	// Get axes combination and remove it from the DOM
-	PVRush::PVFormat format(getRootDom());
-	_axes_combination.set_combination(format.get_axes_comb());
+	// Get axes combination and remove it from the DOM. A PVRush::PVFormat refuses the formats
+	// without any axis, which the builder saves if the user insists.
+	PVRush::PVXmlParamParser parser(getRootDom());
+	_axes_combination.set_combination(parser.getAxesCombination());
 	updateAxesCombination();
 
 	QDomElement axes_cb_elt = xmlRootDom.firstChildElement(PVFORMAT_XML_TAG_AXES_COMBINATION_STR);
