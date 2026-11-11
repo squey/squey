@@ -1,3 +1,14 @@
+5.2.2 (2026-11-11)
+------------------
+
+This minor release fixes or improves:
+* fix a crash when a search finds nothing in columns with invalid values
+* fix a crash when the format builder opens formats without axes
+* fix a crash when the format builder opens formats with unknown plugins
+* fix a crash when guessing formats with an unusable temporary directory
+* say where a temporary directory could not be created
+* [windows] ask for another temporary directory when it is not writable
+
 5.2.1 (2026-10-23)
 ------------------
 
