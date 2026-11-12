@@ -778,34 +778,18 @@ flathub:
     pull_policy: [if-not-present]
   tags:
     - privileged-docker
+  # Most of it waits for Flathub to build the pull request, half an hour or so.
+  timeout: 3h
   needs:
-    - pages
+    # The manifest points at the archive this job puts online.
+    - job: pages
+      artifacts: false
   variables:
-    # Only needs VERSION.txt and buildstream/flathub.
+    # Only needs VERSION.txt, buildstream/flathub and its script.
     GIT_SUBMODULE_STRATEGY: none
     GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
-  before_script:
-    - |
-      export GIT_SSH_COMMAND="ssh -o UserKnownHostsFile=/dev/null -o StrictHostKeyChecking=no"
-      eval $(ssh-agent -s)
-      echo "$SSH_FLATHUB_PRIVATE_KEY_B64" | base64 -d | ssh-add - > /dev/null
-      rm -rf org.squey.Squey
-      git clone git@github.com:flathub/org.squey.Squey.git
-      git config --global user.name "$FLATHUBGITCREDENTIALUSERNAME"
-      git config --global user.email "$FLATHUBGITCREDENTIALEMAIL"
-      export VERSION=$(cat $CI_PROJECT_DIR/VERSION.txt | tr -d '\n')
-      export BRANCH_NAME="publish-$VERSION"
-      cd "$CI_PROJECT_DIR/org.squey.Squey"
-      git checkout -b "$BRANCH_NAME"
   script:
-    - |
-      cp "$CI_PROJECT_DIR/buildstream/flathub/flathub.json" "$CI_PROJECT_DIR/org.squey.Squey"
-      jinja2 -D sha256=$(sha256sum "$CI_PROJECT_DIR/public/squey_flatpak_$VERSION.tar.xz" | awk '{print $1 }') -D version=$VERSION $CI_PROJECT_DIR/buildstream/flathub/org.squey.Squey.yaml.j2 > "$CI_PROJECT_DIR/org.squey.Squey/org.squey.Squey.yaml"
-      git commit -a -m "Publish version $VERSION" || echo "No changes to commit"
-      git push -f --set-upstream origin "$BRANCH_NAME"
-      echo "$FLATHUB_GITHUB_PR_TOKEN" | gh auth login --with-token
-      gh pr --repo "flathub/org.squey.Squey" create --head master --base "$BRANCH_NAME" --fill || true
-      gh pr --repo "flathub/org.squey.Squey" merge "$BRANCH_NAME" --auto --merge --delete-branch
+    - .gitlab-ci/flathub_publish.sh
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
 
