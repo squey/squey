@@ -76,20 +76,24 @@ class PVTestTableModel : public PVGuiQt::PVAbstractTableModel
 	QString export_line(int row, const QString&) const override { return QString::number(row); }
 
 	/**
-	 * Shows the first row_count rows, as PVListingModel::update_filter does for a selection.
+	 * Shows the rows from begin to end, excluded, keeping the row on top.
 	 */
-	void filter(size_t row_count)
+	void filter(size_t begin, size_t end)
+	{
+		filter([begin, end](PVRow row) { return begin <= row and row < end; });
+	}
+
+	template <class F>
+	void filter(F const& is_shown, top_row_t top_row = top_row_t::KEPT)
 	{
 		Squey::PVSelection sel(ROW_COUNT);
 		sel.select_none();
-		for (size_t row = 0; row < row_count; row++) {
-			sel.set_bit_fast(row);
+		for (PVRow row = 0; row < ROW_COUNT; row++) {
+			if (is_shown(row)) {
+				sel.set_bit_fast(row);
+			}
 		}
-
-		reset_selection();
-		Q_EMIT layoutAboutToBeChanged();
-		_display.set_filter(sel);
-		Q_EMIT layoutChanged();
+		set_filter(sel, top_row);
 	}
 };
 
@@ -148,7 +152,7 @@ static void check_filter_keeps_top_row()
 	PVGuiQt::PVAbstractTableView view;
 	show(view, model);
 
-	model.filter(UNPAGINATED_ROW_COUNT);
+	model.filter(0, UNPAGINATED_ROW_COUNT);
 	QApplication::processEvents();
 	// Short of the last tick, which shows the rows of the end of the listing instead
 	view.verticalScrollBar()->setValue(view.verticalScrollBar()->maximum() - 1);
@@ -157,10 +161,48 @@ static void check_filter_keeps_top_row()
 	PV_ASSERT_VALID(top_pos > ssize_t(UNPAGINATED_ROW_COUNT) - 2 * SHOWN_ROWS, "top_pos", top_pos);
 	const PVRow top_row = model.row_pos_to_index(PVRow(top_pos));
 
-	model.filter(ROW_COUNT);
+	model.filter(0, ROW_COUNT);
 	// The delayed layout gives the scrollbar its new range, which paginates the listing
 	QApplication::processEvents();
 	PV_VALID(model.row_pos_to_index(PVRow(first_shown_pos(view, model))), top_row);
+}
+
+/**
+ * The row put on top as a new filter shows other rows.
+ */
+static void check_filter_top_row()
+{
+	PVTestTableModel model(ROW_COUNT);
+	PVGuiQt::PVAbstractTableView view;
+	show(view, model);
+
+	auto top_row = [&]() { return model.row_pos_to_index(PVRow(first_shown_pos(view, model))); };
+
+	view.verticalScrollBar()->setValue(view.verticalScrollBar()->maximum() / 2);
+	QApplication::processEvents();
+	const PVRow middle_row = top_row();
+	PV_ASSERT_VALID(middle_row % 2 == 0 and middle_row > 0, "middle_row", middle_row);
+
+	// The row on top stays there while still shown, here in another pagination
+	model.filter(middle_row / 2, ROW_COUNT);
+	QApplication::processEvents();
+	PV_VALID(top_row(), middle_row);
+
+	// Otherwise the first row after it that is still shown takes its place
+	model.filter([](PVRow row) { return row % 2 == 1; });
+	QApplication::processEvents();
+	PV_VALID(top_row(), middle_row + 1);
+
+	// Without any such row, the view shows the end of the listing
+	model.filter(0, middle_row / 4);
+	QApplication::processEvents();
+	PV_ASSERT_VALID(model.is_last_pos());
+	PV_VALID(view.verticalScrollBar()->value(), view.verticalScrollBar()->maximum());
+
+	// As a sort does, the first row may be asked for instead
+	model.filter([](PVRow) { return true; }, PVTestTableModel::top_row_t::FIRST);
+	QApplication::processEvents();
+	PV_VALID(first_shown_pos(view, model), ssize_t(0));
 }
 
 int main(int argc, char** argv)
@@ -171,6 +213,7 @@ int main(int argc, char** argv)
 	QApplication app(argc, argv);
 
 	check_filter_keeps_top_row();
+	check_filter_top_row();
 
 	PVTestTableModel model(ROW_COUNT);
 	PVGuiQt::PVAbstractTableView view;

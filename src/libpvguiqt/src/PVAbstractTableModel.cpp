@@ -28,6 +28,7 @@
 #include <omp.h>
 
 #include <algorithm>
+#include <optional>
 
 namespace PVGuiQt
 {
@@ -400,6 +401,37 @@ void PVAbstractTableModel::update_pages(size_t page_step)
 		// The number of rows of the views changes
 		Q_EMIT layoutChanged();
 	}
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableModel::set_filter
+ *
+ *****************************************************************************/
+void PVAbstractTableModel::set_filter(Squey::PVSelection const& sel, top_row_t top_row)
+{
+	std::optional<PVRow> kept_row;
+	if (top_row == top_row_t::KEPT) {
+		auto const& rows = _display.shown_lines();
+		auto const kept = std::find_if(rows.begin() + std::min(_top_pos, rows.size()), rows.end(),
+		                               [&sel](PVRow row) { return sel.get_line_fast(row); });
+		if (kept != rows.end()) {
+			kept_row = *kept;
+		}
+	}
+
+	Q_EMIT layoutAboutToBeChanged();
+	_display.set_filter(sel);
+	if (kept_row) {
+		_top_pos = _display.row_pos_from_index(*kept_row);
+	} else if (top_row == top_row_t::KEPT and _display.size() > 0) {
+		// The rows still shown are all before the former top row: show the last ones. The
+		// next pagination brings the last row down to the bottom of the view.
+		_top_pos = _display.size() - 1;
+	} else {
+		_top_pos = 0;
+	}
+	Q_EMIT layoutChanged();
 }
 
 /******************************************************************************

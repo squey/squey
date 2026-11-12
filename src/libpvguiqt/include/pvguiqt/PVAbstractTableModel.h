@@ -286,11 +286,20 @@ class PVAbstractTableModel : public QAbstractTableModel
 	bool is_last_pos() const;
 
 	/**
-	 * Set the filter with the matching selection.
-	 *
-	 * @note perform convertion from selection to filter removing sort filtering.
+	 * Row put on top of the view by set_filter().
 	 */
-	void set_filter(Squey::PVSelection const& sel);
+	enum class top_row_t {
+		KEPT, //!< The row on top, or the first row after it that is still shown
+		FIRST //!< The first row of the display
+	};
+
+	/**
+	 * Show the rows of @a sel only, in the sort order, and notify the views.
+	 *
+	 * With top_row_t::KEPT, "after" follows the former order of the display: without any
+	 * such row, the view shows the end of the listing.
+	 */
+	void set_filter(Squey::PVSelection const& sel, top_row_t top_row);
 
 	PVCombCol sorted_col() const { return _sorted_col; }
 	Qt::SortOrder sort_order() const { return _sort_order; }

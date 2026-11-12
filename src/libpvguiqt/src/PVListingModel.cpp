@@ -309,7 +309,7 @@ void PVGuiQt::PVListingModel::sort_on_col(PVCombCol comb_col,
 
 	if (not ctxt.is_group_execution_cancelled()) {
 		sorted(comb_col, order); // set Qt sort indicator
-		update_filter();
+		apply_filter(top_row_t::FIRST);
 	}
 }
 
@@ -340,6 +340,11 @@ void PVGuiQt::PVListingModel::on_view_about_to_be_deleted()
 
 void PVGuiQt::PVListingModel::update_filter()
 {
+	apply_filter(top_row_t::KEPT);
+}
+
+void PVGuiQt::PVListingModel::apply_filter(top_row_t top_row)
+{
     if (_view == nullptr) {
         return;
     }
@@ -347,14 +352,5 @@ void PVGuiQt::PVListingModel::update_filter()
 	// Reset the current selection as context change
 	reset_selection();
 
-	Squey::PVSelection const& sel = _view->get_selection_visible_listing();
-
-	// Inform view about future update
-	Q_EMIT layoutAboutToBeChanged();
-
-	// Push selected lines
-	_display.set_filter(sel);
-
-	// Inform view new_filter is set
-	Q_EMIT layoutChanged();
+	set_filter(_view->get_selection_visible_listing(), top_row);
 }
