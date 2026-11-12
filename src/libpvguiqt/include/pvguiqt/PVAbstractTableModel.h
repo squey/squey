@@ -28,6 +28,7 @@
 #include <QAbstractTableModel>
 #include <QBrush>
 
+#include <optional>
 #include <string_view>
 
 #include <pvbase/types.h>
@@ -279,9 +280,19 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 */
 	void set_filter(Squey::PVSelection const& sel);
 
-	size_t current_nraw_line() const
+	/**
+	 * Nraw line at the current position, none if the position is past the last row.
+	 *
+	 * A new filter or a new pagination keeps the current page and the position in it
+	 * until the view moves: they may then address a row past the end of the display.
+	 */
+	std::optional<PVRow> current_nraw_line() const
 	{
-		return _display.row_pos_to_index(_current_page * _page_size + _pos_in_page);
+		const size_t pos = _current_page * _page_size + _pos_in_page;
+		if (pos >= _display.size()) {
+			return std::nullopt;
+		}
+		return _display.row_pos_to_index(pos);
 	}
 
 	PVCombCol sorted_col() const { return _sorted_col; }

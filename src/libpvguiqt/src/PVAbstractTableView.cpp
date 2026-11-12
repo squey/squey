@@ -450,14 +450,17 @@ void PVAbstractTableView::new_range(int min, int max)
 		// min == max means we have only the current page so it contains every lines
 		// without
 		// scroll. The page size must be big enought to get them all.
-		// Save previously selected nraw line
-		size_t nraw_pos = table_model()->current_nraw_line();
+		// Save previously selected nraw line. update_pages() calls this function again
+		// until the pagination settles, with a position that addresses the rows under
+		// the former page size: the outermost call, which moves last, restores this line.
+		const std::optional<PVRow> nraw_pos = table_model()->current_nraw_line();
 		size_t step = verticalScrollBar()->pageStep();
 		table_model()->update_pages(max - min + 1, step);
 		auto const& shown_lines = table_model()->shown_lines();
 		// Keep this line on top if it is still present
-		if (std::find(shown_lines.begin(), shown_lines.end(), nraw_pos) != shown_lines.end()) {
-			move_to_nraw(nraw_pos);
+		if (nraw_pos and
+		    std::find(shown_lines.begin(), shown_lines.end(), *nraw_pos) != shown_lines.end()) {
+			move_to_nraw(*nraw_pos);
 		} else {
 			// Otherwise, go to the top
 			move_to_page(0);
