@@ -99,9 +99,9 @@ class PVGUIQT_EXPORT PVAbstractTableView : public PVTableView
 	void clip_slider();
 
 	/**
-	 * Update pagination when number of step in the scrollbar change.
+	 * Update pagination when the number of rows of the view or of the listing changes.
 	 */
-	void new_range(int min, int max);
+	void updateGeometries() override;
 	void new_range();
 
 	/**

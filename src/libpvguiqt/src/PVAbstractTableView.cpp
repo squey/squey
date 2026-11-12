@@ -210,8 +210,6 @@ PVAbstractTableView::PVAbstractTableView(QWidget* parent) : PVTableView(parent)
 	        &PVAbstractTableView::slider_move_to);
 	connect(verticalScrollBar(), &QScrollBar::actionTriggered, this,
 	        &PVAbstractTableView::scrollclick);
-	connect(verticalScrollBar(), &QScrollBar::rangeChanged, this,
-	        (void (PVAbstractTableView::*)(int, int)) & PVAbstractTableView::new_range);
 	connect(verticalScrollBar(), &QScrollBar::sliderReleased, this,
 	        &PVAbstractTableView::clip_slider);
 
@@ -423,9 +421,9 @@ void PVAbstractTableView::move_to_end()
  *****************************************************************************/
 void PVAbstractTableView::update_on_move()
 {
-	// Save and restore pos_in_range as moving cursor call slider_move_to which
-	// set pos_in_page_to 0.
-	size_t pos_in_page = table_model()->pos_in_page();
+	// Setting the scrollbar value calls slider_move_to(), which moves to the start of
+	// the page.
+	const size_t top_pos = table_model()->top_pos();
 	// Check if there is a scrollbar, otherwise current_page can be 0 but
 	// setValue(1) is invalid.
 	if (table_model()->is_last_pos() and table_model()->current_page() != 0) {
@@ -434,9 +432,21 @@ void PVAbstractTableView::update_on_move()
 	} else {
 		verticalScrollBar()->setValue(table_model()->current_page());
 	}
-	table_model()->pos_in_page() = pos_in_page;
+	table_model()->restore_top_pos(top_pos);
 	verticalHeader()->viewport()->update();
 	viewport()->update();
+}
+
+/******************************************************************************
+ *
+ * PVAbstractTableView::updateGeometries
+ *
+ *****************************************************************************/
+void PVAbstractTableView::updateGeometries()
+{
+	PVTableView::updateGeometries();
+	// Not on QScrollBar::rangeChanged, which QTableView emits before setting the page step
+	new_range();
 }
 
 /******************************************************************************
@@ -444,33 +454,12 @@ void PVAbstractTableView::update_on_move()
  * PVAbstractTableView::new_range
  *
  *****************************************************************************/
-void PVAbstractTableView::new_range(int min, int max)
-{
-	if (model() and table_model()->size() > 0) {
-		// min == max means we have only the current page so it contains every lines
-		// without
-		// scroll. The page size must be big enought to get them all.
-		// Save previously selected nraw line. update_pages() calls this function again
-		// until the pagination settles, with a position that addresses the rows under
-		// the former page size: the outermost call, which moves last, restores this line.
-		const std::optional<PVRow> nraw_pos = table_model()->current_nraw_line();
-		size_t step = verticalScrollBar()->pageStep();
-		table_model()->update_pages(max - min + 1, step);
-		auto const& shown_lines = table_model()->shown_lines();
-		// Keep this line on top if it is still present
-		if (nraw_pos and
-		    std::find(shown_lines.begin(), shown_lines.end(), *nraw_pos) != shown_lines.end()) {
-			move_to_nraw(*nraw_pos);
-		} else {
-			// Otherwise, go to the top
-			move_to_page(0);
-		}
-	}
-}
-
 void PVAbstractTableView::new_range()
 {
-	new_range(verticalScrollBar()->minimum(), verticalScrollBar()->maximum());
+	if (model() and table_model()->size() > 0) {
+		table_model()->update_pages(verticalScrollBar()->pageStep());
+		update_on_move();
+	}
 }
 
 /******************************************************************************
@@ -682,7 +671,7 @@ void PVAbstractTableView::mouseMoveEvent(QMouseEvent* event)
 		move_by(-1);
 		table_model()->end_selection(rowAt(0));
 		pos += rowHeight(rowAt(0));
-		if (table_model()->current_page() == 0 and table_model()->pos_in_page() == 0) {
+		if (table_model()->top_pos() == 0) {
 			// We reach the top of the listing, stop scrolling upper
 			return;
 		}
@@ -731,8 +720,7 @@ void PVAbstractTableView::setModel(QAbstractItemModel* model)
 		setup_hyperlink_delegate();
 	});
 
-	connect(model, &QAbstractItemModel::layoutChanged, this,
-	        (void (PVAbstractTableView::*)()) & PVAbstractTableView::new_range);
+	connect(model, &QAbstractItemModel::layoutChanged, this, &PVAbstractTableView::new_range);
 	Q_EMIT table_model()->layoutChanged();
 }
 } // namespace PVGuiQt

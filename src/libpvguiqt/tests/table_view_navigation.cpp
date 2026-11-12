@@ -139,9 +139,8 @@ static void show(PVGuiQt::PVAbstractTableView& view, PVTestTableModel& model)
 }
 
 /**
- * Paginating a listing again must keep its row on top. Until update_pages() settles the
- * pagination, the current page is still a row position, which the new page size
- * multiplies far past the end of the display.
+ * Paginating a listing again must keep its row on top, its page then holding many rows
+ * instead of one.
  */
 static void check_filter_keeps_top_row()
 {
