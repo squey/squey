@@ -159,10 +159,14 @@ class PVListingModel : public PVAbstractTableModel, public sigc::trackable
   public Q_SLOTS:
 	/**
 	 *  Update the current filter to show selected lines only.
+	 *
+	 *  The row on top stays there, or the first row after it that is still shown.
 	 */
 	void update_filter();
 
   private:
+	void apply_filter(top_row_t top_row);
+
 	/**
 	 * Have the filter updated once back in the event loop.
 	 *

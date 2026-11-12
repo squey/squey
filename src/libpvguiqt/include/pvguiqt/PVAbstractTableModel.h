@@ -202,9 +202,19 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 */
 	Squey::PVSelection& current_selection() { return _current_selection; }
 
-	/// Accessors
-	size_t current_page() const { return _current_page; }
-	size_t& pos_in_page() { return _pos_in_page; }
+	/**
+	 * Page, that is scrollbar tick, of the row on top of the view.
+	 */
+	size_t current_page() const;
+	/**
+	 * Position, in the sorted and filtered display, of the row on top of the view.
+	 */
+	size_t top_pos() const { return _top_pos; }
+	/**
+	 * Set the row on top of the view back, after the scrollbar moved to the start of its
+	 * page.
+	 */
+	void restore_top_pos(size_t pos) { _top_pos = pos; }
 	/**
 	 * Position, in the sorted and filtered display, of the current row, that is the
 	 * one the keyboard navigation moves, or -1 when there is none.
@@ -257,15 +267,18 @@ class PVAbstractTableModel : public QAbstractTableModel
 	void move_to_end(size_t page_step);
 
 	/**
-	 * Update pagination information with a given number of page.
+	 * Update pagination information, keeping the row on top unless the end of the
+	 * listing would then be past the bottom of the view.
 	 *
-	 * @note This should be called every time the number of pages change or
-	 * when the number of elements in the listing change.
+	 * Emits layoutChanged() when the pagination changes, the views then having another
+	 * number of rows.
 	 *
-	 * @param[in] num_pages : Number of pages (scroll tick) in the listing
+	 * @note This should be called every time the number of rows of a view or the number
+	 * of elements in the listing change.
+	 *
 	 * @param[in] page_step : Number of elements in a view to handle last page
 	 */
-	void update_pages(size_t num_pages, size_t page_step);
+	void update_pages(size_t page_step);
 
 	/**
 	 * Check if we reach the end of the listing to get the last scrollbar tick.
@@ -273,16 +286,20 @@ class PVAbstractTableModel : public QAbstractTableModel
 	bool is_last_pos() const;
 
 	/**
-	 * Set the filter with the matching selection.
-	 *
-	 * @note perform convertion from selection to filter removing sort filtering.
+	 * Row put on top of the view by set_filter().
 	 */
-	void set_filter(Squey::PVSelection const& sel);
+	enum class top_row_t {
+		KEPT, //!< The row on top, or the first row after it that is still shown
+		FIRST //!< The first row of the display
+	};
 
-	size_t current_nraw_line() const
-	{
-		return _display.row_pos_to_index(_current_page * _page_size + _pos_in_page);
-	}
+	/**
+	 * Show the rows of @a sel only, in the sort order, and notify the views.
+	 *
+	 * With top_row_t::KEPT, "after" follows the former order of the display: without any
+	 * such row, the view shows the end of the listing.
+	 */
+	void set_filter(Squey::PVSelection const& sel, top_row_t top_row);
 
 	PVCombCol sorted_col() const { return _sorted_col; }
 	Qt::SortOrder sort_order() const { return _sort_order; }
@@ -335,9 +352,14 @@ class PVAbstractTableModel : public QAbstractTableModel
 	PVSortFilter _display; //!< Sorted and filtered representation of data.
 
   private:
+	/**
+	 * Position on top of the view at the end of the listing.
+	 */
+	size_t end_pos(size_t page_step) const;
+
+  private:
 	// Pagination information
-	size_t _current_page;   //!< Page currently processed
-	size_t _pos_in_page;    //!< Position in the page
+	size_t _top_pos;        //!< Position in the display of the row on top of the view
 	size_t _page_size;      //!< Number of elements per page
 	size_t _last_page_size; //!< Number of elements in the last page
 	size_t _page_number;    //!< Number of pages
