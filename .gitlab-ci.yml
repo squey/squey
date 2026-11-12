@@ -20,6 +20,9 @@ variables:
   FORCE_PUSH_ARTIFACTS:
     value: "false"
     description: "Push the build dependencies to the shared cache, even when the buildstream directory is unchanged"
+  FLATHUB_PUBLISH:
+    value: "false"
+    description: "Only publish the release VERSION.txt names to Flathub, from a pipeline run on the default branch"
   # Shared artifact pool the runner hosts, served by the buildbox-casd-artifacts
   # service. The path is the one seen from inside the job container, where the
   # /home/gitlab-runner/cache volume is mounted on /root/.cache.
@@ -64,6 +67,12 @@ workflow:
         CONTAINER_SCANNING_DISABLED: "true"
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
+    # A pipeline run by hand to publish a release to Flathub, which only holds the
+    # "flathub" job, see FLATHUB_PUBLISH.
+    - if: '$CI_PIPELINE_SOURCE == "web" && $FLATHUB_PUBLISH == "true"'
+      variables:
+        CONTAINER_SCANNING_DISABLED: "true"
+        SAST_DISABLED: "true"
     - if: '$CI_PIPELINE_SOURCE == "web"'
     - if: '$CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/'
     # A merge into the default branch that moves a dependency, for the image job to
@@ -82,6 +91,14 @@ workflow:
 .skip_if_already_built:
   rules:
     - if: *already_built
+      when: never
+
+# Filters a job out of a pipeline run by hand to publish a release to Flathub,
+# which builds nothing. Must come before the other rules of every job a pipeline
+# run by hand would otherwise hold.
+.skip_if_flathub_only:
+  rules:
+    - if: $FLATHUB_PUBLISH == "true"
       when: never
 
 # Sentinel job of a skipped scheduled pipeline: a pipeline whose jobs are all
@@ -268,6 +285,7 @@ ensure devcontainer image:
       df -h "$CI_BUILDS_DIR" | tail -1
   rules:
     - !reference [.skip_if_already_built, rules]
+    - !reference [.skip_if_flathub_only, rules]
     # Deliberately not narrowed to the paths the tag is computed from. Gating it
     # on "changes" would be correct as long as those paths and that list agree,
     # and would quietly stop protecting anything the day they drift apart -- or
@@ -463,6 +481,7 @@ build and run testsuite linux:
   coverage: '/lines: (\d+\.\d+)% \(\d+ out of \d+\)/'
   rules:
     - !reference [.skip_if_already_built, rules]
+    - !reference [.skip_if_flathub_only, rules]
     # A push only starts a pipeline for the image job, see "workflow"
     - if: '$CI_PIPELINE_SOURCE == "push"'
       when: never
@@ -780,10 +799,14 @@ flathub:
     - privileged-docker
   # Most of it waits for Flathub to build the pull request, half an hour or so.
   timeout: 3h
+  # Two runs at once would push to the same branch and merge the same pull request.
+  resource_group: flathub
   needs:
-    # The manifest points at the archive this job puts online.
+    # The manifest points at the archive this job puts online. A pipeline run by
+    # hand, which has no such job, finds it there already.
     - job: pages
       artifacts: false
+      optional: true
   variables:
     # Only needs VERSION.txt, buildstream/flathub and its script.
     GIT_SUBMODULE_STRATEGY: none
@@ -792,6 +815,8 @@ flathub:
     - .gitlab-ci/flathub_publish.sh
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
+    # The release VERSION.txt names on the default branch, the latest one.
+    - if: '$CI_PIPELINE_SOURCE == "web" && $FLATHUB_PUBLISH == "true" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
 
 code_quality:
   stage: static_analysis
