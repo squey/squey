@@ -55,6 +55,11 @@ stages:
     $FORCE_REBUILD != "true" &&
     (($CODE_COVERAGE != "true" && $CI_COMMIT_SHA == $LAST_NIGHTLY_SHA) ||
     ($CODE_COVERAGE == "true" && $CI_COMMIT_SHA == $LAST_COVERAGE_SHA))
+  # A pipeline run by hand on the default branch to publish the release VERSION.txt
+  # names there, see PUBLISH_RELEASE.
+  publish_only: &publish_only >-
+    $CI_PIPELINE_SOURCE == "web" && $PUBLISH_RELEASE == "true" &&
+    $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
 
 workflow:
   rules:
@@ -67,8 +72,8 @@ workflow:
         CONTAINER_SCANNING_DISABLED: "true"
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
     - if: '$CI_PIPELINE_SOURCE == "schedule"'
-    # A pipeline run by hand to publish a release, which only holds the jobs of the
-    # "publish" stage, see PUBLISH_RELEASE.
+    # A pipeline run by hand to publish a release, which builds nothing, see
+    # PUBLISH_RELEASE.
     - if: '$CI_PIPELINE_SOURCE == "web" && $PUBLISH_RELEASE == "true"'
       variables:
         CONTAINER_SCANNING_DISABLED: "true"
@@ -101,10 +106,12 @@ workflow:
     - if: $PUBLISH_RELEASE == "true"
       when: never
 
-# Sentinel job of a skipped scheduled pipeline: a pipeline whose jobs are all
-# filtered out is not created at all, which the schedule reports as an error
-# instead of a success. This one keeps the pipeline valid, green and free.
-nightly_skipped:
+# Carries the coverage of the pipeline that really built the commit over to a
+# pipeline that builds nothing: the project badge reads the coverage of the latest
+# successful pipeline of the branch, and falls back to "unknown" as soon as that
+# pipeline has none of its own. Passing "?job=" to the badge does not help, it
+# looks the job up in those same latest pipelines.
+.carry_over_coverage:
   image:
     name: "$BASE_IMAGE_NAME"
     pull_policy: [if-not-present]
@@ -115,15 +122,9 @@ nightly_skipped:
   variables:
     GIT_STRATEGY: none
     GIT_SUBMODULE_STRATEGY: none
-  # Carry over the coverage of the pipeline that really built this commit: the
-  # project badge reads the coverage of the latest successful pipeline of the
-  # branch, and falls back to "unknown" as soon as that pipeline has none of its
-  # own. Passing "?job=" to the badge does not help, it looks the job up in those
-  # same latest pipelines.
   coverage: '/Coverage: (\d+(?:\.\d+)?)%/'
   script:
     - |
-      echo "$CI_COMMIT_BRANCH is still at $CI_COMMIT_SHA, already built by a previous scheduled pipeline, nothing to do."
       api_url="$CI_API_V4_URL/projects/$CI_PROJECT_ID/pipelines"
       for id in $(curl --silent --get --data-urlencode "ref=$CI_COMMIT_BRANCH" \
         --data-urlencode "status=success" --data-urlencode "per_page=20" "$api_url" \
@@ -135,8 +136,22 @@ nightly_skipped:
         fi
       done
       [ -n "$coverage" ] || echo "No coverage found in the last 20 successful pipelines of $CI_COMMIT_BRANCH, the badge will show 'unknown'"
+
+# Sentinel job of a skipped scheduled pipeline: a pipeline whose jobs are all
+# filtered out is not created at all, which the schedule reports as an error
+# instead of a success. This one keeps the pipeline valid, green and free.
+nightly_skipped:
+  extends: .carry_over_coverage
+  before_script:
+    - echo "$CI_COMMIT_BRANCH is still at $CI_COMMIT_SHA, already built by a previous scheduled pipeline, nothing to do."
   rules:
     - if: *already_built
+
+# A pipeline run by hand to publish a release builds nothing either.
+carry over coverage:
+  extends: .carry_over_coverage
+  rules:
+    - if: *publish_only
 
 # Records the commit a scheduled pipeline just built, so that the next scheduled
 # run on the same commit skips straight to "nightly_skipped". Writing a project
@@ -812,7 +827,7 @@ pages:
     GIT_CLONE_PATH: $CI_BUILDS_DIR/$CI_CONCURRENT_ID/$CI_PROJECT_PATH
   rules:
     - if: $CI_COMMIT_TAG =~ /^release-\d+\.\d+\.\d+$/
-    - if: '$CI_PIPELINE_SOURCE == "web" && $PUBLISH_RELEASE == "true" && $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+    - if: *publish_only
 
 flathub:
   extends: .publish
