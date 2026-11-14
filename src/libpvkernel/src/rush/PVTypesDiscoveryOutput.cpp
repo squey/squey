@@ -35,7 +35,10 @@
 #include <list>
 #include <mutex>
 #include <cinttypes> // PRIxxx macro
+#include <algorithm>
+#include <array>
 #include <cctype>
+#include <functional>
 #include <string_view>
 
 #include "pvcop/db/128bits_support.h"
@@ -221,6 +224,27 @@ static bool written_as(PVRush::PVTypesDiscoveryOutput::notation n, std::string_v
 	return true;
 }
 
+/**
+ * Whether @p value is one of the ways files write that a field has no value
+ */
+static bool says_missing(std::string_view value)
+{
+	static constexpr std::array<std::string_view, 9> missing{"-",   "null", "none", "nil",   "na",
+	                                                         "n/a", "nan",  "#n/a", "(null)"};
+
+	const size_t first = value.find_first_not_of(" \t");
+	if (first == std::string_view::npos) {
+		return false;
+	}
+	value = value.substr(first, value.find_last_not_of(" \t") - first + 1);
+
+	return std::ranges::any_of(missing, [value](std::string_view word) {
+		return std::ranges::equal(value, word, [](char a, char b) {
+			return std::tolower(static_cast<unsigned char>(a)) == b;
+		});
+	});
+}
+
 static PVRush::PVTypesDiscoveryOutput::notation
 notation_of(const std::pair<std::string, std::string>& type)
 {
@@ -299,6 +323,7 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 
 	_matching_formatters =
 	    matching_formatters_t(_column_count, std::vector<bool>(_formatters.size(), true));
+	_valued = std::vector<bool>(_column_count, false);
 }
 
 void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
@@ -311,6 +336,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 
 	matching_formatters_t matching_formatters(_column_count,
 	                                          std::vector<bool>(_formatters.size(), true));
+	std::vector<bool> valued(_column_count, false);
 
 	PVCore::list_elts const& elts = chunk->c_elements();
 
@@ -328,8 +354,12 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 		PVCol col(0);
 		for (PVCore::PVField const& field : fields) {
 			value.assign(field.begin(), field.end());
-			// an empty value rules no type out
-			if (not value.empty()) {
+			// A field empty, or saying it has no value, rules no type out: "-" in a column of
+			// sizes, "NULL" in a column of dates. The first row may be the names, whatever
+			// they say.
+			if (not value.empty() and
+			    ((first_chunk and local_row == 0) or not says_missing(value))) {
+				valued[col] = true;
 				for (size_t idx = 0; idx < _formatters.size(); idx++) {
 					if (not matching_formatters[col][idx]) {
 						continue;
@@ -362,6 +392,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 					          true);
 					col++;
 				}
+				std::fill(valued.begin(), valued.end(), false);
 			}
 		}
 		local_row++;
@@ -375,6 +406,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 				_matching_formatters[col][idx] =
 				    _matching_formatters[col][idx] && matching_formatters[col][idx];
 			}
+			_valued[col] = _valued[col] or valued[col];
 		}
 		_row_count += elts.size();
 		_out_size += chunk->get_init_size();
@@ -387,10 +419,14 @@ void PVRush::PVTypesDiscoveryOutput::job_has_finished(const PVControllerJob::inv
 {
 	assert(_matching_formatters.size() == _column_count);
 
-	const auto& mf = _matching_formatters;
-	bool not_all_strings = std::any_of(mf.begin(), mf.end(), [](const auto& f) {
-		return std::any_of(f.begin(), f.end(), [](bool v) { return v; });
-	});
+	// a column with no value in the sample has no type to read it with but text
+	const auto typed = [this](size_t col) {
+		return _valued[col] and std::ranges::any_of(_matching_formatters[col], std::identity());
+	};
+	bool not_all_strings = false;
+	for (size_t col = 0; col < _column_count; col++) {
+		not_all_strings = not_all_strings or typed(col);
+	}
 
 	for (size_t col = 0; col < _column_count; col++) {
 
@@ -401,7 +437,7 @@ void PVRush::PVTypesDiscoveryOutput::job_has_finished(const PVControllerJob::inv
 		                           : _names[col])
 		                    : "";
 
-		for (size_t idx = 0; idx < _formatters.size(); idx++) {
+		for (size_t idx = 0; typed(col) and idx < _formatters.size(); idx++) {
 			if (_matching_formatters[col][idx]) {
 				_types_desc.emplace_back(_types[idx].first, _types[idx].second, col_name);
 				formatter_found = true;

@@ -183,6 +183,21 @@ void check_number_notations()
 	            100);
 }
 
+/**
+ * The usual ways of writing that a field has no value rule no type out, and a column
+ * holding nothing else is text
+ */
+void check_missing_values()
+{
+	check_types(
+	    {{"qty", {"12", "NULL", "7", "N/A", "-", "3", "null", " NA "}, "number_uint32", ""},
+	     {"price", {"2.9", "NaN", "1.5", "#N/A"}, "number_double", "%.15g"},
+	     {"when", {"2024-01-01 10:00:00", "-", "2024-01-02 11:00:00"}, "time", "yyyy-M-d H:m:s"},
+	     {"dashes", {"-"}, "string", ""},
+	     {"nothing", {""}, "string", ""}},
+	    100);
+}
+
 } // namespace
 
 int main()
@@ -193,6 +208,7 @@ int main()
 	check_types_across_chunks();
 	check_decimals();
 	check_number_notations();
+	check_missing_values();
 
 	return 0;
 }
