@@ -110,7 +110,23 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"d-M-yy H:m:s:S",
 	"dd.MM.yyyy H:m:s.S",
 	"dd.MM.yy H:m:s.S",
-	"yyyy-M-d'T'H:m:s'Z'"
+	"yyyy-M-d'T'H:m:s'Z'",
+	"yyyy/M/d H:m:s",
+	// ISO 8601, and the timestamps with a zone of PostgreSQL. The formats with a fraction
+	// of a second read a "T" as well as a space, as "yyyy-M-d H:m:ss.S" does.
+	"yyyy-M-d",
+	"yyyy-M-d'T'H:m:s",
+	"yyyy-M-d'T'H:m:sX",
+	"yyyy-M-d H:m:sX",
+	"yyyy-M-d H:m:s.SX",
+	// the month first, which a date only reads as when it does not read day first
+	"M/d/yyyy",
+	"M/d/yyyy H:m:s",
+	"M/d/yy",
+	"M/d/yy H:m:s",
+	// the logs of web servers, and the dates of mails and HTTP
+	"d/MMM/yyyy:H:m:s Z",
+	"eee, d MMM yyyy H:m:s Z"
 }};
 // clang-format on
 
@@ -137,8 +153,12 @@ static std::vector<std::string> sort_time_formats_to_reduce_false_detection_rate
 	 * As this problem doesn't occur the other way around (specifing 4 year digits in the
 	 * format but only providing 2), according a greater priority to the 4 year digits solves
 	 * this problem for the types autodetection.
+	 *
+	 * The formats otherwise keep the order of the list, whatever the standard library: a
+	 * date such as "03/04/2024" reads day first as well as month first, and is read the
+	 * way the list gives first.
 	 */
-	std::sort(time_formats.begin(), time_formats.end(), [](const auto& p1, const auto& p2) {
+	std::stable_sort(time_formats.begin(), time_formats.end(), [](const auto& p1, const auto& p2) {
 		bool p1_4_years_digit = p1.find("yyyy") != std::string::npos;
 		bool p2_4_years_digit = p2.find("yyyy") != std::string::npos;
 

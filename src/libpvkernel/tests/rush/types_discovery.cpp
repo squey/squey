@@ -198,6 +198,33 @@ void check_missing_values()
 	    100);
 }
 
+/**
+ * The dates of ISO 8601, of the logs of web servers and of mails, and the dates written
+ * month first, which only read so when they do not read day first
+ */
+void check_date_formats()
+{
+	check_types(
+	    {
+	        {"iso_date", {"2024-02-23", "2024-12-01"}, "time", "yyyy-M-d"},
+	        {"iso", {"2024-01-28T10:25:00", "2024-01-03T10:53:00"}, "time", "yyyy-M-d'T'H:m:s"},
+	        {"iso_offset",
+	         {"2024-01-15T10:00:00+01:00", "2024-01-15T10:00:00Z"},
+	         "time",
+	         "yyyy-M-d'T'H:m:sX"},
+	        {"iso_fraction",
+	         {"2024-01-16T10:00:00.123Z", "2024-01-16T10:00:00.123456+02:00"},
+	         "time",
+	         "yyyy-M-d H:m:s.SX"},
+	        {"postgresql", {"2024-01-01 10:00:00.123456+01"}, "time", "yyyy-M-d H:m:s.SX"},
+	        {"month_first", {"09/28/2024", "02/13/2024"}, "time", "M/d/yyyy"},
+	        {"either_way", {"03/04/2024", "11/12/2024"}, "time", "d/M/yyyy"},
+	        {"web_server", {"05/Jan/2024:10:53:00 +0000"}, "time", "d/MMM/yyyy:H:m:s Z"},
+	        {"mail", {"Mon, 01 Jan 2024 10:00:00 +0000"}, "time", "eee, d MMM yyyy H:m:s Z"},
+	    },
+	    100);
+}
+
 } // namespace
 
 int main()
@@ -209,6 +236,7 @@ int main()
 	check_decimals();
 	check_number_notations();
 	check_missing_values();
+	check_date_formats();
 
 	return 0;
 }
