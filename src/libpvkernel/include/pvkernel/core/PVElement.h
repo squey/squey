@@ -38,8 +38,9 @@ namespace PVCore
 
 class PVTextChunk;
 
-using list_fields_allocator = PVPreAllocatedListAllocator<PVField, std::allocator<PVField>>;
-using list_fields = std::list<PVField/*, list_fields_allocator*/>;
+// A line gets a node per field, allocated by the thread that splits it and freed by
+// the one that writes it out: tbbmalloc is built for that, the libc allocator is not.
+using list_fields = std::list<PVField, tbb::scalable_allocator<PVField>>;
 
 class PVElement : public PVBufferSlice
 {
