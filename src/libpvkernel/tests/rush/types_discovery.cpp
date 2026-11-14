@@ -147,9 +147,20 @@ void check_types_across_chunks()
 {
 	const std::vector<std::string> amounts{"12", "7", "30", "4", "15", "9", "22", "3", "18", "5.5"};
 	// about 16 MB, so that the sample spans two chunks of the default ten
-	check_types({{"amount", amounts, "number_float", ""},
+	check_types({{"amount", amounts, "number_double", "%.15g"},
 	             {"comment", {std::string(400, 'x')}, "string", ""}},
 	            40000);
+}
+
+/**
+ * The decimals are read in a type that keeps them as written
+ */
+void check_decimals()
+{
+	check_types({{"price", {"25.01", "590.49", "716.02"}, "number_double", "%.15g"},
+	             {"big", {"4326096.668", "2532120.958"}, "number_double", "%.15g"},
+	             {"scientific", {"-9.510e+08", "1e-5", "-inf"}, "number_double", "%.15g"}},
+	            100);
 }
 
 } // namespace
@@ -160,6 +171,7 @@ int main()
 
 	check_dates_read_whole();
 	check_types_across_chunks();
+	check_decimals();
 
 	return 0;
 }
