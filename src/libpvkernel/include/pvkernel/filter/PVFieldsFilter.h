@@ -91,6 +91,21 @@ class PVFieldsFilter : public PVFieldsBaseFilter
 		return false;
 	}
 
+	/**
+	 * How many of the @p fields the arguments @p args guess() proposed cut out of a line
+	 * are plausible values of the input, from 0 to their number; 0 also when the line does
+	 * not read with these arguments at all.
+	 *
+	 * It settles between argument lists that split a sample equally regularly: a
+	 * comma-separated file whose dates hold a space splits as evenly on the space, into
+	 * cells holding commas.
+	 */
+	virtual double guess_quality(PVCore::PVArgumentList const& /*args*/,
+	                             PVCore::list_fields const& fields) const
+	{
+		return double(fields.size());
+	}
+
 	// Filter interface (many-to-many)
 	PVCore::list_fields& operator()(PVCore::list_fields& fields) override;
 

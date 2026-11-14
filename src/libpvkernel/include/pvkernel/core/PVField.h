@@ -44,6 +44,7 @@ class PVField : public PVBufferSlice
 	bool filtered() const;
 	void set_filtered();
 	PVElement* elt_parent();
+	const PVElement* elt_parent() const;
 
   private:
 	void init(PVElement& parent);

@@ -69,3 +69,8 @@ PVCore::PVElement* PVCore::PVField::elt_parent()
 {
 	return _parent;
 }
+
+const PVCore::PVElement* PVCore::PVField::elt_parent() const
+{
+	return _parent;
+}

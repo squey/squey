@@ -25,7 +25,27 @@
 
 #include "PVFieldSplitterCSV.h"
 
-static const std::vector<char> common_separators{',', ' ', '\t', ';', '|'};
+#include <algorithm>
+
+// The order in which the guess prefers them, everything else being equal. The space comes
+// last, as values hold spaces more often than any other of them.
+static const std::vector<char> common_separators{',', '\t', ';', '|', ' '};
+
+/**
+ * Whether [@p begin, @p end) is a decimal number written with a comma, which a file
+ * separated by semicolons or tabulations often holds.
+ */
+static bool is_decimal_comma(const char* begin, const char* end)
+{
+	if (begin != end and (*begin == '-' or *begin == '+')) {
+		++begin;
+	}
+	const char* const comma = std::find(begin, end, ',');
+	const auto digits = [](const char* b, const char* e) {
+		return b != e and std::all_of(b, e, [](char c) { return c >= '0' and c <= '9'; });
+	};
+	return comma != end and digits(begin, comma) and digits(comma + 1, end);
+}
 
 // tshark's -Tfields output backslash-escapes its field values: C0 control bytes
 // are emitted C-style (\a \b \t \n \v \f \r), backslashes are doubled (\\), and a
@@ -237,6 +257,40 @@ eol:
 		}
 	}
 	return n;
+}
+
+double PVFilter::PVFieldSplitterCSV::guess_quality(PVCore::PVArgumentList const& args,
+                                                   PVCore::list_fields const& fields) const
+{
+	const char sep = args.at("sep").toChar().toLatin1();
+	const char quote = args.at("quote").toChar().toLatin1();
+
+	double plausible = 0;
+	for (const PVCore::PVField& field : fields) {
+		const char* const begin = field.begin();
+		const char* const end = field.end();
+		const PVCore::PVElement& line = *field.elt_parent();
+
+		if (begin != line.begin() and begin[-1] == quote) {
+			if (end == line.end() or *end != quote) {
+				return 0;
+			}
+			// what quotes hold may be anything, separators included
+			plausible += 1;
+			continue;
+		}
+
+		// values hold spaces too often for one to tell anything
+		const bool other_separator = std::any_of(begin, end, [sep](char c) {
+			return c != sep and c != ' ' and
+			       std::find(common_separators.begin(), common_separators.end(), c) !=
+			           common_separators.end();
+		});
+		if (not other_separator or (sep != ',' and is_decimal_comma(begin, end))) {
+			plausible += 1;
+		}
+	}
+	return plausible;
 }
 
 bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField& in_field)

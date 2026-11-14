@@ -51,6 +51,7 @@ class PVFieldSplitterChunkMatch
   protected:
 	PVFilter::list_guess_result_t _guess_res;
 	PVFilter::PVFieldsSplitter_p _filter;
+	size_t _sampled_lines = 0; //!< the lines of the sample, whether a guess split them or not
 };
 } // namespace PVFilter
 

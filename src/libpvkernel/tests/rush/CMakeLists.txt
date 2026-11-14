@@ -230,6 +230,9 @@ foreach(hash_seed 0 1 7 42)
 	set_property(TEST SQUEY_TEST_Trush_guess_separator_stability_seed${hash_seed} APPEND PROPERTY ENVIRONMENT "QT_HASH_SEED=${hash_seed}")
 endforeach()
 
+add_squey_compile_test(Trush_guess_separator_robustness LINKS ${LINK_LIBRARIES} FILES guess_separator_robustness.cpp)
+add_squey_test(Trush_guess_separator_robustness Trush_guess_separator_robustness)
+
 add_squey_compile_test(Trush_filter_guess_csv LINKS ${LINK_LIBRARIES} FILES filter_guess_csv.cpp)
 add_squey_test(Trush_filter_guess_csv_correct Trush_filter_guess_csv 4 "," "\"" ${PVRUSH_TEST_FILES}/csv/tiny.csv)
 add_squey_test(Trush_filter_guess_csv_incorrect Trush_filter_guess_csv 0 "," "\"" ${PVRUSH_TEST_FILES}/csv/irregular.csv)
