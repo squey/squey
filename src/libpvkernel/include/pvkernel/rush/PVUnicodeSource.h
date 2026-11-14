@@ -32,6 +32,8 @@
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
 
+#include <tbb/scalable_allocator.h>
+
 #include <algorithm>
 #include <iterator>
 
@@ -51,8 +53,12 @@ class UnicodeSourceBufferOverflowError : public std::exception
  * Source to read file in unicode format.
  *
  * It creates Chunks/Elements/Fields without BOM and in UTF-8
+ *
+ * The chunks come from tbbmalloc by default, which hands the memory of the chunks freed
+ * out again: mapping fresh memory for each chunk has the kernel fault it in and zero it,
+ * in the serial stage of the import, and unmapping it stops every thread to flush its TLB.
  */
-template <template <class T> class Allocator = PVCore::PVMMapAllocator>
+template <template <class T> class Allocator = tbb::scalable_allocator>
 class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
