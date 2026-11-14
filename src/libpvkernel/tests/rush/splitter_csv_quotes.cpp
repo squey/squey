@@ -54,6 +54,15 @@ int main()
 	    {R"(11,"He said ""hi""",12)", R"('11','He said "hi"','12')"},
 	    {R"(13,"""quoted""",14)", R"('13','"quoted"','14')"},
 	    {R"(15,"",16)", R"('15','','16')"},
+	    // a backslash before the closing quote, as in a Windows directory
+	    {R"(16,"C:\dir\",17)", R"('16','C:\dir\','17')"},
+	    // quotes a backslash escapes, where RFC 4180 does not read
+	    {R"(18,"say \"hi\"",19)", R"('18','say "hi"','19')"},
+	    {R"(20,"a\"",21)", R"('20','a"','21')"},
+	    // a quote nothing closes is part of the value, and the separators
+	    // still separate
+	    {R"(22,"abc,23)", R"('22','"abc','23')"},
+	    {R"(24,"a"b,25)", R"('24','"a"b','25')"},
 	};
 
 	const QString path_qs =

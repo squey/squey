@@ -25,6 +25,8 @@
 
 #include "PVFieldSplitterCSV.h"
 
+#include <pvkernel/rush/PVCSVRecords.h>
+
 #include <algorithm>
 
 // The order in which the guess prefers them, everything else being equal. The space comes
@@ -100,63 +102,27 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 
 	while (i < field.size()) {
 		if (cstr[i] == _quote) {
-			i++;
-			// quoted value
-			b = cstr + i;
-			bool doubled_quote = false;
-
-			while (true) {
-				i = std::find(cstr + i, cstr + field.size(), _quote) - cstr;
-
-				if (i == field.size()) {
-					// we have found the end of line but not a quote
-					l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
-					++n;
-					goto eol;
-				}
-
-				if (cstr[i - 1] == '\\') {
-					// an escaped quote, we continue
-					++i;
-					continue;
-				}
-
-				if ((i + 1) == field.size()) {
-					break;
-				}
-
-				if (cstr[i + 1] == _quote) {
-					doubled_quote = true;
-					i += 2;
-					continue;
-				}
-				// ensure that next char is a separator
-				if (cstr[i + 1] == _sep) {
-					break;
-				} else {
-					b--; // keep quote char at the begining of the field
-					i++; // and find next separator or end of line
-					goto find_sep;
-				}
+			const PVRush::PVQuotedValueEnd value =
+			    PVRush::quoted_value_end(cstr + i + 1, cstr + field.size(), {_sep, _quote}, false);
+			if (value.state != PVRush::PVQuotedValueEnd::status::closed) {
+				// a quote nothing closes is part of the value, which goes on after the quote
+				// that stops it from reading as quoted
+				b = cstr + i;
+				i = value.quote != nullptr ? size_t(value.quote - cstr) + 1 : i + 1;
+				goto find_sep;
 			}
 
-			// a quote, adding the new element
-			char* value_end = cstr + i;
-			if (doubled_quote and not _guessing) {
-				// two quotes in a row stand for one, unquoted in place as the line is ours
-				value_end = b;
-				for (char* c = b; c != cstr + i; ++c) {
-					*value_end++ = *c;
-					if (*c == _quote and c + 1 != cstr + i and c[1] == _quote) {
-						++c;
-					}
-				}
+			b = cstr + i + 1;
+			char* value_end = cstr + (value.quote - cstr);
+			if (not _guessing) {
+				// the line is ours to unescape the value in place
+				value_end = PVRush::unescape_quoted_value(b, value_end, _quote, value.backslash);
 			}
 			l.emplace(it_ins, *field.elt_parent(), b, value_end);
 			n++;
 
 			// moving after the quote
-			i++;
+			i = size_t(value.quote - cstr) + 1;
 
 			if (i == field.size()) {
 				// all-right, we reach the end of line
@@ -287,12 +253,13 @@ double PVFilter::PVFieldSplitterCSV::guess_quality(PVCore::PVArgumentList const&
 		const PVCore::PVElement& line = *field.elt_parent();
 
 		if (begin != line.begin() and begin[-1] == quote) {
-			if (end == line.end() or *end != quote) {
-				return 0;
-			}
 			// what quotes hold may be anything, separators included
 			plausible += 1;
 			continue;
+		}
+		if (begin != end and *begin == quote) {
+			// a quote nothing closes
+			return 0;
 		}
 
 		// values hold spaces too often for one to tell anything

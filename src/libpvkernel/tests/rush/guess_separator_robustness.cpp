@@ -121,10 +121,10 @@ void check_irregular_lines()
 		                       : n(i) + ",\"word\"," + n(i);
 	    },
 	    ',', 3);
-	// a quote that each line opens and nothing closes: the lines do not read as columns
+	// a quote that each line opens and nothing closes is a mere character
 	check_guess(
 	    "quotes that never close", "id,path,n",
-	    [](size_t i) { return n(i) + ",\"C:\\dir\\\"," + n(i); }, ',', 0);
+	    [](size_t i) { return n(i) + ",\"C:\\dir," + n(i); }, ',', 3);
 	// too irregular to be columns
 	check_guess(
 	    "two record types", "",
@@ -153,6 +153,9 @@ void check_even_splits()
 	    [](size_t i) { return n(i) + ",text/html; charset=utf-8"; }, ',', 2);
 	check_guess(
 	    "a space as the separator", "", [](size_t i) { return n(i) + " 12 " + n(i * 2); }, ' ', 3);
+	check_guess(
+	    "directories quoted", "id,path,n",
+	    [](size_t i) { return n(i) + ",\"C:\\dir, " + n(i) + "\\\"," + n(i); }, ',', 3);
 }
 
 } // namespace

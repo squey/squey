@@ -47,7 +47,7 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 	/**
 	 * A value holding another separator the guess tries is not plausible, unless quotes
 	 * hold it or it is a decimal number written with a comma; the space is no evidence. A
-	 * line where quotes open a value and nothing closes them does not read at all.
+	 * line where a value begins with a quote that nothing closes does not read at all.
 	 */
 	double guess_quality(PVCore::PVArgumentList const& args,
 	                     PVCore::list_fields const& fields) const override;

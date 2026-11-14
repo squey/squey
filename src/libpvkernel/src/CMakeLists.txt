@@ -92,6 +92,7 @@ set(FILTER_MOC_HEADERS
 
 set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
+rush/PVCSVRecords.cpp
 rush/PVFormat.cpp
 rush/PVNraw.cpp
 rush/PVNrawOutput.cpp
