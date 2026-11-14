@@ -69,6 +69,7 @@ static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
 
 static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"yyyy.MMMM.dd H:mm",
+	"yyyy.MMM.d H:mm.ss",
 	"yyyy-M-d h:mm",
 	"yyyy-M-d H:m:s",
 	"yyyy/MM/dd HH:mm:ss Z",
@@ -99,6 +100,7 @@ static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
 	"yyyy-M-d H:m:ss.S",
 	"yy-M-d H:mm:ss.SSS",
 	"yy-M-d H:mm:ss.SSS V",
+	"d-M-yy H:m:s:S",
 	"dd.MM.yyyy H:m:s.S",
 	"dd.MM.yy H:m:s.S",
 	"yyyy-M-d'T'H:m:s'Z'"

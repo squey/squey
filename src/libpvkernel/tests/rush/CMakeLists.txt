@@ -238,6 +238,9 @@ add_squey_compile_test(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES 
 add_squey_test(Trush_axes_types_discovery Trush_axes_types_discovery)
 add_bench(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_discovery.cpp)
 
+add_squey_compile_test(Trush_types_discovery LINKS ${LINK_LIBRARIES} FILES types_discovery.cpp)
+add_squey_test(Trush_types_discovery Trush_types_discovery)
+
 # squey-logstats
 add_squey_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
 add_squey_test(Trush_logstats Trush_logstats)
