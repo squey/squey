@@ -54,6 +54,9 @@ struct column {
 	std::string type_format;
 };
 
+// a value that ends its line there, leaving the next fields out
+const std::string line_ends_here = "\x01";
+
 QDomDocument csv_format(size_t columns)
 {
 	QDomDocument doc;
@@ -90,8 +93,11 @@ void check_types(const std::vector<column>& columns, size_t rows)
 		for (size_t r = 0; r <= rows; r++) {
 			for (size_t i = 0; i < columns.size(); i++) {
 				const column& c = columns[i];
-				out << (i == 0 ? "" : ",")
-				    << (r == 0 ? c.name : c.values[(r - 1) % c.values.size()]);
+				const std::string& value = r == 0 ? c.name : c.values[(r - 1) % c.values.size()];
+				if (value == line_ends_here) {
+					break;
+				}
+				out << (i == 0 ? "" : ",") << value;
 			}
 			out << '\n';
 		}
@@ -225,6 +231,17 @@ void check_date_formats()
 	    100);
 }
 
+/**
+ * The fields a line lacks are empty, and rule no type out
+ */
+void check_short_lines()
+{
+	check_types({{"id", {"1", "2", "3"}, "number_uint32", ""},
+	             {"qty", {"4", "5", line_ends_here}, "number_uint32", ""},
+	             {"price", {"1.5", "2.5", "9.5"}, "number_double", "%.15g"}},
+	            100);
+}
+
 } // namespace
 
 int main()
@@ -237,6 +254,7 @@ int main()
 	check_number_notations();
 	check_missing_values();
 	check_date_formats();
+	check_short_lines();
 
 	return 0;
 }
