@@ -157,7 +157,7 @@ void check_types_across_chunks()
 {
 	const std::vector<std::string> amounts{"12", "7", "30", "4", "15", "9", "22", "3", "18", "5.5"};
 	// about 16 MB, so that the sample spans two chunks of the default ten
-	check_types({{"amount", amounts, "number_double", "%.15g"},
+	check_types({{"amount", amounts, "number_double", ""},
 	             {"comment", {std::string(400, 'x')}, "string", ""}},
 	            40000);
 }
@@ -167,9 +167,9 @@ void check_types_across_chunks()
  */
 void check_decimals()
 {
-	check_types({{"price", {"25.01", "590.49", "716.02"}, "number_double", "%.15g"},
-	             {"big", {"4326096.668", "2532120.958"}, "number_double", "%.15g"},
-	             {"scientific", {"-9.510e+08", "1e-5", "-inf"}, "number_double", "%.15g"}},
+	check_types({{"price", {"25.01", "590.49", "716.02"}, "number_double", ""},
+	             {"big", {"4326096.668", "2532120.958"}, "number_double", ""},
+	             {"scientific", {"-9.510e+08", "1e-5", "-inf"}, "number_double", ""}},
 	            100);
 }
 
@@ -183,7 +183,7 @@ void check_number_notations()
 	             {"word", {"cafe", "bad", "face", "d"}, "string", ""},
 	             {"hexadecimal", {"0x1F", "0xdeadbeef"}, "number_uint32", "0x%" PRIx32},
 	             {"zero", {"0", "10", "-3"}, "number_int32", ""},
-	             {"fraction", {"0.5", "-0.25"}, "number_double", "%.15g"}},
+	             {"fraction", {"0.5", "-0.25"}, "number_double", ""}},
 	            100);
 
 	// a header holding a word an hexadecimal number reads is still a header
@@ -200,7 +200,7 @@ void check_missing_values()
 {
 	check_types(
 	    {{"qty", {"12", "NULL", "7", "N/A", "-", "3", "null", " NA "}, "number_uint32", ""},
-	     {"price", {"2.9", "NaN", "1.5", "#N/A"}, "number_double", "%.15g"},
+	     {"price", {"2.9", "NaN", "1.5", "#N/A"}, "number_double", ""},
 	     {"when", {"2024-01-01 10:00:00", "-", "2024-01-02 11:00:00"}, "time", "yyyy-M-d H:m:s"},
 	     {"dashes", {"-"}, "string", ""},
 	     {"nothing", {""}, "string", ""}},
@@ -241,8 +241,8 @@ void check_date_formats()
 void check_header()
 {
 	check_types({{"id", {"1", "2", "3"}, "number_uint32", ""},
-	             {"2023", {"1.5", "2.5"}, "number_double", "%.15g"},
-	             {"2024", {"3.5", "4.5"}, "number_double", "%.15g"}},
+	             {"2023", {"1.5", "2.5"}, "number_double", ""},
+	             {"2024", {"3.5", "4.5"}, "number_double", ""}},
 	            100);
 	check_types({{"", {"1", "2", "3"}, "number_uint32", ""},
 	             {"name", {"alpha", "bravo"}, "string", ""},
@@ -251,11 +251,11 @@ void check_header()
 
 	// values only, the first row as the others
 	check_types({{"id", {"1", "2", "3"}, "number_uint32", ""},
-	             {"price", {"1.5", "2.5"}, "number_double", "%.15g"},
+	             {"price", {"1.5", "2.5"}, "number_double", ""},
 	             {"name", {"alpha", "bravo"}, "string", ""}},
 	            100, false);
 	check_types({{"qty", {"NULL", "2", "3"}, "number_uint32", ""},
-	             {"price", {"1.5", "2.5"}, "number_double", "%.15g"}},
+	             {"price", {"1.5", "2.5"}, "number_double", ""}},
 	            100, false);
 }
 
@@ -266,7 +266,7 @@ void check_short_lines()
 {
 	check_types({{"id", {"1", "2", "3"}, "number_uint32", ""},
 	             {"qty", {"4", "5", line_ends_here}, "number_uint32", ""},
-	             {"price", {"1.5", "2.5", "9.5"}, "number_double", "%.15g"}},
+	             {"price", {"1.5", "2.5", "9.5"}, "number_double", ""}},
 	            100);
 }
 

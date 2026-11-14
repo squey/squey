@@ -65,9 +65,9 @@ static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
      {"number_uint64", "%#" PRIo64},
      {"number_uint64", "0x%" PRIx64},
      // A double, as a float keeps 24 bits: "4326096.668" would read 4326096.5, and "25.01"
-     // display 25.0100002. Fifteen digits are what a double writes back as written: its
-     // default seventeen display "25.01" as 25.010000000000002.
-     {"number_double", "%.15g"},
+     // display 25.0100002. Its default notation writes the fewest digits that read back as
+     // the value, which are those of the file.
+     {"number_double", ""},
 
      {"ipv4",          ""},
      {"ipv6",          ""},
