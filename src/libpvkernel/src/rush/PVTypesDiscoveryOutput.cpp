@@ -39,6 +39,7 @@
 #include <array>
 #include <cctype>
 #include <functional>
+#include <optional>
 #include <string_view>
 
 #include "pvcop/db/128bits_support.h"
@@ -344,6 +345,9 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 	_matching_formatters =
 	    matching_formatters_t(_column_count, std::vector<bool>(_formatters.size(), true));
 	_valued = std::vector<bool>(_column_count, false);
+	_first_row.clear();
+	_first_row_matching = _matching_formatters;
+	_first_row_valued = _valued;
 }
 
 void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
@@ -357,6 +361,9 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 	matching_formatters_t matching_formatters(_column_count,
 	                                          std::vector<bool>(_formatters.size(), true));
 	std::vector<bool> valued(_column_count, false);
+	matching_formatters_t first_row_matching;
+	std::vector<bool> first_row_valued;
+	std::vector<std::string> first_row;
 
 	PVCore::list_elts const& elts = chunk->c_elements();
 
@@ -370,50 +377,41 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 			continue;
 		}
 
+		const bool is_first_row = first_chunk and local_row == 0;
+		if (is_first_row) {
+			first_row_matching = matching_formatters;
+			first_row_valued = valued;
+			first_row.resize(_column_count);
+		}
+		matching_formatters_t& matching = is_first_row ? first_row_matching : matching_formatters;
+		std::vector<bool>& row_valued = is_first_row ? first_row_valued : valued;
+
 		PVCore::list_fields const& fields = e.c_fields();
 		PVCol col(0);
 		for (PVCore::PVField const& field : fields) {
 			value.assign(field.begin(), field.end());
+			if (is_first_row) {
+				first_row[col] = value;
+			}
 			// A field empty, or saying it has no value, rules no type out: "-" in a column of
-			// sizes, "NULL" in a column of dates. The first row may be the names, whatever
-			// they say.
-			if (not value.empty() and
-			    ((first_chunk and local_row == 0) or not says_missing(value))) {
-				valued[col] = true;
+			// sizes, "NULL" in a column of dates.
+			if (not value.empty() and not says_missing(value)) {
+				row_valued[col] = true;
 				for (size_t idx = 0; idx < _formatters.size(); idx++) {
-					if (not matching_formatters[col][idx]) {
+					if (not matching[col][idx]) {
 						continue;
 					}
 					if (not written_as(_notations[idx], value)) {
-						matching_formatters[col][idx] = false;
+						matching[col][idx] = false;
 						continue;
 					}
 					pvcop::db::uint128_t t;
 					bool pass_autodetect;
 					_formatters[idx]->from_string(value.c_str(), &t, 0, &pass_autodetect);
-					matching_formatters[col][idx] = pass_autodetect;
+					matching[col][idx] = pass_autodetect;
 				}
 			}
 			col++;
-		}
-
-		// extract axes name for header
-		if (first_chunk and local_row == 0) {
-			bool is_header = std::all_of(
-			    matching_formatters.begin(), matching_formatters.end(), [](const auto& f) {
-				    return std::all_of(f.begin(), f.end(), [](bool v) { return not v; });
-			    });
-			if (is_header) {
-				size_t col = 0;
-				for (PVCore::PVField const& field : fields) {
-					std::string f(field.begin(), field.end());
-					_names[col] = f;
-					std::fill(matching_formatters[col].begin(), matching_formatters[col].end(),
-					          true);
-					col++;
-				}
-				std::fill(valued.begin(), valued.end(), false);
-			}
 		}
 		local_row++;
 	}
@@ -428,6 +426,11 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 			}
 			_valued[col] = _valued[col] or valued[col];
 		}
+		if (not first_row.empty()) {
+			_first_row = std::move(first_row);
+			_first_row_matching = std::move(first_row_matching);
+			_first_row_valued = std::move(first_row_valued);
+		}
 		_row_count += elts.size();
 		_out_size += chunk->get_init_size();
 	}
@@ -439,23 +442,64 @@ void PVRush::PVTypesDiscoveryOutput::job_has_finished(const PVControllerJob::inv
 {
 	assert(_matching_formatters.size() == _column_count);
 
-	// a column with no value in the sample has no type to read it with but text
-	const auto typed = [this](size_t col) {
-		return _valued[col] and std::ranges::any_of(_matching_formatters[col], std::identity());
+	// the type of a column, of those after the first row: none for a column with no value
+	// in the sample, which has no type to read it with but text
+	const auto type_of = [this](size_t col) -> std::optional<size_t> {
+		if (not _valued[col]) {
+			return {};
+		}
+		const auto found = std::ranges::find(_matching_formatters[col], true);
+		if (found == _matching_formatters[col].end()) {
+			return {};
+		}
+		return size_t(found - _matching_formatters[col].begin());
 	};
 	bool not_all_strings = false;
 	for (size_t col = 0; col < _column_count; col++) {
-		not_all_strings = not_all_strings or typed(col);
+		not_all_strings = not_all_strings or type_of(col);
 	}
+
+	// The first row names the columns when it holds no value a type reads, as names
+	// rarely are numbers or dates, or when a column of numbers or dates does not read the
+	// value it holds there: "id" above integers, or "2024" above the decimals of a year.
+	// The values it holds nothing in, or the "-" or "NULL" of a missing value, tell nothing.
+	bool names_only = true;
+	bool named = false;
+	bool inconsistent = false;
+	for (size_t col = 0; col < _first_row.size(); col++) {
+		if (not _first_row_valued[col]) {
+			continue;
+		}
+		named = true;
+		names_only = names_only and std::ranges::none_of(_first_row_matching[col], std::identity());
+		const std::optional<size_t> type = type_of(col);
+		inconsistent = inconsistent or (type and not _first_row_matching[col][*type]);
+	}
+	const bool has_header = named and not_all_strings and (names_only or inconsistent);
+
+	if (has_header) {
+		_names = _first_row;
+	} else {
+		for (size_t col = 0; col < _first_row.size(); col++) {
+			if (_first_row_valued[col]) {
+				_valued[col] = true;
+				for (size_t idx = 0; idx < _formatters.size(); idx++) {
+					_matching_formatters[col][idx] =
+					    _matching_formatters[col][idx] and _first_row_matching[col][idx];
+				}
+			}
+		}
+	}
+	const auto typed = [&type_of](size_t col) { return type_of(col).has_value(); };
 
 	for (size_t col = 0; col < _column_count; col++) {
 
 		bool formatter_found = false;
 		std::string col_name =
-		    not_all_strings ? ((col == 0 and not _names[col].empty() and _names[col][0] == '#')
-		                           ? _names[col].substr(1, _names[col].size() - 1)
-		                           : _names[col])
-		                    : "";
+		    has_header ? ((col == 0 and not _names[col].empty() and _names[col][0] == '#')
+		                      ? _names[col].substr(1, _names[col].size() - 1)
+		                      : _names[col])
+		               : "";
 
 		for (size_t idx = 0; typed(col) and idx < _formatters.size(); idx++) {
 			if (_matching_formatters[col][idx]) {

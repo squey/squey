@@ -93,9 +93,14 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 	std::vector<notation> _notations;
 	types_desc_t _types_desc;
 	std::vector<std::string> _names;
+	/// the types that read each column, from the rows after the first one
 	matching_formatters_t _matching_formatters;
 	/// whether the sample holds a value in each column, rather than none or missing ones
 	std::vector<bool> _valued;
+	/// the first row, which may name the columns, apart from the others until that is settled
+	std::vector<std::string> _first_row;
+	matching_formatters_t _first_row_matching;
+	std::vector<bool> _first_row_valued;
 	size_t _column_count = 0;
 	size_t _row_count = 0;
 };

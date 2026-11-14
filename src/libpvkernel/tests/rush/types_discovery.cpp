@@ -81,8 +81,11 @@ QDomDocument csv_format(size_t columns)
 /**
  * Runs the autodetection on a CSV of @p rows rows, the column @p c of row @p r holding
  * the value @p r of the column, round and round, and checks the type of each column.
+ *
+ * @param header whether the names of the columns come first, which the autodetection has
+ *               to tell, or the file only holds values
  */
-void check_types(const std::vector<column>& columns, size_t rows)
+void check_types(const std::vector<column>& columns, size_t rows, bool header = true)
 {
 	const QString path_qs =
 	    PVCore::mkstemp(PVRush::PVNrawCacheManager::nraw_dir() + "/types_discovery_XXXXXX.csv");
@@ -90,7 +93,7 @@ void check_types(const std::vector<column>& columns, size_t rows)
 	const std::string path = path_qs.toStdString();
 	{
 		std::ofstream out(path);
-		for (size_t r = 0; r <= rows; r++) {
+		for (size_t r = header ? 0 : 1; r <= rows; r++) {
 			for (size_t i = 0; i < columns.size(); i++) {
 				const column& c = columns[i];
 				const std::string& value = r == 0 ? c.name : c.values[(r - 1) % c.values.size()];
@@ -118,7 +121,7 @@ void check_types(const std::vector<column>& columns, size_t rows)
 
 	for (size_t i = 0; i < columns.size(); i++) {
 		const auto [type, type_format, name] = types.type_desc(PVCol(i));
-		PV_VALID(name, columns[i].name);
+		PV_VALID(name, header ? columns[i].name : std::string(), "column", columns[i].name);
 		PV_VALID(type, columns[i].type, "column", columns[i].name);
 		PV_VALID(type_format, columns[i].type_format, "column", columns[i].name);
 	}
@@ -232,6 +235,31 @@ void check_date_formats()
 }
 
 /**
+ * The first row names the columns when it holds no number or date, or when a column of
+ * numbers or dates does not read what it holds there, which then rules no type out
+ */
+void check_header()
+{
+	check_types({{"id", {"1", "2", "3"}, "number_uint32", ""},
+	             {"2023", {"1.5", "2.5"}, "number_double", "%.15g"},
+	             {"2024", {"3.5", "4.5"}, "number_double", "%.15g"}},
+	            100);
+	check_types({{"", {"1", "2", "3"}, "number_uint32", ""},
+	             {"name", {"alpha", "bravo"}, "string", ""},
+	             {"when", {"2024-01-01 10:00:00"}, "time", "yyyy-M-d H:m:s"}},
+	            100);
+
+	// values only, the first row as the others
+	check_types({{"id", {"1", "2", "3"}, "number_uint32", ""},
+	             {"price", {"1.5", "2.5"}, "number_double", "%.15g"},
+	             {"name", {"alpha", "bravo"}, "string", ""}},
+	            100, false);
+	check_types({{"qty", {"NULL", "2", "3"}, "number_uint32", ""},
+	             {"price", {"1.5", "2.5"}, "number_double", "%.15g"}},
+	            100, false);
+}
+
+/**
  * The fields a line lacks are empty, and rule no type out
  */
 void check_short_lines()
@@ -254,6 +282,7 @@ int main()
 	check_number_notations();
 	check_missing_values();
 	check_date_formats();
+	check_header();
 	check_short_lines();
 
 	return 0;
