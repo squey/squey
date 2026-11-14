@@ -50,6 +50,10 @@ int main()
 	    {R"(4,5" x 7",8)", R"('4','5" x 7"','8')"},
 	    // quotes inside a value that is not quoted still hold separators
 	    {R"(9,key="a,b",10)", R"('9','key="a,b"','10')"},
+	    // two quotes in a row inside quotes stand for one
+	    {R"(11,"He said ""hi""",12)", R"('11','He said "hi"','12')"},
+	    {R"(13,"""quoted""",14)", R"('13','"quoted"','14')"},
+	    {R"(15,"",16)", R"('15','','16')"},
 	};
 
 	const QString path_qs =

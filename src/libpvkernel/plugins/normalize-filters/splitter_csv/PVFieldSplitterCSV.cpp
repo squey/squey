@@ -93,7 +93,6 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 		return one_to_many_escaped(l, it_ins, field);
 	}
 
-	// FIXME : We should handle double Quote as escaped quote
 	char* cstr = field.begin();
 	char* b;
 	size_t n = 0;
@@ -104,6 +103,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			i++;
 			// quoted value
 			b = cstr + i;
+			bool doubled_quote = false;
 
 			while (true) {
 				i = std::find(cstr + i, cstr + field.size(), _quote) - cstr;
@@ -126,9 +126,7 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 				}
 
 				if (cstr[i + 1] == _quote) {
-					/* we have found a doubled quote, moving after them
-					 * to integrate them in the field
-					 */
+					doubled_quote = true;
 					i += 2;
 					continue;
 				}
@@ -143,7 +141,18 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			}
 
 			// a quote, adding the new element
-			l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
+			char* value_end = cstr + i;
+			if (doubled_quote and not _guessing) {
+				// two quotes in a row stand for one, unquoted in place as the line is ours
+				value_end = b;
+				for (char* c = b; c != cstr + i; ++c) {
+					*value_end++ = *c;
+					if (*c == _quote and c + 1 != cstr + i and c[1] == _quote) {
+						++c;
+					}
+				}
+			}
+			l.emplace(it_ins, *field.elt_parent(), b, value_end);
 			n++;
 
 			// moving after the quote
@@ -305,6 +314,8 @@ bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVFie
 	bool ok = false;
 
 	_fields_expected = std::numeric_limits<size_t>::max();
+	// every separator splits the same line, which therefore has to stay as it is
+	_guessing = true;
 
 	for (const auto separator : common_separators) {
 		PVCore::list_fields lf;
@@ -318,6 +329,7 @@ bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVFie
 			ok = true;
 		}
 	}
+	_guessing = false;
 
 	return ok;
 }

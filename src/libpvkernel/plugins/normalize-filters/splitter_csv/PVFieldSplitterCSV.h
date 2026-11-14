@@ -64,7 +64,8 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 
 	char _sep = ',';
 	char _quote = '"';
-	char _escape = '\0'; ///< escape character (0 = disabled, i.e. plain CSV split)
+	char _escape = '\0';    ///< escape character (0 = disabled, i.e. plain CSV split)
+	bool _guessing = false; ///< whether one_to_many() splits a line for guess()
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterCSV)
 };
