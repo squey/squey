@@ -35,6 +35,7 @@
 #include "common.h"
 
 #include <cstdio>
+#include <cstring>
 #include <fstream>
 #include <memory>
 #include <string>
@@ -98,11 +99,53 @@ static void check_utf8_after_an_ascii_chunk()
 	std::remove(path.c_str());
 }
 
+/**
+ * Memory an allocator hands out again holds what was there before: line feeds, say,
+ * from the chunks of another file.
+ */
+template <class T>
+struct recycled_allocator : std::allocator<T> {
+	template <class U>
+	struct rebind {
+		using other = recycled_allocator<U>;
+	};
+
+	recycled_allocator() = default;
+	template <class U>
+	explicit recycled_allocator(const recycled_allocator<U>&)
+	{
+	}
+
+	T* allocate(size_t n)
+	{
+		T* p = std::allocator<T>::allocate(n);
+		std::memset(static_cast<void*>(p), '\n', n * sizeof(T));
+		return p;
+	}
+};
+
+/**
+ * The lines are cut at the last line feed the data read holds, wherever the chunks end
+ */
+static void check_line_ends_in_recycled_memory()
+{
+	std::vector<std::string> lines;
+	for (size_t i = 0; i < 8 * chunk_size / 32; i++) {
+		lines.push_back(std::to_string(i) + "," + std::string(i % 61, 'x'));
+	}
+	const std::string path = written(lines);
+
+	check_lines(lines_read<recycled_allocator>(path), lines);
+
+	std::remove(path.c_str());
+}
+
 int main()
 {
 	pvtest::init_ctxt();
 
 	check_utf8_after_an_ascii_chunk();
+	check_line_ends_in_recycled_memory();
 
 	return 0;
 }

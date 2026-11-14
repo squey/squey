@@ -32,6 +32,9 @@
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
 
+#include <algorithm>
+#include <iterator>
+
 namespace PVRush
 {
 
@@ -242,17 +245,13 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 			extra_char = 3;
 		}
 
-		// FIXME : This is a manual "reverse find" as reverse_iterator appear only with C++14
-		char* last = nullptr;
-		for (char* it = begin + len; it != begin; --it) {
-			if (*it == '\n') {
-				last = it;
-				break;
-			}
-		}
-		if (last == nullptr) {
+		const std::reverse_iterator<char*> rbegin(begin + len);
+		const std::reverse_iterator<char*> rend(begin);
+		const auto found = std::find(rbegin, rend, '\n');
+		if (found == rend) {
 			return nullptr;
 		}
+		char* last = std::prev(found.base());
 
 		assert(_chunk_size % 8 == 0 && "To be sure last + extra_char is in 'read' data");
 		return last + 1 + extra_char;
