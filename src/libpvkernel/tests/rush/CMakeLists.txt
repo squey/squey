@@ -28,6 +28,10 @@ pv_add_test_conv_utf8("charset/viscii" 10048576)
 add_squey_compile_test(Trush_unicode_source LINKS ${LINK_LIBRARIES} FILES unicode_source.cpp)
 add_squey_test(Trush_unicode_source Trush_unicode_source)
 
+# Where the records of a CSV end, and how its quoted values read
+add_squey_compile_test(Trush_csv_records LINKS ${LINK_LIBRARIES} FILES csv_records.cpp)
+add_squey_test(Trush_csv_records Trush_csv_records)
+
 # Test the aggregator
 add_squey_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
 add_squey_test(TestAggregator1 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
@@ -97,6 +101,11 @@ add_squey_test(Trush_splitter_csv3 Trush_splitter_csv ${PVRUSH_TEST_FILES}/split
 add_squey_test(Trush_splitter_csv4 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv.out 20)
 add_squey_compile_test(Trush_splitter_csv_quotes LINKS ${LINK_LIBRARIES} FILES splitter_csv_quotes.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_quotes Trush_splitter_csv_quotes)
+
+# The values a CSV imports whose quoted values hold line feeds
+add_squey_compile_test(Trush_csv_quoted_line_feeds LINKS ${LINK_LIBRARIES} FILES csv_quoted_line_feeds.cpp)
+add_squey_test(Trush_csv_quoted_line_feeds Trush_csv_quoted_line_feeds)
+
 # tshark -Tfields escape mode: escaped separators must not shift columns (argv[4]=92 is '\')
 add_squey_test(Trush_splitter_csv_tshark Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv.out 3 92)
 

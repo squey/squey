@@ -38,16 +38,19 @@
 #include <cstring>
 #include <fstream>
 #include <memory>
+#include <optional>
 #include <string>
 #include <vector>
 
 static constexpr size_t chunk_size = 4096;
 
 template <template <class T> class Allocator>
-static std::vector<std::string> lines_read(const std::string& path)
+static std::vector<std::string> lines_read(const std::string& path,
+                                           std::optional<PVRush::PVCSVQuoting> quoting = {})
 {
 	PVRush::PVUnicodeSource<Allocator> source(std::make_shared<PVRush::PVInputFile>(path.c_str()),
 	                                          chunk_size);
+	source.set_quoting(quoting);
 	std::vector<std::string> lines;
 	while (PVCore::PVChunk* chunk = source()) {
 		for (PVCore::PVElement* line : static_cast<PVCore::PVTextChunk*>(chunk)->c_elements()) {
@@ -165,6 +168,69 @@ static void check_converted_lines()
 	std::remove(path.c_str());
 }
 
+/**
+ * The quoted values of a CSV hold line feeds, wherever the chunks end, also once converted
+ * from another charset
+ */
+static void check_quoted_line_feeds()
+{
+	const PVRush::PVCSVQuoting csv{',', '"'};
+
+	std::vector<std::string> records;
+	for (size_t i = 0; i < 8 * chunk_size / 32; i++) {
+		const std::string text =
+		    std::string(i % 37, 'x') + "\n" + std::string(i % 23, 'y') + (i % 3 ? "" : "\"\"");
+		records.push_back(std::to_string(i) + ",\"" + text + "\",plain," +
+		                  (i % 5 ? "z" : "\"\"\"\r\n\""));
+	}
+	records.emplace_back("last,\"one\nwithout a line feed after\"");
+	const std::string path = written(records, "");
+
+	check_lines(lines_read<PVCore::PVMMapAllocator>(path, csv), records);
+
+	// a file the first read holds whole, whose last quote ends it
+	for (const std::vector<std::string>& small :
+	     {std::vector<std::string>{"\"a\",\"b\""}, {"1,2", "3,\"x\ny\""}}) {
+		const std::string small_path = written(small, "");
+		check_lines(lines_read<PVCore::PVMMapAllocator>(small_path, csv), small);
+		std::remove(small_path.c_str());
+	}
+
+	// the lines of the same file, without quoting
+	std::vector<std::string> lines;
+	for (const std::string& record : records) {
+		for (size_t begin = 0, end; begin != std::string::npos; begin = end) {
+			end = record.find('\n', begin);
+			lines.push_back(record.substr(begin, end - begin));
+			end = end == std::string::npos ? end : end + 1;
+		}
+	}
+	for (std::string& line : lines) {
+		if (not line.empty() and line.back() == '\r') {
+			line.pop_back();
+		}
+	}
+	check_lines(lines_read<PVCore::PVMMapAllocator>(path), lines);
+
+	std::remove(path.c_str());
+
+	// in ISO-8859-1, which the source converts to UTF-8
+	std::vector<std::string> latin1;
+	std::vector<std::string> utf8;
+	for (size_t i = 0; i < 4 * chunk_size / 32; i++) {
+		latin1.push_back(std::to_string(i) +
+		                 ",\"la r\xe9union a eu lieu\npr\xe8s du caf\xe9\",d\xe9j\xe0 vu");
+		utf8.push_back(std::to_string(i) + ",\"la réunion a eu lieu\nprès du café\",déjà vu");
+	}
+	latin1.emplace_back("fin,\"derni\xe8re ligne\nsans fin de ligne\"");
+	utf8.emplace_back("fin,\"dernière ligne\nsans fin de ligne\"");
+	const std::string latin1_path = written(latin1, "");
+
+	check_lines(lines_read<PVCore::PVMMapAllocator>(latin1_path, csv), utf8);
+
+	std::remove(latin1_path.c_str());
+}
+
 int main()
 {
 	pvtest::init_ctxt();
@@ -172,6 +238,7 @@ int main()
 	check_utf8_after_an_ascii_chunk();
 	check_line_ends_in_recycled_memory();
 	check_converted_lines();
+	check_quoted_line_feeds();
 
 	return 0;
 }

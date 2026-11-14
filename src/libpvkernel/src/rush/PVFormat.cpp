@@ -635,6 +635,26 @@ PVRush::PVFormat::xmldata_to_filter(PVRush::PVXmlParamParserData const& fdata) c
 	return filter_clone;
 }
 
+std::optional<PVRush::PVCSVQuoting> PVRush::PVFormat::csv_quoting() const
+{
+	if (filters_params.empty()) {
+		return {};
+	}
+	const PVRush::PVXmlParamParserData& first = filters_params.front();
+	if (first.axis_id != 0 or first.filter_lib->registered_name() != "splitter_csv") {
+		return {};
+	}
+	const PVCore::PVArgumentList& args = first.filter_args;
+	const auto character = [&args](const char* name) {
+		return args.contains(name) ? args.at(name).toChar().toLatin1() : '\0';
+	};
+	// the escaped CSV of tshark knows no quote
+	if (character("quote") == '\0' or character("escape") != '\0') {
+		return {};
+	}
+	return PVCSVQuoting{character("sep"), character("quote")};
+}
+
 PVFilter::PVChunkFilterByElt PVRush::PVFormat::create_tbb_filters() const
 {
 	return PVFilter::PVChunkFilterByElt{create_tbb_filters_elt()};

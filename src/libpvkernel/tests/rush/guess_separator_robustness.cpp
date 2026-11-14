@@ -121,6 +121,15 @@ void check_irregular_lines()
 		                       : n(i) + ",\"word\"," + n(i);
 	    },
 	    ',', 3);
+	check_guess(
+	    "messages spanning lines", "\"TimeCreated\",\"Id\",\"Message\"",
+	    [](size_t i) {
+		    return "\"" + datetime(i) +
+		           "\",\"4624\",\"An account was successfully logged on.\n\nSubject:\n"
+		           "\tSecurity ID:\t\tS-1-5-18\n\tAccount Name:\t\tDESKTOP$\n"
+		           "\tAccount Domain:\t\tWORKGROUP\n\nLogon Type:\t\t5\"";
+	    },
+	    ',', 3);
 	// a quote that each line opens and nothing closes is a mere character
 	check_guess(
 	    "quotes that never close", "id,path,n",

@@ -40,11 +40,13 @@
 #include <pvkernel/filter/PVChunkFilterByElt.h>
 #include <pvkernel/filter/PVElementFilter.h>
 #include <pvkernel/filter/PVFieldsFilter.h>
+#include <pvkernel/rush/PVCSVRecords.h>
 #include <pvkernel/rush/PVXmlParamParser.h>
 #include <pvkernel/rush/PVFormat_types.h>
 
 #include <pvcop/formatter_desc_list.h>
 
+#include <optional>
 #include <unordered_set>
 
 /**
@@ -109,6 +111,11 @@ class PVFormat
 	void debug() const;
 
 	PVFilter::PVChunkFilterByElt create_tbb_filters() const;
+	/**
+	 * The quoting of the CSV splitter the format splits whole lines with, if it begins with
+	 * one: its quoted values may hold line feeds.
+	 */
+	std::optional<PVCSVQuoting> csv_quoting() const;
 	std::unique_ptr<PVFilter::PVElementFilter> create_tbb_filters_elt() const;
 
 	static QHash<QString, PVRush::PVFormat> list_formats_in_dir(QString const& format_name_prefix,

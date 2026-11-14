@@ -25,7 +25,11 @@
 
 #include <pvkernel/rush/PVCSVRecords.h>
 
+#include <simde/x86/sse2.h>
+
 #include <algorithm>
+#include <bit>
+#include <cstdint>
 #include <cstring>
 
 namespace
@@ -100,6 +104,33 @@ reading read_quoted_value(const char* begin,
 	}
 }
 
+/**
+ * The bytes of a block of 64 equal to the one @p c repeats, as the bits of a mask
+ */
+uint64_t equal_mask(const simde__m128i (&block)[4], simde__m128i c)
+{
+	uint64_t mask = 0;
+	for (int i = 0; i < 4; i++) {
+		const auto bits = uint16_t(simde_mm_movemask_epi8(simde_mm_cmpeq_epi8(block[i], c)));
+		mask |= uint64_t(bits) << (16 * i);
+	}
+	return mask;
+}
+
+/**
+ * Each bit of @p x xor the ones below it: the bytes a quote opens or closes the quotes of
+ */
+uint64_t prefix_xor(uint64_t x)
+{
+	x ^= x << 1;
+	x ^= x << 2;
+	x ^= x << 4;
+	x ^= x << 8;
+	x ^= x << 16;
+	x ^= x << 32;
+	return x;
+}
+
 } // namespace
 
 PVRush::PVQuotedValueEnd PVRush::quoted_value_end(
@@ -127,4 +158,138 @@ char* PVRush::unescape_quoted_value(char* begin, char* end, char quote, bool bac
 		*w++ = *r;
 	}
 	return w;
+}
+
+const char*
+PVRush::PVCSVRecords::record_end(const char* begin, const char* end, bool more_data) const
+{
+	using status = PVQuotedValueEnd::status;
+
+	const char* p = begin;
+	const char* lf = find(p, end, '\n');
+	while (true) {
+		const char* const quote = find(p, lf, _quoting.quote);
+		if (quote == lf) {
+			return (lf == end and more_data) ? nullptr : lf;
+		}
+		p = quote + 1;
+		if (quote != begin and quote[-1] != _quoting.separator) {
+			// a quote within a value is a mere character
+			continue;
+		}
+		const PVQuotedValueEnd value =
+		    quoted_value_end(p, end, _quoting, more_data, max_quoted_lines);
+		if (value.state == status::undecided) {
+			return nullptr;
+		}
+		if (value.state == status::closed) {
+			p = value.quote + 1;
+			if (p > lf) {
+				lf = find(p, end, '\n');
+			}
+		}
+	}
+}
+
+const char* PVRush::PVCSVRecords::split_blocks(const char* record,
+                                               const char* end,
+                                               std::vector<const char*>& ends,
+                                               const char*& stop) const
+{
+	const simde__m128i quote = simde_mm_set1_epi8(_quoting.quote);
+	const simde__m128i separator = simde_mm_set1_epi8(_quoting.separator);
+	const simde__m128i lf = simde_mm_set1_epi8('\n');
+	const simde__m128i cr = simde_mm_set1_epi8('\r');
+
+	bool inside = false;         // whether a quoted value holds the beginning of the block
+	bool after_delimiter = true; // whether a field may begin with the block
+	size_t quoted_lines = 0;     // the line feeds the quoted values of the record hold so far
+
+	// a block needs the byte after it, which tells whether its last quote closes a value
+	for (const char* p = record; end - p > 64; p += 64) {
+		simde__m128i block[4];
+		for (int i = 0; i < 4; i++) {
+			block[i] = simde_mm_loadu_si128(reinterpret_cast<const simde__m128i*>(p + 16 * i));
+		}
+		const uint64_t quotes = equal_mask(block, quote);
+		const uint64_t lfs = equal_mask(block, lf);
+
+		if (quotes == 0 and not inside) {
+			for (uint64_t ends_mask = lfs; ends_mask != 0; ends_mask &= ends_mask - 1) {
+				ends.push_back(p + std::countr_zero(ends_mask));
+				record = ends.back() + 1;
+			}
+			quoted_lines = lfs != 0 ? 0 : quoted_lines;
+			after_delimiter = p[63] == _quoting.separator or p[63] == '\n';
+			continue;
+		}
+
+		const uint64_t separators = equal_mask(block, separator);
+		// the bytes quotes hold, the quote closing them included, and before it
+		const uint64_t inside_after = prefix_xor(quotes) ^ (inside ? ~uint64_t(0) : 0);
+		const uint64_t inside_before = inside_after ^ quotes;
+		const uint64_t delimiters = separators | lfs | quotes;
+
+		// A quote opens a value at the beginning of a field, or opens it again after the
+		// first of two quotes standing for one; it closes a value before a separator, a
+		// line break, or the second of two quotes. Anything else is for record_end().
+		const uint64_t field_beginnings = (delimiters << 1) | uint64_t(after_delimiter);
+		const char next = p[64];
+		const bool next_follows =
+		    next == _quoting.separator or next == '\n' or next == '\r' or next == _quoting.quote;
+		uint64_t closings_followed = (delimiters >> 1) | (uint64_t(next_follows) << 63);
+		if ((quotes & inside_before & ~closings_followed) != 0) {
+			// the carriage returns of the line breaks
+			closings_followed |= equal_mask(block, cr) >> 1;
+		}
+		const uint64_t quoted_lfs = lfs & inside_after;
+		if ((quotes & ~inside_before & ~field_beginnings) != 0 or
+		    (quotes & inside_before & ~closings_followed) != 0 or
+		    quoted_lines + size_t(std::popcount(quoted_lfs)) > max_quoted_lines) {
+			stop = p + 64;
+			return record;
+		}
+
+		const uint64_t record_lfs = lfs & ~inside_after;
+		for (uint64_t ends_mask = record_lfs; ends_mask != 0; ends_mask &= ends_mask - 1) {
+			ends.push_back(p + std::countr_zero(ends_mask));
+			record = ends.back() + 1;
+		}
+		if (record_lfs != 0) {
+			// the line feeds quoted after the last record ended
+			const int last = 63 - std::countl_zero(record_lfs);
+			quoted_lines = size_t(std::popcount(quoted_lfs >> last));
+		} else {
+			quoted_lines += size_t(std::popcount(quoted_lfs));
+		}
+		inside = (inside_after >> 63) != 0;
+		after_delimiter = (delimiters >> 63) != 0;
+	}
+	stop = end;
+	return record;
+}
+
+const char* PVRush::PVCSVRecords::split(const char* begin,
+                                        const char* end,
+                                        bool more_data,
+                                        std::vector<const char*>& ends) const
+{
+	const char* record = begin;
+	// record_end() reads the records beginning before, which split_blocks() could not
+	const char* scalar_until = begin;
+	while (record != end) {
+		if (record >= scalar_until) {
+			record = split_blocks(record, end, ends, scalar_until);
+			if (record == end) {
+				break;
+			}
+		}
+		const char* const record_end = this->record_end(record, end, more_data);
+		if (record_end == nullptr) {
+			return record;
+		}
+		ends.push_back(record_end);
+		record = record_end == end ? end : record_end + 1;
+	}
+	return end;
 }

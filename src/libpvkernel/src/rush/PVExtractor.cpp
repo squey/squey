@@ -56,6 +56,7 @@ PVRush::PVExtractor::PVExtractor(const PVRush::PVFormat& format,
 		_max_value += src->get_size();
 		_agg.add_input(src);
 	}
+	_agg.set_sources_quoting(_format.csv_quoting());
 	/* the number of live TBB tokens in a pipeline does not need to be bigger than the
 	 * number of used cores (it was previously set to 5 * cores_number): That multiplier
 	 * does not have any impact on the import time but it increases the memory

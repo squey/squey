@@ -89,11 +89,12 @@ class PVGuessReducingTree
 
   public:
 	/**
-	 * Counts a line the argument list @p al splits into @p nfields fields.
+	 * Counts a record of @p lines lines the argument list @p al splits into @p nfields
+	 * fields.
 	 *
 	 * @param quality how many of the fields are plausible values, from 0 to @p nfields
 	 */
-	void add(const PVCore::PVArgumentList& al, const size_t nfields, double quality)
+	void add(const PVCore::PVArgumentList& al, const size_t nfields, double quality, size_t lines)
 	{
 		if (nfields == 0) {
 			return;
@@ -111,9 +112,9 @@ class PVGuessReducingTree
 			it = _data_map.insert(str, data_t{al, {}, size_t(_data_map.size())});
 		}
 		count_t& count = it->counts[nfields];
-		count.lines += 1;
-		count.quality += quality;
-		count.fields += nfields;
+		count.lines += int(lines);
+		count.quality += quality * double(lines);
+		count.fields += nfields * lines;
 	}
 
 	/**
@@ -145,9 +146,9 @@ class PVGuessReducingTree
 	 * apart into, and drops the argument lists for which that number is not regular.
 	 *
 	 * A few irregular lines do not rule an argument list out: a comment line or a total
-	 * at the end of the file, a value holding the separator that nobody quoted, a record
-	 * cut in two by a line feed inside quotes. The splitter reads them anyway, padding
-	 * the lines short of fields and leaving the excess in the last one.
+	 * at the end of the file, a value holding the separator that nobody quoted. The
+	 * splitter reads them anyway, padding the lines short of fields and leaving the excess
+	 * in the last one.
 	 *
 	 * @param sampled_lines the number of lines of the sample, whether split or not
 	 */
@@ -245,6 +246,26 @@ class PVGuessReducingTree
 };
 } // namespace PVFilter
 
+/**
+ * How many lines push_chunk() counts in the sample that the record [@p begin, @p end) holds:
+ * a record the splitter read across several lines stands for all of them.
+ */
+static size_t sampled_lines(const char* begin, const char* end)
+{
+	size_t lines = 0;
+	for (const char* line = begin;; ++line) {
+		const char* const lf = std::find(line, end, '\n');
+		if (lf != line and not(lf == line + 1 and *line == '\r')) {
+			++lines;
+		}
+		if (lf == end) {
+			break;
+		}
+		line = lf;
+	}
+	return std::max<size_t>(lines, 1);
+}
+
 void PVFilter::PVFieldSplitterChunkMatch::push_chunk(PVCore::PVChunk* c)
 {
 	auto* chunk = dynamic_cast<PVCore::PVTextChunk*>(c);
@@ -279,7 +300,10 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 	PVFilter::list_guess_result_t::iterator it;
 
 	for (it = _guess_res.begin(); it != _guess_res.end(); it++) {
-		red.add(it->first, it->second.size(), _filter->guess_quality(it->first, it->second));
+		const PVCore::list_fields& fields = it->second;
+		const size_t lines =
+		    fields.empty() ? 1 : sampled_lines(fields.front().begin(), fields.back().end());
+		red.add(it->first, fields.size(), _filter->guess_quality(it->first, fields), lines);
 	}
 
 	red.reduce(_sampled_lines);

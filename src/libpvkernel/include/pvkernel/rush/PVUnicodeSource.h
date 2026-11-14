@@ -25,6 +25,7 @@
 #ifndef PVRUSH_PVUNICODESOURCE_FILE_H
 #define PVRUSH_PVUNICODESOURCE_FILE_H
 
+#include <pvkernel/rush/PVCSVRecords.h>
 #include <pvkernel/rush/PVCharsetDetect.h>
 #include <pvkernel/rush/PVConverter.h>
 #include <pvkernel/rush/PVInput.h>
@@ -36,6 +37,8 @@
 
 #include <algorithm>
 #include <iterator>
+#include <optional>
+#include <vector>
 
 namespace PVRush
 {
@@ -106,6 +109,14 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 		return dynamic_cast<PVRush::PVInputFile*>(_input.get())->file_size();
 	}
 
+	void set_quoting(std::optional<PVCSVQuoting> quoting) override
+	{
+		_records.reset();
+		if (quoting) {
+			_records.emplace(*quoting);
+		}
+	}
+
 	/**
 	 * Add element [begin, it[ as current chunk elements.
 	 *
@@ -137,6 +148,21 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	 */
 	void create_elements(char* begin, char* end)
 	{
+		// what get_records_end() found, unless the data was converted or read further since
+		const bool split = begin == _records_from and end == _records_until and _charset == "UTF-8";
+		_records_from = nullptr;
+		if (quoted_records()) {
+			if (not split) {
+				_record_ends.clear();
+				_records->split(begin, end, false, _record_ends);
+			}
+			for (const char* record_end : _record_ends) {
+				add_element(begin, const_cast<char*>(record_end));
+				begin = const_cast<char*>(record_end) + 1;
+			}
+			return;
+		}
+
 		auto it = begin;
 		while ((it = std::find(begin, end, '\n')) != end) {
 			add_element(begin, it);
@@ -264,6 +290,36 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	}
 
 	/**
+	 * Whether the records end where their quoted values let them, rather than at each line
+	 * feed
+	 */
+	bool quoted_records() const
+	{
+		// UTF-16 and UTF-32 may write a quote or a line feed with other bytes
+		return _records and _charset.find("UTF-16") == std::string::npos and
+		       _charset.find("UTF-32") == std::string::npos;
+	}
+
+	/**
+	 * The end of the last record [@p begin, @p end) holds whole, after its line feed, or
+	 * nullptr if it holds none.
+	 *
+	 * @param read where the data read last begins, which the line feeds are
+	 * looked for in when no quote decides where the records end
+	 */
+	char* get_records_end(char* begin, char* end, char* read)
+	{
+		if (not quoted_records()) {
+			return get_end_from_charset(read, size_t(end - read));
+		}
+		_records_from = begin;
+		_record_ends.clear();
+		char* const last = const_cast<char*>(_records->split(begin, end, true, _record_ends));
+		_records_until = last;
+		return last == begin ? nullptr : last;
+	}
+
+	/**
 	 * Refill Chunk buffer with UTF-8 data and return new end position for the buffer
 	 */
 	char* convert_buffer(char* begin, char* end)
@@ -285,10 +341,8 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
 			UErrorCode status = U_ZERO_ERROR;
 
-			PVConverter target_converter(
-			    ucnv_clone(&_utf8_converter.get(), &status));
-			PVConverter source_converter(
-			    ucnv_clone(&_origin_converter->get(), &status));
+			PVConverter target_converter(ucnv_clone(&_utf8_converter.get(), &status));
+			PVConverter source_converter(ucnv_clone(&_origin_converter->get(), &status));
 
 			status = U_ZERO_ERROR;
 
@@ -352,6 +406,8 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	 */
 	PVCore::PVTextChunk* operator()() override
     {
+        _records_from = nullptr;
+
         // Try to read data into current chunk
         char* begin_read = _curc->end();
         size_t r, c;
@@ -376,7 +432,7 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
         char* b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
         char* buffer_end = _curc->end() + r;
-        char* end = get_end_from_charset(_curc->begin(), _curc->size() + r);
+        char* end = get_records_end(b, buffer_end, _curc->begin());
 
         // Ensure we find a line ending or EOF
         while (end == nullptr) {
@@ -393,7 +449,7 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
                 if (r == 0) {
                     end = buffer_end; // EOF
                 } else {
-                    end = get_end_from_charset(buffer_end - r, r);
+                    end = get_records_end(b, buffer_end, buffer_end - r);
                 }
             } else {
                 end = buffer_end;
@@ -466,6 +522,13 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	PVConverter _utf8_converter;                    //!< ICU converter to UTF 8
 	std::unique_ptr<PVConverter> _origin_converter; //!< ICU converter from origin charset
 	std::string _tmp_buf;                           //!< Temporary buffer use for charset conversion
+
+	std::optional<PVCSVRecords> _records;
+	/// the data get_records_end() split last, [_records_from, _records_until), and where
+	/// its records end
+	const char* _records_from = nullptr;
+	const char* _records_until = nullptr;
+	std::vector<const char*> _record_ends;
 };
 } // namespace PVRush
 

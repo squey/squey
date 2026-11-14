@@ -25,6 +25,7 @@
 
 #include "PVFieldSplitterCSV.h"
 
+#include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/rush/PVCSVRecords.h>
 
 #include <algorithm>
@@ -284,13 +285,45 @@ bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVFie
 	// every separator splits the same line, which therefore has to stay as it is
 	_guessing = true;
 
-	for (const auto separator : common_separators) {
-		PVCore::list_fields lf;
+	PVCore::PVElement& line = *in_field.elt_parent();
+	PVCore::PVTextChunk* const chunk = line.chunk_parent();
+	// the lines of a chunk follow one another in its buffer, line feeds included
+	const bool in_chunk =
+	    chunk != nullptr and line.begin() >= chunk->begin() and line.end() <= chunk->end();
+	if (chunk != _guessed_chunk) {
+		_guessed_chunk = chunk;
+		_guessed_records_end.assign(common_separators.size(), nullptr);
+	}
+
+	for (size_t s = 0; s < common_separators.size(); ++s) {
+		const char separator = common_separators[s];
+		const char*& guessed_record_end = _guessed_records_end[s];
+		if (in_chunk and in_field.begin() < guessed_record_end) {
+			// a line of a record read whole already
+			continue;
+		}
 
 		test_args["sep"] = QVariant(QChar(separator));
 		set_args(test_args);
 
-		if (one_to_many(lf, lf.begin(), in_field) > 1) {
+		// a record whose quoted values hold line feeds is read whole
+		PVCore::PVField record = in_field;
+		if (in_chunk) {
+			const char* const record_end = PVRush::PVCSVRecords({separator, _quote})
+			                                   .record_end(in_field.begin(), chunk->end(), false);
+			// past the line feed of the line, and the carriage return before it
+			if (record_end > in_field.end() + 1) {
+				guessed_record_end = record_end;
+				char* end = in_field.begin() + (record_end - in_field.begin());
+				if (end[-1] == '\r') {
+					--end;
+				}
+				record = PVCore::PVField(line, in_field.begin(), end);
+			}
+		}
+
+		PVCore::list_fields lf;
+		if (one_to_many(lf, lf.begin(), record) > 1) {
 			// We have a match
 			res.push_back(list_guess_result_t::value_type(test_args, lf));
 			ok = true;

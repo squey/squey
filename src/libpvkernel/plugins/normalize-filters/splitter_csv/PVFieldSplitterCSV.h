@@ -29,6 +29,13 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
+#include <vector>
+
+namespace PVCore
+{
+class PVTextChunk;
+}
+
 namespace PVFilter
 {
 
@@ -66,6 +73,11 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 	char _quote = '"';
 	char _escape = '\0';    ///< escape character (0 = disabled, i.e. plain CSV split)
 	bool _guessing = false; ///< whether one_to_many() splits a line for guess()
+
+	/// The chunk guess() reads the lines of, and where the last record each separator read
+	/// across several of them ends, which the lines before belong to.
+	const PVCore::PVTextChunk* _guessed_chunk = nullptr;
+	std::vector<const char*> _guessed_records_end;
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterCSV)
 };

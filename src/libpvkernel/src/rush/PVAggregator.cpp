@@ -214,3 +214,10 @@ void PVRush::PVAggregator::set_sources_number_fields(PVCol ncols)
 		raw_source->set_number_cols_to_reserve(ncols);
 	}
 }
+
+void PVRush::PVAggregator::set_sources_quoting(std::optional<PVCSVQuoting> quoting)
+{
+	for (auto& raw_source : _inputs) {
+		raw_source->set_quoting(quoting);
+	}
+}
