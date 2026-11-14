@@ -201,6 +201,13 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
 					PVLOG_DEBUG("Encoding found : %s\n", _charset.c_str());
 
+					// uchardet names a block of pure ASCII "ASCII". UTF-8 reads it the same,
+					// and also reads the UTF-8 of the blocks after it, which a conversion
+					// from ASCII would replace with U+FFFD.
+					if (_charset == "ASCII") {
+						_charset = "UTF-8";
+					}
+
 					bool remove_bom = false;
 					if (_charset.find("UTF") != _charset.npos) {
 						remove_bom = true;

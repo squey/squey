@@ -24,6 +24,10 @@ pv_add_test_conv_utf8("charset/windows1250" 10048576)
 pv_add_test_conv_utf8("charset/utf8_windows1252" 10048576)
 pv_add_test_conv_utf8("charset/viscii" 10048576)
 
+# The lines a text source cuts a file into, across the chunks it reads it in
+add_squey_compile_test(Trush_unicode_source LINKS ${LINK_LIBRARIES} FILES unicode_source.cpp)
+add_squey_test(Trush_unicode_source Trush_unicode_source)
+
 # Test the aggregator
 add_squey_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
 add_squey_test(TestAggregator1 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
