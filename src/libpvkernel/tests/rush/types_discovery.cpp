@@ -38,6 +38,7 @@
 
 #include <QDomDocument>
 
+#include <cinttypes>
 #include <cstdio>
 #include <fstream>
 #include <string>
@@ -163,6 +164,25 @@ void check_decimals()
 	            100);
 }
 
+/**
+ * A number type only takes the values it writes back as they are written
+ */
+void check_number_notations()
+{
+	check_types({{"zip", {"01234", "06000", "75001", "13008"}, "string", ""},
+	             {"phone", {"0634825892", "0738328553"}, "string", ""},
+	             {"word", {"cafe", "bad", "face", "d"}, "string", ""},
+	             {"hexadecimal", {"0x1F", "0xdeadbeef"}, "number_uint32", "0x%" PRIx32},
+	             {"zero", {"0", "10", "-3"}, "number_int32", ""},
+	             {"fraction", {"0.5", "-0.25"}, "number_double", "%.15g"}},
+	            100);
+
+	// a header holding a word an hexadecimal number reads is still a header
+	check_types({{"d", {"2024-02-23 10:00:00"}, "time", "yyyy-M-d H:m:s"},
+	             {"name", {"alpha", "bravo"}, "string", ""}},
+	            100);
+}
+
 } // namespace
 
 int main()
@@ -172,6 +192,7 @@ int main()
 	check_dates_read_whole();
 	check_types_across_chunks();
 	check_decimals();
+	check_number_notations();
 
 	return 0;
 }

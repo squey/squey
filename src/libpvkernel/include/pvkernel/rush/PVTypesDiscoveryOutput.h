@@ -63,6 +63,8 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 	using autodet_type_t = std::vector<std::pair<std::string, std::string>>; /* type, type_format */
 	using type_desc_t =
 	    std::tuple<std::string, std::string, std::string>; /* type, type_format, name */
+	/// How a type writes numbers back, which is how a value has to be written to be one
+	enum class notation { none, decimal, octal, hexadecimal };
 
   public:
 	// This is the output of a TBB pipeline
@@ -88,6 +90,7 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 
 	autodet_type_t _types;
 	std::vector<std::unique_ptr<pvcop::types::formatter_interface>> _formatters;
+	std::vector<notation> _notations;
 	types_desc_t _types_desc;
 	std::vector<std::string> _names;
 	matching_formatters_t _matching_formatters;

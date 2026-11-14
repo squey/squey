@@ -35,6 +35,8 @@
 #include <list>
 #include <mutex>
 #include <cinttypes> // PRIxxx macro
+#include <cctype>
+#include <string_view>
 
 #include "pvcop/db/128bits_support.h"
 #include "pvcop/formatter_desc.h"
@@ -184,6 +186,59 @@ static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()
 	return types;
 }
 
+/**
+ * Whether @p value is written as numbers of the notation @p n are written back.
+ *
+ * The number formatters read more than they write: an integer type reads the zip code
+ * "01234" and writes it back as 1234, the octal one reads "75001", which it writes back
+ * as 075001, and the hexadecimal one reads words such as "cafe" or "d", which it writes
+ * back with a "0x" they never had. They skip leading blanks and a sign, and so does this.
+ */
+static bool written_as(PVRush::PVTypesDiscoveryOutput::notation n, std::string_view value)
+{
+	using notation = PVRush::PVTypesDiscoveryOutput::notation;
+
+	const size_t start = value.find_first_not_of(" \t");
+	if (start == std::string_view::npos) {
+		return true;
+	}
+	value.remove_prefix(start);
+	if (value.starts_with('+') or value.starts_with('-')) {
+		value.remove_prefix(1);
+	}
+
+	switch (n) {
+	case notation::decimal:
+		return not(value.size() > 1 and value[0] == '0' and
+		           std::isdigit(static_cast<unsigned char>(value[1])));
+	case notation::octal:
+		return value.starts_with('0');
+	case notation::hexadecimal:
+		return value.starts_with("0x") or value.starts_with("0X");
+	case notation::none:
+		break;
+	}
+	return true;
+}
+
+static PVRush::PVTypesDiscoveryOutput::notation
+notation_of(const std::pair<std::string, std::string>& type)
+{
+	using notation = PVRush::PVTypesDiscoveryOutput::notation;
+
+	if (not type.first.starts_with("number_")) {
+		return notation::none;
+	}
+	// "0x%x", "0x%" PRIx64, "%#o", "%#" PRIo64
+	if (type.second.find('x') != std::string::npos) {
+		return notation::hexadecimal;
+	}
+	if (type.second.find('o') != std::string::npos) {
+		return notation::octal;
+	}
+	return notation::decimal;
+}
+
 static pvcop::formatter_desc get_formatter_desc(const std::string& type,
                                                 const std::string& type_format)
 {
@@ -239,6 +294,7 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 	for (const auto& type : _types) {
 		pvcop::formatter_desc fd = get_formatter_desc(type.first, type.second);
 		_formatters.emplace_back(pvcop::types::factory::create(fd.name(), fd.parameters()));
+		_notations.push_back(notation_of(type));
 	}
 
 	_matching_formatters =
@@ -276,6 +332,10 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 			if (not value.empty()) {
 				for (size_t idx = 0; idx < _formatters.size(); idx++) {
 					if (not matching_formatters[col][idx]) {
+						continue;
+					}
+					if (not written_as(_notations[idx], value)) {
+						matching_formatters[col][idx] = false;
 						continue;
 					}
 					pvcop::db::uint128_t t;
