@@ -169,10 +169,16 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			n++;
 			// check for separator character not inside quotes
 			bool inside_quotes = false;
+			const size_t value_begin = i;
 			for (; i < field.size() and (cstr[i] != _sep or inside_quotes); i++) {
 				if (cstr[i] == _quote) {
 					inside_quotes = not inside_quotes;
 				}
+			}
+			if (inside_quotes) {
+				// a quote no other one closes is part of the value, as in 12" pipe: the
+				// separators after it still separate
+				i = std::find(cstr + value_begin, cstr + field.size(), _sep) - cstr;
 			}
 
 			if (i == field.size()) {

@@ -95,6 +95,8 @@ add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp help
 add_squey_test(Trush_splitter_csv2 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv.out 7)
 add_squey_test(Trush_splitter_csv3 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv.out 2)
 add_squey_test(Trush_splitter_csv4 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv.out 20)
+add_squey_compile_test(Trush_splitter_csv_quotes LINKS ${LINK_LIBRARIES} FILES splitter_csv_quotes.cpp helpers.cpp)
+add_squey_test(Trush_splitter_csv_quotes Trush_splitter_csv_quotes)
 # tshark -Tfields escape mode: escaped separators must not shift columns (argv[4]=92 is '\')
 add_squey_test(Trush_splitter_csv_tshark Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv.out 3 92)
 
