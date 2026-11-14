@@ -60,8 +60,7 @@ class PVFormat;
 class PVTypesDiscoveryOutput : public PVRush::PVOutput
 {
   public:
-	using autodet_type_t =
-	    std::vector<std::pair<std::pair<std::string, std::string>, std::vector<std::string>>>;
+	using autodet_type_t = std::vector<std::pair<std::string, std::string>>; /* type, type_format */
 	using type_desc_t =
 	    std::tuple<std::string, std::string, std::string>; /* type, type_format, name */
 

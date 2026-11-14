@@ -139,6 +139,19 @@ void check_dates_read_whole()
 	    100);
 }
 
+/**
+ * Each chunk of the sample is read on its own. A column of integers and decimals has to
+ * keep a number type whatever value starts each chunk, and however the chunks overlap.
+ */
+void check_types_across_chunks()
+{
+	const std::vector<std::string> amounts{"12", "7", "30", "4", "15", "9", "22", "3", "18", "5.5"};
+	// about 16 MB, so that the sample spans two chunks of the default ten
+	check_types({{"amount", amounts, "number_float", ""},
+	             {"comment", {std::string(400, 'x')}, "string", ""}},
+	            40000);
+}
+
 } // namespace
 
 int main()
@@ -146,6 +159,7 @@ int main()
 	pvtest::init_ctxt();
 
 	check_dates_read_whole();
+	check_types_across_chunks();
 
 	return 0;
 }

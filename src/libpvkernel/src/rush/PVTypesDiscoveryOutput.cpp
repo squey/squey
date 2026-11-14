@@ -49,22 +49,22 @@ static constexpr const char* USER_TIME_FORMATS_FILENAME = "user_time_formats.ini
 
 // clang-format off
 static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
-//   {{ formatter, parameters}, { excluded_formatter_1, excluded_formatter_2, ...}}
-     {{"number_uint32", ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_int32",  ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint32", "%#" PRIo32}, { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint32", "0x%" PRIx32}, { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_int64",  ""},    { "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", "%#" PRIo64},{ "number_float", "number_double", "time", "duration" }},
-     {{"number_uint64", "0x%" PRIx64},{ "number_float", "number_double", "time", "duration" }},
-     {{"number_float",  ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
-     {{"number_double", ""},    { "number_uint64", "number_int64", "number_uint32", "number_int32", "time", "duration" }},
+//    { formatter, parameters }
+     {"number_uint32", ""},
+     {"number_int32",  ""},
+     {"number_uint32", "%#" PRIo32},
+     {"number_uint32", "0x%" PRIx32},
+     {"number_uint64", ""},
+     {"number_int64",  ""},
+     {"number_uint64", "%#" PRIo64},
+     {"number_uint64", "0x%" PRIx64},
+     {"number_float",  ""},
+     {"number_double", ""},
 
-     {{"ipv4",          ""},    {}},
-     {{"ipv6",          ""},    {}},
-     {{"mac_address",   ""},    {}},
-	 {{"duration",      ""},    { "time" }},
+     {"ipv4",          ""},
+     {"ipv6",          ""},
+     {"mac_address",   ""},
+     {"duration",      ""},
 }};
 
 static const std::vector<std::string> SUPPLIED_TIMES_FORMATS {{
@@ -144,7 +144,6 @@ static std::vector<std::string> sort_time_formats_to_reduce_false_detection_rate
 static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()
 {
 	PVRush::PVTypesDiscoveryOutput::autodet_type_t types = TYPES;
-	PVRush::PVTypesDiscoveryOutput::autodet_type_t time_types;
 	std::vector<std::string> time_formats = SUPPLIED_TIMES_FORMATS;
 
 	// user time formats (update file if needed to remove potential duplications)
@@ -177,7 +176,7 @@ static PVRush::PVTypesDiscoveryOutput::autodet_type_t supported_types()
 
 	time_formats = sort_time_formats_to_reduce_false_detection_rate(time_formats);
 	for (const std::string& time_format : time_formats) {
-		types.push_back({{"time", time_format}, {}});
+		types.push_back({"time", time_format});
 	}
 
 	return types;
@@ -236,7 +235,7 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 	_names.resize(_column_count);
 
 	for (const auto& type : _types) {
-		pvcop::formatter_desc fd = get_formatter_desc(type.first.first, type.first.second);
+		pvcop::formatter_desc fd = get_formatter_desc(type.first, type.second);
 		_formatters.emplace_back(pvcop::types::factory::create(fd.name(), fd.parameters()));
 	}
 
@@ -258,6 +257,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 	PVCore::list_elts const& elts = chunk->c_elements();
 
 	PVRow local_row = 0;
+	std::string value;
 	for (PVCore::PVElement* elt : elts) {
 
 		PVCore::PVElement& e = *elt;
@@ -269,31 +269,17 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 		PVCore::list_fields const& fields = e.c_fields();
 		PVCol col(0);
 		for (PVCore::PVField const& field : fields) {
-			for (size_t idx = 0; idx < _formatters.size(); idx++) {
-				if (not matching_formatters[col][idx] or not _matching_formatters[col][idx]) {
-					continue;
-				}
-				pvcop::db::uint128_t t;
-				std::string f(field.begin(), field.end());
-				bool pass_autodetect;
-				_formatters[idx]->from_string(f.c_str(), &t, 0, &pass_autodetect);
-
-				matching_formatters[col][idx] =
-				    matching_formatters[col][idx] and (pass_autodetect or f.empty());
-
-				/**
-				 * Disable mutually exclusive formatters to speed-up autodetection
-				 */
-				if ((not(local_row == 0 and matching_formatters[col][idx])) or
-				    (first_chunk and local_row == 0)) {
-					continue;
-				}
-				for (size_t i = 0; i < _formatters.size(); i++) {
-					for (const std::string& excl_fmt : _types[idx].second) {
-						if (_formatters[i]->name() == excl_fmt.c_str()) {
-							matching_formatters[col][i] = false;
-						}
+			value.assign(field.begin(), field.end());
+			// an empty value rules no type out
+			if (not value.empty()) {
+				for (size_t idx = 0; idx < _formatters.size(); idx++) {
+					if (not matching_formatters[col][idx]) {
+						continue;
 					}
+					pvcop::db::uint128_t t;
+					bool pass_autodetect;
+					_formatters[idx]->from_string(value.c_str(), &t, 0, &pass_autodetect);
+					matching_formatters[col][idx] = pass_autodetect;
 				}
 			}
 			col++;
@@ -355,8 +341,7 @@ void PVRush::PVTypesDiscoveryOutput::job_has_finished(const PVControllerJob::inv
 
 		for (size_t idx = 0; idx < _formatters.size(); idx++) {
 			if (_matching_formatters[col][idx]) {
-				_types_desc.emplace_back(_types[idx].first.first, _types[idx].first.second,
-				                         col_name);
+				_types_desc.emplace_back(_types[idx].first, _types[idx].second, col_name);
 				formatter_found = true;
 				break;
 			}
