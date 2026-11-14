@@ -45,8 +45,17 @@ class PVFieldSplitterChunkMatch
 	void push_chunk(PVCore::PVChunk* chunk);
 	bool get_match(PVCore::PVArgumentList& args, PVCol& nfields);
 
+	/**
+	 * The splitter that reads the lines @p src begins with as columns, and their number
+	 * @p naxes, or nullptr if none does.
+	 *
+	 * @param[out] preamble_lines how many lines come before the names of the columns or the
+	 *                            first values: comments a '#' begins, which the splitter does
+	 *                            not read as many columns, and the "sep=;" spreadsheets write
+	 */
 	static PVFilter::PVFieldsSplitter_p get_match_on_input(PVRush::PVRawSourceBase_p src,
-	                                                       PVCol& naxes);
+	                                                       PVCol& naxes,
+	                                                       size_t* preamble_lines = nullptr);
 
   protected:
 	PVFilter::list_guess_result_t _guess_res;

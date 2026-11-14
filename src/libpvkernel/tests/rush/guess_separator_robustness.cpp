@@ -44,15 +44,16 @@ namespace
 {
 
 /**
- * Guesses the splitter of a file of the header @p header and of 300 lines @p line makes
- * of their number, and checks it splits on @p sep into @p fields fields, or that no
- * splitter is found when @p fields is 0.
+ * Guesses the splitter of a file of the header @p header and of 300 lines @p line makes of
+ * their number, and checks it splits on @p sep into @p fields fields, or that no splitter
+ * is found when @p fields is 0, after @p preamble lines.
  */
 void check_guess(const std::string& name,
                  const std::string& header,
                  const std::function<std::string(size_t)>& line,
                  char sep,
-                 size_t fields)
+                 size_t fields,
+                 size_t preamble = 0)
 {
 	const QString path_qs =
 	    PVCore::mkstemp(PVRush::PVNrawCacheManager::nraw_dir() + "/guess_separator_XXXXXX.csv");
@@ -72,8 +73,9 @@ void check_guess(const std::string& name,
 	PVRush::PVSourceCreator_p sc =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("text_file");
 	PVCol nfields(0);
+	size_t preamble_lines = 0;
 	PVFilter::PVFieldsSplitter_p splitter = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(
-	    sc->create_source_from_input(file), nfields);
+	    sc->create_source_from_input(file), nfields, &preamble_lines);
 
 	if (fields == 0) {
 		PV_ASSERT_VALID(splitter.get() == nullptr, "file", name);
@@ -81,6 +83,7 @@ void check_guess(const std::string& name,
 		PV_ASSERT_VALID(splitter.get() != nullptr, "file", name);
 		PV_VALID(splitter->get_args().at("sep").toChar().toLatin1(), sep, "file", name);
 		PV_VALID((size_t)nfields, fields, "file", name);
+		PV_VALID(preamble_lines, preamble, "file", name);
 	}
 
 	std::remove(path.c_str());
@@ -113,7 +116,16 @@ void check_irregular_lines()
 	    [](size_t i) { return i % 7 ? n(i) + ",x," + n(i) + ",y" : n(i) + ",x"; }, ',', 4);
 	check_guess(
 	    "a comment holding a comma", "# exported by a tool, version 1.2\nid,name,price",
-	    [](size_t i) { return n(i) + ",name,12.50"; }, ',', 3);
+	    [](size_t i) { return n(i) + ",name,12.50"; }, ',', 3, 1);
+	check_guess(
+	    "comments", "# exported by a tool\n# version 1.2, of 2024\nid,name,price",
+	    [](size_t i) { return n(i) + ",name,12.50"; }, ',', 3, 2);
+	check_guess(
+	    "names commented out", "#id,name,price", [](size_t i) { return n(i) + ",name,12.50"; }, ',',
+	    3);
+	check_guess(
+	    "the separator of a spreadsheet", "sep=;\nid;name;price",
+	    [](size_t i) { return n(i) + ";name;12,50"; }, ';', 3, 1);
 	check_guess(
 	    "a line feed inside quotes", "id,comment,age",
 	    [](size_t i) {

@@ -854,7 +854,7 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes(bool handle_header /* =
 		std::tie(type, type_format, axe_name) = type_discovery_output.type_desc(i);
 		ax.setAttribute("type", type.c_str());
 		ax.setAttribute("type_format", type_format.c_str());
-		if (not axe_name.empty() and myTreeModel->get_first_line() == 0) {
+		if (not axe_name.empty() and myTreeModel->get_first_line() == _preamble_lines) {
 			ax.setAttribute("name", axe_name.c_str());
 			has_header = true;
 		}
@@ -866,7 +866,8 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes(bool handle_header /* =
 					this, "Header detected",
 					"A header was detected: use it to fill column names?") ==
 				QMessageBox::Yes) {
-				_options_widget->set_lines_range(1, myTreeModel->get_line_count());
+				_options_widget->set_lines_range(_preamble_lines + 1,
+				                                 myTreeModel->get_line_count());
 			}
 		}
 		else {
@@ -1022,18 +1023,22 @@ App::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_so
 {
 	PVLOG_DEBUG("(format_builder) trying to guess first splitter...");
 	PVCol naxes;
-	PVFilter::PVFieldsSplitter_p sp =
-	    PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(raw_source_base, naxes);
+	size_t preamble_lines = 0;
+	PVFilter::PVFieldsSplitter_p sp = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(
+	    raw_source_base, naxes, &preamble_lines);
 	if (!sp) {
 		// No splitter matches, just do nothing
 		return {};
 	}
 
-	return add_guessed_splitter(sp, naxes, tree_model);
+	return add_guessed_splitter(sp, naxes, preamble_lines, tree_model);
 }
 
-PVRush::PVFormat App::PVFormatBuilderWidget::add_guessed_splitter(
-    const PVFilter::PVFieldsSplitter_p& sp, PVCol naxes, PVXmlDomModel& tree_model) const
+PVRush::PVFormat
+App::PVFormatBuilderWidget::add_guessed_splitter(const PVFilter::PVFieldsSplitter_p& sp,
+                                                 PVCol naxes,
+                                                 size_t preamble_lines,
+                                                 PVXmlDomModel& tree_model) const
 {
 	// The dom is the reference in here.
 
@@ -1068,6 +1073,7 @@ PVRush::PVFormat App::PVFormatBuilderWidget::add_guessed_splitter(
 			}
 		}
 	}
+	tree_model.set_first_line(preamble_lines);
 
 	return PVRush::PVFormat(tree_model.getRootDom());
 }
@@ -1143,8 +1149,10 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		PVRush::PVFormat format;
 		if (is_dom_empty()) {
 			PVCol naxes;
+			size_t preamble_lines = 0;
 			PVFilter::PVFieldsSplitter_p sp =
-			    PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source, naxes);
+			    PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source, naxes,
+			                                                            &preamble_lines);
 			if (sp) {
 				// Ok, we got a match, add it to the dom.
 				QString first_input_name = _log_input_type->human_name_of_input(_inputs.front());
@@ -1164,7 +1172,9 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 				if (ask_auto.exec() == QMessageBox::No) {
 					return;
 				}
-				format = add_guessed_splitter(sp, naxes, *myTreeModel);
+				format = add_guessed_splitter(sp, naxes, preamble_lines, *myTreeModel);
+				_preamble_lines = preamble_lines;
+				_options_widget->set_lines_range(preamble_lines, myTreeModel->get_line_count());
 			}
 			if (not is_dom_empty()) {
 				update_types_autodetection_count(format);

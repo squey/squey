@@ -44,6 +44,7 @@
 #include <list>     // for _List_iterator
 #include <map>
 #include <memory>   // for __shared_ptr, shared_ptr
+#include <string_view>
 #include <utility>  // for pair
 #include <vector>   // for vector
 #include <QHash>    // for QHash<>::const_iterator, etc
@@ -59,6 +60,19 @@ constexpr size_t GUESS_PVELEMENT_SAMPLE_NUMBER = 20000;
 
 namespace PVFilter
 {
+
+/**
+ * The values of @p al, which tell apart the argument lists of a splitter
+ */
+static QString key_of(const PVCore::PVArgumentList& al)
+{
+	QString str;
+	for (const auto& it : al) {
+		// use of a non-printable character as arguments values separator
+		str.append("\01" + it.value().toString());
+	}
+	return str;
+}
 
 /**
  * @class PVGuessReducingTree
@@ -100,13 +114,7 @@ class PVGuessReducingTree
 			return;
 		}
 
-		QString str;
-
-		for (const auto& it : al) {
-			// use of a non-printable character as arguments values separator
-			str.append("\01" + it.value().toString());
-		}
-
+		const QString str = key_of(al);
 		data_map_t::iterator it = _data_map.find(str);
 		if (it == _data_map.end()) {
 			it = _data_map.insert(str, data_t{al, {}, size_t(_data_map.size())});
@@ -317,8 +325,49 @@ bool PVFilter::PVFieldSplitterChunkMatch::get_match(PVCore::PVArgumentList& args
 	return red.get_highest_entry(args, nfields);
 }
 
-PVFilter::PVFieldsSplitter_p
-PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_p src, PVCol& naxes)
+/**
+ * How many lines @p chunk begins with that come before the records @p splitter reads into
+ * @p nfields fields: see PVFilter::PVFieldSplitterChunkMatch::get_match_on_input().
+ */
+static size_t count_preamble_lines(PVCore::PVTextChunk& chunk,
+                                   const PVFilter::PVFieldsSplitter& splitter,
+                                   PVCol nfields)
+{
+	// past that many, the lines are what the file holds
+	static constexpr size_t max_preamble_lines = 100;
+
+	const QString args = PVFilter::key_of(splitter.get_args());
+	// guess() changes the arguments of the splitter it is called on
+	const PVFilter::PVFieldsSplitter_p probe = splitter.clone<PVFilter::PVFieldsSplitter>();
+	size_t lines = 0;
+	for (PVCore::PVElement* elt : chunk.elements()) {
+		PVCore::PVField& line = elt->fields().front();
+		const std::string_view text(line.begin(), line.size());
+		if (lines == 0 and text.size() == 5 and text.starts_with("sep=")) {
+			++lines;
+			continue;
+		}
+		if (not text.starts_with('#')) {
+			break;
+		}
+		// unless the '#' comments out the names of the columns, as in "#id,name"
+		PVFilter::list_guess_result_t guesses;
+		probe->guess(guesses, line);
+		if (std::ranges::any_of(guesses, [&](const auto& guess) {
+			    return guess.second.size() == size_t(nfields) and
+			           PVFilter::key_of(guess.first) == args;
+		    })) {
+			break;
+		}
+		if (++lines == max_preamble_lines) {
+			return 0;
+		}
+	}
+	return lines;
+}
+
+PVFilter::PVFieldsSplitter_p PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(
+    PVRush::PVRawSourceBase_p src, PVCol& naxes, size_t* preamble_lines)
 {
 	PVCore::PVChunk* chunk = (*src)();
 	PVFieldsSplitter_p ret;
@@ -351,6 +400,9 @@ PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(PVRush::PVRawSourceBase_
 			ret->set_number_expected_fields(nfields);
 			ret->set_args(args);
 			naxes = nfields;
+			if (preamble_lines != nullptr) {
+				*preamble_lines = count_preamble_lines(*text_chunk, *ret, nfields);
+			}
 			break;
 		}
 	}
