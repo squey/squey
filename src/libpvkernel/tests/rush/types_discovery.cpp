@@ -57,14 +57,14 @@ struct column {
 // a value that ends its line there, leaving the next fields out
 const std::string line_ends_here = "\x01";
 
-QDomDocument csv_format(size_t columns)
+QDomDocument csv_format(size_t columns, char separator)
 {
 	QDomDocument doc;
 	doc.setContent(
 	    QString("<!DOCTYPE PVParamXml><param version=\"" PVFORMAT_CURRENT_VERSION "\"/>"));
 	QDomElement splitter = doc.createElement("splitter");
 	splitter.setAttribute("type", "csv");
-	splitter.setAttribute("sep", ",");
+	splitter.setAttribute("sep", QString(QChar(separator)));
 	splitter.setAttribute("quote", "\"");
 	doc.documentElement().appendChild(splitter);
 	for (size_t i = 0; i < columns; i++) {
@@ -85,7 +85,10 @@ QDomDocument csv_format(size_t columns)
  * @param header whether the names of the columns come first, which the autodetection has
  *               to tell, or the file only holds values
  */
-void check_types(const std::vector<column>& columns, size_t rows, bool header = true)
+void check_types(const std::vector<column>& columns,
+                 size_t rows,
+                 bool header = true,
+                 char separator = ',')
 {
 	const QString path_qs =
 	    PVCore::mkstemp(PVRush::PVNrawCacheManager::nraw_dir() + "/types_discovery_XXXXXX.csv");
@@ -100,13 +103,13 @@ void check_types(const std::vector<column>& columns, size_t rows, bool header = 
 				if (value == line_ends_here) {
 					break;
 				}
-				out << (i == 0 ? "" : ",") << value;
+				out << (i == 0 ? "" : std::string(1, separator)) << value;
 			}
 			out << '\n';
 		}
 	}
 
-	const QDomDocument doc = csv_format(columns.size());
+	const QDomDocument doc = csv_format(columns.size(), separator);
 	PVRush::PVFormat format(doc.documentElement());
 	PVRush::PVInputDescription_p input(new PVRush::PVFileDescription(path_qs));
 	PVRush::PVSourceCreator_p sc;
@@ -260,6 +263,22 @@ void check_header()
 }
 
 /**
+ * The decimals of a file its values are not separated by commas may be written with one,
+ * unless they may be thousands: all with three digits after the comma
+ */
+void check_decimal_commas()
+{
+	check_types({{"price", {"12,5", "7", "-0,25", "1,234"}, "number_double", ","},
+	             {"thousands", {"1,234", "12,500"}, "string", ""},
+	             {"point", {"12.5", "7"}, "number_double", ""},
+	             {"either", {"12,5", "3.5"}, "string", ""}},
+	            100, true, ';');
+	check_types({{"id", {"1", "2"}, "number_uint32", ""},
+	             {"price", {"\"12,5\"", "\"7,25\""}, "string", ""}},
+	            100, true, ',');
+}
+
+/**
  * The fields a line lacks are empty, and rule no type out
  */
 void check_short_lines()
@@ -283,6 +302,7 @@ int main()
 	check_missing_values();
 	check_date_formats();
 	check_header();
+	check_decimal_commas();
 	check_short_lines();
 
 	return 0;

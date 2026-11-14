@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <string>
 #include <tuple>
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -97,6 +98,10 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 	matching_formatters_t _matching_formatters;
 	/// whether the sample holds a value in each column, rather than none or missing ones
 	std::vector<bool> _valued;
+	/// the type of the decimals written with a comma, which a column only gets if one of
+	/// its values is no thousands, as "1,234" may be
+	size_t _decimal_comma_index = std::numeric_limits<size_t>::max();
+	std::vector<bool> _decimal_commas;
 	/// the first row, which may name the columns, apart from the others until that is settled
 	std::vector<std::string> _first_row;
 	matching_formatters_t _first_row_matching;

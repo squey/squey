@@ -53,6 +53,21 @@
 
 static constexpr const char* USER_TIME_FORMATS_FILENAME = "user_time_formats.ini";
 
+static const std::pair<std::string, std::string> DECIMAL_COMMA{"number_double", ","};
+
+/**
+ * Whether @p value writes a decimal with a comma, rather than thousands, as "1,234" may
+ */
+static bool decimal_comma(std::string_view value)
+{
+	const size_t comma = value.find(',');
+	if (comma == std::string_view::npos) {
+		return false;
+	}
+	const size_t end = value.find_first_not_of("0123456789", comma + 1);
+	return (end == std::string_view::npos ? value.size() : end) - comma - 1 != 3;
+}
+
 // clang-format off
 static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
 //    { formatter, parameters }
@@ -68,6 +83,8 @@ static const PVRush::PVTypesDiscoveryOutput::autodet_type_t TYPES {{
      // display 25.0100002. Its default notation writes the fewest digits that read back as
      // the value, which are those of the file.
      {"number_double", ""},
+     // the decimal comma of the files whose separator is not one: see prepare_load()
+     {"number_double", ","},
 
      {"ipv4",          ""},
      {"ipv6",          ""},
@@ -333,6 +350,11 @@ std::unordered_set<std::string> PVRush::PVTypesDiscoveryOutput::supported_time_f
 void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format)
 {
 	_types = supported_types();
+	// a comma in a value of a file it separates the values of is no decimal one
+	const std::optional<PVRush::PVCSVQuoting> quoting = format.csv_quoting();
+	if (quoting and quoting->separator == ',') {
+		std::erase(_types, DECIMAL_COMMA);
+	}
 	_column_count = format.get_storage_format().size();
 	_names.resize(_column_count);
 
@@ -341,10 +363,15 @@ void PVRush::PVTypesDiscoveryOutput::prepare_load(const PVRush::PVFormat& format
 		_formatters.emplace_back(pvcop::types::factory::create(fd.name(), fd.parameters()));
 		_notations.push_back(notation_of(type));
 	}
+	const auto decimal_comma_type = std::ranges::find(_types, DECIMAL_COMMA);
+	_decimal_comma_index = decimal_comma_type == _types.end()
+	                           ? std::numeric_limits<size_t>::max()
+	                           : size_t(decimal_comma_type - _types.begin());
 
 	_matching_formatters =
 	    matching_formatters_t(_column_count, std::vector<bool>(_formatters.size(), true));
 	_valued = std::vector<bool>(_column_count, false);
+	_decimal_commas = _valued;
 	_first_row.clear();
 	_first_row_matching = _matching_formatters;
 	_first_row_valued = _valued;
@@ -361,6 +388,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 	matching_formatters_t matching_formatters(_column_count,
 	                                          std::vector<bool>(_formatters.size(), true));
 	std::vector<bool> valued(_column_count, false);
+	std::vector<bool> decimal_commas(_column_count, false);
 	matching_formatters_t first_row_matching;
 	std::vector<bool> first_row_valued;
 	std::vector<std::string> first_row;
@@ -410,6 +438,10 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 					_formatters[idx]->from_string(value.c_str(), &t, 0, &pass_autodetect);
 					matching[col][idx] = pass_autodetect;
 				}
+				if (_decimal_comma_index < _formatters.size() and
+				    matching[col][_decimal_comma_index] and decimal_comma(value)) {
+					decimal_commas[col] = true;
+				}
 			}
 			col++;
 		}
@@ -425,6 +457,7 @@ void PVRush::PVTypesDiscoveryOutput::operator()(PVCore::PVChunk* c)
 				    _matching_formatters[col][idx] && matching_formatters[col][idx];
 			}
 			_valued[col] = _valued[col] or valued[col];
+			_decimal_commas[col] = _decimal_commas[col] or decimal_commas[col];
 		}
 		if (not first_row.empty()) {
 			_first_row = std::move(first_row);
@@ -448,11 +481,13 @@ void PVRush::PVTypesDiscoveryOutput::job_has_finished(const PVControllerJob::inv
 		if (not _valued[col]) {
 			return {};
 		}
-		const auto found = std::ranges::find(_matching_formatters[col], true);
-		if (found == _matching_formatters[col].end()) {
-			return {};
+		for (size_t idx = 0; idx < _formatters.size(); idx++) {
+			if (_matching_formatters[col][idx] and
+			    (idx != _decimal_comma_index or _decimal_commas[col])) {
+				return idx;
+			}
 		}
-		return size_t(found - _matching_formatters[col].begin());
+		return {};
 	};
 	bool not_all_strings = false;
 	for (size_t col = 0; col < _column_count; col++) {
@@ -490,25 +525,16 @@ void PVRush::PVTypesDiscoveryOutput::job_has_finished(const PVControllerJob::inv
 			}
 		}
 	}
-	const auto typed = [&type_of](size_t col) { return type_of(col).has_value(); };
-
 	for (size_t col = 0; col < _column_count; col++) {
-
-		bool formatter_found = false;
 		std::string col_name =
 		    has_header ? ((col == 0 and not _names[col].empty() and _names[col][0] == '#')
 		                      ? _names[col].substr(1, _names[col].size() - 1)
 		                      : _names[col])
 		               : "";
 
-		for (size_t idx = 0; typed(col) and idx < _formatters.size(); idx++) {
-			if (_matching_formatters[col][idx]) {
-				_types_desc.emplace_back(_types[idx].first, _types[idx].second, col_name);
-				formatter_found = true;
-				break;
-			}
-		}
-		if (not formatter_found) {
+		if (const std::optional<size_t> type = type_of(col)) {
+			_types_desc.emplace_back(_types[*type].first, _types[*type].second, col_name);
+		} else {
 			_types_desc.emplace_back("string", "", col_name); // default to string type
 		}
 	}
