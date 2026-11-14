@@ -1020,9 +1020,6 @@ PVRush::PVFormat
 App::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
                                                  PVXmlDomModel& tree_model) const
 {
-	// Guess first splitter and add it to the dom before parsing it !
-	// The dom is the reference in here.
-
 	PVLOG_DEBUG("(format_builder) trying to guess first splitter...");
 	PVCol naxes;
 	PVFilter::PVFieldsSplitter_p sp =
@@ -1031,6 +1028,14 @@ App::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_so
 		// No splitter matches, just do nothing
 		return {};
 	}
+
+	return add_guessed_splitter(sp, naxes, tree_model);
+}
+
+PVRush::PVFormat App::PVFormatBuilderWidget::add_guessed_splitter(
+    const PVFilter::PVFieldsSplitter_p& sp, PVCol naxes, PVXmlDomModel& tree_model) const
+{
+	// The dom is the reference in here.
 
 	// Get the widget that comes with the splitter. TODO: do better than that
 	QString type_name = sp->type_name();
@@ -1137,8 +1142,6 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 		// First extraction
 		PVRush::PVFormat format;
 		if (is_dom_empty()) {
-			format = guess_format(_log_source, *myTreeModel);
-
 			PVCol naxes;
 			PVFilter::PVFieldsSplitter_p sp =
 			    PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(_log_source, naxes);
@@ -1161,6 +1164,7 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 				if (ask_auto.exec() == QMessageBox::No) {
 					return;
 				}
+				format = add_guessed_splitter(sp, naxes, *myTreeModel);
 			}
 			if (not is_dom_empty()) {
 				update_types_autodetection_count(format);

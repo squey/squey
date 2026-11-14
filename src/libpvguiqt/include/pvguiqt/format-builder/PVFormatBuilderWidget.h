@@ -151,6 +151,14 @@ class PVFormatBuilderWidget : public QMainWindow
 	PVRush::PVFormat guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
 	                              PVXmlDomModel& tree_model) const;
 
+	/**
+	 * Adds to @p tree_model the splitter @p sp guessed for the lines of a file, with its
+	 * @p naxes axes, and returns the format the model then describes.
+	 */
+	PVRush::PVFormat add_guessed_splitter(const PVFilter::PVFieldsSplitter_p& sp,
+	                                      PVCol naxes,
+	                                      PVXmlDomModel& tree_model) const;
+
 	PVRush::PVFormat guess_format(const PVRush::PVInputDescription_p input,
 	                              const PVRush::PVInputType_p& input_type) const;
 
