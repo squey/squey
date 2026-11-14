@@ -319,6 +319,29 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	}
 
 	/**
+	 * Converts [@p begin, @p end) of the current chunk to UTF-8, which then ends the chunk,
+	 * growing it as much as the conversion needs.
+	 *
+	 * @param[in,out] begin where the data begins, in the chunk the conversion leaves
+	 */
+	void convert_chunk(char*& begin, char* end)
+	{
+		while (true) {
+			try {
+				_curc->set_end(convert_buffer(begin, end));
+				return;
+			} catch (const UnicodeSourceBufferOverflowError&) {
+				// the data is copied as it was before the conversion, at the same offsets
+				const size_t begin_offset = size_t(begin - _curc->begin());
+				const size_t end_offset = size_t(end - _curc->begin());
+				_curc = _curc->realloc_grow(_chunk_size);
+				begin = _curc->begin() + begin_offset;
+				end = _curc->begin() + end_offset;
+			}
+		}
+	}
+
+	/**
 	 * Generate a new Chunk.
 	 *
 	 * Continue with previous created chunk.
@@ -341,7 +364,10 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
             if (_curc->size() == 0) {
                 return nullptr;
             }
-            create_elements(_curc->begin(), _curc->end());
+            // what the last chunk left over
+            char* b = _curc->begin();
+            convert_chunk(b, _curc->end());
+            create_elements(b, _curc->end());
             _curc->init_elements_fields();
             PVCore::PVTextChunk* ret = _curc;
             _curc = _nextc;
@@ -381,17 +407,7 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
             _curc->set_init_size(compressed_chunk_size * keep_ratio);
         }
 
-        // Convert buffer, realloc if needed
-        while (true) {
-            try {
-                _curc->set_end(convert_buffer(b, end));
-                break;
-            } catch (const UnicodeSourceBufferOverflowError&) {
-                _curc = _curc->realloc_grow(_chunk_size);
-                b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
-                end = get_end_from_charset(_curc->begin(), _curc->size() + r);
-            }
-        }
+        convert_chunk(b, end);
 
         // Build elements
         create_elements(b, _curc->end());

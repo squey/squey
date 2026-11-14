@@ -67,14 +67,14 @@ static void check_lines(const std::vector<std::string>& read,
 	}
 }
 
-static std::string written(const std::vector<std::string>& lines)
+static std::string written(const std::vector<std::string>& lines, const char* last_end = "\n")
 {
 	const QString path =
 	    PVCore::mkstemp(PVRush::PVNrawCacheManager::nraw_dir() + "/unicode_source_XXXXXX.csv");
 	PV_ASSERT_VALID(not path.isEmpty(), "input file", path.toStdString());
 	std::ofstream out(path.toStdString(), std::ios::binary);
-	for (const std::string& line : lines) {
-		out << line << '\n';
+	for (size_t i = 0; i < lines.size(); i++) {
+		out << lines[i] << (i + 1 == lines.size() ? last_end : "\n");
 	}
 	return path.toStdString();
 }
@@ -140,12 +140,38 @@ static void check_line_ends_in_recycled_memory()
 	std::remove(path.c_str());
 }
 
+/**
+ * The lines of another charset read back in UTF-8, the last one too, which no line feed
+ * ends, when the conversion outgrows the chunks
+ */
+static void check_converted_lines()
+{
+	std::vector<std::string> latin1;
+	std::vector<std::string> utf8;
+	for (size_t i = 0; i < 8 * chunk_size / 32; i++) {
+		latin1.push_back(std::to_string(i) + ",d\xe9j\xe0 vu \xe0 l'\xe9t\xe9," +
+		                 std::string(i % 13, '\xe9'));
+		std::string accents;
+		for (size_t a = 0; a < i % 13; a++) {
+			accents += "é";
+		}
+		utf8.push_back(std::to_string(i) + ",déjà vu à l'été," + accents);
+	}
+	const std::string path = written(latin1, "");
+
+	check_lines(lines_read<PVCore::PVMMapAllocator>(path), utf8);
+	check_lines(lines_read<recycled_allocator>(path), utf8);
+
+	std::remove(path.c_str());
+}
+
 int main()
 {
 	pvtest::init_ctxt();
 
 	check_utf8_after_an_ascii_chunk();
 	check_line_ends_in_recycled_memory();
+	check_converted_lines();
 
 	return 0;
 }
