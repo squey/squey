@@ -174,6 +174,13 @@ chown 1000:1000 "$SYSROOT_DIR/etc/opencl_vendors" 2> /dev/null || true
 install -d "$SYSROOT_DIR/srv/tmp-squey"
 chown 1000:1000 "$SYSROOT_DIR/srv/tmp-squey" 2> /dev/null || true
 
+# The checkout directory becomes / in the image, and mktemp creates it 0700,
+# which leaves every path out of reach of the user the devcontainer runs as.
+# The checkout also gives /tmp the 0755 of any other directory, where that
+# user could not create the temporary files of the build, the tests and Squey.
+chmod 0755 "$SYSROOT_DIR"
+install -d -m 1777 "$SYSROOT_DIR/tmp"
+
 # Every devcontainer runtime reads /etc/os-release to work out what it is
 # talking to, and the staged sysroot carries none: the probe fails, and the
 # tooling falls back to guessing. Name it for what it is rather than borrow a
