@@ -25,7 +25,7 @@
   // neither where flatpak keeps its runtimes, nor which driver version is
   // loaded, nor whether there is a GPU at all. On a machine without one it finds
   // nothing, and the container renders on the CPU. It links the Wayland socket
-  // the same way.
+  // the same way, and has prepare_portal.sh start a proxy to the desktop portal.
   "initializeCommand": "${localWorkspaceFolder}/.devcontainer/prepare_gpu.sh",
 
   "containerEnv": {
@@ -36,6 +36,10 @@
     // run against an X server.
     "WAYLAND_DISPLAY": "/tmp/wayland-0",
     "QT_QPA_PLATFORM": "wayland",
+    // The proxy prepare_portal.sh starts, mounted below: the bus of the session
+    // with nothing on it but the desktop portal, through which xdg-open has the
+    // host open links, and Squey reads the light or dark scheme of the desktop.
+    "DBUS_SESSION_BUS_ADDRESS": "unix:path=/tmp/portal/bus",
     // The search path buildstream/dev_shell_bashrc gives the sandbox: the one of
     // the image, then the GL runtime, where the EGL vendor files name the NVIDIA
     // libraries by soname alone. After the image, so that the compiler keeps the
@@ -61,6 +65,9 @@
     // session the link points at /dev/null, since a missing source would keep
     // the container from starting.
     "source=${localEnv:HOME}/.cache/squey-devcontainer/wayland,target=/tmp/wayland-0,type=bind",
+    // The directory of the socket of that proxy, which prepare_portal.sh always
+    // creates, whether a proxy listens in it or not.
+    "source=${localEnv:HOME}/.cache/squey-devcontainer/portal,target=/tmp/portal,type=bind",
     // What prepare_gpu.sh gathered, empty on a machine without the GL runtime.
     // run_cmd.sh reads the driver out of it and writes the matching OpenCL
     // vendor file.

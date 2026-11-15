@@ -1,9 +1,9 @@
 #!/bin/bash
 #
 # Gathers what the GPU of this machine needs under fixed paths, its devices and
-# its userspace, and the Wayland socket with them, so that
-# .devcontainer/devcontainer.json can name them without knowing anything about
-# this machine.
+# its userspace, the Wayland socket with them, and through prepare_portal.sh a
+# way to the desktop portal, so that .devcontainer/devcontainer.json can name
+# them without knowing anything about this machine.
 #
 # Runs on the host, as the "initializeCommand", before the container is created
 # or started. The flatpak runtime carrying the NVIDIA userspace is named after
@@ -48,6 +48,8 @@ wayland="${WAYLAND_DISPLAY:-wayland-0}"
 [[ "$wayland" == /* ]] || wayland="$XDG_RUNTIME_DIR/$wayland"
 [ -S "$wayland" ] || wayland=/dev/null
 ln -sfn "$wayland" "$WAYLAND_SOCKET"
+# Before the GPU, whose search can end the script early
+"$(dirname "${BASH_SOURCE[0]}")/prepare_portal.sh"
 
 # Emptied rather than removed: a running container keeps this very directory
 # mounted and would be left holding a deleted one, and this script runs again
