@@ -36,6 +36,17 @@
 PVKERNEL_EXPORT void init_segfault_handler();
 
 /**
+ * Put the crash handler back in front of the signal handlers installed since
+ * init_segfault_handler(), for each signal it handles but SIGFPE. Does nothing
+ * outside Linux, or if the handler did not start.
+ *
+ * Starting OpenCL makes PortableCL install the signal handlers of LLVM, which
+ * raise the signal again from where they are: the report then shows them rather
+ * than the crash.
+ */
+PVKERNEL_EXPORT void reclaim_crash_signals();
+
+/**
  * Path of the crash report database, shared by squey and squey-crashreport.
  */
 PVKERNEL_EXPORT std::string crash_report_database_path();

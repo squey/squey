@@ -35,10 +35,16 @@
 #ifdef _WIN32
 #include <base/strings/utf_string_conversions.h>
 #endif
+#ifdef __linux__
+#include <util/posix/signals.h>
+
+#include <signal.h>
+#endif
 
 #include <map>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 #include <boost/dll/runtime_symbol_info.hpp>
@@ -79,6 +85,11 @@ std::string from_file_path(const base::FilePath& path)
 	return path.value();
 #endif
 }
+
+#ifdef __linux__
+// The actions of the crash signals right after Crashpad installed its handlers.
+std::vector<std::pair<int, struct sigaction>> crashpad_actions;
+#endif
 
 } // namespace
 
@@ -225,6 +236,17 @@ void init_segfault_handler()
 		PVLOG_ERROR("Could not start the crash handler '%s'\n", handler_path.c_str());
 	}
 
+#ifdef __linux__
+	if (started) {
+		for (int sig = 1; sig < NSIG; ++sig) {
+			struct sigaction action = {};
+			if (crashpad::Signals::IsCrashSignal(sig) and sigaction(sig, nullptr, &action) == 0) {
+				crashpad_actions.emplace_back(sig, action);
+			}
+		}
+	}
+#endif
+
 	// A report left over from a previous run: ask the user whether to send it.
 	// Detached, so that a crash reporter still waiting for an answer does not
 	// hold squey back. The database opened above is reused rather than opened a
@@ -232,4 +254,17 @@ void init_segfault_handler()
 	if (not unsent_reports(*database).empty()) {
 		QProcess::startDetached(QString::fromStdString(reporter_path), {});
 	}
+}
+
+void reclaim_crash_signals()
+{
+#ifdef __linux__
+	for (const auto& [sig, action] : crashpad_actions) {
+		// PortableCL steps over the integer divisions by zero of the OpenCL kernels,
+		// which must not trap: it has to see SIGFPE first.
+		if (sig != SIGFPE) {
+			sigaction(sig, &action, nullptr);
+		}
+	}
+#endif
 }
