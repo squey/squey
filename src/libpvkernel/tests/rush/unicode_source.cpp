@@ -34,6 +34,7 @@
 
 #include "common.h"
 
+#include <algorithm>
 #include <cstdio>
 #include <cstring>
 #include <fstream>
@@ -44,21 +45,41 @@
 
 static constexpr size_t chunk_size = 4096;
 
+/**
+ * The lines of each chunk a source cuts @p input into
+ */
 template <template <class T> class Allocator>
-static std::vector<std::string> lines_read(const std::string& path,
-                                           std::optional<PVRush::PVCSVQuoting> quoting = {})
+static std::vector<std::vector<std::string>>
+chunks_read(PVRush::PVInput_p input, std::optional<PVRush::PVCSVQuoting> quoting = {})
 {
-	PVRush::PVUnicodeSource<Allocator> source(std::make_shared<PVRush::PVInputFile>(path.c_str()),
-	                                          chunk_size);
+	PVRush::PVUnicodeSource<Allocator> source(std::move(input), chunk_size);
 	source.set_quoting(quoting);
-	std::vector<std::string> lines;
+	std::vector<std::vector<std::string>> chunks;
 	while (PVCore::PVChunk* chunk = source()) {
+		std::vector<std::string>& lines = chunks.emplace_back();
 		for (PVCore::PVElement* line : static_cast<PVCore::PVTextChunk*>(chunk)->c_elements()) {
 			lines.emplace_back(line->begin(), line->end());
 		}
 		chunk->free();
 	}
+	return chunks;
+}
+
+static std::vector<std::string> joined(const std::vector<std::vector<std::string>>& chunks)
+{
+	std::vector<std::string> lines;
+	for (const std::vector<std::string>& chunk : chunks) {
+		lines.insert(lines.end(), chunk.begin(), chunk.end());
+	}
 	return lines;
+}
+
+template <template <class T> class Allocator>
+static std::vector<std::string> lines_read(const std::string& path,
+                                           std::optional<PVRush::PVCSVQuoting> quoting = {})
+{
+	return joined(
+	    chunks_read<Allocator>(std::make_shared<PVRush::PVInputFile>(path.c_str()), quoting));
 }
 
 static void check_lines(const std::vector<std::string>& read,
@@ -231,6 +252,73 @@ static void check_quoted_line_feeds()
 	std::remove(latin1_path.c_str());
 }
 
+/**
+ * An input of @p data which hands at most @p max_read bytes per read, as a pipe hands at
+ * most its buffer
+ */
+class short_reads_input : public PVRush::PVInput
+{
+  public:
+	short_reads_input(std::string data, size_t max_read)
+	    : _data(std::move(data)), _max_read(max_read)
+	{
+	}
+
+	chunk_sizes_t operator()(char* buffer, size_t n) override
+	{
+		const size_t count = std::min({n, _max_read, _data.size() - _read});
+		std::copy_n(_data.data() + _read, count, buffer);
+		_read += count;
+		return {count, count};
+	}
+	void cancel() override {}
+	void seek_begin() override { _read = 0; }
+	QString human_name() override { return "short reads"; }
+
+  private:
+	std::string _data;
+	size_t _max_read;
+	size_t _read = 0;
+};
+
+/**
+ * The chunks hold the same lines from an input which hands a few bytes per read as from
+ * one which hands all it is asked for, with or without quoting
+ */
+static void check_chunks_from_short_reads()
+{
+	std::vector<std::string> lines;
+	for (size_t i = 0; i < 8 * chunk_size / 32; i++) {
+		lines.push_back(std::to_string(i) + "," + std::string(i % 61, 'x'));
+	}
+	// longer than a chunk, which grows to hold it
+	lines.insert(lines.begin() + lines.size() / 2, std::string(3 * chunk_size, 'y'));
+	lines.emplace_back("last,without a line feed");
+	std::string data;
+	for (const std::string& line : lines) {
+		data += line + "\n";
+	}
+	data.pop_back();
+
+	for (const std::optional<PVRush::PVCSVQuoting>& quoting :
+	     {std::optional<PVRush::PVCSVQuoting>{}, std::optional{PVRush::PVCSVQuoting{',', '"'}}}) {
+		const std::vector<std::vector<std::string>> whole = chunks_read<PVCore::PVMMapAllocator>(
+		    std::make_shared<short_reads_input>(data, data.size()), quoting);
+		check_lines(joined(whole), lines);
+
+		for (const size_t max_read : {size_t(1), size_t(100)}) {
+			const std::vector<std::vector<std::string>> chunks =
+			    chunks_read<PVCore::PVMMapAllocator>(
+			        std::make_shared<short_reads_input>(data, max_read), quoting);
+			PV_VALID(chunks.size(), whole.size(), "max_read", max_read);
+			for (size_t i = 0; i < whole.size(); i++) {
+				PV_VALID(chunks[i].size(), whole[i].size(), "chunk", i, "max_read", max_read);
+			}
+			check_lines(joined(chunks), lines);
+		}
+	}
+}
+
 int main()
 {
 	pvtest::init_ctxt();
@@ -239,6 +327,7 @@ int main()
 	check_line_ends_in_recycled_memory();
 	check_converted_lines();
 	check_quoted_line_feeds();
+	check_chunks_from_short_reads();
 
 	return 0;
 }

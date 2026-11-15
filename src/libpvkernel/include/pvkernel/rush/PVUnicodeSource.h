@@ -396,6 +396,32 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	}
 
 	/**
+	 * Reads into [@p buffer, @p buffer + @p n) until it is full or the input ends.
+	 *
+	 * The input may hand fewer bytes than asked before it ends: a compressed file comes
+	 * decompressed through a pipe, which hands at most its own buffer per read, 64 KiB on
+	 * Linux. The import pays for each chunk, whatever it holds: writing one into the NRAW
+	 * maps a window of every column file.
+	 *
+	 * @return the bytes read, fewer than @p n at the end of the input only, and the bytes of
+	 * the input they come from
+	 */
+	PVInput::chunk_sizes_t read_input(char* buffer, size_t n)
+	{
+		PVInput::chunk_sizes_t read{0, 0};
+		while (read.first < n) {
+			const auto [uncompressed, compressed] =
+			    _input->operator()(buffer + read.first, n - read.first);
+			read.second += compressed;
+			if (uncompressed == 0) {
+				break;
+			}
+			read.first += uncompressed;
+		}
+		return read;
+	}
+
+	/**
 	 * Generate a new Chunk.
 	 *
 	 * Continue with previous created chunk.
@@ -411,7 +437,7 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
         // Try to read data into current chunk
         char* begin_read = _curc->end();
         size_t r, c;
-        std::tie(r, c) = _input->operator()(begin_read, _curc->avail());
+        std::tie(r, c) = read_input(begin_read, _curc->avail());
         size_t chunk_size = r;
         size_t compressed_chunk_size = c;
 
@@ -442,7 +468,7 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
                 b = _curc->begin() + start_offset;
                 chunk_size = 0;
             } else if (chunk_size < _curc->avail()) {
-                std::tie(r, c) = _input->operator()(_curc->end() + chunk_size, _curc->avail() - chunk_size);
+                std::tie(r, c) = read_input(_curc->end() + chunk_size, _curc->avail() - chunk_size);
                 chunk_size += r;
                 compressed_chunk_size += c;
                 buffer_end = _curc->end() + chunk_size;
