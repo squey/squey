@@ -50,6 +50,14 @@ builds/x86_64-linux-gnu/Clang/RelWithDebInfo/squey.sh
 
 Pass `debug` to `squey.sh` to start it under gdb.
 
+Links open in the browser of the host, through its desktop portal, and Squey
+can follow the light or dark scheme of the desktop. The container reaches the
+portal alone, through a proxy of the session bus that
+`.devcontainer/prepare_portal.sh` starts on the host; it needs `xdg-dbus-proxy`,
+which comes with flatpak. The devcontainer CLI runs that script on every `up`,
+Zed only when it creates the container: should links stop opening after logging
+in again, run it by hand.
+
 Rendering uses the GPU of the machine when it has one, a dedicated one before
 one built into the processor, and the CPU otherwise; `FORCE_CPU=1` in front of
 the command takes the CPU anyway. The GPU comes through the flatpak runtimes
