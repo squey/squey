@@ -29,6 +29,13 @@
 #include <pvkernel/filter/PVFieldsFilter.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 
+#include <vector>
+
+namespace PVCore
+{
+class PVTextChunk;
+}
+
 namespace PVFilter
 {
 
@@ -44,6 +51,14 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 
 	bool guess(list_guess_result_t& res, PVCore::PVField& in_field) override;
 
+	/**
+	 * A value holding another separator the guess tries is not plausible, unless quotes
+	 * hold it or it is a decimal number written with a comma; the space is no evidence. A
+	 * line where a value begins with a quote that nothing closes does not read at all.
+	 */
+	double guess_quality(PVCore::PVArgumentList const& args,
+	                     PVCore::list_fields const& fields) const override;
+
 	void set_args(PVCore::PVArgumentList const& args) override;
 
   private:
@@ -56,7 +71,13 @@ class PVFieldSplitterCSV : public PVFieldsFilter<one_to_many>
 
 	char _sep = ',';
 	char _quote = '"';
-	char _escape = '\0'; ///< escape character (0 = disabled, i.e. plain CSV split)
+	char _escape = '\0';    ///< escape character (0 = disabled, i.e. plain CSV split)
+	bool _guessing = false; ///< whether one_to_many() splits a line for guess()
+
+	/// The chunk guess() reads the lines of, and where the last record each separator read
+	/// across several of them ends, which the lines before belong to.
+	const PVCore::PVTextChunk* _guessed_chunk = nullptr;
+	std::vector<const char*> _guessed_records_end;
 
 	CLASS_FILTER(PVFilter::PVFieldSplitterCSV)
 };

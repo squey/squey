@@ -25,12 +25,15 @@
 #ifndef PVRAWSOURCEBASE_FILE_H
 #define PVRAWSOURCEBASE_FILE_H
 
+#include <pvkernel/rush/PVCSVRecords.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h> // for PVRawSourceBase_p
 #include <pvkernel/filter/PVFilterFunction.h> // for PVFilterFunctionBase
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVBinaryChunk.h>
 #include <stddef.h>
 #include <QString> // for QString
+
+#include <optional>
 
 #include "pvbase/types.h" // for PVCol, chunk_index
 
@@ -65,6 +68,11 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 		_ncols_to_reserve = col;
 	}
 	PVCol get_number_cols_to_reserve() const { return _ncols_to_reserve; }
+	/**
+	 * Lets the quoted values of the CSV the source reads hold line feeds, which then end no
+	 * record. Only the sources of text records heed it.
+	 */
+	virtual void set_quoting(std::optional<PVCSVQuoting> /*quoting*/) {}
 	virtual QString human_name() = 0;
 	virtual void seek_begin() = 0;
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;

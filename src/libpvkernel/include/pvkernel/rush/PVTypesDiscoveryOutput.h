@@ -36,6 +36,7 @@
 #include <algorithm>
 #include <string>
 #include <tuple>
+#include <limits>
 #include <utility>
 #include <vector>
 
@@ -60,10 +61,11 @@ class PVFormat;
 class PVTypesDiscoveryOutput : public PVRush::PVOutput
 {
   public:
-	using autodet_type_t =
-	    std::vector<std::pair<std::pair<std::string, std::string>, std::vector<std::string>>>;
+	using autodet_type_t = std::vector<std::pair<std::string, std::string>>; /* type, type_format */
 	using type_desc_t =
 	    std::tuple<std::string, std::string, std::string>; /* type, type_format, name */
+	/// How a type writes numbers back, which is how a value has to be written to be one
+	enum class notation { none, decimal, octal, hexadecimal };
 
   public:
 	// This is the output of a TBB pipeline
@@ -89,9 +91,21 @@ class PVTypesDiscoveryOutput : public PVRush::PVOutput
 
 	autodet_type_t _types;
 	std::vector<std::unique_ptr<pvcop::types::formatter_interface>> _formatters;
+	std::vector<notation> _notations;
 	types_desc_t _types_desc;
 	std::vector<std::string> _names;
+	/// the types that read each column, from the rows after the first one
 	matching_formatters_t _matching_formatters;
+	/// whether the sample holds a value in each column, rather than none or missing ones
+	std::vector<bool> _valued;
+	/// the type of the decimals written with a comma, which a column only gets if one of
+	/// its values is no thousands, as "1,234" may be
+	size_t _decimal_comma_index = std::numeric_limits<size_t>::max();
+	std::vector<bool> _decimal_commas;
+	/// the first row, which may name the columns, apart from the others until that is settled
+	std::vector<std::string> _first_row;
+	matching_formatters_t _first_row_matching;
+	std::vector<bool> _first_row_valued;
 	size_t _column_count = 0;
 	size_t _row_count = 0;
 };

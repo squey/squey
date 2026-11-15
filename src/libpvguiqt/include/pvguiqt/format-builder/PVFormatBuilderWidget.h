@@ -151,6 +151,16 @@ class PVFormatBuilderWidget : public QMainWindow
 	PVRush::PVFormat guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
 	                              PVXmlDomModel& tree_model) const;
 
+	/**
+	 * Adds to @p tree_model the splitter @p sp guessed for the lines of a file, with its
+	 * @p naxes axes, after the @p preamble_lines lines to skip, and returns the format the
+	 * model then describes.
+	 */
+	PVRush::PVFormat add_guessed_splitter(const PVFilter::PVFieldsSplitter_p& sp,
+	                                      PVCol naxes,
+	                                      size_t preamble_lines,
+	                                      PVXmlDomModel& tree_model) const;
+
 	PVRush::PVFormat guess_format(const PVRush::PVInputDescription_p input,
 	                              const PVRush::PVInputType_p& input_type) const;
 
@@ -212,6 +222,8 @@ class PVFormatBuilderWidget : public QMainWindow
   private:
 	PVRush::PVInputType::list_inputs _inputs; //!< List of input files.
 	bool _loading_log = false;                //!< load_log() is running, and is not reentrant.
+	/// the lines the guess found before the names of the columns or the first values
+	size_t _preamble_lines = 0;
 
 	PVWidgets::PVFileDialog _file_dialog;
 

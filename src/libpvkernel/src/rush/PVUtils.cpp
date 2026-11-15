@@ -83,23 +83,14 @@ std::string PVRush::PVUtils::safe_export(std::string str,
                                          const std::string& sep_char,
                                          const std::string& quote_char)
 {
-	static std::string escaped_quote("\\" + quote_char);
-
-	bool do_quote = false;
-
-	if (str.find(sep_char) != std::string::npos) {
-		do_quote = true;
-	}
-	if (str.find(quote_char) != std::string::npos) {
-		do_quote = true;
-		PVCore::replace(str, quote_char, escaped_quote);
-	}
-	if (do_quote) {
-		str.append(quote_char);
-		str.insert(0, quote_char);
+	if (quote_char.empty() or
+	    (str.find(sep_char) == std::string::npos and str.find(quote_char) == std::string::npos and
+	     str.find_first_of("\r\n") == std::string::npos)) {
+		return str;
 	}
 
-	return str;
+	PVCore::replace(str, quote_char, quote_char + quote_char);
+	return quote_char + str + quote_char;
 }
 
 void PVRush::PVUtils::safe_export(QStringList& str_list,

@@ -25,6 +25,7 @@
 #ifndef PVRUSHAGGREGATOR_FILE_H
 #define PVRUSHAGGREGATOR_FILE_H
 
+#include <pvkernel/rush/PVCSVRecords.h>
 #include <pvkernel/rush/PVRawSourceBase_types.h>
 
 #include <pvbase/types.h>
@@ -33,6 +34,7 @@
 
 #include <cstddef> // for size_t
 #include <list>
+#include <optional>
 
 namespace PVCore
 {
@@ -125,6 +127,8 @@ class PVAggregator
 	void set_skip_lines_count(size_t skip_lines_count) { _skip_lines_count = skip_lines_count; }
 
 	void set_sources_number_fields(PVCol nfields);
+
+	void set_sources_quoting(std::optional<PVCSVQuoting> quoting);
 
 	bool& job_done() { return _job_done; }
 

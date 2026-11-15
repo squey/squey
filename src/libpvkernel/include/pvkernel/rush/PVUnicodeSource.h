@@ -25,12 +25,20 @@
 #ifndef PVRUSH_PVUNICODESOURCE_FILE_H
 #define PVRUSH_PVUNICODESOURCE_FILE_H
 
+#include <pvkernel/rush/PVCSVRecords.h>
 #include <pvkernel/rush/PVCharsetDetect.h>
 #include <pvkernel/rush/PVConverter.h>
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <pvkernel/rush/PVRawSourceBase.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
+
+#include <tbb/scalable_allocator.h>
+
+#include <algorithm>
+#include <iterator>
+#include <optional>
+#include <vector>
 
 namespace PVRush
 {
@@ -48,8 +56,12 @@ class UnicodeSourceBufferOverflowError : public std::exception
  * Source to read file in unicode format.
  *
  * It creates Chunks/Elements/Fields without BOM and in UTF-8
+ *
+ * The chunks come from tbbmalloc by default, which hands the memory of the chunks freed
+ * out again: mapping fresh memory for each chunk has the kernel fault it in and zero it,
+ * in the serial stage of the import, and unmapping it stops every thread to flush its TLB.
  */
-template <template <class T> class Allocator = PVCore::PVMMapAllocator>
+template <template <class T> class Allocator = tbb::scalable_allocator>
 class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 {
   public:
@@ -97,6 +109,14 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 		return dynamic_cast<PVRush::PVInputFile*>(_input.get())->file_size();
 	}
 
+	void set_quoting(std::optional<PVCSVQuoting> quoting) override
+	{
+		_records.reset();
+		if (quoting) {
+			_records.emplace(*quoting);
+		}
+	}
+
 	/**
 	 * Add element [begin, it[ as current chunk elements.
 	 *
@@ -128,6 +148,21 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	 */
 	void create_elements(char* begin, char* end)
 	{
+		// what get_records_end() found, unless the data was converted or read further since
+		const bool split = begin == _records_from and end == _records_until and _charset == "UTF-8";
+		_records_from = nullptr;
+		if (quoted_records()) {
+			if (not split) {
+				_record_ends.clear();
+				_records->split(begin, end, false, _record_ends);
+			}
+			for (const char* record_end : _record_ends) {
+				add_element(begin, const_cast<char*>(record_end));
+				begin = const_cast<char*>(record_end) + 1;
+			}
+			return;
+		}
+
 		auto it = begin;
 		while ((it = std::find(begin, end, '\n')) != end) {
 			add_element(begin, it);
@@ -201,6 +236,13 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
 					PVLOG_DEBUG("Encoding found : %s\n", _charset.c_str());
 
+					// uchardet names a block of pure ASCII "ASCII". UTF-8 reads it the same,
+					// and also reads the UTF-8 of the blocks after it, which a conversion
+					// from ASCII would replace with U+FFFD.
+					if (_charset == "ASCII") {
+						_charset = "UTF-8";
+					}
+
 					bool remove_bom = false;
 					if (_charset.find("UTF") != _charset.npos) {
 						remove_bom = true;
@@ -235,20 +277,46 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 			extra_char = 3;
 		}
 
-		// FIXME : This is a manual "reverse find" as reverse_iterator appear only with C++14
-		char* last = nullptr;
-		for (char* it = begin + len; it != begin; --it) {
-			if (*it == '\n') {
-				last = it;
-				break;
-			}
-		}
-		if (last == nullptr) {
+		const std::reverse_iterator<char*> rbegin(begin + len);
+		const std::reverse_iterator<char*> rend(begin);
+		const auto found = std::find(rbegin, rend, '\n');
+		if (found == rend) {
 			return nullptr;
 		}
+		char* last = std::prev(found.base());
 
 		assert(_chunk_size % 8 == 0 && "To be sure last + extra_char is in 'read' data");
 		return last + 1 + extra_char;
+	}
+
+	/**
+	 * Whether the records end where their quoted values let them, rather than at each line
+	 * feed
+	 */
+	bool quoted_records() const
+	{
+		// UTF-16 and UTF-32 may write a quote or a line feed with other bytes
+		return _records and _charset.find("UTF-16") == std::string::npos and
+		       _charset.find("UTF-32") == std::string::npos;
+	}
+
+	/**
+	 * The end of the last record [@p begin, @p end) holds whole, after its line feed, or
+	 * nullptr if it holds none.
+	 *
+	 * @param read where the data read last begins, which the line feeds are
+	 * looked for in when no quote decides where the records end
+	 */
+	char* get_records_end(char* begin, char* end, char* read)
+	{
+		if (not quoted_records()) {
+			return get_end_from_charset(read, size_t(end - read));
+		}
+		_records_from = begin;
+		_record_ends.clear();
+		char* const last = const_cast<char*>(_records->split(begin, end, true, _record_ends));
+		_records_until = last;
+		return last == begin ? nullptr : last;
 	}
 
 	/**
@@ -273,10 +341,8 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
 			UErrorCode status = U_ZERO_ERROR;
 
-			PVConverter target_converter(
-			    ucnv_clone(&_utf8_converter.get(), &status));
-			PVConverter source_converter(
-			    ucnv_clone(&_origin_converter->get(), &status));
+			PVConverter target_converter(ucnv_clone(&_utf8_converter.get(), &status));
+			PVConverter source_converter(ucnv_clone(&_origin_converter->get(), &status));
 
 			status = U_ZERO_ERROR;
 
@@ -307,6 +373,55 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	}
 
 	/**
+	 * Converts [@p begin, @p end) of the current chunk to UTF-8, which then ends the chunk,
+	 * growing it as much as the conversion needs.
+	 *
+	 * @param[in,out] begin where the data begins, in the chunk the conversion leaves
+	 */
+	void convert_chunk(char*& begin, char* end)
+	{
+		while (true) {
+			try {
+				_curc->set_end(convert_buffer(begin, end));
+				return;
+			} catch (const UnicodeSourceBufferOverflowError&) {
+				// the data is copied as it was before the conversion, at the same offsets
+				const size_t begin_offset = size_t(begin - _curc->begin());
+				const size_t end_offset = size_t(end - _curc->begin());
+				_curc = _curc->realloc_grow(_chunk_size);
+				begin = _curc->begin() + begin_offset;
+				end = _curc->begin() + end_offset;
+			}
+		}
+	}
+
+	/**
+	 * Reads into [@p buffer, @p buffer + @p n) until it is full or the input ends.
+	 *
+	 * The input may hand fewer bytes than asked before it ends: a compressed file comes
+	 * decompressed through a pipe, which hands at most its own buffer per read, 64 KiB on
+	 * Linux. The import pays for each chunk, whatever it holds: writing one into the NRAW
+	 * maps a window of every column file.
+	 *
+	 * @return the bytes read, fewer than @p n at the end of the input only, and the bytes of
+	 * the input they come from
+	 */
+	PVInput::chunk_sizes_t read_input(char* buffer, size_t n)
+	{
+		PVInput::chunk_sizes_t read{0, 0};
+		while (read.first < n) {
+			const auto [uncompressed, compressed] =
+			    _input->operator()(buffer + read.first, n - read.first);
+			read.second += compressed;
+			if (uncompressed == 0) {
+				break;
+			}
+			read.first += uncompressed;
+		}
+		return read;
+	}
+
+	/**
 	 * Generate a new Chunk.
 	 *
 	 * Continue with previous created chunk.
@@ -317,10 +432,12 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	 */
 	PVCore::PVTextChunk* operator()() override
     {
+        _records_from = nullptr;
+
         // Try to read data into current chunk
         char* begin_read = _curc->end();
         size_t r, c;
-        std::tie(r, c) = _input->operator()(begin_read, _curc->avail());
+        std::tie(r, c) = read_input(begin_read, _curc->avail());
         size_t chunk_size = r;
         size_t compressed_chunk_size = c;
 
@@ -329,7 +446,10 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
             if (_curc->size() == 0) {
                 return nullptr;
             }
-            create_elements(_curc->begin(), _curc->end());
+            // what the last chunk left over
+            char* b = _curc->begin();
+            convert_chunk(b, _curc->end());
+            create_elements(b, _curc->end());
             _curc->init_elements_fields();
             PVCore::PVTextChunk* ret = _curc;
             _curc = _nextc;
@@ -338,7 +458,7 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
         char* b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
         char* buffer_end = _curc->end() + r;
-        char* end = get_end_from_charset(_curc->begin(), _curc->size() + r);
+        char* end = get_records_end(b, buffer_end, _curc->begin());
 
         // Ensure we find a line ending or EOF
         while (end == nullptr) {
@@ -348,14 +468,14 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
                 b = _curc->begin() + start_offset;
                 chunk_size = 0;
             } else if (chunk_size < _curc->avail()) {
-                std::tie(r, c) = _input->operator()(_curc->end() + chunk_size, _curc->avail() - chunk_size);
+                std::tie(r, c) = read_input(_curc->end() + chunk_size, _curc->avail() - chunk_size);
                 chunk_size += r;
                 compressed_chunk_size += c;
                 buffer_end = _curc->end() + chunk_size;
                 if (r == 0) {
                     end = buffer_end; // EOF
                 } else {
-                    end = get_end_from_charset(buffer_end - r, r);
+                    end = get_records_end(b, buffer_end, buffer_end - r);
                 }
             } else {
                 end = buffer_end;
@@ -369,17 +489,7 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
             _curc->set_init_size(compressed_chunk_size * keep_ratio);
         }
 
-        // Convert buffer, realloc if needed
-        while (true) {
-            try {
-                _curc->set_end(convert_buffer(b, end));
-                break;
-            } catch (const UnicodeSourceBufferOverflowError&) {
-                _curc = _curc->realloc_grow(_chunk_size);
-                b = get_begin_from_charset(_curc->begin(), _curc->size() + r);
-                end = get_end_from_charset(_curc->begin(), _curc->size() + r);
-            }
-        }
+        convert_chunk(b, end);
 
         // Build elements
         create_elements(b, _curc->end());
@@ -438,6 +548,13 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	PVConverter _utf8_converter;                    //!< ICU converter to UTF 8
 	std::unique_ptr<PVConverter> _origin_converter; //!< ICU converter from origin charset
 	std::string _tmp_buf;                           //!< Temporary buffer use for charset conversion
+
+	std::optional<PVCSVRecords> _records;
+	/// the data get_records_end() split last, [_records_from, _records_until), and where
+	/// its records end
+	const char* _records_from = nullptr;
+	const char* _records_until = nullptr;
+	std::vector<const char*> _record_ends;
 };
 } // namespace PVRush
 

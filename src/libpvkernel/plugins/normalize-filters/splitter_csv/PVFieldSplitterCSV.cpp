@@ -25,7 +25,30 @@
 
 #include "PVFieldSplitterCSV.h"
 
-static const std::vector<char> common_separators{',', ' ', '\t', ';', '|'};
+#include <pvkernel/core/PVTextChunk.h>
+#include <pvkernel/rush/PVCSVRecords.h>
+
+#include <algorithm>
+
+// The order in which the guess prefers them, everything else being equal. The space comes
+// last, as values hold spaces more often than any other of them.
+static const std::vector<char> common_separators{',', '\t', ';', '|', ' '};
+
+/**
+ * Whether [@p begin, @p end) is a decimal number written with a comma, which a file
+ * separated by semicolons or tabulations often holds.
+ */
+static bool is_decimal_comma(const char* begin, const char* end)
+{
+	if (begin != end and (*begin == '-' or *begin == '+')) {
+		++begin;
+	}
+	const char* const comma = std::find(begin, end, ',');
+	const auto digits = [](const char* b, const char* e) {
+		return b != e and std::all_of(b, e, [](char c) { return c >= '0' and c <= '9'; });
+	};
+	return comma != end and digits(begin, comma) and digits(comma + 1, end);
+}
 
 // tshark's -Tfields output backslash-escapes its field values: C0 control bytes
 // are emitted C-style (\a \b \t \n \v \f \r), backslashes are doubled (\\), and a
@@ -73,7 +96,6 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 		return one_to_many_escaped(l, it_ins, field);
 	}
 
-	// FIXME : We should handle double Quote as escaped quote
 	char* cstr = field.begin();
 	char* b;
 	size_t n = 0;
@@ -81,53 +103,27 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 
 	while (i < field.size()) {
 		if (cstr[i] == _quote) {
-			i++;
-			// quoted value
-			b = cstr + i;
-
-			while (true) {
-				i = std::find(cstr + i, cstr + field.size(), _quote) - cstr;
-
-				if (i == field.size()) {
-					// we have found the end of line but not a quote
-					l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
-					++n;
-					goto eol;
-				}
-
-				if (cstr[i - 1] == '\\') {
-					// an escaped quote, we continue
-					++i;
-					continue;
-				}
-
-				if ((i + 1) == field.size()) {
-					break;
-				}
-
-				if (cstr[i + 1] == _quote) {
-					/* we have found a doubled quote, moving after them
-					 * to integrate them in the field
-					 */
-					i += 2;
-					continue;
-				}
-				// ensure that next char is a separator
-				if (cstr[i + 1] == _sep) {
-					break;
-				} else {
-					b--; // keep quote char at the begining of the field
-					i++; // and find next separator or end of line
-					goto find_sep;
-				}
+			const PVRush::PVQuotedValueEnd value =
+			    PVRush::quoted_value_end(cstr + i + 1, cstr + field.size(), {_sep, _quote}, false);
+			if (value.state != PVRush::PVQuotedValueEnd::status::closed) {
+				// a quote nothing closes is part of the value, which goes on after the quote
+				// that stops it from reading as quoted
+				b = cstr + i;
+				i = value.quote != nullptr ? size_t(value.quote - cstr) + 1 : i + 1;
+				goto find_sep;
 			}
 
-			// a quote, adding the new element
-			l.emplace(it_ins, *field.elt_parent(), b, cstr + i);
+			b = cstr + i + 1;
+			char* value_end = cstr + (value.quote - cstr);
+			if (not _guessing) {
+				// the line is ours to unescape the value in place
+				value_end = PVRush::unescape_quoted_value(b, value_end, _quote, value.backslash);
+			}
+			l.emplace(it_ins, *field.elt_parent(), b, value_end);
 			n++;
 
 			// moving after the quote
-			i++;
+			i = size_t(value.quote - cstr) + 1;
 
 			if (i == field.size()) {
 				// all-right, we reach the end of line
@@ -149,10 +145,16 @@ PVCore::list_fields::size_type PVFilter::PVFieldSplitterCSV::one_to_many(
 			n++;
 			// check for separator character not inside quotes
 			bool inside_quotes = false;
+			const size_t value_begin = i;
 			for (; i < field.size() and (cstr[i] != _sep or inside_quotes); i++) {
 				if (cstr[i] == _quote) {
 					inside_quotes = not inside_quotes;
 				}
+			}
+			if (inside_quotes) {
+				// a quote no other one closes is part of the value, as in 12" pipe: the
+				// separators after it still separate
+				i = std::find(cstr + value_begin, cstr + field.size(), _sep) - cstr;
 			}
 
 			if (i == field.size()) {
@@ -239,25 +241,95 @@ eol:
 	return n;
 }
 
+double PVFilter::PVFieldSplitterCSV::guess_quality(PVCore::PVArgumentList const& args,
+                                                   PVCore::list_fields const& fields) const
+{
+	const char sep = args.at("sep").toChar().toLatin1();
+	const char quote = args.at("quote").toChar().toLatin1();
+
+	double plausible = 0;
+	for (const PVCore::PVField& field : fields) {
+		const char* const begin = field.begin();
+		const char* const end = field.end();
+		const PVCore::PVElement& line = *field.elt_parent();
+
+		if (begin != line.begin() and begin[-1] == quote) {
+			// what quotes hold may be anything, separators included
+			plausible += 1;
+			continue;
+		}
+		if (begin != end and *begin == quote) {
+			// a quote nothing closes
+			return 0;
+		}
+
+		// values hold spaces too often for one to tell anything
+		const bool other_separator = std::any_of(begin, end, [sep](char c) {
+			return c != sep and c != ' ' and
+			       std::find(common_separators.begin(), common_separators.end(), c) !=
+			           common_separators.end();
+		});
+		if (not other_separator or (sep != ',' and is_decimal_comma(begin, end))) {
+			plausible += 1;
+		}
+	}
+	return plausible;
+}
+
 bool PVFilter::PVFieldSplitterCSV::guess(list_guess_result_t& res, PVCore::PVField& in_field)
 {
 	PVCore::PVArgumentList test_args = get_default_args();
 	bool ok = false;
 
 	_fields_expected = std::numeric_limits<size_t>::max();
+	// every separator splits the same line, which therefore has to stay as it is
+	_guessing = true;
 
-	for (const auto separator : common_separators) {
-		PVCore::list_fields lf;
+	PVCore::PVElement& line = *in_field.elt_parent();
+	PVCore::PVTextChunk* const chunk = line.chunk_parent();
+	// the lines of a chunk follow one another in its buffer, line feeds included
+	const bool in_chunk =
+	    chunk != nullptr and line.begin() >= chunk->begin() and line.end() <= chunk->end();
+	if (chunk != _guessed_chunk) {
+		_guessed_chunk = chunk;
+		_guessed_records_end.assign(common_separators.size(), nullptr);
+	}
+
+	for (size_t s = 0; s < common_separators.size(); ++s) {
+		const char separator = common_separators[s];
+		const char*& guessed_record_end = _guessed_records_end[s];
+		if (in_chunk and in_field.begin() < guessed_record_end) {
+			// a line of a record read whole already
+			continue;
+		}
 
 		test_args["sep"] = QVariant(QChar(separator));
 		set_args(test_args);
 
-		if (one_to_many(lf, lf.begin(), in_field) > 1) {
+		// a record whose quoted values hold line feeds is read whole
+		PVCore::PVField record = in_field;
+		if (in_chunk) {
+			const char* const record_end = PVRush::PVCSVRecords({separator, _quote})
+			                                   .record_end(in_field.begin(), chunk->end(), false);
+			// past the line feed of the line, and the carriage return before it
+			if (record_end > in_field.end() + 1) {
+				guessed_record_end = record_end;
+				char* end = in_field.begin() + (record_end - in_field.begin());
+				if (end[-1] == '\r') {
+					--end;
+				}
+				record = PVCore::PVField(line, in_field.begin(), end);
+			}
+		}
+
+		PVCore::list_fields lf;
+		if (one_to_many(lf, lf.begin(), record) > 1) {
 			// We have a match
 			res.push_back(list_guess_result_t::value_type(test_args, lf));
 			ok = true;
 		}
 	}
+	_guessing = false;
 
 	return ok;
 }

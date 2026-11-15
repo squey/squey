@@ -24,6 +24,14 @@ pv_add_test_conv_utf8("charset/windows1250" 10048576)
 pv_add_test_conv_utf8("charset/utf8_windows1252" 10048576)
 pv_add_test_conv_utf8("charset/viscii" 10048576)
 
+# The lines a text source cuts a file into, across the chunks it reads it in
+add_squey_compile_test(Trush_unicode_source LINKS ${LINK_LIBRARIES} FILES unicode_source.cpp)
+add_squey_test(Trush_unicode_source Trush_unicode_source)
+
+# Where the records of a CSV end, and how its quoted values read
+add_squey_compile_test(Trush_csv_records LINKS ${LINK_LIBRARIES} FILES csv_records.cpp)
+add_squey_test(Trush_csv_records Trush_csv_records)
+
 # Test the aggregator
 add_squey_compile_test(Trush_agg LINKS ${LINK_LIBRARIES} FILES agg.cpp helpers.cpp)
 add_squey_test(TestAggregator1 Trush_agg 6000 ${PVRUSH_TEST_FILES}/aggregator/set1)
@@ -91,6 +99,13 @@ add_bench(Trush_splitter_csv LINKS ${LINK_LIBRARIES} FILES splitter_csv.cpp help
 add_squey_test(Trush_splitter_csv2 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv ${PVRUSH_TEST_FILES}/splitters/csv/file.csv.out 7)
 add_squey_test(Trush_splitter_csv3 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_escaped.csv.out 2)
 add_squey_test(Trush_splitter_csv4 Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_doubled_quote.csv.out 20)
+add_squey_compile_test(Trush_splitter_csv_quotes LINKS ${LINK_LIBRARIES} FILES splitter_csv_quotes.cpp helpers.cpp)
+add_squey_test(Trush_splitter_csv_quotes Trush_splitter_csv_quotes)
+
+# The values a CSV imports whose quoted values hold line feeds
+add_squey_compile_test(Trush_csv_quoted_line_feeds LINKS ${LINK_LIBRARIES} FILES csv_quoted_line_feeds.cpp)
+add_squey_test(Trush_csv_quoted_line_feeds Trush_csv_quoted_line_feeds)
+
 # tshark -Tfields escape mode: escaped separators must not shift columns (argv[4]=92 is '\')
 add_squey_test(Trush_splitter_csv_tshark Trush_splitter_csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv ${PVRUSH_TEST_FILES}/splitters/csv/splitter_csv_tshark.csv.out 3 92)
 
@@ -226,6 +241,9 @@ foreach(hash_seed 0 1 7 42)
 	set_property(TEST SQUEY_TEST_Trush_guess_separator_stability_seed${hash_seed} APPEND PROPERTY ENVIRONMENT "QT_HASH_SEED=${hash_seed}")
 endforeach()
 
+add_squey_compile_test(Trush_guess_separator_robustness LINKS ${LINK_LIBRARIES} FILES guess_separator_robustness.cpp)
+add_squey_test(Trush_guess_separator_robustness Trush_guess_separator_robustness)
+
 add_squey_compile_test(Trush_filter_guess_csv LINKS ${LINK_LIBRARIES} FILES filter_guess_csv.cpp)
 add_squey_test(Trush_filter_guess_csv_correct Trush_filter_guess_csv 4 "," "\"" ${PVRUSH_TEST_FILES}/csv/tiny.csv)
 add_squey_test(Trush_filter_guess_csv_incorrect Trush_filter_guess_csv 0 "," "\"" ${PVRUSH_TEST_FILES}/csv/irregular.csv)
@@ -233,6 +251,9 @@ add_squey_test(Trush_filter_guess_csv_incorrect Trush_filter_guess_csv 0 "," "\"
 add_squey_compile_test(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_discovery.cpp)
 add_squey_test(Trush_axes_types_discovery Trush_axes_types_discovery)
 add_bench(Trush_axes_types_discovery LINKS ${LINK_LIBRARIES} FILES axes_types_discovery.cpp)
+
+add_squey_compile_test(Trush_types_discovery LINKS ${LINK_LIBRARIES} FILES types_discovery.cpp)
+add_squey_test(Trush_types_discovery Trush_types_discovery)
 
 # squey-logstats
 add_squey_compile_test(Trush_logstats LINKS ${LINK_LIBRARIES} FILES log_stats.cpp)
