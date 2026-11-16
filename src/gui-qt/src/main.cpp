@@ -254,6 +254,9 @@ int run_squey(App::PVSingleInstanceApplication& app, const command_line& cmd)
 		    splash.repaint();
 		    app.processEvents();
 	    });
+	// Starting the OpenCL backend put the signal handlers of LLVM in front of the
+	// crash handler.
+	reclaim_crash_signals();
 
 	task_label->setText(QObject::tr("Loading plugins..."));
 	splash.repaint();

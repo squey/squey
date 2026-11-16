@@ -30,6 +30,12 @@
  * handler and dereferences a null pointer, then the parent waits for the report
  * to show up in the database and drops it again.
  *
+ * Under Linux, the child first puts in front of Crashpad, for SIGSEGV and SIGFPE,
+ * a signal handler that raises the signal again from where it is, as those of
+ * LLVM do, then calls reclaim_crash_signals(). The child checks that SIGFPE
+ * stays with that handler, the parent that the report still places the crash
+ * where it happened.
+ *
  * The child needs crashpad_handler next to the test executable, which the
  * CMakeLists copies there. squey-crashreport is deliberately *not* copied: the
  * handler would spawn it and its dialog would hang the test. Failing to spawn it
@@ -50,13 +56,21 @@
 #include <QString>
 #include <QStringList>
 #include <QThread>
+#include <QtEndian>
 
+#include <cstdint>
 #include <cstring>
 #include <iostream>
+#include <optional>
 #include <string>
 
 #ifdef _WIN32
 #include <windows.h>
+#endif
+#ifdef __linux__
+#include <signal.h>
+#include <sys/syscall.h>
+#include <unistd.h>
 #endif
 
 // The handler writes the minidump after the crashed process is gone, so the
@@ -66,6 +80,46 @@ static constexpr int POLL_INTERVAL_MS = 100;
 
 // Reported to CTest as a skip rather than a failure, see SKIP_RETURN_CODE.
 static constexpr int SKIPPED_EXIT_CODE = 77;
+
+static const std::string CRASH_SITE_PREFIX = "crash site: ";
+
+// In a function of its own, whose address the child prints for the parent. The pointer is
+// volatile too: GCC, seeing it null, would otherwise drop the call to this function.
+[[gnu::noinline]] static void write_through_null()
+{
+	volatile int* volatile invalid_address = nullptr;
+	*invalid_address = 42;
+}
+
+#ifdef __linux__
+static struct sigaction displaced_actions[NSIG];
+
+/* As the signal handlers of LLVM since version 21: the handler displaced is put
+ * back, and the signal raised again with the same siginfo, from here.
+ */
+static void reraise_from_here(int sig, siginfo_t* info, void*)
+{
+	sigaction(sig, &displaced_actions[sig], nullptr);
+	syscall(SYS_rt_tgsigqueueinfo, getpid(), gettid(), sig, info);
+}
+
+static void put_reraising_handler_in_front(int sig)
+{
+	struct sigaction action = {};
+	action.sa_sigaction = reraise_from_here;
+	// LLVM unblocks every signal instead: either way, the signal raised again is
+	// delivered at once, before the handler returns.
+	action.sa_flags = SA_SIGINFO | SA_NODEFER;
+	sigemptyset(&action.sa_mask);
+	sigaction(sig, &action, &displaced_actions[sig]);
+}
+
+static bool handled_by_reraise_from_here(int sig)
+{
+	struct sigaction action = {};
+	return sigaction(sig, nullptr, &action) == 0 and action.sa_sigaction == reraise_from_here;
+}
+#endif
 
 static int crash_on_purpose()
 {
@@ -77,17 +131,96 @@ static int crash_on_purpose()
 
 	init_segfault_handler();
 
+#ifdef __linux__
+	put_reraising_handler_in_front(SIGSEGV);
+	put_reraising_handler_in_front(SIGFPE);
+	reclaim_crash_signals();
+	if (not handled_by_reraise_from_here(SIGFPE)) {
+		std::cout << "reclaim_crash_signals() took SIGFPE, which PortableCL needs first"
+		          << std::endl;
+		return 1;
+	}
+#endif
+
 	// Printed so that a mismatch with the database of the parent is visible.
 	std::cout << "child database: " << crash_report_database_path() << std::endl;
+	std::cout << CRASH_SITE_PREFIX << std::hex
+	          << reinterpret_cast<std::uintptr_t>(&write_through_null) << std::dec << std::endl;
 	std::cout.flush();
 
-	volatile int* invalid_address = nullptr;
-	*invalid_address = 42;
+	write_through_null();
 
 	// Not reached: reaching it means the crash did not happen, which the parent
 	// reports as a failure through the exit status.
 	return 1;
 }
+
+#if defined(__linux__) and defined(__x86_64__)
+template <typename T>
+static std::optional<T> read_little_endian(const QByteArray& data, qsizetype offset)
+{
+	if (offset < 0 or offset + qsizetype(sizeof(T)) > data.size()) {
+		return std::nullopt;
+	}
+	return qFromLittleEndian<T>(data.constData() + offset);
+}
+
+/* The instruction pointer of the context in the exception stream of a minidump:
+ * where the report places the crash. The structures are those of the minidump
+ * format of Breakpad, minidump_format.h.
+ */
+static std::optional<std::uint64_t> crash_instruction_pointer(const QByteArray& minidump)
+{
+	constexpr qsizetype STREAM_COUNT = 8;          // in MDRawHeader
+	constexpr qsizetype STREAM_DIRECTORY_RVA = 12; // in MDRawHeader
+	constexpr qsizetype DIRECTORY_ENTRY_SIZE = 12; // MDRawDirectory
+	constexpr qsizetype STREAM_RVA = 8;            // in MDRawDirectory
+	constexpr quint32 EXCEPTION_STREAM = 6;        // MD_EXCEPTION_STREAM
+	constexpr qsizetype THREAD_CONTEXT_RVA = 164;  // in MDRawExceptionStream
+	constexpr qsizetype RIP = 0xf8;                // in MDRawContextAMD64
+
+	const std::optional<quint32> stream_count = read_little_endian<quint32>(minidump, STREAM_COUNT);
+	const std::optional<quint32> directory =
+	    read_little_endian<quint32>(minidump, STREAM_DIRECTORY_RVA);
+	if (not stream_count or not directory) {
+		return std::nullopt;
+	}
+
+	for (quint32 i = 0; i < *stream_count; ++i) {
+		const qsizetype entry = *directory + i * DIRECTORY_ENTRY_SIZE;
+		if (read_little_endian<quint32>(minidump, entry) != EXCEPTION_STREAM) {
+			continue;
+		}
+		const std::optional<quint32> stream =
+		    read_little_endian<quint32>(minidump, entry + STREAM_RVA);
+		if (not stream) {
+			return std::nullopt;
+		}
+		const std::optional<quint32> context =
+		    read_little_endian<quint32>(minidump, *stream + THREAD_CONTEXT_RVA);
+		if (not context) {
+			return std::nullopt;
+		}
+		return read_little_endian<quint64>(minidump, *context + RIP);
+	}
+
+	return std::nullopt;
+}
+
+static std::optional<std::uint64_t> crash_site(const std::string& child_output)
+{
+	const size_t position = child_output.find(CRASH_SITE_PREFIX);
+	if (position == std::string::npos) {
+		return std::nullopt;
+	}
+	return std::stoull(child_output.substr(position + CRASH_SITE_PREFIX.size()), nullptr, 16);
+}
+
+static std::string hex(std::uint64_t value)
+{
+	return "0x" + QString::number(value, 16).toStdString();
+}
+#endif
 
 /* The ptrace policy as the sandbox sees it, which is not necessarily the one of
  * the host: reported alongside a skip so that it does not have to be guessed.
@@ -177,6 +310,18 @@ int main(int argc, char* argv[])
 	PV_ASSERT_VALID(report_file.open(QIODevice::ReadOnly), "report", report_path);
 	const QByteArray magic = report_file.read(4);
 	PV_VALID(magic.toStdString(), std::string("MDMP"));
+
+#if defined(__linux__) and defined(__x86_64__)
+	// write_through_null() is a few instructions long. Left in front of Crashpad,
+	// reraise_from_here() would have the report place the crash in libc, where
+	// syscall() raised the signal again.
+	report_file.seek(0);
+	const std::optional<std::uint64_t> rip = crash_instruction_pointer(report_file.readAll());
+	const std::optional<std::uint64_t> site = crash_site(child_output);
+	PV_ASSERT_VALID(rip.has_value() and site.has_value(), "child output", child_output);
+	PV_ASSERT_VALID(*rip >= *site and *rip - *site < 256, "rip", hex(*rip), "crash site",
+	                hex(*site));
+#endif
 
 	// Sending or declining a report drops it, so it is not offered again.
 	discard_crash_report(report_path);
