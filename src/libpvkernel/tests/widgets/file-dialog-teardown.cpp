@@ -35,6 +35,8 @@
 
 #include <QAbstractItemModel>
 #include <QApplication>
+#include <QCoreApplication>
+#include <QEvent>
 #include <QFileDialog>
 #include <QPointer>
 #include <QTemporaryDir>
@@ -97,6 +99,11 @@ int main(int argc, char** argv)
 	    Qt::QueuedConnection);
 
 	PVWidgets::PVFileDialog::getExistingDirectory(nullptr, {}, dir.path());
+
+	// QFileSystemModel waits a second for its gatherer thread, then leaves it to a deferred
+	// deletion, which no event loop runs any more. On Windows, a thread still running as the
+	// process exits can keep it from ever exiting.
+	QCoreApplication::sendPostedEvents(nullptr, QEvent::DeferredDelete);
 
 	PV_ASSERT_VALID(track_lost, "the root index of the views", "still tracked by the model");
 	PV_ASSERT_VALID(model_outlived_views, "the file system model", "destroyed before the views");
