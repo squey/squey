@@ -1,6 +1,6 @@
 /* * MIT License
  *
- * © ESI Group, 2015
+ * © Squey, 2026
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of
  * this software and associated documentation files (the "Software"), to deal in
@@ -22,38 +22,61 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __PVPCAPPARAMSWIDGET_H__
-#define __PVPCAPPARAMSWIDGET_H__
+#ifndef PCAP_GUI_PROFILESPANEL_H
+#define PCAP_GUI_PROFILESPANEL_H
 
-#include <QDialog>
-#include <QLayout>
-#include <QString>
-#include <QStringList>
+#include <QWidget>
 
-#include "pcap/pcap-gui/import-ui/src/include/SelectionWidget.h"
+#include <functional>
+
+class QAction;
+class QListWidget;
+class QListWidgetItem;
+class QMenu;
+class QToolButton;
 
 namespace PVPcapsicum
 {
 
-class PVInputTypePcap;
+class ProfileEditor;
 
-class PVPcapParamsWidget : public QDialog
+/**
+ * The profiles to choose from, those Squey ships then those of the user, with what they
+ * import: created, duplicated, renamed in place with F2, deleted, imported from files and
+ * exported to files.
+ */
+class ProfilesPanel : public QWidget
 {
 	Q_OBJECT
 
   public:
-	PVPcapParamsWidget(QWidget* parent);
-	PVPcapParamsWidget(const QStringList& pcap_paths, QWidget* parent);
+	explicit ProfilesPanel(ProfileEditor* editor, QWidget* parent = nullptr);
 
-  public:
-	QStringList pcap_paths() const { return _selection_widget->pcap_paths(); }
-	QDomDocument get_format() const { return _selection_widget->get_format(); }
-	const rapidjson::Document& profile() const { return _selection_widget->profile(); }
+	//! New profile, Duplicate, Rename, Delete, Import, Export.
+	QMenu* actions_menu() const { return _menu; }
+
+	void create();
+	void duplicate();
+	void rename();
+	void remove();
+	void import();
+	void export_profile();
 
   private:
-	SelectionWidget* _selection_widget; //!< Widget with selection information
+	void refresh();
+	void select_current();
+	void renamed(QListWidgetItem* item);
+	//! Runs what changes profiles, telling the user why it could not.
+	bool attempt(const QString& what, const std::function<void()>& change);
+
+	ProfileEditor* _editor;
+	QListWidget* _list;
+	QMenu* _menu;
+	QAction* _rename;
+	QAction* _remove;
+	bool _refreshing = false;
 };
 
 } // namespace PVPcapsicum
 
-#endif // __PVPCAPPARAMSWIDGET_H__
+#endif // PCAP_GUI_PROFILESPANEL_H

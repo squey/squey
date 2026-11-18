@@ -27,7 +27,6 @@
 
 #include <pvkernel/rush/PVInputType.h>
 
-#include "PVPcapParamsWidget.h"
 #include "PVPcapExporter.h"
 #include "PVPcapExporterWidget.h"
 #include "pcap/PVPcapDescription.h"

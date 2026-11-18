@@ -29,21 +29,12 @@ target_link_libraries(input_type_file PRIVATE pvkernel)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libpvkernel/plugins/input-types/")
 
-# The generated ui_*.h of the pcap import dialog are looked up from here.
-include_directories(SYSTEM "pcap/pcap-gui/")
-
 # libraries
 add_subdirectory(../common/pcap/libpvpcap pvpcap)
 add_subdirectory(pcap/pcap-gui pcap-gui)
 
-# Define ressources
-set(PCAP_MOC_HEADERS 
-pcap/PVPcapParamsWidget.h
-)
-
 set(PCAP_SRC_FILES
 pcap/PVInputTypePcap.cpp
-pcap/PVPcapParamsWidget.cpp
 pcap/register.cpp
 )
 
@@ -51,11 +42,8 @@ pcap/register.cpp
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${PVKERNEL_PLUGIN}/input-types/")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# Generate moc files
-qt6_wrap_cpp(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS)
-
 # Generate linkage configuration
-add_library(input_type_pcap SHARED ${PCAP_SRC_FILES} ${PCAP_MOC_SRC})
+add_library(input_type_pcap SHARED ${PCAP_SRC_FILES})
 target_link_libraries(input_type_pcap PRIVATE pvkernel
 	pcap-gui-widget
 	pvpcap

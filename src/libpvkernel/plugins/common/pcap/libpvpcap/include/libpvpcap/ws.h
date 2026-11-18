@@ -178,8 +178,6 @@ std::vector<std::string> get_wireshark_profiles_paths();
 //! Whether Wireshark has a configuration profile of this name: an empty name is none.
 bool wireshark_profile_exists(const std::string& name);
 
-std::string ws_protocols_dict_path();
-
 /**
  * Get the list of wireshark's known protocols' fields.
  *
@@ -193,39 +191,6 @@ std::vector<std::string> ws_get_tshark_fields();
  * @return list of protocols.
  */
 std::vector<std::string> ws_get_tshark_protocols();
-
-/**
- * Build a dictionnary of all known protocols and fields from tshark and store
- * it in a json format file.
- *
- * @param protocols_dict_file file to save json string.
- */
-void ws_create_protocols_dict(std::string const& protocols_dict_file);
-
-rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_file);
-
-/**
- * Build json tree structure from a pcap file.
- *
- * @param source pcap file name.
- * @param  document rapidjson document.
- * @param  protocols_dict_file a json file of all known protocols and fields from tshark
- */
-rapidjson::Document ws_create_protocols_tree(const std::string& source,
-                                             const rapidjson::Document& protocols_dict);
-
-void ws_merge_protocols_tree(rapidjson::Value& dst,
-                             const rapidjson::Value& src,
-                             rapidjson::Document::AllocatorType& allocator);
-
-void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
-                              const rapidjson::Document& protocols_tree,
-                              const rapidjson::Document& protocols_dict);
-
-/**
- *
- */
-rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data);
 
 //! What tshark needs in its environment to write what Squey reads.
 std::vector<std::pair<std::string, std::string>> tshark_environment();
@@ -281,12 +246,6 @@ extraction::options ws_extraction_options(const profile& p);
 inline extraction::options ws_extraction_options(const rapidjson::Document& json)
 {
 	return ws_extraction_options(profile_from_json(json));
-}
-
-//! @throw profile_error if the document holds no profile
-inline std::vector<profile_field> ws_profile_fields(const rapidjson::Document& json)
-{
-	return profile_from_json(json).columns;
 }
 
 //! What tshark says of a display filter.

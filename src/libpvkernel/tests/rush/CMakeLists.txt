@@ -149,6 +149,12 @@ add_squey_test(Trush_pcap_catalog Trush_pcap_catalog ${TESTS_FILES_DIR}/../../pv
 set_tests_properties(SQUEY_TEST_Trush_pcap_catalog PROPERTIES SKIP_RETURN_CODE 77)
 set_property(TEST SQUEY_TEST_Trush_pcap_catalog APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=pcap_catalog_test_config")
 
+# The dialog importing captures, used as a user would
+add_squey_compile_test(Trush_pcap_import_dialog LINKS ${LINK_LIBRARIES} pcap-gui-widget pvpcap Qt6::Test Qt6::Widgets FILES pcap_import_dialog.cpp)
+add_squey_test(Trush_pcap_import_dialog Trush_pcap_import_dialog ${PCAP_PROFILES_DIR} ${TESTS_FILES_DIR}/../../pvconfig.ini ${TESTS_FILES_DIR}/sources/http.pcap -platform offscreen)
+set_tests_properties(SQUEY_TEST_Trush_pcap_import_dialog PROPERTIES SKIP_RETURN_CODE 77)
+set_property(TEST SQUEY_TEST_Trush_pcap_import_dialog APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=pcap_import_dialog_test_config")
+
 add_squey_compile_test(Trush_pcap_import LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_import.cpp helpers.cpp)
 add_squey_test(Trush_pcap_import Trush_pcap_import ${PCAP_PROFILES_DIR})
 set_tests_properties(SQUEY_TEST_Trush_pcap_import PROPERTIES SKIP_RETURN_CODE 77)

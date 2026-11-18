@@ -33,6 +33,7 @@
 
 #include "pcap/PVPcapDescription.h"
 #include "pcap/PVPcapExporterWidget.h"
+#include "pcap/pcap-gui/ImportDialog.h"
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -74,11 +75,11 @@ bool PVPcapsicum::PVInputTypePcap::create_widget_with_input_files(
 {
 	connect_parent(parent);
 
-	std::unique_ptr<PVPcapParamsWidget> params(new PVPcapParamsWidget(input_paths, parent));
-	if (params->exec() == QDialog::Rejected) {
+	ImportDialog dialog(input_paths, parent);
+	if (dialog.exec() == QDialog::Rejected) {
 		return false;
 	}
-	_input_paths = params->pcap_paths();
+	_input_paths = dialog.captures();
 
 	// The format is written where the NRAW go, as is all that an import leaves behind.
 	const QString format_dir =
@@ -91,7 +92,7 @@ bool PVPcapsicum::PVInputTypePcap::create_widget_with_input_files(
 	}
 	_tmp_dir_to_delete.insert(format_dir);
 
-	const QDomDocument& xml = params->get_format();
+	const QDomDocument xml = dialog.format();
 	const QString format_path =
 	    format_dir + "/" + QString::number(QDateTime::currentMSecsSinceEpoch()) + ".format";
 	QFile format_file(format_path);
@@ -108,7 +109,7 @@ bool PVPcapsicum::PVInputTypePcap::create_widget_with_input_files(
 	formats["custom"] = std::move(f);
 	format = format_path;
 
-	const pvpcap::extraction::options extraction = pvpcap::ws_extraction_options(params->profile());
+	const pvpcap::extraction::options extraction = pvpcap::ws_extraction_options(dialog.profile());
 	const auto import = std::make_shared<PVRush::PVPcapImport>(_input_paths.size());
 	for (qsizetype i = 0; i < _input_paths.size(); i++) {
 		inputs.push_back(PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
