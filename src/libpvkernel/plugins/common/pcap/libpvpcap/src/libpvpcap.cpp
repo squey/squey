@@ -27,10 +27,12 @@
 
 #include <libpvpcap/shell.h>
 #include <rapidjson/encodings.h>
+#include <cctype>
 #include <cstdlib>
 #include <fstream>
 #include <iterator>
 #include <filesystem>
+#include <string_view>
 
 #include "../include/libpvpcap/ws.h"
 #include "../include/libpvpcap/exception.h"
@@ -233,6 +235,30 @@ std::string tshark_path()
 #else
 	return "tshark";
 #endif
+}
+
+std::string tshark_errors(const std::string& path)
+{
+	constexpr size_t most = 2000;
+	std::ifstream file{std::filesystem::path(std::u8string(path.begin(), path.end()))};
+	std::string said(most, '\0');
+	file.read(said.data(), most);
+	said.resize(size_t(file.gcount()));
+	while (not said.empty() and std::isspace(static_cast<unsigned char>(said.back()))) {
+		said.pop_back();
+	}
+	// tshark says it to whoever runs it as root, which says nothing of what went wrong. The user
+	// and the group it names read "UNKNOWN" where no account has their identifiers, as in a
+	// sandbox.
+	const std::string_view first_line = std::string_view(said).substr(0, said.find('\n'));
+	if (first_line.starts_with("Running as user \"") and
+	    first_line.ends_with("This could be dangerous.")) {
+		said.erase(0, first_line.size());
+		while (not said.empty() and std::isspace(static_cast<unsigned char>(said.front()))) {
+			said.erase(0, 1);
+		}
+	}
+	return said;
 }
 
 } // namespace pvpcap

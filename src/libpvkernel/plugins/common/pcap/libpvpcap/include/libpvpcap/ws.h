@@ -174,6 +174,9 @@ std::string get_wireshark_profiles_dir();
  */
 std::vector<std::string> get_wireshark_profiles_paths();
 
+//! Whether Wireshark has a configuration profile of this name: an empty name is none.
+bool wireshark_profile_exists(const std::string& name);
+
 std::string ws_protocols_dict_path();
 
 /**
@@ -269,6 +272,17 @@ bool ws_needs_two_passes(const std::string& name, const std::string& type);
  * Leaves out the directory of the temporary files, which only the caller knows.
  */
 extraction::options ws_extraction_options(const rapidjson::Document& profile);
+
+//! What tshark says of a display filter.
+struct filter_check {
+	bool checked = false; //!< false if tshark could not be run
+	std::string problem;  //!< what is wrong with the filter, empty if nothing is
+	size_t position = 0;  //!< of what is wrong, in bytes from the start of the filter
+	size_t length = 0;    //!< of what is wrong, 0 if tshark did not tell where it is
+};
+
+//! Has tshark read the filter, which takes it a tenth of a second.
+filter_check ws_check_filter(const std::string& filter);
 
 std::string ws_get_version();
 

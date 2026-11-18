@@ -137,6 +137,12 @@ add_squey_compile_test(Trush_pcap_extraction LINKS ${LINK_LIBRARIES} pvpcap FILE
 add_squey_test(Trush_pcap_extraction Trush_pcap_extraction)
 set_tests_properties(SQUEY_TEST_Trush_pcap_extraction PROPERTIES SKIP_RETURN_CODE 77)
 
+# What helps choose the fields of a pcap import: those tshark knows, those of a capture
+add_squey_compile_test(Trush_pcap_catalog LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_catalog.cpp)
+add_squey_test(Trush_pcap_catalog Trush_pcap_catalog ${TESTS_FILES_DIR}/../../pvconfig.ini ${TESTS_FILES_DIR}/sources/http.pcap)
+set_tests_properties(SQUEY_TEST_Trush_pcap_catalog PROPERTIES SKIP_RETURN_CODE 77)
+set_property(TEST SQUEY_TEST_Trush_pcap_catalog APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=pcap_catalog_test_config")
+
 add_squey_compile_test(Trush_pcap_import LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_import.cpp helpers.cpp)
 add_squey_test(Trush_pcap_import Trush_pcap_import ${PCAP_PROFILES_DIR})
 set_tests_properties(SQUEY_TEST_Trush_pcap_import PROPERTIES SKIP_RETURN_CODE 77)

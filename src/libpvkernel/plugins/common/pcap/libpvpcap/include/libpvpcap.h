@@ -48,6 +48,9 @@ static constexpr const char QUOTE[] = "n";
 
 std::string tshark_path();
 
+//! The start of what tshark wrote on its standard error to a file, without its warning to root.
+std::string tshark_errors(const std::string& path);
+
 /**
  * Test if a file exist.
  *

@@ -47,6 +47,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <unordered_set>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QTemporaryDir>
 #include <cstdlib>
@@ -179,6 +180,12 @@ rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_fil
  * ws_get_version
  *
  ******************************************************************************/
+bool wireshark_profile_exists(const std::string& name)
+{
+	return name.empty() or
+	       QFileInfo(QString::fromStdString(get_wireshark_profiles_dir() + "/" + name)).isDir();
+}
+
 std::string ws_get_version()
 {
 	// The version number is on the first line.
@@ -226,6 +233,73 @@ std::vector<std::string> tshark_output(const std::vector<std::string>& arguments
 		lines.push_back(std::move(line));
 	}
 	return lines;
+}
+
+filter_check ws_check_filter(const std::string& filter)
+{
+	filter_check check;
+	QTemporaryDir directory;
+	if (not directory.isValid()) {
+		return check;
+	}
+	// A capture of no frame: tshark only checks the filter.
+	const std::string capture = directory.filePath("empty.pcap").toStdString();
+	{
+		QFile file(QString::fromStdString(capture));
+		const uint32_t header[] = {0xa1b2c3d4, 0x00040002, 0, 0, 65535, 1};
+		if (not file.open(QIODevice::WriteOnly) or
+		    file.write(reinterpret_cast<const char*>(header), sizeof(header)) != sizeof(header)) {
+			return check;
+		}
+	}
+	child_process::options process;
+	process.argv = {tshark_path(), "-r", capture, "-Y", filter};
+	process.output = directory.filePath("output").toStdString();
+	process.errors = directory.filePath("errors").toStdString();
+	process.environment = tshark_environment();
+	child_process::status status;
+	try {
+		child_process tshark(process);
+		tshark.close_input();
+		status = tshark.wait();
+	} catch (const process_error&) {
+		return check;
+	}
+	check.checked = true;
+	if (status.exited and status.code == 0) {
+		return check;
+	}
+
+	/* Such as:
+	 * tshark: "http.reqest" is not a valid protocol or protocol field.
+	 *     http.reqest
+	 *     ^~~~~~~~~~~
+	 */
+	const std::string errors = tshark_errors(directory.filePath("errors").toStdString());
+	std::vector<std::string> lines;
+	boost::split(lines, errors, boost::is_any_of("\n"));
+	for (std::string& line : lines) {
+		if (not line.empty() and line.back() == '\r') {
+			line.pop_back();
+		}
+	}
+	if (lines.front().empty()) {
+		check.problem = "tshark can't read this filter.";
+		return check;
+	}
+	check.problem = lines.front().starts_with("tshark: ") ? lines.front().substr(8) : lines.front();
+	for (size_t i = 1; i < lines.size(); i++) {
+		const size_t caret = lines[i].find('^');
+		if (caret != std::string::npos and lines[i].find_first_not_of(' ') == caret and
+		    caret >= 4) {
+			check.position = caret - 4;
+			check.length = lines[i].find_first_not_of("^~", caret);
+			check.length =
+			    (check.length == std::string::npos ? lines[i].size() : check.length) - caret;
+			break;
+		}
+	}
+	return check;
 }
 
 std::unordered_map<std::string, field_description>

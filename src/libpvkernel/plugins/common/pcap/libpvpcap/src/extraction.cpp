@@ -413,28 +413,6 @@ struct conversation {
 	uint16_t part;
 };
 
-std::string read_errors(const std::string& path)
-{
-	constexpr size_t most = 2000;
-	std::ifstream file{std::filesystem::path(std::u8string(path.begin(), path.end()))};
-	std::string said(most, '\0');
-	file.read(said.data(), most);
-	said.resize(size_t(file.gcount()));
-	while (not said.empty() and std::isspace(static_cast<unsigned char>(said.back()))) {
-		said.pop_back();
-	}
-	// tshark says it to whoever runs it as root, which says nothing of what went wrong.
-	const std::string root_warning =
-	    "Running as user \"root\" and group \"root\". This could be dangerous.";
-	if (said.starts_with(root_warning)) {
-		said.erase(0, root_warning.size());
-		while (not said.empty() and std::isspace(static_cast<unsigned char>(said.front()))) {
-			said.erase(0, 1);
-		}
-	}
-	return said;
-}
-
 //! Days since 1970-01-01 of a date of the proleptic Gregorian calendar.
 int64_t days_from_civil(int64_t y, unsigned m, unsigned d)
 {
@@ -933,7 +911,7 @@ void extraction::implementation::finished(part& p, const child_process::status& 
 		p.state = part_state::done;
 		return;
 	}
-	std::string said = read_errors(p.errors);
+	std::string said = tshark_errors(p.errors);
 	if (how == mode::direct and
 	    said.find("cut short in the middle of a packet") != std::string::npos) {
 		// Reading the capture itself, tshark says when it ends in the middle of a packet,
