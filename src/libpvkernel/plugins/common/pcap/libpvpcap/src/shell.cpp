@@ -59,26 +59,6 @@ namespace pvpcap
 
 /*******************************************************************************
  *
- * save_to_file
- *
- ******************************************************************************/
-void save_to_file(const std::string& file_name, std::vector<std::string> const& text_to_save)
-{
-	std::cout << "Save to " << file_name << "..." << std::endl;
-
-	std::ofstream output_file{std::filesystem::path(file_name)};
-
-	if (!output_file) {
-		std::cerr << "Error: can't open output file \"" << file_name << "\"" << std::endl;
-		exit(EXIT_FAILURE);
-	}
-
-	std::ostream_iterator<std::string> output_iterator(output_file);
-	std::copy(text_to_save.begin(), text_to_save.end(), output_iterator);
-}
-
-/*******************************************************************************
- *
  * is_directory
  *
  ******************************************************************************/
@@ -118,25 +98,6 @@ std::vector<std::string> get_directory_files(const std::string& path_name)
 	}
 
 	return files;
-}
-
-/*******************************************************************************
- *
- * get_file_extension
- *
- ******************************************************************************/
-std::string get_file_extension(const std::string& file_name)
-{
-	const char* ext = strchr(file_name.c_str(), '.');
-
-	// no extentsion
-	if (!ext)
-		return "";
-
-	// to eliminate hidden files
-	if (sizeof(ext) == file_name.size())
-		return "";
-	return ext;
 }
 
 /*******************************************************************************

@@ -46,15 +46,6 @@ namespace pvpcap
 {
 
 /**
- * Save to file.
- *
- * @param file_name output file name.
- * @param text_to_save text to save.
- *
- */
-void save_to_file(const std::string& file_name, std::vector<std::string> const& text_to_save);
-
-/**
  * Test if it is directory.
  *
  * @param path_name path name.
@@ -71,15 +62,6 @@ bool is_directory(const std::string& path_name);
  *
  */
 std::vector<std::string> get_directory_files(const std::string& path_name);
-
-/**
- * Return a file extension.
- *
- * @param file_name file name.
- * @return file extension
- *
- */
-std::string get_file_extension(const std::string& file_name);
 
 /**
  * Return the user configuration directory for pcapsicum.
