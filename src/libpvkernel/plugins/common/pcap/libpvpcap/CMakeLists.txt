@@ -19,7 +19,6 @@ set(PCAP_SRC
     src/shell.cpp
     src/ws.cpp
     src/profileformat.cpp
-    src/pcap_splitter.cpp
    )
 
 add_library(pvpcap STATIC ${PCAP_SRC})

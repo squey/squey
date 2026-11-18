@@ -27,9 +27,9 @@
 
 #include <pvbase/general.h>
 
-#include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
-#include <pvkernel/core/PVSpinBoxType.h>
+#include <pvkernel/core/PVUtils.h>
+#include <pvkernel/rush/PVNrawCacheManager.h>
 
 #include "pcap/PVPcapDescription.h"
 #include "pcap/PVPcapExporterWidget.h"
@@ -39,25 +39,11 @@
 #include <QTextStream>
 #include <QCheckBox>
 
-#include <sys/time.h>
-#ifndef _WIN32
-#include <sys/resource.h>
-#endif
+#include <libpvpcap/ws.h>
 
 PVPcapsicum::PVInputTypePcap::PVInputTypePcap()
     : PVRush::PVInputTypeDesc<PVRush::PVPcapDescription>()
 {
-	_limit_nfds = 1024;
-#ifndef _WIN32
-	struct rlimit rlim;
-	if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
-		_limit_nfds =
-		    rlim.rlim_cur - 1; // Take the soft limit as this is the one that will limit us...
-	}
-	else {
-		PVLOG_WARN("Unable to get nofile limit. Uses 1024 by default.\n");
-	}
-#endif
 }
 
 PVPcapsicum::PVInputTypePcap::~PVInputTypePcap()
@@ -66,70 +52,6 @@ PVPcapsicum::PVInputTypePcap::~PVInputTypePcap()
 		PVLOG_INFO("Delete temporary directory %s...\n", qPrintable(tmp_dir));
 		PVCore::PVDirectory::remove_rec(tmp_dir);
 	}
-}
-
-bool PVPcapsicum::PVInputTypePcap::load_files(pvpcap::splitted_files_t&& splitted_files,
-                                              list_inputs& inputs,
-                                              QWidget* parent) const
-{
-	std::map<std::string, std::pair<size_t, size_t>> pcap_offsets;
-	for (pvpcap::splitted_file_t const& splitted_file : splitted_files) {
-		std::pair<size_t, size_t>& v = pcap_offsets[splitted_file.original_pcap_path()];
-		v.first += splitted_file.packets_count();
-		v.second = splitted_file.streams_ids_count();
-	}
-
-	size_t packets_count_offset = 0;
-	size_t streams_id_offset = 0;
-	for (auto& pcount : pcap_offsets) {
-		// packets count offsets
-		size_t offset = pcount.second.first;
-		pcount.second.first = packets_count_offset;
-		packets_count_offset += offset;
-
-		// streams id offsets
-		offset = pcount.second.second;
-		pcount.second.second = streams_id_offset;
-		streams_id_offset += offset;
-	}
-
-	for (auto & filename : splitted_files) {
-			inputs.push_back(PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
-		    QString::fromStdString(filename.path()),
-		    QString::fromStdString(filename.original_pcap_path()),
-		    pcap_offsets[filename.original_pcap_path()].first, filename.packets_indexes(),
-		    pcap_offsets[filename.original_pcap_path()].second, filename.streams_ids(),
-		    _input_paths.size() > 1)));
-	}
-
-#ifdef __linux__
-	if (inputs.size() >= _limit_nfds - 200) {
-		ssize_t nopen = _limit_nfds - 200;
-		if (nopen <= 0) {
-			nopen = 1;
-		}
-		QString msg =
-		    QObject::tr("You are trying to open %1 files, and your system limits a user to open %2 "
-		                "file descriptor at once.\nConsidering the needs of the application, this "
-		                "value must be set to a higher value. In order to change this limit, edit "
-		                "/etc/security/limits.conf and add the following lines:")
-		        .arg(inputs.size())
-		        .arg(_limit_nfds);
-		msg += "\n\n*\tsoft\tnofile\t131070\n*\thard\tnofile\t131070\n\n";
-		msg += QObject::tr("You can set 131070 to a bigger value if needed. Then, you need to "
-		                   "logout and login for these changes to be effectives.");
-		msg += "\n\n";
-		msg += QObject::tr("Only the first %1 file(s) will be opened.").arg(nopen);
-		QMessageBox err(QMessageBox::Warning, QObject::tr("Too many files selected"), msg,
-		                QMessageBox::Ok, parent);
-		err.exec();
-		inputs.erase(inputs.begin() + nopen + 1, inputs.end());
-	}
-#else
-	(void) parent;
-#endif
-
-	return inputs.size() > 0;
 }
 
 bool PVPcapsicum::PVInputTypePcap::create_widget(
@@ -150,35 +72,33 @@ bool PVPcapsicum::PVInputTypePcap::create_widget_with_input_files(
     PVCore::PVArgumentList& /*args_ext*/,
     QWidget* parent) const
 {
-    connect_parent(parent);
+	connect_parent(parent);
 
 	std::unique_ptr<PVPcapParamsWidget> params(new PVPcapParamsWidget(input_paths, parent));
-
-	auto res = params->exec();
-
-	_input_paths = params->pcap_paths();
-	QString format_dir;
-	for (pvpcap::splitted_file_t const& filename : params->csv_paths()) {
-		const QString& dir_to_del =
-		    QFileInfo(QString::fromStdString(filename.path())).dir().absolutePath();
-		_tmp_dir_to_delete.insert(dir_to_del);
-		if (format_dir.isEmpty()) {
-			format_dir = dir_to_del;
-		}
-	}
-
-	if (res == QDialog::Rejected or params->is_canceled()) {
+	if (params->exec() == QDialog::Rejected) {
 		return false;
 	}
+	_input_paths = params->pcap_paths();
 
-	// store format in first temporary directory
+	// The format is written where the NRAW go, as is all that an import leaves behind.
+	const QString format_dir =
+	    PVCore::mkdtemp(PVRush::PVNrawCacheManager::nraw_dir() + "/pcap-format-XXXXXX");
+	if (format_dir.isEmpty()) {
+		QMessageBox::critical(parent, QObject::tr("Can't import the captures"),
+		                      QObject::tr("No temporary directory could be created in '%1'.")
+		                          .arg(PVRush::PVNrawCacheManager::nraw_dir()));
+		return false;
+	}
+	_tmp_dir_to_delete.insert(format_dir);
+
 	const QDomDocument& xml = params->get_format();
-	QString format_path =
+	const QString format_path =
 	    format_dir + "/" + QString::number(QDateTime::currentMSecsSinceEpoch()) + ".format";
 	QFile format_file(format_path);
 	if (not format_file.open(QIODevice::WriteOnly)) {
-        assert(false && "Error when opening file");
-        return false;
+		QMessageBox::critical(parent, QObject::tr("Can't import the captures"),
+		                      QObject::tr("The format can't be written to '%1'.").arg(format_path));
+		return false;
 	}
 	QTextStream text_stream(&format_file);
 	xml.save(text_stream, 0);
@@ -188,7 +108,13 @@ bool PVPcapsicum::PVInputTypePcap::create_widget_with_input_files(
 	formats["custom"] = std::move(f);
 	format = format_path;
 
-	return load_files(params->csv_paths(), inputs, parent);
+	const pvpcap::extraction::options extraction = pvpcap::ws_extraction_options(params->profile());
+	const auto import = std::make_shared<PVRush::PVPcapImport>(_input_paths.size());
+	for (qsizetype i = 0; i < _input_paths.size(); i++) {
+		inputs.push_back(PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
+		    _input_paths[i], extraction, import, i, _input_paths.size() > 1)));
+	}
+	return not inputs.empty();
 }
 
 PVWidgets::PVExporterWidgetInterface*

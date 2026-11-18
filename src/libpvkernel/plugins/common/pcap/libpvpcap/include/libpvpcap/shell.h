@@ -38,40 +38,12 @@
 #include <functional>
 #include <string>
 
-#include "pcap_splitter.h"
-
 /*!
  * Namespace that groups together the components of managing
  * the tree of protocols in a pcap file.
  */
 namespace pvpcap
 {
-
-/**
- * Execute a given command.
- *
- * @param cmd command to execute (absolute path).
- *
- * @return the result of the command.
- */
-std::vector<std::string> execute_cmd(const std::string& cmd);
-
-/**
- * Run @a cmd over each split capture, writing a csv beside it.
- *
- * @param trouble where what tshark said on its way out is left, when it left
- *        badly. Reading a capture is tshark's job, and when it refuses -- a
- *        field name it does not know, a filter it cannot parse -- it says so
- *        plainly on its standard error. Without somewhere to put that, the
- *        caller is left with empty csv files and no idea why.
- */
-splitted_files_t
-extract_csv(splitted_files_t files,
-            const std::vector<std::string>& cmd,
-            bool& canceled,
-            const std::function<void(size_t total_datasize)>& f_total_datasize = {},
-            const std::function<void(size_t current_datasize)>& f_progression = {},
-            std::string* trouble = nullptr);
 
 /**
  * Save to file.

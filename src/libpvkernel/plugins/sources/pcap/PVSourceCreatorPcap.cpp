@@ -35,7 +35,7 @@
 #include "PVPcapSource.h"
 #include "../../common/pcap/PVPcapDescription.h"
 #include "pvkernel/core/PVLogger.h"
-#include "pvkernel/rush/PVInputFile.h"
+#include "pvkernel/rush/PVInput.h"
 #include "pvkernel/rush/PVInput_types.h"
 
 PVPcapsicum::PVSourceCreatorPcap::source_p
@@ -44,16 +44,17 @@ PVPcapsicum::PVSourceCreatorPcap::create_source_from_input(PVRush::PVInputDescri
 	QSettings& pvconfig = PVCore::PVConfig::get().config();
 
 	PVLOG_DEBUG("(pcap plugin) create source for %s\n", qPrintable(input->human_name()));
-	auto* pcap_desc = reinterpret_cast<PVRush::PVPcapDescription*>(input.get());
-	PVRush::PVInput_p ifile(new PVRush::PVInputFile(pcap_desc->path().toUtf8()));
+	auto* pcap_desc = dynamic_cast<PVRush::PVPcapDescription*>(input.get());
+	if (pcap_desc == nullptr) {
+		throw PVRush::PVInputException("'" + input->human_name().toStdString() +
+		                               "' is not a capture");
+	}
 	// FIXME: chunk size must be computed somewhere once and for all !
 	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
 	if (size_chunk <= 0) {
 		size_chunk = 4096 * 100; // Aligned on a page boundary (4ko)
 	}
-	source_p src(new PVRush::PVPcapSource(ifile, pcap_desc, size_chunk));
-
-	return src;
+	return source_p(new PVRush::PVPcapSource(*pcap_desc, size_chunk));
 }
 
 QString PVPcapsicum::PVSourceCreatorPcap::supported_type() const

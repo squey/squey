@@ -77,7 +77,7 @@ set(PCAP_SRC_FILES
 
 # Create lib
 add_library(source_pcap SHARED ${PCAP_SRC_FILES})
-target_link_libraries(source_pcap PRIVATE pvkernel)
+target_link_libraries(source_pcap PRIVATE pvkernel pvpcap)
 
 ###############################################################################
 # parquet sources

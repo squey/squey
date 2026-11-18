@@ -90,13 +90,7 @@ class PVInputTypePcap : public PVRush::PVInputTypeDesc<PVRush::PVPcapDescription
 	QStringList input_paths() const { return _input_paths; }
 
   protected:
-	bool load_files(pvpcap::splitted_files_t&& filenames,
-	                PVRush::PVInputType::list_inputs& inputs,
-	                QWidget* parent) const;
-
-  protected:
 	mutable QSet<QString> _tmp_dir_to_delete;
-	int _limit_nfds;
 	mutable QStringList _input_paths;
 
   protected:

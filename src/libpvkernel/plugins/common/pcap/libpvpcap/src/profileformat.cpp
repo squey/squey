@@ -93,9 +93,6 @@ PVRush::PVXmlTreeNodeDom* create_csv_spliter_format_root(QDomDocument& format_do
  ******************************************************************************/
 QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_count)
 {
-	const rapidjson::Document& selected_fields = ws_get_selected_fields(json_data);
-	assert(selected_fields.IsObject() && "selected_field_list is not a json object!");
-
 	// Generate format file for this profile file
 	// PVPcapTypeMap_p type_map = PVPcapTypeMap::get_map("ws");
 	QDomDocument profile_format_doc;
@@ -123,20 +120,18 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 	    json_data["options"].HasMember("occurrence") and
 	    std::string(json_data["options"]["occurrence"].GetString()) == "a";
 
-	for (const auto& field : selected_fields.GetObj()) {
+	for (const profile_field& field : ws_profile_fields(json_data)) {
 		const QString& type =
-		    every_occurrence ? QString("string")
-		                     : QString::fromStdString(ws_map_type(field.value["type"].GetString()));
-		const QString& name = field.name.GetString();
-		PVRush::PVXmlTreeNodeDom* node = csv_format->addOneField(name, type);
+		    every_occurrence ? QString("string") : QString::fromStdString(ws_map_type(field.type));
+		PVRush::PVXmlTreeNodeDom* node =
+		    csv_format->addOneField(QString::fromStdString(field.name), type);
 		if (type == "time") {
-			/* tshark emits absolute times as ISO 8601 in UTC, e.g.
+			/* The extraction writes absolute times as ISO 8601 in UTC, e.g.
 			 * "2011-05-03T23:43:01.545400000+0000". The nanoseconds are truncated to the
 			 * microsecond resolution of datetime_us, and the zone is matched as the literal
 			 * "+0000" rather than a timezone token on purpose: a token would route the axis
 			 * to the millisecond-precision datetime_ms, and packet captures need the
-			 * microsecond. tshark always prints UTC here, as the previous 'UTC' literal
-			 * already relied on.
+			 * microsecond.
 			 */
 			node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR),
 			                   "yyyy-MM-dd'T'HH:mm:ss.S'+0000'");
@@ -145,23 +140,6 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 		}
 	}
 
-	// add wireshark specials fields
-	if (json_data["options"]["source"].GetBool())
-		csv_format->addOneField(QString::fromStdString(ws_map_special_fields.at("source")),
-		                        "string");
-
-	if (json_data["options"]["destination"].GetBool())
-		csv_format->addOneField(QString::fromStdString(ws_map_special_fields.at("destination")),
-		                        "string");
-
-	if (json_data["options"]["protocol"].GetBool())
-		csv_format->addOneField(QString::fromStdString(ws_map_special_fields.at("protocol")),
-		                        "string");
-
-	if (json_data["options"]["info"].GetBool())
-		csv_format->addOneField(QString::fromStdString(ws_map_special_fields.at("info")), "string");
-
-	// TODO: Wireshark option specials fields
 	return profile_format_doc;
 }
 

@@ -75,7 +75,7 @@ class PVPcapExporter : public PVExporterBase
 			PVRush::PVPcapDescription* fd =
 			    dynamic_cast<PVRush::PVPcapDescription*>(input_type_desc.get());
 			pcap_packets_count_offsets[fd->original_pcap_path().toStdString()] =
-			    fd->pcap_packets_count_offset();
+			    fd->offsets().value_or(std::pair<uint64_t, uint64_t>{}).first;
 		}
 		std::vector<std::pair<std::string, size_t>> pcap_packets_count;
 		for (const auto& pcap : pcap_packets_count_offsets) {

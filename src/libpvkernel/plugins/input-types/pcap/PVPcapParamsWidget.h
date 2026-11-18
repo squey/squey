@@ -46,12 +46,10 @@ class PVPcapParamsWidget : public QDialog
 	PVPcapParamsWidget(const QStringList& pcap_paths, QWidget* parent);
 
   public:
-	pvpcap::splitted_files_t csv_paths() const { return _selection_widget->csv_paths(); }
 	QStringList pcap_paths() const { return _selection_widget->pcap_paths(); }
 	QDomDocument get_format() const { return _selection_widget->get_format(); }
-	bool is_canceled() { return _selection_widget->is_canceled(); }
+	const rapidjson::Document& profile() const { return _selection_widget->profile(); }
 
-  private:
   private:
 	SelectionWidget* _selection_widget; //!< Widget with selection information
 };

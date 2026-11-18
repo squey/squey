@@ -33,6 +33,7 @@
 
 #include "rapidjson/document.h"
 
+#include "extraction.h"
 #include "shell.h"
 
 /*!
@@ -126,8 +127,6 @@ static const std::unordered_map<std::string, std::string> ws_types_mapping = {
 };
 
 static const std::unordered_set<std::string> ws_disabled_fields = {"frame.offset_shift",
-                                                                   "frame.time_delta",
-                                                                   "frame.time_delta_displayed",
                                                                    "frame.ref_time",
                                                                    "frame.number",
                                                                    "frame.marked",
@@ -224,15 +223,36 @@ void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
  */
 rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data);
 
-/**
- *
- */
-std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data);
+//! A field a profile asks for, with its type as tshark names it, such as FT_UINT16.
+struct profile_field {
+	std::string name;
+	std::string type;
+};
 
-std::string ws_get_version();
+/**
+ * The fields a profile asks for, in the order of the columns they make, each once: those
+ * selected in its protocol tree, then the columns of Wireshark it chose.
+ */
+std::vector<profile_field> ws_profile_fields(const rapidjson::Document& profile);
 
 //! What tshark needs in its environment to write what Squey reads.
 std::vector<std::pair<std::string, std::string>> tshark_environment();
+
+/**
+ * The fields and the options of tshark a profile asks for.
+ *
+ * Leaves out the directory of the temporary files, which only the caller knows.
+ */
+extraction::options ws_extraction_options(const rapidjson::Document& profile);
+
+std::string ws_get_version();
+
+/**
+ * Runs tshark with the given arguments, and returns the lines it wrote.
+ *
+ * @return nothing if tshark could not be run
+ */
+std::vector<std::string> tshark_output(const std::vector<std::string>& arguments);
 
 } /* namespace pvpcap */
 

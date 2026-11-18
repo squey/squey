@@ -26,11 +26,13 @@
 #define SELECTIONWIDGET_H
 
 #include <QDialog>
+#include <QDomDocument>
 #include <QVBoxLayout>
 #include <QWidget>
 
-#include <import-ui/src/include/ProgressWidget.h>
 #include <profile-ui/src/include/ProfileWidget.h>
+
+#include "rapidjson/document.h"
 
 namespace Ui
 {
@@ -38,7 +40,7 @@ class SelectionWidget;
 }
 
 /**
- * It is the UI for monitoring job running process.
+ * Where the captures to import and the profile to read them with are chosen.
  */
 class SelectionWidget : public QWidget
 {
@@ -48,28 +50,18 @@ class SelectionWidget : public QWidget
 	~SelectionWidget();
 
   public:
-	std::vector<std::string> get_tshark_cmd() { return pvpcap::ws_get_cmdline_opts(_json_data); }
-
 	QStringList pcap_paths() const { return _pcap_paths; }
 
-	pvpcap::splitted_files_t csv_paths() const
-	{
-		return _progress_widget ? _progress_widget->csv_paths() : pvpcap::splitted_files_t();
-	}
-	QDomDocument get_format() const { return pvpcap::get_format(_json_data, _pcap_paths.size()); }
+	//! The profile chosen, once the import was asked for.
+	const rapidjson::Document& profile() const { return _json_data; }
 
-	//! Also when tshark refused the captures, which leaves nothing to import.
-	bool is_canceled() const
-	{
-		return _progress_widget->is_canceled() or not _progress_widget->trouble().empty();
-	}
+	QDomDocument get_format() const;
 
 	void add_files(const QStringList& pcap_paths);
 
   Q_SIGNALS:
 	void closed();
 	void canceled();
-	void process_import_button_clicked();
 
   private Q_SLOTS:
 	void on_add_button_clicked();
@@ -89,8 +81,6 @@ class SelectionWidget : public QWidget
 
 	ProfileWidget* _profile_widget;
 	QDialog* _profile_dialog;
-
-	ProgressWidget* _progress_widget = nullptr;
 };
 
 #endif // SELECTIONWIDGET_H

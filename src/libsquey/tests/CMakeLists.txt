@@ -247,6 +247,11 @@ set_tests_properties(SQUEY_TEST_Tsquey_investigation_multisource PROPERTIES DEPE
 add_squey_compile_test(Tsquey_investigation_accents LINKS ${LINK_LIBRARIES} FILES investigation_accents.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_investigation_accents Tsquey_investigation_accents)
 
+add_squey_compile_test(Tsquey_investigation_pcap LINKS ${LINK_LIBRARIES} pvpcap FILES investigation_pcap.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_investigation_pcap Tsquey_investigation_pcap)
+# Skipped, returning 77, where tshark can't be run.
+set_tests_properties(SQUEY_TEST_Tsquey_investigation_pcap PROPERTIES SKIP_RETURN_CODE 77)
+
 add_squey_compile_test(Tscaling_integer_default_default LINKS ${LINK_LIBRARIES} FILES scaling.cpp ${COMMON_FILES})
 add_squey_test(Tscaling_integer_default_default Tscaling_integer_default_default ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv.format)
 add_bench(Tscaling_integer_default_default LINKS ${LINK_LIBRARIES} FILES scaling.cpp ${COMMON_FILES})

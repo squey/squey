@@ -26,9 +26,9 @@
 #include "include/SelectionWidget.h"
 #include "pcap-gui.h"
 
-#include <QScreen>
 #include <QGuiApplication>
 #include <QMessageBox>
+#include <QScreen>
 #include <QStandardPaths>
 
 #include <pvkernel/widgets/PVFileDialog.h>
@@ -36,6 +36,9 @@
 #include "ui_SelectionWidget.h"
 
 #include "../include/libpvpcap.h"
+#include "libpvpcap/exception.h"
+#include "libpvpcap/profileformat.h"
+#include "libpvpcap/ws.h"
 
 class CloseEventFilter : public QObject
 {
@@ -96,6 +99,11 @@ SelectionWidget::SelectionWidget(QWidget* parent) : QWidget(parent), _ui(new Ui:
 SelectionWidget::~SelectionWidget()
 {
 	delete _ui;
+}
+
+QDomDocument SelectionWidget::get_format() const
+{
+	return pvpcap::get_format(_json_data, _pcap_paths.size());
 }
 
 void SelectionWidget::load_select_profile_combobox_list()
@@ -171,33 +179,33 @@ void SelectionWidget::on_cancel_button_clicked()
 
 void SelectionWidget::on_process_import_button_clicked()
 {
-	QString profile_path = _ui->select_profile_combobox->currentData().toString() +
-	                       QDir::separator() + _ui->select_profile_combobox->currentText();
-
-	// load json data from selected profile
-	pvpcap::load_profile_data(_json_data, profile_path.toStdString());
-	PVPcapsicum::check_wireshark_profile_exists(_json_data);
-
-	auto* progess_dialog = new QDialog(this);
-	_progress_widget = new ProgressWidget(_pcap_paths, get_tshark_cmd(), progess_dialog);
-	connect(_progress_widget, &ProgressWidget::closed, progess_dialog, &QDialog::accept);
-
-	progess_dialog->setLayout(new QVBoxLayout);
-	progess_dialog->layout()->addWidget(_progress_widget);
-
-	_progress_widget->run();
-
-	progess_dialog->exec();
-
-	// In tshark's own words, which name the field it does not know or the place
-	// the filter stops making sense. Going on would import nothing and leave
-	// whoever reads it to suspect the captures, which are fine.
-	const std::string trouble = _progress_widget->trouble();
-	if (not trouble.empty()) {
-		QMessageBox::critical(this, tr("Import failed"),
-		                      tr("tshark could not read these captures:\n\n%1")
-		                          .arg(QString::fromStdString(trouble)));
+	const QString profile = _ui->select_profile_combobox->currentText();
+	const QString profile_path =
+	    _ui->select_profile_combobox->currentData().toString() + QDir::separator() + profile;
+	try {
+		pvpcap::load_profile_data(_json_data, profile_path.toStdString());
+	} catch (const std::exception& e) {
+		QMessageBox::critical(this, tr("Can't read the profile"),
+		                      tr("The profile '%1' can't be read: %2").arg(profile, e.what()));
+		return;
 	}
+	if (pvpcap::ws_profile_fields(_json_data).empty()) {
+		QMessageBox::warning(this, tr("Empty profile"),
+		                     tr("The profile '%1' selects no field: choose the fields to import "
+		                        "with \"Manage profiles\".")
+		                         .arg(profile));
+		return;
+	}
+	// Said now rather than once the import started, and with where tshark was looked for.
+	if (pvpcap::ws_get_version().empty()) {
+		QMessageBox::critical(
+		    this, tr("tshark can't be run"),
+		    tr("Squey reads captures with tshark, which could not be run from '%1'.\n\n"
+		       "The environment variable SQUEY_TSHARK_PATH can give its location.")
+		        .arg(QString::fromStdString(pvpcap::tshark_path())));
+		return;
+	}
+	PVPcapsicum::check_wireshark_profile_exists(_json_data);
 
 	Q_EMIT closed();
 }

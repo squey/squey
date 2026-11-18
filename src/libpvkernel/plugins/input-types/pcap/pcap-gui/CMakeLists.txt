@@ -9,7 +9,6 @@ include_directories(AFTER ${pcap-gui-widget_BINARY_DIR}/)
 #SET(PCAP_GUI_QRC resources.qrc )
 
 set(PCAP_GUI_MOC_HEADER
-	import-ui/src/include/ProgressWidget.h
     import-ui/src/include/SelectionWidget.h
 
     profile-ui/src/include/EditionWidget.h
@@ -26,7 +25,6 @@ set(PCAP_GUI_MOC_HEADER
 set(PCAP_GUI_SRC
 	pcap-gui.cpp
 
-	import-ui/src/ProgressWidget.cpp
     import-ui/src/SelectionWidget.cpp
 
     profile-ui/src/EditionWidget.cpp
@@ -42,7 +40,6 @@ set(PCAP_GUI_SRC
 )
 
 set(PCAP_GUI_UI
-	import-ui/forms/ProgressWidget.ui
     import-ui/forms/SelectionWidget.ui
 
     profile-ui/forms/EditionWidget.ui

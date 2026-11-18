@@ -112,38 +112,31 @@ add_squey_test(Trush_splitter_csv_tshark Trush_splitter_csv ${PVRUSH_TEST_FILES}
 # End-to-end pcap import: a crafted pcap whose DNS TXT payloads embed the
 # pipeline's own CSV separator (0x7F) and a real newline, driven through the
 # real tshark invocation (requires tshark on PATH).
-# pvpcap (pcap_splitter.cpp) uses htons/ntohs, which on Windows live in ws2_32.
-if (WIN32)
-	set(PCAP_TEST_WINSOCK_LIBRARY "ws2_32")
-endif()
-add_squey_compile_test(Trush_pcap_tshark_escape LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_tshark_escape.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_tshark_escape LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_tshark_escape.cpp helpers.cpp)
 add_squey_test(Trush_pcap_tshark_escape Trush_pcap_tshark_escape ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
-# The test returns 77 to report itself skipped when tshark cannot be run (e.g. CI
-# outside a packaged install, where tshark_path() is not resolvable).
+# The tests running tshark return 77 to report themselves skipped when it cannot be run
+# (e.g. CI outside a packaged install, where tshark_path() is not resolvable).
 set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_escape PROPERTIES SKIP_RETURN_CODE 77)
 
-add_squey_compile_test(Trush_pcap_tshark_refusal LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_tshark_refusal.cpp helpers.cpp)
-add_squey_test(Trush_pcap_tshark_refusal Trush_pcap_tshark_refusal ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
-set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_refusal PROPERTIES SKIP_RETURN_CODE 77)
-
-add_squey_compile_test(Trush_pcap_every_occurrence_format LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_every_occurrence_format.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_every_occurrence_format LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_every_occurrence_format.cpp helpers.cpp)
 add_squey_test(Trush_pcap_every_occurrence_format Trush_pcap_every_occurrence_format)
 
-add_squey_compile_test(Trush_pcap_split_without_progress LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_split_without_progress.cpp helpers.cpp)
-add_squey_test(Trush_pcap_split_without_progress Trush_pcap_split_without_progress)
-
-add_squey_compile_test(Trush_pcap_flow LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_flow.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_flow LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_flow.cpp helpers.cpp)
 add_squey_test(Trush_pcap_flow Trush_pcap_flow)
 
-add_squey_compile_test(Trush_pcap_capture_reader LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_capture_reader.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_capture_reader LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_capture_reader.cpp helpers.cpp)
 add_squey_test(Trush_pcap_capture_reader Trush_pcap_capture_reader)
 
-add_squey_compile_test(Trush_pcap_process LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_process.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_process LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_process.cpp helpers.cpp)
 add_squey_test(Trush_pcap_process Trush_pcap_process)
 
-add_squey_compile_test(Trush_pcap_extraction LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_extraction.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_extraction LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_extraction.cpp helpers.cpp)
 add_squey_test(Trush_pcap_extraction Trush_pcap_extraction)
 set_tests_properties(SQUEY_TEST_Trush_pcap_extraction PROPERTIES SKIP_RETURN_CODE 77)
+
+add_squey_compile_test(Trush_pcap_import LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_import.cpp helpers.cpp)
+add_squey_test(Trush_pcap_import Trush_pcap_import)
+set_tests_properties(SQUEY_TEST_Trush_pcap_import PROPERTIES SKIP_RETURN_CODE 77)
 
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)
