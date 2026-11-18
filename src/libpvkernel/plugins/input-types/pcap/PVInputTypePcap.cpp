@@ -142,7 +142,7 @@ QString PVPcapsicum::PVInputTypePcap::get_exporter_filter_string(const list_inpu
 
 QStringList PVPcapsicum::PVInputTypePcap::get_supported_extensions() const
 {
-    return { "pcap", "pcapng" };
+	return {"pcap", "pcapng", "cap", "dmp"};
 }
 
 QString PVPcapsicum::PVInputTypePcap::name() const

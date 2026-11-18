@@ -29,6 +29,7 @@
 PVPcapsicum::PVPcapParamsWidget::PVPcapParamsWidget(QWidget* parent)
     : QDialog(parent), _selection_widget(new SelectionWidget)
 {
+	setWindowTitle(tr("Import captures"));
 	setLayout(new QVBoxLayout);
 	layout()->addWidget(_selection_widget);
 	resize(800, 500);

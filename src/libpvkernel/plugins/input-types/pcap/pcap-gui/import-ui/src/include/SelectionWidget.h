@@ -63,6 +63,10 @@ class SelectionWidget : public QWidget
 	void closed();
 	void canceled();
 
+  protected:
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dropEvent(QDropEvent* event) override;
+
   private Q_SLOTS:
 	void on_add_button_clicked();
 	void on_remove_button_clicked();

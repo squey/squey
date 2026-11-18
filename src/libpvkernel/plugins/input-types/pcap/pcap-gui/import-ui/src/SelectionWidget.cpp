@@ -26,11 +26,17 @@
 #include "include/SelectionWidget.h"
 #include "pcap-gui.h"
 
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QFileInfo>
 #include <QGuiApplication>
+#include <QLocale>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QScreen>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QUrl>
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/widgets/PVFileDialog.h>
@@ -75,6 +81,11 @@ class CloseEventFilter : public QObject
 SelectionWidget::SelectionWidget(QWidget* parent) : QWidget(parent), _ui(new Ui::SelectionWidget)
 {
 	_ui->setupUi(this);
+	_ui->process_import_button->setText(tr("&Import"));
+	_ui->process_import_button->setDefault(true);
+	_ui->select_pcap_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+	_ui->select_pcap_list->setToolTip(tr("Captures to import: add them, or drop them here"));
+	setAcceptDrops(true);
 
 	// initialise profile list
 	load_select_profile_combobox_list();
@@ -139,10 +150,11 @@ void SelectionWidget::load_select_profile_combobox_list()
 
 void SelectionWidget::add_files(const QStringList& pcap_paths)
 {
-    // Prevent input pcap files to be duplicated
+	// Prevent input pcap files to be duplicated
 	for (const QString& filename : pcap_paths) {
 		if (not _pcap_paths.contains(filename)) {
-			_ui->select_pcap_list->addItem(filename);
+			auto* item = new QListWidgetItem(filename, _ui->select_pcap_list);
+			item->setToolTip(QLocale().formattedDataSize(QFileInfo(filename).size()));
 			_pcap_paths.append(filename);
 		}
 	}
@@ -150,17 +162,41 @@ void SelectionWidget::add_files(const QStringList& pcap_paths)
 	update_select_pcap_list_button_state();
 }
 
+void SelectionWidget::dragEnterEvent(QDragEnterEvent* event)
+{
+	if (event->mimeData()->hasUrls()) {
+		event->acceptProposedAction();
+	}
+}
+
+void SelectionWidget::dropEvent(QDropEvent* event)
+{
+	QStringList paths;
+	for (const QUrl& url : event->mimeData()->urls()) {
+		if (url.isLocalFile() and QFileInfo(url.toLocalFile()).isFile()) {
+			paths << url.toLocalFile();
+		}
+	}
+	add_files(paths);
+	event->acceptProposedAction();
+}
+
 void SelectionWidget::on_add_button_clicked()
 {
+	// tshark reads compressed captures, and so does the import.
+	const QString captures =
+	    tr("Captures (*.pcap *.pcapng *.cap *.dmp *.pcap.gz *.pcapng.gz *.pcap.zst "
+	       "*.pcapng.zst *.pcap.xz *.pcapng.xz *.pcap.bz2 *.pcapng.bz2)");
 	QStringList filenames = PVWidgets::PVFileDialog::getOpenFileNames(
-	    this, tr("Open PCAP files"), QStandardPaths::writableLocation(QStandardPaths::HomeLocation), tr("PCAP files (*.pcap *.pcapng)"));
+	    this, tr("Open captures"), QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
+	    captures + ";;" + tr("All files (*)"));
 
 	add_files(filenames);
 }
 
 void SelectionWidget::on_remove_button_clicked()
 {
-	delete _ui->select_pcap_list->currentItem();
+	qDeleteAll(_ui->select_pcap_list->selectedItems());
 	_pcap_paths.clear();
 	for (int i = 0; i < _ui->select_pcap_list->count(); ++i) {
 		_pcap_paths.append(_ui->select_pcap_list->item(i)->text());
@@ -177,17 +213,12 @@ void SelectionWidget::on_remove_all_button_clicked()
 
 void SelectionWidget::update_select_pcap_list_button_state()
 {
-	// Enable button once file is added
-	if (_ui->select_pcap_list->count() > 0) {
-		_ui->remove_button->setEnabled(true);
-		_ui->remove_all_button->setEnabled(true);
-		_ui->process_import_button->setEnabled(true);
-	} else {
-		_ui->remove_button->setEnabled(false);
-		_ui->remove_all_button->setEnabled(false);
-		_ui->process_import_button->setEnabled(false);
-	}
+	const bool any = _ui->select_pcap_list->count() > 0;
+	_ui->remove_button->setEnabled(any);
+	_ui->remove_all_button->setEnabled(any);
+	_ui->process_import_button->setEnabled(any and _ui->select_profile_combobox->count() > 0);
 }
+
 void SelectionWidget::on_cancel_button_clicked()
 {
 	Q_EMIT canceled();
