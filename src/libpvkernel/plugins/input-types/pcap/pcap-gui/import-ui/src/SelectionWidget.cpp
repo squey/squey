@@ -29,8 +29,10 @@
 #include <QGuiApplication>
 #include <QMessageBox>
 #include <QScreen>
+#include <QSettings>
 #include <QStandardPaths>
 
+#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
 #include "ui_SelectionWidget.h"
@@ -39,6 +41,14 @@
 #include "libpvpcap/exception.h"
 #include "libpvpcap/profileformat.h"
 #include "libpvpcap/ws.h"
+
+namespace
+{
+
+//! The profile chosen last, which the next import starts with.
+const QString LAST_PROFILE_KEY = "pcap/last_profile";
+
+} // namespace
 
 class CloseEventFilter : public QObject
 {
@@ -68,6 +78,12 @@ SelectionWidget::SelectionWidget(QWidget* parent) : QWidget(parent), _ui(new Ui:
 
 	// initialise profile list
 	load_select_profile_combobox_list();
+	const QString last_profile =
+	    PVCore::PVConfig::get().config().value(LAST_PROFILE_KEY).toString();
+	const int last_index = _ui->select_profile_combobox->findText(last_profile);
+	if (last_index != -1) {
+		_ui->select_profile_combobox->setCurrentIndex(last_index);
+	}
 	update_select_pcap_list_button_state();
 
 	// Manage profile dialog
@@ -207,6 +223,7 @@ void SelectionWidget::on_process_import_button_clicked()
 	}
 	PVPcapsicum::check_wireshark_profile_exists(_json_data);
 
+	PVCore::PVConfig::get().config().setValue(LAST_PROFILE_KEY, profile);
 	Q_EMIT closed();
 }
 
