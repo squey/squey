@@ -60,6 +60,10 @@
     // the image layer they would go with the container, and every start would
     // be a first start.
     "source=squey-config,target=/home/dev/.squey,type=volume",
+    // The files of the machine, which the workspace alone would hide from the
+    // built binary: the whole host, where flatpak shows it to an application.
+    // Read-write, so that an export can land anywhere a file was opened from.
+    "source=/,target=/run/host,type=bind",
     // Lets the built binary put a window on the host compositor, through the
     // link prepare_gpu.sh makes to its socket. On a host without a Wayland
     // session the link points at /dev/null, since a missing source would keep
