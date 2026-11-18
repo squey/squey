@@ -35,9 +35,9 @@ namespace PVGuiQt
 {
 
 /**
- * Gives \p editor the look of the code editors: a monospace font, and the colors
- * of the current scheme for \p syntax, a syntax KSyntaxHighlighting knows by
- * that name ("SQL", "Python").
+ * Gives \p editor the look of the code editors: the font of the settings, which
+ * it then follows, and the colors of the current scheme for \p syntax, a syntax
+ * KSyntaxHighlighting knows by that name ("SQL", "Python").
  *
  * The highlighter belongs to the document of \p editor.
  */

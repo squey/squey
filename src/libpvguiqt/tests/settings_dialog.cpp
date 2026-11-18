@@ -29,6 +29,8 @@
 // Runs under "-platform offscreen", with a configuration directory of its own
 // (see CMakeLists.txt).
 
+#include <pvguiqt/PVCodeEditorStyle.h>
+#include <pvguiqt/PVGuiQtSettings.h>
 #include <pvguiqt/PVSettingsDialog.h>
 
 #include <pvkernel/core/PVConfig.h>
@@ -40,6 +42,7 @@
 #include <QApplication>
 #include <QCheckBox>
 #include <QComboBox>
+#include <QDoubleSpinBox>
 #include <QDialogButtonBox>
 #include <QFile>
 #include <QJsonDocument>
@@ -148,6 +151,14 @@ void edits_are_saved_by_apply(PVGuiQt::PVSettingsDialog& dialog, QString const& 
 	chunk_size->setValue(10048576);
 	PV_ASSERT_VALID(not dialog.draft().contains("import.chunk_size"));
 	chunk_size->setValue(20000);
+
+	// Typed key by key, a number keeps what was typed before.
+	auto* font_size = editor<QDoubleSpinBox>(dialog, "editor.font_size");
+	font_size->selectAll();
+	QTest::keyClicks(font_size, QString("12") + font_size->locale().decimalPoint() + "5");
+	PV_VALID(font_size->value(), 12.5);
+	PV_VALID(dialog.draft()["editor.font_size"].toDouble(), 12.5);
+	font_size->setValue(10.5);
 }
 
 void json_mode_edits_the_same_draft(PVGuiQt::PVSettingsDialog& dialog)
@@ -233,6 +244,14 @@ int main(int argc, char** argv)
 	{
 		PVGuiQt::PVSettingsDialog dialog;
 		PV_VALID(editor<QSpinBox>(dialog, "rendering.opencl_platform")->value(), 2);
+	}
+
+	// The code editors follow their font, those already open included.
+	{
+		QTextEdit code;
+		PVGuiQt::style_code_editor(&code, "JSON");
+		PV_ASSERT_VALID(PVGuiQt::settings::editor_font_size.set_value(14.0));
+		PV_VALID(code.document()->defaultFont().pointSizeF(), 14.0);
 	}
 
 	// The CSV export starts with the options it was last left with.

@@ -32,6 +32,7 @@
 #include "common.h"
 
 #include <squey/PVAnalysisHistory.h>
+#include <squey/PVDuckDBQuery.h>
 #include <squey/PVLayerFilter.h>
 #include <squey/PVSqueySettings.h>
 #include <squey/PVView.h>
@@ -114,9 +115,13 @@ int main(int argc, char** argv)
 	PV_VALID(selected(search_multiple->get_preferred_args_for_view(*view), "case"),
 	         std::string("Match case"));
 
-	// Not a plugin, but the settings of libsquey are read the same way.
+	// Not plugins, but the settings of libsquey are read the same way.
 	PV_ASSERT_VALID(Squey::settings::undo_steps.set_value(5));
 	PV_VALID(Squey::PVAnalysisHistory(env.root).max_steps(), size_t(5));
+	PV_ASSERT_VALID(Squey::settings::sql_threads.set_value(3));
+	const Squey::PVDuckDBQuery::Table threads =
+	    view->sql().run_tabular("SELECT current_setting('threads')");
+	PV_VALID(threads.rows.at(0).at(0), std::string("3"));
 
 	QFile::remove(user_file);
 	return 0;

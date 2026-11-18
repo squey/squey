@@ -41,6 +41,8 @@ extern PVSQUEY_EXPORT const PVCore::PVSetting<int> undo_steps;
 /** Percentages, from 1 to 100, of what each DuckDB engine may take. */
 extern PVSQUEY_EXPORT const PVCore::PVSetting<int> sql_memory_percent;
 extern PVSQUEY_EXPORT const PVCore::PVSetting<int> sql_spill_percent;
+/** 0 for as many as DuckDB sees processor threads. */
+extern PVSQUEY_EXPORT const PVCore::PVSetting<int> sql_threads;
 
 } // namespace Squey::settings
 

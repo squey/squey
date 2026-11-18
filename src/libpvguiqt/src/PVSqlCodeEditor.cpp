@@ -25,6 +25,7 @@
 #include <pvguiqt/PVSqlCodeEditor.h>
 
 #include <pvguiqt/PVCodeEditorStyle.h>
+#include <pvguiqt/PVGuiQtSettings.h>
 
 #include <pvkernel/core/PVTheme.h>
 
@@ -1179,8 +1180,7 @@ void PVGuiQt::PVSqlCodeEditor::remember(const QString& query)
 		_history.append(kept);
 		// A console left open for a day is still a console. What falls off the
 		// end is what nobody walks back that far to reach.
-		static constexpr int KEPT = 100;
-		while (_history.size() > KEPT) {
+		while (_history.size() > settings::sql_history_size.value()) {
 			_history.removeFirst();
 		}
 	}

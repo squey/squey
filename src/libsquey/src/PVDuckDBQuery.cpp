@@ -1499,6 +1499,10 @@ struct Squey::PVDuckDBQuery::impl {
 			}
 		}
 
+		if (const int threads = Squey::settings::sql_threads.value(); threads > 0) {
+			expect_success(con.Query("SET threads = " + std::to_string(threads)));
+		}
+
 		const duckdb::optional_idx memory = duckdb::FileSystem::GetAvailableMemory();
 		if (memory.IsValid()) {
 			expect_success(con.Query("SET memory_limit = '" +

@@ -41,6 +41,14 @@ extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> show_changelog;
 extern PVGUIQT_EXPORT const PVCore::PVSetting<int> listing_max_cell_size;
 extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> listing_links;
 
+extern PVGUIQT_EXPORT const PVCore::PVSetting<int> sql_result_rows;
+extern PVGUIQT_EXPORT const PVCore::PVSetting<int> sql_history_size;
+
+/** Of the code editors: the SQL console, the Python scripts, the JSON of the settings. */
+extern PVGUIQT_EXPORT const PVCore::PVSetting<QString> editor_font_family;
+/** In points. */
+extern PVGUIQT_EXPORT const PVCore::PVSetting<double> editor_font_size;
+
 /** From 10 to 100, a percentage of the available memory. */
 extern PVGUIQT_EXPORT const PVCore::PVSetting<int> import_memory_warning_percent;
 

@@ -64,3 +64,14 @@ const PVCore::PVSetting<int> Squey::settings::sql_spill_percent(
      .maximum = 100,
      .unit = "%",
      .keywords = {"DuckDB", "temporary", "spill", "max_temp_percent"}});
+
+const PVCore::PVSetting<int> Squey::settings::sql_threads(
+    {.key = "sql.threads",
+     .type = PVCore::PVSettingType::Int,
+     .default_value = 0,
+     .title = "Threads of the SQL engine",
+     .description = "Threads the SQL engine of a view may run a query on, read as the engine "
+                    "starts. 0 runs as many as the processor has.",
+     .minimum = 0,
+     .maximum = 1024,
+     .keywords = {"DuckDB", "CPU", "processor", "cores"}});

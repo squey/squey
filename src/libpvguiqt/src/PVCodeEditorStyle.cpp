@@ -25,6 +25,9 @@
 
 #include <pvguiqt/PVCodeEditorStyle.h>
 
+#include <pvguiqt/PVGuiQtSettings.h>
+
+#include <pvkernel/core/PVSettings.h>
 #include <pvkernel/core/PVTheme.h>
 
 #include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/definition.h>
@@ -43,11 +46,22 @@ void PVGuiQt::style_code_editor(QTextEdit* editor, QString const& syntax)
 	// Reading the definitions takes a while, and every editor shares them.
 	static KSyntaxHighlighting::Repository repository;
 
-	QFont font = editor->document()->defaultFont();
-	font.setFamily("Monospace");
-	font.setPointSizeF(10.5);
-	font.setStyleStrategy(QFont::PreferAntialias);
-	editor->document()->setDefaultFont(font);
+	auto set_font = [editor]() {
+		QFont font = editor->document()->defaultFont();
+		font.setFamily(settings::editor_font_family.value());
+		font.setPointSizeF(settings::editor_font_size.value());
+		font.setStyleStrategy(QFont::PreferAntialias);
+		editor->document()->setDefaultFont(font);
+	};
+	set_font();
+	// The editors already open follow the settings too.
+	QObject::connect(&PVCore::PVSettings::get(), &PVCore::PVSettings::changed, editor,
+	                 [set_font](QString const& key) {
+		                 if (key == settings::editor_font_family.key() or
+		                     key == settings::editor_font_size.key()) {
+			                 set_font();
+		                 }
+	                 });
 
 	auto* highlighter = new KSyntaxHighlighting::SyntaxHighlighter(editor->document());
 	highlighter->setDefinition(repository.definitionForName(syntax));
