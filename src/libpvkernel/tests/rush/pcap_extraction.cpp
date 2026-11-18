@@ -327,6 +327,18 @@ int main()
 		check_same("written to files", reference, extract(capture, written, &parts));
 		PV_ASSERT_VALID(parts >= 3, "parts", parts);
 
+		// What a preview reads: the first frames, as the whole capture has them.
+		pvpcap::extraction::options first_frames = profile_options(work);
+		first_frames.workers = 4;
+		first_frames.most_frames = 10;
+		check_same("the first frames", lines(reference.begin(), std::next(reference.begin(), 10)),
+		           extract(capture, first_frames, &parts));
+		PV_VALID(parts, size_t(1));
+		first_frames.two_pass = true;
+		const lines first_twice = extract(capture, first_frames, &parts);
+		PV_VALID(first_twice.size(), size_t(10));
+		PV_VALID(first_twice.rbegin()->first, uint64_t(10));
+
 		// A single pass can't name the frames after: the response to a request, the frame a
 		// PDU is reassembled in.
 		const auto count = [](const lines& extracted, size_t field) {

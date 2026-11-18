@@ -813,7 +813,9 @@ void extraction::implementation::choose_mode()
 	size_t count = 1;
 	// A pipe can't be read twice.
 	how = opts.two_pass ? mode::written : mode::fed;
-	if (reader->splittable() and size >= opts.smallest_split and opts.workers > 1) {
+	// A few frames are not worth more than one tshark.
+	if (reader->splittable() and size >= opts.smallest_split and opts.workers > 1 and
+	    opts.most_frames == 0) {
 		const uint64_t fed_memory = size * kept / 100 + opts.workers * TSHARK_BASE_MEMORY;
 		if (fed_memory <= memory) {
 			count = std::clamp<uint64_t>(size / std::max<uint64_t>(opts.smallest_part, 1), 1,
@@ -854,6 +856,9 @@ void extraction::implementation::start_tshark(part& p, const std::string& input)
 	                     "quote=n", "-E", "header=n"});
 	process.argv.insert(process.argv.end(), FRAME_FIELDS.begin(), FRAME_FIELDS.end());
 	process.argv.insert(process.argv.end(), opts.tshark_options.begin(), opts.tshark_options.end());
+	if (how == mode::direct and opts.most_frames != 0) {
+		process.argv.insert(process.argv.end(), {"-c", std::to_string(opts.most_frames)});
+	}
 	for (size_t i = 0; i < opts.fields.size(); i++) {
 		if (own[i] == own_field::no) {
 			process.argv.push_back("-e");
@@ -1122,15 +1127,18 @@ bool extraction::implementation::dispatch(const owned_record& r)
 void extraction::implementation::read_capture()
 {
 	try {
+		const auto wanted = [this]() {
+			return opts.most_frames == 0 or table.count() < opts.most_frames;
+		};
 		bool going = true;
 		for (const owned_record& r : probed) {
-			if (not(going = dispatch(r))) {
+			if (not wanted() or not(going = dispatch(r))) {
 				break;
 			}
 		}
 		probed.clear();
 		owned_record r;
-		while (going and not stopping and reader->next(r.record)) {
+		while (going and not stopping and wanted() and reader->next(r.record)) {
 			r.file_position = reader->file_position();
 			going = dispatch(r);
 		}

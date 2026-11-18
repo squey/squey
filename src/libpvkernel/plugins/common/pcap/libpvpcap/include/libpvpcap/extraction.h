@@ -117,6 +117,8 @@ class extraction
 		 * theirs, such as http.response_in: it takes about a quarter longer.
 		 */
 		bool two_pass = false;
+		//! Frames read from the start of the capture, as a preview does: 0 for all of them.
+		uint64_t most_frames = 0;
 	};
 
 	struct line {
