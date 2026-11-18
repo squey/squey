@@ -732,6 +732,8 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	if (custom_args.get_edition_flag()) {
 		_ctxt_process->show();
 	} else {
+		// The user may have stopped following the selection, which has to last.
+		const bool following_selection = not _selection_change_connection.blocked();
 		_selection_change_connection.block();
 		/* The selection the search has to be applied on is an intermediate state: notifying
 		 * it would make the views flicker through it while the filter is being computed,
@@ -744,7 +746,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 			// The filter has been canceled, tell the views about the restored selection
 			lib_view()->set_selection_view(_old_sel, false);
 		}
-		_selection_change_connection.unblock();
+		_selection_change_connection.block(not following_selection);
 	}
 }
 
