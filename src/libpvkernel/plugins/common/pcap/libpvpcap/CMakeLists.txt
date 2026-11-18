@@ -11,6 +11,7 @@ set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost 1.55 COMPONENTS filesystem REQUIRED)
 
 set(PCAP_SRC
+    src/capture.cpp
     src/libpvpcap.cpp
     src/shell.cpp
     src/ws.cpp
