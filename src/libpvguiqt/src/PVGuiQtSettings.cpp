@@ -57,6 +57,43 @@ const PVCore::PVSetting<bool> PVGuiQt::settings::listing_links(
                     "the browser.",
      .keywords = {"URL", "hyperlink", "http"}});
 
+const PVCore::PVSetting<bool> PVGuiQt::settings::statistics_follow_selection(
+    {.key = "statistics.follow_selection",
+     .type = PVCore::PVSettingType::Bool,
+     .default_value = true,
+     .title = "Follow the selection",
+     .description = "Count the values again when the selection changes, as the dialogs of "
+                    "distinct values and of aggregations open. Their button turns it on and "
+                    "off.",
+     .keywords = {"sync", "distinct values", "group by"}});
+
+const PVCore::PVSetting<bool> PVGuiQt::settings::statistics_count(
+    {.key = "statistics.count",
+     .type = PVCore::PVSettingType::Bool,
+     .default_value = true,
+     .title = "Count",
+     .description = "Show the count of each value, as the dialogs of distinct values and of "
+                    "aggregations open. The menu of their header shows it or hides it.",
+     .keywords = {"distinct values", "group by", "column"}});
+
+const PVCore::PVSetting<bool> PVGuiQt::settings::statistics_percentage(
+    {.key = "statistics.percentage",
+     .type = PVCore::PVSettingType::Bool,
+     .default_value = true,
+     .title = "Percentage",
+     .description = "Show the share of each value in percent, as the dialogs of distinct "
+                    "values and of aggregations open.",
+     .keywords = {"distinct values", "group by", "column"}});
+
+const PVCore::PVSetting<bool> PVGuiQt::settings::statistics_scientific(
+    {.key = "statistics.scientific_notation",
+     .type = PVCore::PVSettingType::Bool,
+     .default_value = false,
+     .title = "Scientific notation",
+     .description = "Show the share of each value in scientific notation, as the dialogs of "
+                    "distinct values and of aggregations open.",
+     .keywords = {"distinct values", "group by", "column"}});
+
 const PVCore::PVSetting<int> PVGuiQt::settings::sql_result_rows(
     {.key = "sql.result_rows",
      .type = PVCore::PVSettingType::Int,

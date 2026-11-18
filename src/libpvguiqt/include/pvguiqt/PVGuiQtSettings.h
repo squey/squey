@@ -41,6 +41,12 @@ extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> show_changelog;
 extern PVGUIQT_EXPORT const PVCore::PVSetting<int> listing_max_cell_size;
 extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> listing_links;
 
+/** As the dialogs of distinct values and of aggregations open. */
+extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> statistics_follow_selection;
+extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> statistics_count;
+extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> statistics_percentage;
+extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> statistics_scientific;
+
 extern PVGUIQT_EXPORT const PVCore::PVSetting<int> sql_result_rows;
 extern PVGUIQT_EXPORT const PVCore::PVSetting<int> sql_history_size;
 
