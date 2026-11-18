@@ -12,6 +12,7 @@ find_package(Boost 1.55 COMPONENTS filesystem REQUIRED)
 
 set(PCAP_SRC
     src/capture.cpp
+    src/flow.cpp
     src/libpvpcap.cpp
     src/shell.cpp
     src/ws.cpp

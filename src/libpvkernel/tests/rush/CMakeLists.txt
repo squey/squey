@@ -132,6 +132,9 @@ add_squey_test(Trush_pcap_every_occurrence_format Trush_pcap_every_occurrence_fo
 add_squey_compile_test(Trush_pcap_split_without_progress LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_split_without_progress.cpp helpers.cpp)
 add_squey_test(Trush_pcap_split_without_progress Trush_pcap_split_without_progress)
 
+add_squey_compile_test(Trush_pcap_flow LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_flow.cpp helpers.cpp)
+add_squey_test(Trush_pcap_flow Trush_pcap_flow)
+
 add_squey_compile_test(Trush_pcap_capture_reader LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_capture_reader.cpp helpers.cpp)
 add_squey_test(Trush_pcap_capture_reader Trush_pcap_capture_reader)
 
