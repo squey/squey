@@ -38,6 +38,9 @@ namespace PVParallelView::settings
 /** As the views of parallel coordinates open. */
 extern PVPARALLELVIEW_EXPORT const PVCore::PVSetting<bool> antialiasing;
 
+/** "raster", "hybrid", "qrhi" or "qpainter": see PVSeriesView::Backend. */
+extern PVPARALLELVIEW_EXPORT const PVCore::PVSetting<QString> series_backend;
+
 /** In pixels, within PVScatterThumbnailsModel::min_size and max_size. */
 extern PVPARALLELVIEW_EXPORT const PVCore::PVSetting<int> scatter_thumbnail_size;
 extern PVPARALLELVIEW_EXPORT const PVCore::PVSetting<bool> scatter_thumbnails_by_correlation;

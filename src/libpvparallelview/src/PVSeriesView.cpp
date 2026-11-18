@@ -25,6 +25,8 @@
 
 #include <pvparallelview/PVSeriesView.h>
 
+#include <pvparallelview/PVParallelViewSettings.h>
+
 #include <pvparallelview/PVSeriesRendererHybrid.h>
 #include <pvparallelview/PVSeriesRendererQPainter.h>
 #include <pvparallelview/PVSeriesRendererRaster.h>
@@ -75,9 +77,10 @@ auto PVSeriesView::make_renderer(Backend backend) -> Backend
 	SWITCH_BACKEND(backend)
 }
 
-auto PVSeriesView::backend_from_environment() -> Backend
+auto PVSeriesView::chosen_backend() -> Backend
 {
-	const QByteArray name = qgetenv("SQUEY_SERIES_BACKEND").toLower();
+	const QString environment = QString::fromLocal8Bit(qgetenv("SQUEY_SERIES_BACKEND")).toLower();
+	const QString name = environment.isEmpty() ? settings::series_backend.value() : environment;
 	if (name == "qrhi" or name == "gpu") {
 		return Backend::QRhi;
 	}

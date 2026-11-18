@@ -36,6 +36,20 @@ const PVCore::PVSetting<bool> PVParallelView::settings::antialiasing(
                     "The button of each view turns it on and off.",
      .keywords = {"lines", "smooth"}});
 
+const PVCore::PVSetting<QString> PVParallelView::settings::series_backend(
+    {.key = "rendering.series_backend",
+     .type = PVCore::PVSettingType::Choice,
+     .default_value = "raster",
+     .title = "Drawing of time series",
+     .description = "What draws the curves of a time series view as it opens. The graphics "
+                    "card is faster on some machines only. The environment variable "
+                    "SQUEY_SERIES_BACKEND wins over this setting.",
+     .choices = {{"raster", "The processor"},
+                 {"hybrid", "The graphics card, past a load where it is faster"},
+                 {"qrhi", "The graphics card"},
+                 {"qpainter", "Qt, the slowest"}},
+     .keywords = {"GPU", "CPU", "series", "curves"}});
+
 const PVCore::PVSetting<int> PVParallelView::settings::scatter_thumbnail_size(
     {.key = "scatter_thumbnails.size",
      .type = PVCore::PVSettingType::Int,
