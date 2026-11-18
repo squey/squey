@@ -56,15 +56,9 @@ qt6_wrap_cpp(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS)
 
 # Generate linkage configuration
 add_library(input_type_pcap SHARED ${PCAP_SRC_FILES} ${PCAP_MOC_SRC})
-if (WIN32)
-set(WINSOCK_LIBRARY "ws2_32")
-endif()
 target_link_libraries(input_type_pcap PRIVATE pvkernel
-	
 	pcap-gui-widget
 	pvpcap
-	light_pcapng_static
-	${WINSOCK_LIBRARY}
 )
 
 set(INPUTS_DIST_LIST

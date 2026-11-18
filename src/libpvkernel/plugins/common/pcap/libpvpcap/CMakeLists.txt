@@ -34,7 +34,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 find_package(Threads REQUIRED)
 target_link_libraries(pvpcap
 	PUBLIC pvkernel ${Boost_LIBRARIES}
-	PRIVATE pcap Threads::Threads)
+	PRIVATE Threads::Threads)
 
 set(INPUTS_DIST_LIST
 	pvpcap

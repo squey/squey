@@ -126,6 +126,15 @@ class capture_reader
 	//! Whether the file is compressed, and the capture larger than it.
 	bool compressed() const { return _compressed; }
 
+	//! Of a pcap file: whether its byte order is not the one of this machine.
+	bool swapped() const { return _swapped; }
+
+	//! Of a pcap file: whether its timestamps count nanoseconds rather than microseconds.
+	bool nanoseconds() const { return _nanoseconds; }
+
+	//! Of a pcap file.
+	uint32_t link_type() const { return _link_type; }
+
 	/**
 	 * Whether a part of the records makes a capture tshark reads as it does the whole.
 	 *
@@ -173,6 +182,51 @@ class capture_reader
 	bool _splittable = true;
 	bool _compressed = false;
 };
+
+/**
+ * Writes a capture of records read from others.
+ *
+ * Writes nothing of its own: a pcap file is to be given its header first, and a pcapng file
+ * a section header before anything else.
+ */
+class capture_writer
+{
+  public:
+	//! @throw capture_error if the file can't be created
+	explicit capture_writer(const std::string& path);
+	~capture_writer();
+
+	capture_writer(const capture_writer&) = delete;
+	capture_writer& operator=(const capture_writer&) = delete;
+
+	//! @throw capture_error if it could not be written
+	void write(std::span<const uint8_t> bytes);
+
+	//! @throw capture_error if what was written could not all be
+	void close();
+
+  private:
+	std::string _path;
+	std::FILE* _file = nullptr;
+	std::vector<uint8_t> _buffer;
+};
+
+/**
+ * Blocks of a pcapng file, in the byte order of this machine.
+ */
+namespace pcapng
+{
+//! A section header, which the interfaces and packets of the section follow.
+std::vector<uint8_t> section_header();
+
+//! An interface whose timestamps count microseconds, or nanoseconds.
+std::vector<uint8_t>
+interface_description(uint32_t link_type, uint32_t snap_length, bool nanoseconds);
+
+//! A packet of a pcap file, given as it is stored: record header in its byte order, then data.
+std::vector<uint8_t>
+packet_of_pcap(std::span<const uint8_t> record, bool swapped, bool nanoseconds);
+} // namespace pcapng
 
 } // namespace pvpcap
 

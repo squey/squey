@@ -124,32 +124,16 @@ PVPcapsicum::PVInputTypePcap::create_exporter_widget(const list_inputs& inputs,
 	return new PVGuiQt::PVPcapExporterWidget(inputs, nraw);
 }
 
-/**
- * Returns true if all the input pcap files supports the pcapng format
- */
-static bool is_pcapng_compatible(const PVRush::PVInputType::list_inputs& inputs)
-{
-	return std::all_of(inputs.begin(), inputs.end(), [](const auto& input_type_desc) {
-		auto* fd =
-		    dynamic_cast<PVRush::PVPcapDescription*>(input_type_desc.get());
-		return (QFileInfo(fd->original_pcap_path()).suffix() == "pcapng");
-	});
-}
-
 std::unique_ptr<PVRush::PVExporterBase>
 PVPcapsicum::PVInputTypePcap::create_exporter(const list_inputs& inputs,
                                               PVRush::PVNraw const& nraw) const
 {
-	if (is_pcapng_compatible(inputs)) {
-		return std::make_unique<PVRush::PVPcapNgExporter>(inputs, nraw);
-	} else {
-		return std::make_unique<PVRush::PVPcapExporter>(inputs, nraw);
-	}
+	return std::make_unique<PVRush::PVPcapExporter>(inputs, nraw);
 }
 
 QString PVPcapsicum::PVInputTypePcap::get_exporter_filter_string(const list_inputs& inputs) const
 {
-	if (is_pcapng_compatible(inputs)) {
+	if (PVRush::PVPcapExporter::needs_pcapng(inputs)) {
 		return ".pcapng files (*.pcapng)";
 	} else {
 		return ".pcap files (*.pcap)";

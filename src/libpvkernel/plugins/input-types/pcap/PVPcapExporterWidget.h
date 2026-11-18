@@ -28,6 +28,10 @@
 #include <pvkernel/widgets/PVExporterWidgetInterface.h>
 #include "PVPcapExporter.h"
 
+#include <QCheckBox>
+#include <QSpacerItem>
+#include <QVBoxLayout>
+
 namespace PVGuiQt
 {
 
@@ -40,16 +44,21 @@ class PVPcapExporterWidget : public PVWidgets::PVExporterWidgetInterface
 	{
 		QVBoxLayout* layout = new QVBoxLayout;
 
-		QCheckBox* complete_streams = new QCheckBox("Export complete TCP streams");
+		QCheckBox* complete_streams = new QCheckBox("Export the whole conversations of the rows");
+		complete_streams->setToolTip(
+		    "Along with the packets of the selected rows, those of the same conversations: the "
+		    "rows sharing their stream_id");
 		complete_streams->setChecked(_exporter.get_export_complete_stream());
 		QObject::connect(complete_streams, &QCheckBox::checkStateChanged,
-		                 [&](int state) { _exporter.set_export_complete_stream((bool)state); });
-		complete_streams->setChecked(_exporter.get_export_complete_stream());
+		                 [this](Qt::CheckState state) {
+			                 _exporter.set_export_complete_stream(state == Qt::Checked);
+		                 });
 
 		QCheckBox* open_pcap = new QCheckBox("Open PCAP after export");
 		open_pcap->setObjectName("open_pcap_checkbox");
-		QObject::connect(open_pcap, &QCheckBox::checkStateChanged,
-		                 [&](int state) { _exporter.set_open_pcap_after_export((bool)state); });
+		QObject::connect(open_pcap, &QCheckBox::checkStateChanged, [this](Qt::CheckState state) {
+			_exporter.set_open_pcap_after_export(state == Qt::Checked);
+		});
 		open_pcap->setChecked(_exporter.get_open_pcap_after_export());
 
 		layout->addWidget(complete_streams);

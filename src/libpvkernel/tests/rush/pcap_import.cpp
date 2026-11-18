@@ -31,6 +31,10 @@
 // times, come out as values rather than as invalid ones, and so does frame.len, which tshark
 // only writes once however many times it is asked. And when tshark refuses the profile, the
 // import fails with what it said.
+//
+// The packets of the rows export as their captures hold them: by their number, along with
+// the rest of their conversations if asked, on the link they were captured on, in a pcapng
+// file when captures of different links are exported together.
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/squey_assert.h>
@@ -41,6 +45,8 @@
 #include <rapidjson/document.h>
 
 #include "../../plugins/common/pcap/PVPcapDescription.h"
+#include "../../plugins/common/pcap/libpvpcap/include/libpvpcap/capture.h"
+#include "../../plugins/input-types/pcap/PVPcapExporter.h"
 #include "../../plugins/common/pcap/libpvpcap/include/libpvpcap.h"
 #include "../../plugins/common/pcap/libpvpcap/include/libpvpcap/profileformat.h"
 #include "../../plugins/common/pcap/libpvpcap/include/libpvpcap/ws.h"
@@ -50,6 +56,7 @@
 #include <QDir>
 #include <QTemporaryDir>
 
+#include <fstream>
 #include <iostream>
 #include <map>
 
@@ -82,7 +89,7 @@ std::string profile(const std::string& extra_field = {})
 }
 
 //! A handshake on each of `count` connections, in turn, client first.
-void write_capture(const std::string& path, uint8_t client_byte, int count)
+void write_capture(const std::string& path, uint8_t client_byte, int count, uint32_t link = 1)
 {
 	std::vector<frame> frames;
 	uint32_t t = 0;
@@ -90,18 +97,20 @@ void write_capture(const std::string& path, uint8_t client_byte, int count)
 		const ipv4_address client{10, 0, client_byte, static_cast<uint8_t>(c + 1)};
 		const ipv4_address server{192, 168, 1, 1};
 		const uint16_t port = static_cast<uint16_t>(40000 + c);
-		frames.push_back({1700000000, t++,
-		                  ethernet(0x0800, ipv4(client, server, TCP, tcp(port, 80, 1, 0, SYN)))});
+		const bytes syn = ipv4(client, server, TCP, tcp(port, 80, 1, 0, SYN));
+		const bytes syn_ack = ipv4(server, client, TCP, tcp(80, port, 9, 2, SYN | ACK));
 		frames.push_back(
-		    {1700000000, t++,
-		     ethernet(0x0800, ipv4(server, client, TCP, tcp(80, port, 9, 2, SYN | ACK)))});
+		    {1700000000, t++, link == 1 ? ethernet(0x0800, syn) : linux_cooked(0x0800, syn)});
+		frames.push_back({1700000000, t++,
+		                  link == 1 ? ethernet(0x0800, syn_ack) : linux_cooked(0x0800, syn_ack)});
 	}
-	write_pcap(path, 1, frames);
+	write_pcap(path, link, frames);
 }
 
 struct imported {
 	PVRush::PVNraw nraw;
 	std::map<std::string, PVCol> columns;
+	QList<PVRush::PVInputDescription_p> inputs;
 };
 
 void import(imported& result, const std::string& profile_json, const QStringList& captures)
@@ -114,7 +123,7 @@ void import(imported& result, const std::string& profile_json, const QStringList
 	PVRush::PVFormat format(format_document.documentElement());
 	const pvpcap::extraction::options extraction = pvpcap::ws_extraction_options(json);
 	const auto shared = std::make_shared<PVRush::PVPcapImport>(captures.size());
-	QList<PVRush::PVInputDescription_p> inputs;
+	QList<PVRush::PVInputDescription_p>& inputs = result.inputs;
 	for (qsizetype i = 0; i < captures.size(); i++) {
 		inputs << PVRush::PVInputDescription_p(
 		    new PVRush::PVPcapDescription(captures[i], extraction, shared, i, captures.size() > 1));
@@ -132,6 +141,57 @@ void import(imported& result, const std::string& profile_json, const QStringList
 	PVRush::PVControllerJob_p job =
 	    extractor.process_from_agg_idxes(0, IMPORT_PIPELINE_ROW_COUNT_LIMIT);
 	job->wait_end();
+}
+
+std::vector<pvpcap::capture_record> records_of(const std::string& path,
+                                               std::vector<bytes>& frames,
+                                               pvpcap::capture_reader::format& format)
+{
+	pvpcap::capture_reader reader(path);
+	format = reader.file_format();
+	std::vector<pvpcap::capture_record> records;
+	pvpcap::capture_record record;
+	while (reader.next(record)) {
+		if (record.type == pvpcap::capture_record::kind::packet) {
+			records.push_back(record);
+			frames.emplace_back(record.frame.begin(), record.frame.end());
+		}
+	}
+	return records;
+}
+
+//! The packets of the given rows, as the exporter writes them.
+std::vector<bytes> exported(const imported& result,
+                            const std::vector<PVRow>& rows,
+                            bool whole_conversations,
+                            const std::string& path,
+                            pvpcap::capture_reader::format& format,
+                            std::vector<uint32_t>* link_types = nullptr)
+{
+	PVCore::PVSelBitField selection(result.nraw.row_count());
+	selection.select_none();
+	for (PVRow row : rows) {
+		selection.set_line(row, true);
+	}
+	PVRush::PVPcapExporter exporter(result.inputs, result.nraw);
+	exporter.set_open_pcap_after_export(false);
+	exporter.set_export_complete_stream(whole_conversations);
+	exporter.export_rows(path, selection);
+	std::vector<bytes> frames;
+	for (const pvpcap::capture_record& record : records_of(path, frames, format)) {
+		if (link_types) {
+			link_types->push_back(record.link_type);
+		}
+	}
+	return frames;
+}
+
+bytes frame_of(const QString& capture, size_t index)
+{
+	std::vector<bytes> frames;
+	pvpcap::capture_reader::format format;
+	records_of(capture.toStdString(), frames, format);
+	return frames.at(index);
 }
 
 } // namespace
@@ -182,6 +242,64 @@ int main()
 			PV_ASSERT_VALID(nraw.column(time).is_valid(row), "the time of row", row);
 			PV_VALID(nraw.at_string(row, length), std::string("54"));
 		}
+	}
+
+	std::cout << "export of some rows" << std::endl;
+	{
+		imported result;
+		import(result, profile(), {first, second});
+		pvpcap::capture_reader::format format;
+		const std::string path = dir.filePath("some.pcap").toStdString();
+		// Frame 3 of the first capture, and frame 5 of the second, the 65th of the import.
+		std::vector<bytes> frames = exported(result, {2, 64}, false, path, format);
+		PV_VALID(format == pvpcap::capture_reader::format::pcap, true);
+		PV_VALID(frames.size(), size_t(2));
+		PV_VALID(frames[0] == frame_of(first, 2), true);
+		PV_VALID(frames[1] == frame_of(second, 4), true);
+
+		// With the rest of the conversation: the answer to frame 3.
+		frames = exported(result, {2}, true, path, format);
+		PV_VALID(frames.size(), size_t(2));
+		PV_VALID(frames[0] == frame_of(first, 2), true);
+		PV_VALID(frames[1] == frame_of(first, 3), true);
+	}
+
+	std::cout << "export of a Linux cooked capture" << std::endl;
+	const QString cooked = dir.filePath("cooked.pcap");
+	write_capture(cooked.toStdString(), 2, 10, 113);
+	{
+		imported result;
+		import(result, profile(), {cooked});
+		PV_VALID(result.nraw.at_string(0, result.columns.at("ip.src")), std::string("10.0.2.1"));
+		std::vector<PVRow> all;
+		for (PVRow row = 0; row < result.nraw.row_count(); row++) {
+			all.push_back(row);
+		}
+		pvpcap::capture_reader::format format;
+		const std::string path = dir.filePath("cooked-export.pcap").toStdString();
+		exported(result, all, false, path, format);
+		// Every packet of a capture is the capture.
+		std::ifstream in(cooked.toStdString(), std::ios::binary);
+		std::ifstream out(path, std::ios::binary);
+		const std::string original((std::istreambuf_iterator<char>(in)), {});
+		const std::string written((std::istreambuf_iterator<char>(out)), {});
+		PV_VALID(written == original, true);
+	}
+
+	std::cout << "export of captures of different links" << std::endl;
+	{
+		imported result;
+		import(result, profile(), {first, cooked});
+		pvpcap::capture_reader::format format;
+		std::vector<uint32_t> links;
+		const std::string path = dir.filePath("mixed.pcapng").toStdString();
+		const std::vector<bytes> frames = exported(result, {0, 60}, false, path, format, &links);
+		PV_VALID(format == pvpcap::capture_reader::format::pcapng, true);
+		PV_VALID(frames.size(), size_t(2));
+		PV_VALID(links[0], uint32_t(1));
+		PV_VALID(links[1], uint32_t(113));
+		PV_VALID(frames[0] == frame_of(first, 0), true);
+		PV_VALID(frames[1] == frame_of(cooked, 0), true);
 	}
 
 	std::cout << "a field tshark does not know" << std::endl;

@@ -408,4 +408,120 @@ bool capture_reader::next_pcapng(capture_record& record)
 	return true;
 }
 
+capture_writer::capture_writer(const std::string& path) : _path(path), _file(open_file(path, "wb"))
+{
+	if (_file == nullptr) {
+		throw capture_error("Can't create '" + path + "': " + std::strerror(errno));
+	}
+	_buffer.reserve(READ_SIZE);
+}
+
+capture_writer::~capture_writer()
+{
+	if (_file != nullptr) {
+		std::fclose(_file);
+	}
+}
+
+void capture_writer::write(std::span<const uint8_t> bytes)
+{
+	if (_buffer.size() + bytes.size() > READ_SIZE and not _buffer.empty()) {
+		if (std::fwrite(_buffer.data(), 1, _buffer.size(), _file) != _buffer.size()) {
+			throw capture_error("Can't write to '" + _path + "': " + std::strerror(errno));
+		}
+		_buffer.clear();
+	}
+	_buffer.insert(_buffer.end(), bytes.begin(), bytes.end());
+}
+
+void capture_writer::close()
+{
+	const bool written = std::fwrite(_buffer.data(), 1, _buffer.size(), _file) == _buffer.size();
+	const bool closed = std::fclose(_file) == 0;
+	_file = nullptr;
+	if (not written or not closed) {
+		throw capture_error("Can't write to '" + _path + "': " + std::strerror(errno));
+	}
+}
+
+namespace pcapng
+{
+
+namespace
+{
+
+template <typename T>
+void put(std::vector<uint8_t>& block, T value)
+{
+	const auto* bytes = reinterpret_cast<const uint8_t*>(&value);
+	block.insert(block.end(), bytes, bytes + sizeof(value));
+}
+
+//! Ends a block whose type and body were put: its length goes before the body and after it.
+std::vector<uint8_t> finish(std::vector<uint8_t>& block)
+{
+	while (block.size() % 4 != 0) {
+		block.push_back(0);
+	}
+	const uint32_t length = static_cast<uint32_t>(block.size() + 4);
+	std::memcpy(block.data() + 4, &length, 4);
+	put(block, length);
+	return std::move(block);
+}
+
+std::vector<uint8_t> start(uint32_t type)
+{
+	std::vector<uint8_t> block;
+	put(block, type);
+	put<uint32_t>(block, 0);
+	return block;
+}
+
+} // namespace
+
+std::vector<uint8_t> section_header()
+{
+	std::vector<uint8_t> block = start(PCAPNG_SECTION_HEADER);
+	put(block, PCAPNG_BYTE_ORDER);
+	put<uint16_t>(block, 1);
+	put<uint16_t>(block, 0);
+	put<int64_t>(block, -1); // length of the section, not known
+	return finish(block);
+}
+
+std::vector<uint8_t>
+interface_description(uint32_t link_type, uint32_t snap_length, bool nanoseconds)
+{
+	std::vector<uint8_t> block = start(BLOCK_INTERFACE);
+	put<uint16_t>(block, static_cast<uint16_t>(link_type));
+	put<uint16_t>(block, 0);
+	put(block, snap_length);
+	put<uint16_t>(block, 9); // if_tsresol, a power of ten
+	put<uint16_t>(block, 1);
+	put<uint32_t>(block, nanoseconds ? 9 : 6); // padded to 32 bits
+	put<uint32_t>(block, 0);                   // end of options
+	return finish(block);
+}
+
+std::vector<uint8_t> packet_of_pcap(std::span<const uint8_t> record, bool swapped, bool nanoseconds)
+{
+	const auto u32 = [&](size_t offset) {
+		const uint32_t v = load32(record.data() + offset);
+		return swapped ? std::byteswap(v) : v;
+	};
+	const uint64_t timestamp = uint64_t(u32(0)) * (nanoseconds ? 1000000000 : 1000000) + u32(4);
+	const uint32_t captured = u32(8);
+	std::vector<uint8_t> block = start(BLOCK_ENHANCED_PACKET);
+	put<uint32_t>(block, 0); // the only interface of the section
+	put<uint32_t>(block, static_cast<uint32_t>(timestamp >> 32));
+	put<uint32_t>(block, static_cast<uint32_t>(timestamp));
+	put(block, captured);
+	put(block, u32(12));
+	block.insert(block.end(), record.begin() + PCAP_RECORD_HEADER_SIZE,
+	             record.begin() + PCAP_RECORD_HEADER_SIZE + captured);
+	return finish(block);
+}
+
+} // namespace pcapng
+
 } // namespace pvpcap
