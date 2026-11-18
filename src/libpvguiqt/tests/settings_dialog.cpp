@@ -35,6 +35,7 @@
 #include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVSettings.h>
 #include <pvkernel/core/squey_assert.h>
+#include <pvkernel/widgets/PVCSVExporterWidget.h>
 
 #include <QApplication>
 #include <QCheckBox>
@@ -232,6 +233,16 @@ int main(int argc, char** argv)
 	{
 		PVGuiQt::PVSettingsDialog dialog;
 		PV_VALID(editor<QSpinBox>(dialog, "rendering.opencl_platform")->value(), 2);
+	}
+
+	// The CSV export starts with the options it was last left with.
+	PV_ASSERT_VALID(PVCore::settings::export_csv_separator.set_value(";"));
+	PV_ASSERT_VALID(PVCore::settings::export_csv_header.set_value(false));
+	{
+		PVWidgets::PVCSVExporterWidget exporter_widget;
+		PV_VALID(exporter_widget.exporter().get_sep_char(), std::string(";"));
+		PV_VALID(exporter_widget.exporter().get_quote_char(), std::string("\""));
+		PV_VALID(exporter_widget.exporter().get_export_header(), false);
 	}
 
 	// An unreadable settings.json opens as it is, in the JSON mode, so that it

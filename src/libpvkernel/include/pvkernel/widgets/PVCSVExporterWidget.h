@@ -26,6 +26,7 @@
 #define __PVKERNEL_WIDGETS_PVCSVEXPORTERWIDGET_H__
 
 #include <pvkernel/export.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/widgets/PVExporterWidgetInterface.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
@@ -55,13 +56,21 @@ class PVKERNEL_EXPORT PVCSVExporterWidget : public PVWidgets::PVExporterWidgetIn
 
 		/// left_layout
 
+		// The options start as the last export left them, which the settings keep.
+		_exporter.set_export_header(PVCore::settings::export_csv_header.value());
+		_exporter.set_sep_char(PVCore::settings::export_csv_separator.value().toStdString());
+		_exporter.set_quote_char(PVCore::settings::export_csv_quote.value().toStdString());
+		auto key_of = [](QString const& character) {
+			return character == "\t" ? QKeySequence(Qt::Key_Tab) : QKeySequence(character);
+		};
+
 		// Export column name
 		QCheckBox* export_header = new QCheckBox("Export column names as header");
 		export_header->setChecked(_exporter.get_export_header());
-		QObject::connect(export_header, &QCheckBox::checkStateChanged,
-		                 [&](int state) { _exporter.set_export_header(state); });
-
-		export_header->setCheckState(Qt::CheckState::Checked);
+		QObject::connect(export_header, &QCheckBox::checkStateChanged, [&](int state) {
+			_exporter.set_export_header(state);
+			PVCore::settings::export_csv_header.set_value(state == Qt::Checked);
+		});
 		left_layout->addWidget(export_header);
 
 		// Define csv specific character
@@ -71,25 +80,28 @@ class PVKERNEL_EXPORT PVCSVExporterWidget : public PVWidgets::PVExporterWidgetIn
 		// Separator character
 		PVWidgets::QKeySequenceWidget* separator_char = new PVWidgets::QKeySequenceWidget();
 		separator_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-		separator_char->setKeySequence(QKeySequence(","));
+		separator_char->setKeySequence(key_of(PVCore::settings::export_csv_separator.value()));
 		separator_char->setMaxNumKey(1);
 		char_layout->addRow("Fields separator:", separator_char);
 		QObject::connect(separator_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
 		                 [&, separator_char](const QKeySequence& keySequence) {
 			                 char sep = separator_char->get_ascii_from_sequence(keySequence);
 			                 _exporter.set_sep_char(std::string(1, sep));
+			                 PVCore::settings::export_csv_separator.set_value(
+			                     QString(QChar::fromLatin1(sep)));
 			                 Q_EMIT separator_char_changed();
 		                 });
 
 		// Quote character
 		PVWidgets::QKeySequenceWidget* quote_char = new PVWidgets::QKeySequenceWidget();
 		quote_char->setClearButtonShow(PVWidgets::QKeySequenceWidget::NoShow);
-		quote_char->setKeySequence(QKeySequence("\""));
+		quote_char->setKeySequence(key_of(PVCore::settings::export_csv_quote.value()));
 		quote_char->setMaxNumKey(1);
 		char_layout->addRow("Quote character:", quote_char);
 		QObject::connect(quote_char, &PVWidgets::QKeySequenceWidget::keySequenceChanged,
 		                 [&](const QKeySequence& keySequence) {
 			                 _exporter.set_quote_char(keySequence.toString().toStdString());
+			                 PVCore::settings::export_csv_quote.set_value(keySequence.toString());
 			                 Q_EMIT quote_char_changed();
 		                 });
 

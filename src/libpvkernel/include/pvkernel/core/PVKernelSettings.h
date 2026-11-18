@@ -55,6 +55,12 @@ extern PVKERNEL_EXPORT const PVSetting<int> import_chunk_size;
 /** 0 for as many chunks as the processor runs threads. */
 extern PVKERNEL_EXPORT const PVSetting<int> import_parallel_chunks;
 
+/** What the CSV export last used, which the next one starts with. */
+extern PVKERNEL_EXPORT const PVSetting<bool> export_csv_header;
+/** One character each, the tabulation included. */
+extern PVKERNEL_EXPORT const PVSetting<QString> export_csv_separator;
+extern PVKERNEL_EXPORT const PVSetting<QString> export_csv_quote;
+
 extern PVKERNEL_EXPORT const PVSetting<bool> force_cpu;
 
 /** -1 for the first platform that can draw. */

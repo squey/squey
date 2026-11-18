@@ -103,6 +103,36 @@ const PVCore::PVSetting<int> PVCore::settings::import_parallel_chunks(
      .maximum = 4096,
      .keywords = {"threads", "memory", "number_living_chunks"}});
 
+const PVCore::PVSetting<bool> PVCore::settings::export_csv_header(
+    {.key = "export.csv_header",
+     .type = PVSettingType::Bool,
+     .default_value = true,
+     .title = "Header of CSV files",
+     .description = "Write the names of the columns as the first line of an exported CSV file. "
+                    "The export dialog remembers what it was last set to.",
+     .keywords = {"columns", "names"}});
+
+const PVCore::PVSetting<QString> PVCore::settings::export_csv_separator(
+    {.key = "export.csv_separator",
+     .type = PVSettingType::String,
+     .default_value = ",",
+     .title = "Separator of CSV files",
+     .description = "Character between the fields of an exported CSV file. The export dialog "
+                    "remembers what it was last set to.",
+     .min_length = 1,
+     .max_length = 1,
+     .keywords = {"delimiter", "comma"}});
+
+const PVCore::PVSetting<QString> PVCore::settings::export_csv_quote(
+    {.key = "export.csv_quote",
+     .type = PVSettingType::String,
+     .default_value = "\"",
+     .title = "Quote of CSV files",
+     .description = "Character around the fields of an exported CSV file that hold the "
+                    "separator. The export dialog remembers what it was last set to.",
+     .min_length = 1,
+     .max_length = 1});
+
 const PVCore::PVSetting<bool> PVCore::settings::force_cpu(
     {.key = "rendering.force_cpu",
      .type = PVSettingType::Bool,
