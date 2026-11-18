@@ -40,6 +40,10 @@ class PVConfig
   public:
 	static constexpr const char* CONFIG_FILENAME = "config.ini";
 	static constexpr const char* PRESETS_FILENAME = "presets.ini";
+	/** The defaults shipped with the application, in shared_dir(). */
+	static constexpr const char* SHIPPED_CONFIG_FILENAME = "pvconfig.ini";
+	/** The configuration of the administrator, which wins over the one of the user. */
+	static constexpr const char* GLOBAL_CONFIG_PATH = "/opt/squey/squey.conf";
 
 	typedef std::shared_ptr<PVConfig> PVConfig_p;
 

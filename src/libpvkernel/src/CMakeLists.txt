@@ -41,6 +41,7 @@ core/PVUtils.cpp
 core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp
 core/PVConfig.cpp
+core/PVSettings.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp
 core/PVStreamingCompressor.cpp
@@ -59,6 +60,7 @@ set(CORE_MOC_HEADERS
 ../include/pvkernel/core/PVProgressBox.h
 ../include/pvkernel/core/PVDBusConnection.h
 ../include/pvkernel/core/PVTheme.h
+../include/pvkernel/core/PVSettings.h
 )
 
 set(OPENCL_SRC_FILES

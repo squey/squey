@@ -45,6 +45,14 @@ add_squey_test(Tcore_argument_serialize Tcore_argument_serialize)
 add_squey_compile_test(Tcore_network LINKS ${LINK_LIBRARIES} FILES network.cpp)
 add_squey_test(Tcore_network Tcore_network)
 
+add_squey_compile_test(Tcore_settings LINKS ${LINK_LIBRARIES} FILES settings.cpp)
+add_squey_test(Tcore_settings Tcore_settings)
+# A configuration directory of its own, for the settings that go through the
+# files of the user. Relative, as the packaged testsuite of Windows and macOS
+# does not run from the build tree.
+set_property(TEST SQUEY_TEST_Tcore_settings APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=settings_config")
+
 add_squey_compile_test(Tcore_timeformat LINKS ${LINK_LIBRARIES} ${ICU_LIBRARY} FILES time-format.cpp)
 add_squey_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
 
