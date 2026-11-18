@@ -25,11 +25,13 @@
 
 #include <pvguiqt/PVChangelogMessage.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
+#include <pvguiqt/PVGuiQtSettings.h>
 #include <pvkernel/core/PVVersionChanged.h>
 
 PVGuiQt::PVChangelogMessage::PVChangelogMessage(QWidget* parent /* = nullptr*/)
 {
-	if (PVCore::PVVersionChanged::version_changed()) {
+	// Asked first: it records the version that runs, shown or not.
+	if (PVCore::PVVersionChanged::version_changed() and settings::show_changelog.value()) {
 		PVGuiQt::PVAboutBoxDialog aboutbox(PVGuiQt::PVAboutBoxDialog::Tab::CHANGELOG, parent);
 		aboutbox.exec();
 	}

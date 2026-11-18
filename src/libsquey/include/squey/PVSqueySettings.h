@@ -35,6 +35,9 @@
 namespace Squey::settings
 {
 
+/** Steps of the history of each investigation. */
+extern PVSQUEY_EXPORT const PVCore::PVSetting<int> undo_steps;
+
 /** Percentages, from 1 to 100, of what each DuckDB engine may take. */
 extern PVSQUEY_EXPORT const PVCore::PVSetting<int> sql_memory_percent;
 extern PVSQUEY_EXPORT const PVCore::PVSetting<int> sql_spill_percent;

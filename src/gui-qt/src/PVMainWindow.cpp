@@ -37,6 +37,7 @@
 #include <PVMainWindow.h>
 #include <PVStringListChooserWidget.h>
 
+#include <pvguiqt/PVGuiQtSettings.h>
 #include <pvkernel/core/PVKernelSettings.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <squey/PVAnalysisHistory.h>
@@ -1048,9 +1049,6 @@ class PVMemoryConsumptionForecast
 //! Period between two checks of the available memory while importing.
 constexpr std::chrono::seconds memory_check_period{1};
 
-//! Share of the available memory above which the user is warned.
-constexpr double memory_usage_threshold = 0.8;
-
 } // namespace
 
 /******************************************************************************
@@ -1115,7 +1113,9 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 					    const bool memory_exceeded =
 					        available_memory != 0 and
 					        memory_forecast(src->get_row_count()) >
-					            available_memory * memory_usage_threshold;
+					            available_memory / 100 *
+					                size_t(
+					                    PVGuiQt::settings::import_memory_warning_percent.value());
 
 					    if (memory_exceeded) {
 							job_import->pause(true);

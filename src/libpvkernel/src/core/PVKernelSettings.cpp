@@ -69,6 +69,17 @@ const PVCore::PVSetting<QString> PVCore::settings::working_directory(
      .requires_restart = true,
      .keywords = {"temporary", "cache", "disk", "nraw_tmp"}});
 
+const PVCore::PVSetting<int> PVCore::settings::recent_items(
+    {.key = "general.recent_items",
+     .type = PVSettingType::Int,
+     .default_value = 30,
+     .title = "Recent items",
+     .description = "Sources and formats each list of the start screen keeps. The list of the "
+                    "investigations keeps them all.",
+     .minimum = 1,
+     .maximum = 1000,
+     .keywords = {"history", "start screen"}});
+
 const PVCore::PVSetting<int> PVCore::settings::import_chunk_size(
     {.key = "import.chunk_size",
      .type = PVSettingType::Int,

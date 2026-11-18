@@ -40,6 +40,7 @@ PVExportSelectionDlg.cpp
 PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
 PVCodeEditorStyle.cpp
+PVGuiQtSettings.cpp
 PVPythonCodeEditor.cpp
 PVSettingsDialog.cpp
 PVSqlCodeEditor.cpp

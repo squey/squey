@@ -46,6 +46,9 @@ extern PVKERNEL_EXPORT const PVSetting<QString> color_scheme;
  */
 extern PVKERNEL_EXPORT const PVSetting<QString> working_directory;
 
+/** Per list but the investigations, which keep them all. */
+extern PVKERNEL_EXPORT const PVSetting<int> recent_items;
+
 /** In bytes. */
 extern PVKERNEL_EXPORT const PVSetting<int> import_chunk_size;
 

@@ -25,6 +25,20 @@
 
 #include <squey/PVSqueySettings.h>
 
+#include <squey/PVAnalysisHistory.h>
+
+const PVCore::PVSetting<int> Squey::settings::undo_steps(
+    {.key = "general.undo_steps",
+     .type = PVCore::PVSettingType::Int,
+     .default_value = int(PVAnalysisHistory::default_max_steps),
+     .title = "Undo steps",
+     .description = "Changes of selection that undo can go back through, in each "
+                    "investigation opened afterwards. Each step takes the memory of a "
+                    "selection.",
+     .minimum = 1,
+     .maximum = 1000,
+     .keywords = {"history", "redo", "memory"}});
+
 const PVCore::PVSetting<int> Squey::settings::sql_memory_percent(
     {.key = "sql.memory_percent",
      .type = PVCore::PVSettingType::Int,

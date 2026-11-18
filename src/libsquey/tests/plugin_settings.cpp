@@ -31,7 +31,9 @@
 
 #include "common.h"
 
+#include <squey/PVAnalysisHistory.h>
 #include <squey/PVLayerFilter.h>
+#include <squey/PVSqueySettings.h>
 #include <squey/PVView.h>
 
 #include <pvkernel/core/PVConfig.h>
@@ -111,6 +113,10 @@ int main(int argc, char** argv)
 	         std::string("Does not match case"));
 	PV_VALID(selected(search_multiple->get_preferred_args_for_view(*view), "case"),
 	         std::string("Match case"));
+
+	// Not a plugin, but the settings of libsquey are read the same way.
+	PV_ASSERT_VALID(Squey::settings::undo_steps.set_value(5));
+	PV_VALID(Squey::PVAnalysisHistory(env.root).max_steps(), size_t(5));
 
 	QFile::remove(user_file);
 	return 0;

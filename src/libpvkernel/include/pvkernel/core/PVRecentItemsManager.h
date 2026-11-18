@@ -25,6 +25,7 @@
 #ifndef PVRECENTITEMSMANAGER_H_
 #define PVRECENTITEMSMANAGER_H_
 
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 
@@ -89,7 +90,7 @@ class PVRecentItemsManager
 		files.removeAll(item_path);
 		files.prepend(item_path);
 		if (category != Category::PROJECTS) {
-			while (files.size() > _max_recent_items) {
+			while (files.size() > settings::recent_items.value()) {
 				files.removeLast();
 			}
 		}
@@ -171,7 +172,6 @@ class PVRecentItemsManager
 
   private:
 	QSettings _recents_settings;
-	const int64_t _max_recent_items = 30;
 	const QStringList _recents_items_keys = {"recent_projects", "recent_sources",
 	                                         "recent_used_formats", "recent_edited_formats"};
 };

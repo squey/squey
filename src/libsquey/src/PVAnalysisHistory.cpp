@@ -26,11 +26,17 @@
 #include <squey/PVRoot.h>
 #include <squey/PVSelection.h>
 #include <squey/PVSource.h>
+#include <squey/PVSqueySettings.h>
 #include <squey/PVView.h>
 
 #include <algorithm>
 #include <list>
 #include <utility>
+
+Squey::PVAnalysisHistory::PVAnalysisHistory(PVRoot& root)
+    : _root(root), _max_steps(size_t(settings::undo_steps.value()))
+{
+}
 
 /******************************************************************************
  * Squey::PVAnalysisHistory::Scope

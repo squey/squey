@@ -40,6 +40,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvkernel/core/PVSerializedSource.h>
 #include <pvkernel/core/squey_assert.h>
@@ -267,8 +268,26 @@ UNICODE_MAIN()
 		PV_VALID(rebuilt->paths()[1].toStdString(), parquet_file2);
 	}
 
+	// -------------------------------------------------------------------------
+	// A list keeps as many items as the settings say
+	// -------------------------------------------------------------------------
+	{
+		PV_ASSERT_VALID(PVCore::settings::recent_items.set_value(2));
+		for (const char* format : {"/a.format", "/b.format", "/c.format"}) {
+			recents.add<PVCore::Category::USED_FORMATS>(format);
+		}
+		const std::vector<std::string> formats = recents.get_list<PVCore::Category::USED_FORMATS>();
+		PV_VALID(formats.size(), size_t(2));
+		PV_VALID(formats.front(), std::string("/c.format"));
+		// Lowered, the setting shortens the lists already written.
+		PV_ASSERT_VALID(PVCore::settings::recent_items.set_value(1));
+		PV_VALID(recents.get_list<PVCore::Category::USED_FORMATS>().size(), size_t(1));
+		PV_ASSERT_VALID(PVCore::PVSettings::get().reset(PVCore::settings::recent_items.key()));
+	}
+
 	// Cleanup.
 	QFile::remove(recents_file);
+	QFile::remove(PVCore::PVConfig::user_dir() + PVCore::PVSettings::USER_FILENAME);
 
 	return 0;
 }
