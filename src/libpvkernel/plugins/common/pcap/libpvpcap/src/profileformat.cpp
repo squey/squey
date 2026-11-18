@@ -120,7 +120,14 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 	    json_data["options"].HasMember("occurrence") and
 	    std::string(json_data["options"]["occurrence"].GetString()) == "a";
 
-	for (const profile_field& field : ws_profile_fields(json_data)) {
+	const std::vector<profile_field> fields = ws_profile_fields(json_data);
+	std::vector<std::string> names;
+	for (const profile_field& field : fields) {
+		names.push_back(field.name);
+	}
+	const std::unordered_map<std::string, std::string> bases = ws_field_display_bases(names);
+
+	for (const profile_field& field : fields) {
 		const QString& type =
 		    every_occurrence ? QString("string") : QString::fromStdString(ws_map_type(field.type));
 		PVRush::PVXmlTreeNodeDom* node =
@@ -137,6 +144,17 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 			                   "yyyy-MM-dd'T'HH:mm:ss.S'+0000'");
 		} else if (type == "mac_address") {
 			node->setMappingProperties("mac_address-uni-lin", {}, {});
+		} else if (type.startsWith("number_") and type != "number_float" and
+		           type != "number_double") {
+			// tshark writes these integers in hexadecimal, "0x0012", which a decimal reads
+			// as nothing.
+			const auto base = bases.find(field.name);
+			if (base != bases.end() and
+			    (base->second == "BASE_HEX" or base->second == "BASE_HEX_DEC")) {
+				node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "0x%x");
+			} else if (base != bases.end() and base->second == "BASE_OCT") {
+				node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "%#o");
+			}
 		}
 	}
 

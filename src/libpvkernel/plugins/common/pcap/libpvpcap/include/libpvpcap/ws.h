@@ -90,7 +90,7 @@ Other explanation on https://www.wireshark.org/docs/wsar_html/epan/ftypes_8h_sou
 static const std::unordered_map<std::string, std::string> ws_types_mapping = {
     {"FT_NONE Label", "string"},
     {"FT_PROTOCOL", "string"},
-    {"FT_BOOLEAN", "number_uint8"}, /* should be stored on bool */
+    {"FT_BOOLEAN", "string"}, /* tshark writes "True" and "False" */
     {"FT_UINT8", "number_uint8"},
     {"FT_UINT16", "number_uint16"},
     {"FT_UINT24", "number_uint32"},
@@ -246,6 +246,14 @@ std::vector<std::pair<std::string, std::string>> tshark_environment();
 extraction::options ws_extraction_options(const rapidjson::Document& profile);
 
 std::string ws_get_version();
+
+/**
+ * How tshark writes the given fields, as `tshark -G fields` tells: BASE_HEX, BASE_DEC...
+ *
+ * Empty for the fields tshark does not know, and for all of them when tshark can't run.
+ */
+std::unordered_map<std::string, std::string>
+ws_field_display_bases(const std::vector<std::string>& names);
 
 /**
  * Runs tshark with the given arguments, and returns the lines it wrote.

@@ -27,8 +27,9 @@
 //
 // Two captures imported together number their frames and their conversations one after the
 // other, even when their files have the same name, which used to make the second overwrite
-// the parts of the first. The times come out as values rather than as invalid ones, and so
-// does frame.len, which tshark only writes once however many times it is asked. And when tshark refuses the profile, the
+// the parts of the first. The fields tshark writes in hexadecimal or as booleans, and the
+// times, come out as values rather than as invalid ones, and so does frame.len, which tshark
+// only writes once however many times it is asked. And when tshark refuses the profile, the
 // import fails with what it said.
 
 #include <pvkernel/core/PVClassLibrary.h>
@@ -63,7 +64,9 @@ std::string profile(const std::string& extra_field = {})
         {"name": "", "filter_name": "frame.time", "type": "FT_ABSOLUTE_TIME", "description": "", "select": true},
         {"name": "", "filter_name": "frame.len", "type": "FT_UINT32", "description": "", "select": true},
         {"name": "", "filter_name": "ip.src", "type": "FT_IPv4", "description": "", "select": true},
-        {"name": "", "filter_name": "tcp.srcport", "type": "FT_UINT16", "description": "", "select": true})json";
+        {"name": "", "filter_name": "tcp.srcport", "type": "FT_UINT16", "description": "", "select": true},
+        {"name": "", "filter_name": "tcp.flags", "type": "FT_UINT16", "description": "", "select": true},
+        {"name": "", "filter_name": "tcp.flags.syn", "type": "FT_BOOLEAN", "description": "", "select": true})json";
 	if (not extra_field.empty()) {
 		fields += R"json(, {"name": "", "filter_name": ")json" + extra_field +
 		          R"json(", "type": "FT_STRING", "description": "", "select": true})json";
@@ -160,6 +163,8 @@ int main()
 		const PVCol frame = result.columns.at("frame.global_number");
 		const PVCol stream = result.columns.at("stream_id");
 		const PVCol source = result.columns.at("ip.src");
+		const PVCol flags = result.columns.at("tcp.flags");
+		const PVCol syn = result.columns.at("tcp.flags.syn");
 		const PVCol time = result.columns.at("frame.time");
 		// Which the extraction asks tshark for already, and which tshark only writes once.
 		const PVCol length = result.columns.at("frame.len");
@@ -172,6 +177,8 @@ int main()
 			const std::string connection = std::to_string((row < 60 ? row : row - 60) / 2 + 1);
 			PV_VALID(nraw.at_string(row, source),
 			         row % 2 == 0 ? client + connection : std::string("192.168.1.1"));
+			PV_VALID(nraw.at_string(row, flags), std::string(row % 2 == 0 ? "0x2" : "0x12"));
+			PV_VALID(nraw.at_string(row, syn), std::string("True"));
 			PV_ASSERT_VALID(nraw.column(time).is_valid(row), "the time of row", row);
 			PV_VALID(nraw.at_string(row, length), std::string("54"));
 		}

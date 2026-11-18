@@ -225,6 +225,25 @@ std::vector<std::string> tshark_output(const std::vector<std::string>& arguments
 	return lines;
 }
 
+std::unordered_map<std::string, std::string>
+ws_field_display_bases(const std::vector<std::string>& names)
+{
+	// A profile keeps the type of a field, not how tshark writes it.
+	const std::unordered_set<std::string> wanted(names.begin(), names.end());
+	std::unordered_map<std::string, std::string> bases;
+	std::vector<std::string> columns;
+	for (const std::string& line : tshark_output({"-G", "fields"})) {
+		if (not line.starts_with("F\t")) {
+			continue;
+		}
+		boost::split(columns, line, boost::is_any_of("\t"));
+		if (columns.size() > 5 and wanted.contains(columns[2])) {
+			bases[columns[2]] = columns[5];
+		}
+	}
+	return bases;
+}
+
 /*******************************************************************************
  *
  * ws_create_protocols_dict
