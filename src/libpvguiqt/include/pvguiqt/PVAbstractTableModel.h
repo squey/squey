@@ -72,7 +72,8 @@ class PVAbstractTableModel : public QAbstractTableModel
 	virtual QString export_line(int, const QString& fsep) const = 0;
 
 	/**
-	 * Most bytes of a value a view is given to display: see get_displayed_string.
+	 * Most bytes of a value a view is given to display by default, and at the least:
+	 * see get_displayed_string.
 	 *
 	 * The hyperlink delegate opens the text it is given, and 8 KiB keeps whole the URLs
 	 * of up to 8000 octets that RFC 9110 (section 4.1) recommends supporting.
@@ -321,9 +322,9 @@ class PVAbstractTableModel : public QAbstractTableModel
 	 * Convert @a value, a UTF-8 string, to the text a view is given to display.
 	 *
 	 * Qt lays out the whole text of a cell to elide it, which freezes the view for
-	 * seconds on a value of millions of characters. Of a value longer than
-	 * DISPLAYED_SIZE_MAX bytes, only the characters wholly within that many bytes are
-	 * kept, followed by an ellipsis.
+	 * seconds on a value of millions of characters. Of a value longer than the bytes of
+	 * the setting listing.max_cell_size, only the characters wholly within that many
+	 * bytes are kept, followed by an ellipsis.
 	 */
 	static QString get_displayed_string(std::string_view value);
 

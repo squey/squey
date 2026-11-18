@@ -24,6 +24,7 @@
 //
 
 #include <pvguiqt/PVAbstractTableModel.h>
+#include <pvguiqt/PVGuiQtSettings.h>
 
 #include <omp.h>
 
@@ -499,13 +500,14 @@ QString PVAbstractTableModel::get_wrapped_string(const QString& str) const
 
 QString PVAbstractTableModel::get_displayed_string(std::string_view value)
 {
-	if (value.size() <= DISPLAYED_SIZE_MAX) {
+	const size_t displayed_size_max = size_t(settings::listing_max_cell_size.value());
+	if (value.size() <= displayed_size_max) {
 		return QString::fromUtf8(value.data(), value.size());
 	}
 
 	// Leave out the character the cut would split: the bytes continuing the UTF-8
 	// sequence of a character are those of the form 10xxxxxx.
-	size_t size = DISPLAYED_SIZE_MAX;
+	size_t size = displayed_size_max;
 	while (size > 0 and (static_cast<unsigned char>(value[size]) & 0xC0) == 0x80) {
 		--size;
 	}

@@ -37,6 +37,10 @@ namespace PVGuiQt::settings
 
 extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> show_changelog;
 
+/** In bytes, from PVAbstractTableModel::DISPLAYED_SIZE_MAX up. */
+extern PVGUIQT_EXPORT const PVCore::PVSetting<int> listing_max_cell_size;
+extern PVGUIQT_EXPORT const PVCore::PVSetting<bool> listing_links;
+
 /** From 10 to 100, a percentage of the available memory. */
 extern PVGUIQT_EXPORT const PVCore::PVSetting<int> import_memory_warning_percent;
 

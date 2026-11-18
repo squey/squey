@@ -25,6 +25,8 @@
 
 #include <pvguiqt/PVGuiQtSettings.h>
 
+#include <pvguiqt/PVAbstractTableModel.h>
+
 const PVCore::PVSetting<bool> PVGuiQt::settings::show_changelog(
     {.key = "general.show_changelog",
      .type = PVCore::PVSettingType::Bool,
@@ -32,6 +34,28 @@ const PVCore::PVSetting<bool> PVGuiQt::settings::show_changelog(
      .title = "Changes of a new version",
      .description = "Show what changed, the first time a new version of Squey starts.",
      .keywords = {"changelog", "update", "release notes"}});
+
+const PVCore::PVSetting<int> PVGuiQt::settings::listing_max_cell_size(
+    {.key = "listing.max_cell_size",
+     .type = PVCore::PVSettingType::Int,
+     .default_value = int(PVAbstractTableModel::DISPLAYED_SIZE_MAX),
+     .title = "Longest value shown",
+     .description = "Bytes of a value that a cell and its tooltip show, the rest being cut. "
+                    "Longer values make the tables slower to draw.",
+     // Below, a web address could be cut, and the link open another one.
+     .minimum = int(PVAbstractTableModel::DISPLAYED_SIZE_MAX),
+     .maximum = 65536,
+     .unit = "bytes",
+     .keywords = {"cell", "tooltip", "length"}});
+
+const PVCore::PVSetting<bool> PVGuiQt::settings::listing_links(
+    {.key = "listing.links",
+     .type = PVCore::PVSettingType::Bool,
+     .default_value = true,
+     .title = "Web addresses as links",
+     .description = "Show the values that are web addresses as links, which a click opens in "
+                    "the browser.",
+     .keywords = {"URL", "hyperlink", "http"}});
 
 const PVCore::PVSetting<int> PVGuiQt::settings::import_memory_warning_percent(
     {.key = "import.memory_warning_percent",

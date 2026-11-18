@@ -25,6 +25,7 @@
 
 #include <pvguiqt/PVAbstractTableView.h>
 #include <pvguiqt/PVAbstractTableModel.h>
+#include <pvguiqt/PVGuiQtSettings.h>
 #include <pvkernel/core/PVTheme.h>
 
 #include <QScrollBar>
@@ -45,6 +46,9 @@ namespace PVGuiQt
 
 bool PVHyperlinkDelegate::is_url(const QModelIndex& index) const
 {
+	if (not settings::listing_links.value()) {
+		return false;
+	}
 	QString text = index.data().toString();
 	QUrl url(text);
 	return url.isValid() and url.scheme().startsWith("http");
