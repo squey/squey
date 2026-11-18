@@ -120,6 +120,7 @@ class PVGUIQT_EXPORT PVSettingsDialog : public QDialog
 	std::vector<QString> _display_sections;
 	/** "Plugins › Layer filters", by key of section. */
 	QHash<QString, QString> _full_titles;
+	QHash<QString, QString> _descriptions;
 
 	QLineEdit* _search;
 	QLabel* _count;

@@ -269,6 +269,7 @@ PVGuiQt::__impl::setting_row::setting_row(PVCore::PVSettingDescriptor descriptor
 
 	auto* description = new QLabel(_descriptor.description);
 	description->setWordWrap(true);
+	description->setVisible(not _descriptor.description.isEmpty());
 
 	_editor = create_editor();
 	_editor->setObjectName("editor:" + _descriptor.key);
@@ -585,9 +586,10 @@ void PVGuiQt::PVSettingsDialog::build_form()
 	// The declared sections in their order, then those only the keys name.
 	std::vector<QString> order;
 	QHash<QString, QString> titles;
-	for (auto const& [key, title] : settings.sections()) {
-		order.push_back(key);
-		titles[key] = title;
+	for (PVCore::PVSettingsSection const& section : settings.sections()) {
+		order.push_back(section.key);
+		titles[section.key] = section.title;
+		_descriptions[section.key] = section.description;
 	}
 	for (PVCore::PVSettingDescriptor const& descriptor : descriptors) {
 		const QStringList components = section_of(descriptor.key).split('.');
@@ -618,13 +620,14 @@ void PVGuiQt::PVSettingsDialog::build_form()
 	_sections = new QTreeWidget;
 	_sections->setObjectName("sections");
 	_sections->setHeaderHidden(true);
-	_sections->setMinimumWidth(180);
+	_sections->setMinimumWidth(200);
 	std::function<bool(QString const&, QTreeWidgetItem*, QString const&)> add =
 	    [&](QString const& section, QTreeWidgetItem* parent_item, QString const& parent_title) {
 		    const QString full_title =
 		        parent_title.isEmpty() ? titles[section] : parent_title + " › " + titles[section];
 		    auto* item = parent_item ? new QTreeWidgetItem(parent_item) : new QTreeWidgetItem;
 		    item->setText(0, titles[section]);
+		    item->setToolTip(0, full_title);
 		    item->setData(0, SECTION_KEY_ROLE, section);
 		    _full_titles[section] = full_title;
 		    _display_sections.push_back(section);
@@ -655,18 +658,30 @@ void PVGuiQt::PVSettingsDialog::build_form()
 	auto* layout = new QVBoxLayout(rows);
 	for (QString const& section : _display_sections) {
 		auto it = by_section.find(section);
+		const QString description = _descriptions.value(section);
+		if (it == by_section.end() and description.isEmpty()) {
+			continue;
+		}
+		auto* header = new QWidget;
+		header->setObjectName("section:" + section);
+		auto* header_layout = new QVBoxLayout(header);
+		header_layout->setContentsMargins(0, 12, 0, 0);
+		auto* title = new QLabel(_full_titles[section]);
+		QFont font = title->font();
+		font.setPointSizeF(font.pointSizeF() * 1.3);
+		font.setBold(true);
+		title->setFont(font);
+		header_layout->addWidget(title);
+		if (not description.isEmpty()) {
+			auto* text = new QLabel(description);
+			text->setWordWrap(true);
+			header_layout->addWidget(text);
+		}
+		layout->addWidget(header);
+		_headers[section] = header;
 		if (it == by_section.end()) {
 			continue;
 		}
-		auto* header = new QLabel(_full_titles[section]);
-		header->setObjectName("section:" + section);
-		QFont font = header->font();
-		font.setPointSizeF(font.pointSizeF() * 1.3);
-		font.setBold(true);
-		header->setFont(font);
-		header->setContentsMargins(0, 12, 0, 0);
-		layout->addWidget(header);
-		_headers[section] = header;
 		for (PVCore::PVSettingDescriptor const& descriptor : *it) {
 			auto* row = new __impl::setting_row(descriptor, guard, rows);
 			const QString key = descriptor.key;
@@ -700,7 +715,7 @@ void PVGuiQt::PVSettingsDialog::build_form()
 	splitter->addWidget(_sections);
 	splitter->addWidget(_form);
 	splitter->setStretchFactor(1, 1);
-	splitter->setSizes({220, 880});
+	splitter->setSizes({260, 840});
 	_pages->insertWidget(FORM_PAGE, splitter);
 }
 
@@ -779,46 +794,52 @@ QString PVGuiQt::PVSettingsDialog::defaults_document() const
 	// For the pane to show the comments whole.
 	constexpr int WIDTH = 60;
 	const QString INDENT = "    ";
+	auto comment = [&](QStringList& lines, QString const& text) {
+		for (QString const& line : wrapped(text, WIDTH)) {
+			lines << INDENT + "// " + line;
+		}
+	};
 
 	QHash<QString, std::vector<PVCore::PVSettingDescriptor>> by_section;
 	for (PVCore::PVSettingDescriptor const& descriptor : settings.descriptors()) {
 		by_section[section_of(descriptor.key)].push_back(descriptor);
 	}
-	std::vector<std::pair<QString, PVCore::PVSettingDescriptor>> entries;
+	size_t remaining = 0;
 	for (QString const& section : _display_sections) {
-		for (PVCore::PVSettingDescriptor const& descriptor : by_section.value(section)) {
-			entries.emplace_back(section, descriptor);
-		}
+		remaining += by_section.value(section).size();
 	}
 
-	QStringList lines{"// The default settings. Copy those to change into", "// settings.json, on the right.",
-	                  "{"};
-	QString section;
-	for (size_t i = 0; i < entries.size(); ++i) {
-		PVCore::PVSettingDescriptor const& descriptor = entries[i].second;
-		if (i > 0) {
+	QStringList lines{"// The default settings. Copy those to change into",
+	                  "// settings.json, on the right.", "{"};
+	for (QString const& section : _display_sections) {
+		const QString description = _descriptions.value(section);
+		if (not by_section.contains(section) and description.isEmpty()) {
+			continue;
+		}
+		if (lines.size() > 3) {
 			lines << "";
 		}
-		if (entries[i].first != section) {
-			section = entries[i].first;
-			lines << INDENT + "// --- " + _full_titles[section] + " ---" << "";
+		lines << INDENT + "// --- " + _full_titles[section] + " ---";
+		if (not description.isEmpty()) {
+			comment(lines, description);
 		}
-		lines << INDENT + "// " + descriptor.title;
-		QString explanation = descriptor.description;
-		if (const QString accepted = accepted_values(descriptor); not accepted.isEmpty()) {
-			explanation += " " + accepted;
+		for (PVCore::PVSettingDescriptor const& descriptor : by_section.value(section)) {
+			lines << "" << INDENT + "// " + descriptor.title;
+			QString explanation = descriptor.description;
+			if (const QString accepted = accepted_values(descriptor); not accepted.isEmpty()) {
+				explanation += " " + accepted;
+			}
+			if (descriptor.requires_restart) {
+				explanation += " Applies after a restart.";
+			}
+			comment(lines, explanation);
+			--remaining;
+			lines << INDENT + QString("\"%1\": %2%3")
+			                      .arg(descriptor.key,
+			                           json_text(PVCore::PVSettings::to_json(
+			                               descriptor, settings.default_value(descriptor.key))),
+			                           remaining > 0 ? "," : "");
 		}
-		if (descriptor.requires_restart) {
-			explanation += " Applies after a restart.";
-		}
-		for (QString const& line : wrapped(explanation, WIDTH)) {
-			lines << INDENT + "// " + line;
-		}
-		lines << INDENT + QString("\"%1\": %2%3")
-		                      .arg(descriptor.key,
-		                           json_text(PVCore::PVSettings::to_json(
-		                               descriptor, settings.default_value(descriptor.key))),
-		                           i + 1 < entries.size() ? "," : "");
 	}
 	lines << "}";
 	return lines.join('\n') + '\n';
@@ -957,7 +978,11 @@ void PVGuiQt::PVSettingsDialog::update_visibility()
 		}
 	}
 	for (auto it = _headers.begin(); it != _headers.end(); ++it) {
-		it.value()->setVisible(shown_sections.contains(it.key()));
+		const QString& section = it.key();
+		it.value()->setVisible(
+		    std::any_of(shown_sections.begin(), shown_sections.end(), [&](QString const& shown) {
+			    return shown == section or shown.startsWith(section + '.');
+		    }));
 	}
 	_no_match->setVisible(shown == 0);
 	_count->setText(shown == 1 ? tr("1 setting") : tr("%1 settings").arg(shown));

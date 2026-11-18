@@ -23,7 +23,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <pvkernel/core/PVArgumentSettings.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVEnumType.h>
+#include <pvkernel/core/PVPlainTextType.h>
 #include <pvkernel/core/PVSettings.h>
 #include <pvkernel/core/squey_assert.h>
 
@@ -414,7 +417,7 @@ void late_declarations_are_resolved()
 	                  .choices = {{"x", "X"}, {"y", "Y"}}});
 	PV_VALID(text(settings.value("plugin.option")), std::string("x"));
 	PV_VALID(settings.section_title("plugin"), QString("Plugin"));
-	settings.declare_section("plugin", "Some plugin");
+	settings.declare_section({.key = "plugin", .title = "Some plugin"});
 	PV_VALID(settings.section_title("plugin"), QString("Some plugin"));
 }
 
@@ -436,6 +439,53 @@ void typed_settings_use_the_files_of_the_user()
 	QFile::remove(PVCore::PVConfig::user_dir() + PVSettings::USER_FILENAME);
 }
 
+void argument_settings_are_generated()
+{
+	QFile::remove(PVCore::PVConfig::user_dir() + PVSettings::USER_FILENAME);
+
+	PVCore::PVArgumentList args;
+	args[PVCore::PVArgumentKey("flag", "A flag")] = true;
+	args[PVCore::PVArgumentKey("count", "A count")] = 3;
+	args[PVCore::PVArgumentKey("name", "A name")] = QString("squey");
+	args[PVCore::PVArgumentKey("sep", "A separator")] = QChar(',');
+	args[PVCore::PVArgumentKey("mode", "A mode")].setValue(
+	    PVCore::PVEnumType(QStringList{"first", "second"}, 0));
+	args[PVCore::PVArgumentKey("text", "A text")].setValue(PVCore::PVPlainTextType("x"));
+
+	const PVCore::PVArgumentKeyList declared = PVCore::declare_argument_settings(
+	    "test.plugin", args, args.keys(), "Default of the test plugin");
+	// Free text is no setting.
+	PV_VALID(declared.size(), size_t(5));
+	PVSettings& settings = PVSettings::get();
+	const auto mode = settings.descriptor("test.plugin.mode");
+	PV_ASSERT_VALID(mode.has_value());
+	PV_ASSERT_VALID(mode->type == PVSettingType::Choice);
+	PV_VALID(mode->title, QString("A mode"));
+	PV_VALID(text(mode->default_value), std::string("first"));
+	PV_ASSERT_VALID(not settings.descriptor("test.plugin.text").has_value());
+
+	// Without a choice of the user, the arguments are left as they are.
+	PVCore::PVArgumentList applied = args;
+	PVCore::apply_argument_settings("test.plugin", applied);
+	PV_VALID(applied["mode"].value<PVCore::PVEnumType>().get_sel_index(), 0);
+	PV_VALID(int(applied["sep"].toChar().unicode()), int(','));
+
+	PV_ASSERT_VALID(settings.set_value("test.plugin.mode", "second"));
+	PV_ASSERT_VALID(settings.set_value("test.plugin.sep", ";"));
+	PV_ASSERT_VALID(settings.set_value("test.plugin.count", 7));
+	PV_ASSERT_VALID(settings.set_value("test.plugin.flag", false));
+	PV_ASSERT_VALID(not settings.set_value("test.plugin.sep", ";;"));
+	PVCore::apply_argument_settings("test.plugin", applied);
+	PV_VALID(applied["mode"].value<PVCore::PVEnumType>().get_sel_index(), 1);
+	PV_VALID(int(applied["sep"].toChar().unicode()), int(';'));
+	PV_VALID(applied["count"].toInt(), 7);
+	PV_VALID(applied["count"].typeId(), int(QMetaType::Int));
+	PV_VALID(applied["flag"].toBool(), false);
+	PV_VALID(applied["text"].value<PVCore::PVPlainTextType>().get_text().toStdString(),
+	         std::string("x"));
+	QFile::remove(PVCore::PVConfig::user_dir() + PVSettings::USER_FILENAME);
+}
+
 } // namespace
 
 int main()
@@ -450,5 +500,6 @@ int main()
 	reload_reads_outside_changes();
 	late_declarations_are_resolved();
 	typed_settings_use_the_files_of_the_user();
+	argument_settings_are_generated();
 	return 0;
 }

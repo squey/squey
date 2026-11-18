@@ -91,6 +91,17 @@ struct PVSettingDescriptor {
 	QStringList keywords = {};
 };
 
+/**
+ * The settings whose keys start with \p key and a dot, as the settings dialog
+ * lists them together.
+ */
+struct PVSettingsSection {
+	QString key;
+	QString title;
+	/** What the settings of the section have in common, if anything. */
+	QString description = {};
+};
+
 struct PVSettingsProblem {
 	enum class Severity { Error, Warning };
 
@@ -160,17 +171,17 @@ class PVKERNEL_EXPORT PVSettings : public QObject
 	void declare(PVSettingDescriptor descriptor);
 
 	/**
-	 * Names the section of the settings whose keys start with \p key and a dot.
-	 * Sections are listed in the order they are declared in.
+	 * Describes a section of the settings. A section declared again replaces the
+	 * previous declaration, and keeps its place.
 	 */
-	void declare_section(QString const& key, QString const& title);
+	void declare_section(PVSettingsSection section);
 
 	/** In the order of their first declaration. */
 	std::vector<PVSettingDescriptor> descriptors() const;
 	std::optional<PVSettingDescriptor> descriptor(QString const& key) const;
 
-	/** Keys and titles of the declared sections, in the order of their declaration. */
-	std::vector<std::pair<QString, QString>> sections() const;
+	/** In the order of their first declaration. */
+	std::vector<PVSettingsSection> sections() const;
 
 	/** The declared title, or the last component of the key, spelled as words. */
 	QString section_title(QString const& key) const;
@@ -274,7 +285,7 @@ class PVKERNEL_EXPORT PVSettings : public QObject
 
 	mutable std::vector<entry_t> _entries;
 	QHash<QString, size_t> _index;
-	std::vector<std::pair<QString, QString>> _sections;
+	std::vector<PVSettingsSection> _sections;
 
 	mutable QJsonObject _user;
 	mutable QString _user_file_error;
@@ -311,14 +322,6 @@ class PVSetting
 
   private:
 	QString _key;
-};
-
-/** A section declared on construction: see PVSettings::declare_section(). */
-struct PVSettingsSection {
-	PVSettingsSection(QString const& key, QString const& title)
-	{
-		PVSettings::get().declare_section(key, title);
-	}
 };
 
 } // namespace PVCore

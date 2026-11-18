@@ -14,6 +14,7 @@ core/network.cpp
 
 core/PVArchive.cpp
 core/PVArgument.cpp
+core/PVArgumentSettings.cpp
 core/PVOriginalAxisIndexType.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp

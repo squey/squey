@@ -378,7 +378,7 @@ void PVGuiQt::PVLayerFilterProcessWidget::preview_Slot()
 
 void PVGuiQt::PVLayerFilterProcessWidget::reset_Slot()
 {
-	change_args(_filter_p->get_default_args_for_view(*_view));
+	change_args(_filter_p->get_preferred_args_for_view(*_view));
 }
 
 void PVGuiQt::PVLayerFilterProcessWidget::process_layer_filter(Squey::PVLayerFilter* filter,

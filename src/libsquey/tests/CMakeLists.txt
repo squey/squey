@@ -119,6 +119,13 @@ add_squey_compile_test(Tsquey_multiple_search LINKS ${LINK_LIBRARIES} FILES mult
 add_squey_test(Tsquey_multiple_search Tsquey_multiple_search)
 add_bench(Tsquey_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.cpp ${COMMON_FILES})
 
+add_squey_compile_test(Tsquey_plugin_settings LINKS ${LINK_LIBRARIES} FILES plugin_settings.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_plugin_settings Tsquey_plugin_settings ${TESTS_FILES_DIR}/../../pvconfig.ini)
+# A configuration of its own, relative as the packaged testsuite of Windows and
+# macOS does not run from the build tree.
+set_property(TEST SQUEY_TEST_Tsquey_plugin_settings APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=plugin_settings_config")
+
 add_squey_compile_test(Tsquey_errors_search LINKS ${LINK_LIBRARIES} FILES errors_search.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_errors_search Tsquey_errors_search)
 add_bench(Tsquey_errors_search LINKS ${LINK_LIBRARIES} FILES errors_search.cpp ${COMMON_FILES})

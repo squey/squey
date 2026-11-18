@@ -191,7 +191,7 @@ PVCore::PVSettings& PVCore::PVSettings::get()
 PVCore::PVSettings::PVSettings()
 {
 	for (auto const& [key, title] : TABLE_OF_CONTENTS) {
-		_sections.emplace_back(key, title);
+		_sections.push_back({key, title});
 	}
 }
 
@@ -223,16 +223,16 @@ void PVCore::PVSettings::declare(PVSettingDescriptor descriptor)
 	}
 }
 
-void PVCore::PVSettings::declare_section(QString const& key, QString const& title)
+void PVCore::PVSettings::declare_section(PVSettingsSection section)
 {
 	std::unique_lock lock(_mutex);
-	for (auto& section : _sections) {
-		if (section.first == key) {
-			section.second = title;
+	for (PVSettingsSection& declared : _sections) {
+		if (declared.key == section.key) {
+			declared = std::move(section);
 			return;
 		}
 	}
-	_sections.emplace_back(key, title);
+	_sections.push_back(std::move(section));
 }
 
 std::vector<PVCore::PVSettingDescriptor> PVCore::PVSettings::descriptors() const
@@ -256,7 +256,7 @@ std::optional<PVCore::PVSettingDescriptor> PVCore::PVSettings::descriptor(QStrin
 	return _entries[*it].descriptor;
 }
 
-std::vector<std::pair<QString, QString>> PVCore::PVSettings::sections() const
+std::vector<PVCore::PVSettingsSection> PVCore::PVSettings::sections() const
 {
 	std::shared_lock lock(_mutex);
 	return _sections;
@@ -265,9 +265,9 @@ std::vector<std::pair<QString, QString>> PVCore::PVSettings::sections() const
 QString PVCore::PVSettings::section_title(QString const& key) const
 {
 	std::shared_lock lock(_mutex);
-	for (auto const& [section_key, title] : _sections) {
-		if (section_key == key) {
-			return title;
+	for (PVSettingsSection const& section : _sections) {
+		if (section.key == key) {
+			return section.title;
 		}
 	}
 	return words(key.section('.', -1));
