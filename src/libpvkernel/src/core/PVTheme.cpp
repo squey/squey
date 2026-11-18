@@ -274,7 +274,8 @@ void PVCore::PVTheme::apply_style(bool dark_theme)
 void PVCore::PVTheme::setting_changed(const QString& ns, const QString& key, const QDBusVariant& value)
 {
     if (_follow_system_scheme and ns == DBUS_NAMESPACE and key == DBUS_KEY) {
-        EColorScheme new_color_scheme = value.variant().value<uint32_t>() != 0 ? EColorScheme::DARK : EColorScheme::LIGHT;
+        // As system_color_scheme() reads it: 1 prefers dark, 2 light, 0 says nothing.
+        EColorScheme new_color_scheme = value.variant().value<uint32_t>() == 1 ? EColorScheme::DARK : EColorScheme::LIGHT;
         if (new_color_scheme != color_scheme()) {
             set_color_scheme(new_color_scheme);
         }
@@ -283,6 +284,8 @@ void PVCore::PVTheme::setting_changed(const QString& ns, const QString& key, con
 #elifdef _WIN32
 void PVCore::PVTheme::setting_changed()
 {
-    set_color_scheme(system_color_scheme());
+    if (_follow_system_scheme) {
+        set_color_scheme(system_color_scheme());
+    }
 }
 #endif
