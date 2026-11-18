@@ -615,6 +615,22 @@ rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data)
 	return selected_fields;
 }
 
+std::vector<std::pair<std::string, std::string>> tshark_environment()
+{
+	// Times tshark writes as local come in UTC, which is how the formats read them.
+	std::vector<std::pair<std::string, std::string>> environment = {{"TZ", "UTC0"}};
+#ifdef __linux__
+	// Within Flatpak, XDG_CONFIG_HOME points inside the sandbox: tshark has to be told where
+	// Wireshark keeps the configuration of the user, its profiles included.
+	const std::string home = getenv_or_empty("HOME");
+	if (qEnvironmentVariableIsSet("FLATPAK_ID") and not home.empty() and
+	    QFileInfo(QString::fromStdString(home + "/.config/wireshark")).isDir()) {
+		environment.emplace_back("XDG_CONFIG_HOME", home + "/.config");
+	}
+#endif
+	return environment;
+}
+
 std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
 {
 	std::vector<std::string> ts_fields;

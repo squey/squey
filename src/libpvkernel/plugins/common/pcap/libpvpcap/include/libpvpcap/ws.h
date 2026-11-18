@@ -231,6 +231,9 @@ std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data);
 
 std::string ws_get_version();
 
+//! What tshark needs in its environment to write what Squey reads.
+std::vector<std::pair<std::string, std::string>> tshark_environment();
+
 } /* namespace pvpcap */
 
 #endif // WS_H
