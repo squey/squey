@@ -138,6 +138,9 @@ add_squey_test(Trush_pcap_flow Trush_pcap_flow)
 add_squey_compile_test(Trush_pcap_capture_reader LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_capture_reader.cpp helpers.cpp)
 add_squey_test(Trush_pcap_capture_reader Trush_pcap_capture_reader)
 
+add_squey_compile_test(Trush_pcap_process LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_process.cpp helpers.cpp)
+add_squey_test(Trush_pcap_process Trush_pcap_process)
+
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)
 

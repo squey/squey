@@ -14,6 +14,7 @@ set(PCAP_SRC
     src/capture.cpp
     src/flow.cpp
     src/libpvpcap.cpp
+    src/process.cpp
     src/shell.cpp
     src/ws.cpp
     src/profileformat.cpp
