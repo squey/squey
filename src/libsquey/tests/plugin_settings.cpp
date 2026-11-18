@@ -23,9 +23,11 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-// What the dialog of a layer filter starts with in a new view: the defaults of
-// the plugin, and in place of some, the defaults the user chose in the
-// settings. The defaults of the plugin stay what a search is described against.
+// The settings of the plugins: those the input plugins declare, and those
+// generated from the arguments of the layer filters. What the dialog of a layer
+// filter starts with in a new view is the defaults of the plugin, and in place
+// of some, the defaults the user chose in the settings. The defaults of the
+// plugin stay what a search is described against.
 
 #include "common.h"
 
@@ -66,6 +68,8 @@ int main(int argc, char** argv)
 	// Loading the plugins declares their settings.
 	pvtest::TestEnv env;
 	PVCore::PVSettings& settings = PVCore::PVSettings::get();
+	PV_ASSERT_VALID(
+	    settings.descriptor("plugins.input.elasticsearch.verify_certificates").has_value());
 
 	const auto match_case = settings.descriptor("plugins.layer_filters.search-multiple.case");
 	PV_ASSERT_VALID(match_case.has_value());
