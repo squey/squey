@@ -64,6 +64,9 @@ namespace
 constexpr uint64_t TSHARK_BYTES_PER_CAPTURE_BYTE = 5;
 constexpr uint64_t TSHARK_BASE_MEMORY = 200 * 1024 * 1024;
 
+//! What a tshark that reads its part twice keeps on top: measured from 5 to over 40 %.
+constexpr uint64_t TWO_PASS_EXTRA_MEMORY_PERCENT = 50;
+
 //! What a compressed capture is assumed to grow to, as long as it was not read.
 constexpr uint64_t COMPRESSION_RATIO = 4;
 
@@ -801,11 +804,17 @@ void extraction::implementation::choose_mode()
 		memory = std::max<uint64_t>(PVCore::available_memory() / 2, 1024ULL * 1024 * 1024);
 	}
 
+	// Of each byte it reads, in percent.
+	uint64_t kept = TSHARK_BYTES_PER_CAPTURE_BYTE * 100;
+	if (opts.two_pass) {
+		kept += kept * TWO_PASS_EXTRA_MEMORY_PERCENT / 100;
+	}
+
 	size_t count = 1;
-	how = mode::fed;
+	// A pipe can't be read twice.
+	how = opts.two_pass ? mode::written : mode::fed;
 	if (reader->splittable() and size >= opts.smallest_split and opts.workers > 1) {
-		const uint64_t fed_memory =
-		    size * TSHARK_BYTES_PER_CAPTURE_BYTE + opts.workers * TSHARK_BASE_MEMORY;
+		const uint64_t fed_memory = size * kept / 100 + opts.workers * TSHARK_BASE_MEMORY;
 		if (fed_memory <= memory) {
 			count = std::clamp<uint64_t>(size / std::max<uint64_t>(opts.smallest_part, 1), 1,
 			                             opts.workers);
@@ -813,8 +822,8 @@ void extraction::implementation::choose_mode()
 			// Parts small enough for as many tshark as workers to hold them at once.
 			const uint64_t per_worker = memory / opts.workers;
 			const uint64_t part_size = std::max<uint64_t>(
-			    (per_worker > TSHARK_BASE_MEMORY ? per_worker - TSHARK_BASE_MEMORY : 0) /
-			        TSHARK_BYTES_PER_CAPTURE_BYTE,
+			    (per_worker > TSHARK_BASE_MEMORY ? per_worker - TSHARK_BASE_MEMORY : 0) * 100 /
+			        kept,
 			    std::max<uint64_t>(opts.smallest_part, 1));
 			count = std::clamp<uint64_t>((size + part_size - 1) / part_size, opts.workers,
 			                             std::max<uint64_t>(MOST_PARTS, opts.workers));
@@ -834,9 +843,15 @@ void extraction::implementation::start_tshark(part& p, const std::string& input)
 {
 	child_process::options process;
 	process.argv.push_back(opts.program.empty() ? tshark_path() : opts.program);
+	if (opts.two_pass) {
+		// tshark refuses to read its standard input twice, even from a file.
+		process.argv.insert(process.argv.end(), {"-2", "-r", input});
+	} else {
+		process.argv.insert(process.argv.end(), {"-r", "-"});
+	}
 	process.argv.insert(process.argv.end(),
-	                    {"-r", "-", "-T", "fields", "-E", std::string("separator=") + SEPARATOR,
-	                     "-E", "quote=n", "-E", "header=n"});
+	                    {"-T", "fields", "-E", std::string("separator=") + SEPARATOR, "-E",
+	                     "quote=n", "-E", "header=n"});
 	process.argv.insert(process.argv.end(), FRAME_FIELDS.begin(), FRAME_FIELDS.end());
 	process.argv.insert(process.argv.end(), opts.tshark_options.begin(), opts.tshark_options.end());
 	for (size_t i = 0; i < opts.fields.size(); i++) {

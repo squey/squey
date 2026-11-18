@@ -31,6 +31,10 @@
 // them. This compares every line, whether the parts are fed through pipes or written to
 // files first, for a capture of HTTP and DNS over IPv4, IPv6 and VLAN, on Ethernet and on
 // a Linux "any" link, in a time zone other than UTC, with and without a display filter.
+//
+// Read twice, as tshark does for the fields that name later frames, a capture reads as it
+// does with a single tshark reading it twice, the responses and the reassemblies a single
+// pass can't know of included.
 
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/squey_assert.h>
@@ -321,6 +325,40 @@ int main()
 		written.memory = 1; // too little to feed them all at once
 		written.smallest_part = QFileInfo(QString::fromStdString(capture)).size() / 5;
 		check_same("written to files", reference, extract(capture, written, &parts));
+		PV_ASSERT_VALID(parts >= 3, "parts", parts);
+
+		// A single pass can't name the frames after: the response to a request, the frame a
+		// PDU is reassembled in.
+		const auto count = [](const lines& extracted, size_t field) {
+			return std::count_if(extracted.begin(), extracted.end(), [&](const auto& line) {
+				return not fields_of(line.second.second)[field].empty();
+			});
+		};
+		PV_VALID(count(reference, 11), std::ptrdiff_t(0));
+		PV_VALID(count(reference, 12), std::ptrdiff_t(0));
+		PV_VALID(count(reference, 14), std::ptrdiff_t(0));
+
+		pvpcap::extraction::options whole_twice = profile_options(work);
+		whole_twice.workers = 1;
+		whole_twice.two_pass = true;
+		const lines twice = extract(capture, whole_twice);
+		PV_VALID(count(twice, 11), std::ptrdiff_t(48));
+		PV_VALID(count(twice, 12), std::ptrdiff_t(48));
+		PV_VALID(count(twice, 14), std::ptrdiff_t(24));
+
+		pvpcap::extraction::options split_twice = profile_options(work);
+		split_twice.workers = 4;
+		split_twice.two_pass = true;
+		check_same("read twice", twice, extract(capture, split_twice, &parts));
+		PV_VALID(parts, size_t(4));
+
+		pvpcap::extraction::options written_twice = profile_options(work);
+		written_twice.workers = 3;
+		written_twice.two_pass = true;
+		written_twice.memory = 1;
+		written_twice.smallest_part = QFileInfo(QString::fromStdString(capture)).size() / 5;
+		check_same("read twice, more parts than tshark at once", twice,
+		           extract(capture, written_twice, &parts));
 		PV_ASSERT_VALID(parts >= 3, "parts", parts);
 
 		// What the display filter leaves keeps its frame numbers.

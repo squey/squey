@@ -32,6 +32,9 @@
 // only writes once however many times it is asked. And when tshark refuses the profile, the
 // import fails with what it said.
 //
+// A profile whose fields need tshark to read the captures twice has it do so, and only such a
+// profile: those Squey ships don't.
+//
 // The packets of the rows export as their captures hold them: by their number, along with
 // the rest of their conversations if asked, on the link they were captured on, in a pcapng
 // file when captures of different links are exported together.
@@ -65,7 +68,9 @@ using namespace pcap_captures;
 namespace
 {
 
-std::string profile(const std::string& extra_field = {})
+std::string profile(const std::string& extra_field = {},
+                    const std::string& type = "FT_STRING",
+                    const std::string& filter = {})
 {
 	std::string fields = R"json(
         {"name": "", "filter_name": "frame.time", "type": "FT_ABSOLUTE_TIME", "description": "", "select": true},
@@ -76,12 +81,14 @@ std::string profile(const std::string& extra_field = {})
         {"name": "", "filter_name": "tcp.flags.syn", "type": "FT_BOOLEAN", "description": "", "select": true})json";
 	if (not extra_field.empty()) {
 		fields += R"json(, {"name": "", "filter_name": ")json" + extra_field +
-		          R"json(", "type": "FT_STRING", "description": "", "select": true})json";
+		          R"json(", "type": ")json" + type +
+		          R"json(", "description": "", "select": true})json";
 	}
 	return R"json({
   "options": {
     "source": false, "destination": false, "protocol": false, "info": false,
-    "filters": "", "header": false, "aggregator": "|", "occurrence": "f"
+    "filters": ")json" +
+	       filter + R"json(", "header": false, "aggregator": "|", "occurrence": "f"
   },
   "children": [{"fields": [)json" +
 	       fields + R"json(], "children": []}]
@@ -196,8 +203,13 @@ bytes frame_of(const QString& capture, size_t index)
 
 } // namespace
 
-int main()
+int main(int argc, char** argv)
 {
+	if (argc < 2) {
+		std::cerr << "Usage: " << argv[0] << " <directory of the profiles Squey ships>"
+		          << std::endl;
+		return 1;
+	}
 	pvtest::init_ctxt();
 	if (pvpcap::ws_get_version().empty()) {
 		std::cerr << "tshark is not available, skipping pcap integration test" << std::endl;
@@ -300,6 +312,45 @@ int main()
 		PV_VALID(links[1], uint32_t(113));
 		PV_VALID(frames[0] == frame_of(first, 0), true);
 		PV_VALID(frames[1] == frame_of(cooked, 0), true);
+	}
+
+	std::cout << "the profiles tshark reads the captures twice for" << std::endl;
+	{
+		const auto twice = [](const std::string& profile_json) {
+			rapidjson::Document json;
+			json.Parse(profile_json.c_str());
+			return pvpcap::ws_extraction_options(json).two_pass;
+		};
+		PV_VALID(twice(profile()), false);
+		PV_VALID(twice(profile("http.request_in", "FT_FRAMENUM")), false);
+		PV_VALID(twice(profile("http.response_in", "FT_FRAMENUM")), true);
+		PV_VALID(twice(profile("smb2.filename")), true);
+		PV_VALID(twice(profile({}, {}, "http.request")), false);
+		// tshark tells the type of the fields of the filter.
+		PV_VALID(twice(profile({}, {}, "http.request and not http.response_in")), true);
+		PV_VALID(twice(profile({}, {}, R"(http.request.uri contains \"http.response_in\")")),
+		         false);
+
+		const QDir shipped(argv[1]);
+		const QStringList names = shipped.entryList(QDir::Files);
+		PV_ASSERT_VALID(not names.empty(), "the profiles in", argv[1]);
+		for (const QString& name : names) {
+			rapidjson::Document json;
+			pvpcap::load_profile_data(json, shipped.filePath(name).toStdString());
+			PV_ASSERT_VALID(not pvpcap::ws_extraction_options(json).two_pass, "profile",
+			                name.toStdString());
+		}
+	}
+
+	std::cout << "a field only two passes write right" << std::endl;
+	{
+		imported result;
+		import(result, profile("tcp.completeness", "FT_UINT8"), {first});
+		const PVCol completeness = result.columns.at("tcp.completeness");
+		// What TCP says of the whole conversation, the handshake: on its first frame too.
+		for (PVRow row = 0; row < result.nraw.row_count(); row++) {
+			PV_VALID(result.nraw.at_string(row, completeness), std::string("3"));
+		}
 	}
 
 	std::cout << "a field tshark does not know" << std::endl;

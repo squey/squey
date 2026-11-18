@@ -239,7 +239,32 @@ std::vector<profile_field> ws_profile_fields(const rapidjson::Document& profile)
 std::vector<std::pair<std::string, std::string>> tshark_environment();
 
 /**
+ * Whether tshark only writes a field right once it read the frames after its own, which it
+ * does when it reads the capture twice (-2), as Wireshark does.
+ *
+ * tshark does not tell which fields these are. These were found comparing what a single
+ * pass and two write, field by field, on captures of HTTP, DNS, TLS, SMB and SMB2 traffic,
+ * with tshark 4.6:
+ * - the numbers of other frames, such as the response to a request (http.response_in) or
+ *   where a PDU is reassembled (tcp.reassembled_in), except those of earlier frames a
+ *   single pass is known to write (http.request_in);
+ * - the Info column, which a single pass leaves empty on the segments of a PDU reassembled
+ *   later, or describes as the PDU itself;
+ * - what TCP says of a whole conversation on each of its frames, such as tcp.completeness;
+ * - the expert information, such as what never came: dns.response_missing, icmp.no_resp;
+ * - what SMB, SMB2 and DCE/RPC say of the file or handle a frame is about, and of the time
+ *   since its request: smb2.filename, smb2.time.
+ *
+ * @param type as tshark names it, such as FT_FRAMENUM; empty if unknown
+ */
+bool ws_needs_two_passes(const std::string& name, const std::string& type);
+
+/**
  * The fields and the options of tshark a profile asks for.
+ *
+ * tshark reads the capture twice if a field asked for, or named by the display filter,
+ * needs it: see ws_needs_two_passes(). tshark is then asked the types of the fields of the
+ * filter.
  *
  * Leaves out the directory of the temporary files, which only the caller knows.
  */
@@ -247,13 +272,19 @@ extraction::options ws_extraction_options(const rapidjson::Document& profile);
 
 std::string ws_get_version();
 
+//! What `tshark -G fields` says of a field.
+struct field_description {
+	std::string type; //!< such as FT_UINT16
+	std::string base; //!< how tshark writes it, for an integer: BASE_HEX, BASE_DEC...
+};
+
 /**
- * How tshark writes the given fields, as `tshark -G fields` tells: BASE_HEX, BASE_DEC...
+ * What `tshark -G fields` says of the given fields.
  *
  * Empty for the fields tshark does not know, and for all of them when tshark can't run.
  */
-std::unordered_map<std::string, std::string>
-ws_field_display_bases(const std::vector<std::string>& names);
+std::unordered_map<std::string, field_description>
+ws_field_descriptions(const std::vector<std::string>& names);
 
 /**
  * Runs tshark with the given arguments, and returns the lines it wrote.

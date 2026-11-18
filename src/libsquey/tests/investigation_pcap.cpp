@@ -29,7 +29,8 @@
 // from its inputs. The inputs of a capture used to be the parts the import split it into,
 // removed as soon as read: reopened without its NRAW, the investigation of a capture could
 // not be. They are now the capture itself, with what tshark is asked of it, and the rows
-// come back the same, in the same order, which the layers and selections saved rely on.
+// come back the same, in the same order, which the layers and selections saved rely on: those
+// of a field only two passes write right too.
 
 #include "../../libpvkernel/plugins/common/pcap/PVPcapDescription.h"
 #include "../../libpvkernel/plugins/common/pcap/libpvpcap/include/libpvpcap/profileformat.h"
@@ -68,7 +69,8 @@ const char* PROFILE = R"json({
     {"name": "", "filter_name": "frame.time", "type": "FT_ABSOLUTE_TIME", "description": "", "select": true},
     {"name": "", "filter_name": "ip.src", "type": "FT_IPv4", "description": "", "select": true},
     {"name": "", "filter_name": "tcp.srcport", "type": "FT_UINT16", "description": "", "select": true},
-    {"name": "", "filter_name": "tcp.flags", "type": "FT_UINT16", "description": "", "select": true}
+    {"name": "", "filter_name": "tcp.flags", "type": "FT_UINT16", "description": "", "select": true},
+    {"name": "", "filter_name": "tcp.completeness", "type": "FT_UINT8", "description": "", "select": true}
   ], "children": []}]
 })json";
 

@@ -4,6 +4,9 @@
 
 set(PVRUSH_TEST_FILES "${TESTS_FILES_DIR}/pvkernel/rush")
 set(PVRUSH_TEST_FILES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test-files")
+# The pcap profiles Squey ships, found from TESTS_FILES_DIR rather than from the sources: the
+# packaged testsuite of Windows and macOS does not run where it was built.
+set(PCAP_PROFILES_DIR "${TESTS_FILES_DIR}/../../libpvkernel/plugins/common/pcap/profiles")
 
 # Test UTF8 conversion
 add_squey_compile_test(Trush_conv_utf8 LINKS ${LINK_LIBRARIES} FILES conv_utf8.cpp helpers.cpp)
@@ -135,7 +138,7 @@ add_squey_test(Trush_pcap_extraction Trush_pcap_extraction)
 set_tests_properties(SQUEY_TEST_Trush_pcap_extraction PROPERTIES SKIP_RETURN_CODE 77)
 
 add_squey_compile_test(Trush_pcap_import LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_import.cpp helpers.cpp)
-add_squey_test(Trush_pcap_import Trush_pcap_import)
+add_squey_test(Trush_pcap_import Trush_pcap_import ${PCAP_PROFILES_DIR})
 set_tests_properties(SQUEY_TEST_Trush_pcap_import PROPERTIES SKIP_RETURN_CODE 77)
 
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)

@@ -179,6 +179,7 @@ class PVPcapDescription : public PVFileDescription
 		so.list_attributes("field_names", names);
 		so.list_attributes("field_kinds", kinds);
 		so.attribute_write("aggregator", QString::fromStdString(_extraction.aggregator));
+		so.attribute_write("two_pass", _extraction.two_pass);
 	}
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
@@ -220,6 +221,7 @@ class PVPcapDescription : public PVFileDescription
 		if (not aggregator.isEmpty()) {
 			extraction.aggregator = aggregator.toStdString();
 		}
+		extraction.two_pass = so.attribute_read<bool>("two_pass");
 		// Of the machine reading the capture, not of the one that saved the investigation.
 		extraction.environment = pvpcap::tshark_environment();
 

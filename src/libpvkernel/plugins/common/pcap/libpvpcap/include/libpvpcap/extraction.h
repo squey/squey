@@ -59,6 +59,10 @@ inline constexpr uint32_t NO_STREAM = UINT32_MAX;
  * A small capture, or one that can't be split (a capture of system calls, a format tshark
  * reads but this does not), is read by a single tshark.
  *
+ * Some fields are only written right by a tshark that read the frames after theirs, as
+ * Wireshark does once it read the whole capture: such a tshark reads its part twice, which a
+ * pipe does not allow. The parts are then written to files first.
+ *
  * Whatever the split, the lines come in the order of the frames, and each of them says which
  * frame it is about: the frames a display filter dropped are the only ones missing.
  *
@@ -108,6 +112,11 @@ class extraction
 		uint64_t smallest_split = 8 * 1024 * 1024;
 		//! Bytes of the capture below which a part would not be worth a tshark of its own.
 		uint64_t smallest_part = 4 * 1024 * 1024;
+		/**
+		 * Whether tshark reads its part twice (-2), for fields that need the frames after
+		 * theirs, such as http.response_in: it takes about a quarter longer.
+		 */
+		bool two_pass = false;
 	};
 
 	struct line {

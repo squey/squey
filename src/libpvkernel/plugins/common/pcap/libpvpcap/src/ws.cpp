@@ -58,6 +58,9 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <array>
+#include <cctype>
+#include <string_view>
 #include <regex>
 
 #include "../include/libpvpcap.h"
@@ -225,12 +228,11 @@ std::vector<std::string> tshark_output(const std::vector<std::string>& arguments
 	return lines;
 }
 
-std::unordered_map<std::string, std::string>
-ws_field_display_bases(const std::vector<std::string>& names)
+std::unordered_map<std::string, field_description>
+ws_field_descriptions(const std::vector<std::string>& names)
 {
-	// A profile keeps the type of a field, not how tshark writes it.
 	const std::unordered_set<std::string> wanted(names.begin(), names.end());
-	std::unordered_map<std::string, std::string> bases;
+	std::unordered_map<std::string, field_description> descriptions;
 	std::vector<std::string> columns;
 	for (const std::string& line : tshark_output({"-G", "fields"})) {
 		if (not line.starts_with("F\t")) {
@@ -238,10 +240,10 @@ ws_field_display_bases(const std::vector<std::string>& names)
 		}
 		boost::split(columns, line, boost::is_any_of("\t"));
 		if (columns.size() > 5 and wanted.contains(columns[2])) {
-			bases[columns[2]] = columns[5];
+			descriptions[columns[2]] = {columns[3], columns[5]};
 		}
 	}
-	return bases;
+	return descriptions;
 }
 
 /*******************************************************************************
@@ -696,6 +698,54 @@ const rapidjson::Value& profile_options(const rapidjson::Document& profile)
 	return none;
 }
 
+//! Numbers of earlier frames, which a single pass writes as two do.
+constexpr std::array<std::string_view, 7> ONE_PASS_FRAMES = {"dns.response_to",
+                                                             "http.request_in",
+                                                             "icmp.resp_to",
+                                                             "ldap.response_to",
+                                                             "sip.response-request",
+                                                             "tcp.analysis.acks_frame",
+                                                             "tcp.analysis.duplicate_ack_frame"};
+
+constexpr std::array<std::string_view, 9> TWO_PASS_FIELDS = {
+    "_ws.col.Info",          "_ws.col.info",        "dns.response_missing",
+    "icmp.no_resp",          "icmp.resp_not_found", "icmpv6.no_resp",
+    "icmpv6.resp_not_found", "ntp.delta_time",      "tcp.analysis.initial_rtt"};
+
+constexpr std::array<std::string_view, 6> TWO_PASS_PREFIXES = {
+    "_ws.expert", "dcerpc.", "smb.", "smb2.", "tcp.completeness", "tcp.stream."};
+
+/**
+ * Whatever looks like the name of a field in a display filter, outside of its strings:
+ * values and operators too, which are not fields tshark knows.
+ */
+std::vector<std::string> filter_names(const std::string& filter)
+{
+	const auto in_name = [](char c) {
+		return std::isalnum(static_cast<unsigned char>(c)) or c == '_' or c == '.' or c == '-';
+	};
+	std::vector<std::string> names;
+	size_t i = 0;
+	while (i < filter.size()) {
+		const char c = filter[i];
+		if (c == '"' or c == '\'') {
+			for (i++; i < filter.size() and filter[i] != c; i++) {
+				i += filter[i] == '\\';
+			}
+			i++;
+		} else if (in_name(c)) {
+			const size_t begin = i;
+			while (i < filter.size() and in_name(filter[i])) {
+				i++;
+			}
+			names.push_back(filter.substr(begin, i - begin));
+		} else {
+			i++;
+		}
+	}
+	return names;
+}
+
 extraction::field::kind field_kind(const std::string& name, const std::string& type)
 {
 	if (name == "frame.time_relative") {
@@ -720,6 +770,18 @@ extraction::field::kind field_kind(const std::string& name, const std::string& t
 }
 
 } // namespace
+
+bool ws_needs_two_passes(const std::string& name, const std::string& type)
+{
+	if (type == "FT_FRAMENUM") {
+		return std::find(ONE_PASS_FRAMES.begin(), ONE_PASS_FRAMES.end(), name) ==
+		       ONE_PASS_FRAMES.end();
+	}
+	return std::find(TWO_PASS_FIELDS.begin(), TWO_PASS_FIELDS.end(), name) !=
+	           TWO_PASS_FIELDS.end() or
+	       std::any_of(TWO_PASS_PREFIXES.begin(), TWO_PASS_PREFIXES.end(),
+	                   [&](std::string_view prefix) { return name.starts_with(prefix); });
+}
 
 std::vector<profile_field> ws_profile_fields(const rapidjson::Document& profile)
 {
@@ -771,12 +833,23 @@ extraction::options ws_extraction_options(const rapidjson::Document& profile)
 		tcp_times |= f.name.starts_with("tcp.time_");
 		bytes_in_flight |=
 		    f.name == "tcp.analysis.bytes_in_flight" or f.name == "tcp.analysis.push_bytes_sent";
+		opts.two_pass |= ws_needs_two_passes(f.name, f.type);
 	}
 
 	std::vector<std::string>& args = opts.tshark_options;
 	const std::string filter = option(options, "filters", "");
 	if (not filter.empty()) {
 		args.insert(args.end(), {"-Y", filter});
+		// A single pass would keep other frames than such a filter says.
+		if (not opts.two_pass) {
+			const std::vector<std::string> names = filter_names(filter);
+			const auto descriptions = ws_field_descriptions(names);
+			for (const std::string& name : names) {
+				const auto it = descriptions.find(name);
+				opts.two_pass |=
+				    ws_needs_two_passes(name, it != descriptions.end() ? it->second.type : "");
+			}
+		}
 	}
 	opts.aggregator = option(options, "aggregator", "|");
 	args.insert(args.end(), {"-E", "occurrence=" + option(options, "occurrence", "f"), "-E",

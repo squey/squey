@@ -125,7 +125,9 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 	for (const profile_field& field : fields) {
 		names.push_back(field.name);
 	}
-	const std::unordered_map<std::string, std::string> bases = ws_field_display_bases(names);
+	// A profile keeps the type of a field, not how tshark writes it.
+	const std::unordered_map<std::string, field_description> descriptions =
+	    ws_field_descriptions(names);
 
 	for (const profile_field& field : fields) {
 		const QString& type =
@@ -148,11 +150,11 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 		           type != "number_double") {
 			// tshark writes these integers in hexadecimal, "0x0012", which a decimal reads
 			// as nothing.
-			const auto base = bases.find(field.name);
-			if (base != bases.end() and
-			    (base->second == "BASE_HEX" or base->second == "BASE_HEX_DEC")) {
+			const auto it = descriptions.find(field.name);
+			const std::string base = it != descriptions.end() ? it->second.base : "";
+			if (base == "BASE_HEX" or base == "BASE_HEX_DEC") {
 				node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "0x%x");
-			} else if (base != bases.end() and base->second == "BASE_OCT") {
+			} else if (base == "BASE_OCT") {
 				node->setAttribute(QString(PVFORMAT_AXIS_TYPE_FORMAT_STR), "%#o");
 			}
 		}
