@@ -24,7 +24,7 @@
 //
 
 #include <libpvpcap.h>
-#include <libpvpcap/pcap_splitter.h>
+#include <libpvpcap/extraction.h>
 #include <libpvpcap/shell.h>
 #include "include/PcapTreeModel.h"
 #include "iostream"
@@ -34,6 +34,9 @@
 #include <libpvpcap/ws.h>
 
 #include <pvlogger.h>
+
+#include <charconv>
+#include <unordered_map>
 
 namespace pvpcap
 {
@@ -455,69 +458,131 @@ Qt::ItemFlags PcapTreeModel::flags(const QModelIndex& index) const
 
 /**************************************************************************
  *
- * PcapTreeModel::load
+ * PcapTreeModel::read_protocols
  *
  *************************************************************************/
-bool PcapTreeModel::load(QString filename, bool& canceled)
+namespace
 {
-	// we load a dictionnary of all the protocols knwown in tshark.
-	// we have stored this dictionnary in a json file.
-	// If it doesn't exist we create a new one and load it.
-	const std::string& protocols_dict_file = protocols_dict_path();
 
-	static rapidjson::Document protocols_dict = [&]() {
-		// Create if not existing...
-		if (not file_exists(protocols_dict_file)) {
-			create_protocols_dict(protocols_dict_file);
+//! The protocols and the fields tshark knows, kept in a file as long as tshark is the same.
+const rapidjson::Document& protocols_dictionary()
+{
+	static const rapidjson::Document dictionary = []() {
+		const std::string& file = protocols_dict_path();
+		if (not file_exists(file)) {
+			create_protocols_dict(file);
 		}
-
-		// ... or if tshark_version has changed
-		rapidjson::Document doc = parse_protocol_dict(protocols_dict_file);
-		if (doc.HasMember("tshark_version") && doc["tshark_version"].IsString()) {
-			if (doc["tshark_version"].GetString() != ws_get_version()) {
-				create_protocols_dict(protocols_dict_file);
-				doc = parse_protocol_dict(protocols_dict_file);
-			}
+		rapidjson::Document doc = parse_protocol_dict(file);
+		if (not doc.HasMember("tshark_version") or not doc["tshark_version"].IsString() or
+		    doc["tshark_version"].GetString() != ws_get_version()) {
+			create_protocols_dict(file);
+			doc = parse_protocol_dict(file);
 		}
 		return doc;
-
 	}();
+	return dictionary;
+}
 
-	std::vector<std::string> cmd;
-	cmd.emplace_back(tshark_path());
-	cmd.emplace_back("-q");
-	cmd.emplace_back("-zio,phs,frame");
-	cmd.emplace_back("-r-");
+struct protocol_node {
+	std::string name;
+	uint64_t packets = 0;
+	uint64_t bytes = 0;
+	std::vector<size_t> children;
+	std::unordered_map<std::string, size_t> by_name;
+};
 
-	// TODO : rename "extract_csv" into "parallel_exec"
-	splitted_files_t files =
-	    pvpcap::extract_csv(pvpcap::split_pcap(filename.toStdString(),
-	                                           PVRush::PVNrawCacheManager::nraw_dir().toStdString(),
-	                                           true /* preserve flows */, canceled),
-	                        cmd, canceled);
-
-	// merge documents and delete intermediary files
-	std::vector<rapidjson::Document> trees(files.size());
-#pragma omp parallel for
-	for (size_t i = 0; i < files.size(); i++) {
-		trees[i] = create_protocols_tree(files[i].path(), protocols_dict);
-		std::remove(files[i].path().c_str());
+void to_json(const std::vector<protocol_node>& nodes,
+             size_t index,
+             rapidjson::Value& children,
+             rapidjson::Document::AllocatorType& alloc)
+{
+	for (size_t child : nodes[index].children) {
+		const protocol_node& node = nodes[child];
+		rapidjson::Value protocol(rapidjson::kObjectType);
+		protocol.AddMember("filter_name", rapidjson::Value(node.name.c_str(), alloc), alloc);
+		protocol.AddMember("bytes", rapidjson::Value(node.bytes), alloc);
+		protocol.AddMember("packets", rapidjson::Value(node.packets), alloc);
+		rapidjson::Value grandchildren(rapidjson::kArrayType);
+		to_json(nodes, child, grandchildren, alloc);
+		protocol.AddMember("children", grandchildren, alloc);
+		children.PushBack(protocol, alloc);
 	}
-	for (size_t i = 1; i < files.size(); i++) {
-		merge_protocols_tree(trees[0], trees[i], trees[0].GetAllocator());
+}
+
+} // namespace
+
+rapidjson::Document PcapTreeModel::read_protocols(const QString& capture,
+                                                  const std::atomic<bool>& canceled)
+{
+	const rapidjson::Document& dictionary = protocols_dictionary();
+
+	extraction::options opts;
+	opts.fields = {{"frame.len", extraction::field::kind::text},
+	               {"frame.protocols", extraction::field::kind::text}};
+	opts.environment = tshark_environment();
+	opts.work_directory = PVRush::PVNrawCacheManager::nraw_dir().toStdString();
+
+	// The hierarchy of the protocols, as "tshark -z io,phs" tells it, under "frame".
+	std::vector<protocol_node> nodes(2);
+	nodes[1].name = "frame";
+	nodes[0].children.push_back(1);
+
+	extraction reading(capture.toStdString(), opts);
+	extraction::line line;
+	while (reading.next(line)) {
+		if (canceled) {
+			reading.cancel();
+			return {};
+		}
+		const size_t separator = line.fields.find(SEPARATOR[0]);
+		if (separator == std::string_view::npos) {
+			continue;
+		}
+		uint64_t length = 0;
+		std::from_chars(line.fields.data(), line.fields.data() + separator, length);
+		std::string_view protocols = line.fields.substr(separator + 1);
+
+		size_t current = 1;
+		for (size_t n : {size_t(0), size_t(1)}) {
+			nodes[n].packets++;
+			nodes[n].bytes += length;
+		}
+		while (not protocols.empty()) {
+			const size_t end = std::min(protocols.find(':'), protocols.size());
+			const std::string name(protocols.substr(0, end));
+			protocols.remove_prefix(std::min(end + 1, protocols.size()));
+			// What tshark names but does not list as a protocol has no field to offer, and
+			// the ether type is a layer the hierarchy of tshark does not show.
+			if (name == "ethertype" or not dictionary.HasMember(name.c_str())) {
+				continue;
+			}
+			auto [it, added] = nodes[current].by_name.try_emplace(name, nodes.size());
+			if (added) {
+				nodes[current].children.push_back(nodes.size());
+				nodes.push_back({});
+				nodes.back().name = name;
+			}
+			current = it->second;
+			nodes[current].packets++;
+			nodes[current].bytes += length;
+		}
 	}
 
-	// remove parent temporary directory
-	std::remove(
-	    QFileInfo(QString::fromStdString(files[0].path())).absolutePath().toStdString().c_str());
+	rapidjson::Document tree;
+	tree.SetObject();
+	rapidjson::Document::AllocatorType& alloc = tree.GetAllocator();
+	rapidjson::Value children(rapidjson::kArrayType);
+	to_json(nodes, 0, children, alloc);
+	tree.AddMember("children", children, alloc);
+	tree.AddMember("bytes", rapidjson::Value(nodes[0].bytes), alloc);
+	tree.AddMember("packets", rapidjson::Value(nodes[0].packets), alloc);
+	return tree;
+}
 
-	if (not canceled) {
-		enrich_protocols_tree(*_json_data, trees[0], protocols_dict);
-		reset();
-		return true;
-	} else {
-		return false;
-	}
+void PcapTreeModel::set_protocols(const rapidjson::Document& protocols)
+{
+	enrich_protocols_tree(*_json_data, protocols, protocols_dictionary());
+	reset();
 }
 
 void PcapTreeModel::reset()

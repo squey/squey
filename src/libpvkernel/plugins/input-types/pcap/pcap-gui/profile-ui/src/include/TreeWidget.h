@@ -43,8 +43,13 @@ class ExtractProtocolsWorker : public QObject
 	Q_OBJECT
 
   public:
-	ExtractProtocolsWorker(pvpcap::PcapTreeModel* m, const QString& p)
-	    : _tree_model(m), _pcap_path(p){};
+	explicit ExtractProtocolsWorker(const QString& p) : _pcap_path(p) {}
+
+	//! What was read, once finished() was emitted.
+	const rapidjson::Document& protocols() const { return _protocols; }
+	//! Why nothing was read, once finished() was emitted.
+	const QString& error() const { return _error; }
+	bool canceled() const { return _canceled; }
 
   Q_SIGNALS:
 	void finished();
@@ -52,15 +57,22 @@ class ExtractProtocolsWorker : public QObject
   public Q_SLOTS:
 	void load()
 	{
-		_tree_model->load(_pcap_path, _canceled);
+		try {
+			_protocols = pvpcap::PcapTreeModel::read_protocols(_pcap_path, _canceled);
+		} catch (const std::exception& e) {
+			_error = QString::fromStdString(e.what());
+		}
 		Q_EMIT finished();
 	}
+
+	//! Called from another thread than the one load() runs in.
 	void cancel() { _canceled = true; }
 
   private:
-	pvpcap::PcapTreeModel* _tree_model;
 	QString _pcap_path;
-	bool _canceled = false;
+	rapidjson::Document _protocols;
+	QString _error;
+	std::atomic<bool> _canceled = false;
 };
 
 /**

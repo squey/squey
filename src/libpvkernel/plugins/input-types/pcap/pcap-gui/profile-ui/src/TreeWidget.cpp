@@ -28,6 +28,8 @@
 #include <QStandardPaths>
 
 #include "include/TreeWidget.h"
+
+#include <QMessageBox>
 #include "ui_TreeWidget.h"
 
 #include "rapidjson/document.h"
@@ -100,24 +102,36 @@ void TreeWidget::on_select_button_clicked()
 		loading_progress_dialog->setWindowModality(Qt::WindowModal);
 
 		auto* loading_thread = new QThread;
-		auto* worker = new ExtractProtocolsWorker(_tree_model, filename);
+		auto* worker = new ExtractProtocolsWorker(filename);
 		worker->moveToThread(loading_thread);
 
 		connect(loading_thread, &QThread::started, worker, &ExtractProtocolsWorker::load);
-		connect(worker, &ExtractProtocolsWorker::finished, [=,this]() {
+		// Back in this thread, which the widgets and the model belong to.
+		connect(worker, &ExtractProtocolsWorker::finished, this, [=, this]() {
 			loading_progress_dialog->close();
 			loading_progress_dialog->deleteLater();
+
+			if (not worker->error().isEmpty()) {
+				QMessageBox::critical(
+				    this, tr("Can't read the capture"),
+				    tr("tshark could not read '%1':\n\n%2").arg(filename, worker->error()));
+			} else if (not worker->canceled()) {
+				_tree_model->set_protocols(worker->protocols());
+			}
 
 			Q_EMIT update_tree_data();
 
 			_ui->tree_view->expandAll();
 			_ui->tree_view->resizeColumnToContents(0);
 
+			connect(loading_thread, &QThread::finished, worker, &QObject::deleteLater);
+			connect(loading_thread, &QThread::finished, loading_thread, &QObject::deleteLater);
 			loading_thread->quit();
-			loading_thread->deleteLater();
 		});
+		// Direct: the thread of the worker is busy reading, and would only run the slot once
+		// done.
 		connect(loading_progress_dialog, &QProgressDialog::canceled, worker,
-		        &ExtractProtocolsWorker::cancel);
+		        &ExtractProtocolsWorker::cancel, Qt::DirectConnection);
 
 		loading_progress_dialog->show();
 		loading_thread->start();

@@ -25,6 +25,8 @@
 #ifndef PCAPTREEMODEL_H
 #define PCAPTREEMODEL_H
 
+#include <atomic>
+
 #include <QAbstractItemModel>
 
 #include "rapidjson/document.h"
@@ -145,11 +147,18 @@ class PcapTreeModel : public QAbstractItemModel
 	Qt::ItemFlags flags(const QModelIndex& index) const override;
 
 	/**
-	 * Load json data from pcap file
-	 * @param filename pcap file
-	 * @return true if it was loaded
+	 * Reads which protocols the frames of a capture hold, with the frames and bytes of each.
+	 *
+	 * May be called from any thread, and is stopped early by `canceled`.
+	 *
+	 * @return the tree of the protocols, empty if canceled
+	 * @throw pvpcap::extraction_error if tshark could not read the capture
 	 */
-	bool load(QString filename, bool& canceled);
+	static rapidjson::Document read_protocols(const QString& capture,
+	                                          const std::atomic<bool>& canceled);
+
+	//! Shows the protocols read_protocols() found, with their fields.
+	void set_protocols(const rapidjson::Document& protocols);
 
 	/**
 	 * Get internal json data
