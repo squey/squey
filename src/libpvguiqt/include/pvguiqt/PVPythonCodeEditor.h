@@ -38,19 +38,10 @@ public:
     Q_OBJECT
 
 public:
-    enum class EThemeType {
-        LIGHT,
-        DARK
-    };
-
-public:
     PVPythonCodeEditor(QWidget* parent = nullptr);
 
 protected:
     void insertFromMimeData(const QMimeData * source) override;
-
-private:
-    static const char* _theme_types_name[];
 };
 
 } // namespace PVGuiQt

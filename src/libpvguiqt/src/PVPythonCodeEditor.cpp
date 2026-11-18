@@ -25,37 +25,14 @@
 
 #include <pvguiqt/PVPythonCodeEditor.h>
 
+#include <pvguiqt/PVCodeEditorStyle.h>
+
 #include <QMimeData>
-
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/syntaxhighlighter.h>
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/repository.h>
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/definition.h>
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/theme.h>
-
-#include <pvkernel/core/PVTheme.h>
-
-const char* PVGuiQt::PVPythonCodeEditor::PVPythonCodeEditor::_theme_types_name[] = {"ayu Light", "ayu Dark"};
 
 PVGuiQt::PVPythonCodeEditor::PVPythonCodeEditor(QWidget* parent /* = nullptr */)
     : QTextEdit(parent)
 {
-    auto repository = new KSyntaxHighlighting::Repository;
-	auto highlighter = new KSyntaxHighlighting::SyntaxHighlighter(document());
-
-    // Font
-    QFont font = document()->defaultFont();
-	font.setFamily("Monospace");
-	font.setPointSizeF(10.5);
-	font.setStyleStrategy(QFont::PreferAntialias);
-	document()->setDefaultFont(font);
-
-    // Language defintion
-    highlighter->setDefinition(repository->definitionForName("Python"));
-
-    // Theme
-    const auto& theme = repository->theme(_theme_types_name[(size_t) PVCore::PVTheme::color_scheme()]);
-    highlighter->setTheme(theme);
-    setStyleSheet(QString("QTextEdit { background-color : %1; }").arg(QColor(theme.editorColor(KSyntaxHighlighting::Theme::EditorColorRole::BackgroundColor)).name()));
+	style_code_editor(this, "Python");
 }
 
 void PVGuiQt::PVPythonCodeEditor::insertFromMimeData(const QMimeData* source)

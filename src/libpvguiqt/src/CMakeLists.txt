@@ -39,6 +39,7 @@ PVStatsListingWidget.cpp
 PVExportSelectionDlg.cpp
 PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
+PVCodeEditorStyle.cpp
 PVPythonCodeEditor.cpp
 PVSqlCodeEditor.cpp
 PVSqlResultModel.cpp
