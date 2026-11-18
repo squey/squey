@@ -59,44 +59,19 @@ namespace pvpcap
 
 /*******************************************************************************
  *
- * is_directory
- *
- ******************************************************************************/
-bool is_directory(const std::string& path_name)
-{
-	struct stat info;
-
-	if (stat(path_name.c_str(), &info) != 0) {
-		std::cerr << "cannot access " << path_name << std::endl;
-		return false;
-	} else if (info.st_mode & S_IFDIR)
-		return true;
-	else
-		return false;
-}
-
-/*******************************************************************************
- *
  * get_directory_files
  *
  ******************************************************************************/
 std::vector<std::string> get_directory_files(const std::string& path_name)
 {
-	std::vector<std::string> files; // = new std::vector<std::string>();
-	DIR* dir;
-	struct dirent* ent;
-	if ((dir = opendir(path_name.c_str())) != nullptr) {
-		/* get only all the files */
-		while ((ent = readdir(dir)) != nullptr) {
-			if (!is_directory(path_name + "/" + ent->d_name)) {
-				files.emplace_back(ent->d_name);
-			}
-		}
-		closedir(dir);
-	} else {
-		std::cerr << "Error: could not open directory \"" << path_name << "\"" << std::endl;
+	// By name, rather than in whatever order the file system lists them, and without the
+	// hidden files file managers leave behind.
+	std::vector<std::string> files;
+	const QDir dir(QString::fromStdString(path_name));
+	for (const QString& name :
+	     dir.entryList(QDir::Files | QDir::Readable, QDir::Name | QDir::IgnoreCase)) {
+		files.push_back(name.toStdString());
 	}
-
 	return files;
 }
 

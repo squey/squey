@@ -46,20 +46,7 @@ namespace pvpcap
 {
 
 /**
- * Test if it is directory.
- *
- * @param path_name path name.
- * @return true or false
- *
- */
-bool is_directory(const std::string& path_name);
-
-/**
- * Return a list of files within directory.
- *
- * @param path_name path name.
- * @return list of file
- *
+ * The files of a directory, by name, hidden ones aside.
  */
 std::vector<std::string> get_directory_files(const std::string& path_name);
 
