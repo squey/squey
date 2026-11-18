@@ -30,12 +30,10 @@
 #include <pvkernel/rush/PVInputType.h>     // for PVInputType, etc
 #include <pvkernel/rush/PVSourceCreator.h> // for PVSourceCreator_p, etc
 #include <pvkernel/rush/PVRawSourceBase.h>
-#include <pvkernel/core/PVConfig.h> // for PVConfig
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvbase/types.h> // for chunk_index, PVCol
 #include <tbb/info.h>
 #include <qlist.h>
-#include <qvariant.h>
-#include <QSettings> // for QSettings
 #include <algorithm> // for min
 #include <memory>    // for __shared_ptr
 
@@ -72,9 +70,7 @@ PVRush::PVExtractor::PVExtractor(const PVRush::PVFormat& format,
 	 * Gio used).
 	 */
 
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	int nchunks = pvconfig.value("pvkernel/number_living_chunks", 0).toInt();
+	const int nchunks = PVCore::settings::import_parallel_chunks.value();
 	if (nchunks != 0) {
 		_chunks = nchunks;
 	}

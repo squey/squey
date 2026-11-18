@@ -31,6 +31,7 @@ PVViewState.cpp
 PVCorrelationEngine.cpp
 PVRangeSubSampler.cpp
 PVDuckDBQuery.cpp
+PVSqueySettings.cpp
 PVDuckDBQuerySource.cpp
 
 plugins.cpp

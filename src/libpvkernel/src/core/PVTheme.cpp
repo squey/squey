@@ -23,7 +23,7 @@
  */
 
 #include <pvkernel/core/PVTheme.h>
-#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <qdbusextratypes.h>
 #include <qobjectdefs.h>
 #include <qtextstream.h>
@@ -57,8 +57,6 @@ static constexpr const char* DBUS_SIGNAL = "SettingChanged";
 static constexpr const wchar_t* THEME_REG_KEY = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize";
 #endif
 
-static constexpr const char* COLOR_SCHEME_SETTINGS_KEY = "gui/theme_scheme";
-
 const QColor PVCore::PVTheme::link_colors[] = { 0x1a72bb, 0x1b98ff };
 
 PVCore::PVTheme::PVTheme()
@@ -75,6 +73,14 @@ PVCore::PVTheme::PVTheme()
     if (_color_scheme == EColorScheme::UNKNOWN) {
         _color_scheme = EColorScheme::DARK;
     }
+
+    // Whoever changes the setting changes the scheme: the menu, the settings
+    // dialog, or settings.json edited outside and read again.
+    QObject::connect(&PVSettings::get(), &PVSettings::changed, this, [](QString const& key) {
+        if (key == settings::color_scheme.key()) {
+            apply_settings_color_scheme();
+        }
+    });
 
     // Monitor system theme scheme changes
 #ifdef __linux__
@@ -158,12 +164,17 @@ PVCore::PVTheme& PVCore::PVTheme::get()
 
 void PVCore::PVTheme::init()
 {
+	apply_settings_color_scheme();
+}
+
+void PVCore::PVTheme::apply_settings_color_scheme()
+{
 	const QString& settings_color_scheme = PVCore::PVTheme::settings_color_scheme();
+	PVCore::PVTheme::follow_system_scheme(settings_color_scheme == "system");
 	if (settings_color_scheme == "light") {
 		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme::LIGHT);
 	}
 	else if (settings_color_scheme == "system") {
-		PVCore::PVTheme::follow_system_scheme(true);
         PVCore::PVTheme::set_color_scheme(system_color_scheme());
 	}
 	else {
@@ -187,18 +198,13 @@ bool PVCore::PVTheme::is_color_scheme_dark() {
 void PVCore::PVTheme::set_color_scheme(bool dark_theme)
 {
     PVCore::PVTheme::get()._color_scheme = dark_theme ? PVCore::PVTheme::EColorScheme::DARK : PVCore::PVTheme::EColorScheme::LIGHT ;
-    PVCore::PVConfig::set_value(COLOR_SCHEME_SETTINGS_KEY, PVCore::PVTheme::get()._follow_system_scheme ? "system" : color_scheme_name());
     PVCore::PVTheme::get().apply_style(dark_theme);
     Q_EMIT PVCore::PVTheme::get().color_scheme_changed(get()._color_scheme);
 }
 
 QString PVCore::PVTheme::settings_color_scheme()
 {
-    QString settings_scheme_color = PVCore::PVConfig::value(COLOR_SCHEME_SETTINGS_KEY).toString();
-    if (settings_scheme_color.isEmpty()) {
-        settings_scheme_color = "dark"; // default
-    }
-    return settings_scheme_color;
+    return settings::color_scheme.value();
 }
 
 void PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme color_scheme)

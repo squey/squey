@@ -27,17 +27,16 @@
 
 #include <QMessageBox>
 
-#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVUtils.h>
-#include <pvkernel/rush/PVNraw.h>
+#include <pvkernel/widgets/PVFileDialog.h>
 
 class PVNrawDirectoryMessageBox : public QMessageBox
 {
   public:
 	PVNrawDirectoryMessageBox(QWidget* parent = nullptr) : QMessageBox(parent)
 	{
-		const QString& config_nraw_tmp = QString::fromStdString(PVRush::PVNraw::config_nraw_tmp);
-		QString nraw_tmp = PVCore::PVConfig::get().config().value(config_nraw_tmp).toString();
+		QString nraw_tmp = PVCore::settings::working_directory.value();
 
 		if (PVCore::can_create_directory_in(nraw_tmp)) {
 			return;
@@ -60,9 +59,11 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 			exec();
 
 			if (clickedButton() == browser_button) {
-				nraw_tmp = PVWidgets::PVFileDialog::getExistingDirectory();
-				if (not nraw_tmp.isEmpty()) {
-					PVCore::PVConfig::get().config().setValue(config_nraw_tmp, nraw_tmp);
+				const QString chosen = PVWidgets::PVFileDialog::getExistingDirectory();
+				if (not chosen.isEmpty()) {
+					PVCore::settings::working_directory.set_value(chosen);
+					// The administrator may have set it.
+					nraw_tmp = PVCore::settings::working_directory.value();
 				}
 			}
 			else if (clickedButton() == button(QMessageBox::Cancel)) {

@@ -26,13 +26,13 @@
 #include <pvparallelview/PVScatterThumbnailsView.h>
 
 #include <pvparallelview/PVDisplayViewScatter.h>
+#include <pvparallelview/PVParallelViewSettings.h>
 #include <pvparallelview/PVScatterThumbnail.h>
 #include <pvparallelview/PVScatterThumbnailsModel.h>
 
 #include <pvdisplays/PVDisplayIf.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 
-#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/qobject_helpers.h>
 
 #include <squey/PVView.h>
@@ -83,17 +83,6 @@ constexpr int cell_margin = 4;
  * rather than one per step.
  */
 constexpr int size_settle_ms = 250;
-
-/**
- * Where the toolbar state is remembered between two openings.
- *
- * Thumbnail size and sort order are how the user has chosen to read the
- * gallery, not something about one dataset, so they belong in the application
- * configuration. The axis filter is deliberately left out: reopening on a
- * gallery silently showing a fraction of its pairs would read as a bug.
- */
-constexpr const char* size_setting = "scatter_thumbnails/thumbnail_size";
-constexpr const char* sort_setting = "scatter_thumbnails/sort_by_correlation";
 
 /**
  * Widen @a combo so the theme's drop-down arrow cannot eat into its text.
@@ -295,8 +284,7 @@ PVParallelView::PVScatterThumbnailsView::PVScatterThumbnailsView(Squey::PVView& 
 	// Correlation first: the gallery exists to point at the pairs worth
 	// opening, and axes order says nothing about which those are. Setting the
 	// combo is enough -- its currentIndexChanged does the sorting.
-	const QVariant stored_sort = PVCore::PVConfig::value(sort_setting);
-	const bool by_correlation = not stored_sort.isValid() or stored_sort.toBool();
+	const bool by_correlation = settings::scatter_thumbnails_by_correlation.value();
 	_sort_combo->setCurrentIndex(by_correlation ? 1 : 0);
 	if (not by_correlation) {
 		// setCurrentIndex(0) on a combo already at 0 emits nothing.
@@ -354,11 +342,7 @@ void PVParallelView::PVScatterThumbnailsView::setup_toolbar(QBoxLayout* layout)
 
 	_size_slider = new QSlider(Qt::Horizontal, this);
 	_size_slider->setRange(PVScatterThumbnailsModel::min_size, PVScatterThumbnailsModel::max_size);
-	// PVConfig::value() returns an invalid variant for a key never written, so
-	// the fallback is applied here rather than passed in.
-	const QVariant stored_size = PVCore::PVConfig::value(size_setting);
-	_size_slider->setValue(stored_size.isValid() ? stored_size.toInt()
-	                                             : PVScatterThumbnailsModel::default_size);
+	_size_slider->setValue(settings::scatter_thumbnail_size.value());
 	_size_slider->setFixedWidth(120);
 	_size_slider->setToolTip(tr("Thumbnail size"));
 
@@ -367,11 +351,16 @@ void PVParallelView::PVScatterThumbnailsView::setup_toolbar(QBoxLayout* layout)
 	_size_apply_timer->setInterval(size_settle_ms);
 	connect(_size_apply_timer, &QTimer::timeout, this,
 	        &PVScatterThumbnailsView::apply_render_size);
+	// Thumbnail size and sort order are how the user reads galleries, so the
+	// next one opens with them. The axis filter is deliberately not kept: a
+	// gallery opening on a fraction of its pairs would read as a bug. The size
+	// is saved once the slider settles, rather than at every step of a drag.
+	connect(_size_apply_timer, &QTimer::timeout, this,
+	        [this]() { settings::scatter_thumbnail_size.set_value(_size_slider->value()); });
 
 	connect(_size_slider, &QSlider::valueChanged, this, [this](int size) {
 		apply_grid_size(size);
 		_size_apply_timer->start();
-		PVCore::PVConfig::set_value(size_setting, size);
 	});
 
 	_sort_combo = new QComboBox(this);
@@ -381,7 +370,7 @@ void PVParallelView::PVScatterThumbnailsView::setup_toolbar(QBoxLayout* layout)
 	_sort_combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 	reserve_room_for_arrow(_sort_combo);
 	connect(_sort_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
-		PVCore::PVConfig::set_value(sort_setting, index == 1);
+		settings::scatter_thumbnails_by_correlation.set_value(index == 1);
 		apply_sorting(index == 1);
 	});
 

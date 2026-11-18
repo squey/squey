@@ -89,8 +89,8 @@ class PVControllerJob;
 class PVNraw
 {
   public:
-	static const std::string config_nraw_tmp;
-	static const std::string default_tmp_path;
+	/** A constant: the setting of the working directory defaults to it while the library loads. */
+	static constexpr const char default_tmp_path[] = "/tmp/squey";
 	static const std::string nraw_tmp_pattern;
 	static const std::string nraw_tmp_name_regexp;
 	static const std::string default_sep_char;

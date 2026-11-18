@@ -69,8 +69,6 @@ namespace pybind11 {
 class array;
 }  // namespace pybind11
 
-const std::string PVRush::PVNraw::config_nraw_tmp = "pvkernel/nraw_tmp";
-const std::string PVRush::PVNraw::default_tmp_path = "/tmp/squey";
 const std::string PVRush::PVNraw::nraw_tmp_pattern = "nraw-XXXXXX";
 const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";
 

@@ -25,7 +25,7 @@
 
 #include <pvkernel/opencl/common.h> // for squey_verify_opencl_var, etc
 
-#include <pvkernel/core/PVConfig.h> // for PVConfig
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVLogger.h> // for PVLOG_INFO
 
 #include <CL/cl.hpp> // for cl_context_properties, etc
@@ -35,9 +35,6 @@
 #include <string>  // for string
 #include <utility> // for pair
 #include <vector>  // for vector
-
-#include <QSettings>
-#include <QVariant>
 
 #include <pvlogger.h>
 
@@ -91,7 +88,7 @@ bool is_dedicated(const cl::Device& device)
 
 bool PVOpenCL::force_cpu()
 {
-	if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
+	if (PVCore::settings::force_cpu.value()) {
 		return true;
 	}
 	const char* env = getenv("FORCE_CPU");
@@ -125,9 +122,7 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 		return {};
 	}
 
-	auto& config = PVCore::PVConfig::get().config();
-	const int wanted_platform_index =
-	    config.value("backend_opencl/platform_index", PLATFORM_ANY_INDEX).toInt();
+	const int wanted_platform_index = PVCore::settings::opencl_platform.value();
 
 	/* Every platform with devices of the type sought, and those devices, in the
 	 * order the loader lists the platforms.

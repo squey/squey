@@ -96,6 +96,7 @@ PVScatterViewSelectionRectangle.cpp
 PVScatterViewParamsWidget.cpp
 
 PVScatterThumbnail.cpp
+PVParallelViewSettings.cpp
 PVScatterThumbnailsModel.cpp
 PVScatterThumbnailsView.cpp
 

@@ -42,6 +42,7 @@ core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp
 core/PVConfig.cpp
 core/PVSettings.cpp
+core/PVKernelSettings.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp
 core/PVStreamingCompressor.cpp

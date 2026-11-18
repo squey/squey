@@ -83,8 +83,8 @@ bool failed(cl_int err, const char* file, int line);
 /**
  * @return whether the rendering must stay on a CPU device
  *
- * Reads the "backend_opencl/force_cpu" setting and the FORCE_CPU environment
- * variable the test suite sets.
+ * Reads the setting rendering.force_cpu and the FORCE_CPU environment variable
+ * the test suite sets.
  */
 bool force_cpu();
 

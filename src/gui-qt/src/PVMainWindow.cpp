@@ -37,6 +37,7 @@
 #include <PVMainWindow.h>
 #include <PVStringListChooserWidget.h>
 
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <squey/PVAnalysisHistory.h>
 #include <squey/widgets/PVNewLayerDialog.h>
@@ -196,7 +197,8 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 	auto refresh_f = [&](bool switch_theme) {
 		PVLOG_INFO("Reloading CSS\n");
 		if (switch_theme) {
-			PVCore::PVTheme::set_color_scheme((PVCore::PVTheme::EColorScheme)(not (bool)PVCore::PVTheme::color_scheme()));
+			PVCore::settings::color_scheme.set_value(
+			    PVCore::PVTheme::is_color_scheme_dark() ? "light" : "dark");
 		}
 		else { // force refresh
 			PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::color_scheme());

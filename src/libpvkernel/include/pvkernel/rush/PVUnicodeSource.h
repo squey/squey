@@ -72,8 +72,15 @@ class PVUnicodeSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 	static constexpr const char MULTI_INPUTS_SEPARATOR = ';';
 
   public:
+	/**
+	 * \param chunk_size Rounded down to a multiple of 8, which the search for the
+	 *        end of a line relies on.
+	 */
 	PVUnicodeSource(PVInput_p input, size_t chunk_size, const alloc_chunk& alloc = alloc_chunk())
-	    : _chunk_size(chunk_size), _input(input), _alloc(alloc), _utf8_converter("UTF-8")
+	    : _chunk_size(chunk_size - chunk_size % 8)
+	    , _input(input)
+	    , _alloc(alloc)
+	    , _utf8_converter("UTF-8")
 	{
 		assert(chunk_size > 10);
 		assert(input);

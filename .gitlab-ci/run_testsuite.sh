@@ -66,6 +66,9 @@ inifile="$configdir/squey/config.ini"
 mkdir -p "$configdir/squey" "${TMPDIR}${USER}"
 cp "$CI_PROJECT_DIR/src/pvconfig.ini" "$inifile"
 sed -i '' "s|\(nraw_tmp=\).*|\1${TMPDIR}|" "$inifile"
+# Squey reads config.ini only as long as there is no settings.json, which an
+# earlier run may have left.
+rm -f "$configdir/squey/settings.json"
 
 # Increase file descriptors limit to avoid "Too many open files" error
 ulimit -n 1048576

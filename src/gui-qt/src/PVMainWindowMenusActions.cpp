@@ -25,12 +25,14 @@
 
 #include <PVMainWindow.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QAction>
 #include <QActionGroup>
 #include <QDesktopServices>
 #include <QMenuBar>
+#include <QMessageBox>
 
 /******************************************************************************
  *
@@ -129,34 +131,46 @@ void App::PVMainWindow::create_actions()
 	 * For the "Settings" menu entry
 	 **************************/
 	auto* act_group_theme = new QActionGroup(this);
-	const QString& settings_color_scheme = PVCore::PVTheme::settings_color_scheme();
 	act_group_theme->setExclusive(true);
 	settings_dark_theme_Action = new QAction(tr("&Dark"), act_group_theme);
 	settings_dark_theme_Action->setCheckable(true);
-	settings_dark_theme_Action->setChecked(settings_color_scheme == "dark");
-	connect(settings_dark_theme_Action, &QAction::triggered, [](){
-		PVCore::PVTheme::follow_system_scheme(false);
-		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme::DARK);
-	});
+	settings_dark_theme_Action->setData("dark");
 	//settings_dark_theme_Action->setIcon(PVModdedIcon("moon"));
 
 	settings_light_theme_Action = new QAction(tr("&Light"), act_group_theme);
 	settings_light_theme_Action->setCheckable(true);
-	settings_light_theme_Action->setChecked(settings_color_scheme == "light");
-	connect(settings_light_theme_Action, &QAction::triggered, [](){
-		PVCore::PVTheme::follow_system_scheme(false);
-		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme::LIGHT);
-	});
+	settings_light_theme_Action->setData("light");
 	//settings_light_theme_Action->setIcon(PVModdedIcon("sun-bright"));
 
 	settings_follow_system_theme_Action = new QAction(tr("&Auto"), act_group_theme);
 	settings_follow_system_theme_Action->setCheckable(true);
-	settings_follow_system_theme_Action->setChecked(settings_color_scheme == "system");
-	connect(settings_follow_system_theme_Action, &QAction::triggered, [](){
-		PVCore::PVTheme::follow_system_scheme(true);
-		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::system_color_scheme());
-	});
+	settings_follow_system_theme_Action->setData("system");
 	//settings_follow_system_theme_Action->setIcon(PVModdedIcon("moon-over-sun"));
+
+	// Every window has its menu, and the settings dialog changes the scheme too.
+	auto check_color_scheme = [act_group_theme]() {
+		const QString scheme = PVCore::settings::color_scheme.value();
+		for (QAction* action : act_group_theme->actions()) {
+			action->setChecked(action->data().toString() == scheme);
+		}
+	};
+	check_color_scheme();
+	connect(
+	    act_group_theme, &QActionGroup::triggered, this,
+	    [this, check_color_scheme](QAction* action) {
+		    QString error;
+		    if (not PVCore::settings::color_scheme.set_value(action->data().toString(), &error)) {
+			    // The administrator may set it: the item the user checked is not the scheme.
+			    check_color_scheme();
+			    QMessageBox::warning(this, tr("Theme"), error);
+		    }
+	    });
+	connect(&PVCore::PVSettings::get(), &PVCore::PVSettings::changed, act_group_theme,
+	        [check_color_scheme](QString const& key) {
+		        if (key == PVCore::settings::color_scheme.key()) {
+			        check_color_scheme();
+		        }
+	        });
 
 	/**************************
 	 * For the "Help" menu entry

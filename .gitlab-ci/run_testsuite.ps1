@@ -69,6 +69,9 @@ try {
     $content = Get-Content $iniFile
     $content = $content -replace "(?<=^nraw_tmp=).*", ($nraw_tmp -replace "\\", "/")
     $content | Set-Content $iniFile
+    # Squey reads config.ini only as long as there is no settings.json, which an
+    # earlier run may have left.
+    Remove-Item -Path "$configdir\squey\settings.json" -ErrorAction SilentlyContinue
 
     # Run testsuite
     ctest --test-dir "$appdir" -j $env:NUMBER_OF_PROCESSORS --output-junit "$env:CI_PROJECT_DIR\junit.xml" --output-on-failure -T test -R 'SQUEY_TEST'
