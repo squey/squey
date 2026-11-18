@@ -98,6 +98,8 @@ https://doc.squey.org
 
 The quickest way in is the [devcontainer](buildstream/README.md#build-in-the-devcontainer): open the repository in an editor supporting the [Development Containers specification](https://containers.dev) and accept the "Reopen in Container" prompt, and Squey compiles with nothing installed on the host but a container engine.
 
+The files of the host are under `/run/host` in the devcontainer, at their path on the host: `~/captures` is `/run/host/home/<you>/captures`. Squey reads and writes them with your rights on the host.
+
 Cross-compiling to Windows or macOS and building a package need the BuildStream sandbox instead. Both paths are described on the development [README.md](buildstream/README.md) page.
 
 ### Installing a development branch

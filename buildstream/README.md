@@ -50,6 +50,10 @@ builds/x86_64-linux-gnu/Clang/RelWithDebInfo/squey.sh
 
 Pass `debug` to `squey.sh` to start it under gdb.
 
+The files of the host are under `/run/host`, at their path on the host:
+`/run/host/home/<you>/captures` for `~/captures`. Squey can write there as
+well as read, with your rights on the host.
+
 Links open in the browser of the host, through its desktop portal, and Squey
 can follow the light or dark scheme of the desktop. The container reaches the
 portal alone, through a proxy of the session bus that
