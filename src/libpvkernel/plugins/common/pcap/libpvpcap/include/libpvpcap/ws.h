@@ -34,6 +34,7 @@
 #include "rapidjson/document.h"
 
 #include "extraction.h"
+#include "profile.h"
 #include "shell.h"
 
 /*!
@@ -226,18 +227,6 @@ void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
  */
 rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data);
 
-//! A field a profile asks for, with its type as tshark names it, such as FT_UINT16.
-struct profile_field {
-	std::string name;
-	std::string type;
-};
-
-/**
- * The fields a profile asks for, in the order of the columns they make, each once: those
- * selected in its protocol tree, then the columns of Wireshark it chose.
- */
-std::vector<profile_field> ws_profile_fields(const rapidjson::Document& profile);
-
 //! What tshark needs in its environment to write what Squey reads.
 std::vector<std::pair<std::string, std::string>> tshark_environment();
 
@@ -263,6 +252,21 @@ std::vector<std::pair<std::string, std::string>> tshark_environment();
 bool ws_needs_two_passes(const std::string& name, const std::string& type);
 
 /**
+ * Whatever looks like the name of a field in a display filter, outside of its strings: values
+ * and operators too, which are not fields tshark knows.
+ */
+std::vector<std::string> ws_filter_fields(const std::string& filter);
+
+//! Where Flatpak shows the GeoIP databases of the system, which tshark reads if they are there.
+inline constexpr char DEFAULT_GEOIP_DIRECTORY[] = "/var/run/host/usr/share/GeoIP/";
+
+/**
+ * The options of tshark a profile gives of how to read the captures: -o, -N and -C, unless
+ * Wireshark has no such configuration profile.
+ */
+std::vector<std::string> ws_reading_options(const profile& p);
+
+/**
  * The fields and the options of tshark a profile asks for.
  *
  * tshark reads the capture twice if a field asked for, or named by the display filter,
@@ -271,7 +275,19 @@ bool ws_needs_two_passes(const std::string& name, const std::string& type);
  *
  * Leaves out the directory of the temporary files, which only the caller knows.
  */
-extraction::options ws_extraction_options(const rapidjson::Document& profile);
+extraction::options ws_extraction_options(const profile& p);
+
+//! @throw profile_error if the document holds no profile
+inline extraction::options ws_extraction_options(const rapidjson::Document& json)
+{
+	return ws_extraction_options(profile_from_json(json));
+}
+
+//! @throw profile_error if the document holds no profile
+inline std::vector<profile_field> ws_profile_fields(const rapidjson::Document& json)
+{
+	return profile_from_json(json).columns;
+}
 
 //! What tshark says of a display filter.
 struct filter_check {

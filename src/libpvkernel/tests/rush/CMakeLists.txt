@@ -137,6 +137,12 @@ add_squey_compile_test(Trush_pcap_extraction LINKS ${LINK_LIBRARIES} pvpcap FILE
 add_squey_test(Trush_pcap_extraction Trush_pcap_extraction)
 set_tests_properties(SQUEY_TEST_Trush_pcap_extraction PROPERTIES SKIP_RETURN_CODE 77)
 
+# What profiles of pcap imports hold, as this version and earlier ones wrote them
+add_squey_compile_test(Trush_pcap_profiles LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_profiles.cpp)
+add_squey_test(Trush_pcap_profiles Trush_pcap_profiles ${PCAP_PROFILES_DIR})
+# Profiles of the user are files of its configuration: not those of whoever runs the test.
+set_property(TEST SQUEY_TEST_Trush_pcap_profiles APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=pcap_profiles_test_config")
+
 # What helps choose the fields of a pcap import: those tshark knows, those of a capture
 add_squey_compile_test(Trush_pcap_catalog LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_catalog.cpp)
 add_squey_test(Trush_pcap_catalog Trush_pcap_catalog ${TESTS_FILES_DIR}/../../pvconfig.ini ${TESTS_FILES_DIR}/sources/http.pcap)

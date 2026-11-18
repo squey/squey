@@ -31,6 +31,8 @@
 
 #include <QDomDocument>
 
+#include "profile.h"
+
 /*!
  * Namespace that groups together the components of managing
  * the tree of protocols in a pcap file.
@@ -40,7 +42,14 @@ namespace pvpcap
 
 PVRush::PVXmlTreeNodeDom* create_csv_spliter_format_root(QDomDocument& doc);
 
-QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_count);
+//! The format of what the extraction of a profile writes, out of as many captures.
+QDomDocument get_format(const profile& p, size_t input_pcap_count);
+
+//! @throw profile_error if the document holds no profile
+inline QDomDocument get_format(const rapidjson::Document& json, size_t input_pcap_count)
+{
+	return get_format(profile_from_json(json), input_pcap_count);
+}
 
 } /* namespace pvpcap */
 

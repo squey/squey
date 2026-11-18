@@ -335,9 +335,9 @@ int main(int argc, char** argv)
 		const QStringList names = shipped.entryList(QDir::Files);
 		PV_ASSERT_VALID(not names.empty(), "the profiles in", argv[1]);
 		for (const QString& name : names) {
-			rapidjson::Document json;
-			pvpcap::load_profile_data(json, shipped.filePath(name).toStdString());
-			PV_ASSERT_VALID(not pvpcap::ws_extraction_options(json).two_pass, "profile",
+			const pvpcap::profile shipped_profile =
+			    pvpcap::read_profile(shipped.filePath(name).toStdString());
+			PV_ASSERT_VALID(not pvpcap::ws_extraction_options(shipped_profile).two_pass, "profile",
 			                name.toStdString());
 		}
 	}

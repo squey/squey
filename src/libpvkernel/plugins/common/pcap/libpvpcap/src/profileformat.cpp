@@ -91,7 +91,7 @@ PVRush::PVXmlTreeNodeDom* create_csv_spliter_format_root(QDomDocument& format_do
  * get_profile_format
  *
  ******************************************************************************/
-QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_count)
+QDomDocument get_format(const profile& p, size_t input_pcap_count)
 {
 	// Generate format file for this profile file
 	// PVPcapTypeMap_p type_map = PVPcapTypeMap::get_map("ws");
@@ -116,20 +116,17 @@ QDomDocument get_format(const rapidjson::Document& json_data, size_t input_pcap_
 	// ports would write "80|443" into a number, which reads back as nothing at
 	// all -- the column would be there, and empty, for exactly the frames that
 	// had the most to say.
-	const bool every_occurrence =
-	    json_data["options"].HasMember("occurrence") and
-	    std::string(json_data["options"]["occurrence"].GetString()) == "a";
+	const bool every_occurrence = p.occurrence == 'a';
 
-	const std::vector<profile_field> fields = ws_profile_fields(json_data);
 	std::vector<std::string> names;
-	for (const profile_field& field : fields) {
+	for (const profile_field& field : p.columns) {
 		names.push_back(field.name);
 	}
 	// A profile keeps the type of a field, not how tshark writes it.
 	const std::unordered_map<std::string, field_description> descriptions =
 	    ws_field_descriptions(names);
 
-	for (const profile_field& field : fields) {
+	for (const profile_field& field : p.columns) {
 		const QString& type =
 		    every_occurrence ? QString("string") : QString::fromStdString(ws_map_type(field.type));
 		PVRush::PVXmlTreeNodeDom* node =

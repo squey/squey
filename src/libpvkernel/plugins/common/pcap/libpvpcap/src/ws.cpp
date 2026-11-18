@@ -147,6 +147,11 @@ std::vector<std::string> get_wireshark_profiles_paths()
 	return wireshark_profiles;
 }
 
+/*******************************************************************************
+ *
+ * ws_get_version
+ *
+ ******************************************************************************/
 std::string ws_protocols_dict_path()
 {
 	return get_user_conf_dir() + "/ws_protocols_dict";
@@ -175,11 +180,6 @@ rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_fil
 	return protocol_dict;
 }
 
-/*******************************************************************************
- *
- * ws_get_version
- *
- ******************************************************************************/
 bool wireshark_profile_exists(const std::string& name)
 {
 	return name.empty() or
@@ -748,30 +748,6 @@ rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data)
 namespace
 {
 
-bool option(const rapidjson::Value& options, const char* name, bool fallback)
-{
-	const auto it = options.FindMember(name);
-	return it != options.MemberEnd() and it->value.IsBool() ? it->value.GetBool() : fallback;
-}
-
-std::string option(const rapidjson::Value& options, const char* name, const char* fallback)
-{
-	const auto it = options.FindMember(name);
-	return it != options.MemberEnd() and it->value.IsString() ? it->value.GetString() : fallback;
-}
-
-const rapidjson::Value& profile_options(const rapidjson::Document& profile)
-{
-	static const rapidjson::Value none(rapidjson::kObjectType);
-	if (profile.IsObject()) {
-		const auto it = profile.FindMember("options");
-		if (it != profile.MemberEnd() and it->value.IsObject()) {
-			return it->value;
-		}
-	}
-	return none;
-}
-
 //! Numbers of earlier frames, which a single pass writes as two do.
 constexpr std::array<std::string_view, 7> ONE_PASS_FRAMES = {"dns.response_to",
                                                              "http.request_in",
@@ -789,11 +765,44 @@ constexpr std::array<std::string_view, 9> TWO_PASS_FIELDS = {
 constexpr std::array<std::string_view, 6> TWO_PASS_PREFIXES = {
     "_ws.expert", "dcerpc.", "smb.", "smb2.", "tcp.completeness", "tcp.stream."};
 
-/**
- * Whatever looks like the name of a field in a display filter, outside of its strings:
- * values and operators too, which are not fields tshark knows.
- */
-std::vector<std::string> filter_names(const std::string& filter)
+extraction::field::kind field_kind(const std::string& name, const std::string& type)
+{
+	if (name == "frame.time_relative") {
+		return extraction::field::kind::time_since_first;
+	}
+	if (name == "frame.time_delta") {
+		return extraction::field::kind::time_since_previous;
+	}
+	if (name == "frame.time_delta_displayed") {
+		return extraction::field::kind::time_since_shown;
+	}
+	if (canonical_field_name(name) == "_ws.col.Info") {
+		return extraction::field::kind::summary;
+	}
+	if (type == "FT_FRAMENUM") {
+		return extraction::field::kind::frames;
+	}
+	if (type == "FT_ABSOLUTE_TIME") {
+		return extraction::field::kind::absolute_time;
+	}
+	return extraction::field::kind::text;
+}
+
+} // namespace
+
+bool ws_needs_two_passes(const std::string& name, const std::string& type)
+{
+	if (type == "FT_FRAMENUM") {
+		return std::find(ONE_PASS_FRAMES.begin(), ONE_PASS_FRAMES.end(), name) ==
+		       ONE_PASS_FRAMES.end();
+	}
+	return std::find(TWO_PASS_FIELDS.begin(), TWO_PASS_FIELDS.end(), name) !=
+	           TWO_PASS_FIELDS.end() or
+	       std::any_of(TWO_PASS_PREFIXES.begin(), TWO_PASS_PREFIXES.end(),
+	                   [&](std::string_view prefix) { return name.starts_with(prefix); });
+}
+
+std::vector<std::string> ws_filter_fields(const std::string& filter)
 {
 	const auto in_name = [](char c) {
 		return std::isalnum(static_cast<unsigned char>(c)) or c == '_' or c == '.' or c == '-';
@@ -820,65 +829,6 @@ std::vector<std::string> filter_names(const std::string& filter)
 	return names;
 }
 
-extraction::field::kind field_kind(const std::string& name, const std::string& type)
-{
-	if (name == "frame.time_relative") {
-		return extraction::field::kind::time_since_first;
-	}
-	if (name == "frame.time_delta") {
-		return extraction::field::kind::time_since_previous;
-	}
-	if (name == "frame.time_delta_displayed") {
-		return extraction::field::kind::time_since_shown;
-	}
-	if (name == "_ws.col.Info") {
-		return extraction::field::kind::summary;
-	}
-	if (type == "FT_FRAMENUM") {
-		return extraction::field::kind::frames;
-	}
-	if (type == "FT_ABSOLUTE_TIME") {
-		return extraction::field::kind::absolute_time;
-	}
-	return extraction::field::kind::text;
-}
-
-} // namespace
-
-bool ws_needs_two_passes(const std::string& name, const std::string& type)
-{
-	if (type == "FT_FRAMENUM") {
-		return std::find(ONE_PASS_FRAMES.begin(), ONE_PASS_FRAMES.end(), name) ==
-		       ONE_PASS_FRAMES.end();
-	}
-	return std::find(TWO_PASS_FIELDS.begin(), TWO_PASS_FIELDS.end(), name) !=
-	           TWO_PASS_FIELDS.end() or
-	       std::any_of(TWO_PASS_PREFIXES.begin(), TWO_PASS_PREFIXES.end(),
-	                   [&](std::string_view prefix) { return name.starts_with(prefix); });
-}
-
-std::vector<profile_field> ws_profile_fields(const rapidjson::Document& profile)
-{
-	std::vector<profile_field> fields;
-	std::unordered_set<std::string> seen;
-	if (profile.IsObject() and profile.HasMember("children")) {
-		visit_fields(profile, [&](const rapidjson::Value& field) {
-			const std::string name = field["filter_name"].GetString();
-			if (seen.insert(name).second) {
-				fields.push_back({name, field["type"].GetString()});
-			}
-		});
-	}
-
-	const rapidjson::Value& options = profile_options(profile);
-	for (const char* column : {"source", "destination", "protocol", "info"}) {
-		if (option(options, column, false)) {
-			fields.push_back({ws_map_special_fields.at(column), "FT_STRING"});
-		}
-	}
-	return fields;
-}
-
 std::vector<std::pair<std::string, std::string>> tshark_environment()
 {
 	// Times tshark writes as local come in UTC, which is how the formats read them.
@@ -895,56 +845,33 @@ std::vector<std::pair<std::string, std::string>> tshark_environment()
 	return environment;
 }
 
-extraction::options ws_extraction_options(const rapidjson::Document& profile)
+std::vector<std::string> ws_reading_options(const profile& p)
 {
-	extraction::options opts;
-	const rapidjson::Value& options = profile_options(profile);
-
 	bool tcp_times = false;
 	bool bytes_in_flight = false;
-	for (const profile_field& f : ws_profile_fields(profile)) {
-		opts.fields.push_back({f.name, field_kind(f.name, f.type)});
+	for (const profile_field& f : p.columns) {
 		tcp_times |= f.name.starts_with("tcp.time_");
 		bytes_in_flight |=
 		    f.name == "tcp.analysis.bytes_in_flight" or f.name == "tcp.analysis.push_bytes_sent";
-		opts.two_pass |= ws_needs_two_passes(f.name, f.type);
 	}
 
-	std::vector<std::string>& args = opts.tshark_options;
-	const std::string filter = option(options, "filters", "");
-	if (not filter.empty()) {
-		args.insert(args.end(), {"-Y", filter});
-		// A single pass would keep other frames than such a filter says.
-		if (not opts.two_pass) {
-			const std::vector<std::string> names = filter_names(filter);
-			const auto descriptions = ws_field_descriptions(names);
-			for (const std::string& name : names) {
-				const auto it = descriptions.find(name);
-				opts.two_pass |=
-				    ws_needs_two_passes(name, it != descriptions.end() ? it->second.type : "");
-			}
-		}
-	}
-	opts.aggregator = option(options, "aggregator", "|");
-	args.insert(args.end(), {"-E", "occurrence=" + option(options, "occurrence", "f"), "-E",
-	                         "aggregator=" + opts.aggregator});
-
-	if (not option(options, "tcp.desegment_tcp_streams", true)) {
+	std::vector<std::string> args;
+	if (not p.reassemble_tcp) {
 		args.insert(args.end(), {"-o", "tcp.desegment_tcp_streams:FALSE"});
 	}
-	if (not option(options, "ip.defragment", true)) {
+	if (not p.defragment_ip) {
 		args.insert(args.end(), {"-o", "ip.defragment:FALSE"});
 	}
 
 	// See https://www.wireshark.org/docs/man-pages/tshark.html
 	std::string name_resolution;
-	if (option(options, "nameres.network_name", false)) {
+	if (p.resolve_names) {
 		name_resolution += "n";
 	}
-	if (option(options, "nameres.dns_pkt_addr_resolution", false)) {
+	if (p.names_from_captures) {
 		name_resolution += "d";
 	}
-	if (option(options, "nameres.use_external_name_resolver", false)) {
+	if (p.names_from_servers) {
 		name_resolution += "N";
 	}
 	if (not name_resolution.empty()) {
@@ -953,8 +880,9 @@ extraction::options ws_extraction_options(const rapidjson::Document& profile)
 
 	// Through an option, rather than in a file of the configuration of the user, which
 	// Wireshark reads too.
-	const std::string geoip = option(options, "geoip_db_paths", "/var/run/host/usr/share/GeoIP/");
-	if (not geoip.empty() and QFileInfo(QString::fromStdString(geoip)).isDir()) {
+	const std::string geoip =
+	    p.geoip_directory.empty() ? DEFAULT_GEOIP_DIRECTORY : p.geoip_directory;
+	if (QFileInfo(QString::fromStdString(geoip)).isDir()) {
 		args.insert(args.end(), {"-o", "uat:maxmind_db_paths:\"" + geoip + "\""});
 	}
 
@@ -965,10 +893,40 @@ extraction::options ws_extraction_options(const rapidjson::Document& profile)
 	             std::string("tcp.track_bytes_in_flight:") + (bytes_in_flight ? "TRUE" : "FALSE"),
 	             "-o", std::string("tcp.calculate_timestamps:") + (tcp_times ? "TRUE" : "FALSE")});
 
-	const std::string wireshark_profile = option(options, "wireshark_profile", "");
-	if (not wireshark_profile.empty()) {
-		args.insert(args.end(), {"-C", wireshark_profile});
+	// tshark would refuse to read the captures at all.
+	if (not p.wireshark_profile.empty() and wireshark_profile_exists(p.wireshark_profile)) {
+		args.insert(args.end(), {"-C", p.wireshark_profile});
 	}
+	return args;
+}
+
+extraction::options ws_extraction_options(const profile& p)
+{
+	extraction::options opts;
+	for (const profile_field& f : p.columns) {
+		opts.fields.push_back({f.name, field_kind(f.name, f.type)});
+		opts.two_pass |= ws_needs_two_passes(f.name, f.type);
+	}
+
+	std::vector<std::string>& args = opts.tshark_options;
+	if (not p.filter.empty()) {
+		args.insert(args.end(), {"-Y", p.filter});
+		// A single pass would keep other frames than such a filter says.
+		if (not opts.two_pass) {
+			const std::vector<std::string> names = ws_filter_fields(p.filter);
+			const auto descriptions = ws_field_descriptions(names);
+			for (const std::string& name : names) {
+				const auto it = descriptions.find(name);
+				opts.two_pass |=
+				    ws_needs_two_passes(name, it != descriptions.end() ? it->second.type : "");
+			}
+		}
+	}
+	opts.aggregator = p.aggregator;
+	args.insert(args.end(), {"-E", std::string("occurrence=") + p.occurrence, "-E",
+	                         "aggregator=" + opts.aggregator});
+	const std::vector<std::string> reading = ws_reading_options(p);
+	args.insert(args.end(), reading.begin(), reading.end());
 
 	opts.environment = tshark_environment();
 	return opts;
