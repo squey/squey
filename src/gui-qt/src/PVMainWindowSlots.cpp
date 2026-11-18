@@ -43,6 +43,7 @@
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
 #include <pvguiqt/PVCredentialDialog.h>
+#include <pvguiqt/PVSettingsDialog.h>
 
 #include <PVMainWindow.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
@@ -71,6 +72,12 @@ void App::PVMainWindow::about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab)
 	auto* about_dialog = new PVGuiQt::PVAboutBoxDialog(tab, this);
 	about_dialog->exec();
 	about_dialog->deleteLater();
+}
+
+void App::PVMainWindow::settings_Slot()
+{
+	PVGuiQt::PVSettingsDialog dialog(this);
+	dialog.exec();
 }
 
 void App::PVMainWindow::axes_combination_editor_Slot()

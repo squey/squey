@@ -71,5 +71,11 @@ add_squey_test(Tpvguiqt_crash_report_cleanup Tpvguiqt_crash_report_cleanup -plat
 set_property(TEST SQUEY_TEST_Tpvguiqt_crash_report_cleanup APPEND PROPERTY
 	ENVIRONMENT "SQUEY_CONFIG_DIR=crash_report_cleanup_config")
 
+add_squey_compile_test(Tpvguiqt_settings_dialog LINKS ${COMMON_LIBRARIES} Qt6::Test Qt6::Widgets FILES settings_dialog.cpp)
+add_squey_test(Tpvguiqt_settings_dialog Tpvguiqt_settings_dialog -platform offscreen)
+# A configuration of its own, relative for the same reason as above.
+set_property(TEST SQUEY_TEST_Tpvguiqt_settings_dialog APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=settings_dialog_config")
+
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

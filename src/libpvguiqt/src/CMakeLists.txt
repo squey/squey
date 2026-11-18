@@ -41,6 +41,7 @@ PVChangelogMessage.cpp
 PVPythonScriptWidget.cpp
 PVCodeEditorStyle.cpp
 PVPythonCodeEditor.cpp
+PVSettingsDialog.cpp
 PVSqlCodeEditor.cpp
 PVSqlResultModel.cpp
 PVDisplayViewSqlConsole.cpp
@@ -107,6 +108,7 @@ set(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVAboutBoxDialog.h
 ../include/pvguiqt/PVPythonScriptWidget.h
 ../include/pvguiqt/PVPythonCodeEditor.h
+../include/pvguiqt/PVSettingsDialog.h
 ../include/pvguiqt/PVSqlCodeEditor.h
 ../include/pvguiqt/PVSqlResultModel.h
 ../include/pvguiqt/PVDockWidgetTitleBar.h

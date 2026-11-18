@@ -130,6 +130,11 @@ void App::PVMainWindow::create_actions()
 	/**************************
 	 * For the "Settings" menu entry
 	 **************************/
+	settings_Action = new QAction(tr("&Settings..."), this);
+	settings_Action->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Comma));
+	// macOS moves it to the application menu, where its users look for it.
+	settings_Action->setMenuRole(QAction::PreferencesRole);
+
 	auto* act_group_theme = new QActionGroup(this);
 	act_group_theme->setExclusive(true);
 	settings_dark_theme_Action = new QAction(tr("&Dark"), act_group_theme);
@@ -237,6 +242,8 @@ void App::PVMainWindow::create_menus()
 
 	settings_Menu = menubar->addMenu(tr("&Settings"));
 	settings_Menu->setAttribute(Qt::WA_TranslucentBackground);
+	settings_Menu->addAction(settings_Action);
+	settings_Menu->addSeparator();
 	auto* theme_Menu = settings_Menu->addMenu(tr("&Theme"));
 	theme_Menu->setIcon(PVModdedIcon("sun-bright"));
 	theme_Menu->setAttribute(Qt::WA_TranslucentBackground);
@@ -332,6 +339,7 @@ void App::PVMainWindow::connect_actions()
 
 	connect(sample_dataset_Action, &QAction::triggered, this,
 	        &PVMainWindow::load_sample_dataset_Slot);
+	connect(settings_Action, &QAction::triggered, this, &PVMainWindow::settings_Slot);
 	connect(about_Action, &QAction::triggered,
 	        [this]() { about_Slot(PVGuiQt::PVAboutBoxDialog::Tab::SOFTWARE); });
 	connect(refman_Action, &QAction::triggered,

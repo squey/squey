@@ -145,6 +145,7 @@ class PVMainWindow : public QMainWindow
 	void import_type_Slot();
 	void import_type_Slot(const QString& itype);
 	void load_sample_dataset_Slot();
+	void settings_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
 	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
 	void quit_Slot();
@@ -246,6 +247,7 @@ class PVMainWindow : public QMainWindow
 	QAction* tools_cur_format_Action;
 	QAction* view_Action;
 	QAction* view_display_inv_elts_Action;
+	QAction* settings_Action;
 	QAction* settings_dark_theme_Action;
 	QAction* settings_light_theme_Action;
 	QAction* settings_follow_system_theme_Action;
