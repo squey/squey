@@ -27,6 +27,15 @@
 
 #include <pvparallelview/PVScatterThumbnailsModel.h>
 
+const PVCore::PVSetting<bool> PVParallelView::settings::antialiasing(
+    {.key = "parallel_view.antialiasing",
+     .type = PVCore::PVSettingType::Bool,
+     .default_value = true,
+     .title = "Antialiasing",
+     .description = "Smooth the edges of the lines as the views of parallel coordinates open. "
+                    "The button of each view turns it on and off.",
+     .keywords = {"lines", "smooth"}});
+
 const PVCore::PVSetting<int> PVParallelView::settings::scatter_thumbnail_size(
     {.key = "scatter_thumbnails.size",
      .type = PVCore::PVSettingType::Int,
