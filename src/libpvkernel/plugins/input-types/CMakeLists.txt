@@ -127,6 +127,7 @@ parquet/PVParquetExporterWidget.h
 )
 
 set(PARQUET_SRC
+../common/arrow/PVArrowRowFilter.cpp
 parquet/PVParquetExporterBase.cpp
 parquet/PVParquetExporter.cpp
 parquet/PVParquetNrawExporter.cpp
@@ -149,6 +150,7 @@ target_link_libraries(input_type_parquet PRIVATE pvkernel ${PARQUET_LIBS})
 # The format of the files is made by that of the Parquet files of their Arrow schema.
 set(JSON_SRC
 json/PVInputTypeJson.cpp
+../common/arrow/PVArrowRowFilter.cpp
 ../common/json/PVJsonLines.cpp
 ../common/json/PVJsonSchema.cpp
 ../common/parquet/PVParquetAPI.cpp

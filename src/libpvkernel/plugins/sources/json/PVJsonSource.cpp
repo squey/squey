@@ -111,18 +111,15 @@ PVRush::PVJsonSource::PVJsonSource(PVInputDescription_p input)
 		_size += size_t(QFileInfo(path).size());
 	}
 
-	arrow::FieldVector fields = _read_schema->arrow_schema()->fields();
 	if (_input_desc.multi_inputs()) {
 		arrow::StringBuilder names;
 		for (const QString& name : _input_desc.input_names()) {
 			check(names.Append(name.toStdString()));
 		}
 		_input_names = value_of(names.Finish());
-		fields.insert(fields.begin(),
-		              arrow::field(PVParquetAPI::input_column_name,
-		                           arrow::dictionary(arrow::int32(), arrow::utf8())));
 	}
-	_table_schema = arrow::schema(fields);
+	_table_schema = _read_schema->arrow_schema(_input_names != nullptr);
+	const arrow::FieldVector& fields = _table_schema->fields();
 
 	const QStringList& columns = _input_desc.columns();
 	for (int column = 0; column < int(fields.size()); column++) {

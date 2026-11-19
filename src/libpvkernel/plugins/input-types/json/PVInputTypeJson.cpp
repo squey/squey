@@ -25,6 +25,7 @@
 
 #include "PVInputTypeJson.h"
 
+#include "../../common/arrow/PVArrowRowFilter.h"
 #include "../../common/json/PVJsonFileDescription.h"
 #include "../../common/json/PVJsonSchema.h"
 #include "../../common/parquet/PVParquetAPI.h"
@@ -131,6 +132,26 @@ bool PVRush::PVInputTypeJson::describe_files(const QStringList& paths,
 	}
 
 	return true;
+}
+
+QHash<QString, double>
+PVRush::PVInputTypeJson::fill_rates(const PVFileListDescription& input_desc) const
+{
+	QHash<QString, double> rates;
+	const PVJsonSchema& schema = *static_cast<const PVJsonFileDescription&>(input_desc).schema();
+	for (const PVJsonSchema::Column& column : schema.columns()) {
+		rates[QString::fromStdString(column.name)] =
+		    schema.row_count() == 0 ? 0. : double(column.value_count) / double(schema.row_count());
+	}
+	return rates;
+}
+
+QString PVRush::PVInputTypeJson::row_filter_error(const PVFileListDescription& input_desc,
+                                                  const QString& condition) const
+{
+	const auto& json_desc = static_cast<const PVJsonFileDescription&>(input_desc);
+	return QString::fromStdString(PVArrowRowFilter::error_of(
+	    condition.toStdString(), json_desc.schema()->arrow_schema(json_desc.multi_inputs())));
 }
 
 PVRush::PVFormat PVRush::PVInputTypeJson::get_format_from_inputs(list_inputs const& inputs) const

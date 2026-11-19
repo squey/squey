@@ -69,6 +69,13 @@ class PVInputTypeParquet : public PVInputTypeFileList
 	QString files_dialog_title() const override;
 	QString files_dialog_filter() const override;
 	bool describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const override;
+	/**
+	 * From the statistics of the files, which count the nulls of their columns, but for those of
+	 * the values of lists and maps.
+	 */
+	QHash<QString, double> fill_rates(const PVFileListDescription& input_desc) const override;
+	QString row_filter_error(const PVFileListDescription& input_desc,
+	                         const QString& condition) const override;
 
   protected:
 	mutable QStringList _tmp_dir_to_delete;

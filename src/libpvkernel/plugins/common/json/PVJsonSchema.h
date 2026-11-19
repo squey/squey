@@ -63,6 +63,8 @@ class PVJsonSchema
 		/** The fields joined by dots. */
 		std::string name;
 		Type type;
+		/** The count of the objects that give it a value, null aside. */
+		size_t value_count;
 	};
 
 	/** Gets the bytes read of the files and their size, and stops the reading on false. */
@@ -87,8 +89,11 @@ class PVJsonSchema
   public:
 	const std::vector<Column>& columns() const { return _columns; }
 
-	/** A field of the type of each column, of its name. */
-	std::shared_ptr<arrow::Schema> arrow_schema() const;
+	/**
+	 * A field of the type of each column, of its name, after the dictionary of the names of the
+	 * files that a source of several of them starts with, if @p input_names.
+	 */
+	std::shared_ptr<arrow::Schema> arrow_schema(bool input_names = false) const;
 
 	/** This schema, with only the columns named @p names among its own, or all of them if none. */
 	std::shared_ptr<const PVJsonSchema> with_columns(const QStringList& names) const;

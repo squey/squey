@@ -26,6 +26,7 @@
 #include "PVJsonSchema.h"
 
 #include "PVJsonLines.h"
+#include "../parquet/PVParquetAPI.h"
 
 #include <arrow/type.h>
 #include <arrow/util/value_parsing.h>
@@ -65,6 +66,7 @@ struct string_hash {
 struct Field {
 	std::string key;
 	unsigned kinds = 0;
+	size_t value_count = 0;
 	/** Whether all of its strings are times. */
 	bool times = true;
 	/** In their order of appearance. */
@@ -87,6 +89,7 @@ struct Field {
 
 void visit(Field& field, const rapidjson::Value& value)
 {
+	field.value_count += not value.IsNull();
 	switch (value.GetType()) {
 	case rapidjson::kNullType:
 		break;
@@ -150,7 +153,7 @@ void add_columns(const Field& object,
 			for (const std::string& key : fields) {
 				name += (name.empty() ? "" : ".") + key;
 			}
-			columns.push_back({fields, name, type_of(*field)});
+			columns.push_back({fields, name, type_of(*field), field->value_count});
 		}
 		fields.pop_back();
 	}
@@ -242,9 +245,13 @@ std::optional<int64_t> PVRush::PVJsonSchema::microseconds_of(std::string_view ti
 	return std::nullopt;
 }
 
-std::shared_ptr<arrow::Schema> PVRush::PVJsonSchema::arrow_schema() const
+std::shared_ptr<arrow::Schema> PVRush::PVJsonSchema::arrow_schema(bool input_names) const
 {
 	arrow::FieldVector fields;
+	if (input_names) {
+		fields.push_back(arrow::field(PVParquetAPI::input_column_name,
+		                              arrow::dictionary(arrow::int32(), arrow::utf8())));
+	}
 	for (const Column& column : _columns) {
 		fields.push_back(arrow::field(column.name, arrow_type_of(column.type)));
 	}

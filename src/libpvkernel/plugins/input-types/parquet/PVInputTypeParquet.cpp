@@ -33,6 +33,13 @@
 #include "../../common/parquet/PVParquetAPI.h"
 #include <pvkernel/rush/PVFileListDescription.h>
 #include "PVParquetNrawExporter.h"
+#include "../../common/arrow/PVArrowRowFilter.h"
+
+#include <parquet/file_reader.h>
+#include <parquet/metadata.h>
+#include <parquet/statistics.h>
+
+#include <QSet>
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -74,6 +81,75 @@ bool PVRush::PVInputTypeParquet::describe_files(const QStringList& paths, list_i
 	}
 
 	return true;
+}
+
+QHash<QString, double>
+PVRush::PVInputTypeParquet::fill_rates(const PVFileListDescription& input_desc) const
+{
+	QHash<QString, int64_t> nulls;
+	QSet<QString> unknown;
+	int64_t row_count = 0;
+	try {
+		for (const QString& path : input_desc.paths()) {
+			const std::shared_ptr<parquet::FileMetaData> metadata =
+			    parquet::ParquetFileReader::OpenFile(path.toStdString())->metadata();
+			row_count += metadata->num_rows();
+			const parquet::SchemaDescriptor* schema = metadata->schema();
+			for (int leaf = 0; leaf < schema->num_columns(); leaf++) {
+				const parquet::ColumnDescriptor* column = schema->Column(leaf);
+				if (column->max_repetition_level() > 0) {
+					continue;
+				}
+				// The name of a field of a structure is that of its flattened column.
+				const QString name = QString::fromStdString(column->path()->ToDotString());
+				for (int group = 0; group < metadata->num_row_groups(); group++) {
+					const std::shared_ptr<parquet::Statistics> statistics =
+					    metadata->RowGroup(group)->ColumnChunk(leaf)->statistics();
+					if (statistics == nullptr or not statistics->HasNullCount()) {
+						unknown.insert(name);
+					} else {
+						nulls[name] += statistics->null_count();
+					}
+				}
+			}
+		}
+	} catch (const std::exception&) {
+		return {};
+	}
+
+	QHash<QString, double> rates;
+	for (auto column = nulls.cbegin(); column != nulls.cend(); ++column) {
+		if (row_count > 0 and not unknown.contains(column.key())) {
+			rates[column.key()] = 1. - double(column.value()) / double(row_count);
+		}
+	}
+	return rates;
+}
+
+QString PVRush::PVInputTypeParquet::row_filter_error(const PVFileListDescription& input_desc,
+                                                     const QString& condition) const
+{
+	try {
+		PVParquetAPI api(&input_desc);
+		std::shared_ptr<arrow::Schema> schema;
+		const arrow::Status status = api.arrow_reader()->GetSchema(&schema);
+		if (not status.ok()) {
+			return QString::fromStdString(status.ToString());
+		}
+		// The columns the source hands the condition.
+		const std::shared_ptr<arrow::Schema> flat_schema = PVParquetAPI::flatten_schema(schema);
+		arrow::FieldVector fields;
+		if (api.multi_inputs()) {
+			fields.push_back(arrow::field(PVParquetAPI::input_column_name, arrow::utf8()));
+		}
+		for (int column : PVParquetAPI::row_filter_columns(*flat_schema)) {
+			fields.push_back(flat_schema->field(column));
+		}
+		return QString::fromStdString(
+		    PVArrowRowFilter::error_of(condition.toStdString(), arrow::schema(fields)));
+	} catch (const std::exception& e) {
+		return e.what();
+	}
 }
 
 PVRush::PVFormat PVRush::PVInputTypeParquet::get_format_from_inputs(list_inputs const& inputs) const

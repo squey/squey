@@ -65,6 +65,10 @@ class PVInputTypeJson : public PVInputTypeFileList
 	QString files_dialog_filter() const override;
 	bool
 	describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const override;
+	/** From the counts of the values of the schema of the files. */
+	QHash<QString, double> fill_rates(const PVFileListDescription& input_desc) const override;
+	QString row_filter_error(const PVFileListDescription& input_desc,
+	                         const QString& condition) const override;
 
   private:
 	/**

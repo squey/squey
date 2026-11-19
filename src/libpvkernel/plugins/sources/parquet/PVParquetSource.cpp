@@ -94,12 +94,7 @@ PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
 		_row_filter = std::make_unique<PVArrowRowFilter>(_input_desc->row_filter().toStdString());
 		std::shared_ptr<arrow::Schema> schema;
 		check(_api.arrow_reader()->GetSchema(&schema));
-		const arrow::FieldVector fields = PVParquetAPI::flatten_schema(schema)->fields();
-		for (int column = 0; column < int(fields.size()); column++) {
-			if (PVParquetAPI::pvcop_types_map.contains(fields[size_t(column)]->type()->storage_id())) {
-				_filtered_columns.push_back(column);
-			}
-		}
+		_filtered_columns = PVParquetAPI::row_filter_columns(*PVParquetAPI::flatten_schema(schema));
 		_input_names = _input_desc->input_names();
 	}
 }

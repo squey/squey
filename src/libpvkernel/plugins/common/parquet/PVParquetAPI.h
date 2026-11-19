@@ -95,6 +95,12 @@ class PVParquetAPI
 	                              std::vector<size_t>& column_indexes,
 	                              const QStringList& columns = {});
 
+	/**
+	 * The fields of the flattened schema @p flat_schema that a condition on the rows reads: those
+	 * of the types the import knows.
+	 */
+	static std::vector<int> row_filter_columns(const arrow::Schema& flat_schema);
+
   public:
 	QDomDocument get_format();
 

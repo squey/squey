@@ -29,6 +29,7 @@
 #include <pvkernel/rush/PVInputType.h>
 
 #include <QCursor>
+#include <QHash>
 #include <QString>
 #include <QStringList>
 
@@ -37,7 +38,8 @@ namespace PVRush
 
 /**
  * An input type whose sources read files one after the other, with a format generated from them:
- * the user chooses the files, and the type describes them and makes their format.
+ * the user chooses the files, then which of their columns and rows to import, and the type
+ * describes them and makes their format.
  */
 class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 {
@@ -55,7 +57,10 @@ class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 	                                    PVCore::PVArgumentList& args_ext,
 	                                    QWidget* parent = nullptr) const override;
 
-	/** The files are those of the array "paths" of @p params_json. */
+	/**
+	 * The files are those of the array "paths" of @p params_json. Its array "columns" and its
+	 * string "row_filter" choose the columns and the rows to import, if it has them.
+	 */
 	bool create_source_description_params(const QString& params_json,
 	                                      list_inputs& inputs,
 	                                      PVFormat& format) const override;
@@ -85,6 +90,31 @@ class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 	 */
 	virtual bool
 	describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const = 0;
+
+	/**
+	 * The share of the rows of the files of @p input_desc that give a column a value, from 0 to 1,
+	 * by the names of the columns of which the type knows it.
+	 */
+	virtual QHash<QString, double> fill_rates(const PVFileListDescription& /*input_desc*/) const
+	{
+		return {};
+	}
+
+	/**
+	 * What is wrong with @p condition, as a condition on the rows of the files of @p input_desc,
+	 * or nothing.
+	 */
+	virtual QString row_filter_error(const PVFileListDescription& input_desc,
+	                                 const QString& condition) const = 0;
+
+  private:
+	/**
+	 * Lets the user choose the columns and the rows of the files of @p inputs to import, and sets
+	 * @p format to that of the choice.
+	 *
+	 * @return false if the user canceled
+	 */
+	bool choose(const list_inputs& inputs, PVFormat& format, QWidget* parent) const;
 };
 
 } // namespace PVRush

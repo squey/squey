@@ -338,6 +338,17 @@ QDomDocument PVRush::PVParquetAPI::format_of(const std::shared_ptr<arrow::Schema
 	return format;
 }
 
+std::vector<int> PVRush::PVParquetAPI::row_filter_columns(const arrow::Schema& flat_schema)
+{
+	std::vector<int> columns;
+	for (int column = 0; column < flat_schema.num_fields(); column++) {
+		if (pvcop_types_map.contains(flat_schema.field(column)->type()->storage_id())) {
+			columns.push_back(column);
+		}
+	}
+	return columns;
+}
+
 bool PVRush::PVParquetAPI::is_bit_optimizable() const
 {
 	if (multi_inputs()) {
