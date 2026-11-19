@@ -25,6 +25,16 @@ APPLE_AUTH_KEY_PATH="apple_auth_key.p8"
 echo -ne "${APPLE_AUTH_KEY//\\n/$'\n'}" > "$APPLE_AUTH_KEY_PATH"
 sha256sum "$APPLE_AUTH_KEY_PATH"
 
+# Prints the Mach-O files under a directory, one per line.
+mach_o_files()
+{
+    find "$1" -type f | while read -r path; do
+        if file "$path" | grep -q "Mach-O"; then
+            echo "$path"
+        fi
+    done
+}
+
 # Convert packages to universal binary
 hdiutil attach -nobrowse $PACKAGEDIR_ARM/*.dmg
 ditto "$MOUNTED_BUNDLEDIR" "$BUNDLENAME_ARM"
@@ -35,17 +45,15 @@ hdiutil detach "$MOUNTED_VOLUME"
 hdiutil attach -nobrowse $PACKAGEDIR_ARM/*.dmg
 ditto "$MOUNTED_BUNDLEDIR" "$BUNDLENAME"
 hdiutil detach "$MOUNTED_VOLUME"
-find "$BUNDLENAME" -type f | while read arm_file; do
-    if file "$arm_file" | grep -q "Mach-O"; then
-        rel_path="${arm_file#$BUNDLENAME/}"
-        x86_file="$BUNDLENAME_X86/$rel_path"
-        out_file="$BUNDLENAME/$rel_path"
-        if [ -f "$x86_file" ]; then
-            mkdir -p "$(dirname "$out_file")"
-            lipo -create "$x86_file" "$arm_file" -output "$out_file" || true
-        else
-            echo "Missing x86_64 file: $x86_file" >&2
-        fi
+mach_o_files "$BUNDLENAME" | while read -r arm_file; do
+    rel_path="${arm_file#$BUNDLENAME/}"
+    x86_file="$BUNDLENAME_X86/$rel_path"
+    out_file="$BUNDLENAME/$rel_path"
+    if [ -f "$x86_file" ]; then
+        mkdir -p "$(dirname "$out_file")"
+        lipo -create "$x86_file" "$arm_file" -output "$out_file" || true
+    else
+        echo "Missing x86_64 file: $x86_file" >&2
     fi
 done
 
@@ -132,11 +140,8 @@ sign()
     unlock_keychain
 
     # Sign binaries
-    find "$bundlename/Contents" -type f | while read bin; do
-        TYPE=$(file "$bin")
-        if echo "$TYPE" | grep -q "Mach-O"; then
-            codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
-        fi
+    mach_o_files "$bundlename/Contents" | while read -r bin; do
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
     done
 
     # Sign executables with sandbox entitlement
