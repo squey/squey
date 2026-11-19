@@ -25,11 +25,15 @@
 
 #include <pvkernel/core/PVKernelSettings.h>
 
+#include <pvkernel/opencl/common.h>
 #include <pvkernel/rush/PVNraw.h>
 
 #include <QByteArray>
+#include <QStringList>
 
 #include <climits>
+#include <string>
+#include <vector>
 
 namespace
 {
@@ -44,6 +48,31 @@ std::vector<PVCore::PVSettingChoice> color_schemes()
 	}
 #endif
 	return schemes;
+}
+
+const PVCore::PVSettingChoice AUTOMATIC_LINES_PLATFORM{
+    "auto", "Automatic: a dedicated graphics card first, the processor last"};
+const PVCore::PVSettingChoice PROCESSOR_LINES_PLATFORM{
+    "cpu", "The processor, through the first OpenCL platform able"};
+const PVCore::PVSettingChoice QT_LINES_PLATFORM{"qt", "Qt, without OpenCL, on the processor"};
+
+/** The platforms found on the machine between the automatic choice and Qt. */
+std::vector<PVCore::PVSettingChoice> lines_platforms()
+{
+	std::vector<PVCore::PVSettingChoice> choices{AUTOMATIC_LINES_PLATFORM};
+	for (PVOpenCL::platform_t const& platform : PVOpenCL::platforms()) {
+		const QString name = QString::fromStdString(platform.name);
+		QStringList devices;
+		for (std::string const& device : platform.devices) {
+			devices << QString::fromStdString(device);
+		}
+		choices.push_back({(platform.accelerated ? "gpu:" : "cpu:") + name,
+		                   QString("%1 (%2: %3)")
+		                       .arg(name, platform.accelerated ? "graphics card" : "processor",
+		                            devices.join(", "))});
+	}
+	choices.push_back(QT_LINES_PLATFORM);
+	return choices;
 }
 
 } // namespace
@@ -133,26 +162,17 @@ const PVCore::PVSetting<QString> PVCore::settings::export_csv_quote(
      .min_length = 1,
      .max_length = 1});
 
-const PVCore::PVSetting<bool> PVCore::settings::force_cpu(
-    {.key = "rendering.force_cpu",
-     .type = PVSettingType::Bool,
-     .default_value = false,
-     .title = "Draw with the processor",
-     .description = "Draw the lines of the parallel coordinates with the processor rather than "
-                    "the graphics card, whose driver may draw them wrongly or crash. Drawing is "
-                    "slower.",
+const PVCore::PVSetting<QString> PVCore::settings::lines_platform(
+    {.key = "rendering.lines_platform",
+     .type = PVSettingType::Choice,
+     .default_value = AUTOMATIC_LINES_PLATFORM.value,
+     .title = "Drawing of parallel coordinates",
+     .description = "What draws the lines of the parallel coordinates. A platform that cannot "
+                    "draw them gives way to the processor, then to Qt. The processor is slower "
+                    "than a graphics card and Qt slower still, but both avoid a driver that "
+                    "draws wrongly or crashes.",
+     .choices = {AUTOMATIC_LINES_PLATFORM, PROCESSOR_LINES_PLATFORM, QT_LINES_PLATFORM},
+     .machine_choices = lines_platforms,
      .requires_restart = true,
-     .keywords = {"OpenCL", "GPU", "CPU", "graphics card"}});
-
-const PVCore::PVSetting<int> PVCore::settings::opencl_platform(
-    {.key = "rendering.opencl_platform",
-     .type = PVSettingType::Int,
-     .default_value = -1,
-     .title = "OpenCL platform",
-     .description = "Which of the OpenCL platforms able to draw the lines of the parallel "
-                    "coordinates draws them, counted from 0 in the order of the OpenCL loader. "
-                    "-1 picks one, dedicated graphics cards first.",
-     .minimum = -1,
-     .maximum = 255,
-     .requires_restart = true,
-     .keywords = {"GPU", "graphics card", "platform_index"}});
+     .keywords = {"OpenCL", "GPU", "CPU", "graphics card", "processor", "force_cpu",
+                  "platform_index"}});

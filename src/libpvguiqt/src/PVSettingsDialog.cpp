@@ -125,6 +125,10 @@ QString accepted_values(PVCore::PVSettingDescriptor const& descriptor)
 		for (PVCore::PVSettingChoice const& choice : descriptor.choices) {
 			choices << QString("%1 (%2)").arg(json_text(choice.value), choice.label);
 		}
+		if (descriptor.machine_choices) {
+			return QString("One of %1, or one of the choices the form lists for this machine.")
+			    .arg(choices.join(", "));
+		}
 		return QString("One of %1.").arg(choices.join(", "));
 	}
 	case PVCore::PVSettingType::Int:
@@ -219,6 +223,8 @@ class setting_row : public QFrame
 
   private:
 	PVCore::PVSettingDescriptor _descriptor;
+	/** Those of a Choice setting the editor lists. */
+	std::vector<PVCore::PVSettingChoice> _choices;
 	/** Every text the search matches, but the title of the section. */
 	QString _haystack;
 	QVariant _value;
@@ -237,7 +243,9 @@ class setting_row : public QFrame
 PVGuiQt::__impl::setting_row::setting_row(PVCore::PVSettingDescriptor descriptor,
                                           wheel_guard* guard,
                                           QWidget* parent)
-    : QFrame(parent), _descriptor(std::move(descriptor))
+    : QFrame(parent)
+    , _descriptor(std::move(descriptor))
+    , _choices(_descriptor.machine_choices ? _descriptor.machine_choices() : _descriptor.choices)
 {
 	setObjectName("setting:" + _descriptor.key);
 	setContextMenuPolicy(Qt::CustomContextMenu);
@@ -247,7 +255,7 @@ PVGuiQt::__impl::setting_row::setting_row(PVCore::PVSettingDescriptor descriptor
 	QStringList texts{_descriptor.key, _descriptor.title, _descriptor.description,
 	                  _descriptor.unit};
 	texts << _descriptor.keywords;
-	for (PVCore::PVSettingChoice const& choice : _descriptor.choices) {
+	for (PVCore::PVSettingChoice const& choice : _choices) {
 		texts << choice.value << choice.label;
 	}
 	_haystack = texts.join('\n');
@@ -377,7 +385,7 @@ QWidget* PVGuiQt::__impl::setting_row::create_editor()
 	}
 	case PVCore::PVSettingType::Choice: {
 		auto* combo_box = new QComboBox;
-		for (PVCore::PVSettingChoice const& choice : _descriptor.choices) {
+		for (PVCore::PVSettingChoice const& choice : _choices) {
 			combo_box->addItem(choice.label, choice.value);
 		}
 		combo_box->setFocusPolicy(Qt::StrongFocus);
@@ -449,7 +457,18 @@ void PVGuiQt::__impl::setting_row::set_editor_value(QVariant const& value)
 			spin_box->setValue(value.toDouble());
 		}
 	} else if (auto* combo_box = qobject_cast<QComboBox*>(_editor)) {
-		combo_box->setCurrentIndex(combo_box->findData(value.toString()));
+		int index = combo_box->findData(value.toString());
+		if (index < 0 and _descriptor.machine_choices) {
+			// A value of another machine, or one that this machine no longer offers.
+			const auto known = std::ranges::find(_descriptor.choices, value.toString(),
+			                                     &PVCore::PVSettingChoice::value);
+			combo_box->addItem(known != _descriptor.choices.end()
+			                       ? known->label
+			                       : tr("%1, not found on this machine").arg(value.toString()),
+			                   value.toString());
+			index = combo_box->count() - 1;
+		}
+		combo_box->setCurrentIndex(index);
 	} else {
 		// A string, or a path, whose line edit is beside a button.
 		auto* line_edit = qobject_cast<QLineEdit*>(_editor);

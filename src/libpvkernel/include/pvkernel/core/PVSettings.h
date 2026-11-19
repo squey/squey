@@ -35,6 +35,7 @@
 #include <QStringList>
 #include <QVariant>
 
+#include <functional>
 #include <optional>
 #include <shared_mutex>
 #include <utility>
@@ -81,6 +82,16 @@ struct PVSettingDescriptor {
 	/** Unit of a number, shown after it: "ms", "%". */
 	QString unit = {};
 	std::vector<PVSettingChoice> choices = {};
+	/**
+	 * For a Choice setting whose choices depend on the machine: all of those it offers, in the
+	 * order the settings dialog lists them, as the dialog opens. #choices then holds those
+	 * every machine offers. Such a setting accepts any string, as the settings of a machine
+	 * may come from another one: what reads it falls back on a choice of its own for a value
+	 * it cannot use.
+	 *
+	 * Called from the thread of the settings dialog, it may take a while.
+	 */
+	std::function<std::vector<PVSettingChoice>()> machine_choices = {};
 	/** Lengths of the shortest and of the longest String accepted, in characters. */
 	int min_length = 0;
 	/** Negative for no limit. */

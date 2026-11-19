@@ -79,6 +79,11 @@ add_squey_test(Topencl_build_test Topencl_build_test)
 
 add_squey_compile_test(Topencl_cpu_device LINKS ${LINK_LIBRARIES} FILES opencl_cpu_device.cpp)
 add_squey_test(Topencl_cpu_device Topencl_cpu_device)
+add_squey_compile_test(Topencl_qt_platform LINKS ${LINK_LIBRARIES} FILES opencl_qt_platform.cpp)
+add_squey_test(Topencl_qt_platform Topencl_qt_platform)
+# A configuration directory of its own, for the setting it saves.
+set_property(TEST SQUEY_TEST_Topencl_qt_platform APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=opencl_qt_platform_config")
 
 # Linux only, the driver it loads being built there only (see the tests of libpvkernel).
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

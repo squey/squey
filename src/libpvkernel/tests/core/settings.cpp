@@ -142,11 +142,17 @@ void declare_all(PVSettings& settings)
 	                  .default_value = "/tmp/squey",
 	                  .title = "Working directory",
 	                  .description = "Working directory of the test"});
-	settings.declare({.key = "rendering.force_cpu",
-	                  .type = PVSettingType::Bool,
-	                  .default_value = false,
-	                  .title = "Force CPU",
-	                  .description = "Force CPU of the test"});
+	// Whose configuration key, a boolean, became one of its choices.
+	settings.declare({.key = "rendering.lines_platform",
+	                  .type = PVSettingType::Choice,
+	                  .default_value = "auto",
+	                  .title = "Lines platform",
+	                  .description = "Lines platform of the test",
+	                  .choices = {{"auto", "Automatic"}, {"cpu", "Processor"}},
+	                  .machine_choices = [] {
+		                  return std::vector<PVCore::PVSettingChoice>{{"auto", "Automatic"},
+		                                                              {"gpu:Here", "Here"}};
+	                  }});
 }
 
 bool has_problem(std::vector<PVCore::PVSettingsProblem> const& problems,
@@ -227,6 +233,21 @@ void user_values_are_checked()
 	PV_VALID(settings.value("test.count").toLongLong(), 10LL);
 }
 
+void machine_choices_accept_other_values()
+{
+	QTemporaryDir dir;
+	// As the settings of another machine may be.
+	write(dir.filePath("settings.json"), R"({"rendering.lines_platform": "gpu:Elsewhere"})");
+	PVSettings settings(files_in(dir));
+	declare_all(settings);
+
+	PV_VALID(text(settings.value("rendering.lines_platform")), std::string("gpu:Elsewhere"));
+	PV_ASSERT_VALID(settings.check(settings.user_settings()).empty());
+	PV_ASSERT_VALID(settings.set_value("rendering.lines_platform", "cpu:Elsewhere"));
+	PV_ASSERT_VALID(not settings.set_value("rendering.lines_platform", 3));
+	PV_VALID(text(settings.value("rendering.lines_platform")), std::string("cpu:Elsewhere"));
+}
+
 void changes_are_signalled()
 {
 	QTemporaryDir dir;
@@ -286,12 +307,14 @@ void shipped_and_legacy_values_are_read()
 	PV_VALID(text(settings.default_value("general.working_directory")),
 	         std::string("/srv/tmp-squey"));
 	PV_VALID(text(settings.value("general.working_directory")), std::string("/data/squey"));
-	PV_VALID(settings.value("rendering.force_cpu").toBool(), true);
+	// A boolean configuration key turned into a choice sets it when true only.
+	PV_VALID(text(settings.default_value("rendering.lines_platform")), std::string("auto"));
+	PV_VALID(text(settings.value("rendering.lines_platform")), std::string("cpu"));
 
 	// The values the user did not change are not theirs. Those of settings this
 	// process does not declare are kept all the same.
 	PV_VALID(settings.user_settings(), (QJsonObject{{"general.working_directory", "/data/squey"},
-	                                                {"rendering.force_cpu", true},
+	                                                {"rendering.lines_platform", "cpu"},
 	                                                {"sql.memory_percent", 30}}));
 
 	// Saving takes them to settings.json, and leaves config.ini to the versions
@@ -300,7 +323,7 @@ void shipped_and_legacy_values_are_read()
 	PV_ASSERT_VALID(settings.set_value("test.flag", true));
 	PV_VALID(read_json(dir.filePath("settings.json")),
 	         (QJsonObject{{"general.working_directory", "/data/squey"},
-	                      {"rendering.force_cpu", true},
+	                      {"rendering.lines_platform", "cpu"},
 	                      {"sql.memory_percent", 30},
 	                      {"test.flag", true}}));
 	PV_VALID(read(dir.filePath("config.ini")).toStdString(), config.toStdString());
@@ -312,7 +335,7 @@ void shipped_and_legacy_values_are_read()
 	PVSettings reread(files_in(dir));
 	declare_all(reread);
 	PV_VALID(text(reread.value("general.working_directory")), std::string("/srv/tmp-squey"));
-	PV_VALID(reread.value("rendering.force_cpu").toBool(), true);
+	PV_VALID(text(reread.value("rendering.lines_platform")), std::string("cpu"));
 }
 
 void legacy_values_can_be_unset_first()
@@ -322,15 +345,15 @@ void legacy_values_can_be_unset_first()
 	                                  "force_cpu=true\n");
 	PVSettings settings(files_in(dir));
 	declare_all(settings);
-	PV_VALID(settings.value("rendering.force_cpu").toBool(), true);
+	PV_VALID(text(settings.value("rendering.lines_platform")), std::string("cpu"));
 
 	// The first change of all is the one that unsets the value of config.ini.
-	PV_ASSERT_VALID(settings.set_value("rendering.force_cpu", false));
-	PV_VALID(settings.value("rendering.force_cpu").toBool(), false);
+	PV_ASSERT_VALID(settings.set_value("rendering.lines_platform", "auto"));
+	PV_VALID(text(settings.value("rendering.lines_platform")), std::string("auto"));
 	PV_VALID(read_json(dir.filePath("settings.json")), QJsonObject());
 	PVSettings reread(files_in(dir));
 	declare_all(reread);
-	PV_VALID(reread.value("rendering.force_cpu").toBool(), false);
+	PV_VALID(text(reread.value("rendering.lines_platform")), std::string("auto"));
 }
 
 void administrator_values_win()
@@ -347,8 +370,8 @@ void administrator_values_win()
 
 	PV_VALID(settings.value("test.count").toLongLong(), 3LL);
 	PV_ASSERT_VALID(settings.is_locked("test.count"));
-	PV_VALID(settings.value("rendering.force_cpu").toBool(), true);
-	PV_ASSERT_VALID(settings.is_locked("rendering.force_cpu"));
+	PV_VALID(text(settings.value("rendering.lines_platform")), std::string("cpu"));
+	PV_ASSERT_VALID(settings.is_locked("rendering.lines_platform"));
 	PV_VALID(settings.value("test.flag").toBool(), true);
 	PV_ASSERT_VALID(not settings.is_locked("test.flag"));
 
@@ -492,6 +515,7 @@ int main()
 {
 	defaults_apply_without_files();
 	user_values_are_checked();
+	machine_choices_accept_other_values();
 	changes_are_signalled();
 	shipped_and_legacy_values_are_read();
 	legacy_values_can_be_unset_first();

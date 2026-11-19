@@ -112,6 +112,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd_hybrid>\")
 	add_dependencies(SQUEY_TEST_Tcore_opencl_dedicated_gpu squey_test_opencl_icd_hybrid)
 	add_squey_test(Tcore_opencl_dedicated_gpu Tcore_opencl_dedicated_gpu)
+
+	# The same two GPUs, one of them named by the settings, which it saves.
+	add_squey_compile_test(Tcore_opencl_lines_platform LINKS ${LINK_LIBRARIES} FILES opencl_lines_platform.cpp)
+	target_compile_definitions(SQUEY_TEST_Tcore_opencl_lines_platform PRIVATE
+		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd_hybrid>\")
+	add_dependencies(SQUEY_TEST_Tcore_opencl_lines_platform squey_test_opencl_icd_hybrid)
+	add_squey_test(Tcore_opencl_lines_platform Tcore_opencl_lines_platform)
+	set_property(TEST SQUEY_TEST_Tcore_opencl_lines_platform APPEND PROPERTY
+		ENVIRONMENT "SQUEY_CONFIG_DIR=opencl_lines_platform_config")
 endif()
 
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})

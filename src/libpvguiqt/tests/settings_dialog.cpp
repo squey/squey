@@ -172,7 +172,7 @@ void json_mode_edits_the_same_draft(PVGuiQt::PVSettingsDialog& dialog)
 	                    .contains("\"import.chunk_size\": 10048576"));
 
 	user_json->setPlainText(
-	    R"({"import.chunk_size": 30000, "unknown.key": true, "rendering.force_cpu": "yes"})");
+	    R"({"import.chunk_size": 30000, "unknown.key": true, "export.csv_header": "yes"})");
 	// The problems are listed once the typing settles.
 	QTest::qWait(500);
 	auto* problems = dialog.findChild<QListWidget*>("problems");
@@ -183,7 +183,7 @@ void json_mode_edits_the_same_draft(PVGuiQt::PVSettingsDialog& dialog)
 	PV_VALID(editor<QSpinBox>(dialog, "import.chunk_size")->value(), 30000);
 	// What the list cannot show stays in the draft, and the list says what it ignores.
 	PV_ASSERT_VALID(dialog.draft().contains("unknown.key"));
-	auto* notes = row(dialog, "rendering.force_cpu")->findChild<QLabel*>("notes");
+	auto* notes = row(dialog, "export.csv_header")->findChild<QLabel*>("notes");
 	PV_ASSERT_VALID(not notes->isHidden() and notes->text().contains("ignored"), "notes",
 	                notes->text().toStdString());
 
@@ -193,10 +193,10 @@ void json_mode_edits_the_same_draft(PVGuiQt::PVSettingsDialog& dialog)
 	dialog.set_json_mode(false);
 	PV_ASSERT_VALID(dialog.json_mode());
 	PV_ASSERT_VALID(not dialog.apply());
-	user_json->setPlainText(R"({"import.chunk_size": 30000, "rendering.force_cpu": true})");
+	user_json->setPlainText(R"({"import.chunk_size": 30000, "export.csv_header": false})");
 	dialog.set_json_mode(false);
 	PV_ASSERT_VALID(not dialog.json_mode());
-	PV_VALID(editor<QCheckBox>(dialog, "rendering.force_cpu")->isChecked(), true);
+	PV_VALID(editor<QCheckBox>(dialog, "export.csv_header")->isChecked(), false);
 }
 
 void resets_reach_the_draft(PVGuiQt::PVSettingsDialog& dialog)
@@ -205,12 +205,12 @@ void resets_reach_the_draft(PVGuiQt::PVSettingsDialog& dialog)
 	dialog.set_filter("chunk size");
 	dialog.findChild<QDialogButtonBox*>()->button(QDialogButtonBox::RestoreDefaults)->click();
 	PV_ASSERT_VALID(not dialog.draft().contains("import.chunk_size"));
-	PV_ASSERT_VALID(dialog.draft().contains("rendering.force_cpu"));
+	PV_ASSERT_VALID(dialog.draft().contains("export.csv_header"));
 	dialog.set_filter("");
 
-	row(dialog, "rendering.force_cpu")->findChild<QToolButton*>("reset")->click();
-	PV_ASSERT_VALID(not dialog.draft().contains("rendering.force_cpu"));
-	PV_VALID(editor<QCheckBox>(dialog, "rendering.force_cpu")->isChecked(), false);
+	row(dialog, "export.csv_header")->findChild<QToolButton*>("reset")->click();
+	PV_ASSERT_VALID(not dialog.draft().contains("export.csv_header"));
+	PV_VALID(editor<QCheckBox>(dialog, "export.csv_header")->isChecked(), true);
 }
 
 } // namespace
@@ -240,11 +240,27 @@ int main(int argc, char** argv)
 	}
 
 	// A change made elsewhere shows when the dialog opens again.
-	PV_ASSERT_VALID(PVCore::settings::opencl_platform.set_value(2));
+	PV_ASSERT_VALID(PVCore::settings::lines_platform.set_value("qt"));
 	{
 		PVGuiQt::PVSettingsDialog dialog;
-		PV_VALID(editor<QSpinBox>(dialog, "rendering.opencl_platform")->value(), 2);
+		auto* platforms = editor<QComboBox>(dialog, "rendering.lines_platform");
+		PV_VALID(platforms->currentData().toString().toStdString(), std::string("qt"));
+		// The machine adds its own platforms, if any, to those every machine offers.
+		PV_ASSERT_VALID(platforms->findData("auto") == 0);
+		PV_ASSERT_VALID(platforms->findData("cpu") < 0);
 	}
+
+	// A platform this machine does not offer is listed all the same, as such.
+	PV_ASSERT_VALID(PVCore::settings::lines_platform.set_value("gpu:Absent platform"));
+	{
+		PVGuiQt::PVSettingsDialog dialog;
+		auto* platforms = editor<QComboBox>(dialog, "rendering.lines_platform");
+		PV_VALID(platforms->currentData().toString().toStdString(),
+		         std::string("gpu:Absent platform"));
+		PV_VALID(platforms->currentText().toStdString(),
+		         std::string("gpu:Absent platform, not found on this machine"));
+	}
+	PV_ASSERT_VALID(PVCore::PVSettings::get().reset(PVCore::settings::lines_platform.key()));
 
 	// The code editors follow their font, those already open included.
 	{

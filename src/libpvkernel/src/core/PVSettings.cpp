@@ -52,6 +52,11 @@ struct legacy_key_t {
 	const char* key;
 	/** For a process that does not declare the setting, and saves its value all the same. */
 	PVCore::PVSettingType type;
+	/**
+	 * For a boolean configuration key that became a choice of a setting: the value of the
+	 * setting that true stands for. False then sets nothing.
+	 */
+	const char* when_true = nullptr;
 };
 
 constexpr legacy_key_t LEGACY_KEYS[] = {
@@ -59,8 +64,7 @@ constexpr legacy_key_t LEGACY_KEYS[] = {
     {"pvkernel/nraw_tmp", "general.working_directory", PVCore::PVSettingType::Path},
     {"pvkernel/max_size_chunk", "import.chunk_size", PVCore::PVSettingType::Int},
     {"pvkernel/number_living_chunks", "import.parallel_chunks", PVCore::PVSettingType::Int},
-    {"backend_opencl/force_cpu", "rendering.force_cpu", PVCore::PVSettingType::Bool},
-    {"backend_opencl/platform_index", "rendering.opencl_platform", PVCore::PVSettingType::Int},
+    {"backend_opencl/force_cpu", "rendering.lines_platform", PVCore::PVSettingType::String, "cpu"},
     {"duckdb/memory_percent", "sql.memory_percent", PVCore::PVSettingType::Int},
     {"duckdb/max_temp_percent", "sql.spill_percent", PVCore::PVSettingType::Int},
     {"scatter_thumbnails/thumbnail_size", "scatter_thumbnails.size", PVCore::PVSettingType::Int},
@@ -89,8 +93,13 @@ QHash<QString, QString> read_ini(QString const& path, bool legacy_only)
 		                                                : value.toString();
 	};
 	for (legacy_key_t const& legacy : LEGACY_KEYS) {
-		if (ini.contains(legacy.legacy)) {
+		if (not ini.contains(legacy.legacy)) {
+			continue;
+		}
+		if (legacy.when_true == nullptr) {
 			values[legacy.key] = raw(legacy.legacy);
+		} else if (QVariant(raw(legacy.legacy)).toBool()) {
+			values[legacy.key] = legacy.when_true;
 		}
 	}
 	if (not legacy_only) {
@@ -541,6 +550,12 @@ std::optional<QVariant> PVCore::PVSettings::from_json(PVSettingDescriptor const&
 				return QVariant(choice.value);
 			}
 			values << QString("\"%1\"").arg(choice.value);
+		}
+		if (descriptor.machine_choices) {
+			if (json.isString()) {
+				return QVariant(json.toString());
+			}
+			return fail("Expected a string");
 		}
 		return fail("Expected one of " + values.join(", "));
 	}

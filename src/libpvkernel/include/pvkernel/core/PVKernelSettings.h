@@ -61,10 +61,12 @@ extern PVKERNEL_EXPORT const PVSetting<bool> export_csv_header;
 extern PVKERNEL_EXPORT const PVSetting<QString> export_csv_separator;
 extern PVKERNEL_EXPORT const PVSetting<QString> export_csv_quote;
 
-extern PVKERNEL_EXPORT const PVSetting<bool> force_cpu;
-
-/** -1 for the first platform that can draw. */
-extern PVKERNEL_EXPORT const PVSetting<int> opencl_platform;
+/**
+ * "auto", "cpu" for the first OpenCL platform that draws with the processor, "qt", or
+ * "gpu:" or "cpu:" before the name of an OpenCL platform, for its graphics cards or its
+ * processors: see PVOpenCL::lines_platform().
+ */
+extern PVKERNEL_EXPORT const PVSetting<QString> lines_platform;
 
 } // namespace PVCore::settings
 
