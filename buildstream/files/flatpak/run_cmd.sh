@@ -15,11 +15,21 @@ if ! mkdir -p "$OCL_ICD_VENDORS" 2> /dev/null; then
 	mkdir -p "$OCL_ICD_VENDORS"
 fi
 
-# Anchored, dash included: as a regular expression "nvidia-*" matches any name
-# containing "nvidia", and the devcontainer mounts the driver next to a plain
-# "nvidia" alias of it, which would read as a second version.
-NVIDIA_VERSION_NAME=`ls $GL_TARGET_DIR|grep "^nvidia-"|sed -e "s/nvidia-//"`
-NVIDIA_VERSION=`echo $NVIDIA_VERSION_NAME | sed 's/-/./g'`
+# The NVIDIA userspace has to be that of the kernel module, version for version,
+# and the flatpak mounts that one alone. The sandbox and the devcontainer lay the
+# GL runtime out at the top of GL instead, and with it the empty directories it
+# ships as mount points for some driver versions, next to the driver they bring
+# and its plain "nvidia" alias: one of them read as a second version, and the
+# vendor file then named no library at all. Only a directory holding the OpenCL
+# library counts, that of the module when the module tells its version.
+NVIDIA_MODULE_VERSION=$(cat /sys/module/nvidia/version 2> /dev/null)
+NVIDIA_VERSION_NAME=
+for nvidia_dir in "$GL_TARGET_DIR"/nvidia-*; do
+	compgen -G "$nvidia_dir/lib/libnvidia-opencl.so.*" > /dev/null || continue
+	NVIDIA_VERSION_NAME=${nvidia_dir##*/nvidia-}
+	[ "$NVIDIA_VERSION_NAME" = "${NVIDIA_MODULE_VERSION//./-}" ] && break
+done
+NVIDIA_VERSION=${NVIDIA_VERSION_NAME//-/.}
 
 # export PYTHONPATH
 PYTHON_VERSION=`python3 -c 'import sys; print(str(sys.version_info[0])+"."+str(sys.version_info[1]))'`
