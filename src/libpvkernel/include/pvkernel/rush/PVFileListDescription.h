@@ -33,8 +33,10 @@
 #include <QSettings>
 #include <QStringList>
 
+#include <algorithm>
 #include <memory>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace PVRush
@@ -44,6 +46,9 @@ namespace PVRush
  * Files that a source reads one after the other, such as Parquet files. A source of several of
  * them starts with a column naming the file of each row, unless disable_multi_inputs() says
  * otherwise.
+ *
+ * The description keeps which columns and rows of the files to import, for a source read again,
+ * from an investigation or a recent item, to hold what it held.
  */
 class PVFileListDescription : public PVFileDescription
 {
@@ -104,20 +109,33 @@ class PVFileListDescription : public PVFileDescription
 		return names;
 	}
 
+	/** The names of the columns to import, or none for all of them. */
+	const QStringList& columns() const { return _columns; }
+	void set_columns(QStringList columns) { _columns = std::move(columns); }
+
+	/** The SQL condition that the rows to import hold, or none for all of the rows. */
+	const QString& row_filter() const { return _row_filter; }
+	void set_row_filter(QString row_filter) { _row_filter = std::move(row_filter); }
+
   private:
   	QStringList _paths;
+	QStringList _columns;
+	QString _row_filter;
 
   public:
 
 	bool operator==(const PVInputDescription& other) const override
 	{
 		auto const* o = dynamic_cast<const PVFileListDescription*>(&other);
-		return o != nullptr and _paths == o->_paths;
+		return o != nullptr and _paths == o->_paths and _columns == o->_columns and
+		       _row_filter == o->_row_filter;
 	}
 
 	void save_to_qsettings(QSettings& settings) const override
 	{
 		settings.setValue("paths", _paths);
+		settings.setValue("columns", _columns);
+		settings.setValue("row_filter", _row_filter);
 	}
 
 	static std::vector<std::string> desc_from_qsetting(QSettings const& s)
@@ -131,13 +149,26 @@ class PVFileListDescription : public PVFileDescription
 		for (const QString& path : paths) {
 			res.push_back(path.toStdString());
 		}
+
+		// After an empty field, which no path is: the row filter, then the columns.
+		const QStringList columns = s.value("columns").toStringList();
+		const QString row_filter = s.value("row_filter").toString();
+		if (not columns.isEmpty() or not row_filter.isEmpty()) {
+			res.emplace_back();
+			res.push_back(row_filter.toStdString());
+			for (const QString& column : columns) {
+				res.push_back(column.toStdString());
+			}
+		}
 		return res;
 	}
 
 	static std::unique_ptr<PVInputDescription> load_from_string(pvcop::db::format const& fields,
 	                                                            bool /*multi_inputs*/)
 	{
-		return std::unique_ptr<PVFileListDescription>(new PVFileListDescription(paths_of(fields)));
+		auto description = std::make_unique<PVFileListDescription>(paths_of(fields));
+		description->read_filters(fields);
+		return description;
 	}
 
 	/** The paths of the files of the description that load_from_string() makes of @p fields. */
@@ -145,9 +176,26 @@ class PVFileListDescription : public PVFileDescription
 	{
 		QStringList paths;
 		for (const std::string& field : fields) {
+			if (field.empty()) {
+				break;
+			}
 			paths << QString::fromStdString(field);
 		}
 		return paths;
+	}
+
+	/** Sets the columns and the row filter to those of @p fields, of desc_from_qsetting(). */
+	void read_filters(pvcop::db::format const& fields)
+	{
+		auto field = std::find(fields.begin(), fields.end(), std::string());
+		if (field == fields.end() or ++field == fields.end()) {
+			return;
+		}
+		_row_filter = QString::fromStdString(*field);
+		_columns.clear();
+		while (++field != fields.end()) {
+			_columns << QString::fromStdString(*field);
+		}
 	}
 
   public:
@@ -155,11 +203,25 @@ class PVFileListDescription : public PVFileDescription
 	{
 		so.set_current_status("Saving source file information...");
 		so.attribute_write("files_path", _paths);
+		so.attribute_write("columns", _columns);
+		so.attribute_write("row_filter", _row_filter);
 	}
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
 	{
-		return std::unique_ptr<PVInputDescription>(new PVFileListDescription(read_paths(so)));
+		auto description = std::make_unique<PVFileListDescription>(read_paths(so));
+		description->read_filters(so);
+		return description;
+	}
+
+	/**
+	 * Sets the columns and the row filter to those serialize_write() wrote to @p so, which an
+	 * investigation saved before them does not hold: it imports all of the rows and columns.
+	 */
+	void read_filters(PVCore::PVSerializeObject& so)
+	{
+		_columns = so.attribute_read<QStringList>("columns");
+		_row_filter = so.attribute_read<QString>("row_filter");
 	}
 
 	/**

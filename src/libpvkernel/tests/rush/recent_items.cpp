@@ -234,6 +234,52 @@ UNICODE_MAIN()
 	}
 
 	// -------------------------------------------------------------------------
+	// The columns and the rows a source imports come back with it
+	// -------------------------------------------------------------------------
+	{
+		PVRush::PVSourceCreator_p sc =
+		    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("parquet");
+		recents.clear(PVCore::Category::SOURCES);
+
+		const QStringList paths{QString::fromStdString(parquet_file1)};
+		PVRush::PVInputType::list_inputs chosen_inputs;
+		const PVRush::PVFormat format = build_parquet_source(paths, chosen_inputs);
+		auto& chosen = static_cast<PVRush::PVFileListDescription&>(*chosen_inputs.front());
+		chosen.set_columns({"id", "dns.rrname"});
+		chosen.set_row_filter(R"("dns.rrname" LIKE '%.org' AND id > 2)");
+		recents.add_source(sc, chosen_inputs, format);
+
+		// The same file, whole, is another source.
+		PVRush::PVInputType::list_inputs whole_inputs;
+		recents.add_source(sc, whole_inputs, build_parquet_source(paths, whole_inputs));
+
+		std::vector<PVCore::PVSerializedSource> sources =
+		    recents.get_list<PVCore::Category::SOURCES>();
+		PV_VALID(sources.size(), size_t(2));
+		// The most recent first.
+		const PVCore::PVSerializedSource& ss = sources.back();
+		PV_VALID(ss.input_desc.front().front(), parquet_file1);
+		auto [label, filenames] = recents.get_string_from_entry(ss);
+		PV_VALID(filenames.size(), qsizetype(1));
+		// The description makes the path absolute, which the packaged testsuite of Windows and
+		// macOS gives relative.
+		PV_VALID(label.toStdString(),
+		         QDir().absoluteFilePath(QString::fromStdString(parquet_file1)).toStdString());
+
+		PVRush::PVSourceDescription sd(ss);
+		auto* rebuilt = dynamic_cast<PVRush::PVFileListDescription*>(sd.get_inputs()[0].get());
+		PV_ASSERT_VALID(rebuilt != nullptr);
+		PV_VALID(rebuilt->paths().join(",").toStdString(), paths.join(",").toStdString());
+		PV_VALID(rebuilt->columns().join(",").toStdString(), std::string("id,dns.rrname"));
+		PV_VALID(rebuilt->row_filter().toStdString(), chosen.row_filter().toStdString());
+		PV_ASSERT_VALID(*rebuilt == chosen);
+
+		// The fields after the paths name no file that could be missing.
+		recents.clear_missing_files();
+		PV_VALID(recents.get_list<PVCore::Category::SOURCES>().size(), size_t(2));
+	}
+
+	// -------------------------------------------------------------------------
 	// Parquet multi-file source (concatenation: a single input holding every path)
 	// -------------------------------------------------------------------------
 	{

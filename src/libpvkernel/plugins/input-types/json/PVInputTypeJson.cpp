@@ -140,14 +140,20 @@ PVRush::PVFormat PVRush::PVInputTypeJson::get_format_from_inputs(list_inputs con
 
 PVRush::PVInputDescription_p PVRush::PVInputTypeJson::serialize_read(PVCore::PVSerializeObject& so)
 {
-	return std::make_shared<PVJsonFileDescription>(PVFileListDescription::read_paths(so));
+	auto input_desc =
+	    std::make_shared<PVJsonFileDescription>(PVFileListDescription::read_paths(so));
+	input_desc->read_filters(so);
+	return input_desc;
 }
 
 PVRush::PVInputDescription_p
 PVRush::PVInputTypeJson::load_input_from_string(pvcop::db::format const& fields,
                                                 bool /*multi_inputs*/)
 {
-	return std::make_shared<PVJsonFileDescription>(PVFileListDescription::paths_of(fields));
+	auto input_desc =
+	    std::make_shared<PVJsonFileDescription>(PVFileListDescription::paths_of(fields));
+	input_desc->read_filters(fields);
+	return input_desc;
 }
 
 QStringList PVRush::PVInputTypeJson::get_supported_extensions() const
