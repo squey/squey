@@ -34,10 +34,12 @@
  */
 
 #include "../../plugins/common/json/PVJsonFileDescription.h"
+#include "../../plugins/common/json/PVJsonLines.h"
 #include "../../plugins/common/json/PVJsonSchema.h"
 #include "../../plugins/common/parquet/PVParquetAPI.h"
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
+#include <pvkernel/core/PVStreamingCompressor.h>
 #include <pvkernel/core/squey_assert.h>
 
 #include "common.h"
@@ -47,9 +49,11 @@
 
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QTemporaryDir>
 
 #include <memory>
+#include <random>
 #include <string>
 #include <vector>
 
@@ -93,10 +97,12 @@ std::string columns_of(const PVRush::PVJsonSchema& schema)
 
 /**
  * Imports @p input_desc into @p nraw.
+ *
+ * @return the bytes of the files that the progress of the import counted
  */
-void import(std::shared_ptr<PVRush::PVJsonFileDescription> input_desc,
-            const PVRush::PVJsonSchema& schema,
-            PVRush::PVNraw& nraw)
+size_t import(std::shared_ptr<PVRush::PVJsonFileDescription> input_desc,
+              const PVRush::PVJsonSchema& schema,
+              PVRush::PVNraw& nraw)
 {
 	std::vector<size_t> column_indexes;
 	PVRush::PVFormat format(PVRush::PVParquetAPI::format_of(
@@ -109,6 +115,7 @@ void import(std::shared_ptr<PVRush::PVJsonFileDescription> input_desc,
 	    format, output, LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("json"),
 	    inputs);
 	extractor.process_from_agg_idxes(0, IMPORT_PIPELINE_ROW_COUNT_LIMIT)->wait_end();
+	return output.get_out_size();
 }
 
 boost::posix_time::ptime
@@ -308,6 +315,115 @@ void check_lines(const QDir& root)
 	PV_VALID(nraw.column(PVCol(0)).at(2), std::string("last"));
 }
 
+/** Writes @p content to @p path, compressed by the compression of its extension. */
+void compress(const QString& path, const std::string& content)
+{
+	PVCore::PVStreamingCompressor compressor(path.toStdString());
+	compressor.write(content);
+	compressor.wait_finished();
+}
+
+/**
+ * Files compressed by each of the compressions that the lines are decompressed from: their rows
+ * are those of the files they hold, after those of a file that is not compressed, and the
+ * progress of their reading and of their import counts the bytes of the files as they are on
+ * disk, those of a file of no line included. A line can be longer than the blocks the lines are
+ * read by, and a file that cannot be decompressed is named by the error.
+ */
+void check_compressed(const QDir& root)
+{
+	// More than a pipe holds, for the decompression to give the data in parts, which cut lines.
+	constexpr const size_t ROW_COUNT = 20000;
+	const auto line_of = [](size_t row) {
+		return R"({"n": )" + std::to_string(row) + R"(, "s": "v)" + std::to_string(row) + "\"}";
+	};
+	std::string content;
+	for (size_t row = 0; row < ROW_COUNT; row++) {
+		content += line_of(row) + "\n";
+	}
+	const QString plain = root.filePath("plain.json");
+	write(plain, QByteArray::fromStdString(content));
+	// Lines that compress little, then one longer than the blocks the lines are read by that
+	// compresses well: the bytes of the file for each byte of data drop, and those read must not.
+	constexpr const size_t RANDOM_COUNT = 50000;
+	std::mt19937 random(42);
+	std::string mixed;
+	for (size_t row = 0; row < RANDOM_COUNT; row++) {
+		mixed += R"({"r": )" + std::to_string(random()) + "}\n";
+	}
+	const std::string long_line = R"({"v": ")" + std::string(5 * 1024 * 1024, 'x') + "\"}";
+	mixed += long_line + "\n" + line_of(0);
+
+	for (const QString& compression : PVRush::PVJsonLines::compressions()) {
+		const std::string name = "compressed.json." + compression.toStdString();
+		const QString path = root.filePath(QString::fromStdString(name));
+		compress(path, content);
+		const auto size = size_t(QFileInfo(path).size());
+
+		PVRush::PVJsonLines lines(path);
+		size_t row = 0;
+		size_t bytes_read = 0;
+		while (const char* line = lines.next()) {
+			PV_VALID(std::string(line), line_of(row), "file", name, "row", row);
+			PV_ASSERT_VALID(lines.bytes_read() >= bytes_read and lines.bytes_read() <= size, "file",
+			                name, "row", row);
+			bytes_read = lines.bytes_read();
+			row++;
+		}
+		PV_VALID(row, ROW_COUNT, "file", name);
+		PV_VALID(lines.bytes_read(), size, "file", name);
+
+		const QString empty = root.filePath("empty.json." + compression);
+		compress(empty, {});
+		PVRush::PVJsonLines no_lines(empty);
+		PV_ASSERT_VALID(no_lines.next() == nullptr, "file", name);
+		PV_VALID(no_lines.bytes_read(), size_t(QFileInfo(empty).size()), "file", name);
+
+		const QString mixed_path = root.filePath("mixed.json." + compression);
+		compress(mixed_path, mixed);
+		PVRush::PVJsonLines mixed_lines(mixed_path);
+		row = 0;
+		bytes_read = 0;
+		while (const char* line = mixed_lines.next()) {
+			PV_ASSERT_VALID(mixed_lines.bytes_read() >= bytes_read, "file", name, "row", row);
+			bytes_read = mixed_lines.bytes_read();
+			if (row++ == RANDOM_COUNT) {
+				PV_ASSERT_VALID(line == long_line, "file", name);
+			}
+		}
+		PV_VALID(row, RANDOM_COUNT + 2, "file", name);
+		PV_VALID(mixed_lines.bytes_read(), size_t(QFileInfo(mixed_path).size()), "file", name);
+
+		const QStringList paths{plain, path};
+		const std::shared_ptr<const PVRush::PVJsonSchema> schema =
+		    PVRush::PVJsonSchema::infer(paths);
+		PV_VALID(columns_of(*schema), std::string("n:integer,s:text"), "file", name);
+		PV_VALID(schema->row_count(), 2 * ROW_COUNT, "file", name);
+		PVRush::PVNraw nraw;
+		PV_VALID(import(std::make_shared<PVRush::PVJsonFileDescription>(paths), *schema, nraw),
+		         content.size() + size, "file", name);
+		PV_VALID(size_t(nraw.row_count()), 2 * ROW_COUNT, "file", name);
+		for (PVRow nraw_row = 0; nraw_row < nraw.row_count(); nraw_row++) {
+			const bool compressed = nraw_row >= ROW_COUNT;
+			const size_t n = nraw_row - (compressed ? ROW_COUNT : 0);
+			PV_VALID(nraw.column(PVCol(0)).at(nraw_row),
+			         compressed ? name : std::string("plain.json"), "row", nraw_row);
+			PV_VALID(nraw.column(PVCol(1)).at(nraw_row), std::to_string(n), "row", nraw_row);
+			PV_VALID(nraw.column(PVCol(2)).at(nraw_row), "v" + std::to_string(n), "row", nraw_row);
+		}
+	}
+
+	const QString broken = root.filePath("broken.json.gz");
+	write(broken, QByteArray(1024 * 1024, 'x'));
+	std::string error;
+	try {
+		PVRush::PVJsonSchema::infer({broken});
+	} catch (const std::runtime_error& e) {
+		error = e.what();
+	}
+	PV_ASSERT_VALID(error.find(broken.toStdString()) != std::string::npos, "error", error);
+}
+
 } // namespace
 
 UNICODE_MAIN()
@@ -326,6 +442,7 @@ UNICODE_MAIN()
 	check_schema_kept(root);
 	check_columns(root);
 	check_lines(root);
+	check_compressed(root);
 
 	return 0;
 }

@@ -37,7 +37,8 @@ namespace PVRush
 class PVJsonFileDescription;
 
 /**
- * Files of one JSON object per line, such as JSON Lines, whose fields are the axes.
+ * Files of one JSON object per line, such as JSON Lines, whose fields are the axes. Compressed
+ * files are decompressed as they are read.
  */
 class PVInputTypeJson : public PVInputTypeFileList
 {
@@ -51,6 +52,7 @@ class PVInputTypeJson : public PVInputTypeFileList
 	QString human_name() const override;
 	QString human_name_serialize() const override;
 	QString internal_name() const override;
+	/** Those of JSON files, and the same followed by those of PVJsonLines::compressions(). */
 	QStringList get_supported_extensions() const override;
 	QString menu_input_name() const override;
 

@@ -84,12 +84,16 @@ int main()
 	expect_importer("/tmp/traffic.csv.gz", "file");
 	expect_importer("/tmp/traffic.csv.zst", "file");
 	expect_importer("/tmp/traffic.tsv.bz2", "file");
+	expect_importer("/tmp/eve.json.gz", "json");
+	expect_importer("/tmp/events.jsonl.zip", "json");
+	expect_importer("/tmp/eve.ndjson.xz", "json");
 
 	// Extensions come in whatever case the system that wrote them used.
 	expect_importer("/tmp/TRAFFIC.CSV", "file");
 	expect_importer("/tmp/Capture.PcapNG", "pcap");
 	expect_importer("/tmp/EVENTS.JSONL", "json");
 	expect_importer("/tmp/traffic.CSV.GZ", "file");
+	expect_importer("/tmp/EVE.JSON.ZST", "json");
 
 	// Names with dots of their own are not extensions: only the components that
 	// match are used, one at a time, from the longest.

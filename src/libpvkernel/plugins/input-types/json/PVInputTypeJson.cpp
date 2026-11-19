@@ -27,6 +27,7 @@
 
 #include "../../common/arrow/PVArrowRowFilter.h"
 #include "../../common/json/PVJsonFileDescription.h"
+#include "../../common/json/PVJsonLines.h"
 #include "../../common/json/PVJsonSchema.h"
 #include "../../common/parquet/PVParquetAPI.h"
 
@@ -50,7 +51,11 @@ QString PVRush::PVInputTypeJson::files_dialog_title() const
 
 QString PVRush::PVInputTypeJson::files_dialog_filter() const
 {
-	return tr("JSON files of one object per line (*.json *.jsonl *.ndjson)");
+	QStringList patterns;
+	for (const QString& extension : get_supported_extensions()) {
+		patterns << "*." + extension;
+	}
+	return tr("JSON files of one object per line (%1)").arg(patterns.join(' '));
 }
 
 bool PVRush::PVInputTypeJson::find_schema(PVJsonFileDescription& input_desc) const
@@ -189,7 +194,15 @@ PVRush::PVInputTypeJson::load_input_from_string(pvcop::db::format const& fields,
 
 QStringList PVRush::PVInputTypeJson::get_supported_extensions() const
 {
-	return {"json", "jsonl", "ndjson"};
+	const QStringList compressions = PVJsonLines::compressions();
+	QStringList extensions;
+	for (const QString extension : {"json", "jsonl", "ndjson"}) {
+		extensions << extension;
+		for (const QString& compression : compressions) {
+			extensions << extension + "." + compression;
+		}
+	}
+	return extensions;
 }
 
 QString PVRush::PVInputTypeJson::name() const
