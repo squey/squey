@@ -291,6 +291,7 @@ add_squey_test(Trush_logstats Trush_logstats)
 
 set(PARQUET_SRC_FILES
 ../../plugins/common/parquet/PVParquetAPI.cpp
+../../plugins/input-types/parquet/PVParquetExporterBase.cpp
 ../../plugins/input-types/parquet/PVParquetExporter.cpp
 )
 

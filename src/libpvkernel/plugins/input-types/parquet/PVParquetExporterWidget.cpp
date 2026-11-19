@@ -23,18 +23,18 @@
  */
 
 #include "parquet/PVParquetExporterWidget.h"
-#include "parquet/PVParquetExporter.h"
-#include "../../common/parquet/PVParquetAPI.h"
 
 #include <QComboBox>
 #include <QLabel>
 #include <QVBoxLayout>
 
-#include <arrow/io/api.h>
 #include <arrow/util/compression.h>
 
-PVWidgets::PVParquetExporterWidget::PVParquetExporterWidget(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw)
-    : _exporter(new PVRush::PVParquetExporter(inputs, nraw))
+#include <algorithm>
+#include <utility>
+
+PVWidgets::PVParquetExporterWidget::PVParquetExporterWidget(std::unique_ptr<PVRush::PVParquetExporterBase> exporter, arrow::Compression::type codec)
+    : _exporter(std::move(exporter))
 {
     QHBoxLayout* compression_codecs_layout = new QHBoxLayout;
 
@@ -45,28 +45,16 @@ PVWidgets::PVParquetExporterWidget::PVParquetExporterWidget(const PVRush::PVInpu
     compression_codecs_layout->addWidget(compression_codecs_combobox);
     compression_codecs_layout->addStretch();
 
-    for (arrow::Compression::type codec : PVRush::PVParquetExporter::compression_codecs()) {
-        compression_codecs_combobox->addItem(QString::fromStdString(arrow::util::Codec::GetCodecAsString(codec)), QVariant((int)codec));
+    for (arrow::Compression::type supported_codec : PVRush::PVParquetExporterBase::compression_codecs()) {
+        compression_codecs_combobox->addItem(QString::fromStdString(arrow::util::Codec::GetCodecAsString(supported_codec)), QVariant((int)supported_codec));
     }
 
-    QObject::connect(compression_codecs_combobox, &QComboBox::currentIndexChanged, [this,compression_codecs_combobox](int /*index*/) {
-        PVRush::PVParquetExporter* parquet_exporter = static_cast<PVRush::PVParquetExporter*>(_exporter.get());
-        parquet_exporter->set_compression_codec((arrow::Compression::type)compression_codecs_combobox->currentData(Qt::UserRole).toInt()); 
-    });
-
-    // Set the default compression codec the same as the one used on the input file
-    try {
-        PVRush::PVParquetFileDescription* input_desc = dynamic_cast<PVRush::PVParquetFileDescription*>(inputs.front().get());
-        PVRush::PVParquetAPI api(input_desc);
-        arrow::Compression::type used_codec = api.arrow_reader()->parquet_reader()->metadata()->RowGroup(0)->ColumnChunk(0)->compression();
-        int used_codec_index = compression_codecs_combobox->findData(QVariant((int) used_codec));
-        if (used_codec_index != -1) {
-            compression_codecs_combobox->setCurrentIndex(used_codec_index);
-        }
-    }
-    catch (...) {
-        // let the exception raise during the export
-    }
+    const auto select_codec = [this, compression_codecs_combobox]() {
+        _exporter->set_compression_codec((arrow::Compression::type)compression_codecs_combobox->currentData(Qt::UserRole).toInt());
+    };
+    compression_codecs_combobox->setCurrentIndex(std::max(compression_codecs_combobox->findData(QVariant((int)codec)), 0));
+    select_codec();
+    QObject::connect(compression_codecs_combobox, &QComboBox::currentIndexChanged, select_codec);
 
     setLayout(compression_codecs_layout);
 }

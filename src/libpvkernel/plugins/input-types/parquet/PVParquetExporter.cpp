@@ -28,40 +28,14 @@
 #include <arrow/api.h>
 #include <arrow/io/api.h>
 #include <arrow/io/file.h>
-#include <arrow/filesystem/localfs.h>
 #include <arrow/compute/api.h>
-#include <arrow/util/compression.h>
 #include <parquet/arrow/reader.h>
 #include <parquet/arrow/writer.h>
-#include <parquet/types.h>
 
 #include <algorithm>
-#include <cstdint>
-#include <limits>
 #include <stdexcept>
 #include <string>
-#include <utility>
 #include <vector>
-
-/**
- * @throw PVRush::PVExportError if @p status reports a failure, which the export dialogs show
- */
-static void check(const arrow::Status& status)
-{
-    if (not status.ok()) {
-        throw PVRush::PVExportError(status.ToString());
-    }
-}
-
-/**
- * @throw PVRush::PVExportError if @p result is a failure
- */
-template <typename T>
-static T value_of(arrow::Result<T> result)
-{
-    check(result.status());
-    return std::move(result).ValueUnsafe();
-}
 
 /**
  * @throw PVRush::PVExportError if the first file of @p input_desc cannot be read
@@ -225,28 +199,6 @@ PVRush::PVParquetExporter::PVParquetExporter(const PVRush::PVInputType::list_inp
 {
 }
 
-std::vector<arrow::Compression::type> PVRush::PVParquetExporter::compression_codecs()
-{
-    std::vector<arrow::Compression::type> codecs;
-    for (int i = 0; i < std::numeric_limits<uint8_t>::max(); i++) {
-        const auto codec = arrow::Compression::type(i);
-        if (arrow::util::Codec::IsAvailable(codec) and parquet::IsCodecSupported(codec)) {
-            codecs.push_back(codec);
-        }
-    }
-    return codecs;
-}
-
-void PVRush::PVParquetExporter::set_columns(const PVCore::PVColumnIndexes& columns)
-{
-    _columns.clear();
-    for (PVCol column : columns) {
-        if (std::find(_columns.begin(), _columns.end(), column) == _columns.end()) {
-            _columns.push_back(column);
-        }
-    }
-}
-
 void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const PVCore::PVSelBitField & sel)
 {
     PVRush::PVParquetFileDescription* input_desc = dynamic_cast<PVRush::PVParquetFileDescription*>(_inputs.front().get());
@@ -256,11 +208,6 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
         throw PVRush::PVExportError("Cannot overwrite an input file during export.");
     }
 
-    std::shared_ptr<parquet::WriterProperties> parquet_props = parquet::WriterProperties::Builder().compression(compression_codec())->build();
-    std::shared_ptr<parquet::ArrowWriterProperties> arrow_props = parquet::ArrowWriterProperties::Builder().store_schema()->build();
-    std::shared_ptr<arrow::fs::FileSystem> fs = value_of(arrow::fs::FileSystemFromUri("file:///"));
-    auto output_stream = value_of(fs->OpenOutputStream(out_path));
-    std::shared_ptr<arrow::io::FileOutputStream> file_output_stream = std::dynamic_pointer_cast<arrow::io::FileOutputStream>(output_stream);
     std::unique_ptr<parquet::arrow::FileWriter> writer;
 
     const PVCore::PVSelBitField::pvcop_selection_t& selected_rows = (const PVCore::PVSelBitField::pvcop_selection_t&) sel;
@@ -284,7 +231,7 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
             std::shared_ptr<arrow::Schema> schema;
             check(api.arrow_reader()->GetSchema(&schema));
             exported_schema = _columns.empty() ? viewless_schema(schema) : projected_schema(schema, sources);
-            writer = value_of(parquet::arrow::FileWriter::Open(*exported_schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props));
+            writer = open(out_path, exported_schema);
         }
 
         auto recordbatch_reader = value_of(api.arrow_reader()->GetRecordBatchReader());
@@ -326,10 +273,7 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
                 if (_f_progress) {
                     _f_progress(exported_rows_count += indexes->length());
                 }
-                if (_canceled) {
-                    check(writer->Close());
-                    std::remove(out_path.c_str());
-                    _canceled = false;
+                if (close_if_canceled(*writer, out_path)) {
                     canceled = true;
                     return;
                 }

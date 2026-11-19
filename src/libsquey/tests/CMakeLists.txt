@@ -80,6 +80,7 @@ find_package(re2 REQUIRED)
 set(PARQUET_LIBS Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
 set(PARQUET_SRC_FILES
 ../../libpvkernel/plugins/common/parquet/PVParquetAPI.cpp
+../../libpvkernel/plugins/input-types/parquet/PVParquetExporterBase.cpp
 ../../libpvkernel/plugins/input-types/parquet/PVParquetExporter.cpp
 )
 add_squey_compile_test(Tsquey_duckdb_null_strings LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES duckdb_null_strings.cpp ${COMMON_FILES} ${PARQUET_SRC_FILES})

@@ -147,7 +147,17 @@ PVWidgets::PVExporterWidgetInterface*
 PVRush::PVInputTypeParquet::create_exporter_widget(const list_inputs& inputs,
                                                    PVRush::PVNraw const& nraw) const
 {
-	return new PVWidgets::PVParquetExporterWidget(inputs, nraw);
+	// The codec of the input, unless it cannot be read anymore, which the export then reports.
+	arrow::Compression::type codec = arrow::Compression::UNCOMPRESSED;
+	try {
+		auto* input_desc = dynamic_cast<PVParquetFileDescription*>(inputs.front().get());
+		PVParquetAPI api(input_desc);
+		codec = api.arrow_reader()->parquet_reader()->metadata()->RowGroup(0)->ColumnChunk(0)->compression();
+	} catch (...) {
+	}
+
+	return new PVWidgets::PVParquetExporterWidget(std::make_unique<PVParquetExporter>(inputs, nraw),
+	                                              codec);
 }
 
 std::unique_ptr<PVRush::PVExporterBase>
