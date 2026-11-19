@@ -112,7 +112,8 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	const QStringList column_names = view.get_axes_combination().get_nraw_names();
 	for (const auto& type : LIB_CLASS(PVRush::PVInputType)::get().get_list()) {
 		const QString filter = type.value()->get_nraw_exporter_filter_string();
-		if (type.key() != source_type_name and not filter.isEmpty() and
+		// That of the type of the source too, if this type has no exporter for these inputs.
+		if ((type.key() != source_type_name or not has_source_exporter) and not filter.isEmpty() and
 		    not pages.contains(filter)) {
 			add_page(filter, type.value()->create_nraw_exporter_widget(nraw, column_names),
 			         PVAxesCombinationExportWidget::Choice::Current,

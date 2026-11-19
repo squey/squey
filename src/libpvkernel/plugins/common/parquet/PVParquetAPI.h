@@ -86,12 +86,14 @@ class PVParquetAPI
 
 	/**
 	 * The format of the rows of @p schema, whose structures are flattened: an axis for each field
-	 * of a type Squey imports, after one for the names of the inputs if @p multi_inputs. Appends
-	 * the index of the flattened field of each of these axes to @p column_indexes.
+	 * of a type Squey imports, after one for the names of the inputs if @p multi_inputs. Only the
+	 * fields named @p columns have one, unless it is empty. Appends the index of the flattened
+	 * field of each of these axes to @p column_indexes.
 	 */
 	static QDomDocument format_of(const std::shared_ptr<arrow::Schema>& schema,
 	                              bool multi_inputs,
-	                              std::vector<size_t>& column_indexes);
+	                              std::vector<size_t>& column_indexes,
+	                              const QStringList& columns = {});
 
   public:
 	QDomDocument get_format();

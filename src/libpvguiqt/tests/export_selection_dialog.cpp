@@ -39,6 +39,7 @@
 
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/squey_assert.h>
+#include <pvkernel/rush/PVFileListDescription.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 
@@ -81,9 +82,11 @@ Squey::PVView& view_of(Squey::PVSource& source)
 }
 
 /**
- * Imports the parquet file @p path, as the main window imports its sample dataset.
+ * Imports the rows of the parquet file @p path that @p row_filter keeps, as the main window
+ * imports its sample dataset.
  */
-Squey::PVSource& import_parquet(Squey::PVRoot& root, QString const& path)
+Squey::PVSource&
+import_parquet(Squey::PVRoot& root, QString const& path, QString const& row_filter = {})
 {
 	const PVRush::PVInputType_p type =
 	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("parquet");
@@ -92,6 +95,7 @@ Squey::PVSource& import_parquet(Squey::PVRoot& root, QString const& path)
 	const QString params =
 	    QJsonDocument(QJsonObject{{"paths", QJsonArray{path}}}).toJson(QJsonDocument::Compact);
 	PV_ASSERT_VALID(type->create_source_description_params(params, inputs, format));
+	static_cast<PVRush::PVFileListDescription&>(*inputs.front()).set_row_filter(row_filter);
 
 	Squey::PVSource& source = root.emplace_add_child("parquet").emplace_add_child(
 	    inputs, LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("parquet"), format);
@@ -162,6 +166,18 @@ int main(int argc, char** argv)
 		PV_VALID(dialog.selectedNameFilter().toStdString(), std::string(PARQUET));
 		PV_VALID(choices_of_all(dialog, "Use all the columns of the file"), 1);
 		PV_VALID(choices_of_all(dialog, "Use all axes combination"), 1);
+		PV_VALID(dialog.exporter().exports_columns(), true);
+	}
+
+	{
+		// Its rows filtered, a parquet source is exported from its NRAW, as one of another type.
+		Squey::PVSource& filtered_source = import_parquet(root, exported, "axis3 > 3");
+		PV_VALID(size_t(filtered_source.get_rushnraw().row_count()), size_t(1));
+		PVGuiQt::PVExportSelectionDlg dialog(view_of(filtered_source));
+		PV_VALID(dialog.nameFilters().count(PARQUET), qsizetype(1));
+		PV_VALID(choices_of_all(dialog, "Use all the columns of the file"), 0);
+		PV_VALID(choices_of_all(dialog, "Use all axes combination"), 2);
+		Q_EMIT dialog.filterSelected(PARQUET);
 		PV_VALID(dialog.exporter().exports_columns(), true);
 	}
 

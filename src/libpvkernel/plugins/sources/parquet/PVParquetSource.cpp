@@ -26,18 +26,40 @@
 #include "PVParquetSource.h"
 
 #include <arrow/api.h>
+#include <arrow/compute/api.h>
 #include <parquet/arrow/reader.h>
 #include <parquet/file_reader.h>
 #include <parquet/metadata.h>
 #include <qfileinfo.h>
 #include <algorithm>
 #include <numeric>
+#include <stdexcept>
 #include <utility>
 
 #include "PVParquetBinaryChunk.h"
 #include "parquet/PVParquetAPI.h"
+#include "../../common/arrow/PVArrowRowFilter.h"
 #include <pvkernel/rush/PVFileListDescription.h>
 #include "pvkernel/rush/PVInputDescription.h"
+
+namespace
+{
+
+void check(const arrow::Status& status)
+{
+	if (not status.ok()) {
+		throw std::runtime_error(status.ToString());
+	}
+}
+
+template <typename T>
+T value_of(arrow::Result<T> result)
+{
+	check(result.status());
+	return std::move(result).ValueUnsafe();
+}
+
+} // namespace
 
 PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
     : _input_desc(reinterpret_cast<PVRush::PVFileListDescription*>(input.get()))
@@ -67,12 +89,23 @@ PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
 	_source_size = source_row_count * PVParquetBinaryChunk::MEGA;
 
 	_is_bit_optimizable = _api.is_bit_optimizable();
+
+	if (not _input_desc->row_filter().isEmpty()) {
+		_row_filter = std::make_unique<PVArrowRowFilter>(_input_desc->row_filter().toStdString());
+		std::shared_ptr<arrow::Schema> schema;
+		check(_api.arrow_reader()->GetSchema(&schema));
+		const arrow::FieldVector fields = PVParquetAPI::flatten_schema(schema)->fields();
+		for (int column = 0; column < int(fields.size()); column++) {
+			if (PVParquetAPI::pvcop_types_map.contains(fields[size_t(column)]->type()->storage_id())) {
+				_filtered_columns.push_back(column);
+			}
+		}
+		_input_names = _input_desc->input_names();
+	}
 }
 
-PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
+std::shared_ptr<arrow::Table> PVRush::PVParquetSource::next_table()
 {
-	bool multi_inputs = _api.multi_inputs();
-
 	if (_recordbatch_reader == nullptr) {
 		arrow::Status status = _api.arrow_reader()->GetRecordBatchReader().Value(&_recordbatch_reader);
 		if (not status.ok()) {
@@ -124,11 +157,56 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 		pvlogger::error() << status.ToString() << std::endl;
 		return nullptr;
 	}
-	std::shared_ptr<arrow::Table> flat_table = _api.flatten_table(table);
+	_source_start_row += record_row_count;
+
+	return _api.flatten_table(table);
+}
+
+std::shared_ptr<arrow::Table>
+PVRush::PVParquetSource::kept_rows(const std::shared_ptr<arrow::Table>& flat_table)
+{
+	// The condition reads the columns of the types the import knows, and the names of the files.
+	std::shared_ptr<arrow::Table> rows = value_of(flat_table->SelectColumns(_filtered_columns));
+	if (_api.multi_inputs()) {
+		const std::shared_ptr<arrow::Array> names = value_of(arrow::MakeArrayFromScalar(
+		    arrow::StringScalar(_input_names[qsizetype(_current_file_index)].toStdString()),
+		    rows->num_rows()));
+		rows = value_of(rows->AddColumn(
+		    0, arrow::field(PVParquetAPI::input_column_name, arrow::utf8()),
+		    std::make_shared<arrow::ChunkedArray>(names)));
+	}
+	return value_of(arrow::compute::Take(flat_table, _row_filter->matching_rows(rows))).table();
+}
+
+PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
+{
+	bool multi_inputs = _api.multi_inputs();
+
+	// The rows read, those that the row filter left out included, for the progress to count them.
+	size_t read_row_count = 0;
+	std::shared_ptr<arrow::Table> flat_table;
+	try {
+		do {
+			flat_table = next_table();
+			if (flat_table == nullptr) {
+				return nullptr;
+			}
+			read_row_count += size_t(flat_table->num_rows());
+			if (_row_filter != nullptr) {
+				flat_table = kept_rows(flat_table);
+			}
+		} while (flat_table->num_rows() == 0);
+	} catch (const std::exception& e) {
+		pvlogger::error() << e.what() << std::endl;
+		return nullptr;
+	}
+	const size_t record_row_count = size_t(flat_table->num_rows());
 
 	PVRush::PVParquetBinaryChunk* chunk = new PVRush::PVParquetBinaryChunk(
 		multi_inputs,
-		_is_bit_optimizable,
+		// Filtered chunks have any count of rows, which keeps them from starting at a byte of the
+		// bits of the nulls.
+		_is_bit_optimizable and _row_filter == nullptr,
 		multi_inputs ? _input_name_indexes[_current_file_index] : 0,
 		flat_table,
 		_api.column_indexes(),
@@ -136,6 +214,7 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 		record_row_count,
 		_nraw_start_row
 	);
+	chunk->set_init_size(read_row_count * PVParquetBinaryChunk::MEGA);
 
 	// save column dictionaries
 	if (_save_dicts) {
@@ -148,7 +227,6 @@ PVCore::PVBinaryChunk* PVRush::PVParquetSource::operator()()
 		}
 	}
 
-	_source_start_row += record_row_count;
 	_nraw_start_row += record_row_count;
 
 	return chunk;

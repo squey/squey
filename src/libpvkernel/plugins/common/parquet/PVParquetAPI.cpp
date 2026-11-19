@@ -272,7 +272,7 @@ QDomDocument PVRush::PVParquetAPI::get_format()
 			return _format;
 		}
 
-		_format = format_of(arrow_schema, multi_inputs(), _column_indexes);
+		_format = format_of(arrow_schema, multi_inputs(), _column_indexes, _input_desc->columns());
 	}
 
 	return _format;
@@ -280,7 +280,8 @@ QDomDocument PVRush::PVParquetAPI::get_format()
 
 QDomDocument PVRush::PVParquetAPI::format_of(const std::shared_ptr<arrow::Schema>& schema,
                                              bool multi_inputs,
-                                             std::vector<size_t>& column_indexes)
+                                             std::vector<size_t>& column_indexes,
+                                             const QStringList& columns)
 {
 	QDomDocument format;
 
@@ -300,6 +301,9 @@ QDomDocument PVRush::PVParquetAPI::format_of(const std::shared_ptr<arrow::Schema
 		const std::shared_ptr<arrow::DataType>& data_type = field->type();
 		arrow::Type::type type = data_type->storage_id();
 
+		if (not columns.isEmpty() and not columns.contains(QString::fromStdString(field->name()))) {
+			continue;
+		}
 		if (pvcop_types_map.find(type) != pvcop_types_map.end()) {
 			PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
 				QString::fromStdString(field->name()),

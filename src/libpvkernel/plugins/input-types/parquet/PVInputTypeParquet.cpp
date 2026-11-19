@@ -95,10 +95,16 @@ PVWidgets::PVExporterWidgetInterface*
 PVRush::PVInputTypeParquet::create_exporter_widget(const list_inputs& inputs,
                                                    PVRush::PVNraw const& nraw) const
 {
+	// This exporter copies the rows of the files, which a condition on the rows makes others than
+	// those of the NRAW: the export of the NRAW writes these instead.
+	auto* input_desc = dynamic_cast<PVFileListDescription*>(inputs.front().get());
+	if (input_desc != nullptr and not input_desc->row_filter().isEmpty()) {
+		return nullptr;
+	}
+
 	// The codec of the input, unless it cannot be read anymore, which the export then reports.
 	arrow::Compression::type codec = arrow::Compression::UNCOMPRESSED;
 	try {
-		auto* input_desc = dynamic_cast<PVFileListDescription*>(inputs.front().get());
 		PVParquetAPI api(input_desc);
 		codec = api.arrow_reader()->parquet_reader()->metadata()->RowGroup(0)->ColumnChunk(0)->compression();
 	} catch (...) {

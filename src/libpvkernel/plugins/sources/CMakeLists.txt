@@ -85,6 +85,7 @@ target_link_libraries(source_pcap PRIVATE pvkernel pvpcap)
 
 # # Define ressources
 set(PARQUET_SRC_FILES
+	../common/arrow/PVArrowRowFilter.cpp
 	../common/parquet/PVParquetAPI.cpp
 	parquet/PVParquetSource.cpp
 	parquet/PVParquetBinaryChunk.cpp

@@ -97,6 +97,8 @@ set(JSON_SRC_FILES
 )
 add_squey_compile_test(Tsquey_json_import_filters LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES json_import_filters.cpp ${COMMON_FILES} ${JSON_SRC_FILES})
 add_squey_test(Tsquey_json_import_filters Tsquey_json_import_filters)
+add_squey_compile_test(Tsquey_parquet_import_filters LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES parquet_import_filters.cpp ${COMMON_FILES} ${PARQUET_SRC_FILES})
+add_squey_test(Tsquey_parquet_import_filters Tsquey_parquet_import_filters)
 
 # An address is exposed as the integer it is stored as, so the conversions that
 # bridge the two have to agree with pvcop's own formatter -- in both directions.
