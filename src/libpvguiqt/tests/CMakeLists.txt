@@ -89,5 +89,8 @@ add_squey_test(Tpvguiqt_export_selection_dialog Tpvguiqt_export_selection_dialog
 set_property(TEST SQUEY_TEST_Tpvguiqt_export_selection_dialog APPEND PROPERTY
 	ENVIRONMENT "SQUEY_CONFIG_DIR=export_selection_dialog_config")
 
+add_squey_compile_test(Tpvguiqt_json_input_type LINKS ${COMMON_LIBRARIES} FILES json_input_type.cpp common.cpp)
+add_squey_test(Tpvguiqt_json_input_type Tpvguiqt_json_input_type -platform offscreen)
+
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

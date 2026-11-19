@@ -143,6 +143,21 @@ qt6_wrap_cpp(PARQUET_MOC_SRC ${PARQUET_MOC_HEADERS} OPTIONS)
 add_library(input_type_parquet SHARED ${PARQUET_SRC} ${PARQUET_MOC_SRC})
 target_link_libraries(input_type_parquet PRIVATE pvkernel ${PARQUET_LIBS})
 
+################################################
+# JSON input plugin
+################################################
+# The format of the files is made by that of the Parquet files of their Arrow schema.
+set(JSON_SRC
+json/PVInputTypeJson.cpp
+../common/json/PVJsonLines.cpp
+../common/json/PVJsonSchema.cpp
+../common/parquet/PVParquetAPI.cpp
+json/register.cpp
+)
+
+add_library(input_type_json SHARED ${JSON_SRC})
+target_link_libraries(input_type_json PRIVATE pvkernel ${PARQUET_LIBS})
+
 ###############################################################################
 # Install plugins
 ###############################################################################
@@ -153,6 +168,7 @@ set(INPUTS_DIST_LIST
 	input_type_elasticsearch
 	input_type_pcap
 	input_type_parquet
+	input_type_json
 )
 
 install(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/input-types

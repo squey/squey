@@ -324,6 +324,14 @@ add_squey_compile_test(Trush_apache_parquet_export_file LINKS ${LINK_LIBRARIES} 
 add_squey_test(Trush_apache_parquet_export_file Trush_apache_parquet_export_file)
 add_squey_compile_test(Trush_apache_parquet_export_nraw LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_export_nraw.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_export_nraw Trush_apache_parquet_export_nraw)
+
+set(JSON_SRC_FILES
+../../plugins/common/json/PVJsonLines.cpp
+../../plugins/common/json/PVJsonSchema.cpp
+../../plugins/common/parquet/PVParquetAPI.cpp
+)
+add_squey_compile_test(Trush_json_import LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES json_import.cpp ${JSON_SRC_FILES})
+add_squey_test(Trush_json_import Trush_json_import)
 add_squey_compile_test(Trush_recent_items LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES recent_items.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/tiny.csv ${PVRUSH_TEST_FILES}/formats/tiny-with-ac-v10.csv.format ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/../../pvconfig.ini)
 # Isolate the recent items file (recents.ini) from the real user configuration.

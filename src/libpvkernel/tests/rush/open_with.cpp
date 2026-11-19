@@ -74,6 +74,9 @@ int main()
 	expect_importer("/tmp/capture.pcap", "pcap");
 	expect_importer("/tmp/capture.pcapng", "pcap");
 	expect_importer("/tmp/events.parquet", "parquet");
+	expect_importer("/tmp/events.json", "json");
+	expect_importer("/tmp/events.jsonl", "json");
+	expect_importer("/tmp/eve.ndjson", "json");
 
 	// A compressed file belongs to the importer of what it holds, not to the
 	// one of the container: its extension has two components, and only the
@@ -85,6 +88,7 @@ int main()
 	// Extensions come in whatever case the system that wrote them used.
 	expect_importer("/tmp/TRAFFIC.CSV", "file");
 	expect_importer("/tmp/Capture.PcapNG", "pcap");
+	expect_importer("/tmp/EVENTS.JSONL", "json");
 	expect_importer("/tmp/traffic.CSV.GZ", "file");
 
 	// Names with dots of their own are not extensions: only the components that
