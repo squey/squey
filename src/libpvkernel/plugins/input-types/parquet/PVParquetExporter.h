@@ -35,6 +35,8 @@
 
 #include <arrow/util/type_fwd.h>
 
+#include <vector>
+
 namespace PVRush
 {
 
@@ -57,6 +59,9 @@ class PVParquetExporter : public PVExporterBase
 	void set_columns(const PVCore::PVColumnIndexes& columns) override;
 
   public:
+	/** The codecs of Arrow that Parquet supports, which are the only ones writing a file. */
+	static std::vector<arrow::Compression::type> compression_codecs();
+
 	void set_compression_codec(arrow::Compression::type codec) { _compression_codec = codec; }
 	arrow::Compression::type compression_codec() const { return _compression_codec; }
 

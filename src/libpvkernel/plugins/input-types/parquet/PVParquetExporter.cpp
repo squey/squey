@@ -30,10 +30,14 @@
 #include <arrow/io/file.h>
 #include <arrow/filesystem/localfs.h>
 #include <arrow/compute/api.h>
+#include <arrow/util/compression.h>
 #include <parquet/arrow/reader.h>
 #include <parquet/arrow/writer.h>
+#include <parquet/types.h>
 
 #include <algorithm>
+#include <cstdint>
+#include <limits>
 #include <string>
 #include <vector>
 
@@ -185,6 +189,18 @@ static std::shared_ptr<arrow::RecordBatch> projected_record_batch(
 PVRush::PVParquetExporter::PVParquetExporter(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw)
     : _inputs(inputs), _nraw(nraw)
 {
+}
+
+std::vector<arrow::Compression::type> PVRush::PVParquetExporter::compression_codecs()
+{
+    std::vector<arrow::Compression::type> codecs;
+    for (int i = 0; i < std::numeric_limits<uint8_t>::max(); i++) {
+        const auto codec = arrow::Compression::type(i);
+        if (arrow::util::Codec::IsAvailable(codec) and parquet::IsCodecSupported(codec)) {
+            codecs.push_back(codec);
+        }
+    }
+    return codecs;
 }
 
 void PVRush::PVParquetExporter::set_columns(const PVCore::PVColumnIndexes& columns)

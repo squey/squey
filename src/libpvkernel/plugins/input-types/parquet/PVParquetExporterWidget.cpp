@@ -45,12 +45,8 @@ PVWidgets::PVParquetExporterWidget::PVParquetExporterWidget(const PVRush::PVInpu
     compression_codecs_layout->addWidget(compression_codecs_combobox);
     compression_codecs_layout->addStretch();
 
-    // Dynamically add all compression codecs supported by Apache Arrow
-    for (size_t i = 0; i < std::numeric_limits<uint8_t>::max(); i++) {
-        arrow::Compression::type codec = (arrow::Compression::type)i;
-        if (arrow::util::Codec::IsAvailable(codec)) {
-            compression_codecs_combobox->addItem(QString::fromStdString(arrow::util::Codec::GetCodecAsString(codec)), QVariant((int)codec));
-        }
+    for (arrow::Compression::type codec : PVRush::PVParquetExporter::compression_codecs()) {
+        compression_codecs_combobox->addItem(QString::fromStdString(arrow::util::Codec::GetCodecAsString(codec)), QVariant((int)codec));
     }
 
     QObject::connect(compression_codecs_combobox, &QComboBox::currentIndexChanged, [this,compression_codecs_combobox](int /*index*/) {
