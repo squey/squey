@@ -84,6 +84,15 @@ class PVParquetAPI
 	static std::shared_ptr<arrow::Schema> flatten_schema(const std::shared_ptr<arrow::Schema>& schema);
 	static std::shared_ptr<arrow::Table> flatten_table(const std::shared_ptr<arrow::Table>& table);
 
+	/**
+	 * The format of the rows of @p schema, whose structures are flattened: an axis for each field
+	 * of a type Squey imports, after one for the names of the inputs if @p multi_inputs. Appends
+	 * the index of the flattened field of each of these axes to @p column_indexes.
+	 */
+	static QDomDocument format_of(const std::shared_ptr<arrow::Schema>& schema,
+	                              bool multi_inputs,
+	                              std::vector<size_t>& column_indexes);
+
   public:
 	QDomDocument get_format();
 

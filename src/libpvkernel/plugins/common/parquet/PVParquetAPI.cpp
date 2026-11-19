@@ -272,55 +272,66 @@ QDomDocument PVRush::PVParquetAPI::get_format()
 			return _format;
 		}
 
-		std::shared_ptr<arrow::Schema> flattened_schema = flatten_schema(arrow_schema);
-		const arrow::FieldVector& fields = flattened_schema->fields();
-
-		std::unique_ptr<PVXmlTreeNodeDom> format_root(PVRush::PVXmlTreeNodeDom::new_format(_format));
-
-		if (multi_inputs()) {
-			format_root->addOneField(
-				input_column_name,
-				"string");
-		}
-
-		for (size_t i = 0; i < fields.size(); i++) {
-			std::shared_ptr<arrow::Field> field = fields[i];
-			const std::shared_ptr<arrow::DataType>& data_type = field->type();
-			arrow::Type::type type = data_type->storage_id();
-
-			if (pvcop_types_map.find(type) != pvcop_types_map.end()) {
-				PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
-					QString::fromStdString(field->name()),
-					QString::fromStdString(pvcop_types_map.at(type).string)
-				);
-				if (type == arrow::Type::type::TIMESTAMP) {
-					const QString& time_format = "yyyy-M-d HH:m:ss.S";
-					node->setAttribute(
-						PVFORMAT_AXIS_TYPE_FORMAT_STR,
-						time_format
-					);
-				}
-				else if (type == arrow::Type::type::DATE32) {
-					const QString& time_format = "yyyy-M-d";
-					node->setAttribute(
-						PVFORMAT_AXIS_TYPE_FORMAT_STR,
-						time_format
-					);
-				}
-				else if (std::string(pvcop_types_map.at(type).string) == "string") {
-					QDomElement mapping = _format.createElement(PVFORMAT_AXIS_MAPPING_STR);
-					mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, "string");
-					node->getDom().appendChild(mapping);
-				}
-				_column_indexes.emplace_back(i);
-			}
-			else {
-				pvlogger::warn() << "type '"  << data_type->name() << "/" << type << "' for column '" << field->name() << "' is not supported" << std::endl;
-			}
-		}
+		_format = format_of(arrow_schema, multi_inputs(), _column_indexes);
 	}
 
 	return _format;
+}
+
+QDomDocument PVRush::PVParquetAPI::format_of(const std::shared_ptr<arrow::Schema>& schema,
+                                             bool multi_inputs,
+                                             std::vector<size_t>& column_indexes)
+{
+	QDomDocument format;
+
+	std::shared_ptr<arrow::Schema> flattened_schema = flatten_schema(schema);
+	const arrow::FieldVector& fields = flattened_schema->fields();
+
+	std::unique_ptr<PVXmlTreeNodeDom> format_root(PVRush::PVXmlTreeNodeDom::new_format(format));
+
+	if (multi_inputs) {
+		format_root->addOneField(
+			input_column_name,
+			"string");
+	}
+
+	for (size_t i = 0; i < fields.size(); i++) {
+		std::shared_ptr<arrow::Field> field = fields[i];
+		const std::shared_ptr<arrow::DataType>& data_type = field->type();
+		arrow::Type::type type = data_type->storage_id();
+
+		if (pvcop_types_map.find(type) != pvcop_types_map.end()) {
+			PVRush::PVXmlTreeNodeDom* node = format_root->addOneField(
+				QString::fromStdString(field->name()),
+				QString::fromStdString(pvcop_types_map.at(type).string)
+			);
+			if (type == arrow::Type::type::TIMESTAMP) {
+				const QString& time_format = "yyyy-M-d HH:m:ss.S";
+				node->setAttribute(
+					PVFORMAT_AXIS_TYPE_FORMAT_STR,
+					time_format
+				);
+			}
+			else if (type == arrow::Type::type::DATE32) {
+				const QString& time_format = "yyyy-M-d";
+				node->setAttribute(
+					PVFORMAT_AXIS_TYPE_FORMAT_STR,
+					time_format
+				);
+			}
+			else if (std::string(pvcop_types_map.at(type).string) == "string") {
+				QDomElement mapping = format.createElement(PVFORMAT_AXIS_MAPPING_STR);
+				mapping.setAttribute(PVFORMAT_MAP_PLOT_MODE_STR, "string");
+				node->getDom().appendChild(mapping);
+			}
+			column_indexes.emplace_back(i);
+		}
+		else {
+			pvlogger::warn() << "type '"  << data_type->name() << "/" << type << "' for column '" << field->name() << "' is not supported" << std::endl;
+		}
+	}
+
+	return format;
 }
 
 bool PVRush::PVParquetAPI::is_bit_optimizable() const
