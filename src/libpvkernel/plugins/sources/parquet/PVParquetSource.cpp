@@ -30,8 +30,6 @@
 #include <parquet/file_reader.h>
 #include <parquet/metadata.h>
 #include <qfileinfo.h>
-#include <QDir>
-#include <QSet>
 #include <algorithm>
 #include <numeric>
 #include <utility>
@@ -40,54 +38,6 @@
 #include "parquet/PVParquetAPI.h"
 #include "parquet/PVParquetFileDescription.h"
 #include "pvkernel/rush/PVInputDescription.h"
-
-namespace
-{
-
-/**
- * The names of the files of @p paths: their file names, or, when two of them share one, their
- * paths from the deepest directory holding them all.
- */
-QStringList input_names(const QStringList& paths)
-{
-	QStringList names;
-	for (const QString& path : paths) {
-		names << QFileInfo(path).fileName();
-	}
-	if (QSet<QString>(names.begin(), names.end()).size() == names.size()) {
-		return names;
-	}
-
-	QStringList absolute_paths;
-	for (const QString& path : paths) {
-		absolute_paths << QDir::cleanPath(QFileInfo(path).absoluteFilePath());
-	}
-
-	QStringList common_dirs = QFileInfo(absolute_paths.front()).path().split('/');
-	for (const QString& path : absolute_paths) {
-		const QStringList dirs = QFileInfo(path).path().split('/');
-		qsizetype shared = 0;
-		while (shared < common_dirs.size() and shared < dirs.size() and
-		       common_dirs[shared] == dirs[shared]) {
-			shared++;
-		}
-		common_dirs.resize(shared);
-	}
-	// Files on different Windows drives have no directory in common.
-	if (common_dirs.isEmpty()) {
-		return absolute_paths;
-	}
-	// An absolute path starts with an empty name, before its first separator.
-	const QDir common_dir(common_dirs == QStringList{""} ? "/" : common_dirs.join('/'));
-
-	names.clear();
-	for (const QString& path : absolute_paths) {
-		names << common_dir.relativeFilePath(path);
-	}
-	return names;
-}
-
-} // namespace
 
 PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
     : _input_desc(reinterpret_cast<PVRush::PVParquetFileDescription*>(input.get()))
@@ -103,7 +53,7 @@ PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
 	// The dictionary keeps a single entry per distinct name, which a file listed twice shares.
 	if (_api.multi_inputs()) {
 		_input_names_dict = std::make_unique<pvcop::db::write_dict>();
-		for (const QString& name : input_names(_input_desc->paths())) {
+		for (const QString& name : _input_desc->input_names()) {
 			_input_name_indexes.emplace_back(_input_names_dict->insert(name.toStdString().c_str()));
 		}
 	}

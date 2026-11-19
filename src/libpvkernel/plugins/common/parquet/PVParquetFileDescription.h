@@ -32,7 +32,11 @@
 #include <rapidjson/stringbuffer.h>
 #include <rapidjson/pointer.h>
 
+#include <QDir>
+#include <QFileInfo>
+#include <QSet>
 #include <QSettings>
+#include <QStringList>
 
 #include <memory>
 #include <string>
@@ -56,6 +60,49 @@ class PVParquetFileDescription : public PVFileDescription
   	const QStringList& paths() const { return _paths; }
 
 	void disable_multi_inputs(bool disabled) { _multi_inputs = not disabled; }
+
+	/**
+	 * The names of the files: their file names, or, when two of them share one, their paths from
+	 * the deepest directory holding them all.
+	 */
+	QStringList input_names() const
+	{
+		QStringList names;
+		for (const QString& path : _paths) {
+			names << QFileInfo(path).fileName();
+		}
+		if (QSet<QString>(names.begin(), names.end()).size() == names.size()) {
+			return names;
+		}
+
+		QStringList absolute_paths;
+		for (const QString& path : _paths) {
+			absolute_paths << QDir::cleanPath(QFileInfo(path).absoluteFilePath());
+		}
+
+		QStringList common_dirs = QFileInfo(absolute_paths.front()).path().split('/');
+		for (const QString& path : absolute_paths) {
+			const QStringList dirs = QFileInfo(path).path().split('/');
+			qsizetype shared = 0;
+			while (shared < common_dirs.size() and shared < dirs.size() and
+			       common_dirs[shared] == dirs[shared]) {
+				shared++;
+			}
+			common_dirs.resize(shared);
+		}
+		// Files on different Windows drives have no directory in common.
+		if (common_dirs.isEmpty()) {
+			return absolute_paths;
+		}
+		// An absolute path starts with an empty name, before its first separator.
+		const QDir common_dir(common_dirs == QStringList{""} ? "/" : common_dirs.join('/'));
+
+		names.clear();
+		for (const QString& path : absolute_paths) {
+			names << common_dir.relativeFilePath(path);
+		}
+		return names;
+	}
 
   private:
   	QStringList _paths;
