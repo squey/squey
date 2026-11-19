@@ -33,6 +33,7 @@ PVRangeSubSampler.cpp
 PVDuckDBQuery.cpp
 PVSqueySettings.cpp
 PVDuckDBQuerySource.cpp
+PVDuckDBRowFilter.cpp
 
 plugins.cpp
 )
@@ -98,21 +99,23 @@ squey_speedup_compilation(pvsquey QT)
 # whose constructor is defined inline, while ActiveTimer is only defined further
 # down the same header. Clang instantiates that destructor eagerly in C++23 and
 # rejects the incomplete type; below that it accepts it. The pimpl in
-# PVDuckDBQuery keeps duckdb.hpp out of every other translation unit, so this
-# single file is compiled against an older standard -- its public interface only
-# exposes std:: and Squey types, which are ABI-compatible across both.
+# PVDuckDBQuery keeps duckdb.hpp out of every other translation unit, so the
+# files that include it are compiled against an older standard -- their public
+# interfaces only expose std:: and Squey types, which are ABI-compatible across
+# both. PVDuckDBRowFilter has none: it registers itself as the engine of
+# PVRush::PVRowFilter.
 #
 # C++20 and not older: pvcop's headers reach for std::countr_zero and the rest
 # of <bit>. So the floor is C++20 and the ceiling is C++23, which leaves exactly
-# one standard this file can be built with.
+# one standard these files can be built with.
 #
-# It must stay out of the jumbo unit and of the shared PCH for that to hold: a
+# They must stay out of the jumbo unit and of the shared PCH for that to hold: a
 # per-file standard has no effect once the file is concatenated into a unit
 # compiled as C++26. Set after squey_speedup_compilation(), which turns the
 # unity build on.
 # CXX_STANDARD is a target property only, so the standard is overridden through
 # a compile option: it lands after the target-wide -std and therefore wins.
-set_source_files_properties(PVDuckDBQuery.cpp PROPERTIES
+set_source_files_properties(PVDuckDBQuery.cpp PVDuckDBRowFilter.cpp PROPERTIES
 	COMPILE_OPTIONS "-std=c++20"
 	SKIP_UNITY_BUILD_INCLUSION ON
 	SKIP_PRECOMPILE_HEADERS ON)

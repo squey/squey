@@ -110,6 +110,7 @@ rush/PVAggregator.cpp
 rush/PVControllerJob.cpp
 rush/PVExtractor.cpp
 rush/PVInputTypeFileList.cpp
+rush/PVRowFilter.cpp
 rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp
 rush/PVTests.cpp

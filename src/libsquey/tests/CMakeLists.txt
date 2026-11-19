@@ -86,6 +86,10 @@ set(PARQUET_SRC_FILES
 add_squey_compile_test(Tsquey_duckdb_null_strings LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES duckdb_null_strings.cpp ${COMMON_FILES} ${PARQUET_SRC_FILES})
 add_squey_test(Tsquey_duckdb_null_strings Tsquey_duckdb_null_strings)
 
+# The imports of files filter their rows through the engine this library registers.
+add_squey_compile_test(Tsquey_arrow_row_filter LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES arrow_row_filter.cpp ${COMMON_FILES} ../../libpvkernel/plugins/common/arrow/PVArrowRowFilter.cpp)
+add_squey_test(Tsquey_arrow_row_filter Tsquey_arrow_row_filter)
+
 # An address is exposed as the integer it is stored as, so the conversions that
 # bridge the two have to agree with pvcop's own formatter -- in both directions.
 add_squey_compile_test(Tsquey_duckdb_business_types LINKS ${LINK_LIBRARIES} FILES duckdb_business_types.cpp ${COMMON_FILES})
