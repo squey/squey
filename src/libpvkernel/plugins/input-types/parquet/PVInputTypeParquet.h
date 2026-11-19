@@ -72,6 +72,10 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 	PVWidgets::PVExporterWidgetInterface*
 	create_exporter_widget(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
 	QString get_exporter_filter_string(const list_inputs& inputs) const override;
+	PVWidgets::PVExporterWidgetInterface*
+	create_nraw_exporter_widget(PVRush::PVNraw const& nraw,
+	                            QStringList const& column_names) const override;
+	QString get_nraw_exporter_filter_string() const override;
 
 	QString name() const override;
 	QString human_name() const override;

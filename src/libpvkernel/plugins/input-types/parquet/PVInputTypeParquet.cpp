@@ -32,6 +32,7 @@
 #include <pvkernel/widgets/PVFileDialog.h>
 #include "../../common/parquet/PVParquetAPI.h"
 #include "../../common/parquet/PVParquetFileDescription.h"
+#include "PVParquetNrawExporter.h"
 
 #include <QMessageBox>
 #include <QFileInfo>
@@ -175,6 +176,20 @@ QStringList PVRush::PVInputTypeParquet::get_supported_extensions() const
 QString PVRush::PVInputTypeParquet::get_exporter_filter_string(const list_inputs& /*inputs*/) const
 {
 	return ".parquet files (*.parquet)";
+}
+
+PVWidgets::PVExporterWidgetInterface*
+PVRush::PVInputTypeParquet::create_nraw_exporter_widget(PVRush::PVNraw const& nraw,
+                                                        QStringList const& column_names) const
+{
+	// The default codec of most of the writers of Parquet files.
+	return new PVWidgets::PVParquetExporterWidget(
+	    std::make_unique<PVParquetNrawExporter>(nraw, column_names), arrow::Compression::SNAPPY);
+}
+
+QString PVRush::PVInputTypeParquet::get_nraw_exporter_filter_string() const
+{
+	return get_exporter_filter_string({});
 }
 
 QString PVRush::PVInputTypeParquet::name() const

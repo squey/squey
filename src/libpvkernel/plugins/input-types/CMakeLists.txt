@@ -129,6 +129,7 @@ parquet/PVParquetExporterWidget.h
 set(PARQUET_SRC
 parquet/PVParquetExporterBase.cpp
 parquet/PVParquetExporter.cpp
+parquet/PVParquetNrawExporter.cpp
 parquet/PVParquetExporterWidget.cpp
 parquet/PVInputTypeParquet.cpp
 ../common/parquet/PVParquetAPI.cpp

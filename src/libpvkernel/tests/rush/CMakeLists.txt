@@ -293,6 +293,7 @@ set(PARQUET_SRC_FILES
 ../../plugins/common/parquet/PVParquetAPI.cpp
 ../../plugins/input-types/parquet/PVParquetExporterBase.cpp
 ../../plugins/input-types/parquet/PVParquetExporter.cpp
+../../plugins/input-types/parquet/PVParquetNrawExporter.cpp
 )
 
 add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
@@ -321,6 +322,8 @@ add_squey_compile_test(Trush_apache_parquet_export_columns LINKS ${LINK_LIBRARIE
 add_squey_test(Trush_apache_parquet_export_columns Trush_apache_parquet_export_columns)
 add_squey_compile_test(Trush_apache_parquet_export_file LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_export_file.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_export_file Trush_apache_parquet_export_file)
+add_squey_compile_test(Trush_apache_parquet_export_nraw LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_export_nraw.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet_export_nraw Trush_apache_parquet_export_nraw)
 add_squey_compile_test(Trush_recent_items LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES recent_items.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/tiny.csv ${PVRUSH_TEST_FILES}/formats/tiny-with-ac-v10.csv.format ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/../../pvconfig.ini)
 # Isolate the recent items file (recents.ini) from the real user configuration.

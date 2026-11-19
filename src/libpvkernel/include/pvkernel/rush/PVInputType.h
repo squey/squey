@@ -41,6 +41,7 @@
 #include <QIcon>
 #include <QCursor>
 #include <QSettings>
+#include <QStringList>
 #include "PVExporter.h"
 
 namespace PVRush
@@ -94,6 +95,19 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 		return nullptr;
 	}
 	virtual QString get_exporter_filter_string(const list_inputs& /*inputs*/) const { return {}; }
+
+	/**
+	 * An exporter of the NRAW of a source of another type, whose columns @p column_names names,
+	 * or nullptr. The export of a source offers it next to the exporter of its own type.
+	 */
+	virtual PVWidgets::PVExporterWidgetInterface*
+	create_nraw_exporter_widget(PVRush::PVNraw const& /*nraw*/,
+	                            QStringList const& /*column_names*/) const
+	{
+		return nullptr;
+	}
+	/** The file filter of the exporter of create_nraw_exporter_widget(). */
+	virtual QString get_nraw_exporter_filter_string() const { return {}; }
 
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;

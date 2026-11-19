@@ -25,6 +25,7 @@
 
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QHash>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
@@ -36,6 +37,9 @@
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVCSVExporterWidget.h>
 
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/rush/PVInputType.h>
+
 #include <squey/PVSelection.h>
 #include <squey/PVView.h>
 #include <squey/PVLayerStack.h>
@@ -44,6 +48,7 @@
 #include <pvkernel/core/PVProgressBox.h>
 
 #include <filesystem>
+#include <utility>
 
 PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	Squey::PVView& view,
@@ -58,17 +63,65 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 
 	// Use default CSV exporter if input type doesn't define a specific one
 	auto* exporter_widget = new PVGuiQt::PVCSVExporterWidget(view);
-	_exporter = &exporter_widget->exporter();
+	PVRush::PVExporterBase* csv_exporter = &exporter_widget->exporter();
 
-	// Add input specific exporter filter string if any
+	auto* stacked_layout = new QStackedLayout;
+	stacked_layout->addWidget(exporter_widget);
+
+	// The pages of the exporters other than the CSV one, by their file filters.
+	QHash<QString, std::pair<int, PVRush::PVExporterBase*>> pages;
+	QStringList filters;
+	const auto add_page = [&](const QString& filter, PVWidgets::PVExporterWidgetInterface* widget,
+	                          PVAxesCombinationExportWidget::Choice choice,
+	                          const QString& all_label) {
+		if (widget == nullptr) {
+			return;
+		}
+		PVRush::PVExporterBase* exporter = &widget->exporter();
+		QWidget* page = widget;
+		if (exporter->exports_columns()) {
+			page = new QWidget;
+			auto* layout = new QVBoxLayout(page);
+			layout->setContentsMargins(0, 0, 0, 0);
+			layout->addWidget(widget);
+			auto* axes = new PVAxesCombinationExportWidget(view, choice, all_label);
+			layout->addWidget(axes);
+			layout->addStretch();
+			// No column chosen exports them all: the input as it is, for the exporter of its type.
+			const auto export_axes = [exporter, axes]() {
+				exporter->set_columns(axes->choice() == PVAxesCombinationExportWidget::Choice::All
+				                          ? PVCore::PVColumnIndexes()
+				                          : axes->column_indexes());
+			};
+			QObject::connect(axes, &PVAxesCombinationExportWidget::changed, widget, export_axes);
+			export_axes();
+		}
+		pages.insert(filter, {stacked_layout->addWidget(page), exporter});
+		filters << filter;
+	};
+
 	const Squey::PVSource& source = view.get_parent<Squey::PVSource>();
-	const QString& specific_export_filter =
-	    source.get_source_creator()->supported_type_lib()->get_exporter_filter_string(
-	        source.get_inputs());
-	if (not specific_export_filter.isEmpty()) {
-		_name_filters.insert(0, specific_export_filter);
-	}
+	const QString source_type_name = source.get_source_creator()->supported_type();
+	const PVRush::PVInputType_p source_type = source.get_source_creator()->supported_type_lib();
+	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
+	add_page(source_type->get_exporter_filter_string(source.get_inputs()),
+	         source_type->create_exporter_widget(source.get_inputs(), nraw),
+	         PVAxesCombinationExportWidget::Choice::All, tr("Use all the columns of the file"));
+	const bool has_source_exporter = not filters.isEmpty();
 
+	const QStringList column_names = view.get_axes_combination().get_nraw_names();
+	for (const auto& type : LIB_CLASS(PVRush::PVInputType)::get().get_list()) {
+		const QString filter = type.value()->get_nraw_exporter_filter_string();
+		if (type.key() != source_type_name and not filter.isEmpty() and
+		    not pages.contains(filter)) {
+			add_page(filter, type.value()->create_nraw_exporter_widget(nraw, column_names),
+			         PVAxesCombinationExportWidget::Choice::Current,
+			         tr("Use all axes combination"));
+		}
+	}
+	_groupbox->setLayout(stacked_layout);
+
+	_name_filters = filters + _name_filters;
 	setNameFilters(_name_filters);
 
 	// Set specific exporter as default if any, otherwise select default platform compressor
@@ -83,49 +136,14 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 			break;
 		}
 	}
-	int default_filter_index = specific_export_filter.isEmpty() ? compressor_idx : 0;
-
-	auto* stacked_layout = new QStackedLayout;
-	stacked_layout->addWidget(exporter_widget);
-	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
-	PVWidgets::PVExporterWidgetInterface* specific_export_widget =
-	    source.get_source_creator()->supported_type_lib()->create_exporter_widget(
-	        source.get_inputs(), nraw);
-	if (specific_export_widget) {
-		_source_exporter = &specific_export_widget->exporter();
-		QWidget* source_page = specific_export_widget;
-		if (_source_exporter->exports_columns()) {
-			source_page = new QWidget;
-			auto* source_layout = new QVBoxLayout(source_page);
-			source_layout->setContentsMargins(0, 0, 0, 0);
-			source_layout->addWidget(specific_export_widget);
-			// The input as it is, unless its columns are chosen.
-			auto* axes = new PVGuiQt::PVAxesCombinationExportWidget(
-			    view, PVGuiQt::PVAxesCombinationExportWidget::Choice::All,
-			    tr("Use all the columns of the file"));
-			source_layout->addWidget(axes);
-			source_layout->addStretch();
-			PVRush::PVExporterBase* source_exporter = _source_exporter;
-			const auto export_axes = [source_exporter, axes]() {
-				source_exporter->set_columns(
-				    axes->choice() == PVGuiQt::PVAxesCombinationExportWidget::Choice::All
-				        ? PVCore::PVColumnIndexes()
-				        : axes->column_indexes());
-			};
-			QObject::connect(axes, &PVGuiQt::PVAxesCombinationExportWidget::changed,
-			                 specific_export_widget, export_axes);
-			export_axes();
-		}
-		stacked_layout->addWidget(source_page);
-		stacked_layout->setCurrentIndex(1);
-	}
-	_groupbox->setLayout(stacked_layout);
+	int default_filter_index = has_source_exporter ? 0 : compressor_idx;
 
 	auto filter_selected_f = [=,this](const QString& filter) {
 		_filter_selected_f(filter);
 
-		_is_source_exporter = not filter.contains("*.csv");
-		stacked_layout->setCurrentIndex(_is_source_exporter);
+		const auto page = pages.find(filter);
+		stacked_layout->setCurrentIndex(page == pages.end() ? 0 : page->first);
+		_exporter = page == pages.end() ? csv_exporter : page->second;
 	};
 	QObject::disconnect(_conn);
 	QObject::connect(this, &QFileDialog::filterSelected, filter_selected_f);

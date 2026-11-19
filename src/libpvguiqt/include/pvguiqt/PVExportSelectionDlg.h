@@ -88,18 +88,14 @@ class PVGUIQT_EXPORT PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	);
 
   public:
-	PVRush::PVExporterBase& exporter()
-	{
-		return _is_source_exporter ? *_source_exporter : *_exporter;
-	}
+	/** The exporter of the file filter selected. */
+	PVRush::PVExporterBase& exporter() { return *_exporter; }
 
 	Q_SIGNALS:
 	void selection_exported();
 
   private:
-	bool _is_source_exporter;
 	PVRush::PVExporterBase* _exporter = nullptr;
-	PVRush::PVExporterBase* _source_exporter = nullptr; // exporter specific to the source, if any
 };
 } // namespace PVGuiQt
 
