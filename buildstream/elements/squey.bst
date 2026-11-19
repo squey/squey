@@ -101,7 +101,18 @@ variables:
       recc-c-launcher: ""
       recc-cxx-launcher: ""
 
-  install-linux-launchers: 'bash -c "cp -r buildstream/files/flatpak/{run_cmd.sh,squey_sh,squey_launcher.sh} %{install-root}%{prefix}/bin"'
+  # squey-cleanup.bst keeps in %{bindir} the files Squey installs there, and only
+  # those of its dependencies that it names: install_manifest.txt, which CMake
+  # writes, lists the former, and is left at the root of the prefix for it to
+  # read. The launchers do not go through CMake, so they add themselves to it,
+  # on lines of their own: CMake ends the last one with no newline.
+  record-installed-files: |
+    { cat "%{build-dir}/install_manifest.txt" && echo; } > "%{install-root}%{prefix}/install_manifest.txt"
+  install-linux-launchers: |
+    for launcher in run_cmd.sh squey_sh squey_launcher.sh; do
+      cp "buildstream/files/flatpak/$launcher" "%{install-root}%{bindir}" &&
+      echo "%{bindir}/$launcher" >> "%{install-root}%{prefix}/install_manifest.txt" || exit 1
+    done
   install-linux-deps:
     install -D /usr/lib/%{gcc_triplet}/crti.o -t %{install-root}%{libdir} &&
     install -D /usr/lib/%{gcc_triplet}/crtn.o -t %{install-root}%{libdir} &&
@@ -128,6 +139,7 @@ variables:
 
   install-all: |
     %{make-install} &&
+    %{record-installed-files} &&
     if [ "%{target_triple}" = "x86_64-linux-gnu" ]; then %{install-linux-deps} && %{install-linux-launchers} ; fi &&
     if [ "%{target-platform}" = "darwin" ]; then mkdir -p "%{install-root}%{libdir}" && cp libSystemStub.tbd "%{install-root}%{libdir}/libSystem.tbd" && %{fix-darwin-rpaths} ; fi
 

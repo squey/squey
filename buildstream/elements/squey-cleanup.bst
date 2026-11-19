@@ -7,14 +7,13 @@ description: |
 (@): buildstream/elements/base/target.yml
 
 environment:
-  # crashpad_handler and squey-crashreport are needed on the three platforms:
-  # the handler captures the minidump out of process, the reporter asks for
-  # consent and uploads it.
-  common_bin_files: "squey tshark lbzip2 funzip pigz zstd xz pip3 pip%{python-version} crashpad_handler squey-crashreport"
-  linux_bin_files: "ld 7zzs run_cmd.sh squey_sh squey_launcher.sh squey-logstats"
-  # squey-prepare-kernels builds the kernels macos_publish.sh puts in the bundles,
-  # which no longer hold it afterwards.
-  darwin_bin_files: "lld ld64.lld 7zz squey-prepare-kernels"
+  # What Squey installs in %{bindir} is kept, as install_manifest.txt lists it
+  # (see squey.bst). These are the tools of its dependencies to keep beside it:
+  # crashpad_handler captures the minidump out of process, for squey-crashreport
+  # to ask for consent and upload it.
+  common_bin_files: "tshark lbzip2 funzip pigz zstd xz pip3 pip%{python-version} crashpad_handler"
+  linux_bin_files: "ld 7zzs"
+  darwin_bin_files: "lld ld64.lld 7zz"
   windows_bin_files: "ld 7z python pocl \"*.dll\""
 
 config:
@@ -45,8 +44,10 @@ config:
       [ -d %{prefix}/share/qt6 ] && cd %{prefix}/share/qt6 && ls -I resources | xargs rm -rf
       cd %{prefix}/share/doc && ls -I squey | xargs rm -rf
 
+      own_bin_files=$(sed -n 's|^%{bindir}/\([^/]*\)$|\1|p' %{prefix}/install_manifest.txt | paste -sd ' ')
+      rm %{prefix}/install_manifest.txt
       target_platform_files="%{target-platform}_bin_files"
-      all_files="$common_bin_files ${!target_platform_files}"
+      all_files="$own_bin_files $common_bin_files ${!target_platform_files}"
       cmd=$(echo "$all_files" | sed 's/\([^ ]*\)/-I \1 -I \1.exe/g')
       cmd="ls $cmd | xargs rm -rf"
       cd %{prefix}/bin && eval $cmd
