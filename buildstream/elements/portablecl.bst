@@ -219,6 +219,10 @@ sources:
   path: buildstream/patches/portablecl/macos-lld-platform-version.patch
   strip-level: 1
 
+- kind: patch
+  path: buildstream/patches/portablecl/prebuilt-kernel-binaries.patch
+  strip-level: 1
+
 config:
   (?):
   - target_triple == "x86_64-linux-gnu":
