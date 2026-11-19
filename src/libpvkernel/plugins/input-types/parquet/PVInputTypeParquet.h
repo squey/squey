@@ -27,8 +27,7 @@
 
 #include "parquet/PVParquetExporter.h"
 #include "parquet/PVParquetExporterWidget.h"
-#include <pvkernel/rush/PVInputType.h>
-#include <pvkernel/rush/PVFileListDescription.h>
+#include <pvkernel/rush/PVInputTypeFileList.h>
 
 #include <QString>
 #include <QStringList>
@@ -38,32 +37,12 @@
 namespace PVRush
 {
 
-class PVInputTypeParquet : public PVInputTypeDesc<PVFileListDescription>
+class PVInputTypeParquet : public PVInputTypeFileList
 {
   public:
 	PVInputTypeParquet();
 
   public:
-	bool create_widget(
-	    hash_formats& formats,
-        list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const override;
-
-	bool create_widget_with_input_files(
-	    const QStringList& input_paths,
-	    hash_formats& formats,
-        list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const override;
-
-	bool create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const override;
-
-	bool has_generated_format() const override { return true; }
 	PVFormat get_format_from_inputs(list_inputs const& inputs) const override;
 
 	/* exporter */
@@ -83,14 +62,13 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVFileListDescription>
 	QString internal_name() const override;
 	QStringList get_supported_extensions() const override;
 	QString menu_input_name() const override;
-	QString tab_name_of_inputs(list_inputs const& in) const override;
-	bool get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const override { return false; }
 
 	PVModdedIcon icon() const override { return PVModdedIcon("parquet"); }
-	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
-  private:
-	bool create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const;
+  protected:
+	QString files_dialog_title() const override;
+	QString files_dialog_filter() const override;
+	bool describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const override;
 
   protected:
 	mutable QStringList _tmp_dir_to_delete;

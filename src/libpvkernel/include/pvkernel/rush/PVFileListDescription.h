@@ -27,11 +27,6 @@
 
 #include <pvkernel/rush/PVFileDescription.h>
 
-#include <rapidjson/document.h>
-#include <rapidjson/writer.h>
-#include <rapidjson/stringbuffer.h>
-#include <rapidjson/pointer.h>
-
 #include <QDir>
 #include <QFileInfo>
 #include <QSet>

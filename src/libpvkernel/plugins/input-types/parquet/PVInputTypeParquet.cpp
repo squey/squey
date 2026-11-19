@@ -40,74 +40,21 @@
 
 #include <sys/time.h>
 
-PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVFileListDescription>()
+PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeFileList()
 {
 }
 
-bool PVRush::PVInputTypeParquet::create_widget(
-    hash_formats& formats,
-    list_inputs& inputs,
-    QString& format_str,
-    PVCore::PVArgumentList& args_ext,
-    QWidget* parent) const
+QString PVRush::PVInputTypeParquet::files_dialog_title() const
 {
-	// Get information from file dialog
-	QStringList file_paths = PVWidgets::PVFileDialog::getOpenFileNames(
-	    parent,
-		tr("Import Apache Parquet files"),
-		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
-		tr("Apache Parquet files (*.parquet)")
-	);
-	if (file_paths.size() == 0) {
-		return false;
-	}
-
-	return create_widget_with_input_files(file_paths, formats, inputs, format_str, args_ext, parent);
+	return tr("Import Apache Parquet files");
 }
 
-bool PVRush::PVInputTypeParquet::create_widget_with_input_files(
-    const QStringList& input_paths,
-    hash_formats& formats,
-    list_inputs& inputs,
-    QString& format_str,
-    PVCore::PVArgumentList& /*args_ext*/,
-    QWidget* /*parent*/) const
+QString PVRush::PVInputTypeParquet::files_dialog_filter() const
 {
-    PVFormat format;
-	if (create_source_description_params(input_paths, inputs, format)) {
-		formats[QString("custom")] = format;
-		format_str = "custom";
-		return true;
-	}
-	else {
-		return false;
-	}
+	return tr("Apache Parquet files (*.parquet)");
 }
 
-bool PVRush::PVInputTypeParquet::create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const
-{
-	QStringList paths;
-	rapidjson::Document json;
-	json.Parse<0>(params_json.toStdString().c_str());
-	if (not json.HasParseError()) {
-		if (json.HasMember("paths")) {
-			const rapidjson::Value& json_paths = json["paths"];
-			if (json_paths.IsArray()) {
-				for (rapidjson::SizeType i = 0; i < json_paths.Size(); i++) {
-					const std::string& path_str = json_paths[i].GetString();
-					paths << QString::fromStdString(path_str);
-				}
-			}
-		}
-	}
-	if (paths.isEmpty()) {
-		QMessageBox::critical(nullptr, tr("Parquet | Import data parameters error"), "Unable to import data using the following JSON parameters: \n\n" + params_json);
-		return false;
-	}
-	return create_source_description_params(paths, inputs, format);
-}
-
-bool PVRush::PVInputTypeParquet::create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const
+bool PVRush::PVInputTypeParquet::describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const
 {
 	try {
 		PVFileListDescription* input_desc = new PVFileListDescription(paths);
@@ -215,18 +162,4 @@ QString PVRush::PVInputTypeParquet::internal_name() const
 QString PVRush::PVInputTypeParquet::menu_input_name() const
 {
 	return {"Parquet"};
-}
-
-QString PVRush::PVInputTypeParquet::tab_name_of_inputs(list_inputs const& in) const
-{
-	QString tab_name;
-	auto* f = dynamic_cast<PVFileDescription*>(in[0].get());
-	assert(f);
-	QFileInfo fi(f->path());
-	if (in.count() == 1) {
-		tab_name = fi.fileName();
-	} else {
-		tab_name = fi.canonicalPath();
-	}
-	return tab_name;
 }
