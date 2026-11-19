@@ -95,6 +95,14 @@ int main()
 	expect_importer("/tmp/traffic.CSV.GZ", "file");
 	expect_importer("/tmp/EVE.JSON.ZST", "json");
 
+	// A rotated file goes to the importer of the file it was, whatever number or
+	// date the rotation appended, before or after its compression.
+	expect_importer("/var/log/suricata/eve.json.1", "json");
+	expect_importer("/var/log/suricata/eve.json.2.gz", "json");
+	expect_importer("/var/log/suricata/eve.json.gz.3", "json");
+	expect_importer("/var/log/suricata/eve.json-20261119.zst", "json");
+	expect_importer("/tmp/traffic.csv.1", "file");
+
 	// Names with dots of their own are not extensions: only the components that
 	// match are used, one at a time, from the longest.
 	expect_importer("/tmp/report.2026.01.csv", "file");
@@ -103,6 +111,7 @@ int main()
 	// And what nothing handles is refused rather than sent to an importer that
 	// would fail later, with less to say about why.
 	expect_unsupported("/tmp/archive.gz");
+	expect_unsupported("/tmp/archive.gz.1");
 	expect_unsupported("/tmp/notes.txt");
 	expect_unsupported("/tmp/README");
 

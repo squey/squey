@@ -42,6 +42,13 @@
 #include <string>
 #include <vector>
 
+namespace
+{
+
+constexpr const char* EXTENSIONS[] = {"json", "jsonl", "ndjson"};
+
+} // namespace
+
 PVRush::PVInputTypeJson::PVInputTypeJson() : PVInputTypeFileList() {}
 
 QString PVRush::PVInputTypeJson::files_dialog_title() const
@@ -51,9 +58,10 @@ QString PVRush::PVInputTypeJson::files_dialog_title() const
 
 QString PVRush::PVInputTypeJson::files_dialog_filter() const
 {
+	// Followed by the extension of a compression, or by the number or the date of a rotation.
 	QStringList patterns;
-	for (const QString& extension : get_supported_extensions()) {
-		patterns << "*." + extension;
+	for (const QString extension : EXTENSIONS) {
+		patterns << "*." + extension << "*." + extension + ".*" << "*." + extension + "-*";
 	}
 	return tr("JSON files of one object per line (%1)").arg(patterns.join(' '));
 }
@@ -196,7 +204,7 @@ QStringList PVRush::PVInputTypeJson::get_supported_extensions() const
 {
 	const QStringList compressions = PVJsonLines::compressions();
 	QStringList extensions;
-	for (const QString extension : {"json", "jsonl", "ndjson"}) {
+	for (const QString extension : EXTENSIONS) {
 		extensions << extension;
 		for (const QString& compression : compressions) {
 			extensions << extension + "." + compression;

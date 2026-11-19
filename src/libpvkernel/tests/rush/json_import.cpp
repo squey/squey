@@ -55,6 +55,7 @@
 #include <memory>
 #include <random>
 #include <string>
+#include <utility>
 #include <vector>
 
 namespace
@@ -424,6 +425,43 @@ void check_compressed(const QDir& root)
 	PV_ASSERT_VALID(error.find(broken.toStdString()) != std::string::npos, "error", error);
 }
 
+/**
+ * The files of a rotation, in one source: each is decompressed by the compression of its
+ * extension, before or after the number or the date that the rotation appended.
+ */
+void check_rotated(const QDir& root)
+{
+	const std::vector<std::pair<QString, QString>> files{{"eve.json", ""},
+	                                                     {"eve.json.1", ""},
+	                                                     {"eve.json.2.gz", "gz"},
+	                                                     {"eve.json.gz.3", "gz"},
+	                                                     {"eve.json-20261119.zst", "zst"}};
+	QStringList paths;
+	for (size_t file = 0; file < files.size(); file++) {
+		const auto& [name, compression] = files[file];
+		const std::string content = R"({"file": )" + std::to_string(file) + "}\n";
+		paths << root.filePath(name);
+		if (compression.isEmpty()) {
+			write(paths.back(), QByteArray::fromStdString(content));
+		} else {
+			// Under the extension of the compression alone, for the reading to find it itself.
+			const QString compressed = root.filePath("rotated." + compression);
+			compress(compressed, content);
+			PV_ASSERT_VALID(QFile::rename(compressed, paths.back()), "file", name.toStdString());
+		}
+	}
+
+	const std::shared_ptr<const PVRush::PVJsonSchema> schema = PVRush::PVJsonSchema::infer(paths);
+	PV_VALID(columns_of(*schema), std::string("file:integer"));
+	PVRush::PVNraw nraw;
+	import(std::make_shared<PVRush::PVJsonFileDescription>(paths), *schema, nraw);
+	PV_VALID(size_t(nraw.row_count()), files.size());
+	for (PVRow row = 0; row < nraw.row_count(); row++) {
+		PV_VALID(nraw.column(PVCol(0)).at(row), files[row].first.toStdString(), "row", row);
+		PV_VALID(nraw.column(PVCol(1)).at(row), std::to_string(row), "row", row);
+	}
+}
+
 } // namespace
 
 UNICODE_MAIN()
@@ -443,6 +481,7 @@ UNICODE_MAIN()
 	check_columns(root);
 	check_lines(root);
 	check_compressed(root);
+	check_rotated(root);
 
 	return 0;
 }
