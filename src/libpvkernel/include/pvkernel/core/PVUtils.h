@@ -99,6 +99,14 @@ size_t available_memory();
 
 #if __APPLE__
 int process_running_count(const std::string& process_name);
+
+/**
+ * Whether the process runs in the App Sandbox, as the Mac App Store version does.
+ *
+ * The sandbox quarantines every file the process writes, and the process cannot lift
+ * the quarantine: Gatekeeper refuses to load any code the process writes itself.
+ */
+bool is_sandboxed();
 #endif
 
 QString mkdtemp(QString tmpl);

@@ -34,6 +34,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <vector>
 
 namespace PVParallelView
@@ -51,11 +52,13 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	struct pending_callbacks_t {
 		std::mutex mutex;
 		std::condition_variable returned;
-		size_t count = 0; //!< Guarded by mutex.
+		size_t count = 0;  //!< Guarded by mutex.
+		size_t failed = 0; //!< Renderings whose commands failed. Guarded by mutex.
 	};
 
 	struct opencl_job_data_t {
-		cl::Event event;
+		cl::Event kernel_event;
+		cl::Event event; //!< The copy back to the host, which ends the rendering.
 		std::function<void()> done_function;
 		std::shared_ptr<pending_callbacks_t> pending;
 	};
@@ -89,11 +92,30 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	 *
 	 * progress, if given, is called with (shapes done, shapes total) before
 	 * each one and once more at the end.
+	 *
+	 * @return whether every shape was drawn. A kernel that could not be built or
+	 * loaded leaves the zones of its shape undrawn, as when PortableCL is told to
+	 * load prebuilt kernels only and lacks one of them: the views are then to be
+	 * drawn by another backend.
 	 */
-	void precompile_kernels(const std::function<void(size_t, size_t)>& progress = {});
+	bool precompile_kernels(const std::function<void(size_t, size_t)>& progress = {});
 
   public:
 	static PVBCIDrawingBackendOpenCL& get();
+
+	/**
+	 * Builds every kernel the views will ask for into dir, laid out as the kernel
+	 * cache of PortableCL, for POCL_KERNEL_CACHE_PREBUILT_DIR to name: that is how
+	 * the App Store version gets kernels it is allowed to load.
+	 *
+	 * It decides where PortableCL builds to, which only holds when nothing has
+	 * brought OpenCL up in the process before. The process is not to draw anything
+	 * afterwards.
+	 *
+	 * @return whether every kernel was built and copied; false as well when the
+	 * backend draws on a device whose kernels PortableCL does not build, a GPU.
+	 */
+	static bool prepare_prebuilt_kernels(const std::string& dir);
 
   public:
 	Flags flags() const override { return Serial; }

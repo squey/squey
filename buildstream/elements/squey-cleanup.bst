@@ -12,7 +12,9 @@ environment:
   # consent and uploads it.
   common_bin_files: "squey tshark lbzip2 funzip pigz zstd xz pip3 pip%{python-version} crashpad_handler squey-crashreport"
   linux_bin_files: "ld 7zzs run_cmd.sh squey_sh squey_launcher.sh squey-logstats"
-  darwin_bin_files: "lld ld64.lld 7zz"
+  # squey-prepare-kernels builds the kernels macos_publish.sh puts in the bundles,
+  # which no longer hold it afterwards.
+  darwin_bin_files: "lld ld64.lld 7zz squey-prepare-kernels"
   windows_bin_files: "ld 7z python pocl \"*.dll\""
 
 config:

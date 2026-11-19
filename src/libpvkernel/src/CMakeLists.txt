@@ -245,8 +245,14 @@ target_compile_definitions(pvkernel PRIVATE PVKERNEL_LIBRARY)
 set_target_properties(pvkernel PROPERTIES SOVERSION 1)
 # segfault_handler.cpp is kept out of the jumbo units: mini_chromium defines a
 # CHECK macro of its own, which clashes with the one of squey_bench.h as soon as
-# both land in the same translation unit.
-squey_speedup_compilation(pvkernel QT SKIP_UNITY core/segfault_handler.cpp)
+# both land in the same translation unit. So is PVUtils.cpp on macOS, where it
+# includes CoreFoundation: Point, Size, TRUE or nil are then declared at global
+# scope for every source following it in a unit.
+set(PVKERNEL_SKIP_UNITY core/segfault_handler.cpp)
+if (APPLE)
+	list(APPEND PVKERNEL_SKIP_UNITY core/PVUtils.cpp)
+endif()
+squey_speedup_compilation(pvkernel QT SKIP_UNITY ${PVKERNEL_SKIP_UNITY})
 
 # The headers of the library, and the ones generated beside them (ui_*.h).
 target_include_directories(pvkernel PUBLIC
@@ -278,6 +284,11 @@ target_link_libraries(pvkernel
 		# --export-all-symbols publishes as strong definitions through pvkernel's
 		# import library.
 		${CRASHPAD_LIBRARIES})
+
+if (APPLE)
+	# PVCore::is_sandboxed() reads the entitlements of the process.
+	target_link_libraries(pvkernel PRIVATE "-framework Security" "-framework CoreFoundation")
+endif()
 
 # Define installation directory
 install(TARGETS pvkernel LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}

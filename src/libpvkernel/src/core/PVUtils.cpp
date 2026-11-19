@@ -242,6 +242,29 @@ int PVCore::process_running_count(const std::string& process_name) {
 
     return instance_count;
 }
+
+#include <CoreFoundation/CoreFoundation.h>
+#include <Security/SecTask.h>
+
+bool PVCore::is_sandboxed()
+{
+	SecTaskRef task = SecTaskCreateFromSelf(kCFAllocatorDefault);
+	if (task == nullptr) {
+		return false;
+	}
+
+	CFTypeRef value =
+	    SecTaskCopyValueForEntitlement(task, CFSTR("com.apple.security.app-sandbox"), nullptr);
+	CFRelease(task);
+
+	const bool sandboxed = value != nullptr and CFGetTypeID(value) == CFBooleanGetTypeID() and
+	                       CFBooleanGetValue(static_cast<CFBooleanRef>(value));
+	if (value != nullptr) {
+		CFRelease(value);
+	}
+
+	return sandboxed;
+}
 #endif
 
 int PVCore::setenv(const char* name, const char* value, int overwrite)

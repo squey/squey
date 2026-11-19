@@ -49,6 +49,7 @@
 #include <QDir>
 #include <QSettings>
 #include <QStandardPaths>
+#include <QTemporaryDir>
 
 #include <boost/dll/runtime_symbol_info.hpp>
 
@@ -70,7 +71,8 @@ struct opencl_kernel {
 	                    const cl_float zoom_y,
 	                    const bool reverse,
 	                    const bool density,
-	                    const bool antialiased)
+	                    const bool antialiased,
+	                    cl::Event* event)
 	{
 		const cl_uint bit_shift = Bbits;
 		const cl_uint bit_mask = PVParallelView::constants<Bbits>::mask_int_ycoord;
@@ -118,7 +120,8 @@ struct opencl_kernel {
 		const cl::NDRange global_work(global_num_x, global_num_y);
 		const cl::NDRange local_work(local_num_x, local_num_y);
 
-		return dev.queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_work, local_work);
+		return dev.queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_work, local_work,
+		                                      nullptr, event);
 	}
 };
 
@@ -169,6 +172,29 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 		}
 	}
 	PVCore::setenv("POCL_LINKER_DIR", linker_dir.string().c_str(), 1);
+
+	// A sandboxed process gets every file it writes quarantined, and Gatekeeper
+	// refuses to load quarantined code that is not notarized: each kernel
+	// PortableCL links at run time is refused there, behind a dialog, and its
+	// zones are left undrawn. The App Store version, the sandboxed one, ships its
+	// kernels built and signed in the bundle (see macos_publish.sh) and loads
+	// nothing else: a kernel missing there fails, and the QPainter backend takes
+	// the views over. The other versions build whatever is missing.
+	const std::filesystem::path prebuilt_dir =
+	    std::filesystem::path(exe_path.parent_path().string()) / ".." / "PlugIns" / "pocl-kernels";
+	if (std::filesystem::is_directory(prebuilt_dir)) {
+		PVCore::setenv("POCL_KERNEL_CACHE_PREBUILT_DIR", prebuilt_dir.string().c_str(), 0);
+	}
+	if (PVCore::is_sandboxed()) {
+		PVCore::setenv("POCL_KERNEL_CACHE_PREBUILT_ONLY", "1", 1);
+	}
+#if defined(__x86_64__)
+	// The kernels are built for one variant of the kernel library, which the
+	// features of the processor select: AVX2, which every Intel Mac running
+	// macOS 14 has. Those with AVX-512 would select another variant, and look
+	// their kernels up under another hash.
+	PVCore::setenv("POCL_KERNELLIB_NAME", "avx2", 0);
+#endif
 #elifdef _WIN32
 	// Where PortableCL keeps its compiled kernels is picked from the environment,
 	// and which variable wins has already changed under us: the version shipped
@@ -454,12 +480,17 @@ auto PVParallelView::PVBCIDrawingBackendOpenCL::opencl_devices() const
  * PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels
  *****************************************************************************/
 
-void PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
+bool PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
     const std::function<void(size_t, size_t)>& progress)
 {
 	if (_devices.empty()) {
-		return;
+		return false;
 	}
+
+	const size_t failed_before = [this] {
+		std::lock_guard<std::mutex> lock(_pending_callbacks->mutex);
+		return _pending_callbacks->failed;
+	}();
 
 	// The work-group shape is rounded up to a power of two (see opencl_kernel),
 	// so these are all the shapes the views can ask for: the widths a zone can
@@ -493,6 +524,62 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
 	if (progress) {
 		progress(done, shapes.size());
 	}
+
+	std::lock_guard<std::mutex> lock(_pending_callbacks->mutex);
+	return _pending_callbacks->failed == failed_before;
+}
+
+/*****************************************************************************
+ * PVParallelView::PVBCIDrawingBackendOpenCL::prepare_prebuilt_kernels
+ *****************************************************************************/
+
+bool PVParallelView::PVBCIDrawingBackendOpenCL::prepare_prebuilt_kernels(const std::string& dir)
+{
+	// Into a cache of their own, so that every kernel gets built rather than
+	// found: in the cache of the user, or in a prebuilt directory, this one
+	// included when it is filled again.
+	QTemporaryDir cache_dir;
+	if (not cache_dir.isValid()) {
+		PVLOG_ERROR("Cannot create a directory to build the kernels in: %s\n",
+		            qPrintable(cache_dir.errorString()));
+		return false;
+	}
+	PVCore::setenv("POCL_CACHE_DIR", cache_dir.path().toUtf8().constData(), 1);
+	PVCore::setenv("POCL_KERNEL_CACHE_PREBUILT_DIR", "", 1);
+	PVCore::setenv("POCL_KERNEL_CACHE_PREBUILT_ONLY", "0", 1);
+
+	if (not get().precompile_kernels()) {
+		return false;
+	}
+
+	// The work-group functions PortableCL links, named after their kernel, are
+	// all a prebuilt directory needs: the rest of the cache is rebuilt from the
+	// kernel source at run time.
+#ifdef _WIN32
+	const std::filesystem::path binary_extension = ".dll";
+#else
+	const std::filesystem::path binary_extension = ".so";
+#endif
+	const std::filesystem::path cache_root = cache_dir.path().toStdString();
+	size_t copied = 0;
+	try {
+		for (const auto& entry : std::filesystem::recursive_directory_iterator(cache_root)) {
+			if (not entry.is_regular_file() or entry.path().extension() != binary_extension) {
+				continue;
+			}
+			const std::filesystem::path target =
+			    std::filesystem::path(dir) / std::filesystem::relative(entry.path(), cache_root);
+			std::filesystem::create_directories(target.parent_path());
+			std::filesystem::copy_file(entry.path(), target,
+			                           std::filesystem::copy_options::overwrite_existing);
+			++copied;
+		}
+	} catch (const std::filesystem::filesystem_error& e) {
+		PVLOG_ERROR("Cannot copy the kernels into %s: %s\n", dir.c_str(), e.what());
+		return false;
+	}
+
+	return copied > 0;
 }
 
 /*****************************************************************************
@@ -593,28 +680,28 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 		squey_verify_opencl_var(err);
 	}
 
+	auto data = new opencl_job_data_t;
+	data->done_function = render_done;
+	data->pending = _pending_callbacks;
+
 	switch (dst_img->height_bits()) {
 	case 10:
 		assert(reverse == false && "no reverse mode allowed in kernel<10>");
 
 		err = opencl_kernel<10>::start(dev, _kernel, n, width, dst_img->device_buffer(),
 		                               dst_img->width(), x_start, zoom_y, reverse, density,
-		                               antialiased);
+		                               antialiased, &data->kernel_event);
 		break;
 	case 11:
 		err = opencl_kernel<11>::start(dev, _kernel, n, width, dst_img->device_buffer(),
 		                               dst_img->width(), x_start, zoom_y, reverse, density,
-		                               antialiased);
+		                               antialiased, &data->kernel_event);
 		break;
 	default:
 		assert(false);
 		break;
 	}
 	squey_verify_opencl_var(err);
-
-	auto data = new opencl_job_data_t;
-	data->done_function = render_done;
-	data->pending = _pending_callbacks;
 
 	dst_img->copy_device_to_host_async(&data->event);
 
@@ -654,11 +741,21 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::wait_all() const
  *****************************************************************************/
 
 void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event */,
-                                                               cl_int /* status */,
+                                                               cl_int status,
                                                                void* data)
 {
 	auto* job_data = reinterpret_cast<opencl_job_data_t*>(data);
 	const auto pending = job_data->pending;
+
+	// The copy back to the host only fails along with the kernel when it was
+	// enqueued before the kernel failed: PortableCL lets a command run as soon as
+	// what it waits for has ended, failed or not. The copy runs after the kernel
+	// in the queue, so the kernel has ended by now.
+	cl_int kernel_status = CL_COMPLETE;
+	const bool failed = status != CL_COMPLETE or
+	                    job_data->kernel_event.getInfo(CL_EVENT_COMMAND_EXECUTION_STATUS,
+	                                                   &kernel_status) != CL_SUCCESS or
+	                    kernel_status != CL_COMPLETE;
 
 	// Call termination function
 	if (job_data->done_function) {
@@ -668,6 +765,9 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event
 	delete job_data;
 
 	std::lock_guard<std::mutex> lock(pending->mutex);
+	if (failed) {
+		++pending->failed;
+	}
 	if (--pending->count == 0) {
 		pending->returned.notify_all();
 	}

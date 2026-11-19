@@ -25,6 +25,16 @@ APPLE_AUTH_KEY_PATH="apple_auth_key.p8"
 echo -ne "${APPLE_AUTH_KEY//\\n/$'\n'}" > "$APPLE_AUTH_KEY_PATH"
 sha256sum "$APPLE_AUTH_KEY_PATH"
 
+# Prints the Mach-O files under a directory, one per line.
+mach_o_files()
+{
+    find "$1" -type f | while read -r path; do
+        if file "$path" | grep -q "Mach-O"; then
+            echo "$path"
+        fi
+    done
+}
+
 # Convert packages to universal binary
 hdiutil attach -nobrowse $PACKAGEDIR_ARM/*.dmg
 ditto "$MOUNTED_BUNDLEDIR" "$BUNDLENAME_ARM"
@@ -32,20 +42,50 @@ hdiutil detach "$MOUNTED_VOLUME"
 hdiutil attach -nobrowse $PACKAGEDIR_X86/*.dmg
 ditto "$MOUNTED_BUNDLEDIR" "$BUNDLENAME_X86"
 hdiutil detach "$MOUNTED_VOLUME"
+
+# The App Store version is sandboxed, and may load no kernel it builds itself
+# (see PVBCIDrawingBackendOpenCL::initialize()): build them into each bundle,
+# for its signature to cover them. arm64 runs no unsigned code, and sign() below
+# is what signs the bundles for real: sign them ad hoc meanwhile. Rosetta runs
+# the Intel bundle, and only reports AVX to the code it translates when asked
+# to. Without its kernels, the Intel version still draws, with QPainter.
+KERNELS_DIR="Contents/PlugIns/pocl-kernels"
+KERNELS_TOOL="Contents/MacOS/squey-prepare-kernels"
+prepare_kernels()
+{
+    bundlename="$1"
+    shift
+    mach_o_files "$bundlename/Contents" | while read -r bin; do
+        codesign --force --sign - "$bin" 2> /dev/null
+    done
+    "$@" "$bundlename/$KERNELS_TOOL" "$bundlename/$KERNELS_DIR"
+}
+prepare_kernels "$BUNDLENAME_ARM"
+softwareupdate --install-rosetta --agree-to-license || true
+ROSETTA_ADVERTISE_AVX=1 prepare_kernels "$BUNDLENAME_X86" arch -x86_64 ||
+    echo "warning: no kernels for the Intel version, which will draw with QPainter" >&2
+
 hdiutil attach -nobrowse $PACKAGEDIR_ARM/*.dmg
 ditto "$MOUNTED_BUNDLEDIR" "$BUNDLENAME"
 hdiutil detach "$MOUNTED_VOLUME"
-find "$BUNDLENAME" -type f | while read arm_file; do
-    if file "$arm_file" | grep -q "Mach-O"; then
-        rel_path="${arm_file#$BUNDLENAME/}"
-        x86_file="$BUNDLENAME_X86/$rel_path"
-        out_file="$BUNDLENAME/$rel_path"
-        if [ -f "$x86_file" ]; then
-            mkdir -p "$(dirname "$out_file")"
-            lipo -create "$x86_file" "$arm_file" -output "$out_file" || true
-        else
-            echo "Missing x86_64 file: $x86_file" >&2
-        fi
+# The tool only serves the packaging: no version ships it.
+rm -f "$BUNDLENAME_ARM/$KERNELS_TOOL" "$BUNDLENAME_X86/$KERNELS_TOOL" "$BUNDLENAME/$KERNELS_TOOL"
+mach_o_files "$BUNDLENAME" | while read -r arm_file; do
+    rel_path="${arm_file#$BUNDLENAME/}"
+    x86_file="$BUNDLENAME_X86/$rel_path"
+    out_file="$BUNDLENAME/$rel_path"
+    if [ -f "$x86_file" ]; then
+        mkdir -p "$(dirname "$out_file")"
+        lipo -create "$x86_file" "$arm_file" -output "$out_file" || true
+    else
+        echo "Missing x86_64 file: $x86_file" >&2
+    fi
+done
+# The kernels of each architecture lie under hashes of their own, so the
+# universal bundle takes both sets side by side rather than merged by lipo.
+for arch_bundle in "$BUNDLENAME_ARM" "$BUNDLENAME_X86"; do
+    if [ -d "$arch_bundle/$KERNELS_DIR" ]; then
+        ditto "$arch_bundle/$KERNELS_DIR" "$BUNDLENAME/$KERNELS_DIR"
     fi
 done
 
@@ -132,11 +172,8 @@ sign()
     unlock_keychain
 
     # Sign binaries
-    find "$bundlename/Contents" -type f | while read bin; do
-        TYPE=$(file "$bin")
-        if echo "$TYPE" | grep -q "Mach-O"; then
-            codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
-        fi
+    mach_o_files "$bundlename/Contents" | while read -r bin; do
+        codesign_retry codesign --verbose=4 --display --keychain "$KEYCHAINPATH" --deep --force --options runtime --sign "$CERT_IDENTITY" "$bin"
     done
 
     # Sign executables with sandbox entitlement

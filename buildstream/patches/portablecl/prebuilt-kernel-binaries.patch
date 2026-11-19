@@ -1,0 +1,98 @@
+Load work-group functions from a directory of prebuilt binaries
+
+A sandboxed macOS application gets every file it writes quarantined, and
+cannot lift the quarantine. Gatekeeper refuses to load quarantined code that
+is not notarized: each work-group function pocl links into its cache at run
+time is refused, behind a dialog offering to move it to the trash. The Mac
+App Store accepts sandboxed applications only.
+
+The binaries can be built in advance, and shipped signed in the application
+bundle. pocl now looks a final binary up under POCL_KERNEL_CACHE_PREBUILT_DIR,
+a read-only directory laid out like the cache, before it looks in the cache.
+POCL_KERNEL_CACHE_PREBUILT_ONLY makes a binary missing there an error instead
+of a build: nothing written at run time is ever loaded, and the command fails,
+which the application can fall back from.
+
+diff --git a/include/pocl_cache.h b/include/pocl_cache.h
+index 303e4b792..c1beb7834 100644
+--- a/include/pocl_cache.h
++++ b/include/pocl_cache.h
+@@ -160,6 +160,15 @@ void pocl_cache_final_binary_path (char *final_binary_path, cl_program program,
+                                    unsigned device_i, cl_kernel kernel,
+                                    _cl_command_node *command, int specialize);
+ 
++/* Looks a final binary path given by pocl_cache_final_binary_path() up under
++   POCL_KERNEL_CACHE_PREBUILT_DIR, a read-only directory laid out like the
++   cache, and rewrites the path to that copy when it exists there.
++
++   Returns 1 when the copy was found, 0 when it was not and the binary may be
++   built in the cache, -1 when it was not and POCL_KERNEL_CACHE_PREBUILT_ONLY
++   forbids building or loading anything else. */
++int pocl_cache_find_prebuilt_binary (char *final_binary_path);
++
+ 
+ #ifdef __cplusplus
+ }
+diff --git a/lib/CL/devices/common.c b/lib/CL/devices/common.c
+index f41bf4937..dd539683f 100644
+--- a/lib/CL/devices/common.c
++++ b/lib/CL/devices/common.c
+@@ -1097,6 +1097,20 @@ pocl_check_kernel_disk_cache (char *module_fn,
+      of reqd_wg_size, there might not be a dynamic sized one at all.  */
+   pocl_cache_final_binary_path (module_fn, p, dev_i, k, command, specialized);
+ 
++  switch (pocl_cache_find_prebuilt_binary (module_fn))
++    {
++    case 1:
++      POCL_MSG_PRINT_INFO ("Using a prebuilt WG function: %s\n", module_fn);
++      return CL_SUCCESS;
++    case -1:
++      POCL_MSG_ERR ("No prebuilt WG function for kernel %s, which "
++                    "POCL_KERNEL_CACHE_PREBUILT_ONLY forbids building: %s\n",
++                    k->name, module_fn);
++      return -1;
++    default:
++      break;
++    }
++
+   if (pocl_exists (module_fn))
+     {
+       POCL_MSG_PRINT_INFO ("Using a cached WG function: %s\n", module_fn);
+diff --git a/lib/CL/pocl_cache.c b/lib/CL/pocl_cache.c
+index 9b9b225ba..5f372fee4 100644
+--- a/lib/CL/pocl_cache.c
++++ b/lib/CL/pocl_cache.c
+@@ -286,6 +286,33 @@ pocl_cache_final_binary_path (char *final_binary_path, cl_program program,
+                                    specialized);
+ }
+ 
++int
++pocl_cache_find_prebuilt_binary (char *final_binary_path)
++{
++  const char *prebuilt_dir
++      = pocl_get_string_option ("POCL_KERNEL_CACHE_PREBUILT_DIR", NULL);
++  const int prebuilt_only
++      = pocl_get_bool_option ("POCL_KERNEL_CACHE_PREBUILT_ONLY", 0);
++  const size_t topdir_len = strlen (cache_topdir);
++
++  if (prebuilt_dir != NULL && prebuilt_dir[0] != '\0'
++      && strncmp (final_binary_path, cache_topdir, topdir_len) == 0)
++    {
++      char prebuilt_path[POCL_MAX_PATHNAME_LENGTH];
++      int bytes_written
++          = snprintf (prebuilt_path, POCL_MAX_PATHNAME_LENGTH, "%s%s",
++                      prebuilt_dir, final_binary_path + topdir_len);
++      if (bytes_written > 0 && bytes_written < POCL_MAX_PATHNAME_LENGTH
++          && pocl_exists (prebuilt_path))
++        {
++          memcpy (final_binary_path, prebuilt_path, bytes_written + 1);
++          return 1;
++        }
++    }
++
++  return prebuilt_only ? -1 : 0;
++}
++
+ /******************************************************************************/
+ /******************************************************************************/
+ 
