@@ -352,6 +352,8 @@ void PVParallelView::PVSeriesViewWidget::setup_series_tree(PVCol abscissa)
 
 	connect(_series_tree_widget, &PVSeriesTreeView::selection_changed, this,
 	        &PVSeriesViewWidget::update_selected_series);
+	connect(_series_tree_widget, &PVSeriesTreeView::selection_changed, this,
+	        &PVSeriesViewWidget::update_hidden_series);
 
 	// connect hunting rectangle
 	connect(_zoomer, &PVSeriesViewZoomer::hunt_commit, [this](QRect region, bool addition) {
@@ -477,7 +479,9 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 	std::vector<PVSeriesView::SerieDrawInfo> series_draw_order;
 	std::unordered_set<size_t> selected_timeseries;
 	selected_timeseries.reserve(_sampler->timeseries_count() * _sampler->group_count());
-	for (const QModelIndex& index : _series_tree_widget->selectedIndexes()) {
+	// From the selection model: the view leaves out the rows it hides, which may have just been
+	// selected.
+	for (const QModelIndex& index : _selection_model->selectedIndexes()) {
 		auto index_id = index.data(Qt::UserRole).value<PVCol>();
 		if ((index.parent().isValid() or not is_splitted())) {
 			QColor index_color = index.data(Qt::BackgroundRole).value<QBrush>().color();
@@ -525,6 +529,34 @@ void PVParallelView::PVSeriesViewWidget::update_cursor_values()
 		}
 	}
 	_tree_model->set_values(std::move(values));
+}
+
+void PVParallelView::PVSeriesViewWidget::show_selected_series_only(bool selected_only)
+{
+	_selected_series_only = selected_only;
+	update_hidden_series();
+}
+
+void PVParallelView::PVSeriesViewWidget::update_hidden_series()
+{
+	const auto listed = [this](const QModelIndex& index) {
+		return not _selected_series_only or _selection_model->isSelected(index);
+	};
+	const auto set_hidden = [this](int row, const QModelIndex& parent, bool hidden) {
+		if (_series_tree_widget->isRowHidden(row, parent) != hidden) {
+			_series_tree_widget->setRowHidden(row, parent, hidden);
+		}
+	};
+	for (int row = 0; row < _tree_model->rowCount(); row++) {
+		const QModelIndex column = _tree_model->index(row, 0);
+		bool column_listed = not is_splitted() and listed(column);
+		for (int group = 0; group < _tree_model->rowCount(column); group++) {
+			const bool group_listed = listed(_tree_model->index(group, 0, column));
+			set_hidden(group, column, not group_listed);
+			column_listed |= group_listed;
+		}
+		set_hidden(row, QModelIndex(), not column_listed);
+	}
 }
 
 bool PVParallelView::PVSeriesViewWidget::is_in_region(const QRect region, PVCol col) const

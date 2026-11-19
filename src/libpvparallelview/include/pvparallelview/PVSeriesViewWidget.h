@@ -93,6 +93,18 @@ class PVSeriesViewWidget : public QWidget
 	 */
 	void update_cursor_values();
 
+	/**
+	 * Lists only the selected series, those the plot draws, while @p selected_only; all of them
+	 * otherwise.
+	 */
+	void show_selected_series_only(bool selected_only);
+
+	/**
+	 * Hides the rows of the series left out of the selection while only the selected ones are
+	 * listed, a column once none of its groups is selected; shows every row otherwise.
+	 */
+	void update_hidden_series();
+
   Q_SIGNALS:
 	void set_status_bar_mouse_legend(PVWidgets::PVMouseButtonsLegend legend);
 	void clear_status_bar_mouse_legend();
@@ -111,6 +123,7 @@ class PVSeriesViewWidget : public QWidget
 
 	bool _update_selected_series_resample = false;
 	bool _synchro_selected_list = false;
+	bool _selected_series_only = false;
 
 	PVCol _abscissa_axis;
 	PVCol _split_axis;
