@@ -137,11 +137,17 @@ class PVFileListDescription : public PVFileDescription
 	static std::unique_ptr<PVInputDescription> load_from_string(pvcop::db::format const& fields,
 	                                                            bool /*multi_inputs*/)
 	{
+		return std::unique_ptr<PVFileListDescription>(new PVFileListDescription(paths_of(fields)));
+	}
+
+	/** The paths of the files of the description that load_from_string() makes of @p fields. */
+	static QStringList paths_of(pvcop::db::format const& fields)
+	{
 		QStringList paths;
 		for (const std::string& field : fields) {
 			paths << QString::fromStdString(field);
 		}
-		return std::unique_ptr<PVFileListDescription>(new PVFileListDescription(paths));
+		return paths;
 	}
 
   public:
@@ -152,6 +158,16 @@ class PVFileListDescription : public PVFileDescription
 	}
 
 	static std::unique_ptr<PVInputDescription> serialize_read(PVCore::PVSerializeObject& so)
+	{
+		return std::unique_ptr<PVInputDescription>(new PVFileListDescription(read_paths(so)));
+	}
+
+	/**
+	 * The paths of the files of the description that serialize_write() wrote to @p so.
+	 *
+	 * @throw PVCore::PVSerializeReparaibleFileError if one of the files cannot be read
+	 */
+	static QStringList read_paths(PVCore::PVSerializeObject& so)
 	{
 		so.set_current_status("Loading source file information...");
 		QStringList paths = so.attribute_read<QStringList>("files_path");
@@ -165,7 +181,7 @@ class PVFileListDescription : public PVFileDescription
 			}
 		}
 
-		return std::unique_ptr<PVInputDescription>(new PVFileListDescription(paths));
+		return paths;
 	}
 };
 
