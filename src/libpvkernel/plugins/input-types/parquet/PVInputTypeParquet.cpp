@@ -31,7 +31,7 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include "../../common/parquet/PVParquetAPI.h"
-#include "../../common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 #include "PVParquetNrawExporter.h"
 
 #include <QMessageBox>
@@ -40,7 +40,7 @@
 
 #include <sys/time.h>
 
-PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVParquetFileDescription>()
+PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVFileListDescription>()
 {
 }
 
@@ -110,7 +110,7 @@ bool PVRush::PVInputTypeParquet::create_source_description_params(const QString&
 bool PVRush::PVInputTypeParquet::create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const
 {
 	try {
-		PVParquetFileDescription* input_desc = new PVParquetFileDescription(paths);
+		PVFileListDescription* input_desc = new PVFileListDescription(paths);
 		PVParquetAPI api(input_desc);
 
 		if (not api.same_schemas()) {
@@ -135,7 +135,7 @@ PVRush::PVFormat PVRush::PVInputTypeParquet::get_format_from_inputs(list_inputs 
 		return {};
 	}
 
-	auto* input_desc = dynamic_cast<PVParquetFileDescription*>(inputs.front().get());
+	auto* input_desc = dynamic_cast<PVFileListDescription*>(inputs.front().get());
 	if (input_desc == nullptr) {
 		return {};
 	}
@@ -151,7 +151,7 @@ PVRush::PVInputTypeParquet::create_exporter_widget(const list_inputs& inputs,
 	// The codec of the input, unless it cannot be read anymore, which the export then reports.
 	arrow::Compression::type codec = arrow::Compression::UNCOMPRESSED;
 	try {
-		auto* input_desc = dynamic_cast<PVParquetFileDescription*>(inputs.front().get());
+		auto* input_desc = dynamic_cast<PVFileListDescription*>(inputs.front().get());
 		PVParquetAPI api(input_desc);
 		codec = api.arrow_reader()->parquet_reader()->metadata()->RowGroup(0)->ColumnChunk(0)->compression();
 	} catch (...) {

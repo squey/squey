@@ -32,7 +32,7 @@
  */
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
-#include "../../plugins/common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 #include "../../plugins/input-types/parquet/PVParquetNrawExporter.h"
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -127,7 +127,7 @@ std::string names_of(const std::shared_ptr<arrow::Table>& table)
 void import_parquet(const std::string& path, PVRush::PVNraw& nraw)
 {
 	PVRush::PVNrawOutput output(nraw);
-	auto* input_desc = new PVRush::PVParquetFileDescription({QString::fromStdString(path)});
+	auto* input_desc = new PVRush::PVFileListDescription({QString::fromStdString(path)});
 	PVRush::PVInputType::list_inputs inputs;
 	inputs << PVRush::PVInputDescription_p(input_desc);
 	PVRush::PVParquetAPI api(input_desc);

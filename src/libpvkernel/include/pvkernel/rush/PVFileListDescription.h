@@ -22,8 +22,8 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __PVPARQUETDESCRIPTION_H__
-#define __PVPARQUETDESCRIPTION_H__
+#ifndef __PVRUSH_PVFILELISTDESCRIPTION_H__
+#define __PVRUSH_PVFILELISTDESCRIPTION_H__
 
 #include <pvkernel/rush/PVFileDescription.h>
 
@@ -45,10 +45,15 @@
 namespace PVRush
 {
 
-class PVParquetFileDescription : public PVFileDescription
+/**
+ * Files that a source reads one after the other, such as Parquet files. A source of several of
+ * them starts with a column naming the file of each row, unless disable_multi_inputs() says
+ * otherwise.
+ */
+class PVFileListDescription : public PVFileDescription
 {
   public:
-	PVParquetFileDescription(
+	PVFileListDescription(
 		QStringList const& paths
 	)
 	    : PVFileDescription(paths.front(), paths.size() > 1 /*multi_inputs*/)
@@ -111,7 +116,7 @@ class PVParquetFileDescription : public PVFileDescription
 
 	bool operator==(const PVInputDescription& other) const override
 	{
-		auto const* o = dynamic_cast<const PVParquetFileDescription*>(&other);
+		auto const* o = dynamic_cast<const PVFileListDescription*>(&other);
 		return o != nullptr and _paths == o->_paths;
 	}
 
@@ -141,7 +146,7 @@ class PVParquetFileDescription : public PVFileDescription
 		for (const std::string& field : fields) {
 			paths << QString::fromStdString(field);
 		}
-		return std::unique_ptr<PVParquetFileDescription>(new PVParquetFileDescription(paths));
+		return std::unique_ptr<PVFileListDescription>(new PVFileListDescription(paths));
 	}
 
   public:
@@ -165,10 +170,10 @@ class PVParquetFileDescription : public PVFileDescription
 			}
 		}
 
-		return std::unique_ptr<PVInputDescription>(new PVParquetFileDescription(paths));
+		return std::unique_ptr<PVInputDescription>(new PVFileListDescription(paths));
 	}
 };
 
 } // namespace PVRush
 
-#endif // __PVPARQUETDESCRIPTION_H__
+#endif // __PVRUSH_PVFILELISTDESCRIPTION_H__

@@ -41,7 +41,7 @@
 #include <memory>
 #include <vector>
 
-#include "PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 
 namespace PVRush
 {
@@ -66,7 +66,7 @@ class PVParquetAPI
 	static constexpr char input_column_name[] = "filename";
 
   public:
-	PVParquetAPI(const PVRush::PVParquetFileDescription* input_desc);
+	PVParquetAPI(const PVRush::PVFileListDescription* input_desc);
 
 	parquet::arrow::FileReader* arrow_reader() { return _arrow_reader.get(); }
 	const parquet::arrow::FileReader* arrow_reader() const { return _arrow_reader.get(); }
@@ -90,7 +90,7 @@ class PVParquetAPI
   private:
   	std::unique_ptr<parquet::arrow::FileReader> _arrow_reader;
 	mutable QDomDocument _format;
-	const PVRush::PVParquetFileDescription* _input_desc = nullptr;
+	const PVRush::PVFileListDescription* _input_desc = nullptr;
 	size_t _next_input_file = 0;
 	std::vector<size_t> _column_indexes;
 };

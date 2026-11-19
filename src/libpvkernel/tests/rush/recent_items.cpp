@@ -32,7 +32,7 @@
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
 #include <pvkernel/core/PVUtils.h>
-#include "../../plugins/common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -59,7 +59,7 @@
 static PVRush::PVFormat build_parquet_source(const QStringList& paths,
                                              PVRush::PVInputType::list_inputs& inputs)
 {
-	auto* input_desc = new PVRush::PVParquetFileDescription(paths);
+	auto* input_desc = new PVRush::PVFileListDescription(paths);
 	inputs << PVRush::PVInputDescription_p(input_desc);
 	PVRush::PVParquetAPI api(input_desc);
 	return PVRush::PVFormat(api.get_format().documentElement());
@@ -164,7 +164,7 @@ UNICODE_MAIN()
 		PV_VALID(sd.get_inputs().size(), qsizetype(1));
 		PV_ASSERT_VALID(dynamic_cast<PVRush::PVFileDescription*>(sd.get_inputs()[0].get()) !=
 		                nullptr);
-		PV_ASSERT_VALID(dynamic_cast<PVRush::PVParquetFileDescription*>(
+		PV_ASSERT_VALID(dynamic_cast<PVRush::PVFileListDescription*>(
 		                    sd.get_inputs()[0].get()) == nullptr);
 
 		// clear_missing_files() (run at startup) keeps the valid source.
@@ -213,11 +213,11 @@ UNICODE_MAIN()
 		PV_VALID(filenames.size(), qsizetype(1));
 
 		// Rebuild must NOT throw despite the empty format (the crash fix) and must
-		// rebuild a PVParquetFileDescription.
+		// rebuild a PVFileListDescription.
 		PVRush::PVSourceDescription sd(ss);
 		PV_VALID(sd.get_inputs().size(), qsizetype(1));
 		auto* rebuilt =
-		    dynamic_cast<PVRush::PVParquetFileDescription*>(sd.get_inputs()[0].get());
+		    dynamic_cast<PVRush::PVFileListDescription*>(sd.get_inputs()[0].get());
 		PV_ASSERT_VALID(rebuilt != nullptr);
 		PV_VALID(rebuilt->paths().size(), qsizetype(1));
 		PV_VALID(rebuilt->paths().front().toStdString(), parquet_file1);
@@ -261,7 +261,7 @@ UNICODE_MAIN()
 		PVRush::PVSourceDescription sd(ss);
 		PV_VALID(sd.get_inputs().size(), qsizetype(1));
 		auto* rebuilt =
-		    dynamic_cast<PVRush::PVParquetFileDescription*>(sd.get_inputs()[0].get());
+		    dynamic_cast<PVRush::PVFileListDescription*>(sd.get_inputs()[0].get());
 		PV_ASSERT_VALID(rebuilt != nullptr);
 		PV_VALID(rebuilt->paths().size(), qsizetype(2));
 		PV_VALID(rebuilt->paths()[0].toStdString(), parquet_file1);

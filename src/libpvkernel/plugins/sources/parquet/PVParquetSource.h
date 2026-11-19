@@ -42,7 +42,7 @@
 #include <QString>
 #include <vector>
 
-#include "../../common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 #include "../../common/parquet/PVParquetAPI.h"
 #include "PVParquetSource.h"
 #include "PVParquetBinaryChunk.h"
@@ -52,7 +52,7 @@
 
 namespace PVRush
 {
-class PVParquetFileDescription;
+class PVFileListDescription;
 
 class PVParquetSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 {
@@ -73,7 +73,7 @@ class PVParquetSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	PVCore::PVBinaryChunk* operator()() override;
 
   private:
-	PVRush::PVParquetFileDescription* _input_desc;
+	PVRush::PVFileListDescription* _input_desc;
 	PVRush::PVParquetAPI _api;
 	std::unique_ptr<::arrow::RecordBatchReader> _recordbatch_reader;
 

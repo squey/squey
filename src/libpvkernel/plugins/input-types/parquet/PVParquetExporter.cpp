@@ -40,7 +40,7 @@
 /**
  * @throw PVRush::PVExportError if the first file of @p input_desc cannot be read
  */
-static PVRush::PVParquetAPI api_of(const PVRush::PVParquetFileDescription* input_desc)
+static PVRush::PVParquetAPI api_of(const PVRush::PVFileListDescription* input_desc)
 {
     try {
         return PVRush::PVParquetAPI(input_desc);
@@ -201,7 +201,7 @@ PVRush::PVParquetExporter::PVParquetExporter(const PVRush::PVInputType::list_inp
 
 void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const PVCore::PVSelBitField & sel)
 {
-    PVRush::PVParquetFileDescription* input_desc = dynamic_cast<PVRush::PVParquetFileDescription*>(_inputs.front().get());
+    PVRush::PVFileListDescription* input_desc = dynamic_cast<PVRush::PVFileListDescription*>(_inputs.front().get());
 
     const auto& paths = input_desc->paths();
     if (paths.contains(QString::fromStdString(out_path))) {

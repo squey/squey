@@ -32,7 +32,7 @@
  *   the export dialogs show.
  */
 
-#include "../../plugins/common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 #include "../../plugins/input-types/parquet/PVParquetExporter.h"
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/squey_assert.h>
@@ -82,7 +82,7 @@ std::shared_ptr<arrow::Table> write_ids(const QString& path, int64_t first_id)
 PVRush::PVInputType::list_inputs inputs_of(const QStringList& paths)
 {
 	PVRush::PVInputType::list_inputs inputs;
-	inputs << PVRush::PVInputDescription_p(new PVRush::PVParquetFileDescription(paths));
+	inputs << PVRush::PVInputDescription_p(new PVRush::PVFileListDescription(paths));
 	return inputs;
 }
 

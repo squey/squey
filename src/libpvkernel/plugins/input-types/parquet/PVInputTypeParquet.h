@@ -28,7 +28,7 @@
 #include "parquet/PVParquetExporter.h"
 #include "parquet/PVParquetExporterWidget.h"
 #include <pvkernel/rush/PVInputType.h>
-#include "../common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 
 #include <QString>
 #include <QStringList>
@@ -38,7 +38,7 @@
 namespace PVRush
 {
 
-class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
+class PVInputTypeParquet : public PVInputTypeDesc<PVFileListDescription>
 {
   public:
 	PVInputTypeParquet();

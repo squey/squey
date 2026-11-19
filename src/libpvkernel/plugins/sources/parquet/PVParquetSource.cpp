@@ -36,11 +36,11 @@
 
 #include "PVParquetBinaryChunk.h"
 #include "parquet/PVParquetAPI.h"
-#include "parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 #include "pvkernel/rush/PVInputDescription.h"
 
 PVRush::PVParquetSource::PVParquetSource(PVInputDescription_p input)
-    : _input_desc(reinterpret_cast<PVRush::PVParquetFileDescription*>(input.get()))
+    : _input_desc(reinterpret_cast<PVRush::PVFileListDescription*>(input.get()))
     , _api(_input_desc)
 {
 	_dicts.resize(_api.column_indexes().size());
