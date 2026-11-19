@@ -77,5 +77,11 @@ add_squey_test(Tpvguiqt_settings_dialog Tpvguiqt_settings_dialog -platform offsc
 set_property(TEST SQUEY_TEST_Tpvguiqt_settings_dialog APPEND PROPERTY
 	ENVIRONMENT "SQUEY_CONFIG_DIR=settings_dialog_config")
 
+add_squey_compile_test(Tpvguiqt_axes_combination_export LINKS ${COMMON_LIBRARIES} FILES axes_combination_export.cpp common.cpp)
+add_squey_test(Tpvguiqt_axes_combination_export Tpvguiqt_axes_combination_export -platform offscreen)
+# The default options of the CSV export, rather than those the user last chose.
+set_property(TEST SQUEY_TEST_Tpvguiqt_axes_combination_export APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=axes_combination_export_config")
+
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

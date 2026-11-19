@@ -28,12 +28,9 @@
 #include <pvkernel/rush/PVCSVExporter.h>
 #include <pvkernel/widgets/PVCSVExporterWidget.h>
 #include <pvkernel/widgets/qkeysequencewidget.h>
-#include <squey/PVAxesCombination.h>
 #include <squey/PVView.h>
 #include <squey/PVSource.h>
-#include <pvguiqt/PVAxesCombinationWidget.h>
-
-#include <QButtonGroup>
+#include <pvguiqt/PVAxesCombinationExportWidget.h>
 
 namespace PVGuiQt
 {
@@ -41,8 +38,7 @@ namespace PVGuiQt
 class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 {
   public:
-	PVCSVExporterWidget(Squey::PVView const& view)
-	    : PVWidgets::PVCSVExporterWidget(), _custom_axes_combination(view.get_axes_combination())
+	PVCSVExporterWidget(Squey::PVView const& view) : PVWidgets::PVCSVExporterWidget()
 	{
 		// Layout for export_layout is:
 		// --------------------export_layout---------------------------
@@ -53,64 +49,31 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		QVBoxLayout* right_layout = new QVBoxLayout();
 		_export_layout->addLayout(right_layout);
 
+		/// right_layout
+		auto* axes = new PVAxesCombinationExportWidget(
+		    view, PVAxesCombinationExportWidget::Choice::Current, "Use all axes combination");
+		right_layout->addWidget(axes);
+		// The header names the row index, and is quoted and separated as the rows are.
+		const auto export_axes = [this, axes]() {
+			_exporter.set_column_indexes(axes->column_indexes());
+			_exporter.set_header(axes->names());
+		};
+		QObject::connect(axes, &PVAxesCombinationExportWidget::changed, export_axes);
+		QObject::connect(this, &PVWidgets::PVCSVExporterWidget::separator_char_changed,
+		                 export_axes);
+		QObject::connect(this, &PVWidgets::PVCSVExporterWidget::quote_char_changed, export_axes);
+		export_axes();
+
 		// left_layout
 		QCheckBox* export_rows_index = new QCheckBox("Export rows index");
-		QObject::connect(export_rows_index, &QCheckBox::checkStateChanged, [&](int state) {
-			_exporter.set_export_rows_index(state);
-			if (_selected_radio_button) { // force header regeneration
-				Q_EMIT _selected_radio_button->toggled(_selected_radio_button->isChecked());
-			}
-		});
+		QObject::connect(export_rows_index, &QCheckBox::checkStateChanged,
+		                 [this, export_axes](Qt::CheckState state) {
+			                 _exporter.set_export_rows_index(state == Qt::Checked);
+			                 export_axes();
+		                 });
 
 		export_rows_index->setCheckState(Qt::CheckState::Unchecked);
 		((QVBoxLayout*)_export_layout->itemAt(0)->layout())->insertWidget(1, export_rows_index);
-
-		/// right_layout
-		QButtonGroup* button_group = new QButtonGroup(this);
-
-		// Use all axes combination
-		QRadioButton* all_axis = new QRadioButton("Use all axes combination");
-		button_group->addButton(all_axis);
-		// all_axis and current_axis below are local pointers : they must be captured by
-		// value, as a by-reference capture would read dead stack once this constructor
-		// returns, and store garbage into _selected_radio_button.
-		QObject::connect(all_axis, &QRadioButton::toggled, [&, all_axis](bool checked) {
-			if (checked) {
-				PVCore::PVColumnIndexes column_indexes;
-				for (PVCol a(0); a < view.get_parent<Squey::PVSource>().get_nraw_column_count();
-				     a++) {
-					column_indexes.push_back(a);
-				}
-				_exporter.set_column_indexes(column_indexes);
-				_exporter.set_header(view.get_axes_combination().get_nraw_names());
-				_selected_radio_button = all_axis;
-			}
-		});
-		right_layout->addWidget(all_axis);
-
-		// Use current axes combination
-		QRadioButton* current_axis = new QRadioButton("Use current axes combination");
-		button_group->addButton(current_axis);
-		QObject::connect(current_axis, &QRadioButton::toggled, [&, current_axis](bool checked) {
-			if (checked) {
-				_exporter.set_column_indexes(view.get_axes_combination().get_combination());
-				_exporter.set_header(view.get_axes_combination().get_combined_names());
-				_selected_radio_button = current_axis;
-			}
-		});
-		current_axis->setChecked(true);
-		right_layout->addWidget(current_axis);
-
-		// Use custom axes combination
-		QHBoxLayout* custom_axes_combination_layout = new QHBoxLayout();
-		QRadioButton* custom_axis = new QRadioButton("Use custom axes combination");
-		button_group->addButton(custom_axis);
-		QPushButton* edit_axes_combination = new QPushButton("Edit");
-		edit_axes_combination->setEnabled(custom_axis->isChecked());
-
-		custom_axes_combination_layout->addWidget(custom_axis);
-		custom_axes_combination_layout->addWidget(edit_axes_combination);
-		right_layout->addLayout(custom_axes_combination_layout);
 
 		// Export internal values
 		QCheckBox* export_internal_values =
@@ -120,33 +83,7 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 		                 [&](int state) { _exporter.set_export_internal_values((bool)state); });
 		right_layout->addWidget(export_internal_values);
 
-		QObject::connect(
-		    this, &PVWidgets::PVCSVExporterWidget::separator_char_changed,
-		    [&, button_group]() { Q_EMIT button_group->checkedButton()->toggled(true); });
-
-		QObject::connect(
-		    this, &PVWidgets::PVCSVExporterWidget::quote_char_changed,
-		    [&, button_group]() { Q_EMIT button_group->checkedButton()->toggled(true); });
-
 		right_layout->addStretch();
-
-		// TODO : add an OK button
-		PVGuiQt::PVAxesCombinationWidget* axes_combination_widget =
-		    new PVGuiQt::PVAxesCombinationWidget(_custom_axes_combination);
-		axes_combination_widget->setWindowModality(Qt::WindowModal);
-		axes_combination_widget->hide();
-
-		QObject::connect(custom_axis, &QRadioButton::toggled,
-		                 [=](bool show) { edit_axes_combination->setEnabled(show); });
-		QObject::connect(edit_axes_combination, &QPushButton::clicked,
-		                 [=]() { axes_combination_widget->show(); });
-		QObject::connect(axes_combination_widget, &PVGuiQt::PVAxesCombinationWidget::closed, [&,custom_axis]() {
-			if (custom_axis->isChecked()) {
-				_exporter.set_column_indexes(_custom_axes_combination.get_combination());
-				_exporter.set_header(_custom_axes_combination.get_combined_names());
-				_selected_radio_button = custom_axis;
-			}
-		});
 
 		//////
 		// Rows to export
@@ -172,10 +109,6 @@ class PVCSVExporterWidget : public PVWidgets::PVCSVExporterWidget
 
   public:
 	PVRush::PVCSVExporter& exporter() override { return _exporter; }
-
-  private:
-	Squey::PVAxesCombination _custom_axes_combination;
-	QRadioButton* _selected_radio_button = nullptr;
 };
 
 } // namespace PVGuiQt

@@ -28,6 +28,9 @@ export SQUEY_PYTHONPATH="$appdir/../Resources/python/site-packages"
 # extracted outside the bundle. Without this the pcap import spawns a tshark that is
 # not there, produces no csv, and import_pcap sits until the 300 s test timeout.
 export SQUEY_TSHARK_PATH="$appdir/tshark"
+# Again: PVConfig::shared_dir() looks for the files Squey ships next to the running
+# executable. A test with a configuration of its own makes it from their pvconfig.ini.
+export SQUEY_SHARED_DIR="$appdir/../share/squey/squey"
 
 # Install dependencies
 export HOMEBREW_NO_INSTALL_CLEANUP=1

@@ -56,6 +56,10 @@ try {
     # named after the test -- so unpack it here and point them at it explicitly.
     Expand-Zip "$appdir\tshark.zip" "$appdir\tshark"
     $env:SQUEY_TSHARK_PATH = "$appdir\tshark\tshark.exe"
+    # PVConfig::shared_dir() looks for the files Squey ships, which the package holds
+    # beside squey.exe, next to the running executable. A test with a configuration of
+    # its own makes it from their pvconfig.ini.
+    $env:SQUEY_SHARED_DIR = "$appdir"
 
     # Setup Squey config file
     $squey_unicode = "Squëy" # Validate unicode support
