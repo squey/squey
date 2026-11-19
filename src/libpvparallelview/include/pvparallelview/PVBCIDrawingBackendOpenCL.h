@@ -34,6 +34,7 @@
 #include <map>
 #include <memory>
 #include <mutex>
+#include <string>
 #include <vector>
 
 namespace PVParallelView
@@ -101,6 +102,20 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 
   public:
 	static PVBCIDrawingBackendOpenCL& get();
+
+	/**
+	 * Builds every kernel the views will ask for into dir, laid out as the kernel
+	 * cache of PortableCL, for POCL_KERNEL_CACHE_PREBUILT_DIR to name: that is how
+	 * the App Store version gets kernels it is allowed to load.
+	 *
+	 * It decides where PortableCL builds to, which only holds when nothing has
+	 * brought OpenCL up in the process before. The process is not to draw anything
+	 * afterwards.
+	 *
+	 * @return whether every kernel was built and copied; false as well when the
+	 * backend draws on a device whose kernels PortableCL does not build, a GPU.
+	 */
+	static bool prepare_prebuilt_kernels(const std::string& dir);
 
   public:
 	Flags flags() const override { return Serial; }

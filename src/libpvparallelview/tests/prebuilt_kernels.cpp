@@ -22,9 +22,9 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-// POCL_KERNEL_CACHE_PREBUILT_ONLY never has PortableCL build a kernel, and the
-// views are then drawn by the QPainter backend: the App Store version of macOS
-// may load no code it writes itself.
+// Kernels built in advance are loaded from where POCL_KERNEL_CACHE_PREBUILT_DIR
+// says, and POCL_KERNEL_CACHE_PREBUILT_ONLY never has PortableCL build one: the
+// App Store version of macOS may load no code it writes itself.
 //
 // PortableCL reads its environment once per process, so each case runs in a
 // process of its own: this test, run again with the role of the case.
@@ -104,6 +104,9 @@ int run_as(const QStringList& role, const std::map<QString, QString>& variables)
 
 int main(int argc, char** argv)
 {
+	if (argc == 3 and std::string(argv[1]) == "prepare") {
+		return PVParallelView::PVBCIDrawingBackendOpenCL::prepare_prebuilt_kernels(argv[2]) ? 0 : 1;
+	}
 	if (argc == 2 and std::string(argv[1]) == "draw") {
 		return draw();
 	}
@@ -112,6 +115,19 @@ int main(int argc, char** argv)
 
 	QTemporaryDir root;
 	PV_ASSERT_VALID(root.isValid(), "temporary directory", root.errorString().toStdString());
+
+	const QString prebuilt = root.filePath("prebuilt");
+	PV_VALID(run_as({"prepare", prebuilt}, {}), 0);
+	const size_t prebuilt_count = kernel_binaries_in(prebuilt);
+	PV_ASSERT_VALID(prebuilt_count > 0, "kernel binaries prepared", prebuilt_count);
+
+	// All there, loaded from there: nothing gets built into the cache.
+	const QString cache_all_prebuilt = root.filePath("cache_all_prebuilt");
+	PV_VALID(run_as({"draw"}, {{"POCL_CACHE_DIR", cache_all_prebuilt},
+	                           {"POCL_KERNEL_CACHE_PREBUILT_DIR", prebuilt},
+	                           {"POCL_KERNEL_CACHE_PREBUILT_ONLY", "1"}}),
+	         DRAWN_BY_OPENCL);
+	PV_VALID(kernel_binaries_in(cache_all_prebuilt), size_t(0));
 
 	// None there, and none to be built: the QPainter backend draws instead.
 	const QString none = root.filePath("none");
@@ -124,13 +140,12 @@ int main(int argc, char** argv)
 	PV_VALID(kernel_binaries_in(cache_none_prebuilt), size_t(0));
 
 	// None there, but allowed to be built: they are, and into the cache, where
-	// the case above would have found them.
+	// the two cases above would have found them.
 	const QString cache_built = root.filePath("cache_built");
 	PV_VALID(run_as({"draw"},
 	                {{"POCL_CACHE_DIR", cache_built}, {"POCL_KERNEL_CACHE_PREBUILT_DIR", none}}),
 	         DRAWN_BY_OPENCL);
-	const size_t built_count = kernel_binaries_in(cache_built);
-	PV_ASSERT_VALID(built_count > 0, "kernel binaries built", built_count);
+	PV_VALID(kernel_binaries_in(cache_built), prebuilt_count);
 
 	return 0;
 }

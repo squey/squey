@@ -70,6 +70,12 @@ sed -i '' "s|\(nraw_tmp=\).*|\1${TMPDIR}|" "$inifile"
 # Increase file descriptors limit to avoid "Too many open files" error
 ulimit -n 1048576
 
+# macos_publish.sh builds the kernels of the App Store version with this tool, and
+# only runs for release tags: try it on the bundle under test first.
+if [ "$TARGET_TRIPLE" = "aarch64-apple-darwin" ]; then
+    "$appdir/squey-prepare-kernels" "$(mktemp -d)/pocl-kernels"
+fi
+
 # Run testsuite. ctest only reports "SEGFAULT" for a crashed test, and these
 # runners are the only arm64 machines available, so print the crash reports macOS
 # writes: they carry the symbolicated stack the log otherwise never shows.
