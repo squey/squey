@@ -239,7 +239,11 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
     const bool with_input_names = std::find(sources.begin(), sources.end(), -1) != sources.end();
     size_t selection_current_index = 0;
     std::shared_ptr<arrow::Schema> exported_schema;
+    bool canceled = false;
     api.visit_files([&](){
+        if (canceled) {
+            return;
+        }
         if (writer == nullptr) {
             std::shared_ptr<arrow::Schema> schema;
             arrow::Status status = api.arrow_reader()->GetSchema(&schema);
@@ -286,6 +290,7 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
                     PARQUET_THROW_NOT_OK(writer->Close());
                     std::remove(out_path.c_str());
                     _canceled = false;
+                    canceled = true;
                     return;
                 }
             }
@@ -295,5 +300,7 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
         selection_current_index += batch_current_index;
     });
 
-    PARQUET_THROW_NOT_OK(writer->Close());
+    if (not canceled) {
+        PARQUET_THROW_NOT_OK(writer->Close());
+    }
 }
