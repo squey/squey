@@ -383,8 +383,7 @@ ensure devcontainer image:
       # anything below src/libpvcop. squey-utils is needed by every build
       # (add_subdirectory), the test files by every job that builds the test
       # suite, as building it copies and installs test files, not only by the ones
-      # that run it. These run before the token rewrite below, while the
-      # CI token in the submodule remotes is still the one that can fetch.
+      # that run it.
       # Before each job, the runner deletes every config file below .git/modules
       # and only restores the remotes of the submodules it updates itself. Without
       # a remote, fetching a newly referenced commit takes "origin" for a path and
@@ -426,8 +425,6 @@ ensure devcontainer image:
       elif [ -e src/libpvcop/tests/files/.git ]; then
         git -C src/libpvcop submodule deinit -f tests/files
       fi
-      # git lfs pull
-      for f in .git/modules/*/config .git/config; do sed "s/gitlab-ci-token:[[:alnum:]]\+/gitlab-ci_read-repository:$GITLAB_DEPLOY_TOKEN_READ_REPOSITORY/g" -i "$f"; done
       cd buildstream
   interruptible: true
 
