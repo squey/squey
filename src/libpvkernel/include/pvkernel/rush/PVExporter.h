@@ -68,6 +68,18 @@ class PVExporterBase
   public:
 	virtual void export_rows(const std::string& file_path, const PVCore::PVSelBitField& sel) = 0;
 
+	/**
+	 * Whether set_columns() chooses the columns exported, rather than all of those of the
+	 * input.
+	 */
+	virtual bool exports_columns() const { return false; }
+
+	/**
+	 * Exports the NRAW columns @p columns, in their order, rather than the input as it is,
+	 * which an empty list restores. Ignored unless exports_columns().
+	 */
+	virtual void set_columns(const PVCore::PVColumnIndexes& /*columns*/) {}
+
   public:
 	virtual void cancel() { _canceled = true; }
 

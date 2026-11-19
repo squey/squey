@@ -30,7 +30,9 @@
 #include <QMessageBox>
 #include <QSpacerItem>
 #include <QStackedLayout>
+#include <QVBoxLayout>
 
+#include <pvguiqt/PVAxesCombinationExportWidget.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVCSVExporterWidget.h>
 
@@ -91,7 +93,30 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 	        source.get_inputs(), nraw);
 	if (specific_export_widget) {
 		_source_exporter = &specific_export_widget->exporter();
-		stacked_layout->addWidget(specific_export_widget);
+		QWidget* source_page = specific_export_widget;
+		if (_source_exporter->exports_columns()) {
+			source_page = new QWidget;
+			auto* source_layout = new QVBoxLayout(source_page);
+			source_layout->setContentsMargins(0, 0, 0, 0);
+			source_layout->addWidget(specific_export_widget);
+			// The input as it is, unless its columns are chosen.
+			auto* axes = new PVGuiQt::PVAxesCombinationExportWidget(
+			    view, PVGuiQt::PVAxesCombinationExportWidget::Choice::All,
+			    tr("Use all the columns of the file"));
+			source_layout->addWidget(axes);
+			source_layout->addStretch();
+			PVRush::PVExporterBase* source_exporter = _source_exporter;
+			const auto export_axes = [source_exporter, axes]() {
+				source_exporter->set_columns(
+				    axes->choice() == PVGuiQt::PVAxesCombinationExportWidget::Choice::All
+				        ? PVCore::PVColumnIndexes()
+				        : axes->column_indexes());
+			};
+			QObject::connect(axes, &PVGuiQt::PVAxesCombinationExportWidget::changed,
+			                 specific_export_widget, export_axes);
+			export_axes();
+		}
+		stacked_layout->addWidget(source_page);
 		stacked_layout->setCurrentIndex(1);
 	}
 	_groupbox->setLayout(stacked_layout);

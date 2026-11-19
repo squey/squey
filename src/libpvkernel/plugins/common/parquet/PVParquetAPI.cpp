@@ -89,8 +89,6 @@ const std::unordered_map<arrow::Type::type, PVRush::PVParquetAPI::pvcop_type_inf
 	// Note : "DATE64" is always read back as a "DATE32" by Apache Arrow, so it never reaches us
 };
 
-constexpr const char input_column_name[] = "filename";
-
 PVRush::PVParquetAPI::PVParquetAPI(const PVRush::PVParquetFileDescription* input_desc)
 	: _input_desc(input_desc)
 {

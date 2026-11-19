@@ -62,6 +62,9 @@ class PVParquetAPI
 	};
 	static const std::unordered_map<arrow::Type::type, PVParquetAPI::pvcop_type_infos>  pvcop_types_map;
 
+	/** The name of the column holding the name of the input of each row, when there are several. */
+	static constexpr char input_column_name[] = "filename";
+
   public:
 	PVParquetAPI(const PVRush::PVParquetFileDescription* input_desc);
 
