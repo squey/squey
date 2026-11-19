@@ -29,6 +29,8 @@
 
 #include <pvlogger.h>
 
+#include <arrow/compute/api.h>
+
 #include <QFileInfo>
 
 #include <exception>
@@ -75,19 +77,41 @@ T value_of(arrow::Result<T> result)
 	return std::move(result).ValueUnsafe();
 }
 
+/**
+ * The rows [@p begin, @p end[ of @p table, in arrays of their own: the conversion of a chunk reads
+ * the nulls of an array from its first row on, which a slice does not start at.
+ */
+std::shared_ptr<arrow::Table>
+rows_of(const std::shared_ptr<arrow::Table>& table, int64_t begin, int64_t end)
+{
+	arrow::Int64Builder indexes;
+	check(indexes.Reserve(end - begin));
+	for (int64_t row = begin; row < end; row++) {
+		indexes.UnsafeAppend(row);
+	}
+	return value_of(
+	    value_of(arrow::compute::Take(table, value_of(indexes.Finish()))).table()->CombineChunks());
+}
+
 } // namespace
 
 PVRush::PVJsonSource::PVJsonSource(PVInputDescription_p input)
     : _input(std::move(input))
     , _input_desc(description_of(_input))
     , _schema(schema_of(_input_desc))
-    , _rows(*_schema)
+    , _read_schema(_input_desc.row_filter().isEmpty() ? _schema->with_columns(_input_desc.columns())
+                                                      : _schema)
+    , _rows(*_read_schema)
 {
+	if (not _input_desc.row_filter().isEmpty()) {
+		_row_filter = std::make_unique<PVArrowRowFilter>(_input_desc.row_filter().toStdString());
+	}
+
 	for (const QString& path : _input_desc.paths()) {
 		_size += size_t(QFileInfo(path).size());
 	}
 
-	arrow::FieldVector fields = _schema->arrow_schema()->fields();
+	arrow::FieldVector fields = _read_schema->arrow_schema()->fields();
 	if (_input_desc.multi_inputs()) {
 		arrow::StringBuilder names;
 		for (const QString& name : _input_desc.input_names()) {
@@ -100,36 +124,39 @@ PVRush::PVJsonSource::PVJsonSource(PVInputDescription_p input)
 	}
 	_table_schema = arrow::schema(fields);
 
-	for (size_t column = 0; column < fields.size(); column++) {
+	const QStringList& columns = _input_desc.columns();
+	for (int column = 0; column < int(fields.size()); column++) {
+		const bool input_names = _input_names != nullptr and column == 0;
+		if (input_names or columns.isEmpty() or
+		    columns.contains(QString::fromStdString(fields[size_t(column)]->name()))) {
+			_imported.push_back(column);
+		}
+	}
+	for (size_t column = 0; column < _imported.size(); column++) {
 		_column_indexes.push_back(column);
 		_dicts.push_back(std::make_unique<pvcop::db::write_dict>());
 		_dicts_ptr.push_back(_dicts.back().get());
 	}
 }
 
-PVCore::PVBinaryChunk* PVRush::PVJsonSource::operator()()
+std::shared_ptr<arrow::Table> PVRush::PVJsonSource::read_rows()
 {
 	const QStringList& paths = _input_desc.paths();
-	try {
-		while (_rows.row_count() < CHUNK_ROW_COUNT) {
-			if (_lines == nullptr) {
-				if (_file_index == size_t(paths.size())) {
-					break;
-				}
-				_lines = std::make_unique<PVJsonLines>(paths[qsizetype(_file_index)]);
+	while (_rows.row_count() < CHUNK_ROW_COUNT) {
+		if (_lines == nullptr) {
+			if (_file_index == size_t(paths.size())) {
+				break;
 			}
-			char* line = _lines->next();
-			if (line == nullptr) {
-				_bytes_of_files_read += _lines->bytes_read();
-				_lines.reset();
-				_file_index++;
-			} else if (_rows.append(line) and _input_names != nullptr) {
-				check(_input_indexes.Append(int32_t(_file_index)));
-			}
+			_lines = std::make_unique<PVJsonLines>(paths[qsizetype(_file_index)]);
 		}
-	} catch (const std::exception& e) {
-		pvlogger::error() << e.what() << std::endl;
-		return nullptr;
+		char* line = _lines->next();
+		if (line == nullptr) {
+			_bytes_of_files_read += _lines->bytes_read();
+			_lines.reset();
+			_file_index++;
+		} else if (_rows.append(line) and _input_names != nullptr) {
+			check(_input_indexes.Append(int32_t(_file_index)));
+		}
 	}
 
 	const size_t row_count = _rows.row_count();
@@ -138,20 +165,59 @@ PVCore::PVBinaryChunk* PVRush::PVJsonSource::operator()()
 	}
 
 	arrow::ArrayVector arrays = _rows.finish();
-	try {
-		if (_input_names != nullptr) {
-			arrays.insert(arrays.begin(), value_of(arrow::DictionaryArray::FromArrays(
-			                                  _table_schema->field(0)->type(),
-			                                  value_of(_input_indexes.Finish()), _input_names)));
+	if (_input_names != nullptr) {
+		arrays.insert(arrays.begin(), value_of(arrow::DictionaryArray::FromArrays(
+		                                  _table_schema->field(0)->type(),
+		                                  value_of(_input_indexes.Finish()), _input_names)));
+	}
+	return arrow::Table::Make(_table_schema, std::move(arrays), int64_t(row_count));
+}
+
+std::shared_ptr<arrow::Table> PVRush::PVJsonSource::next_rows()
+{
+	while (_pending_row_count < int64_t(CHUNK_ROW_COUNT) and not _read_all) {
+		std::shared_ptr<arrow::Table> rows = read_rows();
+		if (rows == nullptr) {
+			_read_all = true;
+			break;
 		}
+		if (_row_filter != nullptr) {
+			rows = value_of(_row_filter->filter(rows)->SelectColumns(_imported));
+		}
+		_pending_row_count += rows->num_rows();
+		_pending.push_back(std::move(rows));
+	}
+	if (_pending_row_count == 0) {
+		return nullptr;
+	}
+
+	std::shared_ptr<arrow::Table> rows =
+	    value_of(value_of(arrow::ConcatenateTables(_pending))->CombineChunks());
+	_pending.clear();
+	_pending_row_count = 0;
+	if (rows->num_rows() > int64_t(CHUNK_ROW_COUNT)) {
+		_pending.push_back(rows_of(rows, int64_t(CHUNK_ROW_COUNT), rows->num_rows()));
+		_pending_row_count = _pending.back()->num_rows();
+		rows = rows_of(rows, 0, int64_t(CHUNK_ROW_COUNT));
+	}
+	return rows;
+}
+
+PVCore::PVBinaryChunk* PVRush::PVJsonSource::operator()()
+{
+	std::shared_ptr<arrow::Table> rows;
+	try {
+		rows = next_rows();
 	} catch (const std::exception& e) {
 		pvlogger::error() << e.what() << std::endl;
 		return nullptr;
 	}
-	std::shared_ptr<arrow::Table> table =
-	    arrow::Table::Make(_table_schema, std::move(arrays), int64_t(row_count));
+	if (rows == nullptr) {
+		return nullptr;
+	}
 
-	auto* chunk = new PVParquetBinaryChunk(false, true, 0, table, _column_indexes, _dicts_ptr,
+	const size_t row_count = size_t(rows->num_rows());
+	auto* chunk = new PVParquetBinaryChunk(false, true, 0, rows, _column_indexes, _dicts_ptr,
 	                                       row_count, _nraw_start_row);
 	const size_t bytes_read = _bytes_of_files_read + (_lines ? _lines->bytes_read() : 0);
 	chunk->set_init_size(bytes_read - _bytes_returned);

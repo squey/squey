@@ -68,12 +68,20 @@ class PVInputTypeJson : public PVInputTypeFileList
 
   private:
 	/**
-	 * Finds the schema of the files of @p input_desc, while the user sees the progress, and sets
-	 * @p format to that of its columns.
+	 * Finds the schema of the files of @p input_desc, while the user sees the progress.
 	 *
 	 * @return false if the user stopped it, or, after telling the user why, if the files have no
 	 * column
 	 * @throw std::runtime_error if a file cannot be read
+	 */
+	bool find_schema(PVJsonFileDescription& input_desc) const;
+
+	/**
+	 * Sets @p format to that of the columns that @p input_desc imports, after finding the schema
+	 * of its files if it has none.
+	 *
+	 * @return false as find_schema() does
+	 * @throw std::runtime_error as find_schema() does
 	 */
 	bool find_format(PVJsonFileDescription& input_desc, PVFormat& format) const;
 

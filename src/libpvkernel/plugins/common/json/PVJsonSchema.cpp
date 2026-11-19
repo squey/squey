@@ -250,3 +250,15 @@ std::shared_ptr<arrow::Schema> PVRush::PVJsonSchema::arrow_schema() const
 	}
 	return arrow::schema(fields);
 }
+
+std::shared_ptr<const PVRush::PVJsonSchema>
+PVRush::PVJsonSchema::with_columns(const QStringList& names) const
+{
+	auto schema = std::make_shared<PVJsonSchema>(*this);
+	if (not names.isEmpty()) {
+		std::erase_if(schema->_columns, [&names](const Column& column) {
+			return not names.contains(QString::fromStdString(column.name));
+		});
+	}
+	return schema;
+}

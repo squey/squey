@@ -52,7 +52,7 @@ QString PVRush::PVInputTypeJson::files_dialog_filter() const
 	return tr("JSON files of one object per line (*.json *.jsonl *.ndjson)");
 }
 
-bool PVRush::PVInputTypeJson::find_format(PVJsonFileDescription& input_desc, PVFormat& format) const
+bool PVRush::PVInputTypeJson::find_schema(PVJsonFileDescription& input_desc) const
 {
 	constexpr const int progress_maximum = 1000;
 	std::shared_ptr<const PVJsonSchema> schema;
@@ -98,10 +98,20 @@ bool PVRush::PVInputTypeJson::find_format(PVJsonFileDescription& input_desc, PVF
 	}
 
 	input_desc.set_schema(schema);
+	return true;
+}
+
+bool PVRush::PVInputTypeJson::find_format(PVJsonFileDescription& input_desc, PVFormat& format) const
+{
+	if (input_desc.schema() == nullptr and not find_schema(input_desc)) {
+		return false;
+	}
+
 	std::vector<size_t> column_indexes;
-	format = PVFormat(
-	    PVParquetAPI::format_of(schema->arrow_schema(), input_desc.multi_inputs(), column_indexes)
-	        .documentElement());
+	format = PVFormat(PVParquetAPI::format_of(
+	                      input_desc.schema()->with_columns(input_desc.columns())->arrow_schema(),
+	                      input_desc.multi_inputs(), column_indexes)
+	                      .documentElement());
 	return true;
 }
 

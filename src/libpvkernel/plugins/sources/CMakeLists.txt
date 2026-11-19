@@ -102,6 +102,7 @@ target_link_libraries(source_parquet PRIVATE pvkernel Arrow::arrow_shared Parque
 
 # The rows are read as Arrow arrays, which become those of the NRAW as Parquet rows do.
 set(JSON_SRC_FILES
+	../common/arrow/PVArrowRowFilter.cpp
 	../common/json/PVJsonLines.cpp
 	../common/json/PVJsonRows.cpp
 	../common/json/PVJsonSchema.cpp

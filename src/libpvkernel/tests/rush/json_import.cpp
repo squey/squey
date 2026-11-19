@@ -29,7 +29,8 @@
  * the fields leading to them, each with the type of its values: numbers mixing integers are
  * numbers, ISO 8601 strings are times, and arrays and mixed values are JSON text. Missing values
  * are nulls, fields always null have no column, and lines that are not objects are left out. The
- * rows of several files, with the name of their file, go through chunks that span files.
+ * rows of several files, with the name of their file, go through chunks that span files. A
+ * description can choose the columns to import.
  */
 
 #include "../../plugins/common/json/PVJsonFileDescription.h"
@@ -250,6 +251,40 @@ void check_schema_kept(const QDir& root)
 }
 
 /**
+ * The columns a description chooses, in the order of the schema, after the names of the files.
+ */
+void check_columns(const QDir& root)
+{
+	const QString first = root.filePath("chosen_first.json");
+	const QString second = root.filePath("chosen_second.json");
+	write(first, R"({"id": 1, "user": {"name": "bob", "age": 30}, "port": 80})"
+	             "\n");
+	write(second, R"({"port": 443, "id": 2, "user": {"name": "carol"}})"
+	              "\n");
+
+	for (const QStringList& paths : {QStringList{first}, QStringList{first, second}}) {
+		auto input_desc = std::make_shared<PVRush::PVJsonFileDescription>(paths);
+		input_desc->set_columns({"user.name", "id", "nowhere"});
+		input_desc->set_schema(PVRush::PVJsonSchema::infer(paths));
+		const std::shared_ptr<const PVRush::PVJsonSchema> chosen =
+		    input_desc->schema()->with_columns(input_desc->columns());
+		PV_VALID(columns_of(*chosen), std::string("id:integer,user.name:text"));
+
+		PVRush::PVNraw nraw;
+		import(input_desc, *chosen, nraw);
+		const int first_column = paths.size() > 1 ? 1 : 0;
+		PV_VALID(size_t(nraw.column_count()), size_t(2 + first_column));
+		PV_VALID(size_t(nraw.row_count()), size_t(paths.size()));
+		PV_VALID(nraw.column(PVCol(first_column)).at(0), std::string("1"));
+		PV_VALID(nraw.column(PVCol(first_column + 1)).at(0), std::string("bob"));
+		if (paths.size() > 1) {
+			PV_VALID(nraw.column(PVCol(0)).at(1), std::string("chosen_second.json"));
+			PV_VALID(nraw.column(PVCol(2)).at(1), std::string("carol"));
+		}
+	}
+}
+
+/**
  * A byte order mark, ends of lines of two characters, no end to the last line, and a line longer
  * than the blocks the lines are read by.
  */
@@ -289,6 +324,7 @@ UNICODE_MAIN()
 	check_objects(root);
 	check_files(root);
 	check_schema_kept(root);
+	check_columns(root);
 	check_lines(root);
 
 	return 0;

@@ -31,6 +31,7 @@
 
 #include <pvcop/db/write_dict.h>
 
+#include "../../common/arrow/PVArrowRowFilter.h"
 #include "../../common/json/PVJsonFileDescription.h"
 #include "../../common/json/PVJsonLines.h"
 #include "../../common/json/PVJsonRows.h"
@@ -49,7 +50,9 @@ namespace PVRush
 
 /**
  * Imports the JSON objects of files, one object per line, as rows of the columns of their schema,
- * after a column naming the file of each row when there are several of them.
+ * after a column naming the file of each row when there are several of them. Only the columns
+ * and the rows that the description chooses are imported: the condition of the rows can read any
+ * column, the one naming the files included.
  */
 class PVJsonSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 {
@@ -57,7 +60,7 @@ class PVJsonSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	/**
 	 * Reads the files once more to find their schema, if their description has none.
 	 *
-	 * @throw std::runtime_error if a file cannot be read then
+	 * @throw std::runtime_error if a file cannot be read then, or if no engine filters the rows
 	 */
 	explicit PVJsonSource(PVInputDescription_p input);
 
@@ -70,17 +73,37 @@ class PVJsonSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	PVCore::PVBinaryChunk* operator()() override;
 
   private:
+	/**
+	 * The rows of the next chunk: as many as a chunk holds, but for the last one, which has the
+	 * rows left, or nullptr when none is.
+	 */
+	std::shared_ptr<arrow::Table> next_rows();
+
+	/** The rows of the next lines that the reading can make, or nullptr after the last file. */
+	std::shared_ptr<arrow::Table> read_rows();
+
+  private:
 	PVInputDescription_p _input;
 	PVJsonFileDescription& _input_desc;
 	std::shared_ptr<const PVJsonSchema> _schema;
+	/** All of the columns for the row filter to read any of them, those imported otherwise. */
+	std::shared_ptr<const PVJsonSchema> _read_schema;
 	PVJsonRows _rows;
+	std::unique_ptr<PVArrowRowFilter> _row_filter;
 	size_t _size = 0;
 
-	/** The schema of the rows, after the column of the names of the files if there are several. */
+	/** The columns read, after the one of the names of the files if there are several. */
 	std::shared_ptr<arrow::Schema> _table_schema;
+	/** The columns imported, among those read. */
+	std::vector<int> _imported;
 	std::vector<size_t> _column_indexes;
 	std::shared_ptr<arrow::Array> _input_names;
 	arrow::Int32Builder _input_indexes;
+
+	/** The rows imported, which no chunk holds yet. */
+	std::vector<std::shared_ptr<arrow::Table>> _pending;
+	int64_t _pending_row_count = 0;
+	bool _read_all = false;
 
 	size_t _file_index = 0;
 	std::unique_ptr<PVJsonLines> _lines;

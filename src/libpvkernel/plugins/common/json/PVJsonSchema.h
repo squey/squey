@@ -90,6 +90,9 @@ class PVJsonSchema
 	/** A field of the type of each column, of its name. */
 	std::shared_ptr<arrow::Schema> arrow_schema() const;
 
+	/** This schema, with only the columns named @p names among its own, or all of them if none. */
+	std::shared_ptr<const PVJsonSchema> with_columns(const QStringList& names) const;
+
 	/** The count of the objects of the files. */
 	size_t row_count() const { return _row_count; }
 

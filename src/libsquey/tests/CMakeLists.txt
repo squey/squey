@@ -90,6 +90,14 @@ add_squey_test(Tsquey_duckdb_null_strings Tsquey_duckdb_null_strings)
 add_squey_compile_test(Tsquey_arrow_row_filter LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES arrow_row_filter.cpp ${COMMON_FILES} ../../libpvkernel/plugins/common/arrow/PVArrowRowFilter.cpp)
 add_squey_test(Tsquey_arrow_row_filter Tsquey_arrow_row_filter)
 
+set(JSON_SRC_FILES
+../../libpvkernel/plugins/common/json/PVJsonLines.cpp
+../../libpvkernel/plugins/common/json/PVJsonSchema.cpp
+../../libpvkernel/plugins/common/parquet/PVParquetAPI.cpp
+)
+add_squey_compile_test(Tsquey_json_import_filters LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES json_import_filters.cpp ${COMMON_FILES} ${JSON_SRC_FILES})
+add_squey_test(Tsquey_json_import_filters Tsquey_json_import_filters)
+
 # An address is exposed as the integer it is stored as, so the conversions that
 # bridge the two have to agree with pvcop's own formatter -- in both directions.
 add_squey_compile_test(Tsquey_duckdb_business_types LINKS ${LINK_LIBRARIES} FILES duckdb_business_types.cpp ${COMMON_FILES})
