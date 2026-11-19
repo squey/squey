@@ -27,7 +27,9 @@
  *
  * * each compression codec the export offers writes a file that reads back, as Arrow knows codecs
  *   that Parquet refuses to write;
- * * a canceled export reads no further input, and leaves no file behind.
+ * * a canceled export reads no further input, and leaves no file behind;
+ * * a failure, to write the file or to read an input, reports itself as an export error, which
+ *   the export dialogs show.
  */
 
 #include "../../plugins/common/parquet/PVParquetFileDescription.h"
@@ -45,10 +47,12 @@
 #include <parquet/arrow/writer.h>
 
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
 #include <QTemporaryDir>
 
 #include <algorithm>
+#include <iostream>
 #include <memory>
 #include <string>
 #include <vector>
@@ -87,6 +91,26 @@ PVCore::PVSelBitField all_rows(size_t row_count)
 	PVCore::PVSelBitField selection(row_count);
 	selection.select_all();
 	return selection;
+}
+
+/**
+ * Whether the export of the @p row_count rows of @p inputs to @p path, with @p codec, fails.
+ */
+bool fails(const PVRush::PVInputType::list_inputs& inputs,
+           size_t row_count,
+           const QString& path,
+           arrow::Compression::type codec = arrow::Compression::UNCOMPRESSED)
+{
+	const PVRush::PVNraw nraw;
+	PVRush::PVParquetExporter exporter(inputs, nraw);
+	exporter.set_compression_codec(codec);
+	try {
+		exporter.export_rows(path.toStdString(), all_rows(row_count));
+	} catch (const PVRush::PVExportError& e) {
+		std::cout << "export error: " << e.what() << std::endl;
+		return true;
+	}
+	return false;
 }
 
 } // namespace
@@ -148,6 +172,24 @@ UNICODE_MAIN()
 		PV_VALID(progress_count, size_t(1));
 		PV_ASSERT_VALID(not QFileInfo::exists(path));
 	}
+
+	PV_ASSERT_VALID(fails(first_inputs, ROW_COUNT, first_path));
+	PV_ASSERT_VALID(fails(first_inputs, ROW_COUNT, root.filePath("missing/exported.parquet")));
+	if (arrow::util::Codec::IsAvailable(arrow::Compression::BZ2)) {
+		PV_ASSERT_VALID(
+		    fails(first_inputs, ROW_COUNT, root.filePath("bz2.parquet"), arrow::Compression::BZ2));
+	}
+
+	// Inputs removed since the import, at the start and after the first file.
+	const QString removed_path = root.filePath("removed.parquet");
+	write_ids(removed_path, 0);
+	const PVRush::PVInputType::list_inputs removed_inputs = inputs_of({removed_path});
+	const PVRush::PVInputType::list_inputs second_removed_inputs =
+	    inputs_of({first_path, removed_path});
+	QFile::remove(removed_path);
+	PV_ASSERT_VALID(fails(removed_inputs, ROW_COUNT, root.filePath("first_removed.parquet")));
+	PV_ASSERT_VALID(
+	    fails(second_removed_inputs, 2 * ROW_COUNT, root.filePath("second_removed.parquet")));
 
 	return 0;
 }

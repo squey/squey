@@ -38,8 +38,42 @@
 #include <algorithm>
 #include <cstdint>
 #include <limits>
+#include <stdexcept>
 #include <string>
+#include <utility>
 #include <vector>
+
+/**
+ * @throw PVRush::PVExportError if @p status reports a failure, which the export dialogs show
+ */
+static void check(const arrow::Status& status)
+{
+    if (not status.ok()) {
+        throw PVRush::PVExportError(status.ToString());
+    }
+}
+
+/**
+ * @throw PVRush::PVExportError if @p result is a failure
+ */
+template <typename T>
+static T value_of(arrow::Result<T> result)
+{
+    check(result.status());
+    return std::move(result).ValueUnsafe();
+}
+
+/**
+ * @throw PVRush::PVExportError if the first file of @p input_desc cannot be read
+ */
+static PVRush::PVParquetAPI api_of(const PVRush::PVParquetFileDescription* input_desc)
+{
+    try {
+        return PVRush::PVParquetAPI(input_desc);
+    } catch (const std::runtime_error& e) {
+        throw PVRush::PVExportError(e.what());
+    }
+}
 
 template <typename TYPE>
 static std::shared_ptr<arrow::Array> array_from_indexes(
@@ -219,14 +253,13 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
 
     const auto& paths = input_desc->paths();
     if (paths.contains(QString::fromStdString(out_path))) {
-        throw std::runtime_error("Cannot overwrite an input file during export.");
-        return;
+        throw PVRush::PVExportError("Cannot overwrite an input file during export.");
     }
 
     std::shared_ptr<parquet::WriterProperties> parquet_props = parquet::WriterProperties::Builder().compression(compression_codec())->build();
     std::shared_ptr<parquet::ArrowWriterProperties> arrow_props = parquet::ArrowWriterProperties::Builder().store_schema()->build();
-    std::shared_ptr<arrow::fs::FileSystem> fs = arrow::fs::FileSystemFromUri("file:///").ValueOrDie();
-    auto output_stream = fs->OpenOutputStream(out_path).ValueOrDie();
+    std::shared_ptr<arrow::fs::FileSystem> fs = value_of(arrow::fs::FileSystemFromUri("file:///"));
+    auto output_stream = value_of(fs->OpenOutputStream(out_path));
     std::shared_ptr<arrow::io::FileOutputStream> file_output_stream = std::dynamic_pointer_cast<arrow::io::FileOutputStream>(output_stream);
     std::unique_ptr<parquet::arrow::FileWriter> writer;
 
@@ -234,24 +267,27 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
 
     size_t exported_rows_count = 0;
     const size_t rows_count_to_export = sel.bit_count();
-    PVRush::PVParquetAPI api(input_desc);
+    PVRush::PVParquetAPI api = api_of(input_desc);
     const std::vector<int> sources = column_sources(api, _columns);
     const bool with_input_names = std::find(sources.begin(), sources.end(), -1) != sources.end();
     size_t selection_current_index = 0;
     std::shared_ptr<arrow::Schema> exported_schema;
     bool canceled = false;
+    // The visit stops at the first file that cannot be opened.
+    qsizetype visited_files = 0;
     api.visit_files([&](){
+        visited_files++;
         if (canceled) {
             return;
         }
         if (writer == nullptr) {
             std::shared_ptr<arrow::Schema> schema;
-            arrow::Status status = api.arrow_reader()->GetSchema(&schema);
+            check(api.arrow_reader()->GetSchema(&schema));
             exported_schema = _columns.empty() ? viewless_schema(schema) : projected_schema(schema, sources);
-            writer = parquet::arrow::FileWriter::Open(*exported_schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props).ValueOrDie();
+            writer = value_of(parquet::arrow::FileWriter::Open(*exported_schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props));
         }
 
-        auto recordbatch_reader = api.arrow_reader()->GetRecordBatchReader().ValueOrDie();
+        auto recordbatch_reader = value_of(api.arrow_reader()->GetRecordBatchReader());
 
         size_t total_rows = api.arrow_reader()->parquet_reader()->metadata()->num_rows();
         // As Squey shows it, in the first row of the input in the NRAW.
@@ -261,7 +297,11 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
                 : std::string();
         size_t batch_current_index = 0;
         while (batch_current_index < total_rows and exported_rows_count < rows_count_to_export) {
-            const std::shared_ptr<arrow::RecordBatch> read = recordbatch_reader->Next().ValueOrDie();
+            const std::shared_ptr<arrow::RecordBatch> read = value_of(recordbatch_reader->Next());
+            if (read == nullptr) {
+                throw PVRush::PVExportError("The file '" + paths[visited_files - 1].toStdString() +
+                                            "' holds fewer rows than it announces.");
+            }
             std::shared_ptr<arrow::RecordBatch> batch =
                 _columns.empty() ? viewless_record_batch(read, exported_schema)
                                  : projected_record_batch(read, sources, exported_schema, input_name);
@@ -281,13 +321,13 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
                 // filter record batch
                 std::shared_ptr<arrow::Array> indexes = array_from_indexes<arrow::Int32Type>(arrow::int32(), selected_record_batch_indexes_core);
                 arrow::Datum result = arrow::compute::Take(batch, indexes).ValueOrDie();
-                auto status = writer->WriteRecordBatch(*result.record_batch());
+                check(writer->WriteRecordBatch(*result.record_batch()));
 
                 if (_f_progress) {
                     _f_progress(exported_rows_count += indexes->length());
                 }
                 if (_canceled) {
-                    PARQUET_THROW_NOT_OK(writer->Close());
+                    check(writer->Close());
                     std::remove(out_path.c_str());
                     _canceled = false;
                     canceled = true;
@@ -300,7 +340,12 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
         selection_current_index += batch_current_index;
     });
 
-    if (not canceled) {
-        PARQUET_THROW_NOT_OK(writer->Close());
+    if (canceled) {
+        return;
     }
+    if (visited_files < paths.size()) {
+        throw PVRush::PVExportError("Unable to read parquet file '" +
+                                    paths[visited_files].toStdString() + "'");
+    }
+    check(writer->Close());
 }
