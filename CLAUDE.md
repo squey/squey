@@ -6,6 +6,11 @@
   commits and merge requests by default: CONTRIBUTING.md wants messages that describe the change
   and mention no tool.
 
+- **Devcontainer.** An editor runs Claude Code inside the container, where
+  `.devcontainer/devcontainer.json` points `CLAUDE_CONFIG_DIR` at the `~/.claude` of the host:
+  same login, settings and plugins as on the host. The state of its interface stays apart, in
+  `~/.claude/.claude.json`.
+
 ### C/C++ code intelligence
 
 `.claude/skills/squey-clangd` is a Claude Code plugin that provides the LSP tool for C and C++

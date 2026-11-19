@@ -32,6 +32,12 @@
     // buildstream/dev_shell_bashrc reads SOURCE_DIR to find the tree to build;
     // the scripts shared with it expect the same variable here.
     "SOURCE_DIR": "${containerWorkspaceFolder}",
+    // Claude Code, which the editor runs inside the container, finds the login,
+    // settings and plugins of the host there, through the host files mounted
+    // below, instead of a home of its own that has none and goes with every
+    // rebuild. It keeps the state of its interface in that directory too, apart
+    // from the ~/.claude.json of the host.
+    "CLAUDE_CONFIG_DIR": "/run/host${localEnv:HOME}/.claude",
     // The socket mounted below. Drop both, and mount /tmp/.X11-unix instead, to
     // run against an X server.
     "WAYLAND_DISPLAY": "/tmp/wayland-0",
