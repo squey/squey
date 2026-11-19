@@ -70,7 +70,8 @@ struct opencl_kernel {
 	                    const cl_float zoom_y,
 	                    const bool reverse,
 	                    const bool density,
-	                    const bool antialiased)
+	                    const bool antialiased,
+	                    cl::Event* event)
 	{
 		const cl_uint bit_shift = Bbits;
 		const cl_uint bit_mask = PVParallelView::constants<Bbits>::mask_int_ycoord;
@@ -118,7 +119,8 @@ struct opencl_kernel {
 		const cl::NDRange global_work(global_num_x, global_num_y);
 		const cl::NDRange local_work(local_num_x, local_num_y);
 
-		return dev.queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_work, local_work);
+		return dev.queue.enqueueNDRangeKernel(kernel, cl::NullRange, global_work, local_work,
+		                                      nullptr, event);
 	}
 };
 
@@ -169,6 +171,7 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 		}
 	}
 	PVCore::setenv("POCL_LINKER_DIR", linker_dir.string().c_str(), 1);
+
 #elifdef _WIN32
 	// Where PortableCL keeps its compiled kernels is picked from the environment,
 	// and which variable wins has already changed under us: the version shipped
@@ -454,12 +457,17 @@ auto PVParallelView::PVBCIDrawingBackendOpenCL::opencl_devices() const
  * PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels
  *****************************************************************************/
 
-void PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
+bool PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
     const std::function<void(size_t, size_t)>& progress)
 {
 	if (_devices.empty()) {
-		return;
+		return false;
 	}
+
+	const size_t failed_before = [this] {
+		std::lock_guard<std::mutex> lock(_pending_callbacks->mutex);
+		return _pending_callbacks->failed;
+	}();
 
 	// The work-group shape is rounded up to a power of two (see opencl_kernel),
 	// so these are all the shapes the views can ask for: the widths a zone can
@@ -493,6 +501,9 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::precompile_kernels(
 	if (progress) {
 		progress(done, shapes.size());
 	}
+
+	std::lock_guard<std::mutex> lock(_pending_callbacks->mutex);
+	return _pending_callbacks->failed == failed_before;
 }
 
 /*****************************************************************************
@@ -593,28 +604,28 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::render(PVBCIBackendImage_p& back
 		squey_verify_opencl_var(err);
 	}
 
+	auto data = new opencl_job_data_t;
+	data->done_function = render_done;
+	data->pending = _pending_callbacks;
+
 	switch (dst_img->height_bits()) {
 	case 10:
 		assert(reverse == false && "no reverse mode allowed in kernel<10>");
 
 		err = opencl_kernel<10>::start(dev, _kernel, n, width, dst_img->device_buffer(),
 		                               dst_img->width(), x_start, zoom_y, reverse, density,
-		                               antialiased);
+		                               antialiased, &data->kernel_event);
 		break;
 	case 11:
 		err = opencl_kernel<11>::start(dev, _kernel, n, width, dst_img->device_buffer(),
 		                               dst_img->width(), x_start, zoom_y, reverse, density,
-		                               antialiased);
+		                               antialiased, &data->kernel_event);
 		break;
 	default:
 		assert(false);
 		break;
 	}
 	squey_verify_opencl_var(err);
-
-	auto data = new opencl_job_data_t;
-	data->done_function = render_done;
-	data->pending = _pending_callbacks;
 
 	dst_img->copy_device_to_host_async(&data->event);
 
@@ -654,11 +665,21 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::wait_all() const
  *****************************************************************************/
 
 void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event */,
-                                                               cl_int /* status */,
+                                                               cl_int status,
                                                                void* data)
 {
 	auto* job_data = reinterpret_cast<opencl_job_data_t*>(data);
 	const auto pending = job_data->pending;
+
+	// The copy back to the host only fails along with the kernel when it was
+	// enqueued before the kernel failed: PortableCL lets a command run as soon as
+	// what it waits for has ended, failed or not. The copy runs after the kernel
+	// in the queue, so the kernel has ended by now.
+	cl_int kernel_status = CL_COMPLETE;
+	const bool failed = status != CL_COMPLETE or
+	                    job_data->kernel_event.getInfo(CL_EVENT_COMMAND_EXECUTION_STATUS,
+	                                                   &kernel_status) != CL_SUCCESS or
+	                    kernel_status != CL_COMPLETE;
 
 	// Call termination function
 	if (job_data->done_function) {
@@ -668,6 +689,9 @@ void PVParallelView::PVBCIDrawingBackendOpenCL::termination_cb(cl_event /* event
 	delete job_data;
 
 	std::lock_guard<std::mutex> lock(pending->mutex);
+	if (failed) {
+		++pending->failed;
+	}
 	if (--pending->count == 0) {
 		pending->returned.notify_all();
 	}

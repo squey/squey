@@ -51,11 +51,13 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	struct pending_callbacks_t {
 		std::mutex mutex;
 		std::condition_variable returned;
-		size_t count = 0; //!< Guarded by mutex.
+		size_t count = 0;  //!< Guarded by mutex.
+		size_t failed = 0; //!< Renderings whose commands failed. Guarded by mutex.
 	};
 
 	struct opencl_job_data_t {
-		cl::Event event;
+		cl::Event kernel_event;
+		cl::Event event; //!< The copy back to the host, which ends the rendering.
 		std::function<void()> done_function;
 		std::shared_ptr<pending_callbacks_t> pending;
 	};
@@ -89,8 +91,13 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	 *
 	 * progress, if given, is called with (shapes done, shapes total) before
 	 * each one and once more at the end.
+	 *
+	 * @return whether every shape was drawn. A kernel that could not be built or
+	 * loaded leaves the zones of its shape undrawn, as when PortableCL is told to
+	 * load prebuilt kernels only and lacks one of them: the views are then to be
+	 * drawn by another backend.
 	 */
-	void precompile_kernels(const std::function<void(size_t, size_t)>& progress = {});
+	bool precompile_kernels(const std::function<void(size_t, size_t)>& progress = {});
 
   public:
 	static PVBCIDrawingBackendOpenCL& get();

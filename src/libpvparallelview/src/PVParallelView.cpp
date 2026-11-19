@@ -127,11 +127,11 @@ RAII_backend_init::RAII_backend_init(const std::function<void(size_t, size_t)>& 
 {
 	auto& opencl_backend = PVBCIDrawingBackendOpenCL::get();
 
-	if (opencl_backend.device_count() > 0) {
-	 	_instance->init_backends<PVBCIDrawingBackendOpenCL>();
-		// Here rather than on the first zone drawn, which is what left zones
-		// black while PortableCL compiled the kernel they needed.
-		opencl_backend.precompile_kernels(progress);
+	// Here rather than on the first zone drawn, which is what left zones black
+	// while PortableCL compiled the kernel they needed -- and black for good when
+	// it could not.
+	if (opencl_backend.device_count() > 0 and opencl_backend.precompile_kernels(progress)) {
+		_instance->init_backends<PVBCIDrawingBackendOpenCL>();
 	} else {
 		_instance->init_backends<PVBCIDrawingBackendQPainter>();
 	}
