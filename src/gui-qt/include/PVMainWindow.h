@@ -30,6 +30,8 @@
 #include <QFile>
 #include <QStackedWidget>
 
+#include <memory>
+
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVDBusConnection.h>
@@ -72,6 +74,7 @@ class PVExportSelectionDlg;
 namespace App
 {
 
+class PVImportController;
 class PVMainWindow;
 class PVStartScreenWidget;
 
@@ -82,6 +85,7 @@ class PVMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
+	friend class PVImportController;
 	friend class PVStartScreenWidget;
 
   public:
@@ -122,6 +126,8 @@ class PVMainWindow : public QMainWindow
 
 	bool maybe_save_solution();
 
+	PVImportController& import_controller() { return *_import_controller; }
+
   protected:
 	void remove_source(Squey::PVSource* src_p);
 
@@ -147,7 +153,8 @@ class PVMainWindow : public QMainWindow
 	void load_sample_dataset_Slot();
 	void settings_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
-	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
+	/** Imports the source of @p src_desc once those already given are. */
+	void load_source_from_description_Slot(PVRush::PVSourceDescription src_desc);
 	void quit_Slot();
 	void undo_Slot();
 	void redo_Slot();
@@ -206,7 +213,6 @@ class PVMainWindow : public QMainWindow
 	void create_actions_import_types(QMenu* menu);
 
   private:
-	bool load_source(Squey::PVSource* src, bool update_recent_items = true);
 	void source_loaded(Squey::PVSource& src, bool update_recent_items);
 	void flag_investigation_as_cached(const QString& file);
 
@@ -284,6 +290,8 @@ class PVMainWindow : public QMainWindow
   private:
 	QString _cur_project_file;
 	Squey::PVRoot _root;
+	/** After _root, which it imports sources into: it goes first. */
+	std::unique_ptr<PVImportController> _import_controller;
 #ifdef __linux__
 	PVCore::PVDBusConnection _dbus_connection;
 #endif

@@ -34,8 +34,8 @@ PVViewDisplay.cpp
 PVAboutBoxDialog.cpp
 PVProjectsTabWidget.cpp
 PVStartScreenWidget.cpp
+PVImportPage.cpp
 PVInputTypeMenuEntries.cpp
-PVImportSourceToProjectDlg.cpp
 PVStatsListingWidget.cpp
 PVExportSelectionDlg.cpp
 PVChangelogMessage.cpp
@@ -105,7 +105,7 @@ set(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVViewDisplay.h
 ../include/pvguiqt/PVProjectsTabWidget.h
 ../include/pvguiqt/PVStartScreenWidget.h
-../include/pvguiqt/PVImportSourceToProjectDlg.h
+../include/pvguiqt/PVImportPage.h
 ../include/pvguiqt/PVStatsListingWidget.h
 ../include/pvguiqt/PVExportSelectionDlg.h
 ../include/pvguiqt/PVAboutBoxDialog.h

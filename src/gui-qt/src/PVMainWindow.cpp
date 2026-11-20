@@ -34,10 +34,12 @@
 #include <QStyleHints>
 #include <QStyleFactory>
 
+#include <PVImportController.h>
 #include <PVMainWindow.h>
 #include <PVStringListChooserWidget.h>
 
 #include <pvguiqt/PVGuiQtSettings.h>
+#include <pvguiqt/PVImportPage.h>
 #include <pvkernel/core/PVKernelSettings.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <squey/PVAnalysisHistory.h>
@@ -49,7 +51,6 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <pvkernel/core/PVConfig.h>
-#include <pvkernel/core/squey_bench.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
@@ -57,9 +58,6 @@
 #include <pvkernel/core/PVProgressBox.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
-#include <pvkernel/rush/PVNrawException.h>
-#include <pvkernel/rush/PVUnicodeSourceError.h>
-#include <pvkernel/rush/PVConverter.h>
 
 #include <pvkernel/widgets/PVColorDialog.h>
 #include <pvkernel/widgets/PVFileDialog.h>
@@ -77,13 +75,9 @@
 #endif
 #include <pvguiqt/PVStatusBar.h>
 
-#include <pvparallelview/PVZoneTree.h>
-
 #include <PVFormatBuilderWidget.h>
 
 #include <tbb/tick_count.h>
-
-#include <boost/thread.hpp>
 
 #include <chrono>
 
@@ -125,6 +119,7 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 	// We activate all available Windows
 	_projects_tab_widget = new PVGuiQt::PVProjectsTabWidget(&get_root());
+	_import_controller = std::make_unique<PVImportController>(*this);
 	_projects_tab_widget->show();
 	connect(_projects_tab_widget, &PVGuiQt::PVProjectsTabWidget::new_project, this,
 	        &PVMainWindow::solution_new_Slot);
@@ -289,6 +284,13 @@ Squey::PVRoot const& App::PVMainWindow::get_root() const
  *****************************************************************************/
 void App::PVMainWindow::closeEvent(QCloseEvent* event)
 {
+	if (_import_controller->busy()) {
+		_projects_tab_widget->import_page().add_message(
+		    PVGuiQt::PVImportPage::Severity::information,
+		    tr("Squey closes once the import is over, or discarded."));
+		event->ignore();
+		return;
+	}
 	if (maybe_save_solution()) {
 		event->accept();
 	} else {
@@ -582,10 +584,7 @@ void App::PVMainWindow::import_type(
 		}
 	}
 
-	bool one_extraction_successful = false;
-	QStringList invalid_formats;
-	// Load a type of file per view
-
+	std::vector<PVRush::PVSourceDescription> sources;
 	/* can not use a C++11 foreach because QHash<...>::const_iterator is not
 	 * an usual const iterator but a non-const iterator which behaves as a
 	 * const one... I hate Qt!
@@ -593,37 +592,9 @@ void App::PVMainWindow::import_type(
 	for (auto it = discovered.constBegin(); it != discovered.constEnd(); it++) {
 		// With the format these inputs were discovered for: 'formats' can hold others,
 		// found next to some of the files when they did not all agree on one.
-		PVRush::PVSourceDescription src_desc(it.value(), sc, formats.value(it.key()));
-
-		try {
-			if (load_source_from_description_Slot(src_desc)) {
-				one_extraction_successful = true;
-			}
-		} catch (Squey::InvalidScalingMapping const& e) {
-			invalid_formats.append(it.key() + ": " + e.what());
-		} catch (PVRush::PVInvalidFile const& e) {
-			invalid_formats.append(it.key() + ": " + e.what());
-		} catch (const std::runtime_error& e) {
-			QMessageBox::critical(this, "Runtime error", e.what());
-			return;
-		}
-
-		if (not invalid_formats.isEmpty()) {
-			QMessageBox error_message(
-			    QMessageBox::Warning, "Invalid format",
-			    "Some format can't be use as types, mapping and scaling are not compatible.",
-			    QMessageBox::Ok, this);
-			error_message.setDetailedText(invalid_formats.join("\n"));
-			error_message.exec();
-		}
-
-		if (!one_extraction_successful) {
-			return;
-		}
+		sources.emplace_back(it.value(), sc, formats.value(it.key()));
 	}
-
-	_projects_tab_widget->setVisible(true);
-	Q_EMIT change_of_current_view_Signal();
+	_import_controller->import(std::move(sources));
 }
 
 /******************************************************************************
@@ -738,6 +709,16 @@ void App::PVMainWindow::register_sample_dataset()
  *****************************************************************************/
 void App::PVMainWindow::load_files(QStringList const& files, QString format_str /* = "" */)
 {
+	// Files handed over by another instance, while an import runs: their importer may ask about
+	// them, which waits for the end of the import.
+	if (_import_controller->busy()) {
+		connect(
+		    _import_controller.get(), &PVImportController::idle, this,
+		    [this, files, format_str]() { load_files(files, format_str); },
+		    Qt::SingleShotConnection);
+		return;
+	}
+
 	// Nobody has checked these paths before they got here: they come from a
 	// command line, or from a desktop that handed over a file this process
 	// cannot reach -- under flatpak, anything in /tmp is outside the sandbox.
@@ -1002,246 +983,6 @@ static QString bad_conversions_as_string(const Squey::PVSource* src)
 	}
 
 	return l.join("\n");
-}
-
-namespace
-{
-
-/***
- * Forecast of the memory taken by the structures built on top of an imported source.
- *
- * Only the row count changes while the import runs, so everything that depends on the format
- * alone is computed once and each forecast then boils down to a multiplication.
- ***/
-class PVMemoryConsumptionForecast
-{
-  public:
-	explicit PVMemoryConsumptionForecast(const Squey::PVSource& src)
-	{
-		const size_t column_count = src.get_nraw_column_count();
-		const PVRush::PVFormat& format = src.get_format();
-
-		size_t computed_column_count = 0;
-		for (size_t i = 0; i < column_count; i++) {
-			const Squey::PVMappingProperties mapping_properties(format, PVCol(i));
-			computed_column_count += mapping_properties.get_mapping_filter()->is_computed();
-		}
-
-		// Each zone holds both a zone tree and a zoomed zone tree, hence the factor 2.
-		_fixed_bytes =
-		    2 * column_count * sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS;
-
-		_bytes_per_row = computed_column_count * sizeof(Squey::PVScalingFilter::value_type) +
-		                 column_count * sizeof(Squey::PVScaled::value_type) +
-		                 2 * column_count * sizeof(PVRow);
-	}
-
-	/**
-	 * Memory consumption increase once "row_count" rows have been imported, in bytes.
-	 */
-	size_t operator()(size_t row_count) const { return _fixed_bytes + _bytes_per_row * row_count; }
-
-  private:
-	size_t _fixed_bytes;   //!< Part that does not depend on the number of rows.
-	size_t _bytes_per_row; //!< Part that each imported row adds.
-};
-
-//! Period between two checks of the available memory while importing.
-constexpr std::chrono::seconds memory_check_period{1};
-
-} // namespace
-
-/******************************************************************************
- *
- * App::PVMainWindow::load_source
- *
- *****************************************************************************/
-bool App::PVMainWindow::load_source(Squey::PVSource* src,
-                                            bool update_recent_items /*= true*/)
-{
-	// Load a created source
-	// Extract the source
-	BENCH_START(lff);
-
-	auto ret = PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_cancel2_btn_text("Stop and process");
-		    pbox.set_cancel_btn_text("Discard");
-		    pbox.set_confirmation(true);
-		    constexpr size_t mega = 1024 * 1024;
-
-		    // PVCore::PVProgressBox::progress();
-		    PVRush::PVControllerJob_p job_import;
-		    try {
-			    job_import = src->extract(0);
-		    } catch (PVRush::PVInputException const& e) {
-			    // If input file can't be opened
-			    pbox.critical("Cannot create sources", QString("Error with input: ") + e.what());
-			    pbox.set_canceled();
-			    return;
-		    } catch (PVRush::PVNrawException const& e) {
-			    // If we can't create the NRaw folder for example
-			    pbox.critical("Cannot create sources", QString("Error with nraw: ") + e.what());
-			    pbox.set_canceled();
-			    return;
-		    }
-
-		    try {
-			    // launch a thread in order to update the status of the progress bar
-				const PVMemoryConsumptionForecast memory_forecast(*src);
-				bool monitor_memory_consumption = true;
-				auto last_memory_check = std::chrono::steady_clock::now();
-			    while (job_import->running()) {
-				    pbox.set_extended_status(
-				        QString("Number of extracted events: %1\nNumber of rejected events: %2")
-				            .arg(QLocale(QLocale::English).toString(job_import->status()))
-				            .arg(QLocale(QLocale::English).toString(job_import->rejected_elements()))
-						);
-				        if (job_import->get_value() > 0) {
-				            // setting a maximum put the progress bar out of the undeterminate state
-				            pbox.set_maximum(src->max_size() / mega);
-				        }
-				    pbox.set_value(job_import->get_value() / mega);
-				    const auto now = std::chrono::steady_clock::now();
-				    if (monitor_memory_consumption and
-				        now - last_memory_check >= memory_check_period) {
-					    last_memory_check = now;
-
-					    // A null value means the available memory could not be determined :
-					    // skip the check rather than read it as "no memory left".
-					    const size_t available_memory = PVCore::available_memory();
-					    const bool memory_exceeded =
-					        available_memory != 0 and
-					        memory_forecast(src->get_row_count()) >
-					            available_memory / 100 *
-					                size_t(
-					                    PVGuiQt::settings::import_memory_warning_percent.value());
-
-					    if (memory_exceeded) {
-							job_import->pause(true);
-
-							QMessageBox::StandardButton user_choice;
-							pbox.exec_gui([&]() {
-								user_choice = QMessageBox::warning(
-									this,
-									"Low available RAM warning",
-									"Continuing importing data will likely exceed the available RAM and cause system instabilities.\n\n"
-									"Do you want to stop the import process here ?",
-									QMessageBox::Yes | QMessageBox::No);
-							});
-							if (user_choice == QMessageBox::Yes) {
-								job_import->cancel();
-							}
-							else {
-								monitor_memory_consumption = false;
-								job_import->pause(false);
-							}
-					    }
-				    }
-
-				    boost::this_thread::interruption_point();
-				    boost::this_thread::sleep(boost::posix_time::milliseconds(50));
-			    }
-		    } catch (boost::thread_interrupted) {
-			    job_import->cancel();
-		    }
-		    if (pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CANCEL) {
-			    return;
-		    }
-
-		    try {
-			    src->wait_extract_end(job_import);
-		    } catch (PVRush::PVInputException const& e) {
-			    pbox.critical("Cannot create sources", QString("Error with input: ") + e.what());
-			    pbox.set_canceled();
-			    return;
-		    } catch (PVRush::UnicodeSourceError const&) {
-			    pbox.critical("Cannot create sources",
-			                  "File encoding does permit Squey to perform extraction.");
-			    pbox.set_canceled();
-			    return;
-		    } catch (PVRush::PVConverterCreationError const& e) {
-			    pbox.critical("Unsupported charset", e.what());
-			    pbox.set_canceled();
-			    return;
-		    } catch (std::exception const& e) {
-			    // Any stage of the import can fail, the NRaw when its files can no longer
-			    // grow for one, and an exception leaving this thread ends Squey.
-			    pbox.critical("Cannot create sources",
-			                  QString("Error during extraction: ") + e.what());
-			    pbox.set_canceled();
-			    return;
-		    }
-	    },
-	    QString("Extracting %1...").arg(src->get_format_name()), this);
-
-	if (ret == PVCore::PVProgressBox::CancelState::CANCEL) {
-		// If job is canceled, stop here
-		return false;
-	}
-
-	if (src->get_rushnraw().row_count() == 0) {
-		QString msg = QString("<p>The files <strong>%1</strong> using format "
-		                      "<strong>%2</strong> cannot be opened. ")
-		                  .arg(QString::fromStdString(src->get_name()))
-		                  .arg(src->get_format_name());
-		PVRow nelts = src->get_invalid_evts().size();
-		if (nelts > 0) {
-			msg += QString("Indeed, <strong>%1 elements</strong> have been extracted "
-			               "but were <strong>all invalid</strong>.</p>")
-			           .arg(nelts);
-			msg += QString("<p>This is because one or more splitters and/or "
-			               "filters defined in format <strong>%1</strong> reported "
-			               "invalid events during the extraction.<br />")
-			           .arg(src->get_format_name());
-			msg += QString("You may have invalid regular expressions set in this "
-			               "format, or simply all the events have been invalidated "
-			               "by one or more filters thus no events matches your "
-			               "criterias.</p>");
-			msg += QString("<p>You might try to <strong>fix your format</strong> or "
-			               "try to load <strong>another set of data</strong>.</p>");
-		} else {
-			msg += QString("Indeed, the sources <strong>were empty</strong> (empty "
-			               "files, bad database query, bad filtering parameters, etc...) because no elements "
-			               "have been extracted.</p><p>You should try to load "
-			               "another set of data.</p>");
-		}
-		QMessageBox::critical(this, "Cannot load sources", msg);
-		return false;
-	}
-
-	BENCH_STOP(lff);
-#ifdef SQUEY_DEVELOPER_MODE
-	PVLOG_INFO("nraw created from data in %g sec\n", BENCH_END_TIME(lff));
-#endif
-
-	if (PVCore::PVProgressBox::progress(
-	        [&](PVCore::PVProgressBox& pbox) {
-		        pbox.set_maximum(3);
-
-		        pbox.set_value(0);
-		        pbox.set_extended_status("Computing mapping...");
-		        auto& mapped = src->emplace_add_child();
-
-		        pbox.set_value(1);
-		        pbox.set_extended_status("Computing scaling...");
-		        auto& scaled = mapped.emplace_add_child();
-
-		        pbox.set_value(2);
-		        pbox.set_extended_status("Creating views...");
-		        scaled.emplace_add_child();
-
-		        pbox.set_value(3);
-	        },
-	        tr("Processing..."), (QWidget*)this) != PVCore::PVProgressBox::CancelState::CONTINUE) {
-		return false;
-	}
-
-	source_loaded(*src, update_recent_items);
-
-	_projects_tab_widget->show_errors_and_warnings();
-
-	return true;
 }
 
 void App::PVMainWindow::source_loaded(Squey::PVSource& src, bool update_recent_items)

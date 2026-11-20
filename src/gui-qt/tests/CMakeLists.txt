@@ -9,6 +9,7 @@ set(COMMON_LIBRARIES pvparallelview pvguiqt pvsquey pvkernel Qt6::Test)
 
 set(MOC_HEADERS
 ../include/PVFilesTypesSelWidget.h
+../include/PVImportController.h
 ../include/PVMainWindow.h
 ../include/PVStringListChooserWidget.h
 import_export.h
@@ -16,6 +17,7 @@ import_export.h
 
 set(SRC_FILES
 ../src/PVFilesTypesSelWidget.cpp
+../src/PVImportController.cpp
 ../src/PVMainWindow.cpp
 ../src/PVMainWindowMenusActions.cpp
 ../src/PVMainWindowSlots.cpp
@@ -32,6 +34,9 @@ target_include_directories(SQUEY_TEST_Tpvguiqt_import_export
 	PRIVATE "${CMAKE_CURRENT_SOURCE_DIR}/../include" "${CMAKE_CURRENT_SOURCE_DIR}/../src")
 add_squey_test(Tpvguiqt_import_export Tpvguiqt_import_export -platform offscreen)
 set_property(TEST SQUEY_TEST_Tpvguiqt_import_export APPEND PROPERTY ENVIRONMENT "FORCE_CPU=1")
+# A configuration directory of its own, for the settings it changes.
+set_property(TEST SQUEY_TEST_Tpvguiqt_import_export APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=import_export_config")
 
 ###################################################################
 # The handover of files between instances, which "open with" rests on

@@ -1,0 +1,530 @@
+//
+// MIT License
+//
+// © Squey, 2026
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy of
+// this software and associated documentation files (the "Software"), to deal in
+// the Software without restriction, including without limitation the rights to
+// use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+//
+// the Software, and to permit persons to whom the Software is furnished to do so,
+// subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+//
+// FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+// COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+// IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+// CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
+#include <PVImportController.h>
+
+#include <PVMainWindow.h>
+
+#include <pvguiqt/PVGuiQtSettings.h>
+#include <pvguiqt/PVImportPage.h>
+#include <pvguiqt/PVProjectsTabWidget.h>
+#include <pvkernel/core/PVUtils.h>
+#include <pvkernel/rush/PVConverter.h>
+#include <pvkernel/rush/PVFormat.h>
+#include <pvkernel/rush/PVInput.h>
+#include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/rush/PVNrawException.h>
+#include <pvkernel/rush/PVUnicodeSourceError.h>
+#include <pvparallelview/PVZoneTree.h>
+#include <pvparallelview/common.h>
+#include <squey/PVAxis.h>
+#include <squey/PVMappingProperties.h>
+#include <squey/PVRoot.h>
+#include <squey/PVScaled.h>
+#include <squey/PVScalingFilter.h>
+#include <squey/PVScene.h>
+#include <squey/PVSource.h>
+
+#include <QLocale>
+#include <QMenuBar>
+#include <QShortcut>
+#include <QThread>
+
+#include <exception>
+
+namespace App
+{
+
+/**
+ * Forecast of the memory taken by the structures built on top of an imported source.
+ *
+ * Only the row count changes while the import runs, so everything that depends on the format
+ * alone is computed once and each forecast then boils down to a multiplication.
+ */
+class PVMemoryConsumptionForecast
+{
+  public:
+	explicit PVMemoryConsumptionForecast(const Squey::PVSource& src)
+	{
+		const size_t column_count = src.get_nraw_column_count();
+		const PVRush::PVFormat& format = src.get_format();
+
+		size_t computed_column_count = 0;
+		for (size_t i = 0; i < column_count; i++) {
+			const Squey::PVMappingProperties mapping_properties(format, PVCol(i));
+			computed_column_count += mapping_properties.get_mapping_filter()->is_computed();
+		}
+
+		// Each zone holds both a zone tree and a zoomed zone tree, hence the factor 2.
+		_fixed_bytes = 2 * column_count * sizeof(PVParallelView::PVZoneTree::PVBranch) * NBUCKETS;
+
+		_bytes_per_row = computed_column_count * sizeof(Squey::PVScalingFilter::value_type) +
+		                 column_count * sizeof(Squey::PVScaled::value_type) +
+		                 2 * column_count * sizeof(PVRow);
+	}
+
+	/** Memory consumption increase once @p row_count rows have been imported, in bytes. */
+	size_t operator()(size_t row_count) const { return _fixed_bytes + _bytes_per_row * row_count; }
+
+  private:
+	size_t _fixed_bytes;   //!< Part that does not depend on the number of rows.
+	size_t _bytes_per_row; //!< Part that each imported row adds.
+};
+
+} // namespace App
+
+namespace
+{
+
+constexpr std::chrono::milliseconds POLL_PERIOD{50};
+constexpr std::chrono::seconds MEMORY_CHECK_PERIOD{1};
+
+/** @p text, of an exception, as the rich text of a message. */
+QString plain(const char* text)
+{
+	return QString::fromStdString(text).toHtmlEscaped().replace('\n', "<br>");
+}
+
+} // namespace
+
+App::PVImportController::PVImportController(PVMainWindow& window) : _window(window)
+{
+	_poll_timer.setInterval(POLL_PERIOD);
+	connect(&_poll_timer, &QTimer::timeout, this, &PVImportController::poll);
+
+	connect(&page(), &PVGuiQt::PVImportPage::close_requested, this, [this]() {
+		if (not _busy) {
+			page().clear_messages();
+			projects().hide_import_page();
+		}
+	});
+}
+
+App::PVImportController::~PVImportController()
+{
+	// The window going away with an import running, as the application quits.
+	if (_job) {
+		_job->cancel();
+	}
+	if (_worker != nullptr) {
+		_worker->wait();
+		delete _worker;
+	}
+}
+
+PVGuiQt::PVProjectsTabWidget& App::PVImportController::projects() const
+{
+	return *_window._projects_tab_widget;
+}
+
+PVGuiQt::PVImportPage& App::PVImportController::page() const
+{
+	return projects().import_page();
+}
+
+void App::PVImportController::import(std::vector<PVRush::PVSourceDescription> sources)
+{
+	for (PVRush::PVSourceDescription& source : sources) {
+		_queue.push_back(std::move(source));
+	}
+	if (not _busy) {
+		begin();
+		start_next();
+	}
+}
+
+void App::PVImportController::begin()
+{
+	_busy = true;
+	page().clear_messages();
+	page().set_closable(false);
+	set_window_enabled(false);
+}
+
+void App::PVImportController::next()
+{
+	QMetaObject::invokeMethod(this, &PVImportController::start_next, Qt::QueuedConnection);
+}
+
+void App::PVImportController::start_next()
+{
+	if (_queue.empty()) {
+		end();
+		return;
+	}
+	PVRush::PVSourceDescription description = std::move(_queue.front());
+	_queue.pop_front();
+
+	PVRush::PVInputType_p input_type = description.get_source_creator()->supported_type_lib();
+	_name = input_type->tab_name_of_inputs(description.get_inputs());
+	page().set_title(tr("Import of %1").arg(_name));
+	page().start_progress(tr("Preparing the import..."));
+	projects().show_import_page();
+
+	// Sources whose format is generated from the inputs (e.g. Parquet) are stored in the recent
+	// items without a format on disk: it is made again from the inputs.
+	PVRush::PVFormat format = description.get_format();
+	if (format.get_full_path().isEmpty() and format.get_axes().size() == 0) {
+		try {
+			PVRush::PVFormat regenerated =
+			    input_type->get_format_from_inputs(description.get_inputs());
+			if (regenerated.get_axes().size() > 0) {
+				description.set_format(regenerated);
+				format = regenerated;
+			}
+		} catch (const std::exception& e) {
+			fail(tr("Error while loading source"), plain(e.what()));
+			return;
+		}
+	}
+
+	const size_t axes_count = format.get_axes().size();
+	if (axes_count < 2) {
+		fail(tr("Format \"%1\" is invalid").arg(format.get_full_path()),
+		     tr("It has %1, it must define at least 2 axes to be usable.")
+		         .arg(axes_count == 0 ? tr("no axis") : tr("only one axis")));
+		return;
+	}
+
+	Squey::PVRoot& root = _window.get_root();
+	Squey::PVScene* scene = root.current_scene();
+	if (scene == nullptr and not root.get_children().empty()) {
+		scene = root.get_children().front();
+	}
+	if (scene == nullptr) {
+		scene = &projects().project_new();
+		_new_scene = scene;
+		// Making a data collection selects its tab.
+		projects().show_import_page();
+	}
+	root.select_scene(*scene);
+
+	try {
+		_source = &scene->emplace_add_child(description);
+	} catch (const PVRush::PVFormatException& e) {
+		fail(tr("Error with the format"), plain(e.what()));
+		return;
+	} catch (const PVRush::PVInputException& e) {
+		fail(tr("Fatal error while loading source"), plain(e.what()));
+		return;
+	} catch (const std::exception& e) {
+		fail(tr("Error while loading source"), plain(e.what()));
+		return;
+	}
+
+	page().start_progress(tr("Extracting %1...").arg(_source->get_format_name()),
+	                      {{tr("Discard"), [this]() { ask_discard(); }},
+	                       {tr("Stop and process"), [this]() { stop_extraction(); }}});
+	try {
+		_job = _source->extract(0);
+	} catch (const PVRush::PVInputException& e) {
+		fail(tr("Cannot create sources"), tr("Error with input: %1").arg(plain(e.what())));
+		return;
+	} catch (const PVRush::PVNrawException& e) {
+		fail(tr("Cannot create sources"), tr("Error with nraw: %1").arg(plain(e.what())));
+		return;
+	}
+	_memory_forecast = std::make_unique<PVMemoryConsumptionForecast>(*_source);
+	_monitor_memory = true;
+	_last_memory_check = std::chrono::steady_clock::now();
+	_discarding = false;
+	_state = State::extracting;
+	_poll_timer.start();
+}
+
+void App::PVImportController::poll()
+{
+	if (_state == State::processing) {
+		static const char* steps[] = {"Computing mapping...", "Computing scaling...",
+		                              "Creating views..."};
+		const int step = _processing_step;
+		page().set_progress(step, 3);
+		page().set_progress_details(step < 3 ? tr(steps[step]) : QString());
+		return;
+	}
+	if (_state != State::extracting) {
+		return;
+	}
+
+	if (not _job->running()) {
+		_poll_timer.stop();
+		extraction_ended();
+		return;
+	}
+	const QLocale locale(QLocale::English);
+	page().set_progress_details(tr("Number of extracted events: %1\nNumber of rejected events: %2")
+	                                .arg(locale.toString(qulonglong(_job->status())),
+	                                     locale.toString(qulonglong(_job->rejected_elements()))));
+	// A maximum takes the progress bar out of its undeterminate state.
+	page().set_progress(qint64(_job->get_value()),
+	                    _job->get_value() > 0 ? qint64(_source->max_size()) : 0);
+	check_memory();
+}
+
+void App::PVImportController::check_memory()
+{
+	const auto now = std::chrono::steady_clock::now();
+	if (not _monitor_memory or _question or now - _last_memory_check < MEMORY_CHECK_PERIOD) {
+		return;
+	}
+	_last_memory_check = now;
+
+	// A null value means the available memory could not be determined: skip the check rather
+	// than read it as "no memory left".
+	const size_t available_memory = PVCore::available_memory();
+	if (available_memory == 0 or
+	    (*_memory_forecast)(_source->get_row_count()) <=
+	        available_memory / 100 *
+	            size_t(PVGuiQt::settings::import_memory_warning_percent.value())) {
+		return;
+	}
+	ask(tr("Continuing to import the data will likely exceed the available memory, and make the "
+	       "system unstable. Stop the import here, and process the events extracted so far?"),
+	    {{tr("Stop and process"), [this]() { stop_extraction(); }},
+	     {tr("Continue"), [this]() { _monitor_memory = false; }}});
+}
+
+void App::PVImportController::ask(QString const& text,
+                                  std::vector<std::pair<QString, std::function<void()>>> actions)
+{
+	_job->pause(true);
+	page().set_progress_buttons_enabled(false);
+	std::vector<PVGuiQt::PVImportPage::Action> page_actions;
+	for (auto& [label, on_click] : actions) {
+		page_actions.push_back({label, [this, on_click = std::move(on_click)]() {
+			                        _question = nullptr;
+			                        page().set_progress_buttons_enabled(true);
+			                        on_click();
+			                        if (_job) {
+				                        _job->pause(false);
+			                        }
+		                        }});
+	}
+	_question =
+	    page().add_message(PVGuiQt::PVImportPage::Severity::warning, text, std::move(page_actions));
+}
+
+void App::PVImportController::stop_extraction()
+{
+	if (_state != State::extracting) {
+		return;
+	}
+	if (_question) {
+		page().remove_message(_question);
+		_question = nullptr;
+		page().set_progress_buttons_enabled(true);
+	}
+	// What is extracted so far stays, for the processing.
+	_job->cancel();
+}
+
+void App::PVImportController::ask_discard()
+{
+	if (_state != State::extracting or _question) {
+		return;
+	}
+	ask(tr("Discard the events of %1 extracted so far? Nothing of it is kept.").arg(_name),
+	    {{tr("Discard"),
+	      [this]() {
+		      _discarding = true;
+		      _job->cancel();
+	      }},
+	     {tr("Continue"), []() {}}});
+}
+
+void App::PVImportController::extraction_ended()
+{
+	_state = State::idle;
+	if (_question) {
+		page().remove_message(_question);
+		_question = nullptr;
+	}
+	try {
+		_source->wait_extract_end(_job);
+	} catch (const PVRush::PVInputException& e) {
+		fail(tr("Cannot create sources"), tr("Error with input: %1").arg(plain(e.what())));
+		return;
+	} catch (const PVRush::UnicodeSourceError&) {
+		fail(tr("Cannot create sources"),
+		     tr("The encoding of the files does not let Squey extract them."));
+		return;
+	} catch (const PVRush::PVConverterCreationError& e) {
+		fail(tr("Unsupported charset"), plain(e.what()));
+		return;
+	} catch (const std::exception& e) {
+		fail(tr("Fatal error while loading source"), plain(e.what()));
+		return;
+	}
+	_job.reset();
+	_memory_forecast.reset();
+
+	if (_discarding) {
+		drop_source();
+		next();
+		return;
+	}
+
+	if (_source->get_rushnraw().row_count() == 0) {
+		const QString format_name = _source->get_format_name().toHtmlEscaped();
+		QString text =
+		    tr("<p>The files <strong>%1</strong> using format <strong>%2</strong> "
+		       "cannot be opened. ")
+		        .arg(QString::fromStdString(_source->get_name()).toHtmlEscaped(), format_name);
+		const PVRow invalid_count = _source->get_invalid_evts().size();
+		if (invalid_count > 0) {
+			text += tr("Indeed, <strong>%1 elements</strong> have been extracted but were "
+			           "<strong>all invalid</strong>.</p>"
+			           "<p>This is because one or more splitters and/or filters defined in "
+			           "format <strong>%2</strong> reported invalid events during the "
+			           "extraction.<br />You may have invalid regular expressions set in this "
+			           "format, or simply all the events have been invalidated by one or more "
+			           "filters thus no events matches your criterias.</p>"
+			           "<p>You might try to <strong>fix your format</strong> or try to load "
+			           "<strong>another set of data</strong>.</p>")
+			            .arg(invalid_count)
+			            .arg(format_name);
+		} else {
+			text += tr("Indeed, the sources <strong>were empty</strong> (empty files, bad "
+			           "database query, bad filtering parameters, etc...) because no elements "
+			           "have been extracted.</p><p>You should try to load another set of "
+			           "data.</p>");
+		}
+		fail(tr("Cannot load sources"), text);
+		return;
+	}
+
+	process();
+}
+
+void App::PVImportController::process()
+{
+	_state = State::processing;
+	_processing_step = 0;
+	_processing_error.clear();
+	page().start_progress(tr("Processing..."));
+
+	Squey::PVSource* source = _source;
+	_worker = QThread::create([this, source]() {
+		try {
+			auto& mapped = source->emplace_add_child();
+			_processing_step = 1;
+			auto& scaled = mapped.emplace_add_child();
+			_processing_step = 2;
+			scaled.emplace_add_child();
+			_processing_step = 3;
+		} catch (const Squey::InvalidScalingMapping& e) {
+			_processing_error = tr("The mapping and the scaling of the types of the format are "
+			                       "not compatible: %1")
+			                        .arg(plain(e.what()));
+		} catch (const std::exception& e) {
+			_processing_error = plain(e.what());
+		}
+	});
+	connect(_worker, &QThread::finished, this, &PVImportController::processed);
+	_worker->start();
+	_poll_timer.start();
+}
+
+void App::PVImportController::processed()
+{
+	_poll_timer.stop();
+	_worker->deleteLater();
+	_worker = nullptr;
+	_state = State::idle;
+	if (not _processing_error.isEmpty()) {
+		fail(tr("Cannot process sources"), _processing_error);
+		return;
+	}
+
+	Squey::PVSource& source = *_source;
+	_source = nullptr;
+	_new_scene = nullptr;
+	_window.source_loaded(source, true);
+	projects().show_errors_and_warnings();
+	Q_EMIT _window.change_of_current_view_Signal();
+	next();
+}
+
+void App::PVImportController::fail(QString const& title, QString const& text)
+{
+	_poll_timer.stop();
+	_state = State::idle;
+	drop_source();
+	// A text of paragraphs starts on a line of its own already.
+	page().add_message(PVGuiQt::PVImportPage::Severity::critical,
+	                   QString("<b>%1: %2</b>%3")
+	                       .arg(_name.toHtmlEscaped(), title.toHtmlEscaped(),
+	                            text.startsWith("<p>") ? text : "<br>" + text));
+	next();
+}
+
+void App::PVImportController::drop_source()
+{
+	_job.reset();
+	_memory_forecast.reset();
+	if (_source != nullptr) {
+		_window.remove_source(_source);
+		_source = nullptr;
+	} else if (_new_scene != nullptr) {
+		projects().remove_project(projects().get_workspace_tab_widget_from_scene(_new_scene));
+	}
+	_new_scene = nullptr;
+}
+
+void App::PVImportController::end()
+{
+	_busy = false;
+	page().end_progress();
+	set_window_enabled(true);
+	if (page().has_messages()) {
+		page().set_title(tr("Import"));
+		page().set_closable(true);
+		projects().show_import_page();
+	} else {
+		projects().hide_import_page();
+	}
+	Q_EMIT idle();
+}
+
+void App::PVImportController::set_window_enabled(bool enabled)
+{
+	// The shortcuts of actions in menus only work while the menu bar is enabled.
+	_window.menuBar()->setEnabled(enabled);
+	projects().set_importing(not enabled);
+	if (not enabled) {
+		for (QShortcut* shortcut : _window.findChildren<QShortcut*>()) {
+			if (shortcut->isEnabled()) {
+				shortcut->setEnabled(false);
+				_disabled_shortcuts.emplace_back(shortcut);
+			}
+		}
+	} else {
+		for (const QPointer<QShortcut>& shortcut : _disabled_shortcuts) {
+			if (shortcut) {
+				shortcut->setEnabled(true);
+			}
+		}
+		_disabled_shortcuts.clear();
+	}
+}

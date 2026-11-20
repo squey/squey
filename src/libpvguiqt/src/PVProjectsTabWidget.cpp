@@ -24,6 +24,7 @@
 //
 
 #include <pvguiqt/PVProjectsTabWidget.h>
+#include <pvguiqt/PVImportPage.h>
 #include <pvguiqt/PVStartScreenWidget.h>
 
 #include <QHBoxLayout>
@@ -124,12 +125,12 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 	QVBoxLayout* tab_layout = new QVBoxLayout;
 	tab_layout_widget->setLayout(tab_layout);
 	tab_layout->addWidget(_tab_widget);
-	QPushButton* new_data_collection = new QPushButton("+");
-	new_data_collection->setToolTip("New data collection");
-	new_data_collection->setFixedSize(QSize(16, 16));
-	tab_layout->addWidget(new_data_collection);
+	_new_data_collection = new QPushButton("+");
+	_new_data_collection->setToolTip("New data collection");
+	_new_data_collection->setFixedSize(QSize(16, 16));
+	tab_layout->addWidget(_new_data_collection);
 
-	connect(new_data_collection, &QPushButton::clicked, this, &PVGuiQt::PVProjectsTabWidget::project_new_Slot);
+	connect(_new_data_collection, &QPushButton::clicked, this, &PVGuiQt::PVProjectsTabWidget::project_new_Slot);
 
 	_stacked_widget = new QStackedWidget();
 
@@ -172,12 +173,15 @@ void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	// LeftSide per OS made tabButton() return null under offscreen on macOS, and
 	// null->deleteLater() crashed. Sweep both sides and guard against a missing
 	// button instead. See https://bugreports.qt.io/browse/QTBUG-134919
-	for (QTabBar::ButtonPosition button_pos : {QTabBar::LeftSide, QTabBar::RightSide}) {
-		if (QWidget* close_button = _tab_widget->tabBar()->tabButton(0, button_pos)) {
-			close_button->deleteLater();
+	const auto remove_close_buttons = [this](int index) {
+		for (QTabBar::ButtonPosition button_pos : {QTabBar::LeftSide, QTabBar::RightSide}) {
+			if (QWidget* close_button = _tab_widget->tabBar()->tabButton(index, button_pos)) {
+				close_button->deleteLater();
+			}
+			_tab_widget->tabBar()->setTabButton(index, button_pos, nullptr);
 		}
-		_tab_widget->tabBar()->setTabButton(0, button_pos, nullptr);
-	}
+	};
+	remove_close_buttons(0);
 
 	QPixmap pm(":/squey");
 	QTransform trans;
@@ -201,6 +205,13 @@ void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	        &PVProjectsTabWidget::load_format);
 	connect(_start_screen_widget, &PVStartScreenWidget::edit_format, this,
 	        &PVProjectsTabWidget::edit_format);
+
+	_import_page = new PVImportPage;
+	_tab_widget->addTab(new QWidget(), tr("Import"));
+	remove_close_buttons(IMPORT_PAGE_INDEX);
+	_tab_widget->setTabToolTip(IMPORT_PAGE_INDEX, tr("Import"));
+	_tab_widget->setTabVisible(IMPORT_PAGE_INDEX, false);
+	_stacked_widget->addWidget(_import_page);
 }
 
 void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
@@ -355,13 +366,13 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	// to report if the active tab is for a project or not (start page or empty
 	// worspaces page)
 	QWidget* active_widget = _stacked_widget->currentWidget();
-	if ((active_widget == _start_screen_widget) ||
+	if ((active_widget == _start_screen_widget) or (active_widget == _import_page) or
 	    (_stacked_widget->count() <= FIRST_PROJECT_INDEX)) {
 		Q_EMIT active_project(false);
 	} else {
 		const auto& scenes_list = _root->get_children<Squey::PVScene>();
 		auto it = scenes_list.begin();
-		std::advance(it, index - 1);
+		std::advance(it, index - FIRST_PROJECT_INDEX);
 		_root->select_scene(**it);
 		Q_EMIT active_project(true);
 	}
@@ -369,6 +380,31 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	if (index == 0) {
 		return;
 	}
+}
+
+void PVGuiQt::PVProjectsTabWidget::show_import_page()
+{
+	if (_tab_widget->currentIndex() != IMPORT_PAGE_INDEX) {
+		_tab_before_import = _tab_widget->currentIndex();
+	}
+	_tab_widget->setTabVisible(IMPORT_PAGE_INDEX, true);
+	_tab_widget->setCurrentIndex(IMPORT_PAGE_INDEX);
+}
+
+void PVGuiQt::PVProjectsTabWidget::hide_import_page()
+{
+	if (_tab_widget->currentIndex() == IMPORT_PAGE_INDEX) {
+		// The tab may be that of a data collection which the import emptied and removed.
+		_tab_widget->setCurrentIndex(_tab_before_import < _tab_widget->count() ? _tab_before_import
+		                                                                       : 0);
+	}
+	_tab_widget->setTabVisible(IMPORT_PAGE_INDEX, false);
+}
+
+void PVGuiQt::PVProjectsTabWidget::set_importing(bool importing)
+{
+	_tab_widget->tabBar()->setEnabled(not importing);
+	_new_data_collection->setEnabled(not importing);
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget*

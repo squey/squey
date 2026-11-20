@@ -48,6 +48,8 @@
 
 
 
+class QPushButton;
+
 namespace Squey
 {
 class PVRoot;
@@ -56,6 +58,7 @@ class PVRoot;
 namespace PVGuiQt
 {
 
+class PVImportPage;
 class PVStartScreenWidget;
 class PVSceneWorkspacesTabWidget;
 
@@ -143,7 +146,9 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 	Q_OBJECT
 
   public:
-	static constexpr int FIRST_PROJECT_INDEX = 1;
+	/** Hidden but while an import runs or shows what went wrong. */
+	static constexpr int IMPORT_PAGE_INDEX = 1;
+	static constexpr int FIRST_PROJECT_INDEX = 2;
 
   public:
 	explicit PVProjectsTabWidget(Squey::PVRoot* root, QWidget* parent = 0);
@@ -182,6 +187,13 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 	Squey::PVScene& project_new();
 
 	void increase_sequence(size_t inc) { sequence_n += inc; }
+
+	PVImportPage& import_page() { return *_import_page; }
+	void show_import_page();
+	/** Back to the page shown before the import page, unless the import selected another. */
+	void hide_import_page();
+	/** Whether the user cannot leave the page of the import that runs. */
+	void set_importing(bool importing);
 
   private Q_SLOTS:
 	void current_tab_changed(int index);
@@ -223,6 +235,10 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 	                                            // inheriting from QTabWidget...
 	QStackedWidget* _stacked_widget = nullptr;
 	PVStartScreenWidget* _start_screen_widget;
+	PVImportPage* _import_page;
+	QPushButton* _new_data_collection;
+	/** The tab current when the import page showed. */
+	int _tab_before_import = 0;
 	int _current_workspace_tab_widget_index;
 	Squey::PVRoot* _root;
 	static int sequence_n;

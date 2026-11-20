@@ -37,7 +37,6 @@
 #include <squey/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
@@ -45,6 +44,7 @@
 #include <pvguiqt/PVCredentialDialog.h>
 #include <pvguiqt/PVSettingsDialog.h>
 
+#include <PVImportController.h>
 #include <PVMainWindow.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
@@ -152,103 +152,11 @@ void App::PVMainWindow::export_selection_Slot()
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel, this);
 }
 
-bool App::PVMainWindow::load_source_from_description_Slot(
-    PVRush::PVSourceDescription src_desc)
+void App::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
-	bool has_error = false;
-	Squey::PVScene* scene_p;
-
-	PVRush::PVFormat format = src_desc.get_format();
-
-	// Sources whose format is generated from the inputs (e.g. Parquet) are stored
-	// in the recent items without a format on disk: regenerate it from the inputs.
-	if (format.get_full_path().isEmpty() and format.get_axes().size() == 0) {
-		try {
-			PVRush::PVInputType_p input_type =
-			    src_desc.get_source_creator()->supported_type_lib();
-			PVRush::PVFormat regenerated_format =
-			    input_type->get_format_from_inputs(src_desc.get_inputs());
-			if (regenerated_format.get_axes().size() > 0) {
-				src_desc.set_format(regenerated_format);
-				format = regenerated_format;
-			}
-		} catch (const std::exception& e) {
-			QMessageBox::critical(this, tr("Error while loading source..."), e.what());
-			return false;
-		}
-	}
-
-	const size_t axes_count = format.get_axes().size();
-
-	if (axes_count < 2) {
-		const QString text((axes_count == 0) ? "no axis" : "only one axis");
-
-		QMessageBox::critical(
-		    this, tr("Format \"%1\" is invalid").arg(format.get_full_path()),
-		    tr("It has %2, it must define at least 2 axes to be usable.").arg(text));
-
-		return false;
-	}
-
-	auto scenes = get_root().get_children();
-
-	bool new_scene = false;
-	if (scenes.size() == 0) {
-		// No loaded project: create a new one and load the source
-		scene_p = &_projects_tab_widget->project_new();
-		new_scene = true;
-	} else if (scenes.size() == 1) {
-		// Only one project loaded: use it to load the source
-		scene_p = scenes.front();
-		get_root().select_scene(*scene_p);
-	} else {
-		// More than one project loaded: ask the user the project he wants to use to
-		// load the source
-		auto* dlg =
-		    new PVGuiQt::PVImportSourceToProjectDlg(get_root(), get_root().current_scene(), this);
-		if (dlg->exec() != QDialog::Accepted) {
-			return false;
-		}
-
-		get_root().select_scene(*((Squey::PVScene*)dlg->get_selected_scene()));
-		scene_p = current_scene();
-		dlg->deleteLater();
-	}
-
-	Squey::PVSource* src_p = nullptr;
-	try {
-		src_p = &scene_p->emplace_add_child(src_desc);
-	} catch (PVRush::PVFormatException const& e) {
-		QMessageBox::critical(this, "Error with format...", e.what());
-		has_error = true;
-	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
-		QMessageBox::critical(this, "Error", e.what());
-		has_error = true;
-	} catch (PVRush::PVInputException const& e) {
-		QMessageBox::critical(this, tr("Fatal error while loading source..."),
-		                      tr("Fatal error while loading source: %1").arg(e.what()));
-		has_error = true;
-	}
-
-	if (has_error) {
-		if (new_scene) {
-			_projects_tab_widget->remove_project(
-			    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p));
-		}
-		return false;
-	}
-
-	try {
-		if (not load_source(src_p)) {
-			remove_source(src_p);
-			return false;
-		}
-	} catch (const PVRush::PVFormatInvalidTime& e) {
-		QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
-		return false;
-	}
-
-	return true;
+	std::vector<PVRush::PVSourceDescription> sources;
+	sources.push_back(std::move(src_desc));
+	_import_controller->import(std::move(sources));
 }
 
 void App::PVMainWindow::solution_new_Slot()

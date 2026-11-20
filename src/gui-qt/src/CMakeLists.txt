@@ -11,6 +11,7 @@ set(SQUEY_ICON "resources////squey.ico")
 set(MOC_HEADERS
 ../include/PVSingleInstanceApplication.h
 ../include/PVFilesTypesSelWidget.h
+../include/PVImportController.h
 ../include/PVMainWindow.h
 ../include/PVStringListChooserWidget.h
 )
@@ -18,6 +19,7 @@ set(MOC_HEADERS
 set(SRC_FILES
 main.cpp
 PVFilesTypesSelWidget.cpp
+PVImportController.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp

@@ -34,6 +34,8 @@
 
 #include <pvbase/general.h>
 #include <pvkernel/core/PVStreamingCompressor.h>
+#include <pvkernel/core/PVKernelSettings.h>
+#include <pvkernel/core/PVSettings.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -47,7 +49,13 @@
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 #include <QToolButton>
+#include <pvguiqt/PVImportPage.h>
+#include <QPushButton>
+#include <QMenuBar>
+#include <QLabel>
+#include <PVImportController.h>
 #include <PVMainWindow.h>
+#include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
@@ -132,6 +140,29 @@ class ModalDriver {
 	std::atomic<bool> _driven{false};
 	std::shared_ptr<int> _alive = std::make_shared<int>(0);
 };
+
+namespace
+{
+
+// Imports run in the import page of the main window, once the call that asked for them returned.
+bool wait_for_import(App::PVMainWindow& main_window)
+{
+	return QTest::qWaitFor([&]() { return not main_window.import_controller().busy(); }, 120000);
+}
+
+// What the messages of the import page say.
+QString import_messages(App::PVMainWindow& main_window)
+{
+	QStringList texts;
+	for (const QFrame* message : main_window.findChildren<QFrame*>("import_message")) {
+		for (const QLabel* label : message->findChildren<QLabel*>()) {
+			texts << label->text();
+		}
+	}
+	return texts.join('\n');
+}
+
+} // namespace
 
 ImportExportTest::ImportExportTest()
 {
@@ -248,6 +279,7 @@ void ImportExportTest::import_file()
     // very same import_type() with no modal file dialog. The export dialog is
     // still driven for real, through the modal export flow it triggers.
     main_window.load_files({source_path});
+    QVERIFY(wait_for_import(main_window));
 
     QCOMPARE(success, true);
 }
@@ -288,6 +320,7 @@ void ImportExportTest::undo_redo()
     const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
     QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
     main_window.load_files({source_path});
+    QVERIFY(wait_for_import(main_window));
 
     Squey::PVView* view = main_window.current_view();
     QVERIFY(view != nullptr);
@@ -371,6 +404,7 @@ void ImportExportTest::rename_source()
 	const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
 	QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
 	main_window.load_files({source_path});
+	QVERIFY(wait_for_import(main_window));
 
 	Squey::PVView* view = main_window.current_view();
 	QVERIFY(view != nullptr);
@@ -560,6 +594,7 @@ void ImportExportTest::import_pcap()
     wizard_driver.start();
 
     main_window.load_files({source_path});
+    QVERIFY(wait_for_import(main_window));
 
     main_window.disconnect();
 
@@ -628,6 +663,7 @@ void import_guessing_formats(App::PVMainWindow& main_window,
 
 	PVRush::hash_format_creator format_creator;
 	main_window.import_type(in_file, inputs, formats, format_creator, format);
+	QVERIFY(wait_for_import(main_window));
 
 	QVERIFY2(unexpected.isEmpty(), qPrintable(unexpected.join('\n')));
 }
@@ -714,6 +750,11 @@ void ImportExportTest::import_guessed_formats_without_nraw_dir()
 		return;
 	}
 
+	// The preview asks in a dialog, the import tells in its page.
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("Unable to create a temporary directory in " +
+	                           QDir::toNativeSeparators(nraw_dir)),
+	         qPrintable(messages));
 	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 }
 
@@ -726,19 +767,6 @@ void ImportExportTest::import_failure_reported()
 #else
 	App::PVMainWindow main_window;
 	main_window.show();
-	main_window.raise();
-
-	QString report;
-	ModalDriver driver(&main_window, [&]() -> bool {
-		auto* box = qobject_cast<QMessageBox*>(qApp->activeModalWidget());
-		if (box == nullptr or not box->isVisible()) {
-			return false;
-		}
-		report = box->text();
-		box->accept();
-		return true;
-	});
-	driver.start();
 
 	{
 		rlimit previous_limit;
@@ -755,11 +783,217 @@ void ImportExportTest::import_failure_reported()
 		QVERIFY(setrlimit(RLIMIT_FSIZE, &limit) == 0);
 
 		main_window.load_files({QString(TEST_FOLDER) + "/picviz/enum_mapping.csv"});
+		QVERIFY(wait_for_import(main_window));
 	}
 
-	QVERIFY2(report.contains(PVRush::PVNrawCacheManager::nraw_dir()), qPrintable(report));
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains(PVRush::PVNrawCacheManager::nraw_dir()), qPrintable(messages));
 	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 #endif
+}
+
+namespace
+{
+
+constexpr const char* ROWS_FORMAT = R"(<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="11" first_line="0">
+ <splitter type="csv" sep="," quote="&quot;">
+  <field><axis name="a" type="number_uint32"/></field>
+  <field><axis name="b" type="number_uint32"/></field>
+  <field><axis name="c" type="number_uint32"/></field>
+ </splitter>
+</param>
+)";
+
+// @p row_count rows of three numbers, with the format next to them, which the import finds.
+void write_rows(QString const& path, int row_count)
+{
+	QFile file(path);
+	QVERIFY(file.open(QIODevice::WriteOnly));
+	QByteArray rows;
+	for (int row = 0; row < row_count; row++) {
+		rows += QByteArray::number(row) + ',' + QByteArray::number(row + 1) + ',' +
+		        QByteArray::number(row + 2) + '\n';
+		if (rows.size() > (1 << 20)) {
+			file.write(rows);
+			rows.clear();
+		}
+	}
+	file.write(rows);
+	QFile format(path + ".format");
+	QVERIFY(format.open(QIODevice::WriteOnly));
+	format.write(ROWS_FORMAT);
+}
+
+// The button @p text of the progress of the import page.
+QPushButton* progress_button(App::PVMainWindow& main_window, QString const& text)
+{
+	auto* progress =
+	    main_window._projects_tab_widget->import_page().findChild<QWidget*>("import_progress");
+	for (QPushButton* button : progress->findChildren<QPushButton*>()) {
+		if (button->text() == text) {
+			return button;
+		}
+	}
+	return nullptr;
+}
+
+// The button @p text of the message of the import page that asks a question.
+QPushButton* message_button(App::PVMainWindow& main_window, QString const& text)
+{
+	for (QFrame* message : main_window.findChildren<QFrame*>("import_message")) {
+		for (QPushButton* button : message->findChildren<QPushButton*>()) {
+			if (button->text() == text) {
+				return button;
+			}
+		}
+	}
+	return nullptr;
+}
+
+} // namespace
+
+// The extraction and the processing show in the import page of the main window, which asks
+// nothing, while the rest of the window waits.
+void ImportExportTest::import_in_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 1000);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	main_window.load_files({csv});
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(main_window.import_controller().busy());
+	QVERIFY(page.isVisible());
+	QVERIFY(not main_window.menuBar()->isEnabled());
+	bool modal = false;
+	QVERIFY(QTest::qWaitFor(
+	    [&]() {
+		    modal |= qApp->activeModalWidget() != nullptr;
+		    return not main_window.import_controller().busy();
+	    },
+	    120000));
+	QVERIFY(not modal);
+
+	QVERIFY(not page.isVisible());
+	QVERIFY(main_window.menuBar()->isEnabled());
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_row_count(), PVRow(1000));
+}
+
+// What cannot be imported is told in the import page, which stays until the user closes it.
+void ImportExportTest::import_error_in_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("empty.csv");
+	write_rows(csv, 0);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	main_window.load_files({csv});
+	QVERIFY(wait_for_import(main_window));
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(page.isVisible());
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("were empty"), qPrintable(messages));
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+
+	QPushButton* close = page.findChild<QPushButton*>("import_close");
+	QVERIFY(close != nullptr and close->isVisible());
+	close->click();
+	QVERIFY(not page.isVisible());
+	QVERIFY(import_messages(main_window).isEmpty());
+}
+
+// Discarding an import asks first, in the page: going on resumes it, discarding drops the source.
+// The window cannot close meanwhile.
+void ImportExportTest::discard_import()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 100000);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	main_window.load_files({csv});
+	QVERIFY(not main_window.close());
+	QPushButton* discard = progress_button(main_window, "Discard");
+	QVERIFY(discard != nullptr and discard->isVisible());
+	discard->click();
+	QPushButton* resume = message_button(main_window, "Continue");
+	QVERIFY(resume != nullptr);
+	QVERIFY(not discard->isEnabled());
+	resume->click();
+	QVERIFY(discard->isEnabled());
+	discard->click();
+	QPushButton* confirm = message_button(main_window, "Discard");
+	QVERIFY(confirm != nullptr);
+	confirm->click();
+
+	QVERIFY(wait_for_import(main_window));
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+	// Only what told the window could not close.
+	QVERIFY2(not import_messages(main_window).contains("Discard"),
+	         qPrintable(import_messages(main_window)));
+}
+
+// Stopping an import keeps the events extracted so far, which are processed.
+void ImportExportTest::stop_import()
+{
+	// Small chunks, two at once: the import goes a few chunks further than where it is paused or
+	// stopped.
+	QVERIFY(PVCore::settings::import_chunk_size.set_value(65536));
+	QVERIFY(PVCore::settings::import_parallel_chunks.set_value(2));
+	const auto restore = qScopeGuard([]() {
+		PVCore::PVSettings::get().reset(PVCore::settings::import_chunk_size.key());
+		PVCore::PVSettings::get().reset(PVCore::settings::import_parallel_chunks.key());
+	});
+
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	constexpr int row_count = 400000;
+	write_rows(csv, row_count);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	// The question of the discard pauses the import before it can go far, whatever the speed of
+	// the machine, and lets the chunks it holds go through meanwhile.
+	main_window.load_files({csv});
+	progress_button(main_window, "Discard")->click();
+	QTest::qWait(200);
+	message_button(main_window, "Continue")->click();
+	progress_button(main_window, "Stop and process")->click();
+
+	QVERIFY(wait_for_import(main_window));
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QVERIFY(sources.front()->get_row_count() > 0);
+	QVERIFY2(sources.front()->get_row_count() < PVRow(row_count),
+	         qPrintable(QString::number(sources.front()->get_row_count())));
 }
 
 QTEST_MAIN(ImportExportTest)
