@@ -100,7 +100,10 @@ class CapturesPanel : public QWidget
 	void update_item(const QString& path);
 	void remove_selected();
 	void captures_moved();
+	//! Shows the list, or the zone that asks for captures while it is empty.
+	void update_empty();
 
+	QToolButton* _ask;
 	QListWidget* _list;
 	QToolButton* _remove;
 	std::map<QString, entry> _entries;

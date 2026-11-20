@@ -41,7 +41,6 @@
 #include <QKeyEvent>
 #include <QListWidget>
 #include <QMenu>
-#include <QMouseEvent>
 #include <QPainter>
 #include <QStandardPaths>
 #include <QStyledItemDelegate>
@@ -137,31 +136,18 @@ class CaptureDelegate : public QStyledItemDelegate
 	}
 };
 
-/**
- * Tells what to do while it is empty, and asks which captures to add when clicked then;
- * removes what is selected with the Delete key.
- */
+//! Removes what is selected with the Delete key.
 class CaptureList : public QListWidget
 {
   public:
-	CaptureList(std::function<void()> ask, std::function<void()> remove_selected)
-	    : _ask(std::move(ask)), _remove_selected(std::move(remove_selected))
+	explicit CaptureList(std::function<void()> remove_selected)
+	    : _remove_selected(std::move(remove_selected))
 	{
-		for (const auto changed :
-		     {&QAbstractItemModel::rowsInserted, &QAbstractItemModel::rowsRemoved}) {
-			connect(model(), changed, this, [this]() { update_cursor(); });
-		}
-		update_cursor();
 	}
 
   protected:
 	void keyPressEvent(QKeyEvent* event) override
 	{
-		if (count() == 0 and (event->key() == Qt::Key_Space or event->key() == Qt::Key_Return or
-		                      event->key() == Qt::Key_Enter)) {
-			_ask();
-			return;
-		}
 		if (event->matches(QKeySequence::Delete) or event->key() == Qt::Key_Backspace) {
 			_remove_selected();
 			return;
@@ -169,45 +155,7 @@ class CaptureList : public QListWidget
 		QListWidget::keyPressEvent(event);
 	}
 
-	void mouseReleaseEvent(QMouseEvent* event) override
-	{
-		if (count() == 0 and event->button() == Qt::LeftButton) {
-			_ask();
-			return;
-		}
-		QListWidget::mouseReleaseEvent(event);
-	}
-
-	void paintEvent(QPaintEvent* event) override
-	{
-		QListWidget::paintEvent(event);
-		if (count() != 0) {
-			return;
-		}
-		QPainter painter(viewport());
-		const QRect area = viewport()->rect().adjusted(16, 16, -16, -16);
-		const QIcon icon = PVModdedIcon("pcap");
-		const int icon_size = 40;
-		const QRect icon_area(area.center().x() - icon_size / 2, area.center().y() - icon_size,
-		                      icon_size, icon_size);
-		icon.paint(&painter, icon_area, Qt::AlignCenter, QIcon::Disabled);
-		painter.setPen(style::secondary());
-		painter.drawText(QRect(area.left(), icon_area.bottom() + 8, area.width(), area.height()),
-		                 Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap,
-		                 tr("Drop captures here,\nor click to choose them (Ctrl+O)"));
-	}
-
   private:
-	void update_cursor()
-	{
-		if (count() == 0) {
-			viewport()->setCursor(Qt::PointingHandCursor);
-		} else {
-			viewport()->unsetCursor();
-		}
-	}
-
-	std::function<void()> _ask;
 	std::function<void()> _remove_selected;
 };
 
@@ -268,7 +216,14 @@ CapturesPanel::CapturesPanel(QWidget* parent) : QWidget(parent)
 	header->addWidget(_remove);
 	layout->addLayout(header);
 
-	_list = new CaptureList([this]() { ask(); }, [this]() { remove_selected(); });
+	// In the place of the list while it is empty.
+	_ask = PVWidgets::PVImportWidget::drop_zone(PVModdedIcon("pcap"),
+	                                            tr("Drop captures here,\nor click to choose them"));
+	_ask->setToolTip(tr("Add captures (Ctrl+O)"));
+	_ask->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+	layout->addWidget(_ask);
+
+	_list = new CaptureList([this]() { remove_selected(); });
 	_list->setObjectName("captures_list");
 	_list->setItemDelegate(new CaptureDelegate(_list));
 	_list->setSelectionMode(QAbstractItemView::ExtendedSelection);
@@ -282,6 +237,13 @@ CapturesPanel::CapturesPanel(QWidget* parent) : QWidget(parent)
 	layout->addWidget(_list);
 
 	connect(add, &QToolButton::clicked, this, &CapturesPanel::ask);
+	connect(_ask, &QToolButton::clicked, this, &CapturesPanel::ask);
+	// One by one rather than from a braced list: MinGW stores the member pointers of such a list
+	// as constants that point at the import thunks rather than at the signals of Qt, which
+	// connect() then does not find.
+	connect(_list->model(), &QAbstractItemModel::rowsInserted, this, &CapturesPanel::update_empty);
+	connect(_list->model(), &QAbstractItemModel::rowsRemoved, this, &CapturesPanel::update_empty);
+	update_empty();
 	connect(_remove, &QToolButton::clicked, this, &CapturesPanel::remove_selected);
 	connect(_list, &QListWidget::itemSelectionChanged, this,
 	        [this]() { _remove->setEnabled(not _list->selectedItems().isEmpty()); });
@@ -298,6 +260,12 @@ CapturesPanel::CapturesPanel(QWidget* parent) : QWidget(parent)
 }
 
 CapturesPanel::~CapturesPanel() = default;
+
+void CapturesPanel::update_empty()
+{
+	_ask->setVisible(_list->count() == 0);
+	_list->setVisible(_list->count() != 0);
+}
 
 void CapturesPanel::ask()
 {

@@ -599,11 +599,19 @@ void ImportExportTest::import_pcap()
     const QString source_path = QString(TEST_FOLDER) + "/sources/http.pcap";
     QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
 
+    // Without captures, the pcap import dialog asks for some as the other importers ask for
+    // files, in their place.
+    main_window.import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("pcap"));
+    PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+    QVERIFY(page.findChild<QToolButton*>("import_ask_files")->isVisible());
+    QVERIFY(not page.findChild<QWidget*>("captures_list")->isVisible());
+
     // load_files() hands the capture to the pcap import dialog, in the import page, which
     // reads the fields of the capture before it can import.
     main_window.load_files({source_path});
-    PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
     QVERIFY(page.content() != nullptr);
+    QVERIFY(not page.findChild<QToolButton*>("import_ask_files")->isVisible());
+    QVERIFY(page.findChild<QWidget*>("captures_list")->isVisible());
     QVERIFY(page.findChild<QPushButton*>("process_import_button")->isHidden());
     QPushButton* import = page.findChild<QPushButton*>("import_import");
     QVERIFY(QTest::qWaitFor([&]() { return import->isEnabled(); }, 60000));

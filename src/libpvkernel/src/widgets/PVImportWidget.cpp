@@ -27,6 +27,8 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QLabel>
+#include <QStyleOptionToolButton>
+#include <QStylePainter>
 #include <QToolButton>
 
 #include <stdexcept>
@@ -51,10 +53,44 @@ QLabel* PVWidgets::PVImportWidget::section_title(QString const& text)
 	return title;
 }
 
+namespace
+{
+
+/** Its icon above its text, both in its middle however tall it is. */
+class DropZone : public QToolButton
+{
+  protected:
+	void paintEvent(QPaintEvent*) override
+	{
+		// The edge of the theme alone: a tool button puts its icon at its top, and its text in the
+		// middle of what is left.
+		QStylePainter painter(this);
+		QStyleOptionToolButton option;
+		initStyleOption(&option);
+		const QIcon icon = option.icon;
+		const QString label = option.text;
+		option.icon = QIcon();
+		option.text.clear();
+		painter.drawComplexControl(QStyle::CC_ToolButton, option);
+
+		const int spacing = fontMetrics().height() / 2;
+		const QRect text_size = fontMetrics().boundingRect(rect(), Qt::AlignCenter, label);
+		const int top = (height() - iconSize().height() - spacing - text_size.height()) / 2;
+		const QRect icon_area(QPoint((width() - iconSize().width()) / 2, top), iconSize());
+		icon.paint(&painter, icon_area, Qt::AlignCenter,
+		           isEnabled() ? QIcon::Normal : QIcon::Disabled);
+		style()->drawItemText(
+		    &painter, QRect(0, icon_area.bottom() + 1 + spacing, width(), text_size.height()),
+		    Qt::AlignHCenter | Qt::AlignTop, palette(), isEnabled(), label, QPalette::ButtonText);
+	}
+};
+
+} // namespace
+
 QToolButton* PVWidgets::PVImportWidget::drop_zone(QIcon const& icon, QString const& text)
 {
 	// The theme gives it a dashed edge, by its name.
-	auto* zone = new QToolButton;
+	auto* zone = new DropZone;
 	zone->setObjectName("import_ask_files");
 	zone->setIcon(icon);
 	zone->setIconSize(QSize(40, 40));
