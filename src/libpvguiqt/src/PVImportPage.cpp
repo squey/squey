@@ -48,6 +48,9 @@
 namespace
 {
 
+/** The width of what the page shows at most, in average characters. */
+constexpr int COLUMN_WIDTH = 140;
+
 QStyle::StandardPixmap pixmap_of(PVGuiQt::PVImportPage::Severity severity)
 {
 	switch (severity) {
@@ -112,7 +115,6 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	collection_layout->setContentsMargins(0, 0, 0, 0);
 	collection_layout->addWidget(new QLabel(tr("Data collection:")));
 	collection_layout->addWidget(_collection);
-	collection_layout->addStretch();
 	_collection_row->hide();
 
 	auto* progress_layout = new QVBoxLayout(_progress);
@@ -123,20 +125,8 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	progress_layout->addLayout(_progress_buttons);
 	_progress->hide();
 
-	auto* body = new QWidget;
-	auto* body_layout = new QVBoxLayout(body);
-	body_layout->addWidget(_title);
-	body_layout->addLayout(_messages);
-	body_layout->addLayout(_content_layout);
-	body_layout->addWidget(_collection_row);
-	body_layout->addWidget(_progress);
-	body_layout->addStretch();
-	auto* scroll_area = new QScrollArea;
-	scroll_area->setWidgetResizable(true);
-	scroll_area->setFrameShape(QFrame::NoFrame);
-	scroll_area->setWidget(body);
-
 	auto* footer = new QHBoxLayout;
+	footer->addWidget(_collection_row);
 	footer->addStretch();
 	footer->addWidget(_close);
 	footer->addWidget(_cancel);
@@ -145,9 +135,26 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	_cancel->hide();
 	_import->hide();
 
+	auto* body = new QWidget;
+	// Short enough lines to read in a wide window, which the scroll area centers.
+	body->setMaximumWidth(fontMetrics().averageCharWidth() * COLUMN_WIDTH);
+	auto* body_layout = new QVBoxLayout(body);
+	body_layout->addWidget(_title);
+	body_layout->addLayout(_messages);
+	body_layout->addLayout(_content_layout);
+	body_layout->addWidget(_progress);
+	body_layout->addLayout(footer);
+	// The height left goes below the buttons: given to the content, it would set a list of a
+	// limited height apart from the buttons beside it.
+	body_layout->addStretch(1);
+	auto* scroll_area = new QScrollArea;
+	scroll_area->setWidgetResizable(true);
+	scroll_area->setFrameShape(QFrame::NoFrame);
+	scroll_area->setAlignment(Qt::AlignHCenter);
+	scroll_area->setWidget(body);
+
 	auto* layout = new QVBoxLayout(this);
 	layout->addWidget(scroll_area);
-	layout->addLayout(footer);
 }
 
 PVGuiQt::PVImportPage::~PVImportPage()

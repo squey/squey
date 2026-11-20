@@ -24,8 +24,9 @@
 
 // The import page shows what an input type asks for an import, its content, with the same
 // buttons for every type: Import once the content is ready, Cancel, and the data collection to
-// import into. It runs the long tasks of the content out of the GUI thread, with their progress
-// and a button to cancel them, and tells what a task that failed said.
+// import into, in a column at the center of a wide window. It runs the long tasks of the content
+// out of the GUI thread, with their progress and a button to cancel them, and tells what a task
+// that failed said.
 
 #include <pvguiqt/PVImportPage.h>
 
@@ -41,6 +42,7 @@
 #include <QTest>
 
 #include <chrono>
+#include <cstdlib>
 #include <optional>
 #include <stdexcept>
 #include <string>
@@ -52,6 +54,9 @@ namespace
 class Content : public PVWidgets::PVImportWidget
 {
   public:
+	/** Takes the height it gets, as a content holding lists does. */
+	Content() { setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Expanding); }
+
 	bool is_ready() const override { return _ready; }
 	std::vector<source_t> sources() const override { return {}; }
 
@@ -128,6 +133,20 @@ int main(int argc, char** argv)
 
 	QPushButton* import = button(page, "import_import");
 	QPushButton* cancel = button(page, "import_cancel");
+
+	// What the page shows keeps to a column at the center of a wide page, with the buttons right
+	// under it, and takes the whole width of a narrow one.
+	QWidget* column = content->parentWidget();
+	QWidget* area = column->parentWidget();
+	page.resize(3000, 1500);
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return area->width() > 2500; }, 10000));
+	PV_ASSERT_VALID(column->width() < area->width() / 2);
+	PV_ASSERT_VALID(std::abs(2 * column->x() + column->width() - area->width()) <= 1);
+	PV_ASSERT_VALID(import->mapTo(&page, QPoint(0, import->height())).y() < page.height() / 4);
+	page.resize(800, 1500);
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return area->width() < 900; }, 10000));
+	PV_VALID(column->width(), area->width());
+
 	PV_ASSERT_VALID(import->isVisible() and not import->isEnabled());
 	PV_ASSERT_VALID(cancel->isVisible() and cancel->isEnabled());
 	PV_ASSERT_VALID(not button(page, "import_close")->isVisible());
