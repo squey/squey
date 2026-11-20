@@ -72,10 +72,10 @@ std::vector<PVWidgets::PVImportWidget::source_t> PVWidgets::PVDialogImportWidget
 	return _parts.sources();
 }
 
-void PVWidgets::PVDialogImportWidget::set_paths(QStringList const& paths)
+void PVWidgets::PVDialogImportWidget::add_paths(QStringList const& paths)
 {
-	if (_parts.set_paths) {
-		_parts.set_paths(paths);
+	if (_parts.add_paths) {
+		_parts.add_paths(paths);
 	}
 }
 

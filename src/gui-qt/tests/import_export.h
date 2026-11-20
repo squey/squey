@@ -20,6 +20,7 @@ private Q_SLOTS:
     void import_failure_reported();
     void rename_source();
     void import_in_page();
+    void import_dropped_files();
     void import_error_in_page();
     void discard_import();
     void stop_import();

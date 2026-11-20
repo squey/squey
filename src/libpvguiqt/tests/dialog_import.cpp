@@ -70,7 +70,7 @@ int main(int argc, char** argv)
 		                    imports++;
 		                    return std::vector<PVWidgets::PVImportWidget::source_t>(1);
 	                    },
-	                .set_paths = [&](QStringList const& given) { paths = given; }});
+	                .add_paths = [&](QStringList const& given) { paths = given; }});
 	content->show();
 	PV_ASSERT_VALID(dialog->isVisible() and not dialog->isWindow());
 	PV_ASSERT_VALID(not buttons->isVisible());
@@ -98,6 +98,10 @@ int main(int argc, char** argv)
 
 	content->set_paths({"capture.pcap"});
 	PV_ASSERT_VALID(paths == QStringList{"capture.pcap"});
+	// As files dropped on the page.
+	PV_ASSERT_VALID(content->takes_files());
+	content->add_paths({"other.pcap"});
+	PV_ASSERT_VALID(paths == QStringList{"other.pcap"});
 
 	const QPointer<QDialog> owned = dialog;
 	content.reset();

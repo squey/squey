@@ -30,6 +30,7 @@
 
 #include <QAbstractButton>
 #include <QComboBox>
+#include <QDropEvent>
 #include <QEvent>
 #include <QFont>
 #include <QFrame>
@@ -38,6 +39,7 @@
 #include <QKeyEvent>
 #include <QLabel>
 #include <QLayoutItem>
+#include <QMimeData>
 #include <QPainter>
 #include <QPolygonF>
 #include <QProgressBar>
@@ -45,6 +47,7 @@
 #include <QScrollArea>
 #include <QStyle>
 #include <QThread>
+#include <QUrl>
 #include <QVBoxLayout>
 
 #include <algorithm>
@@ -298,6 +301,62 @@ class PVGuiQt::PVImportPage::IconLabel : public QWidget
 	QIcon _icon;
 };
 
+/** Over the page, while files dragged over it would go to its content: where they go. */
+class PVGuiQt::PVImportPage::DropOverlay : public QWidget
+{
+  public:
+	explicit DropOverlay(PVImportPage* page) : QWidget(page), _page(page)
+	{
+		setObjectName("import_drop_overlay");
+		// For the drag to go on to the page under it.
+		setAttribute(Qt::WA_TransparentForMouseEvents);
+		hide();
+	}
+
+	void cover()
+	{
+		setGeometry(_page->rect());
+		raise();
+		show();
+	}
+
+  protected:
+	void paintEvent(QPaintEvent*) override
+	{
+		QPainter painter(this);
+		painter.setRenderHint(QPainter::Antialiasing);
+		QColor veil = _page->palette().color(QPalette::Window);
+		veil.setAlphaF(0.85f);
+		painter.fillRect(rect(), veil);
+
+		const QColor accent = _page->decoration_color();
+		QColor fill = accent;
+		fill.setAlphaF(0.1f);
+		painter.setBrush(fill);
+		painter.setPen(QPen(accent, 2, Qt::DashLine));
+		const QRectF zone =
+		    QRectF(rect()).adjusted(SHEET_MARGIN, SHEET_MARGIN, -SHEET_MARGIN, -SHEET_MARGIN);
+		painter.drawRoundedRect(zone, 2 * SHEET_RADIUS, 2 * SHEET_RADIUS);
+
+		const int side = 4 * fontMetrics().height();
+		const QPoint center = zone.center().toPoint();
+		PVModdedIcon("file-import").paint(&painter, center.x() - side / 2, center.y() - side, side,
+		                                  side);
+		QFont font = painter.font();
+		font.setPointSizeF(font.pointSizeF() * 1.5);
+		font.setBold(true);
+		painter.setFont(font);
+		painter.setPen(_page->palette().color(QPalette::WindowText));
+		painter.drawText(QRectF(zone.left(), center.y() + fontMetrics().height(), zone.width(),
+		                        zone.bottom() - center.y()),
+		                 Qt::AlignHCenter | Qt::AlignTop | Qt::TextWordWrap,
+		                 PVImportPage::tr("Drop to add the files to the import"));
+	}
+
+  private:
+	PVImportPage* _page;
+};
+
 PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     : QWidget(parent)
     , _layout(new QVBoxLayout(this))
@@ -322,9 +381,11 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     , _import(primary_button(tr("Import"), "file-import"))
     , _format_cancel(button(tr("Cancel"), "circle-x"))
     , _format_use(primary_button(tr("Use this format"), "circle-check"))
+    , _drop_overlay(new DropOverlay(this))
     , _decoration_color(palette().color(QPalette::Highlight))
 {
 	setObjectName("PVImportPage");
+	setAcceptDrops(true);
 	_sheet->setObjectName("import_sheet");
 	// As the headers of the start page.
 	_title->setFont(QFont("Black Han Sans, Expanded", 20));
@@ -780,4 +841,46 @@ bool PVGuiQt::PVImportPage::eventFilter(QObject* watched, QEvent* event)
 		update();
 	}
 	return QWidget::eventFilter(watched, event);
+}
+
+QStringList PVGuiQt::PVImportPage::dropped_files(QMimeData const* mime)
+{
+	QStringList paths;
+	for (const QUrl& url : mime->urls()) {
+		if (not url.isLocalFile()) {
+			return {};
+		}
+		paths << url.toLocalFile();
+	}
+	return paths;
+}
+
+bool PVGuiQt::PVImportPage::takes_dropped_files() const
+{
+	return _content != nullptr and _content->isVisible() and _content->isEnabled() and
+	       _content->takes_files();
+}
+
+void PVGuiQt::PVImportPage::dragEnterEvent(QDragEnterEvent* event)
+{
+	// Else ignored, for the main window to tell what it makes of them.
+	if (takes_dropped_files() and not dropped_files(event->mimeData()).isEmpty()) {
+		event->acceptProposedAction();
+		_drop_overlay->cover();
+	}
+}
+
+void PVGuiQt::PVImportPage::dragLeaveEvent(QDragLeaveEvent*)
+{
+	_drop_overlay->hide();
+}
+
+void PVGuiQt::PVImportPage::dropEvent(QDropEvent* event)
+{
+	_drop_overlay->hide();
+	const QStringList paths = dropped_files(event->mimeData());
+	if (takes_dropped_files() and not paths.isEmpty()) {
+		event->acceptProposedAction();
+		_content->add_paths(paths);
+	}
 }

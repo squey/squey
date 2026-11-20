@@ -81,6 +81,11 @@ void PVWidgets::PVFileListImportWidget::set_paths(QStringList const& paths)
 	_files->set_paths(paths);
 }
 
+void PVWidgets::PVFileListImportWidget::add_paths(QStringList const& paths)
+{
+	_files->add_paths(paths);
+}
+
 void PVWidgets::PVFileListImportWidget::describe()
 {
 	_description.reset();

@@ -36,10 +36,13 @@
 
 #include <QApplication>
 #include <QComboBox>
+#include <QDropEvent>
 #include <QLabel>
+#include <QMimeData>
 #include <QPointer>
 #include <QPushButton>
 #include <QTest>
+#include <QUrl>
 
 #include <chrono>
 #include <cstdlib>
@@ -77,6 +80,31 @@ class FillingContent : public Content
   public:
 	bool fills_page() const override { return true; }
 };
+
+class FilesContent : public Content
+{
+  public:
+	bool takes_files() const override { return true; }
+	void add_paths(QStringList const& paths) override { added += paths; }
+
+	QStringList added;
+};
+
+/** Drags @p mime over @p widget, and drops it there if it accepts it: whether it took it. */
+bool drop(QWidget& widget, QMimeData const& mime)
+{
+	const QPointF center = widget.rect().center();
+	QDragEnterEvent enter(center, Qt::CopyAction, &mime, Qt::LeftButton, Qt::NoModifier);
+	QCoreApplication::sendEvent(&widget, &enter);
+	if (not enter.isAccepted()) {
+		return false;
+	}
+	PV_ASSERT_VALID(widget.findChild<QWidget*>("import_drop_overlay")->isVisible());
+	QDropEvent dropped(center, Qt::CopyAction, &mime, Qt::LeftButton, Qt::NoModifier);
+	QCoreApplication::sendEvent(&widget, &dropped);
+	PV_ASSERT_VALID(not widget.findChild<QWidget*>("import_drop_overlay")->isVisible());
+	return dropped.isAccepted();
+}
 
 QPushButton* button(QWidget& parent, QString const& name)
 {
@@ -239,6 +267,25 @@ int main(int argc, char** argv)
 	PV_ASSERT_VALID(filling->height() > page.height() / 2);
 	page.clear_content();
 	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return column->width() < page.width() / 2; }, 10000));
+
+	// Local files dropped on the page go to a content that takes files, while no task runs.
+	QMimeData files;
+	files.setUrls({QUrl::fromLocalFile("/data/one.csv"), QUrl::fromLocalFile("/data/two.csv")});
+	PV_ASSERT_VALID(not drop(page, files));
+	const QPointer<FilesContent> taking = new FilesContent;
+	page.set_content(taking, "Import: Files", {}, {}, -1);
+	PV_ASSERT_VALID(drop(page, files));
+	PV_ASSERT_VALID(taking->added == QStringList({"/data/one.csv", "/data/two.csv"}));
+	QMimeData remote;
+	remote.setUrls({QUrl::fromLocalFile("/data/three.csv"), QUrl("https://squey.org/four.csv")});
+	PV_ASSERT_VALID(not drop(page, remote));
+	completed.reset();
+	taking->run_task("Reading", until_canceled, [&completed](bool done) { completed = done; });
+	PV_ASSERT_VALID(not drop(page, files));
+	page.cancel_task();
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return completed.has_value(); }, 10000));
+	PV_VALID(taking->added.size(), qsizetype(2));
+	page.clear_content();
 
 	return 0;
 }

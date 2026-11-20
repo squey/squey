@@ -63,6 +63,9 @@ class PVTextImportWidget : public PVWidgets::PVImportWidget
 	 */
 	std::vector<source_t> sources() const override;
 	void set_paths(QStringList const& paths) override;
+	bool takes_files() const override { return true; }
+	/** But a format among @p paths, the one to read the files with then. */
+	void add_paths(QStringList const& paths) override;
 	void set_format(QString const& path) override;
 	void set_edited_format(QDomDocument const& format) override;
 

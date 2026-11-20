@@ -53,6 +53,8 @@ class PVImportFilesWidget : public QWidget
   public:
 	QStringList const& paths() const { return _paths; }
 	void set_paths(QStringList const& paths);
+	/** Adds those of @p paths that are not in the list yet, after the others. */
+	void add_paths(QStringList const& paths);
 	bool one_source_per_file() const;
 	/** The paths of the files of each source. */
 	std::vector<QStringList> sources() const;

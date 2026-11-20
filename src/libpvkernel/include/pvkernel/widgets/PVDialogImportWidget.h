@@ -57,8 +57,8 @@ class PVDialogImportWidget : public PVImportWidget
 		QList<QWidget*> buttons;
 		/** What the accepted dialog asks to import. */
 		std::function<std::vector<source_t>()> sources;
-		/** What the dialog makes of the files Squey was asked to open, if it takes any. */
-		std::function<void(QStringList const&)> set_paths = {};
+		/** Adds files to those the dialog imports, if it takes any. */
+		std::function<void(QStringList const&)> add_paths = {};
 		bool fills_page = false;
 	};
 
@@ -71,7 +71,9 @@ class PVDialogImportWidget : public PVImportWidget
 	bool is_ready() const override;
 	/** Nothing if the dialog refused to be accepted: it tells why itself. */
 	std::vector<source_t> sources() const override;
-	void set_paths(QStringList const& paths) override;
+	void set_paths(QStringList const& paths) override { add_paths(paths); }
+	bool takes_files() const override { return bool(_parts.add_paths); }
+	void add_paths(QStringList const& paths) override;
 	bool fills_page() const override { return _parts.fills_page; }
 
   protected:

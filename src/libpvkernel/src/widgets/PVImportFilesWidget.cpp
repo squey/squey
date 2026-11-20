@@ -114,22 +114,26 @@ std::vector<QStringList> PVWidgets::PVImportFilesWidget::sources() const
 	return sources;
 }
 
+void PVWidgets::PVImportFilesWidget::add_paths(QStringList const& paths)
+{
+	QStringList added = _paths;
+	for (const QString& path : paths) {
+		if (not added.contains(path)) {
+			added << path;
+		}
+	}
+	if (added != _paths) {
+		set_paths(added);
+	}
+}
+
 void PVWidgets::PVImportFilesWidget::add_files()
 {
-	const QStringList chosen = PVFileDialog::getOpenFileNames(
+	add_paths(PVFileDialog::getOpenFileNames(
 	    this, _dialog_title,
 	    _paths.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
 	                     : QFileInfo(_paths.back()).absolutePath(),
-	    _dialog_filter);
-	QStringList paths = _paths;
-	for (const QString& path : chosen) {
-		if (not paths.contains(path)) {
-			paths << path;
-		}
-	}
-	if (paths != _paths) {
-		set_paths(paths);
-	}
+	    _dialog_filter));
 }
 
 void PVWidgets::PVImportFilesWidget::remove_files()

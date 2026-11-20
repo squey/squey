@@ -94,6 +94,10 @@ class PVKERNEL_EXPORT PVImportWidget : public QWidget
 
 	/** Starts from the files @p paths, such as those of a command line, for a type of files. */
 	virtual void set_paths(QStringList const& /*paths*/) {}
+	/** Whether the content imports files, which the user may then drop on the page. */
+	virtual bool takes_files() const { return false; }
+	/** Adds the files @p paths to those to import, for a content that takes_files(). */
+	virtual void add_paths(QStringList const& /*paths*/) {}
 	/**
 	 * Whether the widget takes all the room of the page, as a dialog of many panels needs, rather
 	 * than a column of the height it asks for.

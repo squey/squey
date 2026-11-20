@@ -29,12 +29,14 @@
 #include <QFontDatabase>
 #include <QLabel>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QRegExp>
 #include <QShortcut>
 #include <QStatusBar>
 #include <QVBoxLayout>
 #include <QStyleHints>
 #include <QStyleFactory>
+#include <QTimer>
 
 #include <PVImportController.h>
 #include <PVMainWindow.h>
@@ -245,6 +247,14 @@ App::PVMainWindow::~PVMainWindow()
 bool App::PVMainWindow::event(QEvent* event)
 {
 	QString mime_type = "application/x-squey_workspace";
+	// Files, which open as a command line opens them, but over what the import page asks for or
+	// imports: the page takes the files its content takes itself.
+	const auto takes_files = [this](QMimeData const* mime) {
+		const PVGuiQt::PVImportPage& page = _projects_tab_widget->import_page();
+		return not _import_controller->busy() and
+		       not(page.isVisible() and page.content() != nullptr) and
+		       not PVGuiQt::PVImportPage::dropped_files(mime).isEmpty();
+	};
 
 	if (event->type() == QEvent::DragEnter) {
 		auto* dragEnterEvent = static_cast<QDragEnterEvent*>(event);
@@ -252,8 +262,20 @@ bool App::PVMainWindow::event(QEvent* event)
 			dragEnterEvent->accept(); // dragEnterEvent->acceptProposedAction();
 			return true;
 		}
+		if (takes_files(dragEnterEvent->mimeData())) {
+			dragEnterEvent->acceptProposedAction();
+			return true;
+		}
 	} else if (event->type() == QEvent::Drop) {
 		auto* dropEvent = static_cast<QDropEvent*>(event);
+		if (takes_files(dropEvent->mimeData())) {
+			dropEvent->acceptProposedAction();
+			// Once the drop is over: what the files are may need a question.
+			QTimer::singleShot(0, this,
+			                   [this, files = PVGuiQt::PVImportPage::dropped_files(
+			                              dropEvent->mimeData())]() { load_files(files); });
+			return true;
+		}
 		if (dropEvent->mimeData()->hasFormat(mime_type)) {
 			dropEvent->acceptProposedAction();
 			const QMimeData* mimeData = dropEvent->mimeData();

@@ -151,6 +151,19 @@ void PVRush::PVTextImportWidget::set_paths(QStringList const& paths)
 	_files->set_paths(paths);
 }
 
+void PVRush::PVTextImportWidget::add_paths(QStringList const& paths)
+{
+	QStringList files;
+	for (const QString& path : paths) {
+		if (QFileInfo(path).suffix().compare("format", Qt::CaseInsensitive) == 0) {
+			set_format(path);
+		} else {
+			files << path;
+		}
+	}
+	_files->add_paths(files);
+}
+
 void PVRush::PVTextImportWidget::set_format(QString const& path)
 {
 	_format_path->setText(path);

@@ -135,6 +135,13 @@ int main(int argc, char** argv)
 	}
 	PV_ASSERT_VALID(refused);
 
+	// Files dropped on the page add to the others, but a format, which reads them then.
+	PV_ASSERT_VALID(content->takes_files());
+	write(directory.filePath("more.csv"), "5,6\n");
+	content->add_paths({plain, directory.filePath("more.csv"), named});
+	PV_VALID(content->sources().size(), size_t(3));
+	PV_VALID(format_paths(*content), (named + ";" + named + ";" + named).toStdString());
+
 	// The detection, out of the GUI thread, of the file with no format.
 	PVCore::PVTaskProgress progress;
 	const PVRush::PVFormat detected = type->get_format_from_inputs(

@@ -49,6 +49,7 @@ class QComboBox;
 class QFrame;
 class QHBoxLayout;
 class QLabel;
+class QMimeData;
 class QProgressBar;
 class QPushButton;
 class QScrollArea;
@@ -71,7 +72,8 @@ namespace PVGuiQt
  *
  * It shows them on a sheet, between a header and a bar of its buttons that stay in sight, over a
  * drawing of parallel coordinates in the colors of the theme: the color of the text, and
- * decoration_color for the lines of a selection.
+ * decoration_color for the lines of a selection. Files dropped on it go to its content, if it
+ * takes_files() and nothing runs, else on to the widgets under it.
  */
 class PVGUIQT_EXPORT PVImportPage : public QWidget
 {
@@ -161,6 +163,9 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	QColor decoration_color() const { return _decoration_color; }
 	void set_decoration_color(QColor const& color);
 
+	/** The paths of the local files that @p mime carries, or none if it carries anything else. */
+	static QStringList dropped_files(QMimeData const* mime);
+
   Q_SIGNALS:
 	/** For the page shown before, while this one keeps what it shows. */
 	void back_requested();
@@ -175,15 +180,21 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	void changeEvent(QEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 	bool eventFilter(QObject* watched, QEvent* event) override;
+	void dragEnterEvent(QDragEnterEvent* event) override;
+	void dragLeaveEvent(QDragLeaveEvent* event) override;
+	void dropEvent(QDropEvent* event) override;
 
   private:
 	class IconLabel;
+	class DropOverlay;
 
   private:
 	void update_buttons();
 	/** Whether the content takes all the room of the page, or a column. */
 	void fill_page(bool fill);
 	void end_format_edit();
+	/** Whether files dropped on the page go to its content. */
+	bool takes_dropped_files() const;
 
   private:
 	QVBoxLayout* _layout;
@@ -217,6 +228,8 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	std::shared_ptr<PVCore::PVTaskProgress> _task_progress;
 	QTimer _task_timer;
 
+	/** While files that would go to the content are dragged over the page. */
+	DropOverlay* _drop_overlay;
 	QColor _decoration_color;
 	/** The drawing behind the sheet, for the size and the colors of the page it was drawn for. */
 	QPixmap _decoration;

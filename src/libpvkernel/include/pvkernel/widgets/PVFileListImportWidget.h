@@ -61,6 +61,8 @@ class PVFileListImportWidget : public PVImportWidget
 	bool is_ready() const override;
 	std::vector<source_t> sources() const override;
 	void set_paths(QStringList const& paths) override;
+	bool takes_files() const override { return true; }
+	void add_paths(QStringList const& paths) override;
 
   private:
 	/** Reads the files, as a task of the page, for their columns. */

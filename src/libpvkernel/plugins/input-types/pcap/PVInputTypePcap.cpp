@@ -68,7 +68,7 @@ PVWidgets::PVImportWidget* PVPcapsicum::PVInputTypePcap::create_import_widget(QW
 	    {.accept = import,
 	     .buttons = {import, dialog->findChild<QPushButton*>("cancel_button")},
 	     .sources = [this, dialog]() { return sources_of(*dialog); },
-	     .set_paths = [dialog](QStringList const& paths) { dialog->add_captures(paths); },
+	     .add_paths = [dialog](QStringList const& paths) { dialog->add_captures(paths); },
 	     .fills_page = true},
 	    parent);
 }

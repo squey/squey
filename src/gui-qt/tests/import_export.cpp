@@ -16,6 +16,9 @@
 #include <QScopeGuard>
 #include <QTemporaryDir>
 #include <QTimer>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QUrl>
 #include <qtest_widgets.h>
 
 #include <atomic>
@@ -858,6 +861,49 @@ void ImportExportTest::import_in_page()
 	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
 	QCOMPARE(sources.size(), size_t(1));
 	QCOMPARE(sources.front()->get_row_count(), PVRow(1000));
+}
+
+// Files dropped on the main window open in the import page, as a command line opens them, but
+// not over what the page asks for.
+void ImportExportTest::import_dropped_files()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 100);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	QMimeData mime;
+	mime.setUrls({QUrl::fromLocalFile(csv)});
+	const auto drop = [&]() {
+		QDragEnterEvent enter(QPointF(10, 10), Qt::CopyAction, &mime, Qt::LeftButton,
+		                      Qt::NoModifier);
+		QCoreApplication::sendEvent(&main_window, &enter);
+		if (not enter.isAccepted()) {
+			return false;
+		}
+		QDropEvent dropped(QPointF(10, 10), Qt::CopyAction, &mime, Qt::LeftButton, Qt::NoModifier);
+		QCoreApplication::sendEvent(&main_window, &dropped);
+		return dropped.isAccepted();
+	};
+	QVERIFY(drop());
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(
+	    QTest::qWaitFor([&]() { return page.content() != nullptr and page.isVisible(); }, 10000));
+	QCOMPARE(page.content()->sources().size(), size_t(1));
+	QCOMPARE(page.content()->sources().front().first.size(), qsizetype(1));
+	QVERIFY(not drop());
+
+	page.findChild<QPushButton*>("import_import")->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_row_count(), PVRow(100));
 }
 
 // What cannot be imported is told in the import page, which stays until the user leaves it.
