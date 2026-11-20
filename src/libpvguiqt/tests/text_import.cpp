@@ -24,13 +24,14 @@
 
 // The import of text files, as the import page asks for it: the files, whether they make one
 // source or one each, and their format, the one next to them, a file the user chooses or names
-// on the command line, or else the one Squey detects from their lines, which the format keeps in
-// memory rather than next to the data: their splitter, the types of their columns, and names
-// from a header, which it skips.
+// on the command line, one the user makes in the format builder of the page, or else the one
+// Squey detects from their lines, which the format keeps in memory rather than next to the data:
+// their splitter, the types of their columns, and names from a header, which it skips.
 
 #include "common.h"
 #include "test-env.h"
 
+#include <pvguiqt/PVImportPage.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/PVTaskProgress.h>
 #include <pvkernel/core/squey_assert.h>
@@ -41,8 +42,10 @@
 
 #include <QApplication>
 #include <QFile>
+#include <QPushButton>
 #include <QRadioButton>
 #include <QTemporaryDir>
+#include <QTest>
 
 #include <memory>
 #include <string>
@@ -148,6 +151,36 @@ int main(int argc, char** argv)
 	                axes[2].get_type().toStdString());
 	PV_VALID(detected.get_first_line(), size_t(1));
 	PV_ASSERT_VALID(not QFile::exists(plain + ".format"));
+
+	// The format builder of the page, in place of the content, makes the format from the one
+	// detected, without asking anything.
+	PVGuiQt::PVImportPage page;
+	page.show();
+	PVWidgets::PVImportWidget* edited = type->create_import_widget(nullptr);
+	page.set_content(edited, "Import: Text", {}, -1);
+	edited->set_paths({plain});
+	auto* edit = edited->findChild<QPushButton*>("import_format_edit");
+	auto* made = edited->findChild<QRadioButton*>("import_format_made");
+	PV_ASSERT_VALID(not made->isVisible());
+	edit->click();
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return page.editing_format(); }, 60000));
+	PV_ASSERT_VALID(not edited->isVisible());
+	PV_ASSERT_VALID(QApplication::activeModalWidget() == nullptr);
+	page.findChild<QPushButton*>("import_format_use")->click();
+	PV_ASSERT_VALID(not page.editing_format() and edited->isVisible());
+	PV_ASSERT_VALID(made->isVisible() and made->isChecked());
+	PV_ASSERT_VALID(not edited->findChild<QRadioButton*>("import_format_detected")->isChecked());
+	const PVRush::PVFormat made_format = edited->sources().front().second;
+	PV_VALID(made_format.get_axes().size(), qsizetype(3));
+	PV_VALID(made_format.get_axes()[1].get_name().toStdString(), std::string("count"));
+	PV_VALID(made_format.get_full_path().toStdString(), std::string());
+	PV_ASSERT_VALID(not QFile::exists(plain + ".format"));
+
+	// Canceled, an edit keeps the format made before.
+	edit->click();
+	PV_ASSERT_VALID(page.editing_format());
+	page.findChild<QPushButton*>("import_format_cancel")->click();
+	PV_ASSERT_VALID(not page.editing_format() and made->isChecked());
 
 	return 0;
 }

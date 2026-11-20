@@ -24,6 +24,7 @@
 
 #include <pvguiqt/PVImportPage.h>
 
+#include <PVFormatBuilderWidget.h>
 #include <pvkernel/core/PVTaskProgress.h>
 
 #include <QComboBox>
@@ -92,6 +93,8 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     , _close(new QPushButton(tr("Close")))
     , _cancel(new QPushButton(tr("Cancel")))
     , _import(new QPushButton(tr("Import")))
+    , _format_cancel(new QPushButton(tr("Cancel")))
+    , _format_use(new QPushButton(tr("Use this format")))
 {
 	setObjectName("PVImportPage");
 	// As the headers of the start page.
@@ -105,10 +108,18 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	_cancel->setObjectName("import_cancel");
 	_import->setObjectName("import_import");
 	_collection->setObjectName("import_collection");
+	_format_cancel->setObjectName("import_format_cancel");
+	_format_use->setObjectName("import_format_use");
 	connect(_back, &QPushButton::clicked, this, &PVImportPage::back_requested);
 	connect(_close, &QPushButton::clicked, this, &PVImportPage::close_requested);
 	connect(_cancel, &QPushButton::clicked, this, &PVImportPage::close_requested);
 	connect(_import, &QPushButton::clicked, this, &PVImportPage::import_requested);
+	connect(_format_cancel, &QPushButton::clicked, this, &PVImportPage::end_format_edit);
+	connect(_format_use, &QPushButton::clicked, this, [this]() {
+		const QDomDocument format = _builder->get_dom();
+		end_format_edit();
+		_content->set_edited_format(format);
+	});
 
 	_task_timer.setInterval(100);
 	connect(&_task_timer, &QTimer::timeout, this, [this]() {
@@ -140,9 +151,13 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	footer->addWidget(_close);
 	footer->addWidget(_cancel);
 	footer->addWidget(_import);
+	footer->addWidget(_format_cancel);
+	footer->addWidget(_format_use);
 	_close->hide();
 	_cancel->hide();
 	_import->hide();
+	_format_cancel->hide();
+	_format_use->hide();
 
 	_body_layout->addLayout(header);
 	_body_layout->addLayout(_messages);
@@ -190,6 +205,8 @@ void PVGuiQt::PVImportPage::set_content(PVWidgets::PVImportWidget* content,
 	        &PVImportPage::update_buttons);
 	connect(content, &PVWidgets::PVImportWidget::message, this,
 	        [this](Severity severity, QString const& text) { add_message(severity, text); });
+	connect(content, &PVWidgets::PVImportWidget::format_edit_requested, this,
+	        &PVImportPage::edit_format);
 
 	_collection->clear();
 	_collection->addItems(collections);
@@ -208,6 +225,9 @@ void PVGuiQt::PVImportPage::clear_content()
 		return;
 	}
 	assert(not task_running());
+	if (editing_format()) {
+		end_format_edit();
+	}
 	remove(_content);
 	_content = nullptr;
 	fill_page(false);
@@ -223,12 +243,19 @@ int PVGuiQt::PVImportPage::chosen_collection() const
 void PVGuiQt::PVImportPage::set_content_shown(bool shown)
 {
 	shown = shown and _content != nullptr;
+	// The format builder stands for the content while the user makes its format.
+	const bool content_shown = shown and not editing_format();
 	if (_content != nullptr) {
-		_content->setVisible(shown);
+		_content->setVisible(content_shown);
 	}
-	_collection_row->setVisible(shown);
-	_cancel->setVisible(shown);
-	_import->setVisible(shown);
+	if (editing_format()) {
+		_builder->setVisible(shown);
+	}
+	_collection_row->setVisible(content_shown);
+	_cancel->setVisible(content_shown);
+	_import->setVisible(content_shown);
+	_format_cancel->setVisible(shown and editing_format());
+	_format_use->setVisible(shown and editing_format());
 	update_buttons();
 }
 
@@ -268,6 +295,31 @@ void PVGuiQt::PVImportPage::run_task(QString const& title,
 	update_buttons();
 	_task_timer.start();
 	_task_thread->start();
+}
+
+void PVGuiQt::PVImportPage::edit_format(QDomDocument const& format,
+                                        PVRush::PVInputDescription_p const& input,
+                                        std::shared_ptr<PVRush::PVInputType> const& type)
+{
+	assert(_content != nullptr and not editing_format());
+	_builder = new App::PVFormatBuilderWidget;
+	_builder->setWindowFlags(Qt::Widget);
+	if (not format.documentElement().isNull()) {
+		QDomDocument document = format;
+		_builder->openFormat(document);
+	}
+	_content_layout->addWidget(_builder);
+	set_content_shown(true);
+	fill_page(true);
+	_builder->preview_input(input, type);
+}
+
+void PVGuiQt::PVImportPage::end_format_edit()
+{
+	remove(_builder);
+	_builder = nullptr;
+	fill_page(_content->fills_page());
+	set_content_shown(true);
 }
 
 void PVGuiQt::PVImportPage::fill_page(bool fill)

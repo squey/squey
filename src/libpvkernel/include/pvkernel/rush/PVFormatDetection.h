@@ -80,6 +80,11 @@ PVFormat detect_format(PVInputDescription_p const& input,
                        PVSourceCreator_p const& creator,
                        PVCore::PVTaskProgress* progress = nullptr);
 
+/** The document of the format that detect_format() makes, an empty one if canceled. */
+QDomDocument detect_format_document(PVInputDescription_p const& input,
+                                    PVSourceCreator_p const& creator,
+                                    PVCore::PVTaskProgress* progress = nullptr);
+
 } // namespace PVRush
 
 #endif // __PVRUSH_PVFORMATDETECTION_H__

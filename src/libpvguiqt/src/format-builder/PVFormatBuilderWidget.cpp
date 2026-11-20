@@ -423,7 +423,7 @@ void App::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 	tools->addAction(actionOpen);
 	tools->addAction(actionSave);
 	tools->addAction(actionSaveAs);
-	tools->addWidget(buttonImport);
+	_import_action = tools->addWidget(buttonImport);
 	tools->addSeparator();
 	tools->addWidget(buttonSplitter);
 	tools->addWidget(buttonConverter);
@@ -1044,6 +1044,10 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 		// First extraction
 		PVRush::PVFormat format;
+		if (is_dom_empty() and not _guesses_splitter) {
+			// Previewed once the user adds a splitter.
+			return;
+		}
 		if (is_dom_empty()) {
 			PVCol naxes;
 			size_t preamble_lines = 0;
@@ -1137,6 +1141,16 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
  * App::PVFormatBuilderWidget::slotOpenLog
  *
  *****************************************************************************/
+void App::PVFormatBuilderWidget::preview_input(PVRush::PVInputDescription_p const& input,
+                                               PVRush::PVInputType_p const& input_type)
+{
+	_guesses_splitter = false;
+	_import_action->setVisible(false);
+	_log_input_type = input_type;
+	_inputs = {input};
+	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+}
+
 void App::PVFormatBuilderWidget::slotOpenLog()
 {
 	_log_input_type = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*)sender());
@@ -1144,6 +1158,11 @@ void App::PVFormatBuilderWidget::slotOpenLog()
 	_inputs.clear();
 
 	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+}
+
+QDomDocument App::PVFormatBuilderWidget::get_dom() const
+{
+	return myTreeModel->getRootDom().ownerDocument().cloneNode(true).toDocument();
 }
 
 PVRush::PVFormat App::PVFormatBuilderWidget::get_format_from_dom() const

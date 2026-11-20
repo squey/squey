@@ -29,12 +29,14 @@
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputDescription.h>
 
+#include <QDomDocument>
 #include <QList>
 #include <QString>
 #include <QStringList>
 #include <QWidget>
 
 #include <functional>
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -42,6 +44,11 @@ namespace PVCore
 {
 class PVTaskProgress;
 } // namespace PVCore
+
+namespace PVRush
+{
+class PVInputType;
+} // namespace PVRush
 
 namespace PVWidgets
 {
@@ -97,6 +104,8 @@ class PVKERNEL_EXPORT PVImportWidget : public QWidget
 	 * a type of text files.
 	 */
 	virtual void set_format(QString const& /*path*/) {}
+	/** Reads the files with @p format, which the user made as format_edit_requested() asked. */
+	virtual void set_edited_format(QDomDocument const& /*format*/) {}
 
 	/**
 	 * The format in the file @p path, which the user chose.
@@ -112,6 +121,14 @@ class PVKERNEL_EXPORT PVImportWidget : public QWidget
 	void ready_changed();
 	/** What the page tells the user, until the next import. */
 	void message(PVWidgets::PVImportWidget::Severity severity, QString const& text);
+	/**
+	 * Asks the page to let the user make the format of the import from @p format in the format
+	 * builder, with a preview of @p input of @p type: the page gives the format back through
+	 * set_edited_format(), unless the user cancels.
+	 */
+	void format_edit_requested(QDomDocument const& format,
+	                           PVRush::PVInputDescription_p const& input,
+	                           std::shared_ptr<PVRush::PVInputType> const& type);
 
   protected:
 	void run_task(QString const& title,

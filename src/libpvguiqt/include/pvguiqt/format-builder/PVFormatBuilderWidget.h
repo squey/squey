@@ -91,9 +91,18 @@ class PVFormatBuilderWidget : public QMainWindow
 	QString get_current_format_name() const { return _cur_file; }
 
 	/**
+	 * Previews the format with @p input, of @p input_type, rather than with inputs the user
+	 * opens: without asking to guess a splitter while the format has none, nor for other inputs.
+	 */
+	void preview_input(PVRush::PVInputDescription_p const& input,
+	                   PVRush::PVInputType_p const& input_type);
+
+	/**
 	 * Get the PVFormat from its dom representation.
 	 */
 	PVRush::PVFormat get_format_from_dom() const;
+	/** A copy of the document of the format, as edited so far. */
+	QDomDocument get_dom() const;
 
   private:
 	int lastSplitterPluginAdding;
@@ -212,6 +221,7 @@ class PVFormatBuilderWidget : public QMainWindow
   private:
 	PVRush::PVInputType::list_inputs _inputs; //!< List of input files.
 	bool _loading_log = false;                //!< load_log() is running, and is not reentrant.
+	bool _guesses_splitter = true; //!< Whether load_log() asks to guess a splitter for no format.
 	/// the lines the guess found before the names of the columns or the first values
 	size_t _preamble_lines = 0;
 
@@ -249,6 +259,7 @@ class PVFormatBuilderWidget : public QMainWindow
 	QAction* actionSave;
 	QAction* actionSaveAs;
 	QToolButton* buttonImport;
+	QAction* _import_action; //!< That of buttonImport in the toolbar, which shows it.
 	QToolButton* buttonSplitter;
 	QToolButton* buttonConverter;
 };

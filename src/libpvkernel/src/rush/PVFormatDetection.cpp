@@ -103,6 +103,14 @@ PVRush::PVFormat PVRush::detect_format(PVInputDescription_p const& input,
                                        PVSourceCreator_p const& creator,
                                        PVCore::PVTaskProgress* progress)
 {
+	const QDomDocument document = detect_format_document(input, creator, progress);
+	return document.isNull() ? PVFormat() : PVFormat(document.documentElement());
+}
+
+QDomDocument PVRush::detect_format_document(PVInputDescription_p const& input,
+                                            PVSourceCreator_p const& creator,
+                                            PVCore::PVTaskProgress* progress)
+{
 	PVCol axes_count;
 	size_t preamble_lines = 0;
 	const PVFilter::PVFieldsSplitter_p splitter =
@@ -143,5 +151,5 @@ PVRush::PVFormat PVRush::detect_format(PVInputDescription_p const& input,
 	if (set_discovered_types(root, discovered, true)) {
 		root.setAttribute("first_line", qulonglong(preamble_lines + 1));
 	}
-	return PVFormat(root);
+	return document;
 }

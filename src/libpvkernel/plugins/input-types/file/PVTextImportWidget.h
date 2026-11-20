@@ -28,6 +28,7 @@
 #include <pvkernel/widgets/PVImportWidget.h>
 
 class QLineEdit;
+class QPushButton;
 class QRadioButton;
 
 namespace PVWidgets
@@ -42,8 +43,8 @@ class PVInputTypeFilename;
 
 /**
  * What the import page asks for text files: the files, whether they make one source or one each,
- * and their format, either one found next to them or else detected from their lines, or one the
- * user chooses.
+ * and their format, either one found next to them or else detected from their lines, one the
+ * user chooses, or one the user makes in the format builder of the page.
  */
 class PVTextImportWidget : public PVWidgets::PVImportWidget
 {
@@ -63,9 +64,15 @@ class PVTextImportWidget : public PVWidgets::PVImportWidget
 	std::vector<source_t> sources() const override;
 	void set_paths(QStringList const& paths) override;
 	void set_format(QString const& path) override;
+	void set_edited_format(QDomDocument const& format) override;
 
   private:
 	void choose_format();
+	/**
+	 * Asks the page to edit the format chosen, the one next to the files, or else the one
+	 * detected from the first file, as a task of the page.
+	 */
+	void edit_format();
 	/** That found next to the files of @p inputs, or an empty one to detect. */
 	PVFormat format_next_to(QList<PVInputDescription_p> const& inputs) const;
 
@@ -75,6 +82,10 @@ class PVTextImportWidget : public PVWidgets::PVImportWidget
 	QRadioButton* _detected;
 	QRadioButton* _from_file;
 	QLineEdit* _format_path;
+	QRadioButton* _made;
+	QPushButton* _edit;
+	/** Once the user made one. */
+	QDomDocument _made_format;
 };
 
 } // namespace PVRush

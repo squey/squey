@@ -37,6 +37,11 @@
 #include <memory>
 #include <vector>
 
+namespace App
+{
+class PVFormatBuilderWidget;
+} // namespace App
+
 class QComboBox;
 class QHBoxLayout;
 class QLabel;
@@ -97,6 +102,16 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	/** Whether the content and its buttons show, rather than the progress of its import alone. */
 	void set_content_shown(bool shown);
 
+	/**
+	 * Shows the format builder in place of the content, to make a format from @p format, an empty
+	 * one for none, with a preview of @p input of @p type, until the user uses it, which the
+	 * content then gets through set_edited_format(), or cancels.
+	 */
+	void edit_format(QDomDocument const& format,
+	                 PVRush::PVInputDescription_p const& input,
+	                 std::shared_ptr<PVRush::PVInputType> const& type);
+	bool editing_format() const { return _builder != nullptr; }
+
 	/** Runs a task of the content, as PVWidgets::PVImportWidget::task_runner_t tells. */
 	void run_task(QString const& title,
 	              std::function<void(PVCore::PVTaskProgress&)> work,
@@ -142,6 +157,7 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	void update_buttons();
 	/** Whether the content takes all the room of the page, or a column. */
 	void fill_page(bool fill);
+	void end_format_edit();
 
   private:
 	QPushButton* _back;
@@ -161,6 +177,10 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	QPushButton* _close;
 	QPushButton* _cancel;
 	QPushButton* _import;
+	/** While the user makes the format of the content. */
+	App::PVFormatBuilderWidget* _builder = nullptr;
+	QPushButton* _format_cancel;
+	QPushButton* _format_use;
 
 	/** That of the task of the content, if one runs. */
 	QThread* _task_thread = nullptr;
