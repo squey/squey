@@ -28,6 +28,7 @@ private Q_SLOTS:
     void import_params();
     void leave_import_page();
     void close_import_page_while_reading();
+    void destroy_window_while_importing();
 
 private:
     PVParallelView::common::RAII_backend_init backend_resources;

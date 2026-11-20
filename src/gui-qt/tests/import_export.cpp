@@ -1216,4 +1216,25 @@ void ImportExportTest::close_import_page_while_reading()
 	QVERIFY(not main_window.import_controller().busy());
 }
 
+// The window going away while an import runs, as the application quits, stops the import before
+// it drops the source.
+void ImportExportTest::destroy_window_while_importing()
+{
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 400000);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	auto main_window = std::make_unique<App::PVMainWindow>();
+	main_window->show();
+	main_window->load_files({csv});
+	// For the extraction to be under way.
+	QTest::qWait(10);
+	QVERIFY(main_window->import_controller().busy());
+	main_window.reset();
+}
+
 QTEST_MAIN(ImportExportTest)

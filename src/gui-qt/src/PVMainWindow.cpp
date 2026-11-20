@@ -223,6 +223,10 @@ App::PVMainWindow::PVMainWindow(QWidget* parent)
 
 App::PVMainWindow::~PVMainWindow()
 {
+	// An import that runs reads and fills a source of _root, from threads of its own: it stops,
+	// and waits for them, before clear() below drops the source.
+	_import_controller.reset();
+
 	// View widgets (workspaces, PVViewDisplay) and their Qt models
 	// (PVLayerStackModel...) hold references to the PVView objects owned by
 	// _root. As a value member, _root is destroyed BEFORE the child widgets
