@@ -25,12 +25,11 @@
 #ifndef __PVGUIQT_PVIMPORTPAGE_H__
 #define __PVGUIQT_PVIMPORTPAGE_H__
 
+#include <pvguiqt/PVBackdropWidget.h>
 #include <pvguiqt/export.h>
 #include <pvkernel/widgets/PVImportWidget.h>
 
-#include <QColor>
 #include <QIcon>
-#include <QPixmap>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
@@ -70,15 +69,13 @@ namespace PVGuiQt
  * content, with the same buttons for every type. Its buttons only tell what the user asks for;
  * what runs the imports acts on it.
  *
- * It shows them on a sheet, between a header and a bar of its buttons that stay in sight, over a
- * drawing of parallel coordinates in the colors of the theme: the color of the text, and
- * decoration_color for the lines of a selection. Files dropped on it go to its content, if it
- * takes_files() and nothing runs, else on to the widgets under it.
+ * It shows them on a sheet over its backdrop, between a header and a bar of its buttons that
+ * stay in sight. Files dropped on it go to its content, if it takes_files() and nothing runs, else
+ * on to the widgets under it.
  */
-class PVGUIQT_EXPORT PVImportPage : public QWidget
+class PVGUIQT_EXPORT PVImportPage : public PVBackdropWidget
 {
 	Q_OBJECT
-	Q_PROPERTY(QColor decoration_color READ decoration_color WRITE set_decoration_color)
 
   public:
 	using Severity = PVWidgets::PVImportWidget::Severity;
@@ -160,9 +157,6 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	/** Asks the task of the content to stop, if one runs: task_finished() tells once it did. */
 	void cancel_task();
 
-	QColor decoration_color() const { return _decoration_color; }
-	void set_decoration_color(QColor const& color);
-
 	/** The paths of the local files that @p mime carries, or none if it carries anything else. */
 	static QStringList dropped_files(QMimeData const* mime);
 
@@ -176,8 +170,6 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	void task_finished();
 
   protected:
-	void paintEvent(QPaintEvent* event) override;
-	void changeEvent(QEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 	bool eventFilter(QObject* watched, QEvent* event) override;
 	void dragEnterEvent(QDragEnterEvent* event) override;
@@ -230,9 +222,6 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 
 	/** While files that would go to the content are dragged over the page. */
 	DropOverlay* _drop_overlay;
-	QColor _decoration_color;
-	/** The drawing behind the sheet, for the size and the colors of the page it was drawn for. */
-	QPixmap _decoration;
 };
 
 } // namespace PVGuiQt

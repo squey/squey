@@ -34,6 +34,7 @@ PVViewDisplay.cpp
 PVAboutBoxDialog.cpp
 PVProjectsTabWidget.cpp
 PVStartScreenWidget.cpp
+PVBackdropWidget.cpp
 PVImportPage.cpp
 PVInputTypeMenuEntries.cpp
 PVStatsListingWidget.cpp
@@ -105,6 +106,7 @@ set(LIBGUIQT_MOC_HEADERS
 ../include/pvguiqt/PVViewDisplay.h
 ../include/pvguiqt/PVProjectsTabWidget.h
 ../include/pvguiqt/PVStartScreenWidget.h
+../include/pvguiqt/PVBackdropWidget.h
 ../include/pvguiqt/PVImportPage.h
 ../include/pvguiqt/PVStatsListingWidget.h
 ../include/pvguiqt/PVExportSelectionDlg.h

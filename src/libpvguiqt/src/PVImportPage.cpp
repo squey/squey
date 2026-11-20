@@ -41,7 +41,6 @@
 #include <QLayoutItem>
 #include <QMimeData>
 #include <QPainter>
-#include <QPolygonF>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QScrollArea>
@@ -51,11 +50,9 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
-#include <array>
 #include <cassert>
 #include <exception>
 #include <limits>
-#include <random>
 #include <utility>
 #include <vector>
 
@@ -66,10 +63,8 @@ namespace
 constexpr int COLUMN_WIDTH = 140;
 /** Around the sheet, and inside it, in pixels. */
 constexpr int SHEET_MARGIN = 24;
-/** The radius of the corners of the sheet, as the theme rounds them, in pixels. */
-constexpr int SHEET_RADIUS = 8;
-/** Between the axes of the drawing behind the sheet, in pixels. */
-constexpr int AXIS_SPACING = 160;
+/** Of the corners of where files drop, in pixels. */
+constexpr int DROP_ZONE_RADIUS = 16;
 
 QStyle::StandardPixmap pixmap_of(PVGuiQt::PVImportPage::Severity severity)
 {
@@ -180,95 +175,6 @@ class FittingScrollArea : public QScrollArea
 	}
 };
 
-/**
- * Rows made up for the drawing behind the sheet: groups of close rows, with their parallel
- * coordinates, the plot Squey is known for, one of them selected.
- */
-struct Rows {
-	static constexpr int AXES = 32;
-
-	struct Row {
-		std::array<float, AXES> values;
-		bool selected;
-	};
-
-	Rows()
-	{
-		// The same drawing in every page.
-		std::mt19937 random(5);
-		std::uniform_real_distribution<float> uniform(0.08f, 0.92f);
-		std::normal_distribution<float> step(0.f, 0.16f);
-		constexpr int GROUPS = 6;
-		for (int group = 0; group < GROUPS; group++) {
-			std::array<float, AXES> profile;
-			profile[0] = uniform(random);
-			for (int axis = 1; axis < AXES; axis++) {
-				profile[axis] = std::clamp(profile[axis - 1] + step(random), 0.05f, 0.95f);
-			}
-			std::normal_distribution<float> spread(0.f, 0.015f + 0.008f * float(group));
-			for (int row = 0; row < 12 + 4 * group; row++) {
-				Row& added = rows.emplace_back(Row{.values = {}, .selected = group == 2});
-				for (int axis = 0; axis < AXES; axis++) {
-					added.values[axis] = std::clamp(profile[axis] + spread(random), 0.f, 1.f);
-				}
-			}
-		}
-		for (int row = 0; row < 12; row++) {
-			Row& outlier = rows.emplace_back(Row{.values = {}, .selected = false});
-			for (float& value : outlier.values) {
-				value = uniform(random);
-			}
-		}
-	}
-
-	std::vector<Row> rows;
-};
-
-/**
- * The drawing behind the sheet of a page of @p size, for a screen of @p ratio: axes and rows in
- * @p color, selected rows in @p selection_color.
- */
-QPixmap decoration(QSize size, qreal ratio, QColor const& color, QColor const& selection_color)
-{
-	static const Rows made_up;
-	QPixmap pixmap(size * ratio);
-	pixmap.setDevicePixelRatio(ratio);
-	pixmap.fill(Qt::transparent);
-	QPainter painter(&pixmap);
-	painter.setRenderHint(QPainter::Antialiasing);
-
-	// Axes from one edge to the other, as many on each side of the sheet, at the center.
-	const int axes = std::min(Rows::AXES, size.width() / AXIS_SPACING + 2);
-	const qreal first = (size.width() - (axes - 1) * AXIS_SPACING) / 2.;
-	const qreal top = size.height() * 0.06;
-	const qreal height = size.height() * 0.88;
-	const auto x_of = [first](int axis) { return first + axis * AXIS_SPACING; };
-
-	QColor axis_color = color;
-	axis_color.setAlphaF(0.12f);
-	painter.setPen(QPen(axis_color, 1));
-	for (int axis = 0; axis < axes; axis++) {
-		painter.drawLine(QPointF(x_of(axis), top), QPointF(x_of(axis), top + height));
-	}
-	// The selection over the other rows, as Squey draws it.
-	for (const bool selected : {false, true}) {
-		QColor row_color = selected ? selection_color : color;
-		row_color.setAlphaF(selected ? 0.28f : 0.045f);
-		painter.setPen(QPen(row_color, 1.2));
-		for (const Rows::Row& row : made_up.rows) {
-			if (row.selected != selected) {
-				continue;
-			}
-			QPolygonF line;
-			for (int axis = 0; axis < axes; axis++) {
-				line << QPointF(x_of(axis), top + height * (1.f - row.values[axis]));
-			}
-			painter.drawPolyline(line);
-		}
-	}
-	return pixmap;
-}
-
 } // namespace
 
 /** An icon that follows the theme, as PVModdedIcon draws it at each paint. */
@@ -336,7 +242,7 @@ class PVGuiQt::PVImportPage::DropOverlay : public QWidget
 		painter.setPen(QPen(accent, 2, Qt::DashLine));
 		const QRectF zone =
 		    QRectF(rect()).adjusted(SHEET_MARGIN, SHEET_MARGIN, -SHEET_MARGIN, -SHEET_MARGIN);
-		painter.drawRoundedRect(zone, 2 * SHEET_RADIUS, 2 * SHEET_RADIUS);
+		painter.drawRoundedRect(zone, DROP_ZONE_RADIUS, DROP_ZONE_RADIUS);
 
 		const int side = 4 * fontMetrics().height();
 		const QPoint center = zone.center().toPoint();
@@ -358,7 +264,7 @@ class PVGuiQt::PVImportPage::DropOverlay : public QWidget
 };
 
 PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
-    : QWidget(parent)
+    : PVBackdropWidget(parent)
     , _layout(new QVBoxLayout(this))
     , _sheet(new QFrame)
     , _back(button(tr("Back"), "arrow-left"))
@@ -382,7 +288,6 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     , _format_cancel(button(tr("Cancel"), "circle-x"))
     , _format_use(primary_button(tr("Use this format"), "circle-check"))
     , _drop_overlay(new DropOverlay(this))
-    , _decoration_color(palette().color(QPalette::Highlight))
 {
 	setObjectName("PVImportPage");
 	setAcceptDrops(true);
@@ -481,8 +386,6 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	sheet_layout->addWidget(header);
 	sheet_layout->addWidget(_scroll, 1);
 	sheet_layout->addWidget(actions);
-	// For the shadow the page draws around it.
-	_sheet->installEventFilter(this);
 
 	// The sheet in the middle of the room of its row, left to the stretches on each side once
 	// as wide as its column: no alignment, which would keep it to the width it asks for.
@@ -494,6 +397,7 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	_layout->addLayout(row);
 	_layout->addStretch();
 	fill_page(false);
+	add_card(_sheet);
 }
 
 PVGuiQt::PVImportPage::~PVImportPage()
@@ -781,45 +685,6 @@ void PVGuiQt::PVImportPage::cancel_task()
 	}
 }
 
-void PVGuiQt::PVImportPage::set_decoration_color(QColor const& color)
-{
-	_decoration_color = color;
-	_decoration = {};
-	update();
-}
-
-void PVGuiQt::PVImportPage::paintEvent(QPaintEvent*)
-{
-	QPainter painter(this);
-	painter.fillRect(rect(), palette().color(QPalette::Window));
-	const qreal ratio = devicePixelRatioF();
-	if (_decoration.size() != size() * ratio) {
-		_decoration =
-		    decoration(size(), ratio, palette().color(QPalette::WindowText), _decoration_color);
-	}
-	painter.drawPixmap(0, 0, _decoration);
-
-	// A shadow, wider and fainter from the sheet, a bit below it.
-	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setPen(Qt::NoPen);
-	painter.setBrush(QColor(0, 0, 0, 7));
-	const QRectF sheet = _sheet->geometry();
-	for (int spread = 1; spread <= 8; spread++) {
-		painter.drawRoundedRect(sheet.adjusted(-spread, 2 - spread, spread, 2 + spread),
-		                        SHEET_RADIUS + spread, SHEET_RADIUS + spread);
-	}
-}
-
-void PVGuiQt::PVImportPage::changeEvent(QEvent* event)
-{
-	// The colors of a theme, which polishes the page anew.
-	if (event->type() == QEvent::PaletteChange or event->type() == QEvent::StyleChange) {
-		_decoration = {};
-		update();
-	}
-	QWidget::changeEvent(event);
-}
-
 void PVGuiQt::PVImportPage::keyPressEvent(QKeyEvent* event)
 {
 	// As a dialog does with its default button, but on a button, which Enter would not click.
@@ -837,11 +702,8 @@ bool PVGuiQt::PVImportPage::eventFilter(QObject* watched, QEvent* event)
 {
 	if (watched == _body and event->type() == QEvent::LayoutRequest) {
 		_scroll->updateGeometry();
-	} else if (watched == _sheet and
-	           (event->type() == QEvent::Move or event->type() == QEvent::Resize)) {
-		update();
 	}
-	return QWidget::eventFilter(watched, event);
+	return PVBackdropWidget::eventFilter(watched, event);
 }
 
 QStringList PVGuiQt::PVImportPage::dropped_files(QMimeData const* mime)

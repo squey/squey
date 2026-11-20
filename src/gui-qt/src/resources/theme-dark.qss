@@ -2200,18 +2200,22 @@ QDialogButtonBox {
   dialog-discard-icon: url(":/qss_icons/dark/rc.dark/trash-xmark.png"), url(":/qss_icons/dark/rc.dark/trash-xmark_disabled.png") disabled;
 }
 
-/* Import page ------------------------------------------------------------
+/* Backdrop ---------------------------------------------------------------
 
-The page of the main window that imports run in: a sheet, over a drawing of
-parallel coordinates in the color of the text and, for its selection, in
-qproperty-decoration_color.
+Widgets that draw parallel coordinates behind what they show, in the color
+of their text and, for the rows of a selection, in qproperty-decoration_color.
 
 --------------------------------------------------------------------------- */
-#PVImportPage {
+PVGuiQt--PVBackdropWidget {
   background-color: #1f2225;
   qproperty-decoration_color: #1a72bb;
 }
 
+/* Import page ------------------------------------------------------------
+
+The page of the main window that imports run in: a sheet over its backdrop.
+
+--------------------------------------------------------------------------- */
 #import_sheet {
   background-color: #2a2e32;
   border: 1px solid #3f454b;
