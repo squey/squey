@@ -573,7 +573,8 @@ void PVGuiQt::PVImportPage::set_content_shown(bool shown)
 	if (editing_format()) {
 		_builder->setVisible(shown);
 	}
-	_collection_row->setVisible(content_shown);
+	// Else the import makes a new one, the only choice.
+	_collection_row->setVisible(content_shown and _collection->count() > 1);
 	_cancel->setVisible(content_shown);
 	_import->setVisible(content_shown);
 	_format_cancel->setVisible(shown and editing_format());

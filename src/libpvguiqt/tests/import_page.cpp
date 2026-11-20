@@ -169,6 +169,7 @@ int main(int argc, char** argv)
 	QPointer<Content> content = new Content;
 	page.set_content(content, "Import: Content", {}, {"First collection", "Second collection"}, 1);
 	auto* collection = page.findChild<QComboBox*>("import_collection");
+	PV_ASSERT_VALID(collection->isVisible());
 	PV_VALID(collection->count(), 3);
 	PV_VALID(page.chosen_collection(), 1);
 	collection->setCurrentIndex(2);
@@ -261,6 +262,9 @@ int main(int argc, char** argv)
 	// But a content that fills the page takes its width and its height.
 	const QPointer<FillingContent> filling = new FillingContent;
 	page.set_content(filling, "Import: Filling", {}, {}, -1);
+	// With no data collection to choose from, the import makes a new one without asking.
+	PV_ASSERT_VALID(not collection->isVisible());
+	PV_VALID(page.chosen_collection(), -1);
 	page.resize(3000, 1500);
 	PV_ASSERT_VALID(
 	    QTest::qWaitFor([&]() { return column->width() > page.width() * 9 / 10; }, 10000));

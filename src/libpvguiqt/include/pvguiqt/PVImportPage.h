@@ -102,9 +102,9 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 
 	/**
 	 * Shows @p content under @p title and @p icon, then a choice among the data collections
-	 * @p collections, @p current chosen first, and a new one, and Cancel and Import buttons, of
-	 * which Enter clicks Import but on a button. The page owns @p content, and runs its tasks,
-	 * until clear_content().
+	 * @p collections, @p current chosen first, and a new one, if there are any to choose from,
+	 * and Cancel and Import buttons, of which Enter clicks Import but on a button. The page owns
+	 * @p content, and runs its tasks, until clear_content().
 	 */
 	void set_content(PVWidgets::PVImportWidget* content,
 	                 QString const& title,
