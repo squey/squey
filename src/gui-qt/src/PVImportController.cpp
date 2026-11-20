@@ -436,8 +436,10 @@ void App::PVImportController::create(PVRush::PVSourceDescription description)
 		return;
 	}
 
+	// A format the import detected, or made as pcap does, has no name.
+	const QString format_name = _source->get_format_name();
 	page().start_progress(
-	    tr("Extracting %1...").arg(_source->get_format_name()),
+	    format_name.isEmpty() ? tr("Extracting...") : tr("Extracting %1...").arg(format_name),
 	    {{tr("Discard"), [this]() { ask_discard(); }, PVModdedIcon("trash-xmark")},
 	     {tr("Stop and process"), [this]() { stop_extraction(); }, PVModdedIcon("square-full")}});
 	try {
