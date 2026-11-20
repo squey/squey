@@ -60,7 +60,9 @@ PVRow types_discovery_row_count(PVCol axes_count);
 
 /**
  * Gives the axes of the format @p format_root the types that @p discovered found for them, and
- * the names it found in a header if @p name_axes.
+ * the names it found in a header if @p name_axes. An axis whose type changes gets the string
+ * mapping if it is a string, else the default one, and the default scaling: those it had may
+ * not apply to its new type.
  *
  * @return whether it found a header
  */

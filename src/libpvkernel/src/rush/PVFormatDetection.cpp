@@ -41,6 +41,22 @@
 #include <thread>
 #include <tuple>
 
+namespace
+{
+
+/**
+ * Gives @p axis the mapping and the scaling of a detected axis of type @p type: the string
+ * mapping to a string, the default one to the others, and the default scaling.
+ */
+void set_mapping_and_scaling_of(QDomElement const& axis, QString const& type)
+{
+	PVRush::PVXmlTreeNodeDom node(axis);
+	node.setMappingProperties(type == "string" ? "string" : PVFORMAT_AXIS_MAPPING_DEFAULT, {}, {});
+	node.setScalingProperties(PVFORMAT_AXIS_SCALING_DEFAULT, {}, {});
+}
+
+} // namespace
+
 QDomDocument PVRush::format_of_splitter(PVFilter::PVFieldsSplitter const& splitter,
                                         PVCol axes_count,
                                         size_t preamble_lines)
@@ -67,7 +83,7 @@ QDomDocument PVRush::format_of_splitter(PVFilter::PVFieldsSplitter const& splitt
 		axis.setAttribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT);
 		field.appendChild(axis);
 		splitter_element.appendChild(field);
-		PVXmlTreeNodeDom(axis).setMappingProperties("string", {}, {});
+		set_mapping_and_scaling_of(axis, PVFORMAT_AXIS_TYPE_DEFAULT);
 	}
 	return document;
 }
@@ -89,7 +105,11 @@ bool PVRush::set_discovered_types(QDomElement format_root,
 	for (PVCol axis_index(0); axis_index < axes.size(); axis_index++) {
 		QDomElement axis = axes.at(axis_index).toElement();
 		const auto [type, type_format, name] = discovered.type_desc(axis_index);
-		axis.setAttribute(PVFORMAT_AXIS_TYPE_STR, type.c_str());
+		const QString discovered_type = QString::fromStdString(type);
+		if (axis.attribute(PVFORMAT_AXIS_TYPE_STR, PVFORMAT_AXIS_TYPE_DEFAULT) != discovered_type) {
+			set_mapping_and_scaling_of(axis, discovered_type);
+		}
+		axis.setAttribute(PVFORMAT_AXIS_TYPE_STR, discovered_type);
 		axis.setAttribute("type_format", type_format.c_str());
 		if (not name.empty() and name_axes) {
 			axis.setAttribute(PVFORMAT_AXIS_NAME_STR, name.c_str());

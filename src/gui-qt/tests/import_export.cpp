@@ -7,6 +7,7 @@
 #include <functional>
 #include <algorithm>
 
+#include <QDateTime>
 #include <QFile>
 #include <QFileDialog>
 #include <QInputDialog>
@@ -15,6 +16,7 @@
 #include <QRegularExpression>
 #include <QScopeGuard>
 #include <QTemporaryDir>
+#include <QTimeZone>
 #include <QTimer>
 #include <QDropEvent>
 #include <QMimeData>
@@ -760,6 +762,48 @@ void ImportExportTest::import_failure_reported()
 	QVERIFY2(messages.contains(PVRush::PVNrawCacheManager::nraw_dir()), qPrintable(messages));
 	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 #endif
+}
+
+// The axes of the dates, decimals and words that the import page detects are mapped as their
+// types call for.
+void ImportExportTest::import_guessed_types()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString path = tmp_dir.filePath("readings.log");
+	QFile file(path);
+	QVERIFY(file.open(QIODevice::WriteOnly));
+	const char* const places[] = {"north", "south", "east", "west"};
+	const QDateTime start(QDate(2022, 12, 8), QTime(13, 3, 3),
+	                      QTimeZone::fromSecondsAheadOfUtc(3600));
+	for (int row = 0; row < 100; row++) {
+		file.write(start.addSecs(60 * row).toString(Qt::ISODate).toUtf8() + ';' +
+		           QByteArray::number(9.812 + row * 0.125) + ';' + places[row % 4] + '\n');
+	}
+	file.close();
+
+	main_window.import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file"));
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	page.content()->add_paths({path});
+	QPushButton* import = page.findChild<QPushButton*>("import_import");
+	QVERIFY(import->isEnabled());
+	import->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
+
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	const QList<PVRush::PVAxisFormat>& axes = sources.front()->get_format().get_axes();
+	QCOMPARE(axes.size(), qsizetype(3));
+	QCOMPARE(axes[0].get_type(), QString("time"));
+	QCOMPARE(axes[0].get_mapping(), QString("default"));
+	QCOMPARE(axes[1].get_type(), QString("number_double"));
+	QCOMPARE(axes[1].get_mapping(), QString("default"));
+	QCOMPARE(axes[2].get_type(), QString("string"));
+	QCOMPARE(axes[2].get_mapping(), QString("string"));
 }
 
 namespace

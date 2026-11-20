@@ -18,6 +18,7 @@ private Q_SLOTS:
     void undo_redo();
     void import_guessed_formats_without_nraw_dir();
     void import_failure_reported();
+    void import_guessed_types();
     void rename_source();
     void import_in_page();
     void import_dropped_files();
