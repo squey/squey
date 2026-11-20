@@ -27,6 +27,7 @@
 #include <QFileInfo>
 #include <QFont>
 #include <QLabel>
+#include <QToolButton>
 
 #include <stdexcept>
 
@@ -48,4 +49,19 @@ QLabel* PVWidgets::PVImportWidget::section_title(QString const& text)
 	title->setFont(font);
 	title->setProperty("secondary", true);
 	return title;
+}
+
+QToolButton* PVWidgets::PVImportWidget::drop_zone(QIcon const& icon, QString const& text)
+{
+	// The theme gives it a dashed edge, by its name.
+	auto* zone = new QToolButton;
+	zone->setObjectName("import_ask_files");
+	zone->setIcon(icon);
+	zone->setIconSize(QSize(40, 40));
+	zone->setText(text);
+	zone->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	zone->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	zone->setMinimumHeight(8 * zone->fontMetrics().lineSpacing());
+	zone->setCursor(Qt::PointingHandCursor);
+	return zone;
 }

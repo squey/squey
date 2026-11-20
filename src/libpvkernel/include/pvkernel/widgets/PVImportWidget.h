@@ -40,7 +40,9 @@
 #include <utility>
 #include <vector>
 
+class QIcon;
 class QLabel;
+class QToolButton;
 
 namespace PVCore
 {
@@ -125,6 +127,11 @@ class PVKERNEL_EXPORT PVImportWidget : public QWidget
 	 * gives to secondary text.
 	 */
 	static QLabel* section_title(QString const& text);
+	/**
+	 * A zone that asks for files to drop on the page, or to choose with a click, with @p icon
+	 * above @p text, as wide as it can be and as tall as eight lines.
+	 */
+	static QToolButton* drop_zone(QIcon const& icon, QString const& text);
 
 	/** How the page runs the long tasks of the widget, which it sets before showing it. */
 	void set_task_runner(task_runner_t runner) { _run_task = std::move(runner); }

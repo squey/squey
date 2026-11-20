@@ -86,7 +86,7 @@ PVWidgets::PVImportFilesWidget::PVImportFilesWidget(QString dialog_title,
     , _dialog_title(std::move(dialog_title))
     , _dialog_filter(std::move(dialog_filter))
     , _icon(std::move(icon))
-    , _ask(new QToolButton)
+    , _ask(PVImportWidget::drop_zone(_icon, tr("Drop files here,\nor click to choose them")))
     , _files(new QTreeWidget)
     , _summary(new QLabel)
     , _remove(file_tool_button("trash-xmark", tr("Remove the selected files (Delete)")))
@@ -99,16 +99,6 @@ PVWidgets::PVImportFilesWidget::PVImportFilesWidget(QString dialog_title,
 	_remove->setEnabled(false);
 	_summary->setObjectName("import_files_summary");
 	_summary->setProperty("secondary", true);
-
-	// As the list of the captures of pcap asks for some.
-	_ask->setObjectName("import_ask_files");
-	_ask->setIcon(_icon);
-	_ask->setIconSize(QSize(40, 40));
-	_ask->setText(tr("Drop files here,\nor click to choose them"));
-	_ask->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
-	_ask->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
-	_ask->setMinimumHeight(8 * fontMetrics().lineSpacing());
-	_ask->setCursor(Qt::PointingHandCursor);
 
 	_files->setObjectName("import_files");
 	_source_per_file->setObjectName("import_source_per_file");
