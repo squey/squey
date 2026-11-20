@@ -23,10 +23,10 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 // The import page shows what an input type asks for an import, its content, with the same
-// buttons for every type: Import once the content is ready, Cancel, and the data collection to
-// import into, in a column at the center of a wide window. It runs the long tasks of the content
-// out of the GUI thread, with their progress and a button to cancel them, and tells what a task
-// that failed said.
+// buttons for every type: Import once the content is ready, Cancel, Back, and the data
+// collection to import into, in a column at the center of a wide window. It runs the long tasks
+// of the content out of the GUI thread, with their progress and a button to cancel them, and
+// tells what a task that failed said.
 
 #include <pvguiqt/PVImportPage.h>
 
@@ -99,6 +99,13 @@ std::string messages_of(PVGuiQt::PVImportPage& page)
 	return texts;
 }
 
+void until_canceled(PVCore::PVTaskProgress& progress)
+{
+	while (not progress.canceled()) {
+		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+}
+
 /** Runs @p work as a task of @p content, and waits for its end: whether it completed. */
 std::optional<bool> run(Content& content, std::function<void(PVCore::PVTaskProgress&)> work)
 {
@@ -117,10 +124,12 @@ int main(int argc, char** argv)
 	PVGuiQt::PVImportPage page;
 	page.show();
 	int imports = 0;
-	int cancels = 0;
+	int closes = 0;
+	int backs = 0;
 	int finished_tasks = 0;
 	QObject::connect(&page, &PVGuiQt::PVImportPage::import_requested, [&]() { imports++; });
-	QObject::connect(&page, &PVGuiQt::PVImportPage::cancel_requested, [&]() { cancels++; });
+	QObject::connect(&page, &PVGuiQt::PVImportPage::close_requested, [&]() { closes++; });
+	QObject::connect(&page, &PVGuiQt::PVImportPage::back_requested, [&]() { backs++; });
 	QObject::connect(&page, &PVGuiQt::PVImportPage::task_finished, [&]() { finished_tasks++; });
 
 	QPointer<Content> content = new Content;
@@ -155,9 +164,16 @@ int main(int argc, char** argv)
 	import->click();
 	cancel->click();
 	PV_VALID(imports, 1);
-	PV_VALID(cancels, 1);
+	PV_VALID(closes, 1);
+	QPushButton* back = button(page, "import_back");
+	back->click();
+	PV_VALID(backs, 1);
+	page.set_back_enabled(false);
+	PV_ASSERT_VALID(not back->isEnabled());
+	page.set_back_enabled(true);
 
-	// A task shows its progress, and keeps the content and its import away until it ends.
+	// A task shows its progress, and keeps the content and its import away until it ends, but not
+	// the Cancel of the page, which stops it first.
 	std::optional<bool> completed;
 	content->run_task(
 	    "Reading",
@@ -165,14 +181,11 @@ int main(int argc, char** argv)
 		    progress.set_maximum(10);
 		    progress.set_value(4);
 		    progress.set_status("Four of ten");
-		    while (not progress.canceled()) {
-			    std::this_thread::sleep_for(std::chrono::milliseconds(10));
-		    }
+		    until_canceled(progress);
 	    },
 	    [&completed](bool done) { completed = done; });
 	PV_ASSERT_VALID(page.task_running());
-	PV_ASSERT_VALID(not content->isEnabled() and not import->isEnabled() and
-	                not cancel->isEnabled());
+	PV_ASSERT_VALID(not content->isEnabled() and not import->isEnabled() and cancel->isEnabled());
 	auto* details = page.findChild<QLabel*>("import_details");
 	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return details->text() == "Four of ten"; }, 10000));
 	PV_ASSERT_VALID(progress_cancel(page) != nullptr);
@@ -183,13 +196,21 @@ int main(int argc, char** argv)
 	PV_ASSERT_VALID(content->isEnabled() and import->isEnabled() and cancel->isEnabled());
 	PV_VALID(finished_tasks, 1);
 
+	// As closing the page asks.
+	completed.reset();
+	content->run_task("Reading", until_canceled, [&completed](bool done) { completed = done; });
+	page.cancel_task();
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return completed.has_value(); }, 10000));
+	PV_VALID(*completed, false);
+	PV_VALID(finished_tasks, 2);
+
 	PV_VALID(*run(*content, [](PVCore::PVTaskProgress&) {}), true);
 	PV_VALID(messages_of(page), std::string());
 	// What a task throws is told, as text.
 	PV_VALID(*run(*content, [](PVCore::PVTaskProgress&) { throw std::runtime_error("No <file>"); }),
 	         false);
 	PV_VALID(messages_of(page), std::string("No &lt;file&gt;"));
-	PV_VALID(finished_tasks, 3);
+	PV_VALID(finished_tasks, 4);
 
 	page.clear_content();
 	PV_ASSERT_VALID(not import->isVisible() and not cancel->isVisible());

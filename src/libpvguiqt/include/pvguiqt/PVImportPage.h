@@ -124,10 +124,16 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 
 	/** Whether the Close button shows, for the user to leave the page once nothing runs. */
 	void set_closable(bool closable);
+	void set_back_enabled(bool enabled);
+
+	/** Asks the task of the content to stop, if one runs: task_finished() tells once it did. */
+	void cancel_task();
 
   Q_SIGNALS:
+	/** For the page shown before, while this one keeps what it shows. */
+	void back_requested();
+	/** From the Close or the Cancel button: what the page shows is to drop. */
 	void close_requested();
-	void cancel_requested();
 	void import_requested();
 	/** Once a task of the content ended, and its done function returned. */
 	void task_finished();
@@ -136,6 +142,7 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	void update_buttons();
 
   private:
+	QPushButton* _back;
 	QLabel* _title;
 	QVBoxLayout* _messages;
 	QWidget* _progress;

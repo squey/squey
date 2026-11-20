@@ -76,6 +76,7 @@ void remove(QWidget* widget)
 
 PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     : QWidget(parent)
+    , _back(new QPushButton(tr("Back")))
     , _title(new QLabel)
     , _messages(new QVBoxLayout)
     , _progress(new QWidget)
@@ -94,6 +95,7 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	// As the headers of the start page.
 	_title->setFont(QFont("Black Han Sans, Expanded", 20));
 	_title->setWordWrap(true);
+	_back->setObjectName("import_back");
 	_task->setObjectName("import_task");
 	_details->setObjectName("import_details");
 	_progress->setObjectName("import_progress");
@@ -101,8 +103,9 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	_cancel->setObjectName("import_cancel");
 	_import->setObjectName("import_import");
 	_collection->setObjectName("import_collection");
+	connect(_back, &QPushButton::clicked, this, &PVImportPage::back_requested);
 	connect(_close, &QPushButton::clicked, this, &PVImportPage::close_requested);
-	connect(_cancel, &QPushButton::clicked, this, &PVImportPage::cancel_requested);
+	connect(_cancel, &QPushButton::clicked, this, &PVImportPage::close_requested);
 	connect(_import, &QPushButton::clicked, this, &PVImportPage::import_requested);
 
 	_task_timer.setInterval(100);
@@ -125,6 +128,10 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	progress_layout->addLayout(_progress_buttons);
 	_progress->hide();
 
+	auto* header = new QHBoxLayout;
+	header->addWidget(_back);
+	header->addWidget(_title, 1);
+
 	auto* footer = new QHBoxLayout;
 	footer->addWidget(_collection_row);
 	footer->addStretch();
@@ -139,7 +146,7 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	// Short enough lines to read in a wide window, which the scroll area centers.
 	body->setMaximumWidth(fontMetrics().averageCharWidth() * COLUMN_WIDTH);
 	auto* body_layout = new QVBoxLayout(body);
-	body_layout->addWidget(_title);
+	body_layout->addLayout(header);
 	body_layout->addLayout(_messages);
 	body_layout->addLayout(_content_layout);
 	body_layout->addWidget(_progress);
@@ -267,8 +274,6 @@ void PVGuiQt::PVImportPage::run_task(QString const& title,
 void PVGuiQt::PVImportPage::update_buttons()
 {
 	_import->setEnabled(_content != nullptr and _content->is_ready() and not task_running());
-	// Its task would outlive the content.
-	_cancel->setEnabled(not task_running());
 }
 
 void PVGuiQt::PVImportPage::start_progress(QString const& task, std::vector<Action> buttons)
@@ -370,4 +375,16 @@ bool PVGuiQt::PVImportPage::has_messages() const
 void PVGuiQt::PVImportPage::set_closable(bool closable)
 {
 	_close->setVisible(closable);
+}
+
+void PVGuiQt::PVImportPage::set_back_enabled(bool enabled)
+{
+	_back->setEnabled(enabled);
+}
+
+void PVGuiQt::PVImportPage::cancel_task()
+{
+	if (_task_progress) {
+		_task_progress->cancel();
+	}
 }

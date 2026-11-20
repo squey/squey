@@ -56,7 +56,11 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <pvguiqt/PVImportPage.h>
+#include <pvkernel/core/PVTaskProgress.h>
+#include <QAbstractButton>
+#include <QPointer>
 #include <QPushButton>
+#include <QTabBar>
 #include <QMenuBar>
 #include <QLabel>
 #include <PVImportController.h>
@@ -877,9 +881,11 @@ void ImportExportTest::import_in_page()
 
 	main_window.load_files({csv});
 	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QPushButton* back = page.findChild<QPushButton*>("import_back");
 	QVERIFY(main_window.import_controller().busy());
 	QVERIFY(page.isVisible());
 	QVERIFY(not main_window.menuBar()->isEnabled());
+	QVERIFY(not back->isEnabled());
 	bool modal = false;
 	QVERIFY(QTest::qWaitFor(
 	    [&]() {
@@ -891,6 +897,7 @@ void ImportExportTest::import_in_page()
 
 	QVERIFY(not page.isVisible());
 	QVERIFY(main_window.menuBar()->isEnabled());
+	QVERIFY(back->isEnabled());
 	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
 	QCOMPARE(sources.size(), size_t(1));
 	QCOMPARE(sources.front()->get_row_count(), PVRow(1000));
@@ -1125,6 +1132,88 @@ void ImportExportTest::import_params()
 	QCOMPARE(main_window.get_root().get_children<Squey::PVSource>().size(), size_t(1));
 	const QString messages = import_messages(main_window);
 	QVERIFY2(messages.contains("nope"), qPrintable(messages));
+}
+
+// The Back button of the import page leaves it in its tab, with what it shows, for the page shown
+// before; the close button of its tab drops what it shows.
+void ImportExportTest::leave_import_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	PVGuiQt::PVProjectsTabWidget& projects = *main_window._projects_tab_widget;
+	PVGuiQt::PVImportPage& page = projects.import_page();
+	QTabBar* tabs = projects.findChild<QTabBar*>();
+	constexpr int import_tab = PVGuiQt::PVProjectsTabWidget::IMPORT_PAGE_INDEX;
+	projects.project_new();
+	const int collection_tab = tabs->currentIndex();
+	QCOMPARE(collection_tab, PVGuiQt::PVProjectsTabWidget::FIRST_PROJECT_INDEX);
+
+	main_window.import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json"));
+	const QPointer<PVWidgets::PVImportWidget> content = page.content();
+	QVERIFY(content != nullptr);
+	QVERIFY(page.isVisible());
+	page.findChild<QPushButton*>("import_back")->click();
+	QCOMPARE(tabs->currentIndex(), collection_tab);
+	QVERIFY(tabs->isTabVisible(import_tab));
+	QCOMPARE(page.content(), content.data());
+
+	tabs->setCurrentIndex(import_tab);
+	QVERIFY(page.isVisible());
+	QWidget* close = tabs->tabButton(import_tab, QTabBar::LeftSide);
+	if (close == nullptr) {
+		close = tabs->tabButton(import_tab, QTabBar::RightSide);
+	}
+	QVERIFY(qobject_cast<QAbstractButton*>(close) != nullptr);
+	qobject_cast<QAbstractButton*>(close)->click();
+	QCOMPARE(tabs->currentIndex(), collection_tab);
+	QVERIFY(not tabs->isTabVisible(import_tab));
+	QVERIFY(QTest::qWaitFor([&]() { return content.isNull(); }, 10000));
+}
+
+namespace
+{
+
+// What the import page shows, which reads its inputs until it is canceled.
+class ReadingContent : public PVWidgets::PVImportWidget
+{
+  public:
+	bool is_ready() const override { return false; }
+	std::vector<source_t> sources() const override { return {}; }
+
+	void read()
+	{
+		run_task(
+		    "Reading",
+		    [](PVCore::PVTaskProgress& progress) {
+			    while (not progress.canceled()) {
+				    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			    }
+		    },
+		    [](bool) {});
+	}
+};
+
+} // namespace
+
+// Closing the import page while what it shows reads its inputs stops the reading first.
+void ImportExportTest::close_import_page_while_reading()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+
+	const QPointer<ReadingContent> content = new ReadingContent;
+	QVERIFY(main_window.import_controller().edit(
+	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json"), content));
+	content->read();
+	QVERIFY(page.task_running());
+	page.findChild<QPushButton*>("import_cancel")->click();
+	QVERIFY(page.isVisible());
+	QCOMPARE(page.content(), content.data());
+
+	QVERIFY(QTest::qWaitFor([&]() { return not page.isVisible(); }, 10000));
+	QVERIFY(QTest::qWaitFor([&]() { return content.isNull(); }, 10000));
+	QVERIFY(not main_window.import_controller().busy());
 }
 
 QTEST_MAIN(ImportExportTest)

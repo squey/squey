@@ -26,6 +26,8 @@ private Q_SLOTS:
     void import_json_in_page();
     void import_recent_json();
     void import_params();
+    void leave_import_page();
+    void close_import_page_while_reading();
 
 private:
     PVParallelView::common::RAII_backend_init backend_resources;

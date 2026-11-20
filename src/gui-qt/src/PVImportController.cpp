@@ -57,6 +57,7 @@
 #include <algorithm>
 #include <exception>
 #include <stdexcept>
+#include <utility>
 
 namespace App
 {
@@ -118,16 +119,12 @@ App::PVImportController::PVImportController(PVMainWindow& window) : _window(wind
 	_poll_timer.setInterval(POLL_PERIOD);
 	connect(&_poll_timer, &QTimer::timeout, this, &PVImportController::poll);
 
-	connect(&page(), &PVGuiQt::PVImportPage::close_requested, this, [this]() {
-		if (not _busy) {
-			page().clear_messages();
-			projects().hide_import_page();
-		}
-	});
+	connect(&page(), &PVGuiQt::PVImportPage::close_requested, this,
+	        &PVImportController::close_page);
+	connect(&projects(), &PVGuiQt::PVProjectsTabWidget::import_page_close_requested, this,
+	        &PVImportController::close_page);
 	connect(&page(), &PVGuiQt::PVImportPage::import_requested, this,
 	        &PVImportController::import_content);
-	connect(&page(), &PVGuiQt::PVImportPage::cancel_requested, this,
-	        &PVImportController::cancel_content);
 	connect(&page(), &PVGuiQt::PVImportPage::task_finished, this,
 	        &PVImportController::task_finished);
 }
@@ -279,9 +276,14 @@ void App::PVImportController::import_content()
 	import(std::move(descriptions));
 }
 
-void App::PVImportController::cancel_content()
+void App::PVImportController::close_page()
 {
-	if (busy()) {
+	if (_busy) {
+		return;
+	}
+	if (page().task_running()) {
+		_closing = true;
+		page().cancel_task();
 		return;
 	}
 	page().clear_content();
@@ -293,6 +295,9 @@ void App::PVImportController::task_finished()
 {
 	if (busy()) {
 		return;
+	}
+	if (std::exchange(_closing, false)) {
+		close_page();
 	}
 	if (not _queue.empty()) {
 		begin();

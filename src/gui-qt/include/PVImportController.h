@@ -136,8 +136,12 @@ class PVImportController : public QObject
 	PVGuiQt::PVImportPage& page() const;
 
 	void import_content();
-	void cancel_content();
-	/** Starts the imports given while the task of the content ran. */
+	/**
+	 * Drops the content and the messages of the page and leaves it, unless sources are imported,
+	 * once the task of the content ends if one runs.
+	 */
+	void close_page();
+	/** Closes the page if asked meanwhile, then starts the imports given while the task ran. */
 	void task_finished();
 
 	void begin();
@@ -178,6 +182,8 @@ class PVImportController : public QObject
 	/** Whether the imports are those of the content, and whether one of them was imported. */
 	bool _content_import = false;
 	bool _imported = false;
+	/** Whether the page closes once the task of the content ends. */
+	bool _closing = false;
 
 	/** Of the source being imported, as the messages about it name it. */
 	QString _name;
