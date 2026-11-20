@@ -66,6 +66,11 @@ add_squey_test(Tseries_shown_series Tseries_shown_series)
 
 add_squey_compile_test(Tpview_scatter_thumbnail_orientation LINKS ${LINK_LIBRARIES} FILES scatter_thumbnail_orientation.cpp)
 add_squey_test(Tpview_scatter_thumbnail_orientation Tpview_scatter_thumbnail_orientation)
+add_squey_compile_test(Tpview_scatter_thumbnails_scroll LINKS ${LINK_LIBRARIES} Qt6::Test FILES scatter_thumbnails_scroll.cpp)
+add_squey_test(Tpview_scatter_thumbnails_scroll Tpview_scatter_thumbnails_scroll)
+# A configuration directory of its own, for the thumbnail size it reads.
+set_property(TEST SQUEY_TEST_Tpview_scatter_thumbnails_scroll APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=scatter_thumbnails_scroll_config")
 
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)

@@ -56,6 +56,7 @@
 #include <QTextLayout>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QWheelEvent>
 
 namespace
 {
@@ -116,13 +117,18 @@ int PVParallelView::PVScatterThumbnailDelegate::label_height(QFontMetrics const&
 	return metrics.lineSpacing() * label_lines;
 }
 
+QSize PVParallelView::PVScatterThumbnailDelegate::cell_size(QFontMetrics const& metrics) const
+{
+	return QSize(_display_size + 2 * cell_margin,
+	             _display_size + label_height(metrics) + 3 * cell_margin);
+}
+
 QSize PVParallelView::PVScatterThumbnailDelegate::sizeHint(QStyleOptionViewItem const& option,
                                                            QModelIndex const&) const
 {
 	// Independent of the item: every cell is the same size, whatever the pixmap
 	// it currently holds and however long its axis names are.
-	const int height = _display_size + label_height(option.fontMetrics) + 3 * cell_margin;
-	return QSize(_display_size + 2 * cell_margin, height);
+	return cell_size(option.fontMetrics);
 }
 
 void PVParallelView::PVScatterThumbnailDelegate::paint(QPainter* painter,
@@ -242,6 +248,8 @@ PVParallelView::PVScatterThumbnailsView::PVScatterThumbnailsView(Squey::PVView& 
 	// the view with a button held down unless the viewport itself tracks.
 	_list->viewport()->setMouseTracking(true);
 	_list->setContextMenuPolicy(Qt::CustomContextMenu);
+	// For the wheel events, which reach the list through its viewport.
+	_list->viewport()->installEventFilter(this);
 	layout->addWidget(_list);
 
 	connect(_list, &QAbstractItemView::doubleClicked, this,
@@ -581,6 +589,43 @@ void PVParallelView::PVScatterThumbnailsView::changeEvent(QEvent* event)
 	    (event->type() == QEvent::StyleChange or event->type() == QEvent::FontChange)) {
 		reserve_room_for_arrow(_sort_combo);
 	}
+}
+
+bool PVParallelView::PVScatterThumbnailsView::eventFilter(QObject* watched, QEvent* event)
+{
+	if (watched != _list->viewport() or event->type() != QEvent::Wheel) {
+		return QWidget::eventFilter(watched, event);
+	}
+	auto* wheel = static_cast<QWheelEvent*>(event);
+	// With a modifier, the list scrolls a page.
+	if (wheel->modifiers() != Qt::NoModifier or
+	    (wheel->pixelDelta().y() == 0 and wheel->angleDelta().y() == 0)) {
+		return QWidget::eventFilter(watched, event);
+	}
+	// A touchpad scrolls as far as its fingers went, and a wheel by whole rows of thumbnails, a row
+	// a notch whatever their size: the fractions of a notch a high-resolution wheel reports would
+	// leave the gallery between two rows. The list would scroll three rows a notch, and as many for
+	// the few pixels a touchpad counts as one. The phases of its gestures are what tells a
+	// touchpad: Qt's Wayland plugin gives the events of a wheel pixels too.
+	QScrollBar* bar = _list->verticalScrollBar();
+	if (wheel->phase() != Qt::NoScrollPhase) {
+		bar->setValue(bar->value() - wheel->pixelDelta().y());
+	} else if (const int notches = _wheel_accumulator.steps(wheel->angleDelta().y());
+	           notches != 0) {
+		// Rows start at the multiples of their height, and a notch goes to the next start in its
+		// direction: a touchpad or the end of the list can leave the gallery between two.
+		const int row = row_height();
+		const int value = bar->value();
+		const int start = notches > 0 ? (value + row - 1) / row : value / row;
+		bar->setValue((start - notches) * row);
+	}
+	wheel->accept();
+	return true;
+}
+
+int PVParallelView::PVScatterThumbnailsView::row_height() const
+{
+	return _delegate->cell_size(_list->fontMetrics()).height() + _list->spacing();
 }
 
 void PVParallelView::PVScatterThumbnailsView::keyPressEvent(QKeyEvent* event)
