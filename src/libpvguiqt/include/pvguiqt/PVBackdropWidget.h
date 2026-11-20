@@ -28,8 +28,10 @@
 #include <pvguiqt/export.h>
 
 #include <QColor>
+#include <QElapsedTimer>
 #include <QPixmap>
 #include <QPointer>
+#include <QTimer>
 #include <QWidget>
 
 #include <vector>
@@ -41,6 +43,10 @@ namespace PVGuiQt
  * A widget that draws, behind what it shows, parallel coordinates of made-up rows, the plot Squey
  * is known for, in the colors of the theme: those of its background and of its text, and
  * decoration_color for the rows of a selection. What stands out of it, as cards, gets a shadow.
+ * While it shows in the active application, a light sweeps slowly over the rows of its selection,
+ * then the selection passes from a group of rows to the next, its color fading from the rows of one
+ * into those of the other, and the light sweeps over the rows it passed to, and so on: both paint
+ * nothing but where these rows go.
  */
 class PVGUIQT_EXPORT PVBackdropWidget : public QWidget
 {
@@ -70,16 +76,55 @@ class PVGUIQT_EXPORT PVBackdropWidget : public QWidget
 
 	void paintEvent(QPaintEvent* event) override;
 	void changeEvent(QEvent* event) override;
+	void showEvent(QShowEvent* event) override;
+	void hideEvent(QHideEvent* event) override;
 	bool eventFilter(QObject* watched, QEvent* event) override;
 
   private:
 	/** Paints the widget again as @p widget, or what holds it, moves or shows. */
 	void follow(QWidget* widget);
+	/**
+	 * Animates the selection from the moment the widget shows in the active application: a light
+	 * sweeps over the group it selects, then it passes to the next group, the light sweeps over
+	 * that one, and so on. Stops the animation otherwise.
+	 */
+	void update_animation();
+	void start_fade();
+	void advance_fade();
+	/** Ends the fade under way where it was going. */
+	void end_fade();
+	void start_sweep();
+	void advance_sweep();
+	void end_sweep();
+	/** Paints again the rows of the groups the selection passes between. */
+	void update_selection();
+	/**
+	 * Lights the rows of _selected up over @p band, none if empty, and no longer where they were.
+	 */
+	void move_glow(QRect const& band);
+	/** Paints @p area again, but where the cards hide the drawing. */
+	void update_drawing(QRegion area);
 
   private:
 	QColor _decoration_color;
-	/** The drawing, for the size and the colors of the widget it was drawn for. */
+	/** The drawing but its selection, for the size and colors of the widget it was drawn for. */
 	QPixmap _decoration;
+	/** The group of rows selected, and the one the selection passes to while it fades. */
+	int _selected;
+	int _next;
+	/** The rows of _selected and of _next as the drawing shows a selection, drawn as needed. */
+	QPixmap _selection;
+	QPixmap _next_selection;
+	/** The rows of _selected lit up, drawn for a sweep. */
+	QPixmap _glow;
+	/** How far the selection has passed to _next, from 0 to 1. */
+	qreal _fade = 0;
+	/** Where the light of a sweep goes, empty out of a sweep. */
+	QRect _glow_band;
+	QTimer _fade_timer;
+	QTimer _sweep_timer;
+	/** Since the fade or the sweep under way started: they never overlap. */
+	QElapsedTimer _clock;
 	std::vector<QPointer<QWidget>> _cards;
 	std::vector<QPointer<QWidget>> _clearings;
 };
