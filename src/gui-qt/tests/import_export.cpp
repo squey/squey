@@ -937,6 +937,35 @@ void ImportExportTest::import_error_in_page()
 	QVERIFY(import_messages(main_window).isEmpty());
 }
 
+// A format whose types do not allow its mappings is told in the import page.
+void ImportExportTest::import_incompatible_format()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 100);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+	// The mapping of the hours of times, for numbers.
+	QFile format(csv + ".format");
+	QVERIFY(format.open(QIODevice::WriteOnly | QIODevice::Truncate));
+	format.write(
+	    QByteArray(ROWS_FORMAT)
+	        .replace(R"(<axis name="a" type="number_uint32"/>)",
+	                 R"(<axis name="a" type="number_uint32"><mapping mode="24h"/></axis>)"));
+	format.close();
+
+	import_files(main_window, {csv});
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("not compatible"), qPrintable(messages));
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+}
+
 // Discarding an import asks first, in the page: going on resumes it, discarding drops the source.
 // The window cannot close meanwhile.
 void ImportExportTest::discard_import()

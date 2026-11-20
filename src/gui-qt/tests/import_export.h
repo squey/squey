@@ -22,6 +22,7 @@ private Q_SLOTS:
     void import_in_page();
     void import_dropped_files();
     void import_error_in_page();
+    void import_incompatible_format();
     void discard_import();
     void stop_import();
     void import_json_in_page();

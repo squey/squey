@@ -418,6 +418,13 @@ void App::PVImportController::create(PVRush::PVSourceDescription description)
 
 	try {
 		_source = &scene->emplace_add_child(description);
+		// Before anything is read: it maps and scales each axis, which its type may not allow.
+		_memory_forecast = std::make_unique<PVMemoryConsumptionForecast>(*_source);
+	} catch (const Squey::InvalidScalingMapping& e) {
+		fail(tr("Error with the format"),
+		     tr("The mapping and the scaling of the types of the format are not compatible: %1")
+		         .arg(plain(e.what())));
+		return;
 	} catch (const PVRush::PVFormatException& e) {
 		fail(tr("Error with the format"), plain(e.what()));
 		return;
@@ -442,7 +449,6 @@ void App::PVImportController::create(PVRush::PVSourceDescription description)
 		fail(tr("Cannot create sources"), tr("Error with nraw: %1").arg(plain(e.what())));
 		return;
 	}
-	_memory_forecast = std::make_unique<PVMemoryConsumptionForecast>(*_source);
 	_monitor_memory = true;
 	_last_memory_check = std::chrono::steady_clock::now();
 	_discarding = false;
@@ -639,10 +645,6 @@ void App::PVImportController::process()
 			// shows, under a dialog of its own.
 			PVParallelView::common::get_rendering_context(view);
 			_processing_step = 4;
-		} catch (const Squey::InvalidScalingMapping& e) {
-			_processing_error = tr("The mapping and the scaling of the types of the format are "
-			                       "not compatible: %1")
-			                        .arg(plain(e.what()));
 		} catch (const std::exception& e) {
 			_processing_error = plain(e.what());
 		}
