@@ -112,7 +112,10 @@ class PVGUIQT_EXPORT PVImportPage : public PVBackdropWidget
 	PVWidgets::PVImportWidget* content() const { return _content; }
 	/** The index of the chosen one of the collections of set_content(), or -1 for a new one. */
 	int chosen_collection() const;
-	/** Whether the content and its buttons show, rather than the progress of its import alone. */
+	/**
+	 * Whether the content and its buttons show, rather than the progress of its import alone,
+	 * which keeps to a column even if the content fills the page.
+	 */
 	void set_content_shown(bool shown);
 
 	/**

@@ -441,7 +441,6 @@ void PVGuiQt::PVImportPage::set_content(PVWidgets::PVImportWidget* content,
 
 	set_title(title, icon);
 	set_closable(false);
-	fill_page(content->fills_page());
 	set_content_shown(true);
 }
 
@@ -456,7 +455,6 @@ void PVGuiQt::PVImportPage::clear_content()
 	}
 	remove(_content);
 	_content = nullptr;
-	fill_page(false);
 	set_content_shown(false);
 }
 
@@ -483,6 +481,7 @@ void PVGuiQt::PVImportPage::set_content_shown(bool shown)
 	_import->setVisible(content_shown);
 	_format_cancel->setVisible(shown and editing_format());
 	_format_use->setVisible(shown and editing_format());
+	fill_page(shown and (editing_format() or _content->fills_page()));
 	update_buttons();
 }
 
@@ -537,7 +536,6 @@ void PVGuiQt::PVImportPage::edit_format(QDomDocument const& format,
 	}
 	_content_layout->addWidget(_builder);
 	set_content_shown(true);
-	fill_page(true);
 	_builder->preview_input(input, type);
 }
 
@@ -545,7 +543,6 @@ void PVGuiQt::PVImportPage::end_format_edit()
 {
 	remove(_builder);
 	_builder = nullptr;
-	fill_page(_content->fills_page());
 	set_content_shown(true);
 }
 

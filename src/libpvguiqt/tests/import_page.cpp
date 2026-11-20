@@ -179,11 +179,15 @@ int main(int argc, char** argv)
 	QPushButton* cancel = button(page, "import_cancel");
 
 	// What the page shows keeps to a sheet at the center of a wide page, with the buttons right
-	// under it, and takes the width of a narrow one.
+	// under it, and takes the width of a narrow one. The sheet holds a number of characters: the
+	// wide page is three times as wide as the sheet may be, whatever the font, which the
+	// offscreen platform of the Windows CI has none of, drawing boxes wider than letters.
 	QWidget* column = page.findChild<QWidget*>("import_sheet");
 	PV_ASSERT_VALID(column->isAncestorOf(content) and column->isAncestorOf(import));
-	page.resize(3000, 1500);
-	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return page.width() > 2500; }, 10000));
+	PV_ASSERT_VALID(column->maximumWidth() < QWIDGETSIZE_MAX);
+	const int wide = 3 * column->maximumWidth();
+	page.resize(wide, 1500);
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return page.width() > wide * 5 / 6; }, 10000));
 	PV_ASSERT_VALID(column->width() < page.width() / 2);
 	PV_ASSERT_VALID(std::abs(2 * column->x() + column->width() - page.width()) <= 2);
 	PV_ASSERT_VALID(import->mapTo(&page, QPoint(0, import->height())).y() < page.height() / 4);
@@ -265,10 +269,22 @@ int main(int argc, char** argv)
 	// With no data collection to choose from, the import makes a new one without asking.
 	PV_ASSERT_VALID(not collection->isVisible());
 	PV_VALID(page.chosen_collection(), -1);
-	page.resize(3000, 1500);
+	page.resize(wide, 1500);
 	PV_ASSERT_VALID(
 	    QTest::qWaitFor([&]() { return column->width() > page.width() * 9 / 10; }, 10000));
 	PV_ASSERT_VALID(filling->height() > page.height() / 2);
+	// But not the progress of its import, which keeps to the column of the others.
+	page.set_content_shown(false);
+	page.start_progress("Importing");
+	PV_ASSERT_VALID(QTest::qWaitFor(
+	    [&]() {
+		    return column->width() < page.width() / 2 and column->height() < page.height() / 2;
+	    },
+	    10000));
+	page.end_progress();
+	page.set_content_shown(true);
+	PV_ASSERT_VALID(
+	    QTest::qWaitFor([&]() { return column->width() > page.width() * 9 / 10; }, 10000));
 	page.clear_content();
 	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return column->width() < page.width() / 2; }, 10000));
 
