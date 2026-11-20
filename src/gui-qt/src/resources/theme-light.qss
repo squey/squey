@@ -2211,6 +2211,23 @@ PVGuiQt--PVBackdropWidget {
   qproperty-decoration_color: #1a72bb;
 }
 
+/* Start page -------------------------------------------------------------
+
+Its parts are cards over its backdrop.
+
+--------------------------------------------------------------------------- */
+#import_widget_of_PVStartScreenWidget,
+#project_widget_of_PVStartScreenWidget,
+#format_widget_of_PVStartScreenWidget {
+  background-color: #fbfafd;
+  border: 1px solid #dee0e2;
+  border-radius: 8px;
+}
+
+#PVStartScreenWidget, #start_logo {
+  background-color: transparent;
+}
+
 /* Import page ------------------------------------------------------------
 
 The page of the main window that imports run in: a sheet over its backdrop.

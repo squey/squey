@@ -72,7 +72,7 @@ struct connecter {
 };
 } // namespace
 
-PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(parent)
+PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : PVBackdropWidget(parent)
 {
 	PVLOG_DEBUG("PVGuiQt::PVStartScreenWidget::%s\n", __FUNCTION__);
 
@@ -84,16 +84,18 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	QPixmap pv_welcomeIcon(":/start-logo");
 
 	auto pv_labelWelcomeIcon = new QLabel();
+	pv_labelWelcomeIcon->setObjectName("start_logo");
 	pv_labelWelcomeIcon->setPixmap(pv_welcomeIcon);
 	pv_labelWelcomeIcon->resize(pv_welcomeIcon.width(), pv_welcomeIcon.height());
 
+	// Little room around the logo, which the cards need more.
 	auto pv_startLayout = new QVBoxLayout(this);
-	pv_startLayout->addItem(new QSpacerItem(1, 100, QSizePolicy::Minimum, QSizePolicy::Maximum));
+	pv_startLayout->addItem(new QSpacerItem(1, 24, QSizePolicy::Minimum, QSizePolicy::Maximum));
 	auto centerLayout = new QVBoxLayout();
 	centerLayout->setAlignment(Qt::AlignHCenter);
 	centerLayout->addWidget(pv_labelWelcomeIcon);
 	pv_startLayout->addLayout(centerLayout);
-	pv_startLayout->addItem(new QSpacerItem(1, 100, QSizePolicy::Minimum, QSizePolicy::Maximum));
+	pv_startLayout->addItem(new QSpacerItem(1, 24, QSizePolicy::Minimum, QSizePolicy::Maximum));
 
 	auto start_widget = new QWidget();
 	start_widget->setObjectName("PVStartScreenWidget");
@@ -109,10 +111,13 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 
 	// We fix the margins for that Layout
 	main_layout->setContentsMargins(0, 0, 0, 0);
+	// For the backdrop to show between the cards.
+	main_layout->setSpacing(24);
 
 	// We also need two Layout for the left and right parts
 	auto left_layout = new QVBoxLayout();
 	left_layout->setContentsMargins(0, 0, 0, 0);
+	left_layout->setSpacing(24);
 	auto right_layout = new QVBoxLayout();
 	right_layout->setContentsMargins(0, 0, 0, 0);
 
@@ -337,6 +342,11 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : QWidget(par
 	PVCore::PVRecentItemsManager::apply_on_category(connecter{*this});
 
 	refresh_all_recent_items();
+
+	add_card(import_widget);
+	add_card(project_widget);
+	add_card(format_widget);
+	add_clearing(pv_labelWelcomeIcon);
 }
 
 void PVGuiQt::PVStartScreenWidget::import_type()

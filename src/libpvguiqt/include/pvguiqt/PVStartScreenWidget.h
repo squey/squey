@@ -38,6 +38,7 @@
 #include <QMessageBox>
 class QLabel;
 
+#include <pvguiqt/PVBackdropWidget.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 
 class PVModdedIconLabel;
@@ -59,7 +60,7 @@ class PVStartScreenWidget;
  * \note This class is the start screen widget of the application.
  *       It displays the recent items accessed by the user/application and allow to load/edit them.
  */
-class PVStartScreenWidget : public QWidget, public sigc::trackable
+class PVStartScreenWidget : public PVBackdropWidget, public sigc::trackable
 {
 	Q_OBJECT
 

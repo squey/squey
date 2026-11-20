@@ -61,16 +61,27 @@ class PVGUIQT_EXPORT PVBackdropWidget : public QWidget
 	 * as it moves with what holds it then.
 	 */
 	void add_card(QWidget* card);
+	/**
+	 * Clears the drawing around @p widget, a widget in this one that shows on the background
+	 * alone: the drawing fades out a bit beyond its edges, out of the room the layout gives it.
+	 * Follows @p widget as add_card() does.
+	 */
+	void add_clearing(QWidget* widget);
 
 	void paintEvent(QPaintEvent* event) override;
 	void changeEvent(QEvent* event) override;
 	bool eventFilter(QObject* watched, QEvent* event) override;
 
   private:
+	/** Paints the widget again as @p widget, or what holds it, moves or shows. */
+	void follow(QWidget* widget);
+
+  private:
 	QColor _decoration_color;
 	/** The drawing, for the size and the colors of the widget it was drawn for. */
 	QPixmap _decoration;
 	std::vector<QPointer<QWidget>> _cards;
+	std::vector<QPointer<QWidget>> _clearings;
 };
 
 } // namespace PVGuiQt

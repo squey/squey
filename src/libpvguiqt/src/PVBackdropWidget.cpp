@@ -27,6 +27,7 @@
 #include <QEvent>
 #include <QPainter>
 #include <QPolygonF>
+#include <QRadialGradient>
 
 #include <algorithm>
 #include <array>
@@ -39,6 +40,9 @@ namespace
 constexpr int CARD_RADIUS = 8;
 /** Between the axes of the drawing, in pixels. */
 constexpr int AXIS_SPACING = 160;
+/** Beyond the edges of a clearing, on each side, in pixels: where the drawing fades in. */
+constexpr int CLEARING_WIDTH = 128;
+constexpr int CLEARING_HEIGHT = 32;
 
 /** Rows made up for the drawing: groups of close rows, one of them selected. */
 struct Rows {
@@ -126,6 +130,12 @@ QPixmap decoration(QSize size, qreal ratio, QColor const& color, QColor const& s
 	return pixmap;
 }
 
+QColor with_alpha(QColor color, float alpha)
+{
+	color.setAlphaF(alpha);
+	return color;
+}
+
 } // namespace
 
 PVGuiQt::PVBackdropWidget::PVBackdropWidget(QWidget* parent)
@@ -143,7 +153,18 @@ void PVGuiQt::PVBackdropWidget::set_decoration_color(QColor const& color)
 void PVGuiQt::PVBackdropWidget::add_card(QWidget* card)
 {
 	_cards.emplace_back(card);
-	for (QWidget* moving = card; moving != nullptr and moving != this;
+	follow(card);
+}
+
+void PVGuiQt::PVBackdropWidget::add_clearing(QWidget* widget)
+{
+	_clearings.emplace_back(widget);
+	follow(widget);
+}
+
+void PVGuiQt::PVBackdropWidget::follow(QWidget* widget)
+{
+	for (QWidget* moving = widget; moving != nullptr and moving != this;
 	     moving = moving->parentWidget()) {
 		moving->installEventFilter(this);
 	}
@@ -159,6 +180,23 @@ void PVGuiQt::PVBackdropWidget::paintEvent(QPaintEvent*)
 		    decoration(size(), ratio, palette().color(QPalette::WindowText), _decoration_color);
 	}
 	painter.drawPixmap(0, 0, _decoration);
+
+	// What shows on the background alone, in an ellipse of it fading out beyond its edges.
+	const QColor background = palette().color(QPalette::Window);
+	for (const QPointer<QWidget>& clearing : _clearings) {
+		if (clearing == nullptr or not clearing->isVisible()) {
+			continue;
+		}
+		QRadialGradient fading(0.5, 0.5, 0.5);
+		fading.setCoordinateMode(QGradient::ObjectMode);
+		fading.setColorAt(0, background);
+		fading.setColorAt(0.6, background);
+		fading.setColorAt(1, with_alpha(background, 0));
+		painter.fillRect(
+		    QRect(clearing->mapTo(this, QPoint(0, 0)), clearing->size())
+		        .adjusted(-CLEARING_WIDTH, -CLEARING_HEIGHT, CLEARING_WIDTH, CLEARING_HEIGHT),
+		    fading);
+	}
 
 	// A shadow, wider and fainter from each card, a bit below it.
 	painter.setRenderHint(QPainter::Antialiasing);
@@ -188,10 +226,10 @@ void PVGuiQt::PVBackdropWidget::changeEvent(QEvent* event)
 
 bool PVGuiQt::PVBackdropWidget::eventFilter(QObject* watched, QEvent* event)
 {
-	const auto moves_card = [this, watched]() {
-		return std::any_of(_cards.begin(), _cards.end(), [watched](QPointer<QWidget> const& card) {
-			return card == watched or (card != nullptr and watched->isWidgetType() and
-			                           static_cast<QWidget*>(watched)->isAncestorOf(card));
+	const auto moves = [watched](std::vector<QPointer<QWidget>> const& followed) {
+		return std::any_of(followed.begin(), followed.end(), [watched](QPointer<QWidget> const& w) {
+			return w == watched or (w != nullptr and watched->isWidgetType() and
+			                        static_cast<QWidget*>(watched)->isAncestorOf(w));
 		});
 	};
 	switch (event->type()) {
@@ -199,7 +237,7 @@ bool PVGuiQt::PVBackdropWidget::eventFilter(QObject* watched, QEvent* event)
 	case QEvent::Resize:
 	case QEvent::Show:
 	case QEvent::Hide:
-		if (moves_card()) {
+		if (moves(_cards) or moves(_clearings)) {
 			update();
 		}
 		break;
