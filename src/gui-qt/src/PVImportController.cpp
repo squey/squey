@@ -40,6 +40,7 @@
 #include <pvkernel/rush/PVUnicodeSourceError.h>
 #include <pvkernel/widgets/PVImportWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
+#include <pvparallelview/PVParallelView.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/common.h>
 #include <squey/PVAxis.h>
@@ -49,6 +50,7 @@
 #include <squey/PVScalingFilter.h>
 #include <squey/PVScene.h>
 #include <squey/PVSource.h>
+#include <squey/PVView.h>
 
 #include <QLocale>
 #include <QMenuBar>
@@ -57,6 +59,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <iterator>
 #include <stdexcept>
 #include <utility>
 
@@ -456,10 +459,10 @@ void App::PVImportController::poll()
 	}
 	if (_state == State::processing) {
 		static const char* steps[] = {"Computing mapping...", "Computing scaling...",
-		                              "Creating views..."};
+		                              "Creating views...", "Computing parallel coordinates..."};
 		const int step = _processing_step;
-		page().set_progress(step, 3);
-		page().set_progress_details(step < 3 ? tr(steps[step]) : QString());
+		page().set_progress(step, qint64(std::size(steps)));
+		page().set_progress_details(step < int(std::size(steps)) ? tr(steps[step]) : QString());
 		return;
 	}
 	if (_state != State::extracting) {
@@ -630,8 +633,12 @@ void App::PVImportController::process()
 			_processing_step = 1;
 			auto& scaled = mapped.emplace_add_child();
 			_processing_step = 2;
-			scaled.emplace_add_child();
+			Squey::PVView& view = scaled.emplace_add_child();
 			_processing_step = 3;
+			// The zone trees of its parallel coordinates, which their view would build as it
+			// shows, under a dialog of its own.
+			PVParallelView::common::get_rendering_context(view);
+			_processing_step = 4;
 		} catch (const Squey::InvalidScalingMapping& e) {
 			_processing_error = tr("The mapping and the scaling of the types of the format are "
 			                       "not compatible: %1")
