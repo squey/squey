@@ -60,6 +60,7 @@
 #include <QAbstractButton>
 #include <QPointer>
 #include <QPushButton>
+#include <QRadioButton>
 #include <QTabBar>
 #include <QMenuBar>
 #include <QLabel>
@@ -158,6 +159,26 @@ namespace
 bool wait_for_import(App::PVMainWindow& main_window)
 {
 	return QTest::qWaitFor([&]() { return not main_window.import_controller().busy(); }, 120000);
+}
+
+// Waits for the import, with no dialog meanwhile.
+bool wait_for_import_without_dialog(App::PVMainWindow& main_window)
+{
+	bool modal = false;
+	const bool imported = QTest::qWaitFor(
+	    [&]() {
+		    modal |= qApp->activeModalWidget() != nullptr;
+		    return not main_window.import_controller().busy();
+	    },
+	    120000);
+	return imported and not modal;
+}
+
+// Opens the files as a command line does, and imports them as the import page asks.
+void import_files(App::PVMainWindow& main_window, QStringList const& files)
+{
+	main_window.load_files(files);
+	main_window._projects_tab_widget->import_page().findChild<QPushButton*>("import_import")->click();
 }
 
 // What the messages of the import page say.
@@ -280,15 +301,10 @@ void ImportExportTest::import_file()
 
     export_driver.start();
 
-    // Import programmatically, bypassing the file-selection dialog. That dialog
-    // (PVImportFileDialog, a QFileDialog with an injected combo box) drives an
-    // infinite size-hint propagation loop under the offscreen platform on
-    // Windows CI -- an endless flood of "propagateSizeHints" warnings ending in a
-    // stack overflow (0xc00000fd) -- and is not even reliably findable there.
-    // load_files() is the command-line import path (see main.cpp); it reaches the
-    // very same import_type() with no modal file dialog. The export dialog is
-    // still driven for real, through the modal export flow it triggers.
-    main_window.load_files({source_path});
+    // load_files() is the command-line import path (see main.cpp): it opens the import page
+    // with the file, whose format sits next to it. The export dialog is still driven for real,
+    // through the modal export flow it triggers.
+    import_files(main_window, {source_path});
     QVERIFY(wait_for_import(main_window));
 
     QCOMPARE(success, true);
@@ -329,7 +345,7 @@ void ImportExportTest::undo_redo()
 
     const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
     QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
-    main_window.load_files({source_path});
+    import_files(main_window, {source_path});
     QVERIFY(wait_for_import(main_window));
 
     Squey::PVView* view = main_window.current_view();
@@ -413,7 +429,7 @@ void ImportExportTest::rename_source()
 
 	const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
 	QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
-	main_window.load_files({source_path});
+	import_files(main_window, {source_path});
 	QVERIFY(wait_for_import(main_window));
 
 	Squey::PVView* view = main_window.current_view();
@@ -597,8 +613,6 @@ void ImportExportTest::import_pcap()
 
 namespace
 {
-//! Answers to the questions of an import, each by a part of the text of its question.
-using Answers = std::vector<std::pair<QString, QMessageBox::StandardButton>>;
 
 void write_csv(QString const& path, int columns)
 {
@@ -613,52 +627,20 @@ void write_csv(QString const& path, int columns)
 	}
 }
 
-// Imports the files as the import dialog hands them over with the default
-// format. With no format next to the files, the import guesses one for each, and
-// asks about it as a user would be asked: a question gets the first answer whose
-// key is part of its text, and any other dialog fails the test.
-void import_guessing_formats(App::PVMainWindow& main_window,
-                             QStringList const& files,
-                             Answers const& answers_by_question)
+// Imports the files through the import page, which detects the formats of those without one next
+// to them, as one source each or one of all: no dialog opens meanwhile.
+void import_detecting_formats(App::PVMainWindow& main_window,
+                              QStringList const& files,
+                              bool source_per_file)
 {
-	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-	PVRush::hash_formats formats;
-	PVRush::PVInputType::list_inputs inputs;
-	PVCore::PVArgumentList args;
-	QString format;
-	QVERIFY(in_file->create_widget_with_input_files(files, formats, inputs, format, args,
-	                                                &main_window));
-	QCOMPARE(format, QString(SQUEY_LOCAL_FORMAT_STR));
-
-	QStringList unexpected;
-	ModalDriver answers(&main_window, [&]() -> bool {
-		QWidget* modal = qApp->activeModalWidget();
-		if (modal == nullptr or not modal->isVisible()) {
-			return false;
-		}
-		if (auto* box = qobject_cast<QMessageBox*>(modal)) {
-			for (auto const& [question, answer] : answers_by_question) {
-				if (box->text().contains(question)) {
-					box->button(answer)->click();
-					return false;
-				}
-			}
-			unexpected << box->text() + " " + box->informativeText();
-			box->reject();
-		} else if (qobject_cast<QInputDialog*>(modal) or qobject_cast<QFileDialog*>(modal)) {
-			unexpected << modal->windowTitle();
-			static_cast<QDialog*>(modal)->reject();
-		}
-		// One question after the other, until the import is over.
-		return false;
-	});
-	answers.start();
-
-	PVRush::hash_format_creator format_creator;
-	main_window.import_type(in_file, inputs, formats, format_creator, format);
-	QVERIFY(wait_for_import(main_window));
-
-	QVERIFY2(unexpected.isEmpty(), qPrintable(unexpected.join('\n')));
+	main_window.load_files(files);
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(page.content() != nullptr);
+	page.findChild<QRadioButton*>("import_source_per_file")->setChecked(source_per_file);
+	QPushButton* import = page.findChild<QPushButton*>("import_import");
+	QVERIFY(import->isEnabled());
+	import->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
 }
 } // namespace
 
@@ -680,22 +662,22 @@ void ImportExportTest::import_guessed_formats()
 		return;
 	}
 
-	// The format is only used once saved.
-	import_guessing_formats(main_window, files,
-	                        {{"Do you want to automatically add that splitter", QMessageBox::Yes},
-	                         {"do you want to manually enter column names", QMessageBox::No},
-	                         {"The format has been modified", QMessageBox::Save}});
+	import_detecting_formats(main_window, files, true);
 	if (QTest::currentTestFailed()) {
 		return;
 	}
 
-	// A source of its own for each file, read with the format guessed from it.
+	// A source of its own for each file, read with the format detected from it, which is not
+	// written next to the data.
 	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
 	QCOMPARE(sources.size(), size_t(files.size()));
 	for (Squey::PVSource const* source : sources) {
 		QCOMPARE(source->get_inputs().size(), qsizetype(1));
-		QCOMPARE(source->get_original_format().get_full_path(),
-		         source->get_inputs().front()->human_name() + ".format");
+		const QString path = source->get_inputs().front()->human_name();
+		QCOMPARE(source->get_original_format().get_axes().size(),
+		         path.endsWith("narrow.csv") ? qsizetype(3) : qsizetype(5));
+		QVERIFY(source->get_original_format().get_full_path().isEmpty());
+		QVERIFY(not QFile::exists(path + ".format"));
 	}
 }
 
@@ -729,21 +711,13 @@ void ImportExportTest::import_guessed_formats_without_nraw_dir()
 		return;
 	}
 
-	// The format builder previews the file as soon as it adds the guessed splitter,
-	// from the event loop of the question that follows. Neither that preview nor the
-	// import can create the collection: the import fails, and says where.
-	import_guessing_formats(
-	    main_window, {file},
-	    {{"Do you want to automatically add that splitter", QMessageBox::Yes},
-	     {"do you want to manually enter column names", QMessageBox::No},
-	     {"The format has been modified", QMessageBox::Save},
-	     {"Unable to create a temporary directory in " + QDir::toNativeSeparators(nraw_dir),
-	      QMessageBox::Ok}});
+	// The detection of the format needs no collection, the import cannot create it: it fails,
+	// and says where.
+	import_detecting_formats(main_window, {file}, false);
 	if (QTest::currentTestFailed()) {
 		return;
 	}
 
-	// The preview asks in a dialog, the import tells in its page.
 	const QString messages = import_messages(main_window);
 	QVERIFY2(messages.contains("Unable to create a temporary directory in " +
 	                           QDir::toNativeSeparators(nraw_dir)),
@@ -775,7 +749,7 @@ void ImportExportTest::import_failure_reported()
 		limit.rlim_cur = 64 * 1024;
 		QVERIFY(setrlimit(RLIMIT_FSIZE, &limit) == 0);
 
-		main_window.load_files({QString(TEST_FOLDER) + "/picviz/enum_mapping.csv"});
+		import_files(main_window, {QString(TEST_FOLDER) + "/picviz/enum_mapping.csv"});
 		QVERIFY(wait_for_import(main_window));
 	}
 
@@ -862,7 +836,7 @@ void ImportExportTest::import_in_page()
 		return;
 	}
 
-	main_window.load_files({csv});
+	import_files(main_window, {csv});
 	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
 	QPushButton* back = page.findChild<QPushButton*>("import_back");
 	QVERIFY(main_window.import_controller().busy());
@@ -886,7 +860,7 @@ void ImportExportTest::import_in_page()
 	QCOMPARE(sources.front()->get_row_count(), PVRow(1000));
 }
 
-// What cannot be imported is told in the import page, which stays until the user closes it.
+// What cannot be imported is told in the import page, which stays until the user leaves it.
 void ImportExportTest::import_error_in_page()
 {
 	App::PVMainWindow main_window;
@@ -900,7 +874,7 @@ void ImportExportTest::import_error_in_page()
 		return;
 	}
 
-	main_window.load_files({csv});
+	import_files(main_window, {csv});
 	QVERIFY(wait_for_import(main_window));
 	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
 	QVERIFY(page.isVisible());
@@ -908,9 +882,11 @@ void ImportExportTest::import_error_in_page()
 	QVERIFY2(messages.contains("were empty"), qPrintable(messages));
 	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 
-	QPushButton* close = page.findChild<QPushButton*>("import_close");
-	QVERIFY(close != nullptr and close->isVisible());
-	close->click();
+	// With what it asked for the import, to try again.
+	QVERIFY(page.content() != nullptr and page.content()->isVisible());
+	QPushButton* cancel = page.findChild<QPushButton*>("import_cancel");
+	QVERIFY(cancel->isVisible());
+	cancel->click();
 	QVERIFY(not page.isVisible());
 	QVERIFY(import_messages(main_window).isEmpty());
 }
@@ -930,7 +906,7 @@ void ImportExportTest::discard_import()
 		return;
 	}
 
-	main_window.load_files({csv});
+	import_files(main_window, {csv});
 	QVERIFY(not main_window.close());
 	QPushButton* discard = progress_button(main_window, "Discard");
 	QVERIFY(discard != nullptr and discard->isVisible());
@@ -978,7 +954,7 @@ void ImportExportTest::stop_import()
 
 	// The question of the discard pauses the import before it can go far, whatever the speed of
 	// the machine, and lets the chunks it holds go through meanwhile.
-	main_window.load_files({csv});
+	import_files(main_window, {csv});
 	progress_button(main_window, "Discard")->click();
 	QTest::qWait(200);
 	message_button(main_window, "Continue")->click();
@@ -1002,18 +978,6 @@ void write_json(QString const& path, QByteArray const& lines)
 	file.write(lines);
 }
 
-// Waits for the import, with no dialog meanwhile.
-bool wait_for_import_without_dialog(App::PVMainWindow& main_window)
-{
-	bool modal = false;
-	const bool imported = QTest::qWaitFor(
-	    [&]() {
-		    modal |= qApp->activeModalWidget() != nullptr;
-		    return not main_window.import_controller().busy();
-	    },
-	    120000);
-	return imported and not modal;
-}
 
 } // namespace
 
@@ -1213,7 +1177,7 @@ void ImportExportTest::destroy_window_while_importing()
 
 	auto main_window = std::make_unique<App::PVMainWindow>();
 	main_window->show();
-	main_window->load_files({csv});
+	import_files(*main_window, {csv});
 	// For the extraction to be under way.
 	QTest::qWait(10);
 	QVERIFY(main_window->import_controller().busy());

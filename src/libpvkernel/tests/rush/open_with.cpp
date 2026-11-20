@@ -27,17 +27,13 @@
 // with such a path, and every way this can go wrong goes wrong silently, as a
 // message box in front of a user rather than as a failing build.
 
-#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/squey_assert.h>
-#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
 
 #include "common.h"
 
-#include <QFile>
 #include <QString>
-#include <QTemporaryDir>
 
 #include <string>
 
@@ -114,37 +110,6 @@ int main()
 	expect_unsupported("/tmp/archive.gz.1");
 	expect_unsupported("/tmp/notes.txt");
 	expect_unsupported("/tmp/README");
-
-	// A format named with --format is the user's answer to the question the
-	// importer would otherwise go looking for one for. It has to reach the
-	// import untouched: overwritten with what sits next to the file, the option
-	// does nothing at all, and says nothing about it either.
-	{
-		// A directory of this test's own: the importer opens what it is given,
-		// and a shared path is a collision waiting for the next parallel run.
-		QTemporaryDir dir;
-		PV_ASSERT_VALID(dir.isValid(), "temporary directory", dir.path().toStdString());
-		const QString csv = dir.filePath("traffic.csv");
-		QFile file(csv);
-		PV_ASSERT_VALID(file.open(QIODevice::WriteOnly), "test file", csv.toStdString());
-		file.write("a,b,c\n1,2,3\n");
-		file.close();
-
-		PVRush::PVInputType_p in_file =
-		    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-		const QString named_format = dir.filePath("a-format-of-my-own.format");
-		QString format = named_format;
-		PVRush::hash_formats formats;
-		PVRush::PVInputType::list_inputs inputs;
-		PVCore::PVArgumentList args;
-
-		const bool accepted =
-		    in_file->create_widget_with_input_files({csv}, formats, inputs, format, args, nullptr);
-
-		PV_ASSERT_VALID(accepted, "named format", named_format.toStdString());
-		PV_VALID(format.toStdString(), named_format.toStdString());
-		PV_VALID(inputs.size(), qsizetype(1));
-	}
 
 	return 0;
 }

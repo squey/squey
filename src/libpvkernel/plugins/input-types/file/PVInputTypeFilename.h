@@ -53,14 +53,20 @@ class PVInputTypeFilename : public PVInputTypeDesc<PVFileDescription>
         QWidget* parent = nullptr
 	) const override;
 
-	bool create_widget_with_input_files(
-	    const QStringList& file_paths,
-	    hash_formats& formats,
-        list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const override;
+	PVWidgets::PVImportWidget* create_import_widget(QWidget* parent) const override;
+
+	/** One the import detects from the files, which it can detect again as they open again. */
+	bool has_generated_format() const override { return true; }
+	/**
+	 * Detected from the lines of the first of the files of @p inputs.
+	 *
+	 * @throw PVFormatInvalid if no splitter cuts them
+	 */
+	PVFormat get_format_from_inputs(list_inputs const& inputs,
+	                                PVCore::PVTaskProgress* progress = nullptr) const override;
+
+	/** How many files a source may have, as they are open at once. */
+	qsizetype max_files_per_source() const { return _limit_nfds - 200; }
 
 	QString name() const override;
 	QString human_name() const override;

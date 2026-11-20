@@ -92,6 +92,18 @@ class PVKERNEL_EXPORT PVImportWidget : public QWidget
 	 * than a column of the height it asks for.
 	 */
 	virtual bool fills_page() const { return false; }
+	/**
+	 * Reads the files with the format in the file @p path, such as one a command line names, for
+	 * a type of text files.
+	 */
+	virtual void set_format(QString const& /*path*/) {}
+
+	/**
+	 * The format in the file @p path, which the user chose.
+	 *
+	 * @throw std::runtime_error if it cannot be read
+	 */
+	static PVRush::PVFormat format_of(QString const& path);
 
 	/** How the page runs the long tasks of the widget, which it sets before showing it. */
 	void set_task_runner(task_runner_t runner) { _run_task = std::move(runner); }

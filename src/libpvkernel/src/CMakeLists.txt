@@ -98,6 +98,7 @@ set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
 rush/PVCSVRecords.cpp
 rush/PVFormat.cpp
+rush/PVFormatDetection.cpp
 rush/PVNraw.cpp
 rush/PVNrawOutput.cpp
 rush/PVTypesDiscoveryOutput.cpp
@@ -191,6 +192,7 @@ set(WIDGETS_MOC_HEADERS
 ../include/pvkernel/widgets/PVExportDlg.h
 ../include/pvkernel/widgets/PVDialogImportWidget.h
 ../include/pvkernel/widgets/PVFileListImportWidget.h
+../include/pvkernel/widgets/PVImportFilesWidget.h
 ../include/pvkernel/widgets/PVImportFilterWidget.h
 ../include/pvkernel/widgets/PVImportWidget.h
 ../include/pvkernel/widgets/PVCSVExporterWidget.h
@@ -229,7 +231,9 @@ widgets/PVFileDialog.cpp
 widgets/PVExportDlg.cpp
 widgets/PVDialogImportWidget.cpp
 widgets/PVFileListImportWidget.cpp
+widgets/PVImportFilesWidget.cpp
 widgets/PVImportFilterWidget.cpp
+widgets/PVImportWidget.cpp
 widgets/PVMultipleFileDialog.cpp
 widgets/PVModdedIcon.cpp
 )

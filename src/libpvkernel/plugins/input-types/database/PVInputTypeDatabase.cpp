@@ -73,7 +73,7 @@ PVWidgets::PVImportWidget* PVRush::PVInputTypeDatabase::create_import_widget(QWi
 		return {{{query},
 		         params->is_format_custom()
 		             ? PVFormat(params->get_custom_format().documentElement())
-		             : PVWidgets::PVDialogImportWidget::format_of(params->get_existing_format())}};
+		             : PVWidgets::PVImportWidget::format_of(params->get_existing_format())}};
 	};
 	return new PVWidgets::PVDialogImportWidget(params,
 	                                           {.accept = buttons->button(QDialogButtonBox::Open),

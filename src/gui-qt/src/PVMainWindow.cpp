@@ -26,8 +26,10 @@
 #include <QApplication>
 #include <QDialog>
 #include <QFile>
+#include <QFontDatabase>
 #include <QLabel>
 #include <QMessageBox>
+#include <QRegExp>
 #include <QShortcut>
 #include <QStatusBar>
 #include <QVBoxLayout>
@@ -76,8 +78,6 @@
 #include <pvguiqt/PVProgressBoxPython.h>
 #endif
 #include <pvguiqt/PVStatusBar.h>
-
-#include <PVFormatBuilderWidget.h>
 
 #include <tbb/tick_count.h>
 
@@ -392,226 +392,7 @@ void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 	in_t->connect_parent(this);
 	if (PVWidgets::PVImportWidget* content = in_t->create_import_widget(nullptr)) {
 		_import_controller->edit(in_t, content);
-		return;
 	}
-
-	PVRush::PVSourceCreator_p src_creator = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
-	PVRush::hash_format_creator format_creator;
-
-	PVRush::hash_formats formats;
-
-	// Create the input widget
-	QString choosenFormat;
-	// PVInputType::list_inputs is a QList<PVInputDescription_p>
-	PVRush::PVInputType::list_inputs inputs;
-
-	PVCore::PVArgumentList args;
-
-	if (!in_t->create_widget(formats, inputs, choosenFormat, args, this))
-		return; // This means that the user pressed the "cancel" button
-
-	// Add the new formats to the formats
-	{
-		for (auto it = formats.begin(); it != formats.end(); it++) {
-			PVRush::hash_format_creator::mapped_type v(it.value(), src_creator);
-			// Save this format/creator pair to the "format_creator" object
-			format_creator[it.key()] = v;
-		}
-	}
-
-	import_type(in_t, inputs, formats, format_creator, choosenFormat);
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::import_type
- *
- *****************************************************************************/
-void App::PVMainWindow::import_type(
-    PVRush::PVInputType_p in_t,
-    PVRush::PVInputType::list_inputs const& inputs,
-    PVRush::hash_formats& formats,
-    PVRush::hash_format_creator& format_creator,
-    QString const& choosenFormat,
-	bool concatenation /* false */)
-{
-	PVRush::PVSourceCreator_p sc = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
-
-	// The inputs to load, under the name 'formats' gives the format that reads them.
-	QHash<QString, PVRush::PVInputType::list_inputs> discovered;
-	QHash<QString, std::pair<QString, QString>> formats_error; // Errors w/ some formats
-
-	QHash<QString, PVRush::PVInputDescription_p> hash_input_name;
-
-	bool file_type_found = false;
-
-	try {
-		if (choosenFormat.compare(SQUEY_LOCAL_FORMAT_STR) == 0) {
-			PVRush::hash_formats custom_formats;
-
-			for (const auto & input : inputs) {
-				QString in_str = input->human_name();
-				hash_input_name[in_str] = input;
-
-				in_t->get_custom_formats(input, custom_formats);
-
-				for (auto hf_it = custom_formats.begin(); hf_it != custom_formats.end(); ++hf_it) {
-					formats.insert(hf_it.key(), hf_it.value());
-
-					PVRush::hash_format_creator::mapped_type v(hf_it.value(), sc);
-					format_creator[hf_it.key()] = v;
-				}
-			}
-
-			if (custom_formats.size() == 1) {
-				file_type_found = true;
-				discovered[custom_formats.keys()[0]] = inputs;
-			}
-		} else if (choosenFormat.compare(SQUEY_BROWSE_FORMAT_STR) == 0) {
-			file_type_found = false;
-		} else if (choosenFormat == "custom") {
-			file_type_found = true;
-			discovered["custom"] = inputs;
-		} else {
-			QFileInfo fi(choosenFormat);
-			QString format_name = choosenFormat;
-			if (formats.size() == 0) {
-				PVRush::PVFormat format(format_name, choosenFormat);
-				formats[format_name] = format;
-				PVRush::hash_format_creator::mapped_type v(format, sc);
-				format_creator[format_name] = v;
-			} else {
-				// The input type made the format itself, and holds it alone in 'formats',
-				// under a name of its own: the pcap one only saves it where choosenFormat
-				// points.
-				format_name = formats.firstKey();
-			}
-			if (fi.isReadable()) {
-				file_type_found = true;
-				discovered[format_name] = inputs;
-			}
-		}
-	} catch (const PVRush::PVInvalidFile& e) {
-		QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
-		return;
-	}
-
-	treat_invalid_formats(formats_error);
-
-	// First, try complete autodetection
-	bool browse_format_file = true;
-	if (!file_type_found and choosenFormat.compare(SQUEY_BROWSE_FORMAT_STR) != 0) {
-		for (auto& input : inputs) {
-			try {
-				auto* editorWidget = new PVFormatBuilderWidget(this);
-				editorWidget->show();
-				PVRush::PVFileDescription* fdesc = dynamic_cast<PVRush::PVFileDescription*>(input.get());
-				bool multi_inputs = false;
-				if (concatenation and fdesc) {
-					multi_inputs = fdesc->multi_inputs();
-					fdesc->set_multi_inputs(false);
-				}
-				PVRush::PVFormat guess_format =
-				    editorWidget->load_log_and_guess_format(input, in_t);
-				if (not guess_format.is_valid() or not editorWidget->close()) {
-					PVLOG_ERROR("Could not autodetect format.");
-					QDialog editor_dialog(this);
-					editor_dialog.setModal(true);
-					editor_dialog.resize(editorWidget->size());
-					QLayout* l = new QHBoxLayout();
-					l->addWidget(editorWidget);
-					editor_dialog.setLayout(l);
-					editor_dialog.exec();
-					guess_format = editorWidget->get_format_from_dom();
-				}
-				auto format_name = editorWidget->get_current_format_name();
-				if (format_name.isEmpty() or not QFile::exists(format_name)) {
-					PVLOG_ERROR("Format not saved.");
-					break;
-				}
-				guess_format.set_full_path(format_name);
-				formats[format_name] = guess_format;
-				PVRush::hash_format_creator::mapped_type v(guess_format, sc);
-				format_creator[format_name] = v;
-				discovered[format_name] << input;
-				file_type_found = true;
-				if (concatenation and fdesc) {
-					fdesc->set_multi_inputs(multi_inputs);
-					for (auto input : std::span(inputs).subspan(1)) {
-						discovered[format_name] << input;
-					}
-					break;
-				}
-			} catch (const PVRush::PVInvalidFile& e) {
-				QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
-				break;
-			}
-			catch (const PVRush::PVFormatInvalid& e) {
-				QMessageBox::StandardButton user_choice = QMessageBox::question(
-					this,
-					tr("Format autodetection failed"),
-					tr("Do you want to browse for an existing format file ?"),
-					QMessageBox::Yes | QMessageBox::No
-				);
-				browse_format_file = user_choice == QMessageBox::Yes;
-				break;
-			}
-		}
-	}
-
-	if (not file_type_found and browse_format_file) {
-
-		/* A QFileDialog is explicitly used over QFileDialog::getOpenFileName
-		 * because this latter does not used QFileDialog's global environment
-		 * like last used current directory.
-		 */
-
-		auto* fdialog = new PVWidgets::PVFileDialog(this);
-		if (formats.size() > 0) {
-			QString folder = QFileInfo(formats.first().get_full_path()).absoluteDir().path();
-			fdialog->setDirectory(folder);
-			formats.clear();
-		}
-
-		fdialog->setNameFilter("Formats (*.format)");
-		fdialog->setWindowTitle("Load format from...");
-
-		int ret = fdialog->exec();
-
-		if (ret == QDialog::Accepted) {
-			QString format_path = fdialog->selectedFiles().at(0);
-			QFileInfo fi(format_path);
-			QString format_name = fi.dir().path();
-
-			PVRush::PVFormat format(format_name, format_path);
-			formats[format_name] = format;
-			PVRush::hash_format_creator::mapped_type v(format, sc);
-			format_creator[format_name] = v;
-
-			if (fi.isReadable()) {
-				file_type_found = true;
-				discovered[format_name] = inputs;
-			}
-		}
-
-		delete fdialog;
-
-		if (ret == QDialog::Rejected) {
-			return;
-		}
-	}
-
-	std::vector<PVRush::PVSourceDescription> sources;
-	/* can not use a C++11 foreach because QHash<...>::const_iterator is not
-	 * an usual const iterator but a non-const iterator which behaves as a
-	 * const one... I hate Qt!
-	 */
-	for (auto it = discovered.constBegin(); it != discovered.constEnd(); it++) {
-		// With the format these inputs were discovered for: 'formats' can hold others,
-		// found next to some of the files when they did not all agree on one.
-		sources.emplace_back(it.value(), sc, formats.value(it.key()));
-	}
-	_import_controller->import(std::move(sources));
 }
 
 /******************************************************************************
@@ -828,47 +609,10 @@ void App::PVMainWindow::load_files(QStringList const& files, QString format_str 
 	if (PVWidgets::PVImportWidget* content = in_file->create_import_widget(nullptr)) {
 		if (_import_controller->edit(in_file, content)) {
 			content->set_paths(sources);
-		}
-		return;
-	}
-
-	bool load_as_multiple_sources = false;
-	if (sources.size() > 1) {
-		load_as_multiple_sources =
-			QMessageBox::question(
-				this, tr("Opening multiple input files"),
-				tr("Do you want to open each of these files as a source ?\n"
-				   "Selecting 'Yes' will load each input file as a new source.\n"
-				   "Selecting 'No' will load a unique source with a concatenation of all the "
-				   "input files.\n"),
-				QMessageBox::Yes | QMessageBox::No) == QMessageBox::Yes;
-	}
-
-	// 'format_str' is what --format named, and it is handed to the plugin as it
-	// came: a plugin that has no use for it overwrites it, one that has honours
-	// it over the format it would have gone looking for by itself.
-	auto import_source = [&](QStringList const& input_files, bool concatenation) {
-		QString format = format_str;
-		PVRush::hash_formats formats;
-		PVRush::PVInputType::list_inputs inputs;
-		PVCore::PVArgumentList args;
-		if (not in_file->create_widget_with_input_files(input_files, formats, inputs, format, args,
-		                                               this)) {
-			return false; // the user cancelled
-		}
-		PVRush::hash_format_creator format_creator;
-		import_type(in_file, inputs, formats, format_creator, format, concatenation);
-		return true;
-	};
-
-	if (load_as_multiple_sources) {
-		for (QString const& file : sources) {
-			if (not import_source({file}, false)) {
-				return;
+			if (not format_str.isEmpty()) {
+				content->set_format(format_str);
 			}
 		}
-	} else {
-		import_source(sources, true);
 	}
 }
 
@@ -1111,77 +855,6 @@ void App::PVMainWindow::set_color(Squey::PVView* squey_view)
 
 	Squey::PVAnalysisHistory::Scope step(*squey_view, tr("Colour the selected events"), "palette");
 	squey_view->set_color_on_active_layer(color);
-}
-
-/******************************************************************************
- *
- * App::PVMainWindow::treat_invalid_formats
- *
- *****************************************************************************/
-void App::PVMainWindow::treat_invalid_formats(
-    QHash<QString, std::pair<QString, QString>> const& errors)
-{
-	if (errors.size() == 0) {
-		return;
-	}
-
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
-	if (!pvconfig.value(PVCONFIG_FORMATS_SHOW_INVALID, PVCONFIG_FORMATS_SHOW_INVALID_DEFAULT)
-	         .toBool()) {
-		return;
-	}
-
-	// Get the current ignore list
-	QStringList formats_ignored =
-	    pvconfig.value(PVCONFIG_FORMATS_INVALID_IGNORED, QStringList()).toStringList();
-
-	// And remove them from the error list
-	QHash<QString, std::pair<QString, QString>> errors_ = errors;
-	for (auto & i : formats_ignored) {
-		errors_.remove(i);
-	}
-
-	if (errors_.size() == 0) {
-		return;
-	}
-
-	QMessageBox msg(QMessageBox::Warning, tr("Invalid formats"), tr("Some formats were invalid."));
-	msg.setInformativeText(
-	    tr("You can simply ignore this message, choose not to display it again "
-	       "(for every format), or remove this warning only for these formats."));
-	QPushButton* ignore = msg.addButton(QMessageBox::Ignore);
-	msg.setDefaultButton(ignore);
-	QPushButton* always_ignore =
-	    msg.addButton(tr("Always ignore these formats"), QMessageBox::AcceptRole);
-	QPushButton* never_again =
-	    msg.addButton(tr("Never display this message again"), QMessageBox::RejectRole);
-
-	QString detailed_txt;
-	for (auto it = errors_.begin(); it != errors_.end(); ++it) {
-		detailed_txt += it.value().first + QString(" (") + it.key() + QString("): ") +
-		                it.value().second + QString("\n");
-	}
-	msg.setDetailedText(detailed_txt);
-
-	msg.exec();
-
-	auto* clicked_btn = (QPushButton*)msg.clickedButton();
-
-	if (clicked_btn == ignore) {
-		return;
-	}
-
-	if (clicked_btn == never_again) {
-		pvconfig.setValue(PVCONFIG_FORMATS_SHOW_INVALID, QVariant(false));
-		return;
-	}
-
-	if (clicked_btn == always_ignore) {
-		// Append these formats to the ignore list
-		formats_ignored.append(errors_.keys());
-		pvconfig.setValue(PVCONFIG_FORMATS_INVALID_IGNORED, formats_ignored);
-	}
 }
 
 void App::PVMainWindow::reset_root()

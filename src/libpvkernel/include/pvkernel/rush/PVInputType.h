@@ -93,15 +93,6 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 		return nullptr;
 	}
 
-    virtual bool create_widget_with_input_files(
-        const QStringList& /*input_paths*/,
-        hash_formats& /*formats*/,
-        list_inputs& /*inputs*/,
-        QString& /*format*/,
-        PVCore::PVArgumentList& /*args_ext*/,
-        QWidget* /*parent = nullptr*/
-    ) const { return false; }
-
 	/**
 	 * Describes the inputs that the parameters @p params_json ask for, and their format, out of
 	 * the GUI thread: it may take long to read them, while @p progress shows how far it got and

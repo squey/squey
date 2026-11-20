@@ -112,12 +112,6 @@ class PVMainWindow : public QMainWindow
 	void set_color(Squey::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
-	void import_type(PVRush::PVInputType_p in_t,
-	                 PVRush::PVInputType::list_inputs const& inputs,
-	                 PVRush::hash_formats& formats,
-	                 PVRush::hash_format_creator& format_creator,
-	                 QString const& choosenFormat,
-					 bool concatenation = false);
 	/* void import_type(); */
 
 	QString get_solution_path() const { return get_root().get_path(); }
@@ -267,9 +261,6 @@ class PVMainWindow : public QMainWindow
 	PVWidgets::PVFileDialog _load_solution_dlg;
 
 	QString _current_save_root_folder;
-
-  protected:
-	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 
   public:
 	Squey::PVRoot& get_root();

@@ -90,9 +90,6 @@ class PVFormatBuilderWidget : public QMainWindow
 
 	QString get_current_format_name() const { return _cur_file; }
 
-	PVRush::PVFormat load_log_and_guess_format(const PVRush::PVInputDescription_p input,
-	                                           const PVRush::PVInputType_p& input_type);
-
 	/**
 	 * Get the PVFormat from its dom representation.
 	 */
@@ -148,21 +145,14 @@ class PVFormatBuilderWidget : public QMainWindow
 	                                    PVRush::PVSourceCreator_p& source_creator,
 	                                    PVRush::PVRawSourceBase_p& raw_source_base) const;
 
-	PVRush::PVFormat guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
-	                              PVXmlDomModel& tree_model) const;
-
 	/**
-	 * Adds to @p tree_model the splitter @p sp guessed for the lines of a file, with its
-	 * @p naxes axes, after the @p preamble_lines lines to skip, and returns the format the
-	 * model then describes.
+	 * Makes @p tree_model the format of the splitter @p sp guessed for the lines of a file, with
+	 * its @p naxes axes, after the @p preamble_lines lines to skip, and returns that format.
 	 */
 	PVRush::PVFormat add_guessed_splitter(const PVFilter::PVFieldsSplitter_p& sp,
 	                                      PVCol naxes,
 	                                      size_t preamble_lines,
 	                                      PVXmlDomModel& tree_model) const;
-
-	PVRush::PVFormat guess_format(const PVRush::PVInputDescription_p input,
-	                              const PVRush::PVInputType_p& input_type) const;
 
   public Q_SLOTS:
 	// Tree slots

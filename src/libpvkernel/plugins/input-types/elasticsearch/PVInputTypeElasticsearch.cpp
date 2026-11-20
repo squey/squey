@@ -74,7 +74,7 @@ PVRush::PVInputTypeElasticsearch::create_import_widget(QWidget* parent) const
 		return {{{query},
 		         params->is_format_custom()
 		             ? PVFormat(params->get_custom_format().documentElement())
-		             : PVWidgets::PVDialogImportWidget::format_of(params->get_format_path())}};
+		             : PVWidgets::PVImportWidget::format_of(params->get_format_path())}};
 	};
 	return new PVWidgets::PVDialogImportWidget(params,
 	                                           {.accept = buttons->button(QDialogButtonBox::Open),

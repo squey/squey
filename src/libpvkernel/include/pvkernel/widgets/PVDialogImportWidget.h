@@ -74,13 +74,6 @@ class PVDialogImportWidget : public PVImportWidget
 	void set_paths(QStringList const& paths) override;
 	bool fills_page() const override { return _parts.fills_page; }
 
-	/**
-	 * The format in the file @p path, which a dialog chose.
-	 *
-	 * @throw std::runtime_error if it cannot be read
-	 */
-	static PVRush::PVFormat format_of(QString const& path);
-
   protected:
 	bool eventFilter(QObject* watched, QEvent* event) override;
 

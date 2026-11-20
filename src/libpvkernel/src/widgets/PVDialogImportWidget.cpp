@@ -27,11 +27,9 @@
 #include <QAbstractButton>
 #include <QDialog>
 #include <QEvent>
-#include <QFileInfo>
 #include <QKeyEvent>
 #include <QVBoxLayout>
 
-#include <stdexcept>
 #include <utility>
 
 PVWidgets::PVDialogImportWidget::PVDialogImportWidget(QDialog* dialog, Parts parts, QWidget* parent)
@@ -72,14 +70,6 @@ std::vector<PVWidgets::PVImportWidget::source_t> PVWidgets::PVDialogImportWidget
 	// Accepting it hid it, which the page shows again if the import fails.
 	_dialog->show();
 	return _parts.sources();
-}
-
-PVRush::PVFormat PVWidgets::PVDialogImportWidget::format_of(QString const& path)
-{
-	if (not QFileInfo(path).isReadable()) {
-		throw std::runtime_error(tr("The format '%1' cannot be read.").arg(path).toStdString());
-	}
-	return {path, path};
 }
 
 void PVWidgets::PVDialogImportWidget::set_paths(QStringList const& paths)

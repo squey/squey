@@ -24,6 +24,11 @@
 //
 
 #include "PVInputTypeFilename.h"
+#include "PVTextImportWidget.h"
+
+#include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/rush/PVFormatDetection.h>
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
 
 #include <pvbase/general.h>
 
@@ -68,60 +73,21 @@ bool PVRush::PVInputTypeFilename::create_widget(
 	return load_files(filenames, inputs, parent);
 }
 
-bool PVRush::PVInputTypeFilename::create_widget_with_input_files(
-	const QStringList& filenames,
-	hash_formats& formats,
-    list_inputs& inputs,
-    QString& format,
-    PVCore::PVArgumentList& /*args_ext*/,
-    QWidget* parent) const
+PVWidgets::PVImportWidget* PVRush::PVInputTypeFilename::create_import_widget(QWidget* parent) const
 {
-	// A format the caller already named -- --format on the command line -- is
-	// what the user asked for, and the conventions looked for below (a
-	// squey.format sitting next to the files, or one named after each of them)
-	// do not get to override it. Left as the path it came in as, which is what
-	// the import reads it from.
-	if (not format.isEmpty()) {
-		return load_files(filenames, inputs, parent);
-	}
+	return new PVTextImportWidget(*this, parent);
+}
 
-	if (filenames.size() > 1) {
-		QString custom_format;
-		const QString& squey_local_generic_format = QFileInfo(filenames[0]).absoluteDir().path() + "/squey.format";
-		if (QFile::exists(squey_local_generic_format)) { // Use generic 'squey.format' if existing // TODO : check in every directory ?
-			format = "custom";
-			custom_format = squey_local_generic_format;
-			formats["custom"] = PVRush::PVFormat("custom", custom_format);
-		}
-		else {
-			QStringList intput_formats;
-			for (int i = 0; i < filenames.size(); i++) {
-				const QString& input_file = filenames[i];
-				const QString& input_file_format =  input_file + ".format";
-				if (QFile::exists(input_file_format)) {
-					intput_formats << input_file_format;
-				}
-			}
-			if (intput_formats.size() == 0) {
-				format = SQUEY_LOCAL_FORMAT_STR;
-			}
-			else if (intput_formats.size() == 1) {
-				format = "custom";
-				custom_format = intput_formats[0];
-				formats["custom"] = PVRush::PVFormat("custom", custom_format);
-			}
-			else { // intput_formats.size() > 1
-				format = SQUEY_BROWSE_FORMAT_STR;
-				// Set format only to retrieve parent folder to setup open file dialog
-				formats["custom"] = PVRush::PVFormat("custom", intput_formats[0]);
-			}
-		}
-	}
-	else {
-	    format = SQUEY_LOCAL_FORMAT_STR;
-	}
-
-	return load_files(filenames, inputs, parent);
+PVRush::PVFormat
+PVRush::PVInputTypeFilename::get_format_from_inputs(list_inputs const& inputs,
+                                                    PVCore::PVTaskProgress* progress) const
+{
+	// The format of the first file alone: that of a source of several files names them by itself.
+	const auto& first = dynamic_cast<PVFileDescription const&>(*inputs.front());
+	return detect_format(PVInputDescription_p(new PVFileDescription(first.path(), false)),
+	                     PVSourceCreatorFactory::get_by_input_type(
+	                         LIB_CLASS(PVInputType)::get().get_class_by_name(name())),
+	                     progress);
 }
 
 bool PVRush::PVInputTypeFilename::load_files(

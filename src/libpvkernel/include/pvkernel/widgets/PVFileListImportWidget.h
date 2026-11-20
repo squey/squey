@@ -32,11 +32,6 @@
 #include <memory>
 #include <vector>
 
-class QListWidget;
-class QPushButton;
-class QRadioButton;
-class QWidget;
-
 namespace PVRush
 {
 class PVFileListDescription;
@@ -46,6 +41,7 @@ class PVInputTypeFileList;
 namespace PVWidgets
 {
 
+class PVImportFilesWidget;
 class PVImportFilterWidget;
 
 /**
@@ -67,11 +63,8 @@ class PVFileListImportWidget : public PVImportWidget
 	void set_paths(QStringList const& paths) override;
 
   private:
-	void add_files();
-	void remove_files();
 	/** Reads the files, as a task of the page, for their columns. */
 	void describe();
-	bool one_source_per_file() const;
 	/**
 	 * A description of the files @p paths among those read, with the columns and the rows
 	 * chosen.
@@ -80,13 +73,9 @@ class PVFileListImportWidget : public PVImportWidget
 
   private:
 	const PVRush::PVInputTypeFileList& _type;
-	QStringList _paths;
 	/** Of all of the files, once read. */
 	std::shared_ptr<PVRush::PVFileListDescription> _description;
-	QListWidget* _files;
-	QPushButton* _remove;
-	QWidget* _sources;
-	QRadioButton* _source_per_file;
+	PVImportFilesWidget* _files;
 	PVImportFilterWidget* _filter;
 };
 

@@ -8,11 +8,12 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # File input plugin
 ################################################
 # Define ressources
-set(FILE_MOC_HEADERS file/PVImportFileDialog.h)
+set(FILE_MOC_HEADERS file/PVImportFileDialog.h file/PVTextImportWidget.h)
 
 set(FILE_SRC
 file/PVInputTypeFilename.cpp
 file/PVImportFileDialog.cpp
+file/PVTextImportWidget.cpp
 file/register.cpp
 )
 

@@ -28,17 +28,10 @@
 #include <pvkernel/rush/PVFileListDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputTypeFileList.h>
-#include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVImportFilesWidget.h>
 #include <pvkernel/widgets/PVImportFilterWidget.h>
 
-#include <QFileInfo>
-#include <QHBoxLayout>
 #include <QHash>
-#include <QLabel>
-#include <QListWidget>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QStandardPaths>
 #include <QVBoxLayout>
 
 #include <optional>
@@ -47,50 +40,20 @@ PVWidgets::PVFileListImportWidget::PVFileListImportWidget(const PVRush::PVInputT
                                                           QWidget* parent)
     : PVImportWidget(parent)
     , _type(type)
-    , _files(new QListWidget)
-    , _remove(new QPushButton(tr("Remove")))
-    , _sources(new QWidget)
-    , _source_per_file(new QRadioButton(tr("One source for each file")))
+    , _files(new PVImportFilesWidget(type.files_dialog_title(), type.files_dialog_filter()))
     , _filter(new PVImportFilterWidget)
 {
-	auto* add = new QPushButton(tr("Add files..."));
-	_files->setObjectName("import_files");
-	_files->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_files->setMaximumHeight(_files->fontMetrics().lineSpacing() * 8);
-	_remove->setEnabled(false);
-
-	auto* one_source = new QRadioButton(tr("One source of all the files"));
-	one_source->setChecked(true);
-	auto* sources_layout = new QHBoxLayout(_sources);
-	sources_layout->setContentsMargins(0, 0, 0, 0);
-	sources_layout->addWidget(one_source);
-	sources_layout->addWidget(_source_per_file);
-	sources_layout->addStretch();
-	_sources->hide();
 	_filter->hide();
-
-	auto* file_buttons = new QVBoxLayout;
-	file_buttons->addWidget(add);
-	file_buttons->addWidget(_remove);
-	file_buttons->addStretch();
-	auto* files_layout = new QHBoxLayout;
-	files_layout->addWidget(_files);
-	files_layout->addLayout(file_buttons);
 
 	auto* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addWidget(new QLabel(tr("Files")));
-	layout->addLayout(files_layout);
-	layout->addWidget(_sources);
+	layout->addWidget(_files);
 	layout->addWidget(_filter);
 
-	connect(add, &QPushButton::clicked, this, &PVFileListImportWidget::add_files);
-	connect(_remove, &QPushButton::clicked, this, &PVFileListImportWidget::remove_files);
-	connect(_files, &QListWidget::itemSelectionChanged, this,
-	        [this]() { _remove->setEnabled(not _files->selectedItems().isEmpty()); });
+	connect(_files, &PVImportFilesWidget::paths_changed, this, &PVFileListImportWidget::describe);
 	// The condition reads the columns of the files of a source, of which only those of several
 	// files name them.
-	connect(_source_per_file, &QRadioButton::toggled, _filter,
+	connect(_files, &PVImportFilesWidget::sources_changed, _filter,
 	        &PVImportFilterWidget::check_row_filter);
 	connect(_filter, &PVImportFilterWidget::changed, this, &PVImportWidget::ready_changed);
 }
@@ -107,55 +70,15 @@ std::vector<PVWidgets::PVImportWidget::source_t> PVWidgets::PVFileListImportWidg
 		return {inputs, _type.get_format_from_inputs(inputs)};
 	};
 	std::vector<source_t> sources;
-	if (one_source_per_file()) {
-		for (const QString& path : _paths) {
-			sources.push_back(source_of({path}));
-		}
-	} else {
-		sources.push_back(source_of(_paths));
+	for (const QStringList& paths : _files->sources()) {
+		sources.push_back(source_of(paths));
 	}
 	return sources;
 }
 
 void PVWidgets::PVFileListImportWidget::set_paths(QStringList const& paths)
 {
-	_paths = paths;
-	_files->clear();
-	for (const QString& path : _paths) {
-		auto* item = new QListWidgetItem(QFileInfo(path).fileName(), _files);
-		item->setToolTip(path);
-	}
-	_sources->setVisible(_paths.size() > 1);
-	describe();
-}
-
-void PVWidgets::PVFileListImportWidget::add_files()
-{
-	const QStringList chosen = PVFileDialog::getOpenFileNames(
-	    this, _type.files_dialog_title(),
-	    _paths.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
-	                     : QFileInfo(_paths.back()).absolutePath(),
-	    _type.files_dialog_filter());
-	QStringList paths = _paths;
-	for (const QString& path : chosen) {
-		if (not paths.contains(path)) {
-			paths << path;
-		}
-	}
-	if (paths != _paths) {
-		set_paths(paths);
-	}
-}
-
-void PVWidgets::PVFileListImportWidget::remove_files()
-{
-	QStringList kept;
-	for (int row = 0; row < _files->count(); row++) {
-		if (not _files->item(row)->isSelected()) {
-			kept << _paths[row];
-		}
-	}
-	set_paths(kept);
+	_files->set_paths(paths);
 }
 
 void PVWidgets::PVFileListImportWidget::describe()
@@ -163,7 +86,7 @@ void PVWidgets::PVFileListImportWidget::describe()
 	_description.reset();
 	_filter->hide();
 	Q_EMIT ready_changed();
-	if (_paths.isEmpty()) {
+	if (_files->paths().isEmpty()) {
 		return;
 	}
 
@@ -176,7 +99,7 @@ void PVWidgets::PVFileListImportWidget::describe()
 	auto read = std::make_shared<read_t>();
 	run_task(
 	    tr("Reading the files"),
-	    [type = &_type, paths = _paths, read](PVCore::PVTaskProgress& progress) {
+	    [type = &_type, paths = _files->paths(), read](PVCore::PVTaskProgress& progress) {
 		    read->description = type->describe(paths, progress, read->warnings);
 		    if (read->description != nullptr) {
 			    read->fill_rates = type->fill_rates(*read->description);
@@ -203,18 +126,12 @@ void PVWidgets::PVFileListImportWidget::describe()
 			                           : std::nullopt});
 		    }
 		    _filter->set_columns(columns, {}, {}, [this](QString const& condition) {
-			    const QStringList paths =
-			        one_source_per_file() ? QStringList{_paths.front()} : _paths;
-			    return _type.row_filter_error(*_type.with_paths(*_description, paths), condition);
+			    return _type.row_filter_error(
+			        *_type.with_paths(*_description, _files->sources().front()), condition);
 		    });
 		    _filter->show();
 		    Q_EMIT ready_changed();
 	    });
-}
-
-bool PVWidgets::PVFileListImportWidget::one_source_per_file() const
-{
-	return _paths.size() > 1 and _source_per_file->isChecked();
 }
 
 std::shared_ptr<PVRush::PVFileListDescription>

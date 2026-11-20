@@ -35,6 +35,7 @@
 #include <PVXmlParamWidget.h>
 #include <PVOptionsWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
+#include <pvkernel/rush/PVFormatDetection.h>
 
 #include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -843,22 +844,9 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes(bool handle_header /* =
 	// TODO : it would be nice to ignore axes set by user...
 
 	// Update format with discovered axes types
-	QDomElement& dom = myTreeModel->getRootDom();
-	QDomNodeList axes = dom.elementsByTagName("axis");
-	bool has_header = false;
-	for (PVCol i(0); i < axes.size(); i++) {
-		QDomElement ax = axes.at(i).toElement();
-		std::string type;
-		std::string type_format;
-		std::string axe_name;
-		std::tie(type, type_format, axe_name) = type_discovery_output.type_desc(i);
-		ax.setAttribute("type", type.c_str());
-		ax.setAttribute("type_format", type_format.c_str());
-		if (not axe_name.empty() and myTreeModel->get_first_line() == _preamble_lines) {
-			ax.setAttribute("name", axe_name.c_str());
-			has_header = true;
-		}
-	}
+	const bool has_header =
+	    PVRush::set_discovered_types(myTreeModel->getRootDom(), type_discovery_output,
+	                                 myTreeModel->get_first_line() == _preamble_lines);
 
 	if (handle_header) {
 		if (has_header) {
@@ -890,17 +878,10 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes(bool handle_header /* =
 void App::PVFormatBuilderWidget::update_types_autodetection_count(
     const PVRush::PVFormat& format)
 {
-	static constexpr const size_t total_fields = 100000;
-	static constexpr const size_t multiple_to_round = 100;
-
 	PVCol column_count = (PVCol)format.get_axes().size();
 	assert(column_count != 0);
 
-	size_t row_count =
-	    (((total_fields / column_count) + multiple_to_round - 1) / multiple_to_round) *
-	    multiple_to_round;
-
-	_nraw_widget->set_autodetect_count(row_count);
+	_nraw_widget->set_autodetect_count(PVRush::types_discovery_row_count(column_count));
 }
 
 void App::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
@@ -997,99 +978,15 @@ void App::PVFormatBuilderWidget::get_source_creator_from_inputs(
 	}
 }
 
-PVRush::PVFormat App::PVFormatBuilderWidget::load_log_and_guess_format(
-    const PVRush::PVInputDescription_p input, const PVRush::PVInputType_p& input_type)
-{
-	_log_input_type = input_type;
-
-	_inputs.clear();
-	_inputs.push_back(input);
-
-	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
-
-	_cur_file = input->human_name() + ".format";
-
-	return get_format_from_dom();
-}
-
-/******************************************************************************
- *
- * App::PVFormatBuilderWidget::guess_format
- *
- *****************************************************************************/
-PVRush::PVFormat
-App::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
-                                                 PVXmlDomModel& tree_model) const
-{
-	PVLOG_DEBUG("(format_builder) trying to guess first splitter...");
-	PVCol naxes;
-	size_t preamble_lines = 0;
-	PVFilter::PVFieldsSplitter_p sp = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(
-	    raw_source_base, naxes, &preamble_lines);
-	if (!sp) {
-		// No splitter matches, just do nothing
-		return {};
-	}
-
-	return add_guessed_splitter(sp, naxes, preamble_lines, tree_model);
-}
-
 PVRush::PVFormat
 App::PVFormatBuilderWidget::add_guessed_splitter(const PVFilter::PVFieldsSplitter_p& sp,
                                                  PVCol naxes,
                                                  size_t preamble_lines,
                                                  PVXmlDomModel& tree_model) const
 {
-	// The dom is the reference in here.
-
-	// Get the widget that comes with the splitter. TODO: do better than that
-	QString type_name = sp->type_name();
-	QString filter_name = sp->registered_name();
-	PVFilter::PVFieldsSplitterParamWidget_p sp_widget =
-	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(filter_name);
-	if (!sp_widget) {
-		PVLOG_WARN("Filter '%s' of type '%s' has no associated widget !\n", qPrintable(type_name),
-		           qPrintable(filter_name));
-		return {};
-	}
-
-	// Then we need to create 'naxes' children
-	QStringList axes_name;
-	for (PVCol i(0); i < naxes; i++) {
-		axes_name << QString("Axis %1").arg(i + 1);
-	}
-
-	sp_widget->set_child_count(naxes);
-
-	PVRush::PVXmlTreeNodeDom* node =
-	    tree_model.addSplitterWithAxes(tree_model.index(0, 0, QModelIndex()), sp_widget, axes_name);
-	node->setFromArgumentList(sp->get_args());
-
-	// Set proper strings mapping
-	for (PVRush::PVXmlTreeNodeDom* elt : node->getChildren()) {
-		for (PVRush::PVXmlTreeNodeDom* axis : elt->getChildren()) {
-			if (axis->attribute("type") == "string") {
-				axis->setMappingProperties("string", {}, {});
-			}
-		}
-	}
-	tree_model.set_first_line(preamble_lines);
-
+	QDomDocument document = PVRush::format_of_splitter(*sp, naxes, preamble_lines);
+	tree_model.openXml(document);
 	return PVRush::PVFormat(tree_model.getRootDom());
-}
-
-PVRush::PVFormat
-App::PVFormatBuilderWidget::guess_format(const PVRush::PVInputDescription_p input,
-                                                 const PVRush::PVInputType_p& input_type) const
-{
-	PVRush::PVSourceCreator_p source_creator;
-	PVRush::PVRawSourceBase_p raw_source_base;
-
-	get_source_creator_from_inputs(input, input_type, source_creator, raw_source_base);
-
-	PVXmlDomModel tree_model;
-
-	return guess_format(raw_source_base, tree_model);
 }
 
 /******************************************************************************
