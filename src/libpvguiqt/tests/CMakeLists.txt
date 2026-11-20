@@ -92,6 +92,10 @@ set_property(TEST SQUEY_TEST_Tpvguiqt_export_selection_dialog APPEND PROPERTY
 add_squey_compile_test(Tpvguiqt_json_input_type LINKS ${COMMON_LIBRARIES} FILES json_input_type.cpp common.cpp)
 add_squey_test(Tpvguiqt_json_input_type Tpvguiqt_json_input_type -platform offscreen)
 
+# The content of an import, its buttons, and the tasks it runs out of the GUI thread.
+add_squey_compile_test(Tpvguiqt_import_page LINKS ${COMMON_LIBRARIES} Qt6::Test FILES import_page.cpp)
+add_squey_test(Tpvguiqt_import_page Tpvguiqt_import_page -platform offscreen)
+
 add_squey_compile_test(Tpvguiqt_import_filter_dialog LINKS ${COMMON_LIBRARIES} FILES import_filter_dialog.cpp common.cpp)
 add_squey_test(Tpvguiqt_import_filter_dialog Tpvguiqt_import_filter_dialog -platform offscreen)
 # The default options of the exports, rather than those the user last chose.

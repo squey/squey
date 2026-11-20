@@ -35,7 +35,9 @@
 #include <pvkernel/rush/PVInput.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVNrawException.h>
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/common.h>
 #include <squey/PVAxis.h>
@@ -51,6 +53,7 @@
 #include <QShortcut>
 #include <QThread>
 
+#include <algorithm>
 #include <exception>
 
 namespace App
@@ -119,6 +122,12 @@ App::PVImportController::PVImportController(PVMainWindow& window) : _window(wind
 			projects().hide_import_page();
 		}
 	});
+	connect(&page(), &PVGuiQt::PVImportPage::import_requested, this,
+	        &PVImportController::import_content);
+	connect(&page(), &PVGuiQt::PVImportPage::cancel_requested, this,
+	        &PVImportController::cancel_content);
+	connect(&page(), &PVGuiQt::PVImportPage::task_finished, this,
+	        &PVImportController::task_finished);
 }
 
 App::PVImportController::~PVImportController()
@@ -143,20 +152,112 @@ PVGuiQt::PVImportPage& App::PVImportController::page() const
 	return projects().import_page();
 }
 
+bool App::PVImportController::busy() const
+{
+	return _busy or page().task_running();
+}
+
 void App::PVImportController::import(std::vector<PVRush::PVSourceDescription> sources)
 {
 	for (PVRush::PVSourceDescription& source : sources) {
 		_queue.push_back(std::move(source));
 	}
-	if (not _busy) {
+	if (not busy()) {
 		begin();
 		start_next();
+	}
+}
+
+bool App::PVImportController::edit(PVRush::PVInputType_p type, PVWidgets::PVImportWidget* content)
+{
+	if (busy()) {
+		delete content;
+		page().add_message(PVGuiQt::PVImportPage::Severity::information,
+		                   tr("Another import can start once this one is over."));
+		projects().show_import_page();
+		return false;
+	}
+
+	_content_type = std::move(type);
+	Squey::PVRoot& root = _window.get_root();
+	_collections.clear();
+	QStringList names;
+	int current = -1;
+	for (Squey::PVScene* scene : root.get_children()) {
+		if (scene == root.current_scene()) {
+			current = int(names.size());
+		}
+		_collections.push_back(scene);
+		names << QString::fromStdString(scene->get_name());
+	}
+	page().clear_messages();
+	page().set_content(content, tr("Import: %1").arg(_content_type->menu_input_name()), names,
+	                   current);
+	projects().show_import_page();
+	return true;
+}
+
+void App::PVImportController::import_content()
+{
+	std::vector<PVWidgets::PVImportWidget::source_t> sources;
+	try {
+		sources = page().content()->sources();
+	} catch (const std::exception& e) {
+		page().add_message(PVGuiQt::PVImportPage::Severity::critical, plain(e.what()));
+		return;
+	}
+	PVRush::PVSourceCreator_p creator =
+	    PVRush::PVSourceCreatorFactory::get_by_input_type(_content_type);
+	std::vector<PVRush::PVSourceDescription> descriptions;
+	for (auto& [inputs, format] : sources) {
+		descriptions.emplace_back(inputs, creator, format);
+	}
+
+	// The collections may have changed since the page listed them.
+	Squey::PVRoot& root = _window.get_root();
+	const int chosen = page().chosen_collection();
+	const auto scenes = root.get_children();
+	if (chosen >= 0 and
+	    std::find(scenes.begin(), scenes.end(), _collections[chosen]) != scenes.end()) {
+		root.select_scene(*_collections[chosen]);
+	} else {
+		_new_scene = &projects().project_new();
+	}
+
+	_content_import = true;
+	page().set_content_shown(false);
+	import(std::move(descriptions));
+}
+
+void App::PVImportController::cancel_content()
+{
+	if (busy()) {
+		return;
+	}
+	page().clear_content();
+	page().clear_messages();
+	projects().hide_import_page();
+}
+
+void App::PVImportController::task_finished()
+{
+	if (busy()) {
+		return;
+	}
+	if (not _queue.empty()) {
+		begin();
+		start_next();
+	} else {
+		Q_EMIT idle();
 	}
 }
 
 void App::PVImportController::begin()
 {
 	_busy = true;
+	_imported = false;
+	// Back once these imports are over, if they are not its own.
+	page().set_content_shown(false);
 	page().clear_messages();
 	page().set_closable(false);
 	set_window_enabled(false);
@@ -460,6 +561,7 @@ void App::PVImportController::processed()
 	Squey::PVSource& source = *_source;
 	_source = nullptr;
 	_new_scene = nullptr;
+	_imported = true;
 	_window.source_loaded(source, true);
 	projects().show_errors_and_warnings();
 	Q_EMIT _window.change_of_current_view_Signal();
@@ -495,15 +597,27 @@ void App::PVImportController::drop_source()
 void App::PVImportController::end()
 {
 	_busy = false;
+	_new_scene = nullptr;
 	page().end_progress();
 	set_window_enabled(true);
-	if (page().has_messages()) {
+	if (_content_import and _imported) {
+		page().clear_content();
+	}
+	if (page().content() != nullptr) {
+		// To import it again, or anew once the imports that were not its own are over.
+		page().set_title(tr("Import: %1").arg(_content_type->menu_input_name()));
+		page().set_content_shown(true);
+		if (_content_import) {
+			projects().show_import_page();
+		}
+	} else if (page().has_messages()) {
 		page().set_title(tr("Import"));
 		page().set_closable(true);
 		projects().show_import_page();
 	} else {
 		projects().hide_import_page();
 	}
+	_content_import = false;
 	Q_EMIT idle();
 }
 

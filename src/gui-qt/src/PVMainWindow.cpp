@@ -40,6 +40,7 @@
 
 #include <pvguiqt/PVGuiQtSettings.h>
 #include <pvguiqt/PVImportPage.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 #include <pvkernel/core/PVKernelSettings.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <squey/PVAnalysisHistory.h>
@@ -378,6 +379,11 @@ void App::PVMainWindow::close_solution_Slot()
  *****************************************************************************/
 void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
+	if (PVWidgets::PVImportWidget* content = in_t->create_import_widget(nullptr)) {
+		_import_controller->edit(in_t, content);
+		return;
+	}
+
 	PVRush::PVSourceCreator_p src_creator = PVRush::PVSourceCreatorFactory::get_by_input_type(in_t);
 	PVRush::hash_format_creator format_creator;
 
@@ -802,6 +808,14 @@ void App::PVMainWindow::load_files(QStringList const& files, QString format_str 
 	} catch (std::runtime_error const& e) {
 		QMessageBox::critical(this, tr("Error when loading file(s)"),
 		                      QString::fromStdString(e.what()), QMessageBox::Ok);
+		return;
+	}
+
+	// What the import page asks for this type tells how many sources the files make.
+	if (PVWidgets::PVImportWidget* content = in_file->create_import_widget(nullptr)) {
+		if (_import_controller->edit(in_file, content)) {
+			content->set_paths(sources);
+		}
 		return;
 	}
 

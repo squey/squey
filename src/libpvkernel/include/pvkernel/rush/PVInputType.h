@@ -44,6 +44,11 @@
 #include <QStringList>
 #include "PVExporter.h"
 
+namespace PVWidgets
+{
+class PVImportWidget;
+} // namespace PVWidgets
+
 namespace PVRush
 {
 
@@ -64,6 +69,15 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
         PVCore::PVArgumentList& args_ext,
         QWidget* parent = nullptr
 	) const = 0;
+
+	/**
+	 * What asks for an import of this type in the import page of the main window, or nullptr for
+	 * a type that still asks in dialogs of its own, through create_widget().
+	 */
+	virtual PVWidgets::PVImportWidget* create_import_widget(QWidget* /*parent*/) const
+	{
+		return nullptr;
+	}
 
     virtual bool create_widget_with_input_files(
         const QStringList& /*input_paths*/,

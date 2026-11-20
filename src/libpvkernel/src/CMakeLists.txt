@@ -190,6 +190,7 @@ set(WIDGETS_MOC_HEADERS
 ../include/pvkernel/widgets/PVLongLongSpinBox.h
 ../include/pvkernel/widgets/PVExportDlg.h
 ../include/pvkernel/widgets/PVImportFilterDialog.h
+../include/pvkernel/widgets/PVImportWidget.h
 ../include/pvkernel/widgets/PVCSVExporterWidget.h
 ../include/pvkernel/widgets/PVModdedIcon.h
 ../include/pvkernel/widgets/PVFileDialog.h

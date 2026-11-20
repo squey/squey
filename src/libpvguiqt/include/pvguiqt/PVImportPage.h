@@ -26,33 +26,45 @@
 #define __PVGUIQT_PVIMPORTPAGE_H__
 
 #include <pvguiqt/export.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 
 #include <QString>
+#include <QStringList>
+#include <QTimer>
 #include <QWidget>
 
 #include <functional>
+#include <memory>
 #include <vector>
 
+class QComboBox;
 class QHBoxLayout;
 class QLabel;
 class QProgressBar;
 class QPushButton;
+class QThread;
 class QVBoxLayout;
+
+namespace PVCore
+{
+class PVTaskProgress;
+} // namespace PVCore
 
 namespace PVGuiQt
 {
 
 /**
  * The page of the main window that imports run in: what they import, their progress and what went
- * wrong, rather than in dialogs of their own. Its buttons only tell what the user asks for; what
- * runs the imports acts on it.
+ * wrong, rather than in dialogs of their own. It shows what an input type asks for an import, the
+ * content, with the same buttons for every type. Its buttons only tell what the user asks for;
+ * what runs the imports acts on it.
  */
 class PVGUIQT_EXPORT PVImportPage : public QWidget
 {
 	Q_OBJECT
 
   public:
-	enum class Severity { information, warning, critical };
+	using Severity = PVWidgets::PVImportWidget::Severity;
 
 	/**
 	 * A button of a progress, or of a message, which it dismisses before calling @p on_click.
@@ -64,9 +76,32 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 
   public:
 	explicit PVImportPage(QWidget* parent = nullptr);
+	~PVImportPage() override;
 
   public:
 	void set_title(QString const& title);
+
+	/**
+	 * Shows @p content under @p title, then a choice among the data collections @p collections,
+	 * @p current chosen first, and a new one, and Cancel and Import buttons. The page owns
+	 * @p content, and runs its tasks, until clear_content().
+	 */
+	void set_content(PVWidgets::PVImportWidget* content,
+	                 QString const& title,
+	                 QStringList const& collections,
+	                 int current);
+	void clear_content();
+	PVWidgets::PVImportWidget* content() const { return _content; }
+	/** The index of the chosen one of the collections of set_content(), or -1 for a new one. */
+	int chosen_collection() const;
+	/** Whether the content and its buttons show, rather than the progress of its import alone. */
+	void set_content_shown(bool shown);
+
+	/** Runs a task of the content, as PVWidgets::PVImportWidget::task_runner_t tells. */
+	void run_task(QString const& title,
+	              std::function<void(PVCore::PVTaskProgress&)> work,
+	              std::function<void(bool completed)> done);
+	bool task_running() const { return _task_thread != nullptr; }
 
 	/** Shows the progress of @p task, whose end is unknown until set_progress() gives it. */
 	void start_progress(QString const& task, std::vector<Action> buttons = {});
@@ -92,6 +127,13 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 
   Q_SIGNALS:
 	void close_requested();
+	void cancel_requested();
+	void import_requested();
+	/** Once a task of the content ended, and its done function returned. */
+	void task_finished();
+
+  private:
+	void update_buttons();
 
   private:
 	QLabel* _title;
@@ -101,7 +143,18 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	QProgressBar* _bar;
 	QLabel* _details;
 	QHBoxLayout* _progress_buttons;
+	QVBoxLayout* _content_layout;
+	PVWidgets::PVImportWidget* _content = nullptr;
+	QWidget* _collection_row;
+	QComboBox* _collection;
 	QPushButton* _close;
+	QPushButton* _cancel;
+	QPushButton* _import;
+
+	/** That of the task of the content, if one runs. */
+	QThread* _task_thread = nullptr;
+	std::shared_ptr<PVCore::PVTaskProgress> _task_progress;
+	QTimer _task_timer;
 };
 
 } // namespace PVGuiQt

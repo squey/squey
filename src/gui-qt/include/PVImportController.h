@@ -26,6 +26,7 @@
 #define __APP_PVIMPORTCONTROLLER_H__
 
 #include <pvkernel/rush/PVControllerJob.h>
+#include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 
 #include <QObject>
@@ -55,6 +56,11 @@ class PVImportPage;
 class PVProjectsTabWidget;
 } // namespace PVGuiQt
 
+namespace PVWidgets
+{
+class PVImportWidget;
+} // namespace PVWidgets
+
 namespace App
 {
 
@@ -66,6 +72,9 @@ class PVMemoryConsumptionForecast;
  * each, then its mapping, its scaling and its view, with their progress and what went wrong on
  * the page rather than in dialogs. The rest of the main window is disabled meanwhile, as a modal
  * dialog had it.
+ *
+ * The page also shows what an input type asks for an import, its content, until the user imports
+ * what it holds, into the data collection they choose, or cancels it.
  */
 class PVImportController : public QObject
 {
@@ -77,12 +86,21 @@ class PVImportController : public QObject
 
   public:
 	/**
-	 * Imports @p sources once those given before are, each into the current data collection, or
-	 * into a new one when there is none.
+	 * Imports @p sources once those given before are, and the task of the content, if one runs,
+	 * each into the current data collection, or into a new one when there is none.
 	 */
 	void import(std::vector<PVRush::PVSourceDescription> sources);
 
-	bool busy() const { return _busy; }
+	/**
+	 * Shows @p content, which asks for an import of @p type, in the import page, which owns it.
+	 *
+	 * @return false if the page runs something else, which it then tells, and @p content is
+	 * deleted
+	 */
+	bool edit(PVRush::PVInputType_p type, PVWidgets::PVImportWidget* content);
+
+	/** Whether sources are imported, or a task of the content runs. */
+	bool busy() const;
 
   Q_SIGNALS:
 	/** Once nothing is imported anymore. */
@@ -93,6 +111,11 @@ class PVImportController : public QObject
 
 	PVGuiQt::PVProjectsTabWidget& projects() const;
 	PVGuiQt::PVImportPage& page() const;
+
+	void import_content();
+	void cancel_content();
+	/** Starts the imports given while the task of the content ran. */
+	void task_finished();
 
 	void begin();
 	/** Starts the import of the next source, once the event loop got its turn. */
@@ -121,6 +144,13 @@ class PVImportController : public QObject
 	std::deque<PVRush::PVSourceDescription> _queue;
 	State _state = State::idle;
 	bool _busy = false;
+
+	PVRush::PVInputType_p _content_type;
+	/** The data collections the content can be imported into, as the page lists them. */
+	std::vector<Squey::PVScene*> _collections;
+	/** Whether the imports are those of the content, and whether one of them was imported. */
+	bool _content_import = false;
+	bool _imported = false;
 
 	/** Of the source being imported, as the messages about it name it. */
 	QString _name;
