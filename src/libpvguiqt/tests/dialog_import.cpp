@@ -24,8 +24,8 @@
 
 // The dialog of an input type shows in the import page as what it asks for an import: its buttons
 // hide, the button that accepted it tells whether it is ready, and Import clicks that button,
-// which runs the checks of the dialog. Escape leaves it in the page, and it is rejected as it
-// goes, as closing its window did.
+// which runs the checks of the dialog. Escape leaves it in the page, Enter goes on to the page,
+// which imports then, and it is rejected as it goes, as closing its window did.
 
 #include <pvkernel/core/squey_assert.h>
 #include <pvkernel/widgets/PVDialogImportWidget.h>
@@ -33,15 +33,40 @@
 #include <QApplication>
 #include <QDialog>
 #include <QDialogButtonBox>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QPointer>
 #include <QPushButton>
 #include <QTest>
 #include <QVBoxLayout>
 
+namespace
+{
+
+/** Gets the keys the widgets in it leave, as the import page does. */
+class Page : public QWidget
+{
+  public:
+	int enters = 0;
+
+  protected:
+	void keyPressEvent(QKeyEvent* event) override
+	{
+		if (event->key() == Qt::Key_Return) {
+			enters++;
+			return;
+		}
+		QWidget::keyPressEvent(event);
+	}
+};
+
+} // namespace
+
 int main(int argc, char** argv)
 {
 	QApplication app(argc, argv); // argv carries "-platform offscreen"
+	Page page;
+	page.show();
 
 	// Accepted only once it names something, as the checks of a dialog do.
 	auto* dialog = new QDialog;
@@ -62,15 +87,17 @@ int main(int argc, char** argv)
 	int imports = 0;
 	QAbstractButton* open = buttons->button(QDialogButtonBox::Open);
 	auto content = std::make_unique<PVWidgets::PVDialogImportWidget>(
-	    dialog, PVWidgets::PVDialogImportWidget::Parts{
-	                .accept = open,
-	                .buttons = {buttons},
-	                .sources =
-	                    [&]() {
-		                    imports++;
-		                    return std::vector<PVWidgets::PVImportWidget::source_t>(1);
-	                    },
-	                .add_paths = [&](QStringList const& given) { paths = given; }});
+	    dialog,
+	    PVWidgets::PVDialogImportWidget::Parts{
+	        .accept = open,
+	        .buttons = {buttons},
+	        .sources =
+	            [&]() {
+		            imports++;
+		            return std::vector<PVWidgets::PVImportWidget::source_t>(1);
+	            },
+	        .add_paths = [&](QStringList const& given) { paths = given; }},
+	    &page);
 	content->show();
 	PV_ASSERT_VALID(dialog->isVisible() and not dialog->isWindow());
 	PV_ASSERT_VALID(not buttons->isVisible());
@@ -95,6 +122,9 @@ int main(int argc, char** argv)
 	QTest::keyClick(name, Qt::Key_Escape);
 	PV_ASSERT_VALID(dialog->isVisible());
 	PV_VALID(rejected, 0);
+	QTest::keyClick(name, Qt::Key_Return);
+	PV_VALID(page.enters, 1);
+	PV_VALID(imports, 1);
 
 	content->set_paths({"capture.pcap"});
 	PV_ASSERT_VALID(paths == QStringList{"capture.pcap"});

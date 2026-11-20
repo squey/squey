@@ -43,7 +43,8 @@ namespace PVWidgets
 /**
  * The dialog in which an input type asks for an import, shown in the import page rather than in a
  * window of its own. The buttons of the dialog hide, as the page has its own: Import clicks the
- * button that accepted the dialog, which runs the checks of the dialog as it did.
+ * button that accepted the dialog, which runs the checks of the dialog as it did. Enter, which
+ * clicked the default button of the dialog, goes on to the page, which imports then.
  */
 class PVDialogImportWidget : public PVImportWidget
 {

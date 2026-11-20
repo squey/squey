@@ -83,9 +83,16 @@ bool PVWidgets::PVDialogImportWidget::eventFilter(QObject* watched, QEvent* even
 {
 	if (watched == _parts.accept and event->type() == QEvent::EnabledChange) {
 		Q_EMIT ready_changed();
-	} else if (watched == _dialog and event->type() == QEvent::KeyPress and
-	           static_cast<QKeyEvent*>(event)->matches(QKeySequence::Cancel)) {
-		return true;
+	} else if (watched == _dialog and event->type() == QEvent::KeyPress) {
+		auto* key = static_cast<QKeyEvent*>(event);
+		if (key->matches(QKeySequence::Cancel)) {
+			return true;
+		}
+		// On to the page, which imports: the dialog would keep it, its default button hidden.
+		if (key->key() == Qt::Key_Return or key->key() == Qt::Key_Enter) {
+			key->ignore();
+			return true;
+		}
 	}
 	return PVImportWidget::eventFilter(watched, event);
 }
