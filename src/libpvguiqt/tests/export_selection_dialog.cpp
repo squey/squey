@@ -38,6 +38,7 @@
 #include <squey/PVView.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVTaskProgress.h>
 #include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVFileListDescription.h>
 #include <pvkernel/rush/PVInputType.h>
@@ -94,7 +95,8 @@ import_parquet(Squey::PVRoot& root, QString const& path, QString const& row_filt
 	PVRush::PVFormat format;
 	const QString params =
 	    QJsonDocument(QJsonObject{{"paths", QJsonArray{path}}}).toJson(QJsonDocument::Compact);
-	PV_ASSERT_VALID(type->create_source_description_params(params, inputs, format));
+	PVCore::PVTaskProgress progress;
+	PV_ASSERT_VALID(type->create_source_description_params(params, inputs, format, progress));
 	static_cast<PVRush::PVFileListDescription&>(*inputs.front()).set_row_filter(row_filter);
 
 	Squey::PVSource& source = root.emplace_add_child("parquet").emplace_add_child(

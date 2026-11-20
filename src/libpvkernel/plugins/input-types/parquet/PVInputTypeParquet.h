@@ -43,7 +43,8 @@ class PVInputTypeParquet : public PVInputTypeFileList
 	PVInputTypeParquet();
 
   public:
-	PVFormat get_format_from_inputs(list_inputs const& inputs) const override;
+	PVFormat get_format_from_inputs(list_inputs const& inputs,
+	                                PVCore::PVTaskProgress* progress = nullptr) const override;
 
 	/* exporter */
 	std::unique_ptr<PVRush::PVExporterBase>
@@ -65,10 +66,14 @@ class PVInputTypeParquet : public PVInputTypeFileList
 
 	PVModdedIcon icon() const override { return PVModdedIcon("parquet"); }
 
-  protected:
 	QString files_dialog_title() const override;
 	QString files_dialog_filter() const override;
-	bool describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const override;
+	/** Of files of one schema. */
+	std::shared_ptr<PVFileListDescription> describe(const QStringList& paths,
+	                                                PVCore::PVTaskProgress& progress,
+	                                                QStringList& warnings) const override;
+	std::shared_ptr<PVFileListDescription> with_paths(const PVFileListDescription& description,
+	                                                  const QStringList& paths) const override;
 	/**
 	 * From the statistics of the files, which count the nulls of their columns, but for those of
 	 * the values of lists and maps.

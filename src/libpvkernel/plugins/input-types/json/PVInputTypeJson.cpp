@@ -31,9 +31,7 @@
 #include "../../common/json/PVJsonSchema.h"
 #include "../../common/parquet/PVParquetAPI.h"
 
-#include <pvkernel/core/PVProgressBox.h>
-
-#include <QMessageBox>
+#include <pvkernel/core/PVTaskProgress.h>
 
 #include <algorithm>
 #include <exception>
@@ -66,85 +64,60 @@ QString PVRush::PVInputTypeJson::files_dialog_filter() const
 	return tr("JSON files of one object per line (%1)").arg(patterns.join(' '));
 }
 
-bool PVRush::PVInputTypeJson::find_schema(PVJsonFileDescription& input_desc) const
+std::shared_ptr<const PVRush::PVJsonSchema> PVRush::PVInputTypeJson::schema_of(
+    const QStringList& paths, PVCore::PVTaskProgress* progress, QStringList* warnings)
 {
-	constexpr const int progress_maximum = 1000;
-	std::shared_ptr<const PVJsonSchema> schema;
-	std::string error;
-	const PVCore::PVProgressBox::CancelState state = PVCore::PVProgressBox::progress(
-	    [&](PVCore::PVProgressBox& pbox) {
-		    pbox.set_maximum(progress_maximum);
-		    // The progress box ends the program on an exception out of its thread.
-		    try {
-			    schema = PVJsonSchema::infer(input_desc.paths(), [&](size_t bytes_read,
-			                                                         size_t size) {
-				    pbox.set_value(int(progress_maximum * bytes_read / std::max<size_t>(size, 1)));
-				    return pbox.get_cancel_state() == PVCore::PVProgressBox::CancelState::CONTINUE;
-			    });
-		    } catch (const std::exception& e) {
-			    error = e.what();
+	std::shared_ptr<const PVJsonSchema> schema =
+	    PVJsonSchema::infer(paths, [progress](size_t bytes_read, size_t size) {
+		    if (progress == nullptr) {
+			    return true;
 		    }
-	    },
-	    tr("Reading the fields of the JSON objects"), nullptr);
-	if (not error.empty()) {
-		throw std::runtime_error(error);
-	}
-	if (state != PVCore::PVProgressBox::CancelState::CONTINUE or schema == nullptr) {
-		return false;
+		    progress->set_maximum(size);
+		    progress->set_value(bytes_read);
+		    return not progress->canceled();
+	    });
+	if (schema == nullptr) {
+		return nullptr;
 	}
 
 	if (schema->columns().empty()) {
-		QMessageBox::critical(
-		    nullptr, tr("No JSON values"),
-		    schema->row_count() == 0
-		        ? tr("These files hold no JSON object on a line of its own: Squey reads files of "
-		             "one JSON object per line, such as JSON Lines.")
-		        : tr("The JSON objects of these files have no field with a value."));
-		return false;
+		throw std::runtime_error(
+		    (schema->row_count() == 0
+		         ? tr("These files hold no JSON object on a line of its own: Squey reads files of "
+		              "one JSON object per line, such as JSON Lines.")
+		         : tr("The JSON objects of these files have no field with a value."))
+		        .toStdString());
 	}
-	if (schema->invalid_line_count() > 0) {
-		QMessageBox::warning(nullptr, tr("Lines left out"),
-		                     tr("Lines of these files that are not JSON objects are left out: %1 "
-		                        "of them, the first one being line %2 of \"%3\".")
-		                         .arg(schema->invalid_line_count())
-		                         .arg(schema->first_invalid_line())
-		                         .arg(schema->first_invalid_file()));
+	if (warnings != nullptr and schema->invalid_line_count() > 0) {
+		*warnings << tr("Lines of these files that are not JSON objects are left out: %1 of them, "
+		                "the first one being line %2 of \"%3\".")
+		                 .arg(schema->invalid_line_count())
+		                 .arg(schema->first_invalid_line())
+		                 .arg(schema->first_invalid_file());
 	}
-
-	input_desc.set_schema(schema);
-	return true;
+	return schema;
 }
 
-bool PVRush::PVInputTypeJson::find_format(PVJsonFileDescription& input_desc, PVFormat& format) const
+std::shared_ptr<PVRush::PVFileListDescription> PVRush::PVInputTypeJson::describe(
+    const QStringList& paths, PVCore::PVTaskProgress& progress, QStringList& warnings) const
 {
-	if (input_desc.schema() == nullptr and not find_schema(input_desc)) {
-		return false;
+	progress.set_status(tr("Reading the fields of the JSON objects"));
+	std::shared_ptr<const PVJsonSchema> schema = schema_of(paths, &progress, &warnings);
+	if (schema == nullptr) {
+		return nullptr;
 	}
-
-	std::vector<size_t> column_indexes;
-	format = PVFormat(PVParquetAPI::format_of(
-	                      input_desc.schema()->with_columns(input_desc.columns())->arrow_schema(),
-	                      input_desc.multi_inputs(), column_indexes)
-	                      .documentElement());
-	return true;
+	auto input_desc = std::make_shared<PVJsonFileDescription>(paths);
+	input_desc->set_schema(std::move(schema));
+	return input_desc;
 }
 
-bool PVRush::PVInputTypeJson::describe_files(const QStringList& paths,
-                                             list_inputs& inputs,
-                                             PVFormat& format) const
+std::shared_ptr<PVRush::PVFileListDescription>
+PVRush::PVInputTypeJson::with_paths(const PVFileListDescription& description,
+                                    const QStringList& paths) const
 {
-	try {
-		auto input_desc = std::make_shared<PVJsonFileDescription>(paths);
-		if (not find_format(*input_desc, format)) {
-			return false;
-		}
-		inputs.push_back(input_desc);
-	} catch (const std::exception& e) {
-		QMessageBox::critical(nullptr, tr("Error when loading files"), e.what());
-		return false;
-	}
-
-	return true;
+	auto input_desc = std::make_shared<PVJsonFileDescription>(paths);
+	input_desc->set_schema(static_cast<const PVJsonFileDescription&>(description).schema());
+	return input_desc;
 }
 
 QHash<QString, double>
@@ -167,7 +140,9 @@ QString PVRush::PVInputTypeJson::row_filter_error(const PVFileListDescription& i
 	    condition.toStdString(), json_desc.schema()->arrow_schema(json_desc.multi_inputs())));
 }
 
-PVRush::PVFormat PVRush::PVInputTypeJson::get_format_from_inputs(list_inputs const& inputs) const
+PVRush::PVFormat
+PVRush::PVInputTypeJson::get_format_from_inputs(list_inputs const& inputs,
+                                                PVCore::PVTaskProgress* progress) const
 {
 	auto* input_desc =
 	    inputs.isEmpty() ? nullptr : dynamic_cast<PVJsonFileDescription*>(inputs.front().get());
@@ -175,11 +150,20 @@ PVRush::PVFormat PVRush::PVInputTypeJson::get_format_from_inputs(list_inputs con
 		return {};
 	}
 
-	PVFormat format;
-	if (not find_format(*input_desc, format)) {
-		return {};
+	if (input_desc->schema() == nullptr) {
+		std::shared_ptr<const PVJsonSchema> schema =
+		    schema_of(input_desc->paths(), progress, nullptr);
+		if (schema == nullptr) {
+			return {};
+		}
+		input_desc->set_schema(std::move(schema));
 	}
-	return format;
+
+	std::vector<size_t> column_indexes;
+	return PVFormat(PVParquetAPI::format_of(
+	                    input_desc->schema()->with_columns(input_desc->columns())->arrow_schema(),
+	                    input_desc->multi_inputs(), column_indexes)
+	                    .documentElement());
 }
 
 PVRush::PVInputDescription_p PVRush::PVInputTypeJson::serialize_read(PVCore::PVSerializeObject& so)

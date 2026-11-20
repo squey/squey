@@ -49,6 +49,12 @@
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 #include <QToolButton>
+#include <pvkernel/widgets/PVImportWidget.h>
+#include <pvkernel/rush/PVSourceDescription.h>
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
 #include <pvguiqt/PVImportPage.h>
 #include <QPushButton>
 #include <QMenuBar>
@@ -994,6 +1000,131 @@ void ImportExportTest::stop_import()
 	QVERIFY(sources.front()->get_row_count() > 0);
 	QVERIFY2(sources.front()->get_row_count() < PVRow(row_count),
 	         qPrintable(QString::number(sources.front()->get_row_count())));
+}
+
+namespace
+{
+
+void write_json(QString const& path, QByteArray const& lines)
+{
+	QFile file(path);
+	QVERIFY(file.open(QIODevice::WriteOnly));
+	file.write(lines);
+}
+
+// Waits for the import, with no dialog meanwhile.
+bool wait_for_import_without_dialog(App::PVMainWindow& main_window)
+{
+	bool modal = false;
+	const bool imported = QTest::qWaitFor(
+	    [&]() {
+		    modal |= qApp->activeModalWidget() != nullptr;
+		    return not main_window.import_controller().busy();
+	    },
+	    120000);
+	return imported and not modal;
+}
+
+} // namespace
+
+// JSON files given together, as from the command line, open in the import page, which reads them
+// for their columns, and imports them as one source once asked to.
+void ImportExportTest::import_json_in_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString first = tmp_dir.filePath("first.json");
+	const QString second = tmp_dir.filePath("second.json");
+	write_json(first, "{\"x\": 1, \"s\": \"a\"}\n");
+	write_json(second, "{\"x\": 2}\n{\"x\": 3, \"s\": \"c\"}\n");
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	main_window.load_files({first, second});
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(page.isVisible());
+	QVERIFY(page.content() != nullptr);
+	bool modal = false;
+	QVERIFY(QTest::qWaitFor(
+	    [&]() {
+		    modal |= qApp->activeModalWidget() != nullptr;
+		    return page.content()->is_ready();
+	    },
+	    60000));
+	QVERIFY(not modal);
+	page.findChild<QPushButton*>("import_import")->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
+
+	QVERIFY(not page.isVisible());
+	QVERIFY(page.content() == nullptr);
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	const PVRush::PVNraw& nraw = sources.front()->get_rushnraw();
+	QCOMPARE(nraw.row_count(), PVRow(3));
+	QCOMPARE(nraw.at_string(2, PVCol(0)), std::string("second.json"));
+}
+
+// A source of the recent items, of JSON files, has no schema: it is read again out of the GUI
+// thread, while the page shows the progress.
+void ImportExportTest::import_recent_json()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString path = tmp_dir.filePath("recent.json");
+	write_json(path, "{\"x\": 1, \"s\": \"a\"}\n{\"x\": 2, \"s\": \"b\"}\n");
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	PVRush::PVInputType_p json = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json");
+	main_window.load_source_from_description_Slot(PVRush::PVSourceDescription(
+	    {json->load_input_from_string({path.toStdString()}, false)},
+	    PVRush::PVSourceCreatorFactory::get_by_input_type(json), PVRush::PVFormat()));
+	QVERIFY(wait_for_import_without_dialog(main_window));
+
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_rushnraw().row_count(), PVRow(2));
+}
+
+// The parameters of an import, as D-Bus gives them, are read out of the GUI thread, and what is
+// wrong with them is told in the page.
+void ImportExportTest::import_params()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString path = tmp_dir.filePath("params.json");
+	write_json(path, "{\"x\": 1, \"s\": \"a\"}\n{\"x\": 2, \"s\": \"b\"}\n{\"x\": 3, \"s\": \"c\"}\n");
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	PVRush::PVInputType_p json = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json");
+	const auto params = [&path](QString const& row_filter) {
+		return QJsonDocument(QJsonObject{{"paths", QJsonArray{path}}, {"row_filter", row_filter}})
+		    .toJson(QJsonDocument::Compact);
+	};
+	main_window.import_controller().import_params(json, params("x > 1"));
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_rushnraw().row_count(), PVRow(2));
+
+	main_window.import_controller().import_params(json, params("nope > 1"));
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	QCOMPARE(main_window.get_root().get_children<Squey::PVSource>().size(), size_t(1));
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("nope"), qPrintable(messages));
 }
 
 QTEST_MAIN(ImportExportTest)

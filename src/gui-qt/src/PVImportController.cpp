@@ -27,6 +27,7 @@
 #include <PVMainWindow.h>
 
 #include <pvguiqt/PVGuiQtSettings.h>
+#include <pvkernel/core/PVTaskProgress.h>
 #include <pvguiqt/PVImportPage.h>
 #include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvkernel/core/PVUtils.h>
@@ -55,6 +56,7 @@
 
 #include <algorithm>
 #include <exception>
+#include <stdexcept>
 
 namespace App
 {
@@ -133,6 +135,9 @@ App::PVImportController::PVImportController(PVMainWindow& window) : _window(wind
 App::PVImportController::~PVImportController()
 {
 	// The window going away with an import running, as the application quits.
+	if (_preparing) {
+		_preparing->cancel();
+	}
 	if (_job) {
 		_job->cancel();
 	}
@@ -160,8 +165,53 @@ bool App::PVImportController::busy() const
 void App::PVImportController::import(std::vector<PVRush::PVSourceDescription> sources)
 {
 	for (PVRush::PVSourceDescription& source : sources) {
-		_queue.push_back(std::move(source));
+		PVRush::PVInputType_p type = source.get_source_creator()->supported_type_lib();
+		Import import{type->tab_name_of_inputs(source.get_inputs()), {}, {}};
+		// Such as that of a recent source of Parquet files, which is not saved.
+		const PVRush::PVFormat& format = source.get_format();
+		if (format.get_full_path().isEmpty() and format.get_axes().size() == 0) {
+			import.prepare = [type, source](PVCore::PVTaskProgress& progress)
+			    -> std::optional<PVRush::PVSourceDescription> {
+				PVRush::PVFormat made =
+				    type->get_format_from_inputs(source.get_inputs(), &progress);
+				if (progress.canceled()) {
+					return std::nullopt;
+				}
+				PVRush::PVSourceDescription prepared = source;
+				prepared.set_format(made);
+				return prepared;
+			};
+		} else {
+			import.description = std::move(source);
+		}
+		enqueue(std::move(import));
 	}
+}
+
+void App::PVImportController::import_params(PVRush::PVInputType_p type, QString params)
+{
+	Import import{type->menu_input_name(), {}, {}};
+	import.prepare =
+	    [type,
+	     params](PVCore::PVTaskProgress& progress) -> std::optional<PVRush::PVSourceDescription> {
+		PVRush::PVInputType::list_inputs inputs;
+		PVRush::PVFormat format;
+		if (not type->create_source_description_params(params, inputs, format, progress)) {
+			if (progress.canceled()) {
+				return std::nullopt;
+			}
+			throw std::runtime_error(
+			    tr("Imports of %1 take no parameters.").arg(type->menu_input_name()).toStdString());
+		}
+		return PVRush::PVSourceDescription(
+		    inputs, PVRush::PVSourceCreatorFactory::get_by_input_type(type), format);
+	};
+	enqueue(std::move(import));
+}
+
+void App::PVImportController::enqueue(Import import)
+{
+	_queue.push_back(std::move(import));
 	if (not busy()) {
 		begin();
 		start_next();
@@ -274,31 +324,62 @@ void App::PVImportController::start_next()
 		end();
 		return;
 	}
-	PVRush::PVSourceDescription description = std::move(_queue.front());
+	Import import = std::move(_queue.front());
 	_queue.pop_front();
 
-	PVRush::PVInputType_p input_type = description.get_source_creator()->supported_type_lib();
-	_name = input_type->tab_name_of_inputs(description.get_inputs());
+	_name = import.name;
+	page().set_title(tr("Import of %1").arg(_name));
+	projects().show_import_page();
+	if (import.prepare) {
+		prepare(std::move(import.prepare));
+	} else {
+		create(std::move(*import.description));
+	}
+}
+
+void App::PVImportController::prepare(
+    std::function<std::optional<PVRush::PVSourceDescription>(PVCore::PVTaskProgress&)> prepare)
+{
+	_state = State::preparing;
+	auto progress = std::make_shared<PVCore::PVTaskProgress>();
+	auto prepared = std::make_shared<std::optional<PVRush::PVSourceDescription>>();
+	auto error = std::make_shared<QString>();
+	_preparing = progress;
+	page().start_progress(tr("Reading the inputs..."),
+	                      {{tr("Cancel"), [progress]() { progress->cancel(); }}});
+
+	_worker = QThread::create([prepare = std::move(prepare), progress, prepared, error]() {
+		try {
+			*prepared = prepare(*progress);
+		} catch (const std::exception& e) {
+			*error = plain(e.what());
+		}
+	});
+	connect(_worker, &QThread::finished, this, [this, prepared, error]() {
+		_poll_timer.stop();
+		_worker->deleteLater();
+		_worker = nullptr;
+		_preparing.reset();
+		_state = State::idle;
+		if (not error->isEmpty()) {
+			fail(tr("Cannot read the inputs"), *error);
+		} else if (not prepared->has_value()) {
+			next();
+		} else {
+			create(std::move(**prepared));
+		}
+	});
+	_worker->start();
+	_poll_timer.start();
+}
+
+void App::PVImportController::create(PVRush::PVSourceDescription description)
+{
+	const PVRush::PVFormat& format = description.get_format();
+	_name = description.get_source_creator()->supported_type_lib()->tab_name_of_inputs(
+	    description.get_inputs());
 	page().set_title(tr("Import of %1").arg(_name));
 	page().start_progress(tr("Preparing the import..."));
-	projects().show_import_page();
-
-	// Sources whose format is generated from the inputs (e.g. Parquet) are stored in the recent
-	// items without a format on disk: it is made again from the inputs.
-	PVRush::PVFormat format = description.get_format();
-	if (format.get_full_path().isEmpty() and format.get_axes().size() == 0) {
-		try {
-			PVRush::PVFormat regenerated =
-			    input_type->get_format_from_inputs(description.get_inputs());
-			if (regenerated.get_axes().size() > 0) {
-				description.set_format(regenerated);
-				format = regenerated;
-			}
-		} catch (const std::exception& e) {
-			fail(tr("Error while loading source"), plain(e.what()));
-			return;
-		}
-	}
 
 	const size_t axes_count = format.get_axes().size();
 	if (axes_count < 2) {
@@ -356,6 +437,11 @@ void App::PVImportController::start_next()
 
 void App::PVImportController::poll()
 {
+	if (_state == State::preparing) {
+		page().set_progress(qint64(_preparing->value()), qint64(_preparing->maximum()));
+		page().set_progress_details(_preparing->status());
+		return;
+	}
 	if (_state == State::processing) {
 		static const char* steps[] = {"Computing mapping...", "Computing scaling...",
 		                              "Creating views..."};

@@ -33,29 +33,20 @@
 #include <QString>
 #include <QStringList>
 
+#include <memory>
+
 namespace PVRush
 {
 
 /**
  * An input type whose sources read files one after the other, with a format generated from them:
- * the user chooses the files, then which of their columns and rows to import, and the type
- * describes them and makes their format.
+ * the user chooses the files, then which of their columns and rows to import, in the import page
+ * of the main window, and the type describes them and makes their format.
  */
 class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 {
   public:
-	bool create_widget(hash_formats& formats,
-	                   list_inputs& inputs,
-	                   QString& format,
-	                   PVCore::PVArgumentList& args_ext,
-	                   QWidget* parent = nullptr) const override;
-
-	bool create_widget_with_input_files(const QStringList& input_paths,
-	                                    hash_formats& formats,
-	                                    list_inputs& inputs,
-	                                    QString& format,
-	                                    PVCore::PVArgumentList& args_ext,
-	                                    QWidget* parent = nullptr) const override;
+	PVWidgets::PVImportWidget* create_import_widget(QWidget* parent) const override;
 
 	/**
 	 * The files are those of the array "paths" of @p params_json. Its array "columns" and its
@@ -63,7 +54,8 @@ class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 	 */
 	bool create_source_description_params(const QString& params_json,
 	                                      list_inputs& inputs,
-	                                      PVFormat& format) const override;
+	                                      PVFormat& format,
+	                                      PVCore::PVTaskProgress& progress) const override;
 
 	bool has_generated_format() const override { return true; }
 
@@ -76,7 +68,7 @@ class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 
 	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
-  protected:
+  public:
 	/** The title of the dialog that chooses the files. */
 	virtual QString files_dialog_title() const = 0;
 
@@ -84,12 +76,23 @@ class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 	virtual QString files_dialog_filter() const = 0;
 
 	/**
-	 * Adds the description of the files @p paths to @p inputs, and sets @p format to theirs.
+	 * The description of the files @p paths, out of the GUI thread: it may take long to read
+	 * them, such as the JSON files whose schema it finds, while @p progress shows how far it got
+	 * and can stop it.
 	 *
-	 * @return false, after telling the user why, if the files cannot be imported
+	 * @param warnings receives what to tell the user, such as lines left out
+	 * @return nullptr if @p progress was canceled
+	 * @throw std::runtime_error with what to tell the user, if the files cannot be imported
 	 */
-	virtual bool
-	describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const = 0;
+	virtual std::shared_ptr<PVFileListDescription>
+	describe(const QStringList& paths, PVCore::PVTaskProgress& progress, QStringList& warnings) const = 0;
+
+	/**
+	 * A description of the files @p paths, among those of @p description, with what reading
+	 * them found, such as their schema, but none of the columns and rows it chose.
+	 */
+	virtual std::shared_ptr<PVFileListDescription>
+	with_paths(const PVFileListDescription& description, const QStringList& paths) const = 0;
 
 	/**
 	 * The share of the rows of the files of @p input_desc that give a column a value, from 0 to 1,
@@ -106,15 +109,6 @@ class PVInputTypeFileList : public PVInputTypeDesc<PVFileListDescription>
 	 */
 	virtual QString row_filter_error(const PVFileListDescription& input_desc,
 	                                 const QString& condition) const = 0;
-
-  private:
-	/**
-	 * Lets the user choose the columns and the rows of the files of @p inputs to import, and sets
-	 * @p format to that of the choice.
-	 *
-	 * @return false if the user canceled
-	 */
-	bool choose(const list_inputs& inputs, PVFormat& format, QWidget* parent) const;
 };
 
 } // namespace PVRush

@@ -189,7 +189,8 @@ set(WIDGETS_MOC_HEADERS
 
 ../include/pvkernel/widgets/PVLongLongSpinBox.h
 ../include/pvkernel/widgets/PVExportDlg.h
-../include/pvkernel/widgets/PVImportFilterDialog.h
+../include/pvkernel/widgets/PVFileListImportWidget.h
+../include/pvkernel/widgets/PVImportFilterWidget.h
 ../include/pvkernel/widgets/PVImportWidget.h
 ../include/pvkernel/widgets/PVCSVExporterWidget.h
 ../include/pvkernel/widgets/PVModdedIcon.h
@@ -225,7 +226,8 @@ widgets/PVLayerNamingPatternDialog.cpp
 widgets/PVLongLongSpinBox.cpp
 widgets/PVFileDialog.cpp
 widgets/PVExportDlg.cpp
-widgets/PVImportFilterDialog.cpp
+widgets/PVFileListImportWidget.cpp
+widgets/PVImportFilterWidget.cpp
 widgets/PVMultipleFileDialog.cpp
 widgets/PVModdedIcon.cpp
 )

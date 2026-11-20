@@ -23,9 +23,9 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
-// The import of files of one JSON object per line, as the user starts it: the type of input finds
-// the columns of the files, while it shows its progress, and makes their format, which it makes
-// again for a source reopened from the recent items.
+// The import of files of one JSON object per line, from parameters: the type of input finds the
+// columns of the files and makes their format, which it makes again for a source reopened from the
+// recent items.
 
 #include "common.h"
 #include "test-env.h"
@@ -35,6 +35,7 @@
 #include <squey/PVSource.h>
 
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVTaskProgress.h>
 #include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
@@ -96,7 +97,8 @@ int main(int argc, char** argv)
 	PVRush::PVFormat format;
 	const QString params = QJsonDocument(QJsonObject{{"paths", QJsonArray{first, second}}})
 	                           .toJson(QJsonDocument::Compact);
-	PV_ASSERT_VALID(type->create_source_description_params(params, inputs, format));
+	PVCore::PVTaskProgress progress;
+	PV_ASSERT_VALID(type->create_source_description_params(params, inputs, format, progress));
 	const std::string axes = "filename:string,x:number_int64,y.z:string,t:time";
 	PV_VALID(axes_of(format), axes);
 

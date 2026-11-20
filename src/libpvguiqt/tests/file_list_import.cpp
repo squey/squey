@@ -21,31 +21,32 @@
 // COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 // IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-//
 
-// The choice of the columns and the rows to import, which the imports of JSON and Parquet files
-// offer before they read them: the columns found, with their types and the share of the rows
-// that give them a value, a condition refused while it is wrong, and the choice made, which the
-// import keeps. The parameters of a script make the same choice.
+// The import of files that an input type reads one after the other, as the import page asks for
+// it: the files, read out of the GUI thread for their columns, which the user checks knowing how
+// often they have a value, a condition on the rows, checked as it is written, and whether the
+// files make one source or one each. Parameters, such as those of D-Bus, choose the same.
 
 #include "common.h"
 #include "test-env.h"
 
-#include <pvguiqt/PVExportSelectionDlg.h>
-
 #include <squey/PVRoot.h>
 #include <squey/PVScene.h>
-#include <squey/PVSelection.h>
 #include <squey/PVSource.h>
 #include <squey/PVView.h>
 
+#include <pvguiqt/PVExportSelectionDlg.h>
+#include <pvguiqt/PVImportPage.h>
+
 #include <pvkernel/core/PVClassLibrary.h>
+#include <pvkernel/core/PVTaskProgress.h>
 #include <pvkernel/core/squey_assert.h>
 #include <pvkernel/rush/PVFileListDescription.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceCreator.h>
-#include <pvkernel/widgets/PVImportFilterDialog.h>
+#include <pvkernel/widgets/PVImportFilterWidget.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 
 #include <QApplication>
 #include <QFile>
@@ -54,12 +55,13 @@
 #include <QJsonObject>
 #include <QLabel>
 #include <QPlainTextEdit>
+#include <QRadioButton>
 #include <QTemporaryDir>
-#include <QTimer>
+#include <QTest>
 #include <QTreeWidget>
 
-#include <functional>
 #include <string>
+#include <vector>
 
 namespace
 {
@@ -75,8 +77,6 @@ constexpr const char* CSV_FORMAT = R"(<?xml version='1.0' encoding='UTF-8'?>
 </param>
 )";
 
-using choice_f = std::function<void(PVWidgets::PVImportFilterDialog&)>;
-
 void write(QString const& path, QByteArray const& content)
 {
 	QFile file(path);
@@ -84,67 +84,55 @@ void write(QString const& path, QByteArray const& content)
 	file.write(content);
 }
 
-/**
- * Has @p choose make the choice of the user, once the dialog of the columns and rows to import
- * shows.
- */
-void when_asked(const choice_f& choose)
+/** The content of the import page for files of @p type, once it read @p paths. */
+PVWidgets::PVImportWidget&
+content_of(PVGuiQt::PVImportPage& page, const PVRush::PVInputType_p& type, QStringList const& paths)
 {
-	QTimer::singleShot(10, [choose] {
-		auto* dialog =
-		    qobject_cast<PVWidgets::PVImportFilterDialog*>(QApplication::activeModalWidget());
-		if (dialog == nullptr) {
-			when_asked(choose);
-			return;
-		}
-		choose(*dialog);
-	});
+	PVWidgets::PVImportWidget* content = type->create_import_widget(nullptr);
+	page.set_content(content, "Import", {}, -1);
+	content->set_paths(paths);
+	PV_ASSERT_VALID(QTest::qWaitFor([content]() { return content->is_ready(); }, 30000));
+	return *content;
 }
 
-QTreeWidgetItem* item_of(PVWidgets::PVImportFilterDialog& dialog, QString const& column)
+QTreeWidgetItem* item_of(QWidget& content, QString const& column)
 {
 	const QList<QTreeWidgetItem*> items =
-	    dialog.findChild<QTreeWidget*>()->findItems(column, Qt::MatchExactly);
+	    content.findChild<QTreeWidget*>()->findItems(column, Qt::MatchExactly);
 	PV_VALID(items.size(), qsizetype(1), "column", column.toStdString());
 	return items.front();
 }
 
-std::string fill_rate_of(PVWidgets::PVImportFilterDialog& dialog, QString const& column)
+std::string fill_rate_of(QWidget& content, QString const& column)
 {
-	return item_of(dialog, column)->text(2).toStdString();
+	return item_of(content, column)->text(2).toStdString();
 }
 
-void uncheck(PVWidgets::PVImportFilterDialog& dialog, QString const& column)
+/** Writes @p condition, then waits for it to be checked, as when the user stops writing it. */
+void set_row_filter(QWidget& content, QString const& condition)
 {
-	item_of(dialog, column)->setCheckState(0, Qt::Unchecked);
+	content.findChild<QPlainTextEdit*>()->setPlainText(condition);
+	auto* filter = content.findChild<PVWidgets::PVImportFilterWidget*>();
+	PV_ASSERT_VALID(not filter->is_valid());
+	QLabel* error = content.findChild<QLabel*>("row_filter_error");
+	PV_ASSERT_VALID(QTest::qWaitFor(
+	    [&]() { return filter->is_valid() or not error->text().isEmpty(); }, 10000));
 }
 
-void set_row_filter(PVWidgets::PVImportFilterDialog& dialog, QString const& condition)
+std::string row_filter_error_of(QWidget& content)
 {
-	dialog.findChild<QPlainTextEdit*>()->setPlainText(condition);
+	return content.findChild<QLabel*>("row_filter_error")->text().toStdString();
 }
 
-/** The inputs and the format that @p type makes of @p paths, once @p choose made the choice. */
-std::pair<PVRush::PVInputType::list_inputs, PVRush::PVFormat>
-import_files(const PVRush::PVInputType_p& type, QStringList const& paths, const choice_f& choose)
-{
-	when_asked(choose);
-	PVRush::hash_formats formats;
-	PVRush::PVInputType::list_inputs inputs;
-	QString format_name;
-	PVCore::PVArgumentList arguments;
-	PV_ASSERT_VALID(type->create_widget_with_input_files(paths, formats, inputs, format_name,
-	                                                     arguments, nullptr));
-	return {inputs, formats[format_name]};
-}
-
+// The type as a char const*: GCC takes a QString made for the call, a temporary, for what the
+// reference returned refers to (-Wdangling-reference), which fails the build of Windows.
 Squey::PVSource& source_of(Squey::PVRoot& root,
-                           QString const& type,
+                           char const* type,
                            PVRush::PVInputType::list_inputs const& inputs,
                            PVRush::PVFormat const& format)
 {
 	Squey::PVSource& source =
-	    root.emplace_add_child(type.toStdString())
+	    root.emplace_add_child(std::string(type))
 	        .emplace_add_child(
 	            inputs, LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name(type), format);
 	source.wait_extract_end(source.extract(0));
@@ -186,27 +174,25 @@ int main(int argc, char** argv)
 	const PVRush::PVInputType_p json =
 	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json");
 	Squey::PVRoot root;
+	PVGuiQt::PVImportPage page;
+	page.show();
 
 	{
-		const auto [inputs, format] =
-		    import_files(json, {first, second}, [](PVWidgets::PVImportFilterDialog& dialog) {
-			    PV_VALID(fill_rate_of(dialog, "x"), std::string("100 %"));
-			    PV_VALID(fill_rate_of(dialog, "y.z"), std::string("67 %"));
-			    PV_VALID(fill_rate_of(dialog, "t"), std::string("33 %"));
-			    uncheck(dialog, "y.z");
+		PVWidgets::PVImportWidget& content = content_of(page, json, {first, second});
+		PV_VALID(fill_rate_of(content, "x"), std::string("100 %"));
+		PV_VALID(fill_rate_of(content, "y.z"), std::string("67 %"));
+		PV_VALID(fill_rate_of(content, "t"), std::string("33 %"));
+		item_of(content, "y.z")->setCheckState(0, Qt::Unchecked);
 
-			    set_row_filter(dialog, "nope > 1");
-			    dialog.accept();
-			    PV_ASSERT_VALID(dialog.isVisible());
-			    bool told = false;
-			    for (const QLabel* label : dialog.findChildren<QLabel*>()) {
-				    told |= label->isVisible() and label->text().contains("nope");
-			    }
-			    PV_ASSERT_VALID(told);
+		set_row_filter(content, "nope > 1");
+		PV_ASSERT_VALID(not content.is_ready());
+		PV_ASSERT_VALID(row_filter_error_of(content).find("nope") != std::string::npos);
+		set_row_filter(content, "x > 1");
+		PV_ASSERT_VALID(content.is_ready());
 
-			    set_row_filter(dialog, "x > 1");
-			    dialog.accept();
-		    });
+		const auto sources = content.sources();
+		PV_VALID(sources.size(), size_t(1));
+		const auto& [inputs, format] = sources.front();
 		PV_VALID(axes_of(format), std::string("filename:string,x:number_int64,t:time"));
 		PV_VALID(description_of(inputs).columns().join(",").toStdString(), std::string("x,t"));
 		PV_VALID(description_of(inputs).row_filter().toStdString(), std::string("x > 1"));
@@ -214,21 +200,55 @@ int main(int argc, char** argv)
 		PV_VALID(size_t(nraw.row_count()), size_t(2));
 		PV_VALID(nraw.at_string(0, PVCol(1)), std::string("2"));
 		PV_VALID(nraw.at_string(1, PVCol(1)), std::string("3"));
+
+		// The source of each file has no column of the names of the files, for the condition
+		// to read.
+		for (QRadioButton* button : content.findChildren<QRadioButton*>()) {
+			if (button->text() == "One source for each file") {
+				button->setChecked(true);
+			}
+		}
+		set_row_filter(content, "filename = 'second.ndjson'");
+		PV_ASSERT_VALID(not content.is_ready());
+		set_row_filter(content, "x > 1");
+		const auto file_sources = content.sources();
+		PV_VALID(file_sources.size(), size_t(2));
+		for (const auto& [file_inputs, file_format] : file_sources) {
+			PV_VALID(axes_of(file_format), std::string("x:number_int64,t:time"));
+			PV_VALID(description_of(file_inputs).paths().size(), qsizetype(1));
+		}
+		PV_VALID(description_of(file_sources.back().first).paths().front().toStdString(),
+		         second.toStdString());
+		page.clear_content();
 	}
 
 	{
-		// The parameters of a script, which the dialog does not show for.
+		// The parameters of a script, which the page does not show for.
 		PVRush::PVInputType::list_inputs inputs;
 		PVRush::PVFormat format;
+		PVCore::PVTaskProgress progress;
 		const QString params = QJsonDocument(QJsonObject{{"paths", QJsonArray{first, second}},
 		                                                 {"columns", QJsonArray{"x"}},
 		                                                 {"row_filter", "x < 3"}})
 		                           .toJson(QJsonDocument::Compact);
-		PV_ASSERT_VALID(json->create_source_description_params(params, inputs, format));
+		PV_ASSERT_VALID(json->create_source_description_params(params, inputs, format, progress));
 		PV_VALID(axes_of(format), std::string("filename:string,x:number_int64"));
 		const PVRush::PVNraw& nraw = source_of(root, "json", inputs, format).get_rushnraw();
 		PV_VALID(size_t(nraw.row_count()), size_t(2));
 		PV_VALID(nraw.at_string(1, PVCol(0)), std::string("second.ndjson"));
+
+		// What is wrong with them is thrown, rather than shown.
+		const QString wrong =
+		    QJsonDocument(QJsonObject{{"paths", QJsonArray{first}}, {"row_filter", "nope > 1"}})
+		        .toJson(QJsonDocument::Compact);
+		bool thrown = false;
+		try {
+			inputs.clear();
+			json->create_source_description_params(wrong, inputs, format, progress);
+		} catch (const std::runtime_error& e) {
+			thrown = std::string(e.what()).find("nope") != std::string::npos;
+		}
+		PV_ASSERT_VALID(thrown);
 	}
 
 	{
@@ -250,19 +270,19 @@ int main(int argc, char** argv)
 
 		const PVRush::PVInputType_p type =
 		    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("parquet");
-		const auto [inputs, format] =
-		    import_files(type, {parquet}, [](PVWidgets::PVImportFilterDialog& dialog) {
-			    PV_VALID(fill_rate_of(dialog, "axis1"), std::string("100 %"));
-			    PV_VALID(fill_rate_of(dialog, "axis2"), std::string("50 %"));
-			    uncheck(dialog, "axis1");
-			    set_row_filter(dialog, "axis1 > 1");
-			    dialog.accept();
-		    });
+		PVWidgets::PVImportWidget& content = content_of(page, type, {parquet});
+		PV_VALID(fill_rate_of(content, "axis1"), std::string("100 %"));
+		PV_VALID(fill_rate_of(content, "axis2"), std::string("50 %"));
+		item_of(content, "axis1")->setCheckState(0, Qt::Unchecked);
+		set_row_filter(content, "axis1 > 1");
+		const auto sources = content.sources();
+		const auto& [inputs, format] = sources.front();
 		PV_VALID(axes_of(format), std::string("axis2:number_uint32,axis3:number_uint32"));
 		const PVRush::PVNraw& nraw = source_of(root, "parquet", inputs, format).get_rushnraw();
 		PV_VALID(size_t(nraw.row_count()), size_t(1));
 		PV_VALID(nraw.at_string(0, PVCol(0)), std::string("5"));
 		PV_VALID(nraw.at_string(0, PVCol(1)), std::string("6"));
+		page.clear_content();
 	}
 
 	return 0;

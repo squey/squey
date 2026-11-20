@@ -31,10 +31,13 @@
 #include <QString>
 #include <QStringList>
 
+#include <memory>
+
 namespace PVRush
 {
 
 class PVJsonFileDescription;
+class PVJsonSchema;
 
 /**
  * Files of one JSON object per line, such as JSON Lines, whose fields are the axes. Compressed
@@ -46,7 +49,9 @@ class PVInputTypeJson : public PVInputTypeFileList
 	PVInputTypeJson();
 
   public:
-	PVFormat get_format_from_inputs(list_inputs const& inputs) const override;
+	/** After finding the schema of the files of @p inputs, if they have none. */
+	PVFormat get_format_from_inputs(list_inputs const& inputs,
+	                                PVCore::PVTaskProgress* progress = nullptr) const override;
 
 	QString name() const override;
 	QString human_name() const override;
@@ -62,11 +67,14 @@ class PVInputTypeJson : public PVInputTypeFileList
 	PVInputDescription_p load_input_from_string(pvcop::db::format const& fields,
 	                                            bool multi_inputs) override;
 
-  protected:
 	QString files_dialog_title() const override;
 	QString files_dialog_filter() const override;
-	bool
-	describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const override;
+	/** With the schema of the files, which reading them all finds. */
+	std::shared_ptr<PVFileListDescription> describe(const QStringList& paths,
+	                                                PVCore::PVTaskProgress& progress,
+	                                                QStringList& warnings) const override;
+	std::shared_ptr<PVFileListDescription> with_paths(const PVFileListDescription& description,
+	                                                  const QStringList& paths) const override;
 	/** From the counts of the values of the schema of the files. */
 	QHash<QString, double> fill_rates(const PVFileListDescription& input_desc) const override;
 	QString row_filter_error(const PVFileListDescription& input_desc,
@@ -74,22 +82,14 @@ class PVInputTypeJson : public PVInputTypeFileList
 
   private:
 	/**
-	 * Finds the schema of the files of @p input_desc, while the user sees the progress.
+	 * The schema of the files @p paths, while @p progress, if any, shows how far the reading got
+	 * and can stop it: nullptr then.
 	 *
-	 * @return false if the user stopped it, or, after telling the user why, if the files have no
-	 * column
-	 * @throw std::runtime_error if a file cannot be read
+	 * @param warnings receives, if any, what to tell the user about lines left out
+	 * @throw std::runtime_error if a file cannot be read, or if the files have no column
 	 */
-	bool find_schema(PVJsonFileDescription& input_desc) const;
-
-	/**
-	 * Sets @p format to that of the columns that @p input_desc imports, after finding the schema
-	 * of its files if it has none.
-	 *
-	 * @return false as find_schema() does
-	 * @throw std::runtime_error as find_schema() does
-	 */
-	bool find_format(PVJsonFileDescription& input_desc, PVFormat& format) const;
+	static std::shared_ptr<const PVJsonSchema>
+	schema_of(const QStringList& paths, PVCore::PVTaskProgress* progress, QStringList* warnings);
 
   protected:
 	CLASS_REGISTRABLE_NOCOPY(PVInputTypeJson)

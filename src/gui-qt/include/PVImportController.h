@@ -37,12 +37,19 @@
 #include <atomic>
 #include <chrono>
 #include <deque>
+#include <functional>
 #include <memory>
+#include <optional>
 #include <utility>
 #include <vector>
 
 class QShortcut;
 class QThread;
+
+namespace PVCore
+{
+class PVTaskProgress;
+} // namespace PVCore
 
 namespace Squey
 {
@@ -87,9 +94,16 @@ class PVImportController : public QObject
   public:
 	/**
 	 * Imports @p sources once those given before are, and the task of the content, if one runs,
-	 * each into the current data collection, or into a new one when there is none.
+	 * each into the current data collection, or into a new one when there is none. The format of
+	 * a source that has none is made from its inputs, out of the GUI thread.
 	 */
 	void import(std::vector<PVRush::PVSourceDescription> sources);
+
+	/**
+	 * Imports, as import() does, the source that the parameters @p params ask @p type for, which
+	 * it reads out of the GUI thread.
+	 */
+	void import_params(PVRush::PVInputType_p type, QString params);
 
 	/**
 	 * Shows @p content, which asks for an import of @p type, in the import page, which owns it.
@@ -107,7 +121,16 @@ class PVImportController : public QObject
 	void idle();
 
   private:
-	enum class State { idle, extracting, processing };
+	enum class State { idle, preparing, extracting, processing };
+
+	/** A source to import, or what makes its description first, out of the GUI thread. */
+	struct Import {
+		/** As the messages about it name it. */
+		QString name;
+		std::optional<PVRush::PVSourceDescription> description;
+		/** The description, or nothing if the progress it reports to was canceled. */
+		std::function<std::optional<PVRush::PVSourceDescription>(PVCore::PVTaskProgress&)> prepare;
+	};
 
 	PVGuiQt::PVProjectsTabWidget& projects() const;
 	PVGuiQt::PVImportPage& page() const;
@@ -118,9 +141,13 @@ class PVImportController : public QObject
 	void task_finished();
 
 	void begin();
+	void enqueue(Import import);
 	/** Starts the import of the next source, once the event loop got its turn. */
 	void next();
 	void start_next();
+	void prepare(std::function<std::optional<PVRush::PVSourceDescription>(PVCore::PVTaskProgress&)>
+	                 prepare);
+	void create(PVRush::PVSourceDescription description);
 	void poll();
 	void check_memory();
 	void stop_extraction();
@@ -141,7 +168,7 @@ class PVImportController : public QObject
 
   private:
 	PVMainWindow& _window;
-	std::deque<PVRush::PVSourceDescription> _queue;
+	std::deque<Import> _queue;
 	State _state = State::idle;
 	bool _busy = false;
 
@@ -166,6 +193,8 @@ class PVImportController : public QObject
 	/** The question that pauses the extraction, if any. */
 	QPointer<QWidget> _question;
 
+	/** That of the preparation, if one runs. */
+	std::shared_ptr<PVCore::PVTaskProgress> _preparing;
 	QThread* _worker = nullptr;
 	/** Of the processing that _worker runs, from 0 to 3. */
 	std::atomic<int> _processing_step = 0;

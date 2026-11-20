@@ -22,12 +22,13 @@
  * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 
-#ifndef __PVWIDGETS_PVIMPORTFILTERDIALOG_H__
-#define __PVWIDGETS_PVIMPORTFILTERDIALOG_H__
+#ifndef __PVWIDGETS_PVIMPORTFILTERWIDGET_H__
+#define __PVWIDGETS_PVIMPORTFILTERWIDGET_H__
 
-#include <QDialog>
 #include <QString>
 #include <QStringList>
+#include <QTimer>
+#include <QWidget>
 
 #include <functional>
 #include <optional>
@@ -36,7 +37,6 @@
 class QLabel;
 class QLineEdit;
 class QPlainTextEdit;
-class QPushButton;
 class QTreeWidget;
 
 namespace PVWidgets
@@ -44,9 +44,9 @@ namespace PVWidgets
 
 /**
  * The columns and the rows to import from files: the user checks the columns among those found,
- * and may give a SQL condition that the rows to import hold.
+ * and may give a SQL condition that the rows to import hold, which is checked as it is written.
  */
-class PVImportFilterDialog : public QDialog
+class PVImportFilterWidget : public QWidget
 {
 	Q_OBJECT
 
@@ -62,25 +62,33 @@ class PVImportFilterDialog : public QDialog
 	using error_of_t = std::function<QString(const QString& condition)>;
 
   public:
-	/**
-	 * Starts with the columns named @p checked checked, or all of them if none, and with the
-	 * condition @p row_filter. The dialog accepts no condition that @p error_of finds wrong.
-	 */
-	PVImportFilterDialog(const std::vector<Column>& columns,
-	                     const QStringList& checked,
-	                     const QString& row_filter,
-	                     error_of_t error_of,
-	                     QWidget* parent = nullptr);
+	explicit PVImportFilterWidget(QWidget* parent = nullptr);
 
   public:
+	/**
+	 * Lists @p columns, those named @p checked checked, or all of them if none, with the
+	 * condition @p row_filter, which @p error_of checks.
+	 */
+	void set_columns(const std::vector<Column>& columns,
+	                 const QStringList& checked,
+	                 const QString& row_filter,
+	                 error_of_t error_of);
+
 	/** The names of the columns checked, or none if all of them are. */
 	QStringList columns() const;
 
 	/** The condition that the rows to import hold, or none for all of them. */
 	QString row_filter() const;
 
-  public Q_SLOTS:
-	void accept() override;
+	/** Whether a column is checked, and the condition is checked and found right. */
+	bool is_valid() const;
+
+	/** Checks the condition at once, rather than once the user stops writing it. */
+	void check_row_filter();
+
+  Q_SIGNALS:
+	/** The columns checked, the condition or what is wrong with it changed. */
+	void changed();
 
   private:
 	void update_count();
@@ -92,9 +100,10 @@ class PVImportFilterDialog : public QDialog
 	QLabel* _count;
 	QPlainTextEdit* _row_filter;
 	QLabel* _error;
-	QPushButton* _ok;
+	QTimer _check_timer;
+	bool _row_filter_checked = false;
 };
 
 } // namespace PVWidgets
 
-#endif // __PVWIDGETS_PVIMPORTFILTERDIALOG_H__
+#endif // __PVWIDGETS_PVIMPORTFILTERWIDGET_H__

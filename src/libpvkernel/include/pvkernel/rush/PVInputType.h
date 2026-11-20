@@ -44,6 +44,11 @@
 #include <QStringList>
 #include "PVExporter.h"
 
+namespace PVCore
+{
+class PVTaskProgress;
+} // namespace PVCore
+
 namespace PVWidgets
 {
 class PVImportWidget;
@@ -62,13 +67,21 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	typedef list_inputs list_inputs_desc;
 
   public:
+	/**
+	 * Asks the user for an import in dialogs, for a type that has no create_import_widget().
+	 *
+	 * @return false if the user canceled
+	 */
 	virtual bool create_widget(
-	    hash_formats& formats,
-        list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const = 0;
+	    hash_formats& /*formats*/,
+	    list_inputs& /*inputs*/,
+	    QString& /*format*/,
+	    PVCore::PVArgumentList& /*args_ext*/,
+	    QWidget* /*parent*/ = nullptr
+	) const
+	{
+		return false;
+	}
 
 	/**
 	 * What asks for an import of this type in the import page of the main window, or nullptr for
@@ -88,14 +101,35 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
         QWidget* /*parent = nullptr*/
     ) const { return false; }
 
+	/**
+	 * Describes the inputs that the parameters @p params_json ask for, and their format, out of
+	 * the GUI thread: it may take long to read them, while @p progress shows how far it got and
+	 * can stop it.
+	 *
+	 * @return false if the type takes no parameters, or if @p progress was canceled
+	 * @throw std::runtime_error with what to tell the user, if they cannot be imported
+	 */
 	virtual bool create_source_description_params(
         const QString& /*params_json*/,
         list_inputs& /*inputs*/,
-        PVFormat& /*format*/
+        PVFormat& /*format*/,
+        PVCore::PVTaskProgress& /*progress*/
 	) const { return false; }
 
 	virtual bool has_generated_format() const { return false; }
-	virtual PVFormat get_format_from_inputs(list_inputs const& /*inputs*/) const { return {}; }
+
+	/**
+	 * The format of @p inputs, for a type that makes it from them. Out of the GUI thread, it may
+	 * take long to read them, while @p progress, if any, shows how far it got and can stop it:
+	 * the format is then empty.
+	 *
+	 * @throw std::runtime_error with what to tell the user, if the inputs cannot be imported
+	 */
+	virtual PVFormat get_format_from_inputs(list_inputs const& /*inputs*/,
+	                                        PVCore::PVTaskProgress* /*progress*/ = nullptr) const
+	{
+		return {};
+	}
 
 	/* exporter */
 	virtual std::unique_ptr<PVRush::PVExporterBase>

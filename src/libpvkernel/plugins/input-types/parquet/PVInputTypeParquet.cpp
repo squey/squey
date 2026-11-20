@@ -41,11 +41,13 @@
 
 #include <QSet>
 
-#include <QMessageBox>
 #include <QFileInfo>
 #include <QStandardPaths>
 
 #include <sys/time.h>
+
+#include <memory>
+#include <stdexcept>
 
 PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeFileList()
 {
@@ -61,26 +63,25 @@ QString PVRush::PVInputTypeParquet::files_dialog_filter() const
 	return tr("Apache Parquet files (*.parquet)");
 }
 
-bool PVRush::PVInputTypeParquet::describe_files(const QStringList& paths, list_inputs& inputs, PVFormat& format) const
+std::shared_ptr<PVRush::PVFileListDescription>
+PVRush::PVInputTypeParquet::describe(const QStringList& paths,
+                                     PVCore::PVTaskProgress& /*progress*/,
+                                     QStringList& /*warnings*/) const
 {
-	try {
-		PVFileListDescription* input_desc = new PVFileListDescription(paths);
-		PVParquetAPI api(input_desc);
-
-		if (not api.same_schemas()) {
-			QMessageBox::critical(nullptr, tr("Incompatible schemas"), tr("All files should have the exact same schema in order to be loaded as a concatenation."));
-			return false;
-		}
-
-		format = PVRush::PVFormat(api.get_format().documentElement());
-		inputs.push_back(PVInputDescription_p(input_desc));
+	auto input_desc = std::make_shared<PVFileListDescription>(paths);
+	if (not PVParquetAPI(input_desc.get()).same_schemas()) {
+		throw std::runtime_error(tr("All files should have the exact same schema in order to be "
+		                            "loaded as a concatenation.")
+		                             .toStdString());
 	}
-	catch (const std::exception& e) {
-		QMessageBox::critical(nullptr, tr("Error when loading files"), e.what());
-		return false;
-	}
+	return input_desc;
+}
 
-	return true;
+std::shared_ptr<PVRush::PVFileListDescription>
+PVRush::PVInputTypeParquet::with_paths(const PVFileListDescription& /*description*/,
+                                       const QStringList& paths) const
+{
+	return std::make_shared<PVFileListDescription>(paths);
 }
 
 QHash<QString, double>
@@ -152,7 +153,9 @@ QString PVRush::PVInputTypeParquet::row_filter_error(const PVFileListDescription
 	}
 }
 
-PVRush::PVFormat PVRush::PVInputTypeParquet::get_format_from_inputs(list_inputs const& inputs) const
+PVRush::PVFormat
+PVRush::PVInputTypeParquet::get_format_from_inputs(list_inputs const& inputs,
+                                                   PVCore::PVTaskProgress* /*progress*/) const
 {
 	if (inputs.isEmpty()) {
 		return {};

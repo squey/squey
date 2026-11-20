@@ -25,92 +25,27 @@
 
 #include <pvkernel/rush/PVInputTypeFileList.h>
 
-#include <pvkernel/widgets/PVFileDialog.h>
-#include <pvkernel/widgets/PVImportFilterDialog.h>
+#include <pvkernel/core/PVTaskProgress.h>
+#include <pvkernel/widgets/PVFileListImportWidget.h>
 
 #include <rapidjson/document.h>
 
 #include <QFileInfo>
-#include <QMessageBox>
-#include <QStandardPaths>
 
 #include <cassert>
-#include <optional>
+#include <stdexcept>
 #include <string>
-#include <vector>
 
-bool PVRush::PVInputTypeFileList::create_widget(hash_formats& formats,
-                                                list_inputs& inputs,
-                                                QString& format_str,
-                                                PVCore::PVArgumentList& args_ext,
-                                                QWidget* parent) const
+PVWidgets::PVImportWidget* PVRush::PVInputTypeFileList::create_import_widget(QWidget* parent) const
 {
-	// Get information from file dialog
-	QStringList file_paths = PVWidgets::PVFileDialog::getOpenFileNames(
-	    parent, files_dialog_title(),
-	    QStandardPaths::writableLocation(QStandardPaths::HomeLocation), files_dialog_filter());
-	if (file_paths.size() == 0) {
-		return false;
-	}
-
-	return create_widget_with_input_files(file_paths, formats, inputs, format_str, args_ext,
-	                                      parent);
+	return new PVWidgets::PVFileListImportWidget(*this, parent);
 }
 
-bool PVRush::PVInputTypeFileList::create_widget_with_input_files(
-    const QStringList& input_paths,
-    hash_formats& formats,
+bool PVRush::PVInputTypeFileList::create_source_description_params(
+    const QString& params_json,
     list_inputs& inputs,
-    QString& format_str,
-    PVCore::PVArgumentList& /*args_ext*/,
-    QWidget* parent) const
-{
-	PVFormat format;
-	list_inputs described;
-	if (describe_files(input_paths, described, format) and choose(described, format, parent)) {
-		inputs << described;
-		formats[QString("custom")] = format;
-		format_str = "custom";
-		return true;
-	} else {
-		return false;
-	}
-}
-
-bool PVRush::PVInputTypeFileList::choose(const list_inputs& inputs,
-                                         PVFormat& format,
-                                         QWidget* parent) const
-{
-	auto& input_desc = static_cast<PVFileListDescription&>(*inputs.front());
-	const QHash<QString, double> rates = fill_rates(input_desc);
-	std::vector<PVWidgets::PVImportFilterDialog::Column> columns;
-	const QList<PVAxisFormat>& axes = format.get_axes();
-	// But for the column of the names of the files, which a source of several files always has.
-	for (qsizetype axis = input_desc.multi_inputs() ? 1 : 0; axis < axes.size(); axis++) {
-		const QString& name = axes[axis].get_name();
-		columns.push_back(
-		    {name, axes[axis].get_type(),
-		     rates.contains(name) ? std::optional<double>(rates[name]) : std::nullopt});
-	}
-
-	PVWidgets::PVImportFilterDialog dialog(
-	    columns, input_desc.columns(), input_desc.row_filter(),
-	    [this, &input_desc](const QString& condition) {
-		    return row_filter_error(input_desc, condition);
-	    },
-	    parent);
-	if (dialog.exec() != QDialog::Accepted) {
-		return false;
-	}
-	input_desc.set_columns(dialog.columns());
-	input_desc.set_row_filter(dialog.row_filter());
-	format = get_format_from_inputs(inputs);
-	return format.get_axes().size() > 0;
-}
-
-bool PVRush::PVInputTypeFileList::create_source_description_params(const QString& params_json,
-                                                                   list_inputs& inputs,
-                                                                   PVFormat& format) const
+    PVFormat& format,
+    PVCore::PVTaskProgress& progress) const
 {
 	QStringList paths;
 	QStringList columns;
@@ -140,29 +75,26 @@ bool PVRush::PVInputTypeFileList::create_source_description_params(const QString
 		}
 	}
 	if (paths.isEmpty()) {
-		QMessageBox::critical(
-		    nullptr, tr("%1 | Import data parameters error").arg(menu_input_name()),
-		    "Unable to import data using the following JSON parameters: \n\n" + params_json);
-		return false;
+		throw std::runtime_error(
+		    tr("Unable to import data using the following JSON parameters:\n\n%1")
+		        .arg(params_json)
+		        .toStdString());
 	}
 
-	list_inputs described;
-	if (not describe_files(paths, described, format)) {
+	QStringList warnings;
+	std::shared_ptr<PVFileListDescription> input_desc = describe(paths, progress, warnings);
+	if (input_desc == nullptr) {
 		return false;
 	}
-	auto& input_desc = static_cast<PVFileListDescription&>(*described.front());
-	if (not columns.isEmpty() or not row_filter.isEmpty()) {
-		if (const QString error =
-		        row_filter.isEmpty() ? QString() : row_filter_error(input_desc, row_filter);
-		    not error.isEmpty()) {
-			QMessageBox::critical(nullptr, tr("%1 | Rows to import").arg(menu_input_name()), error);
-			return false;
+	if (not row_filter.isEmpty()) {
+		if (const QString error = row_filter_error(*input_desc, row_filter); not error.isEmpty()) {
+			throw std::runtime_error(error.toStdString());
 		}
-		input_desc.set_columns(columns);
-		input_desc.set_row_filter(row_filter);
-		format = get_format_from_inputs(described);
 	}
-	inputs << described;
+	input_desc->set_columns(columns);
+	input_desc->set_row_filter(row_filter);
+	inputs << input_desc;
+	format = get_format_from_inputs(inputs);
 	return true;
 }
 
