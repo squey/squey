@@ -31,6 +31,7 @@
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QAction>
@@ -250,7 +251,7 @@ CapturesPanel::CapturesPanel(QWidget* parent) : QWidget(parent)
 	layout->setSpacing(6);
 
 	auto* header = new QHBoxLayout;
-	header->addWidget(style::section_title(tr("Captures")));
+	header->addWidget(PVWidgets::PVImportWidget::section_title(tr("Captures")));
 	header->addStretch();
 	auto* add = new QToolButton;
 	add->setObjectName("add_captures_button");

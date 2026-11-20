@@ -29,6 +29,7 @@
 
 #include <libpvpcap/ws.h>
 
+#include <pvkernel/widgets/PVImportWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QHeaderView>
@@ -566,7 +567,7 @@ FieldsPanel::FieldsPanel(QWidget* parent)
 	auto* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->setSpacing(6);
-	layout->addWidget(style::section_title(tr("Fields")));
+	layout->addWidget(PVWidgets::PVImportWidget::section_title(tr("Fields")));
 
 	_search = new QLineEdit;
 	_search->setObjectName("fields_search");

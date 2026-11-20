@@ -98,7 +98,7 @@ content_of(PVGuiQt::PVImportPage& page, const PVRush::PVInputType_p& type, QStri
 QTreeWidgetItem* item_of(QWidget& content, QString const& column)
 {
 	const QList<QTreeWidgetItem*> items =
-	    content.findChild<QTreeWidget*>()->findItems(column, Qt::MatchExactly);
+	    content.findChild<QTreeWidget*>("import_columns")->findItems(column, Qt::MatchExactly);
 	PV_VALID(items.size(), qsizetype(1), "column", column.toStdString());
 	return items.front();
 }

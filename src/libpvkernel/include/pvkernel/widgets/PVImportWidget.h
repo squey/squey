@@ -40,6 +40,8 @@
 #include <utility>
 #include <vector>
 
+class QLabel;
+
 namespace PVCore
 {
 class PVTaskProgress;
@@ -117,6 +119,12 @@ class PVKERNEL_EXPORT PVImportWidget : public QWidget
 	 * @throw std::runtime_error if it cannot be read
 	 */
 	static PVRush::PVFormat format_of(QString const& path);
+
+	/**
+	 * The title of a part of what the import page shows, such as "FILES", in the color the theme
+	 * gives to secondary text.
+	 */
+	static QLabel* section_title(QString const& text);
 
 	/** How the page runs the long tasks of the widget, which it sets before showing it. */
 	void set_task_runner(task_runner_t runner) { _run_task = std::move(runner); }

@@ -40,7 +40,8 @@ PVWidgets::PVFileListImportWidget::PVFileListImportWidget(const PVRush::PVInputT
                                                           QWidget* parent)
     : PVImportWidget(parent)
     , _type(type)
-    , _files(new PVImportFilesWidget(type.files_dialog_title(), type.files_dialog_filter()))
+    , _files(new PVImportFilesWidget(
+          type.files_dialog_title(), type.files_dialog_filter(), type.icon()))
     , _filter(new PVImportFilterWidget)
 {
 	_filter->hide();

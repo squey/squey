@@ -24,6 +24,9 @@
 
 #include <pvkernel/widgets/PVImportFilterWidget.h>
 
+#include <pvkernel/widgets/PVImportWidget.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
+
 #include <QHBoxLayout>
 #include <QHeaderView>
 #include <QLabel>
@@ -48,10 +51,11 @@ PVWidgets::PVImportFilterWidget::PVImportFilterWidget(QWidget* parent) : QWidget
 	_search = new QLineEdit;
 	_search->setPlaceholderText(tr("Search the columns"));
 	_search->setClearButtonEnabled(true);
-	auto* check_all = new QPushButton(tr("Check all"));
-	auto* check_none = new QPushButton(tr("Check none"));
+	auto* check_all = new QPushButton(PVModdedIcon("square-check"), " " + tr("Check all"));
+	auto* check_none = new QPushButton(PVModdedIcon("square"), " " + tr("Check none"));
 
 	_columns = new QTreeWidget;
+	_columns->setObjectName("import_columns");
 	_columns->setHeaderLabels({tr("Column"), tr("Type"), tr("Filled")});
 	_columns->setRootIsDecorated(false);
 	_columns->setUniformRowHeights(true);
@@ -81,11 +85,11 @@ PVWidgets::PVImportFilterWidget::PVImportFilterWidget(QWidget* parent) : QWidget
 	search_layout->addWidget(check_none);
 	auto* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addWidget(new QLabel(tr("Columns")));
+	layout->addWidget(PVImportWidget::section_title(tr("Columns")));
 	layout->addLayout(search_layout);
 	layout->addWidget(_columns);
 	layout->addWidget(_count);
-	layout->addWidget(new QLabel(tr("Rows")));
+	layout->addWidget(PVImportWidget::section_title(tr("Rows")));
 	layout->addWidget(_row_filter);
 	layout->addWidget(row_filter_help);
 	layout->addWidget(_error);

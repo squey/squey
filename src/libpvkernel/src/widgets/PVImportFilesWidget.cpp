@@ -25,35 +25,105 @@
 #include <pvkernel/widgets/PVImportFilesWidget.h>
 
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVImportWidget.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
+#include <QAction>
+#include <QDir>
 #include <QFileInfo>
 #include <QHBoxLayout>
+#include <QHeaderView>
 #include <QLabel>
-#include <QListWidget>
+#include <QLocale>
 #include <QPushButton>
 #include <QRadioButton>
 #include <QStandardPaths>
+#include <QToolButton>
+#include <QTreeWidget>
 #include <QVBoxLayout>
 
+#include <algorithm>
 #include <utility>
+
+namespace
+{
+
+enum FileColumn { FILE_NAME, FILE_SIZE, FILE_FOLDER };
+
+/** Such as "~/data" for a folder of the home directory. */
+QString folder_of(QString const& path)
+{
+	const QString folder = QDir::toNativeSeparators(QFileInfo(path).absolutePath());
+	const QString home = QDir::toNativeSeparators(QDir::homePath());
+	if (folder == home or folder.startsWith(home + QDir::separator())) {
+		return "~" + folder.mid(home.size());
+	}
+	return folder;
+}
+
+/** Such as "54.2 MB", as the captures of pcap tell their size. */
+QString size_of(qint64 bytes)
+{
+	return QLocale().formattedDataSize(bytes, 1, QLocale::DataSizeSIFormat);
+}
+
+QToolButton* file_tool_button(QString const& icon, QString const& tip)
+{
+	auto* button = new QToolButton;
+	button->setIcon(PVModdedIcon(icon));
+	button->setToolTip(tip);
+	button->setAutoRaise(true);
+	return button;
+}
+
+} // namespace
 
 PVWidgets::PVImportFilesWidget::PVImportFilesWidget(QString dialog_title,
                                                     QString dialog_filter,
+                                                    QIcon icon,
                                                     QWidget* parent)
     : QWidget(parent)
     , _dialog_title(std::move(dialog_title))
     , _dialog_filter(std::move(dialog_filter))
-    , _files(new QListWidget)
-    , _remove(new QPushButton(tr("Remove")))
+    , _icon(std::move(icon))
+    , _ask(new QToolButton)
+    , _files(new QTreeWidget)
+    , _summary(new QLabel)
+    , _remove(file_tool_button("trash-xmark", tr("Remove the selected files (Delete)")))
     , _sources(new QWidget)
     , _source_per_file(new QRadioButton(tr("One source for each file")))
 {
-	auto* add = new QPushButton(tr("Add files..."));
+	QToolButton* add = file_tool_button("folder-plus", tr("Add files"));
+	add->setObjectName("import_add_files");
+	_remove->setObjectName("import_remove_files");
+	_remove->setEnabled(false);
+	_summary->setObjectName("import_files_summary");
+	_summary->setProperty("secondary", true);
+
+	// As the list of the captures of pcap asks for some.
+	_ask->setObjectName("import_ask_files");
+	_ask->setIcon(_icon);
+	_ask->setIconSize(QSize(40, 40));
+	_ask->setText(tr("Drop files here,\nor click to choose them"));
+	_ask->setToolButtonStyle(Qt::ToolButtonTextUnderIcon);
+	_ask->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
+	_ask->setMinimumHeight(8 * fontMetrics().lineSpacing());
+	_ask->setCursor(Qt::PointingHandCursor);
+
 	_files->setObjectName("import_files");
 	_source_per_file->setObjectName("import_source_per_file");
+	_files->setHeaderLabels({tr("Name"), tr("Size"), tr("Folder")});
+	_files->setRootIsDecorated(false);
+	_files->setUniformRowHeights(true);
 	_files->setSelectionMode(QAbstractItemView::ExtendedSelection);
-	_files->setMaximumHeight(_files->fontMetrics().lineSpacing() * 8);
-	_remove->setEnabled(false);
+	_files->header()->setSectionResizeMode(FILE_NAME, QHeaderView::ResizeToContents);
+	_files->header()->setSectionResizeMode(FILE_SIZE, QHeaderView::ResizeToContents);
+	_files->hide();
+	auto* remove = new QAction(PVModdedIcon("trash-xmark"), tr("Remove"), _files);
+	remove->setShortcuts({QKeySequence::Delete, QKeySequence(Qt::Key_Backspace)});
+	remove->setShortcutContext(Qt::WidgetShortcut);
+	_files->addAction(remove);
+	_files->setContextMenuPolicy(Qt::ActionsContextMenu);
 
 	auto* one_source = new QRadioButton(tr("One source of all the files"));
 	one_source->setChecked(true);
@@ -64,23 +134,25 @@ PVWidgets::PVImportFilesWidget::PVImportFilesWidget(QString dialog_title,
 	sources_layout->addStretch();
 	_sources->hide();
 
-	auto* file_buttons = new QVBoxLayout;
-	file_buttons->addWidget(add);
-	file_buttons->addWidget(_remove);
-	file_buttons->addStretch();
-	auto* files_layout = new QHBoxLayout;
-	files_layout->addWidget(_files);
-	files_layout->addLayout(file_buttons);
+	auto* header = new QHBoxLayout;
+	header->addWidget(PVImportWidget::section_title(tr("Files")));
+	header->addStretch();
+	header->addWidget(_summary);
+	header->addWidget(add);
+	header->addWidget(_remove);
 
 	auto* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addWidget(new QLabel(tr("Files")));
-	layout->addLayout(files_layout);
+	layout->addLayout(header);
+	layout->addWidget(_ask);
+	layout->addWidget(_files);
 	layout->addWidget(_sources);
 
-	connect(add, &QPushButton::clicked, this, &PVImportFilesWidget::add_files);
-	connect(_remove, &QPushButton::clicked, this, &PVImportFilesWidget::remove_files);
-	connect(_files, &QListWidget::itemSelectionChanged, this,
+	connect(add, &QToolButton::clicked, this, &PVImportFilesWidget::add_files);
+	connect(_ask, &QToolButton::clicked, this, &PVImportFilesWidget::add_files);
+	connect(_remove, &QToolButton::clicked, this, &PVImportFilesWidget::remove_files);
+	connect(remove, &QAction::triggered, this, &PVImportFilesWidget::remove_files);
+	connect(_files, &QTreeWidget::itemSelectionChanged, this,
 	        [this]() { _remove->setEnabled(not _files->selectedItems().isEmpty()); });
 	connect(_source_per_file, &QRadioButton::toggled, this, &PVImportFilesWidget::sources_changed);
 }
@@ -89,9 +161,32 @@ void PVWidgets::PVImportFilesWidget::set_paths(QStringList const& paths)
 {
 	_paths = paths;
 	_files->clear();
+	qint64 size = 0;
 	for (const QString& path : _paths) {
-		auto* item = new QListWidgetItem(QFileInfo(path).fileName(), _files);
-		item->setToolTip(path);
+		const QFileInfo info(path);
+		size += info.size();
+		auto* item =
+		    new QTreeWidgetItem(_files, {info.fileName(), size_of(info.size()), folder_of(path)});
+		item->setIcon(FILE_NAME, _icon);
+		item->setTextAlignment(FILE_SIZE, Qt::AlignRight | Qt::AlignVCenter);
+		item->setToolTip(FILE_NAME, QDir::toNativeSeparators(path));
+		item->setToolTip(FILE_FOLDER, QDir::toNativeSeparators(info.absolutePath()));
+	}
+	// As tall as its rows, from three to ten, then it scrolls.
+	if (not _paths.isEmpty()) {
+		const int rows = std::clamp(int(_paths.size()), 3, 10);
+		_files->setFixedHeight(_files->header()->sizeHint().height() +
+		                       rows * _files->sizeHintForRow(0) + 2 * _files->frameWidth());
+	}
+	_ask->setVisible(_paths.isEmpty());
+	_files->setVisible(not _paths.isEmpty());
+	_remove->setEnabled(false);
+	if (_paths.isEmpty()) {
+		_summary->clear();
+	} else {
+		const QString total = size_of(size);
+		_summary->setText(_paths.size() == 1 ? tr("1 file, %1").arg(total)
+		                                     : tr("%1 files, %2").arg(_paths.size()).arg(total));
 	}
 	_sources->setVisible(_paths.size() > 1);
 	Q_EMIT paths_changed();
@@ -139,8 +234,8 @@ void PVWidgets::PVImportFilesWidget::add_files()
 void PVWidgets::PVImportFilesWidget::remove_files()
 {
 	QStringList kept;
-	for (int row = 0; row < _files->count(); row++) {
-		if (not _files->item(row)->isSelected()) {
+	for (int row = 0; row < _files->topLevelItemCount(); row++) {
+		if (not _files->topLevelItem(row)->isSelected()) {
 			kept << _paths[row];
 		}
 	}

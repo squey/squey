@@ -49,18 +49,6 @@ bool dark()
 
 } // namespace
 
-QLabel* section_title(const QString& text)
-{
-	auto* label = new QLabel(text.toUpper());
-	QFont font = label->font();
-	font.setBold(true);
-	font.setPointSizeF(font.pointSizeF() * 0.85);
-	font.setLetterSpacing(QFont::AbsoluteSpacing, 1);
-	label->setFont(font);
-	color_label(label, secondary());
-	return label;
-}
-
 QColor secondary()
 {
 	// Between the text and the disabled text of the style sheets of Squey: the palette does

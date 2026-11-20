@@ -32,6 +32,7 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/widgets/PVImportFilesWidget.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QButtonGroup>
 #include <QFile>
@@ -50,12 +51,14 @@
 PVRush::PVTextImportWidget::PVTextImportWidget(PVInputTypeFilename const& type, QWidget* parent)
     : PVImportWidget(parent)
     , _type(type)
-    , _files(new PVWidgets::PVImportFilesWidget(tr("Import text files"), tr("All files (*)")))
+    , _files(new PVWidgets::PVImportFilesWidget(
+          tr("Import text files"), tr("All files (*)"), type.icon()))
     , _detected(new QRadioButton(tr("The one next to the files, else detected from their lines")))
     , _from_file(new QRadioButton(tr("From a file:")))
     , _format_path(new QLineEdit)
     , _made(new QRadioButton(tr("Made in the format builder")))
-    , _edit(new QPushButton(tr("Edit in the format builder...")))
+    , _edit(
+          new QPushButton(PVModdedIcon("pen-to-square"), " " + tr("Edit in the format builder...")))
 {
 	_detected->setObjectName("import_format_detected");
 	_from_file->setObjectName("import_format_from_file");
@@ -65,7 +68,7 @@ PVRush::PVTextImportWidget::PVTextImportWidget(PVInputTypeFilename const& type, 
 	_made->hide();
 	_edit->setEnabled(false);
 	_detected->setChecked(true);
-	auto* browse = new QPushButton(tr("Browse..."));
+	auto* browse = new QPushButton(PVModdedIcon("folder-open"), " " + tr("Browse..."));
 
 	// A group of their own: left to their auto-exclusivity, the radio buttons of the files, in the
 	// same widget, kept checking one of these from unchecking the others.
@@ -86,7 +89,7 @@ PVRush::PVTextImportWidget::PVTextImportWidget(PVInputTypeFilename const& type, 
 	auto* layout = new QVBoxLayout(this);
 	layout->setContentsMargins(0, 0, 0, 0);
 	layout->addWidget(_files);
-	layout->addWidget(new QLabel(tr("Format")));
+	layout->addWidget(PVWidgets::PVImportWidget::section_title(tr("Format")));
 	layout->addLayout(format_layout);
 	layout->addLayout(edit_layout);
 

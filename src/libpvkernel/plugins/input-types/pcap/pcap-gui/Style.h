@@ -44,9 +44,6 @@ class QWidget;
 namespace PVPcapsicum::style
 {
 
-//! Above a part of the dialog, such as "CAPTURES".
-QLabel* section_title(const QString& text);
-
 //! Of text saying less than the text around it.
 QColor secondary();
 //! That of links.

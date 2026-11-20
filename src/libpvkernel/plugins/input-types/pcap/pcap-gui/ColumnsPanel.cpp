@@ -29,6 +29,7 @@
 
 #include <libpvpcap/ws.h>
 
+#include <pvkernel/widgets/PVImportWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QDragEnterEvent>
@@ -266,7 +267,7 @@ ColumnsPanel::ColumnsPanel(QWidget* parent) : QWidget(parent)
 	layout->setSpacing(6);
 
 	auto* header = new QHBoxLayout;
-	header->addWidget(style::section_title(tr("Columns")));
+	header->addWidget(PVWidgets::PVImportWidget::section_title(tr("Columns")));
 	_count = new QLabel;
 	style::color_label(_count, style::secondary(), true);
 	header->addWidget(_count);

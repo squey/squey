@@ -30,6 +30,7 @@
 
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/widgets/PVFileDialog.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QFileInfo>
@@ -157,7 +158,7 @@ ProfilesPanel::ProfilesPanel(ProfileEditor* editor, QWidget* parent)
 	                 &ProfilesPanel::export_profile);
 
 	auto* header = new QHBoxLayout;
-	header->addWidget(style::section_title(tr("Profiles")));
+	header->addWidget(PVWidgets::PVImportWidget::section_title(tr("Profiles")));
 	header->addStretch();
 	const auto tool = [&](QAction* action, const char* name) {
 		auto* button = new QToolButton;

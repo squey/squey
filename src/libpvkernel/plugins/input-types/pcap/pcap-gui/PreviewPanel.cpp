@@ -32,6 +32,7 @@
 #include <libpvpcap/ws.h>
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 
 #include <QComboBox>
 #include <QFileInfo>
@@ -165,7 +166,7 @@ PreviewPanel::PreviewPanel(QWidget* parent)
 	layout->setSpacing(6);
 
 	auto* header = new QHBoxLayout;
-	header->addWidget(style::section_title(tr("Preview")));
+	header->addWidget(PVWidgets::PVImportWidget::section_title(tr("Preview")));
 	_status = new QLabel;
 	_status->setObjectName("preview_status");
 	style::color_label(_status, style::secondary(), true);

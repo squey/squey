@@ -25,30 +25,41 @@
 #ifndef __PVWIDGETS_PVIMPORTFILESWIDGET_H__
 #define __PVWIDGETS_PVIMPORTFILESWIDGET_H__
 
+#include <pvkernel/export.h>
+
+#include <QIcon>
 #include <QString>
 #include <QStringList>
 #include <QWidget>
 
 #include <vector>
 
-class QListWidget;
-class QPushButton;
+class QLabel;
 class QRadioButton;
+class QToolButton;
+class QTreeWidget;
 
 namespace PVWidgets
 {
 
 /**
- * The files of an import: their list, buttons to add and to remove some, and whether several
- * files make one source or one each.
+ * The files of an import: their list, with their size and their folder, buttons to add and to
+ * remove some, and whether several files make one source or one each. While there is none, it asks
+ * for some, to drop or to choose, as the list of the captures of pcap.
  */
-class PVImportFilesWidget : public QWidget
+class PVKERNEL_EXPORT PVImportFilesWidget : public QWidget
 {
 	Q_OBJECT
 
   public:
-	/** With @p dialog_title and @p dialog_filter for the dialog that adds files. */
-	PVImportFilesWidget(QString dialog_title, QString dialog_filter, QWidget* parent = nullptr);
+	/**
+	 * With @p dialog_title and @p dialog_filter for the dialog that adds files, and @p icon for
+	 * them.
+	 */
+	PVImportFilesWidget(QString dialog_title,
+	                    QString dialog_filter,
+	                    QIcon icon,
+	                    QWidget* parent = nullptr);
 
   public:
 	QStringList const& paths() const { return _paths; }
@@ -71,9 +82,13 @@ class PVImportFilesWidget : public QWidget
   private:
 	QString _dialog_title;
 	QString _dialog_filter;
+	QIcon _icon;
 	QStringList _paths;
-	QListWidget* _files;
-	QPushButton* _remove;
+	/** In place of the list while it is empty. */
+	QToolButton* _ask;
+	QTreeWidget* _files;
+	QLabel* _summary;
+	QToolButton* _remove;
 	QWidget* _sources;
 	QRadioButton* _source_per_file;
 };

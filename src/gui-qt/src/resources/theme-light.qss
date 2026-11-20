@@ -2273,6 +2273,23 @@ qproperty-decoration_color.
   padding: 6px 18px;
 }
 
+#PVImportPage QLabel[secondary="true"] {
+  color: #6b747d;
+}
+
+#PVImportPage QToolButton#import_ask_files {
+  background-color: transparent;
+  border: 2px dashed #dee0e2;
+  border-radius: 8px;
+  color: #6b747d;
+  padding: 12px;
+}
+
+#PVImportPage QToolButton#import_ask_files:hover {
+  background-color: #f2f4f7;
+  border-color: #1a72bb;
+}
+
 #import_message {
   background-color: #f2f4f7;
   border: 1px solid #dee0e2;

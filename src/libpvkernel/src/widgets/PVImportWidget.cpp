@@ -25,6 +25,8 @@
 #include <pvkernel/widgets/PVImportWidget.h>
 
 #include <QFileInfo>
+#include <QFont>
+#include <QLabel>
 
 #include <stdexcept>
 
@@ -34,4 +36,16 @@ PVRush::PVFormat PVWidgets::PVImportWidget::format_of(QString const& path)
 		throw std::runtime_error(tr("The format '%1' cannot be read.").arg(path).toStdString());
 	}
 	return {path, path};
+}
+
+QLabel* PVWidgets::PVImportWidget::section_title(QString const& text)
+{
+	auto* title = new QLabel(text.toUpper());
+	QFont font = title->font();
+	font.setBold(true);
+	font.setPointSizeF(font.pointSizeF() * 0.85);
+	font.setLetterSpacing(QFont::AbsoluteSpacing, 1);
+	title->setFont(font);
+	title->setProperty("secondary", true);
+	return title;
 }
