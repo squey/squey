@@ -388,6 +388,8 @@ void App::PVMainWindow::close_solution_Slot()
  *****************************************************************************/
 void App::PVMainWindow::import_type(PVRush::PVInputType_p in_t)
 {
+	// For what it asks to edit a format with.
+	in_t->connect_parent(this);
 	if (PVWidgets::PVImportWidget* content = in_t->create_import_widget(nullptr)) {
 		_import_controller->edit(in_t, content);
 		return;
@@ -822,6 +824,7 @@ void App::PVMainWindow::load_files(QStringList const& files, QString format_str 
 	}
 
 	// What the import page asks for this type tells how many sources the files make.
+	in_file->connect_parent(this);
 	if (PVWidgets::PVImportWidget* content = in_file->create_import_widget(nullptr)) {
 		if (_import_controller->edit(in_file, content)) {
 			content->set_paths(sources);

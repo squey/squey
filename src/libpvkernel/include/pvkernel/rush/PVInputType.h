@@ -68,7 +68,8 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 
   public:
 	/**
-	 * Asks the user for an import in dialogs, for a type that has no create_import_widget().
+	 * Asks the user for inputs in dialogs: those of an import, for a type that has no
+	 * create_import_widget(), and those the format builder reads.
 	 *
 	 * @return false if the user canceled
 	 */

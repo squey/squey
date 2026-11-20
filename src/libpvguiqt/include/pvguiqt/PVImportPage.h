@@ -140,10 +140,14 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 
   private:
 	void update_buttons();
+	/** Whether the content takes all the room of the page, or a column. */
+	void fill_page(bool fill);
 
   private:
 	QPushButton* _back;
 	QLabel* _title;
+	QWidget* _body;
+	QVBoxLayout* _body_layout;
 	QVBoxLayout* _messages;
 	QWidget* _progress;
 	QLabel* _task;

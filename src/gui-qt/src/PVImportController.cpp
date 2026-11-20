@@ -253,6 +253,10 @@ void App::PVImportController::import_content()
 		page().add_message(PVGuiQt::PVImportPage::Severity::critical, plain(e.what()));
 		return;
 	}
+	// As a dialog whose checks failed, which tells why itself.
+	if (sources.empty()) {
+		return;
+	}
 	PVRush::PVSourceCreator_p creator =
 	    PVRush::PVSourceCreatorFactory::get_by_input_type(_content_type);
 	std::vector<PVRush::PVSourceDescription> descriptions;

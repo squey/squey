@@ -87,6 +87,11 @@ class PVKERNEL_EXPORT PVImportWidget : public QWidget
 
 	/** Starts from the files @p paths, such as those of a command line, for a type of files. */
 	virtual void set_paths(QStringList const& /*paths*/) {}
+	/**
+	 * Whether the widget takes all the room of the page, as a dialog of many panels needs, rather
+	 * than a column of the height it asks for.
+	 */
+	virtual bool fills_page() const { return false; }
 
 	/** How the page runs the long tasks of the widget, which it sets before showing it. */
 	void set_task_runner(task_runner_t runner) { _run_task = std::move(runner); }

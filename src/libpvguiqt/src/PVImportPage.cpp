@@ -78,6 +78,8 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     : QWidget(parent)
     , _back(new QPushButton(tr("Back")))
     , _title(new QLabel)
+    , _body(new QWidget)
+    , _body_layout(new QVBoxLayout(_body))
     , _messages(new QVBoxLayout)
     , _progress(new QWidget)
     , _task(new QLabel)
@@ -142,23 +144,18 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	_cancel->hide();
 	_import->hide();
 
-	auto* body = new QWidget;
-	// Short enough lines to read in a wide window, which the scroll area centers.
-	body->setMaximumWidth(fontMetrics().averageCharWidth() * COLUMN_WIDTH);
-	auto* body_layout = new QVBoxLayout(body);
-	body_layout->addLayout(header);
-	body_layout->addLayout(_messages);
-	body_layout->addLayout(_content_layout);
-	body_layout->addWidget(_progress);
-	body_layout->addLayout(footer);
-	// The height left goes below the buttons: given to the content, it would set a list of a
-	// limited height apart from the buttons beside it.
-	body_layout->addStretch(1);
+	_body_layout->addLayout(header);
+	_body_layout->addLayout(_messages);
+	_body_layout->addLayout(_content_layout);
+	_body_layout->addWidget(_progress);
+	_body_layout->addLayout(footer);
+	_body_layout->addStretch();
+	fill_page(false);
 	auto* scroll_area = new QScrollArea;
 	scroll_area->setWidgetResizable(true);
 	scroll_area->setFrameShape(QFrame::NoFrame);
 	scroll_area->setAlignment(Qt::AlignHCenter);
-	scroll_area->setWidget(body);
+	scroll_area->setWidget(_body);
 
 	auto* layout = new QVBoxLayout(this);
 	layout->addWidget(scroll_area);
@@ -201,6 +198,7 @@ void PVGuiQt::PVImportPage::set_content(PVWidgets::PVImportWidget* content,
 
 	set_title(title);
 	set_closable(false);
+	fill_page(content->fills_page());
 	set_content_shown(true);
 }
 
@@ -212,6 +210,7 @@ void PVGuiQt::PVImportPage::clear_content()
 	assert(not task_running());
 	remove(_content);
 	_content = nullptr;
+	fill_page(false);
 	set_content_shown(false);
 }
 
@@ -269,6 +268,17 @@ void PVGuiQt::PVImportPage::run_task(QString const& title,
 	update_buttons();
 	_task_timer.start();
 	_task_thread->start();
+}
+
+void PVGuiQt::PVImportPage::fill_page(bool fill)
+{
+	// Else short enough lines to read in a wide window, which the scroll area centers.
+	_body->setMaximumWidth(fill ? QWIDGETSIZE_MAX
+	                            : fontMetrics().averageCharWidth() * COLUMN_WIDTH);
+	// Else the height left goes below the buttons: given to the content, it would set a list of
+	// a limited height apart from the buttons beside it.
+	_body_layout->setStretchFactor(_content_layout, fill ? 1 : 0);
+	_body_layout->setStretch(_body_layout->count() - 1, fill ? 0 : 1);
 }
 
 void PVGuiQt::PVImportPage::update_buttons()

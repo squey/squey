@@ -26,6 +26,7 @@
 #define SQUEY_PVINPUTTYPEPCAP_H
 
 #include <pvkernel/rush/PVInputType.h>
+#include <pvkernel/widgets/PVImportWidget.h>
 
 #include "PVPcapExporter.h"
 #include "PVPcapExporterWidget.h"
@@ -37,8 +38,12 @@
 #include <QCursor>
 #include <QSet>
 
+#include <vector>
+
 namespace PVPcapsicum
 {
+
+class ImportDialog;
 
 class PVInputTypePcap : public PVRush::PVInputTypeDesc<PVRush::PVPcapDescription>
 {
@@ -47,22 +52,7 @@ class PVInputTypePcap : public PVRush::PVInputTypeDesc<PVRush::PVPcapDescription
 	virtual ~PVInputTypePcap();
 
   public:
-	bool create_widget(
-	    PVRush::hash_formats& formats,
-        PVRush::PVInputType::list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const override;
-
-	bool create_widget_with_input_files(
-	    const QStringList& input_paths,
-	    PVRush::hash_formats& formats,
-        PVRush::PVInputType::list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const override;
+	PVWidgets::PVImportWidget* create_import_widget(QWidget* parent) const override;
 
 	/* exporter */
 	std::unique_ptr<PVRush::PVExporterBase>
@@ -87,6 +77,14 @@ class PVInputTypePcap : public PVRush::PVInputTypeDesc<PVRush::PVPcapDescription
 
   public:
 	QStringList input_paths() const { return _input_paths; }
+
+  private:
+	/**
+	 * What the accepted @p dialog asks to import, whose format it writes next to the NRAW.
+	 *
+	 * @throw std::runtime_error if the format cannot be written
+	 */
+	std::vector<PVWidgets::PVImportWidget::source_t> sources_of(ImportDialog const& dialog) const;
 
   protected:
 	mutable QSet<QString> _tmp_dir_to_delete;

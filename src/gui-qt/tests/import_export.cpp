@@ -578,32 +578,15 @@ void ImportExportTest::import_pcap()
     const QString source_path = QString(TEST_FOLDER) + "/sources/http.pcap";
     QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
 
-    // load_files() feeds the capture straight into the pcap import wizard, which
-    // opens *pre-populated* (PVInputTypePcap::create_widget_with_input_files) --
-    // so there is no "add" button to click and, crucially, no nested modal
-    // QFileDialog to drive (that QFileDialog is what stack-overflows the offscreen
-    // platform on Windows, see import_file). The wizard is still modal: this
-    // driver just clicks its "process" button once it is up.
-    bool processed = false;
-    ModalDriver wizard_driver(&main_window, [&]() -> bool {
-        auto* modal = qApp->activeModalWidget();
-        if (modal == nullptr) {
-            return false;
-        }
-        QPushButton* process_btn = modal->findChild<QPushButton*>("process_import_button");
-        if (process_btn == nullptr or not process_btn->isVisible()) {
-            return false;
-        }
-        if (not processed) {
-            processed = true;
-            QTest::mouseClick(process_btn, Qt::LeftButton, Qt::NoModifier);
-        }
-        return true;
-    });
-
-    wizard_driver.start();
-
+    // load_files() hands the capture to the pcap import dialog, in the import page, which
+    // reads the fields of the capture before it can import.
     main_window.load_files({source_path});
+    PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+    QVERIFY(page.content() != nullptr);
+    QVERIFY(page.findChild<QPushButton*>("process_import_button")->isHidden());
+    QPushButton* import = page.findChild<QPushButton*>("import_import");
+    QVERIFY(QTest::qWaitFor([&]() { return import->isEnabled(); }, 60000));
+    import->click();
     QVERIFY(wait_for_import(main_window));
 
     main_window.disconnect();

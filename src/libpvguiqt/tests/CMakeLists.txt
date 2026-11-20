@@ -102,5 +102,9 @@ add_squey_test(Tpvguiqt_file_list_import Tpvguiqt_file_list_import -platform off
 set_property(TEST SQUEY_TEST_Tpvguiqt_file_list_import APPEND PROPERTY
 	ENVIRONMENT "SQUEY_CONFIG_DIR=file_list_import_config")
 
+# The dialog of an input type, shown in the import page.
+add_squey_compile_test(Tpvguiqt_dialog_import LINKS ${COMMON_LIBRARIES} Qt6::Test FILES dialog_import.cpp)
+add_squey_test(Tpvguiqt_dialog_import Tpvguiqt_dialog_import -platform offscreen)
+
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

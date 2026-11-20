@@ -74,6 +74,8 @@ class ImportDialog : public QDialog
 
 	//! In the order their frames are numbered in.
 	QStringList captures() const;
+	//! Adds the files, and the captures in the directories, which are not there yet.
+	void add_captures(const QStringList& paths);
 	//! What to import, once the dialog was accepted.
 	const pvpcap::profile& profile() const { return _accepted; }
 	//! The format of what is imported, once the dialog was accepted.

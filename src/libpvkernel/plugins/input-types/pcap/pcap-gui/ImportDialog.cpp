@@ -626,6 +626,11 @@ QDomDocument ImportDialog::format() const
 	return pvpcap::get_format(_accepted, size_t(captures().size()));
 }
 
+void ImportDialog::add_captures(const QStringList& paths)
+{
+	_captures->add(paths);
+}
+
 void ImportDialog::accept()
 {
 	const pvpcap::profile p = _editor->profile();

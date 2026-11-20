@@ -72,6 +72,12 @@ class Content : public PVWidgets::PVImportWidget
 	bool _ready = false;
 };
 
+class FillingContent : public Content
+{
+  public:
+	bool fills_page() const override { return true; }
+};
+
 QPushButton* button(QWidget& parent, QString const& name)
 {
 	return parent.findChild<QPushButton*>(name);
@@ -215,6 +221,15 @@ int main(int argc, char** argv)
 	page.clear_content();
 	PV_ASSERT_VALID(not import->isVisible() and not cancel->isVisible());
 	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return content.isNull(); }, 10000));
+
+	// But a content that fills the page takes its width and its height.
+	const QPointer<FillingContent> filling = new FillingContent;
+	page.set_content(filling, "Import: Filling", {}, -1);
+	page.resize(3000, 1500);
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return column->width() == area->width(); }, 10000));
+	PV_ASSERT_VALID(filling->height() > page.height() / 2);
+	page.clear_content();
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return column->width() < area->width() / 2; }, 10000));
 
 	return 0;
 }
