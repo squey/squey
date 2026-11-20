@@ -236,10 +236,18 @@ lines extract(const std::string& capture, pvpcap::extraction::options opts, size
 	}
 	lines result;
 	pvpcap::extraction::line l;
+	uint64_t read = 0;
 	while (extraction.next(l)) {
 		result[l.frame] = {l.stream, std::string(l.fields)};
+		PV_ASSERT_VALID(extraction.read_bytes() >= read, "read", extraction.read_bytes(), "before",
+		                read);
+		read = extraction.read_bytes();
 	}
 	PV_VALID(extraction.damage(), std::string());
+	if (opts.most_frames == 0) {
+		PV_VALID(extraction.read_bytes(),
+		         uint64_t(QFileInfo(QString::fromStdString(capture)).size()));
+	}
 	return result;
 }
 

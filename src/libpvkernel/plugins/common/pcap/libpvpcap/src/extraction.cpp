@@ -373,6 +373,7 @@ struct part {
 
 	// Thread feeding the tshark of a part fed as the capture is read
 	byte_queue queue;
+	//! Bytes its tshark got: as they are fed, or all of them once it read them from a file.
 	std::atomic<uint64_t> fed = 0;
 
 	std::unique_ptr<child_process> process; //!< under implementation::processes
@@ -646,6 +647,10 @@ struct extraction::implementation {
 	std::unordered_map<flow_key, conversation, flow_key_hash> conversations;
 	std::unordered_map<fragment_key, flow_key, fragment_key_hash> fragments;
 	uint64_t previous_file_position = 0;
+	//! For read_bytes(): where the records given to the parts end in the file, and their bytes.
+	std::atomic<uint64_t> given_position = 0;
+	std::atomic<uint64_t> given_bytes = 0;
+	mutable std::atomic<uint64_t> told_read_bytes = 0;
 
 	std::thread reading;
 	std::vector<std::thread> workers;
@@ -965,6 +970,7 @@ void extraction::implementation::run_written_parts()
 				if (p.frames == 0) {
 					// Nothing for tshark to read, and nothing to say.
 					remove_file(p.input);
+					p.fed = p.assigned;
 					p.state = part_state::done;
 					continue;
 				}
@@ -979,6 +985,7 @@ void extraction::implementation::run_written_parts()
 				}
 				const child_process::status status = p.process->wait();
 				remove_file(p.input);
+				p.fed = p.assigned;
 				finished(p, status);
 			}
 		});
@@ -1015,6 +1022,7 @@ uint16_t extraction::implementation::choose_part(const flow_key& key)
 bool extraction::implementation::give(part& p, std::span<const uint8_t> bytes)
 {
 	p.assigned += bytes.size();
+	given_bytes += bytes.size();
 	if (how == mode::written) {
 		if (not p.file->write(bytes.data(), bytes.size())) {
 			fail("Can't write to '" + p.input + "': " + std::strerror(errno));
@@ -1045,6 +1053,7 @@ void extraction::implementation::broadcast(std::span<const uint8_t> bytes)
 
 bool extraction::implementation::dispatch(const owned_record& r)
 {
+	given_position = r.file_position;
 	const capture_record& record = r.record;
 	if (record.type == capture_record::kind::metadata) {
 		broadcast(record.bytes);
@@ -1487,6 +1496,29 @@ std::string extraction::damage() const
 size_t extraction::parts() const
 {
 	return _impl->parts.size();
+}
+
+uint64_t extraction::read_bytes() const
+{
+	const implementation& x = *_impl;
+	const uint64_t given = x.given_bytes;
+	if (given == 0) {
+		return 0;
+	}
+	uint64_t fed = 0;
+	for (const auto& p : x.parts) {
+		fed += p->fed;
+	}
+	// As much of the file read so far as tshark got of what it was given: what it was given is
+	// decompressed, if the file is not.
+	const uint64_t position = x.given_position;
+	const uint64_t read =
+	    std::min<uint64_t>(position, uint64_t(double(position) * double(fed) / double(given)));
+	// Never less than told before, though the file may compress some parts better than others.
+	uint64_t told = x.told_read_bytes;
+	while (told < read and not x.told_read_bytes.compare_exchange_weak(told, read)) {
+	}
+	return std::max(told, read);
 }
 
 } // namespace pvpcap

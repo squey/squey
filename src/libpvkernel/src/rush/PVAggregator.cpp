@@ -208,6 +208,15 @@ void PVRush::PVAggregator::add_input(PVRush::PVRawSourceBase_p in)
 	_inputs.push_back(in);
 }
 
+size_t PVRush::PVAggregator::read_size() const
+{
+	size_t size = 0;
+	for (auto const& input : _inputs) {
+		size += input->read_size();
+	}
+	return size;
+}
+
 void PVRush::PVAggregator::set_sources_number_fields(PVCol ncols)
 {
 	for (auto& raw_source : _inputs) {

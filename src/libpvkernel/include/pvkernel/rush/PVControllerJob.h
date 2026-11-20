@@ -123,7 +123,11 @@ class PVControllerJob : public QObject
 	 */
 	void run_job();
 
-	size_t get_value() const { return _out_filter.get_out_size(); }
+	/**
+	 * Bytes of the inputs the job went through: those of the chunks it output, or more if its
+	 * sources tell more of what they read.
+	 */
+	size_t get_value() const;
 
   public:
 	std::map<size_t, std::string> const& get_invalid_evts() const { return _inv_elts; }

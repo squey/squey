@@ -168,6 +168,13 @@ class extraction
 	//! Number of tshark processes the capture is split between.
 	size_t parts() const;
 
+	/**
+	 * Bytes of the capture file its tshark processes got so far, compressed as the file is:
+	 * those it fed them, or those of the parts they ended reading from files. 0 while a single
+	 * tshark reads the capture itself. May be called from any thread, while next() waits.
+	 */
+	uint64_t read_bytes() const;
+
   private:
 	struct implementation;
 	std::unique_ptr<implementation> _impl;

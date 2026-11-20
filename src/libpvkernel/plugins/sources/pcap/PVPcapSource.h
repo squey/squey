@@ -38,9 +38,13 @@
 
 #include <QFileInfo>
 
+#include <algorithm>
+#include <atomic>
 #include <charconv>
 #include <memory>
+#include <mutex>
 #include <string>
+#include <utility>
 
 namespace PVRush
 {
@@ -59,7 +63,7 @@ class PVPcapSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
   public:
 	PVPcapSource(PVPcapDescription& input, size_t chunk_size)
-	    : _input(input), _chunk_size(chunk_size)
+	    : _input(input), _capture_size(QFileInfo(_input.path()).size()), _chunk_size(chunk_size)
 	{
 		if (_input.multi_inputs()) {
 			_prefix = QFileInfo(_input.path()).fileName().toStdString() + pvpcap::SEPARATOR;
@@ -73,7 +77,7 @@ class PVPcapSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
 	void seek_begin() override
 	{
-		_extraction.reset();
+		set_extraction(nullptr);
 		_pending = false;
 		_ended = false;
 		_next_index = 0;
@@ -81,9 +85,21 @@ class PVPcapSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
 	void prepare_for_nelts(chunk_index /*nelts*/) override {}
 
-	size_t get_size() const override { return QFileInfo(_input.path()).size(); }
+	size_t get_size() const override { return _capture_size; }
 
-	void release_input(bool /*cancel_first*/) override { _extraction.reset(); }
+	// What tshark got of the capture: the chunks only tell it as the frames a display filter
+	// keeps fill them, and the lines of the frames come in the order of the capture, as the
+	// slowest of the tshark processes the capture is split between write them.
+	size_t read_size() const override
+	{
+		if (_ended) {
+			return _capture_size;
+		}
+		const std::lock_guard<std::mutex> lock(_extraction_mutex);
+		return _extraction ? std::min<size_t>(_extraction->read_bytes(), _capture_size) : 0;
+	}
+
+	void release_input(bool /*cancel_first*/) override { set_extraction(nullptr); }
 
 	PVCore::PVTextChunk* operator()() override
 	{
@@ -96,7 +112,7 @@ class PVPcapSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 			}
 			return read_chunk();
 		} catch (const pvpcap::extraction_error& e) {
-			_extraction.reset();
+			set_extraction(nullptr);
 			throw PVInputException("tshark could not read '" + _input.path().toStdString() +
 			                       "':\n\n" + e.what());
 		}
@@ -121,7 +137,7 @@ class PVPcapSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 
 		pvpcap::extraction::options opts = _input.extraction();
 		opts.work_directory = PVNrawCacheManager::nraw_dir().toStdString();
-		_extraction = std::make_unique<pvpcap::extraction>(_input.path().toStdString(), opts);
+		set_extraction(std::make_unique<pvpcap::extraction>(_input.path().toStdString(), opts));
 	}
 
 	PVCore::PVTextChunk* read_chunk()
@@ -200,17 +216,28 @@ class PVPcapSource : public PVRawSourceBaseType<PVCore::PVTextChunk>
 		if (not damage.empty()) {
 			PVLOG_WARN("'%s': %s\n", qPrintable(_input.path()), damage.c_str());
 		}
-		_extraction.reset();
+		set_extraction(nullptr);
+	}
+
+	//! Ends the previous extraction out of the lock of read_size(): it waits for tshark.
+	void set_extraction(std::unique_ptr<pvpcap::extraction> extraction)
+	{
+		std::unique_ptr<pvpcap::extraction> previous;
+		const std::lock_guard<std::mutex> lock(_extraction_mutex);
+		previous = std::exchange(_extraction, std::move(extraction));
 	}
 
   private:
 	PVPcapDescription& _input;
+	const size_t _capture_size;
 	size_t _chunk_size;
 	std::string _prefix; //!< name of the capture, when several are imported together
+	//! Only the thread of the source changes it, under the mutex, for read_size().
 	std::unique_ptr<pvpcap::extraction> _extraction;
+	mutable std::mutex _extraction_mutex;
 	pvpcap::extraction::line _line;
 	bool _pending = false; //!< whether _line did not fit in the previous chunk
-	bool _ended = false;
+	std::atomic<bool> _ended = false;
 	uint64_t _frames_offset = 0;
 	uint64_t _streams_offset = 0;
 	chunk_index _next_index = 0;
