@@ -89,7 +89,7 @@ PVWidgets::PVImportWidget&
 content_of(PVGuiQt::PVImportPage& page, const PVRush::PVInputType_p& type, QStringList const& paths)
 {
 	PVWidgets::PVImportWidget* content = type->create_import_widget(nullptr);
-	page.set_content(content, "Import", {}, -1);
+	page.set_content(content, "Import", {}, {}, -1);
 	content->set_paths(paths);
 	PV_ASSERT_VALID(QTest::qWaitFor([content]() { return content->is_ready(); }, 30000));
 	return *content;

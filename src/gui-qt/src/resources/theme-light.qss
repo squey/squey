@@ -2199,3 +2199,95 @@ QDialogButtonBox {
   dialog-save-icon: url(":/qss_icons/light/rc.light/floppy-disk.png"), url(":/qss_icons/light/rc.light/floppy-disk_disabled.png") disabled;
   dialog-discard-icon: url(":/qss_icons/light/rc.light/trash-xmark.png"), url(":/qss_icons/light/rc.light/trash-xmark_disabled.png") disabled;
 }
+
+/* Import page ------------------------------------------------------------
+
+The page of the main window that imports run in: a sheet, over a drawing of
+parallel coordinates in the color of the text and, for its selection, in
+qproperty-decoration_color.
+
+--------------------------------------------------------------------------- */
+#PVImportPage {
+  background-color: #e9ecf0;
+  qproperty-decoration_color: #1a72bb;
+}
+
+#import_sheet {
+  background-color: #fbfafd;
+  border: 1px solid #dee0e2;
+  border-radius: 8px;
+}
+
+#import_scroll {
+  border: none;
+  padding: 0px;
+}
+
+#import_header {
+  border-bottom: 1px solid #dee0e2;
+}
+
+#import_actions {
+  border-top: 1px solid #dee0e2;
+}
+
+/* The same padding in every state: a button keeps the size of the state it
+   was laid out in, which cut the text of one enabled after. */
+#PVImportPage QPushButton,
+#PVImportPage QPushButton:disabled {
+  padding: 4px 10px;
+}
+
+#PVImportPage QPushButton#import_back {
+  background-color: transparent;
+  border: 1px solid transparent;
+}
+
+#PVImportPage QPushButton#import_back:hover {
+  background-color: #dee0e2;
+}
+
+#PVImportPage QPushButton[primary="true"] {
+  background-color: #1a72bb;
+  border: 1px solid #1a72bb;
+  color: #ffffff;
+  font-weight: bold;
+  min-width: 80px;
+  padding: 6px 18px;
+}
+
+#PVImportPage QPushButton[primary="true"]:hover {
+  background-color: #259ae9;
+  border-color: #259ae9;
+}
+
+#PVImportPage QPushButton[primary="true"]:pressed {
+  background-color: #155d99;
+  border-color: #155d99;
+}
+
+#PVImportPage QPushButton[primary="true"]:disabled {
+  background-color: #dee0e2;
+  border-color: #dee0e2;
+  color: #a6aaad;
+  padding: 6px 18px;
+}
+
+#import_message {
+  background-color: #f2f4f7;
+  border: 1px solid #dee0e2;
+  border-left: 4px solid #1a72bb;
+  border-radius: 4px;
+}
+
+#import_message[severity="warning"] {
+  border-left-color: #e5a50a;
+}
+
+#import_message[severity="critical"] {
+  border-left-color: #e01b24;
+}
+
+#import_message QLabel {
+  background-color: transparent;
+}

@@ -39,6 +39,7 @@
 #include <pvkernel/rush/PVSourceCreatorFactory.h>
 #include <pvkernel/rush/PVUnicodeSourceError.h>
 #include <pvkernel/widgets/PVImportWidget.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 #include <pvparallelview/PVZoneTree.h>
 #include <pvparallelview/common.h>
 #include <squey/PVAxis.h>
@@ -163,7 +164,7 @@ void App::PVImportController::import(std::vector<PVRush::PVSourceDescription> so
 {
 	for (PVRush::PVSourceDescription& source : sources) {
 		PVRush::PVInputType_p type = source.get_source_creator()->supported_type_lib();
-		Import import{type->tab_name_of_inputs(source.get_inputs()), {}, {}};
+		Import import{type->tab_name_of_inputs(source.get_inputs()), type->icon(), {}, {}};
 		// Such as that of a recent source of Parquet files, which is not saved.
 		const PVRush::PVFormat& format = source.get_format();
 		if (format.get_full_path().isEmpty() and format.get_axes().size() == 0) {
@@ -187,7 +188,7 @@ void App::PVImportController::import(std::vector<PVRush::PVSourceDescription> so
 
 void App::PVImportController::import_params(PVRush::PVInputType_p type, QString params)
 {
-	Import import{type->menu_input_name(), {}, {}};
+	Import import{type->menu_input_name(), type->icon(), {}, {}};
 	import.prepare =
 	    [type,
 	     params](PVCore::PVTaskProgress& progress) -> std::optional<PVRush::PVSourceDescription> {
@@ -238,8 +239,8 @@ bool App::PVImportController::edit(PVRush::PVInputType_p type, PVWidgets::PVImpo
 		names << QString::fromStdString(scene->get_name());
 	}
 	page().clear_messages();
-	page().set_content(content, tr("Import: %1").arg(_content_type->menu_input_name()), names,
-	                   current);
+	page().set_content(content, tr("Import: %1").arg(_content_type->menu_input_name()),
+	                   _content_type->icon(), names, current);
 	projects().show_import_page();
 	return true;
 }
@@ -337,7 +338,7 @@ void App::PVImportController::start_next()
 	_queue.pop_front();
 
 	_name = import.name;
-	page().set_title(tr("Import of %1").arg(_name));
+	page().set_title(tr("Import of %1").arg(_name), import.icon);
 	projects().show_import_page();
 	if (import.prepare) {
 		prepare(std::move(import.prepare));
@@ -354,8 +355,9 @@ void App::PVImportController::prepare(
 	auto prepared = std::make_shared<std::optional<PVRush::PVSourceDescription>>();
 	auto error = std::make_shared<QString>();
 	_preparing = progress;
-	page().start_progress(tr("Reading the inputs..."),
-	                      {{tr("Cancel"), [progress]() { progress->cancel(); }}});
+	page().start_progress(
+	    tr("Reading the inputs..."),
+	    {{tr("Cancel"), [progress]() { progress->cancel(); }, PVModdedIcon("circle-x")}});
 
 	_worker = QThread::create([prepare = std::move(prepare), progress, prepared, error]() {
 		try {
@@ -385,9 +387,9 @@ void App::PVImportController::prepare(
 void App::PVImportController::create(PVRush::PVSourceDescription description)
 {
 	const PVRush::PVFormat& format = description.get_format();
-	_name = description.get_source_creator()->supported_type_lib()->tab_name_of_inputs(
-	    description.get_inputs());
-	page().set_title(tr("Import of %1").arg(_name));
+	const PVRush::PVInputType_p type = description.get_source_creator()->supported_type_lib();
+	_name = type->tab_name_of_inputs(description.get_inputs());
+	page().set_title(tr("Import of %1").arg(_name), type->icon());
 	page().start_progress(tr("Preparing the import..."));
 
 	const size_t axes_count = format.get_axes().size();
@@ -424,9 +426,10 @@ void App::PVImportController::create(PVRush::PVSourceDescription description)
 		return;
 	}
 
-	page().start_progress(tr("Extracting %1...").arg(_source->get_format_name()),
-	                      {{tr("Discard"), [this]() { ask_discard(); }},
-	                       {tr("Stop and process"), [this]() { stop_extraction(); }}});
+	page().start_progress(
+	    tr("Extracting %1...").arg(_source->get_format_name()),
+	    {{tr("Discard"), [this]() { ask_discard(); }, PVModdedIcon("trash-xmark")},
+	     {tr("Stop and process"), [this]() { stop_extraction(); }, PVModdedIcon("square-full")}});
 	try {
 		_job = _source->extract(0);
 	} catch (const PVRush::PVInputException& e) {
@@ -497,28 +500,27 @@ void App::PVImportController::check_memory()
 	}
 	ask(tr("Continuing to import the data will likely exceed the available memory, and make the "
 	       "system unstable. Stop the import here, and process the events extracted so far?"),
-	    {{tr("Stop and process"), [this]() { stop_extraction(); }},
-	     {tr("Continue"), [this]() { _monitor_memory = false; }}});
+	    {{tr("Stop and process"), [this]() { stop_extraction(); }, PVModdedIcon("square-full")},
+	     {tr("Continue"), [this]() { _monitor_memory = false; }, PVModdedIcon("play")}});
 }
 
 void App::PVImportController::ask(QString const& text,
-                                  std::vector<std::pair<QString, std::function<void()>>> actions)
+                                  std::vector<PVGuiQt::PVImportPage::Action> actions)
 {
 	_job->pause(true);
 	page().set_progress_buttons_enabled(false);
-	std::vector<PVGuiQt::PVImportPage::Action> page_actions;
-	for (auto& [label, on_click] : actions) {
-		page_actions.push_back({label, [this, on_click = std::move(on_click)]() {
-			                        _question = nullptr;
-			                        page().set_progress_buttons_enabled(true);
-			                        on_click();
-			                        if (_job) {
-				                        _job->pause(false);
-			                        }
-		                        }});
+	for (PVGuiQt::PVImportPage::Action& action : actions) {
+		action.on_click = [this, on_click = std::move(action.on_click)]() {
+			_question = nullptr;
+			page().set_progress_buttons_enabled(true);
+			on_click();
+			if (_job) {
+				_job->pause(false);
+			}
+		};
 	}
 	_question =
-	    page().add_message(PVGuiQt::PVImportPage::Severity::warning, text, std::move(page_actions));
+	    page().add_message(PVGuiQt::PVImportPage::Severity::warning, text, std::move(actions));
 }
 
 void App::PVImportController::stop_extraction()
@@ -545,8 +547,9 @@ void App::PVImportController::ask_discard()
 	      [this]() {
 		      _discarding = true;
 		      _job->cancel();
-	      }},
-	     {tr("Continue"), []() {}}});
+	      },
+	      PVModdedIcon("trash-xmark")},
+	     {tr("Continue"), []() {}, PVModdedIcon("play")}});
 }
 
 void App::PVImportController::extraction_ended()
@@ -700,7 +703,8 @@ void App::PVImportController::end()
 	}
 	if (page().content() != nullptr) {
 		// To import it again, or anew once the imports that were not its own are over.
-		page().set_title(tr("Import: %1").arg(_content_type->menu_input_name()));
+		page().set_title(tr("Import: %1").arg(_content_type->menu_input_name()),
+		                 _content_type->icon());
 		page().set_content_shown(true);
 		if (_content_import) {
 			projects().show_import_page();

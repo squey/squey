@@ -25,10 +25,12 @@
 #ifndef __APP_PVIMPORTCONTROLLER_H__
 #define __APP_PVIMPORTCONTROLLER_H__
 
+#include <pvguiqt/PVImportPage.h>
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 
+#include <QIcon>
 #include <QObject>
 #include <QPointer>
 #include <QString>
@@ -127,6 +129,8 @@ class PVImportController : public QObject
 	struct Import {
 		/** As the messages about it name it. */
 		QString name;
+		/** That of its input type. */
+		QIcon icon;
 		std::optional<PVRush::PVSourceDescription> description;
 		/** The description, or nothing if the progress it reports to was canceled. */
 		std::function<std::optional<PVRush::PVSourceDescription>(PVCore::PVTaskProgress&)> prepare;
@@ -156,11 +160,8 @@ class PVImportController : public QObject
 	void check_memory();
 	void stop_extraction();
 	void ask_discard();
-	/**
-	 * Pauses the extraction while @p text asks the user to choose between @p actions, each a text
-	 * and what clicking it does.
-	 */
-	void ask(QString const& text, std::vector<std::pair<QString, std::function<void()>>> actions);
+	/** Pauses the extraction while @p text asks the user to choose between @p actions. */
+	void ask(QString const& text, std::vector<PVGuiQt::PVImportPage::Action> actions);
 	void extraction_ended();
 	void process();
 	void processed();

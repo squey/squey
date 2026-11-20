@@ -87,7 +87,7 @@ QPushButton* progress_cancel(PVGuiQt::PVImportPage& page)
 {
 	for (QPushButton* button :
 	     page.findChild<QWidget*>("import_progress")->findChildren<QPushButton*>()) {
-		if (button->text() == "Cancel" and button->isVisible()) {
+		if (button->text().trimmed() == "Cancel" and button->isVisible()) {
 			return button;
 		}
 	}
@@ -139,7 +139,7 @@ int main(int argc, char** argv)
 	QObject::connect(&page, &PVGuiQt::PVImportPage::task_finished, [&]() { finished_tasks++; });
 
 	QPointer<Content> content = new Content;
-	page.set_content(content, "Import: Content", {"First collection", "Second collection"}, 1);
+	page.set_content(content, "Import: Content", {}, {"First collection", "Second collection"}, 1);
 	auto* collection = page.findChild<QComboBox*>("import_collection");
 	PV_VALID(collection->count(), 3);
 	PV_VALID(page.chosen_collection(), 1);
@@ -149,18 +149,18 @@ int main(int argc, char** argv)
 	QPushButton* import = button(page, "import_import");
 	QPushButton* cancel = button(page, "import_cancel");
 
-	// What the page shows keeps to a column at the center of a wide page, with the buttons right
-	// under it, and takes the whole width of a narrow one.
-	QWidget* column = content->parentWidget();
-	QWidget* area = column->parentWidget();
+	// What the page shows keeps to a sheet at the center of a wide page, with the buttons right
+	// under it, and takes the width of a narrow one.
+	QWidget* column = page.findChild<QWidget*>("import_sheet");
+	PV_ASSERT_VALID(column->isAncestorOf(content) and column->isAncestorOf(import));
 	page.resize(3000, 1500);
-	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return area->width() > 2500; }, 10000));
-	PV_ASSERT_VALID(column->width() < area->width() / 2);
-	PV_ASSERT_VALID(std::abs(2 * column->x() + column->width() - area->width()) <= 1);
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return page.width() > 2500; }, 10000));
+	PV_ASSERT_VALID(column->width() < page.width() / 2);
+	PV_ASSERT_VALID(std::abs(2 * column->x() + column->width() - page.width()) <= 2);
 	PV_ASSERT_VALID(import->mapTo(&page, QPoint(0, import->height())).y() < page.height() / 4);
 	page.resize(800, 1500);
-	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return area->width() < 900; }, 10000));
-	PV_VALID(column->width(), area->width());
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return page.width() < 900; }, 10000));
+	PV_ASSERT_VALID(column->width() > page.width() * 9 / 10);
 
 	PV_ASSERT_VALID(import->isVisible() and not import->isEnabled());
 	PV_ASSERT_VALID(cancel->isVisible() and cancel->isEnabled());
@@ -170,6 +170,14 @@ int main(int argc, char** argv)
 	import->click();
 	cancel->click();
 	PV_VALID(imports, 1);
+	PV_VALID(closes, 1);
+	// Enter imports too, as it accepts a dialog, but on a button, which it does not click.
+	QTest::keyClick(&page, Qt::Key_Return);
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return imports == 2; }, 10000));
+	cancel->setFocus();
+	QTest::keyClick(cancel, Qt::Key_Return);
+	QTest::qWait(300);
+	PV_VALID(imports, 2);
 	PV_VALID(closes, 1);
 	QPushButton* back = button(page, "import_back");
 	back->click();
@@ -224,12 +232,13 @@ int main(int argc, char** argv)
 
 	// But a content that fills the page takes its width and its height.
 	const QPointer<FillingContent> filling = new FillingContent;
-	page.set_content(filling, "Import: Filling", {}, -1);
+	page.set_content(filling, "Import: Filling", {}, {}, -1);
 	page.resize(3000, 1500);
-	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return column->width() == area->width(); }, 10000));
+	PV_ASSERT_VALID(
+	    QTest::qWaitFor([&]() { return column->width() > page.width() * 9 / 10; }, 10000));
 	PV_ASSERT_VALID(filling->height() > page.height() / 2);
 	page.clear_content();
-	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return column->width() < area->width() / 2; }, 10000));
+	PV_ASSERT_VALID(QTest::qWaitFor([&]() { return column->width() < page.width() / 2; }, 10000));
 
 	return 0;
 }

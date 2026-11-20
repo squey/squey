@@ -157,7 +157,7 @@ int main(int argc, char** argv)
 	PVGuiQt::PVImportPage page;
 	page.show();
 	PVWidgets::PVImportWidget* edited = type->create_import_widget(nullptr);
-	page.set_content(edited, "Import: Text", {}, -1);
+	page.set_content(edited, "Import: Text", {}, {}, -1);
 	edited->set_paths({plain});
 	auto* edit = edited->findChild<QPushButton*>("import_format_edit");
 	auto* made = edited->findChild<QRadioButton*>("import_format_made");

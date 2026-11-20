@@ -26,13 +26,20 @@
 
 #include <PVFormatBuilderWidget.h>
 #include <pvkernel/core/PVTaskProgress.h>
+#include <pvkernel/widgets/PVModdedIcon.h>
 
+#include <QAbstractButton>
 #include <QComboBox>
+#include <QEvent>
 #include <QFont>
 #include <QFrame>
 #include <QHBoxLayout>
+#include <QIconEngine>
+#include <QKeyEvent>
 #include <QLabel>
 #include <QLayoutItem>
+#include <QPainter>
+#include <QPolygonF>
 #include <QProgressBar>
 #include <QPushButton>
 #include <QScrollArea>
@@ -41,16 +48,25 @@
 #include <QVBoxLayout>
 
 #include <algorithm>
+#include <array>
 #include <cassert>
 #include <exception>
 #include <limits>
+#include <random>
 #include <utility>
+#include <vector>
 
 namespace
 {
 
 /** The width of what the page shows at most, in average characters. */
 constexpr int COLUMN_WIDTH = 140;
+/** Around the sheet, and inside it, in pixels. */
+constexpr int SHEET_MARGIN = 24;
+/** The radius of the corners of the sheet, as the theme rounds them, in pixels. */
+constexpr int SHEET_RADIUS = 8;
+/** Between the axes of the drawing behind the sheet, in pixels. */
+constexpr int AXIS_SPACING = 160;
 
 QStyle::StandardPixmap pixmap_of(PVGuiQt::PVImportPage::Severity severity)
 {
@@ -65,6 +81,20 @@ QStyle::StandardPixmap pixmap_of(PVGuiQt::PVImportPage::Severity severity)
 	return QStyle::SP_MessageBoxCritical;
 }
 
+/** For the theme to tell messages apart. */
+const char* name_of(PVGuiQt::PVImportPage::Severity severity)
+{
+	switch (severity) {
+	case PVGuiQt::PVImportPage::Severity::information:
+		return "information";
+	case PVGuiQt::PVImportPage::Severity::warning:
+		return "warning";
+	case PVGuiQt::PVImportPage::Severity::critical:
+		break;
+	}
+	return "critical";
+}
+
 /** Takes @p widget out of the page at once: deleteLater() would leave it shown until then. */
 void remove(QWidget* widget)
 {
@@ -73,12 +103,209 @@ void remove(QWidget* widget)
 	widget->deleteLater();
 }
 
+/**
+ * The icon of a primary button: light on its fill in either theme, as the theme draws the others
+ * once the button is disabled, and so its fill.
+ */
+class PrimaryIconEngine : public QIconEngine
+{
+  public:
+	explicit PrimaryIconEngine(QString const& name)
+	    : _light(":/qss_icons/dark/rc.dark/" + name + "@2x.png"), _themed(PVModdedIcon(name))
+	{
+	}
+
+	void paint(QPainter* painter, QRect const& rect, QIcon::Mode mode, QIcon::State state) override
+	{
+		icon(mode).paint(painter, rect, Qt::AlignCenter, mode, state);
+	}
+
+	QPixmap pixmap(QSize const& size, QIcon::Mode mode, QIcon::State state) override
+	{
+		return icon(mode).pixmap(size, mode, state);
+	}
+
+	QPixmap
+	scaledPixmap(QSize const& size, QIcon::Mode mode, QIcon::State state, qreal scale) override
+	{
+		return icon(mode).pixmap(size, scale, mode, state);
+	}
+
+	QIconEngine* clone() const override { return new PrimaryIconEngine(*this); }
+
+  private:
+	QIcon const& icon(QIcon::Mode mode) const { return mode == QIcon::Disabled ? _themed : _light; }
+
+  private:
+	QIcon _light;
+	QIcon _themed;
+};
+
+/** With a space between @p icon and @p text, as the buttons of the start page. */
+QPushButton* button(QString const& text, QIcon const& icon)
+{
+	return new QPushButton(icon, icon.isNull() ? text : " " + text);
+}
+
+QPushButton* button(QString const& text, QString const& icon)
+{
+	return button(text, PVModdedIcon(icon));
+}
+
+/** The button of what the page is for, which the theme sets apart. */
+QPushButton* primary_button(QString const& text, QString const& icon)
+{
+	QPushButton* primary = button(text, QIcon(new PrimaryIconEngine(icon)));
+	primary->setProperty("primary", true);
+	return primary;
+}
+
+/**
+ * A scroll area as tall as what it shows, for a layout to give it the height it needs, or what
+ * there is: that of Qt asks for 24 lines at most.
+ */
+class FittingScrollArea : public QScrollArea
+{
+  public:
+	QSize sizeHint() const override
+	{
+		if (widget() == nullptr) {
+			return QScrollArea::sizeHint();
+		}
+		const int frame = 2 * frameWidth();
+		return widget()->sizeHint() + QSize(frame, frame);
+	}
+};
+
+/**
+ * Rows made up for the drawing behind the sheet: groups of close rows, with their parallel
+ * coordinates, the plot Squey is known for, one of them selected.
+ */
+struct Rows {
+	static constexpr int AXES = 32;
+
+	struct Row {
+		std::array<float, AXES> values;
+		bool selected;
+	};
+
+	Rows()
+	{
+		// The same drawing in every page.
+		std::mt19937 random(5);
+		std::uniform_real_distribution<float> uniform(0.08f, 0.92f);
+		std::normal_distribution<float> step(0.f, 0.16f);
+		constexpr int GROUPS = 6;
+		for (int group = 0; group < GROUPS; group++) {
+			std::array<float, AXES> profile;
+			profile[0] = uniform(random);
+			for (int axis = 1; axis < AXES; axis++) {
+				profile[axis] = std::clamp(profile[axis - 1] + step(random), 0.05f, 0.95f);
+			}
+			std::normal_distribution<float> spread(0.f, 0.015f + 0.008f * float(group));
+			for (int row = 0; row < 12 + 4 * group; row++) {
+				Row& added = rows.emplace_back(Row{.values = {}, .selected = group == 2});
+				for (int axis = 0; axis < AXES; axis++) {
+					added.values[axis] = std::clamp(profile[axis] + spread(random), 0.f, 1.f);
+				}
+			}
+		}
+		for (int row = 0; row < 12; row++) {
+			Row& outlier = rows.emplace_back(Row{.values = {}, .selected = false});
+			for (float& value : outlier.values) {
+				value = uniform(random);
+			}
+		}
+	}
+
+	std::vector<Row> rows;
+};
+
+/**
+ * The drawing behind the sheet of a page of @p size, for a screen of @p ratio: axes and rows in
+ * @p color, selected rows in @p selection_color.
+ */
+QPixmap decoration(QSize size, qreal ratio, QColor const& color, QColor const& selection_color)
+{
+	static const Rows made_up;
+	QPixmap pixmap(size * ratio);
+	pixmap.setDevicePixelRatio(ratio);
+	pixmap.fill(Qt::transparent);
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+
+	// Axes from one edge to the other, as many on each side of the sheet, at the center.
+	const int axes = std::min(Rows::AXES, size.width() / AXIS_SPACING + 2);
+	const qreal first = (size.width() - (axes - 1) * AXIS_SPACING) / 2.;
+	const qreal top = size.height() * 0.06;
+	const qreal height = size.height() * 0.88;
+	const auto x_of = [first](int axis) { return first + axis * AXIS_SPACING; };
+
+	QColor axis_color = color;
+	axis_color.setAlphaF(0.12f);
+	painter.setPen(QPen(axis_color, 1));
+	for (int axis = 0; axis < axes; axis++) {
+		painter.drawLine(QPointF(x_of(axis), top), QPointF(x_of(axis), top + height));
+	}
+	// The selection over the other rows, as Squey draws it.
+	for (const bool selected : {false, true}) {
+		QColor row_color = selected ? selection_color : color;
+		row_color.setAlphaF(selected ? 0.28f : 0.045f);
+		painter.setPen(QPen(row_color, 1.2));
+		for (const Rows::Row& row : made_up.rows) {
+			if (row.selected != selected) {
+				continue;
+			}
+			QPolygonF line;
+			for (int axis = 0; axis < axes; axis++) {
+				line << QPointF(x_of(axis), top + height * (1.f - row.values[axis]));
+			}
+			painter.drawPolyline(line);
+		}
+	}
+	return pixmap;
+}
+
 } // namespace
+
+/** An icon that follows the theme, as PVModdedIcon draws it at each paint. */
+class PVGuiQt::PVImportPage::IconLabel : public QWidget
+{
+  public:
+	IconLabel() { setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed); }
+
+	void set_icon(QIcon const& icon)
+	{
+		_icon = icon;
+		setVisible(not icon.isNull());
+		update();
+	}
+
+	QSize sizeHint() const override
+	{
+		const int side = 2 * fontMetrics().height();
+		return {side, side};
+	}
+
+  protected:
+	void paintEvent(QPaintEvent*) override
+	{
+		QPainter painter(this);
+		_icon.paint(&painter, rect());
+	}
+
+  private:
+	QIcon _icon;
+};
 
 PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     : QWidget(parent)
-    , _back(new QPushButton(tr("Back")))
+    , _layout(new QVBoxLayout(this))
+    , _sheet(new QFrame)
+    , _back(button(tr("Back"), "arrow-left"))
+    , _icon(new IconLabel)
     , _title(new QLabel)
+    , _scroll(new FittingScrollArea)
     , _body(new QWidget)
     , _body_layout(new QVBoxLayout(_body))
     , _messages(new QVBoxLayout)
@@ -90,16 +317,22 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
     , _content_layout(new QVBoxLayout)
     , _collection_row(new QWidget)
     , _collection(new QComboBox)
-    , _close(new QPushButton(tr("Close")))
-    , _cancel(new QPushButton(tr("Cancel")))
-    , _import(new QPushButton(tr("Import")))
-    , _format_cancel(new QPushButton(tr("Cancel")))
-    , _format_use(new QPushButton(tr("Use this format")))
+    , _close(button(tr("Close"), "window-close"))
+    , _cancel(button(tr("Cancel"), "circle-x"))
+    , _import(primary_button(tr("Import"), "file-import"))
+    , _format_cancel(button(tr("Cancel"), "circle-x"))
+    , _format_use(primary_button(tr("Use this format"), "circle-check"))
+    , _decoration_color(palette().color(QPalette::Highlight))
 {
 	setObjectName("PVImportPage");
+	_sheet->setObjectName("import_sheet");
 	// As the headers of the start page.
 	_title->setFont(QFont("Black Han Sans, Expanded", 20));
 	_title->setWordWrap(true);
+	_icon->hide();
+	QFont task_font = _task->font();
+	task_font.setBold(true);
+	_task->setFont(task_font);
 	_back->setObjectName("import_back");
 	_task->setObjectName("import_task");
 	_details->setObjectName("import_details");
@@ -107,6 +340,7 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	_close->setObjectName("import_close");
 	_cancel->setObjectName("import_cancel");
 	_import->setObjectName("import_import");
+	_import->setToolTip(tr("Import (Enter)"));
 	_collection->setObjectName("import_collection");
 	_format_cancel->setObjectName("import_format_cancel");
 	_format_use->setObjectName("import_format_use");
@@ -141,39 +375,64 @@ PVGuiQt::PVImportPage::PVImportPage(QWidget* parent)
 	progress_layout->addLayout(_progress_buttons);
 	_progress->hide();
 
-	auto* header = new QHBoxLayout;
-	header->addWidget(_back);
-	header->addWidget(_title, 1);
+	auto* header = new QFrame;
+	header->setObjectName("import_header");
+	auto* header_layout = new QHBoxLayout(header);
+	header_layout->setContentsMargins(0, 0, 0, SHEET_MARGIN / 2);
+	header_layout->setSpacing(SHEET_MARGIN / 2);
+	header_layout->addWidget(_back);
+	header_layout->addWidget(_icon);
+	header_layout->addWidget(_title, 1);
 
-	auto* footer = new QHBoxLayout;
-	footer->addWidget(_collection_row);
-	footer->addStretch();
-	footer->addWidget(_close);
-	footer->addWidget(_cancel);
-	footer->addWidget(_import);
-	footer->addWidget(_format_cancel);
-	footer->addWidget(_format_use);
+	auto* actions = new QFrame;
+	actions->setObjectName("import_actions");
+	auto* actions_layout = new QHBoxLayout(actions);
+	actions_layout->setContentsMargins(0, SHEET_MARGIN / 2, 0, 0);
+	actions_layout->addWidget(_collection_row);
+	actions_layout->addStretch();
+	actions_layout->addWidget(_close);
+	actions_layout->addWidget(_cancel);
+	actions_layout->addWidget(_import);
+	actions_layout->addWidget(_format_cancel);
+	actions_layout->addWidget(_format_use);
 	_close->hide();
 	_cancel->hide();
 	_import->hide();
 	_format_cancel->hide();
 	_format_use->hide();
 
-	_body_layout->addLayout(header);
+	_body_layout->setContentsMargins(0, 0, 0, 0);
 	_body_layout->addLayout(_messages);
 	_body_layout->addLayout(_content_layout);
 	_body_layout->addWidget(_progress);
-	_body_layout->addLayout(footer);
 	_body_layout->addStretch();
-	fill_page(false);
-	auto* scroll_area = new QScrollArea;
-	scroll_area->setWidgetResizable(true);
-	scroll_area->setFrameShape(QFrame::NoFrame);
-	scroll_area->setAlignment(Qt::AlignHCenter);
-	scroll_area->setWidget(_body);
+	_scroll->setObjectName("import_scroll");
+	_scroll->setWidgetResizable(true);
+	_scroll->setFrameShape(QFrame::NoFrame);
+	_scroll->setWidget(_body);
+	// The scroll area keeps to what it shows, which grows or shrinks without telling the layouts
+	// around the scroll area.
+	_body->installEventFilter(this);
 
-	auto* layout = new QVBoxLayout(this);
-	layout->addWidget(scroll_area);
+	auto* sheet_layout = new QVBoxLayout(_sheet);
+	sheet_layout->setContentsMargins(SHEET_MARGIN, SHEET_MARGIN / 2, SHEET_MARGIN,
+	                                 SHEET_MARGIN / 2);
+	sheet_layout->addWidget(header);
+	sheet_layout->addWidget(_scroll, 1);
+	sheet_layout->addWidget(actions);
+	// For the shadow the page draws around it.
+	_sheet->installEventFilter(this);
+
+	// The sheet in the middle of the room of its row, left to the stretches on each side once
+	// as wide as its column: no alignment, which would keep it to the width it asks for.
+	auto* row = new QHBoxLayout;
+	row->addStretch(1);
+	row->addWidget(_sheet, 1000);
+	row->addStretch(1);
+	_layout->setContentsMargins(SHEET_MARGIN, SHEET_MARGIN, SHEET_MARGIN, SHEET_MARGIN);
+	_layout->addLayout(row);
+	_layout->addStretch();
+	fill_page(false);
 }
 
 PVGuiQt::PVImportPage::~PVImportPage()
@@ -185,13 +444,15 @@ PVGuiQt::PVImportPage::~PVImportPage()
 	}
 }
 
-void PVGuiQt::PVImportPage::set_title(QString const& title)
+void PVGuiQt::PVImportPage::set_title(QString const& title, QIcon const& icon)
 {
 	_title->setText(title);
+	_icon->set_icon(icon);
 }
 
 void PVGuiQt::PVImportPage::set_content(PVWidgets::PVImportWidget* content,
                                         QString const& title,
+                                        QIcon const& icon,
                                         QStringList const& collections,
                                         int current)
 {
@@ -213,7 +474,7 @@ void PVGuiQt::PVImportPage::set_content(PVWidgets::PVImportWidget* content,
 	_collection->addItem(tr("New data collection"));
 	_collection->setCurrentIndex(current < 0 ? int(collections.size()) : current);
 
-	set_title(title);
+	set_title(title, icon);
 	set_closable(false);
 	fill_page(content->fills_page());
 	set_content_shown(true);
@@ -324,10 +585,16 @@ void PVGuiQt::PVImportPage::end_format_edit()
 
 void PVGuiQt::PVImportPage::fill_page(bool fill)
 {
-	// Else short enough lines to read in a wide window, which the scroll area centers.
-	_body->setMaximumWidth(fill ? QWIDGETSIZE_MAX
-	                            : fontMetrics().averageCharWidth() * COLUMN_WIDTH);
-	// Else the height left goes below the buttons: given to the content, it would set a list of
+	// Else short enough lines to read in a wide window, and a sheet no taller than what it shows,
+	// with its buttons right under it.
+	_sheet->setMaximumWidth(fill ? QWIDGETSIZE_MAX
+	                             : fontMetrics().averageCharWidth() * COLUMN_WIDTH +
+	                                   2 * SHEET_MARGIN);
+	_sheet->setSizePolicy(QSizePolicy::Expanding,
+	                      fill ? QSizePolicy::Expanding : QSizePolicy::Maximum);
+	_layout->setStretch(0, fill ? 1 : 0);
+	_layout->setStretch(1, fill ? 0 : 1);
+	// Else the height left goes below the content: given to the content, it would set a list of
 	// a limited height apart from the buttons beside it.
 	_body_layout->setStretchFactor(_content_layout, fill ? 1 : 0);
 	_body_layout->setStretch(_body_layout->count() - 1, fill ? 0 : 1);
@@ -351,7 +618,7 @@ void PVGuiQt::PVImportPage::start_progress(QString const& task, std::vector<Acti
 	}
 	_progress_buttons->addStretch();
 	for (Action& action : buttons) {
-		auto* button = new QPushButton(action.text);
+		QPushButton* button = ::button(action.text, action.icon);
 		connect(button, &QPushButton::clicked, this, std::move(action.on_click));
 		_progress_buttons->addWidget(button);
 		// At once rather than once the event loop shows what a layout adds to a visible widget.
@@ -392,6 +659,7 @@ QWidget* PVGuiQt::PVImportPage::add_message(Severity severity,
 {
 	auto* message = new QFrame;
 	message->setObjectName("import_message");
+	message->setProperty("severity", name_of(severity));
 	message->setFrameShape(QFrame::StyledPanel);
 	auto* icon = new QLabel;
 	const int size = style()->pixelMetric(QStyle::PM_MessageBoxIconSize, nullptr, this);
@@ -403,7 +671,7 @@ QWidget* PVGuiQt::PVImportPage::add_message(Severity severity,
 	layout->addWidget(icon, 0, Qt::AlignTop);
 	layout->addWidget(label, 1);
 	for (Action& action : actions) {
-		auto* button = new QPushButton(action.text);
+		QPushButton* button = ::button(action.text, action.icon);
 		layout->addWidget(button, 0, Qt::AlignTop);
 		connect(button, &QPushButton::clicked, this,
 		        [message, on_click = std::move(action.on_click)]() {
@@ -449,4 +717,67 @@ void PVGuiQt::PVImportPage::cancel_task()
 	if (_task_progress) {
 		_task_progress->cancel();
 	}
+}
+
+void PVGuiQt::PVImportPage::set_decoration_color(QColor const& color)
+{
+	_decoration_color = color;
+	_decoration = {};
+	update();
+}
+
+void PVGuiQt::PVImportPage::paintEvent(QPaintEvent*)
+{
+	QPainter painter(this);
+	painter.fillRect(rect(), palette().color(QPalette::Window));
+	const qreal ratio = devicePixelRatioF();
+	if (_decoration.size() != size() * ratio) {
+		_decoration =
+		    decoration(size(), ratio, palette().color(QPalette::WindowText), _decoration_color);
+	}
+	painter.drawPixmap(0, 0, _decoration);
+
+	// A shadow, wider and fainter from the sheet, a bit below it.
+	painter.setRenderHint(QPainter::Antialiasing);
+	painter.setPen(Qt::NoPen);
+	painter.setBrush(QColor(0, 0, 0, 7));
+	const QRectF sheet = _sheet->geometry();
+	for (int spread = 1; spread <= 8; spread++) {
+		painter.drawRoundedRect(sheet.adjusted(-spread, 2 - spread, spread, 2 + spread),
+		                        SHEET_RADIUS + spread, SHEET_RADIUS + spread);
+	}
+}
+
+void PVGuiQt::PVImportPage::changeEvent(QEvent* event)
+{
+	// The colors of a theme, which polishes the page anew.
+	if (event->type() == QEvent::PaletteChange or event->type() == QEvent::StyleChange) {
+		_decoration = {};
+		update();
+	}
+	QWidget::changeEvent(event);
+}
+
+void PVGuiQt::PVImportPage::keyPressEvent(QKeyEvent* event)
+{
+	// As a dialog does with its default button, but on a button, which Enter would not click.
+	const bool enter = (event->key() == Qt::Key_Return or event->key() == Qt::Key_Enter) and
+	                   (event->modifiers() & ~Qt::KeypadModifier) == Qt::NoModifier;
+	if (enter and _import->isVisible() and _import->isEnabled() and
+	    qobject_cast<QAbstractButton*>(focusWidget()) == nullptr) {
+		_import->animateClick();
+		return;
+	}
+	QWidget::keyPressEvent(event);
+}
+
+bool PVGuiQt::PVImportPage::eventFilter(QObject* watched, QEvent* event)
+{
+	if (watched == _body and event->type() == QEvent::LayoutRequest) {
+		_scroll->updateGeometry();
+	} else if (watched == _sheet and
+	           (event->type() == QEvent::Move or event->type() == QEvent::Resize)) {
+		update();
+	}
+	return QWidget::eventFilter(watched, event);
 }

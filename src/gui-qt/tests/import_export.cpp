@@ -799,7 +799,7 @@ QPushButton* progress_button(App::PVMainWindow& main_window, QString const& text
 	auto* progress =
 	    main_window._projects_tab_widget->import_page().findChild<QWidget*>("import_progress");
 	for (QPushButton* button : progress->findChildren<QPushButton*>()) {
-		if (button->text() == text) {
+		if (button->text().trimmed() == text) {
 			return button;
 		}
 	}
@@ -811,7 +811,7 @@ QPushButton* message_button(App::PVMainWindow& main_window, QString const& text)
 {
 	for (QFrame* message : main_window.findChildren<QFrame*>("import_message")) {
 		for (QPushButton* button : message->findChildren<QPushButton*>()) {
-			if (button->text() == text) {
+			if (button->text().trimmed() == text) {
 				return button;
 			}
 		}

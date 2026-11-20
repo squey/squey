@@ -28,6 +28,9 @@
 #include <pvguiqt/export.h>
 #include <pvkernel/widgets/PVImportWidget.h>
 
+#include <QColor>
+#include <QIcon>
+#include <QPixmap>
 #include <QString>
 #include <QStringList>
 #include <QTimer>
@@ -43,10 +46,12 @@ class PVFormatBuilderWidget;
 } // namespace App
 
 class QComboBox;
+class QFrame;
 class QHBoxLayout;
 class QLabel;
 class QProgressBar;
 class QPushButton;
+class QScrollArea;
 class QThread;
 class QVBoxLayout;
 
@@ -63,10 +68,15 @@ namespace PVGuiQt
  * wrong, rather than in dialogs of their own. It shows what an input type asks for an import, the
  * content, with the same buttons for every type. Its buttons only tell what the user asks for;
  * what runs the imports acts on it.
+ *
+ * It shows them on a sheet, between a header and a bar of its buttons that stay in sight, over a
+ * drawing of parallel coordinates in the colors of the theme: the color of the text, and
+ * decoration_color for the lines of a selection.
  */
 class PVGUIQT_EXPORT PVImportPage : public QWidget
 {
 	Q_OBJECT
+	Q_PROPERTY(QColor decoration_color READ decoration_color WRITE set_decoration_color)
 
   public:
 	using Severity = PVWidgets::PVImportWidget::Severity;
@@ -77,6 +87,7 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	struct Action {
 		QString text;
 		std::function<void()> on_click;
+		QIcon icon = {};
 	};
 
   public:
@@ -84,15 +95,18 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	~PVImportPage() override;
 
   public:
-	void set_title(QString const& title);
+	/** With @p icon before it, if not null. */
+	void set_title(QString const& title, QIcon const& icon = {});
 
 	/**
-	 * Shows @p content under @p title, then a choice among the data collections @p collections,
-	 * @p current chosen first, and a new one, and Cancel and Import buttons. The page owns
-	 * @p content, and runs its tasks, until clear_content().
+	 * Shows @p content under @p title and @p icon, then a choice among the data collections
+	 * @p collections, @p current chosen first, and a new one, and Cancel and Import buttons, of
+	 * which Enter clicks Import but on a button. The page owns @p content, and runs its tasks,
+	 * until clear_content().
 	 */
 	void set_content(PVWidgets::PVImportWidget* content,
 	                 QString const& title,
+	                 QIcon const& icon,
 	                 QStringList const& collections,
 	                 int current);
 	void clear_content();
@@ -144,6 +158,9 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	/** Asks the task of the content to stop, if one runs: task_finished() tells once it did. */
 	void cancel_task();
 
+	QColor decoration_color() const { return _decoration_color; }
+	void set_decoration_color(QColor const& color);
+
   Q_SIGNALS:
 	/** For the page shown before, while this one keeps what it shows. */
 	void back_requested();
@@ -153,6 +170,15 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	/** Once a task of the content ended, and its done function returned. */
 	void task_finished();
 
+  protected:
+	void paintEvent(QPaintEvent* event) override;
+	void changeEvent(QEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+	bool eventFilter(QObject* watched, QEvent* event) override;
+
+  private:
+	class IconLabel;
+
   private:
 	void update_buttons();
 	/** Whether the content takes all the room of the page, or a column. */
@@ -160,8 +186,12 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	void end_format_edit();
 
   private:
+	QVBoxLayout* _layout;
+	QFrame* _sheet;
 	QPushButton* _back;
+	IconLabel* _icon;
 	QLabel* _title;
+	QScrollArea* _scroll;
 	QWidget* _body;
 	QVBoxLayout* _body_layout;
 	QVBoxLayout* _messages;
@@ -186,6 +216,10 @@ class PVGUIQT_EXPORT PVImportPage : public QWidget
 	QThread* _task_thread = nullptr;
 	std::shared_ptr<PVCore::PVTaskProgress> _task_progress;
 	QTimer _task_timer;
+
+	QColor _decoration_color;
+	/** The drawing behind the sheet, for the size and the colors of the page it was drawn for. */
+	QPixmap _decoration;
 };
 
 } // namespace PVGuiQt
