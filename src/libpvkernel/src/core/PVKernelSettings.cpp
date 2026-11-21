@@ -90,7 +90,7 @@ const PVCore::PVSetting<QString> PVCore::settings::color_scheme(
 const PVCore::PVSetting<QString> PVCore::settings::working_directory(
     {.key = "general.working_directory",
      .type = PVSettingType::Path,
-     .default_value = PVRush::PVNraw::default_tmp_path,
+     .default_value = PVRush::PVNraw::default_working_directory(),
      .title = "Working directory",
      .description = "Where Squey keeps the data it imports, and the temporary files of the SQL "
                     "console and of the investigations it saves. A fast disk makes Squey "

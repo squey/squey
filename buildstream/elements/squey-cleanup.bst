@@ -31,6 +31,10 @@ config:
       # the published package.
       if [ "%{target-platform}" = "linux" ]; then
         rm -rf %{prefix}/tests %{prefix}/lib/debug/tests
+        # The Flatpak keeps its data in its own cache unless the user chooses
+        # otherwise (see PVNraw::default_working_directory()), not in the
+        # directory of the host the configuration names.
+        sed -i '/^nraw_tmp=/d' %{prefix}/share/squey/squey/pvconfig.ini
       fi
       rm -rf %{includedir}
       rm -rf %{prefix}/lib/cmake

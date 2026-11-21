@@ -27,6 +27,7 @@
 #include <pvkernel/core/PVSerializeObject.h>
 #include <pvkernel/core/PVElement.h>
 #include <pvkernel/core/PVField.h>
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/PVTextChunk.h>
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -42,6 +43,7 @@
 #include <qchar.h>
 #include <qdir.h>
 #include <qstring.h>
+#include <QStandardPaths>
 #include <stdint.h>
 #include <stdlib.h>
 #include <memory>
@@ -68,6 +70,14 @@ class formatter_desc_list;
 namespace pybind11 {
 class array;
 }  // namespace pybind11
+
+QString PVRush::PVNraw::default_working_directory()
+{
+	if (PVCore::PVFlatpakHelper::is_flatpak()) {
+		return QStandardPaths::writableLocation(QStandardPaths::GenericCacheLocation) + "/squey";
+	}
+	return default_tmp_path;
+}
 
 const std::string PVRush::PVNraw::nraw_tmp_pattern = "nraw-XXXXXX";
 const std::string PVRush::PVNraw::nraw_tmp_name_regexp = "nraw-??????";

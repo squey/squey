@@ -39,6 +39,8 @@
 #include <pvcop/collection.h>
 #include <pvcop/collector.h>
 
+#include <QString>
+
 namespace PVCore
 {
 class PVSelBitField;
@@ -89,8 +91,14 @@ class PVControllerJob;
 class PVNraw
 {
   public:
-	/** A constant: the setting of the working directory defaults to it while the library loads. */
+	/** Where the working directory is by default, outside the Flatpak. */
 	static constexpr const char default_tmp_path[] = "/tmp/squey";
+	/**
+	 * Where the working directory is by default. In the Flatpak, /tmp lies in $XDG_RUNTIME_DIR,
+	 * a file system in memory of a tenth of it by default: the directory goes to the cache of the
+	 * sandbox, on the disk of the home directory.
+	 */
+	static QString default_working_directory();
 	static const std::string nraw_tmp_pattern;
 	static const std::string nraw_tmp_name_regexp;
 	static const std::string default_sep_char;
