@@ -26,6 +26,7 @@
 #define __PVKERNEL_PVFLATPAKHELPER_H__
 
 #include <QFileInfo>
+#include <QString>
 
 namespace PVCore
 {
@@ -40,6 +41,41 @@ class PVFlatpakHelper
 		static const bool flatpak = QFileInfo::exists("/.flatpak-info");
 		return flatpak;
 	}
+
+	/**
+	 * Whether @p path is one of the files and directories the portals hand the sandbox over.
+	 *
+	 * The document portal serves them from a file system of its own, which only shows the
+	 * documents themselves: a file written beside one of them stays out of sight of the host.
+	 */
+	static bool is_document_portal_path(QString const& path);
+
+	/**
+	 * Where @p path is on the host, for a document of the portal, which the sandbox can only
+	 * show; @p path itself otherwise, or when the portal does not tell. Asks the portal once per
+	 * document, blocking for a second at most.
+	 */
+	static QString host_path(QString const& path);
+
+	/**
+	 * Where the sandbox reaches @p path, a directory of the portal, without the portal: the
+	 * directory of the host itself, when a permission of the sandbox, such as the one
+	 * filesystem_override_command() grants, puts it in sight; @p path otherwise, and for any
+	 * other path.
+	 *
+	 * The portal hands such a directory over through its file system all the same when several
+	 * branches of the application are installed:
+	 * https://github.com/flatpak/xdg-desktop-portal/issues/879. Creates a directory in it, then
+	 * removes it, to tell it from a directory the sandbox has of its own at the same path, as
+	 * under /tmp. Blocks as host_path() does.
+	 */
+	static QString direct_directory(QString const& path);
+
+	/**
+	 * The command that lets the sandbox reach @p host_directory, a directory of the host, from
+	 * its next start on, quoted for a shell.
+	 */
+	static QString filesystem_override_command(QString const& host_directory);
 };
 
 } // namespace PVCore

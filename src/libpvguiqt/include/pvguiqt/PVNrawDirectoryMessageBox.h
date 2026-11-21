@@ -25,7 +25,9 @@
 #ifndef __PVGUIQT_PVNRAWDIRECTORYMESSAGEBOX_H__
 #define __PVGUIQT_PVNRAWDIRECTORYMESSAGEBOX_H__
 
+#include <QClipboard>
 #include <QDir>
+#include <QGuiApplication>
 #include <QMessageBox>
 #include <QPushButton>
 
@@ -45,6 +47,14 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 		    PVCore::PVSettings::get()
 		        .default_value(PVCore::settings::working_directory.key())
 		        .toString();
+
+		// A directory chosen through the portal that the sandbox has since been let reach
+		// directly, by the command warn_through_portal() gives.
+		if (const QString direct = PVCore::PVFlatpakHelper::direct_directory(nraw_tmp);
+		    direct != nraw_tmp) {
+			PVCore::settings::working_directory.set_value(direct);
+			nraw_tmp = PVCore::settings::working_directory.value();
+		}
 
 		// The directory of the sandbox is there for Squey alone, and the other ones it can only
 		// reach through the portal, slowly.
@@ -90,7 +100,8 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 			if (clickedButton() == browser_button) {
 				const QString chosen = PVWidgets::PVFileDialog::getExistingDirectory();
 				if (not chosen.isEmpty()) {
-					PVCore::settings::working_directory.set_value(chosen);
+					PVCore::settings::working_directory.set_value(
+					    working_directory_for(this, chosen));
 					// The administrator may have set it.
 					nraw_tmp = PVCore::settings::working_directory.value();
 				}
@@ -102,6 +113,51 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 			}
 
 		} while (not PVCore::can_create_directory_in(nraw_tmp));
+	}
+
+	/**
+	 * The working directory to set for @p chosen, a directory the user chose: the one
+	 * PVFlatpakHelper::direct_directory() gives. Warns of a directory the sandbox only reaches
+	 * through the portal, and says how to let it reach the directory directly.
+	 */
+	static QString working_directory_for(QWidget* parent, QString const& chosen)
+	{
+		const QString directory = PVCore::PVFlatpakHelper::direct_directory(chosen);
+		if (PVCore::PVFlatpakHelper::is_document_portal_path(directory)) {
+			warn_through_portal(parent, directory);
+		}
+		return directory;
+	}
+
+  private:
+	static void warn_through_portal(QWidget* parent, QString const& directory)
+	{
+		const QString host = PVCore::PVFlatpakHelper::host_path(directory);
+		// A portal older than GetHostPaths does not say where the directory is.
+		const bool host_known = host != directory;
+		const QString command = PVCore::PVFlatpakHelper::filesystem_override_command(
+		    host_known ? host : QString("DIRECTORY"));
+		QMessageBox box(
+		    QMessageBox::Warning, tr("Slow working directory"),
+		    tr("Squey reaches %1 through the portal of the desktop, which serves each first read "
+		       "of its data, several times slower than the disk does.<br><br>"
+		       "To let Squey reach it directly, run"
+		       "<pre>%2</pre>"
+		       "%3")
+		        .arg(host_known ? "<i>" + host.toHtmlEscaped() + "</i>" : tr("this directory"),
+		             command.toHtmlEscaped(),
+		             host_known ? tr("then restart Squey: there is no need to choose the "
+		                             "directory again.")
+		                        : tr("with the path of the directory on the host for DIRECTORY, "
+		                             "then restart Squey and choose the directory again.")),
+		    QMessageBox::Close, parent);
+		box.setTextInteractionFlags(Qt::TextSelectableByMouse);
+		QPushButton* copy = box.addButton(tr("Copy the command"), QMessageBox::AcceptRole);
+		box.setDefaultButton(copy);
+		box.exec();
+		if (box.clickedButton() == copy) {
+			QGuiApplication::clipboard()->setText(command);
+		}
 	}
 };
 

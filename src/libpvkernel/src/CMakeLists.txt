@@ -28,6 +28,7 @@ core/PVDateTimeParser.cpp
 core/PVDirectory.cpp
 core/PVElement.cpp
 core/PVField.cpp
+core/PVFlatpakHelper.cpp
 core/PVHSVColor.cpp
 core/PVPredefinedHSVColors.cpp
 core/PVLogger.cpp

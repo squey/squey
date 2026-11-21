@@ -26,7 +26,10 @@
 #include <pvguiqt/PVSettingsDialog.h>
 
 #include <pvguiqt/PVCodeEditorStyle.h>
+#include <pvguiqt/PVNrawDirectoryMessageBox.h>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVSettings.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
@@ -374,9 +377,12 @@ QWidget* PVGuiQt::__impl::setting_row::create_editor()
 		connect(line_edit, &QLineEdit::textEdited, this,
 		        [this](QString const& text) { notify(text); });
 		connect(browse, &QToolButton::clicked, this, [this, line_edit]() {
-			const QString directory = PVWidgets::PVFileDialog::getExistingDirectory(
-			    this, _descriptor.title, line_edit->text());
+			QString directory = PVWidgets::PVFileDialog::getExistingDirectory(
+			    this, _descriptor.title, PVCore::PVFlatpakHelper::host_path(line_edit->text()));
 			if (not directory.isEmpty()) {
+				if (_descriptor.key == PVCore::settings::working_directory.key()) {
+					directory = PVNrawDirectoryMessageBox::working_directory_for(this, directory);
+				}
 				line_edit->setText(directory);
 				notify(directory);
 			}
