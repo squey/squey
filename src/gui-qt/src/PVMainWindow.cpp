@@ -700,7 +700,7 @@ void App::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 		img_name += ".png";
 	}
 
-	_screenshot_root_dir = QFileInfo(img_name).dir().path();
+	_screenshot_root_dir = PVCore::PVFlatpakHelper::host_directory_of(img_name);
 
 	if (pixmap.save(img_name, "PNG") == false) {
 		QMessageBox::critical(this, "Error saving the screenshot",

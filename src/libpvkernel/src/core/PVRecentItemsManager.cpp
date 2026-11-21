@@ -28,6 +28,7 @@
 #include <pvkernel/rush/PVInputType.h>        // for PVInputType, etc
 #include <pvkernel/rush/PVSourceCreator.h>    // for PVSourceCreator, etc
 #include <pvkernel/rush/PVSourceDescription.h> // for PVSourceDescription
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <qchar.h>
@@ -327,7 +328,8 @@ PVCore::PVRecentItemsManager::PVRecentItemsManager()
 std::tuple<QString, QStringList>
 PVCore::PVRecentItemsManager::get_string_from_entry(QString const& string) const
 {
-	return std::make_tuple(string, QStringList() << string);
+	const QString shown = PVCore::PVFlatpakHelper::host_path(string);
+	return std::make_tuple(shown, QStringList() << shown);
 }
 
 std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_entry(
@@ -338,7 +340,8 @@ std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_e
 
 	if (src_desc.input_desc.size() == 1) {
 		PVRush::PVSourceDescription input(src_desc);
-		QString source_path = input.get_inputs()[0]->human_name();
+		QString source_path =
+		    PVCore::PVFlatpakHelper::host_path(input.get_inputs()[0]->human_name());
 		long_string = source_path;
 		if (not src_desc.format_name.empty()) {
 			long_string += " [" + QString::fromStdString(src_desc.format_name) + "]";
@@ -347,7 +350,7 @@ std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_e
 	} else {
 		PVRush::PVSourceDescription desc(src_desc);
 		for (auto const& input : desc.get_inputs()) {
-			filenames << input->human_name();
+			filenames << PVCore::PVFlatpakHelper::host_path(input->human_name());
 		}
 		if (not src_desc.format_name.empty()) {
 			long_string = "[" + QString::fromStdString(src_desc.format_name) + "]\n";
@@ -361,10 +364,10 @@ std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_e
 std::tuple<QString, QStringList>
 PVCore::PVRecentItemsManager::get_string_from_entry(PVRush::PVFormat const& format) const
 {
-	QString long_string =
-	    QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
+	const QString path = PVCore::PVFlatpakHelper::host_path(format.get_full_path());
+	QString long_string = QString("%1 (%2)").arg(format.get_format_name()).arg(path);
 	QStringList filenames;
-	filenames << format.get_full_path();
+	filenames << path;
 
 	return std::make_tuple(long_string, filenames);
 }

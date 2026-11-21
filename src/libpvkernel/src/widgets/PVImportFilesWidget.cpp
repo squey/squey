@@ -24,6 +24,7 @@
 
 #include <pvkernel/widgets/PVImportFilesWidget.h>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/widgets/PVImportWidget.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
@@ -53,7 +54,8 @@ enum FileColumn { FILE_NAME, FILE_SIZE, FILE_FOLDER };
 /** Such as "~/data" for a folder of the home directory. */
 QString folder_of(QString const& path)
 {
-	const QString folder = QDir::toNativeSeparators(QFileInfo(path).absolutePath());
+	const QString folder =
+	    QDir::toNativeSeparators(PVCore::PVFlatpakHelper::host_directory_of(path));
 	const QString home = QDir::toNativeSeparators(QDir::homePath());
 	if (folder == home or folder.startsWith(home + QDir::separator())) {
 		return "~" + folder.mid(home.size());
@@ -159,7 +161,8 @@ void PVWidgets::PVImportFilesWidget::set_paths(QStringList const& paths)
 		    new QTreeWidgetItem(_files, {info.fileName(), size_of(info.size()), folder_of(path)});
 		item->setIcon(FILE_NAME, _icon);
 		item->setTextAlignment(FILE_SIZE, Qt::AlignRight | Qt::AlignVCenter);
-		item->setToolTip(FILE_NAME, QDir::toNativeSeparators(path));
+		item->setToolTip(FILE_NAME,
+		                 QDir::toNativeSeparators(PVCore::PVFlatpakHelper::host_path(path)));
 		item->setToolTip(FILE_FOLDER, QDir::toNativeSeparators(info.absolutePath()));
 	}
 	// As tall as its rows, from three to ten, then it scrolls.
@@ -217,7 +220,7 @@ void PVWidgets::PVImportFilesWidget::add_files()
 	add_paths(PVFileDialog::getOpenFileNames(
 	    this, _dialog_title,
 	    _paths.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
-	                     : QFileInfo(_paths.back()).absolutePath(),
+	                     : PVCore::PVFlatpakHelper::host_directory_of(_paths.back()),
 	    _dialog_filter));
 }
 

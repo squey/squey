@@ -25,6 +25,7 @@
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
@@ -240,7 +241,7 @@ void App::PVMainWindow::save_solution_as(bool save_log_file)
 	if (file.isEmpty()) {
 		return;
 	}
-	_current_save_root_folder = QFileInfo(file).absolutePath();
+	_current_save_root_folder = PVCore::PVFlatpakHelper::host_directory_of(file);
 	save_solution(file, save_log_file);
 }
 

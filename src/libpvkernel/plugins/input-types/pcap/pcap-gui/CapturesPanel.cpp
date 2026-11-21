@@ -29,6 +29,7 @@
 
 #include <libpvpcap/extraction.h>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/widgets/PVImportWidget.h>
@@ -270,7 +271,9 @@ void CapturesPanel::update_empty()
 void CapturesPanel::ask()
 {
 	QString directory = PVCore::PVConfig::value(LAST_DIRECTORY_KEY).toString();
-	if (directory.isEmpty() or not QFileInfo(directory).isDir()) {
+	// The Flatpak remembers directories of the host, which it does not see.
+	if (directory.isEmpty() or
+	    (not PVCore::PVFlatpakHelper::is_flatpak() and not QFileInfo(directory).isDir())) {
 		directory = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
 	}
 	// tshark reads compressed captures, and so does the import.
@@ -278,7 +281,8 @@ void CapturesPanel::ask()
 	    this, tr("Add captures"), directory,
 	    tr("Captures (%1)").arg(CAPTURE_PATTERNS.join(' ')) + ";;" + tr("All files (*)"));
 	if (not files.isEmpty()) {
-		PVCore::PVConfig::set_value(LAST_DIRECTORY_KEY, QFileInfo(files.front()).absolutePath());
+		PVCore::PVConfig::set_value(LAST_DIRECTORY_KEY,
+		                            PVCore::PVFlatpakHelper::host_directory_of(files.front()));
 		add(files);
 	}
 }

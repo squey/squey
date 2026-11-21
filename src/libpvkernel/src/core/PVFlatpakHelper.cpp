@@ -87,9 +87,14 @@ QString PVCore::PVFlatpakHelper::host_path(QString const& path)
 
 	static QMutex mutex;
 	static QHash<QString, QString> host_paths;
+	// Until it fails to answer, as a portal older than GetHostPaths does: each call would wait.
+	static bool portal_answers = true;
 	QMutexLocker lock(&mutex);
 	auto host = host_paths.find(document);
 	if (host == host_paths.end()) {
+		if (not portal_answers) {
+			return path;
+		}
 		QDBusMessage call = QDBusMessage::createMethodCall(
 		    "org.freedesktop.portal.Documents", "/org/freedesktop/portal/documents",
 		    "org.freedesktop.portal.Documents", "GetHostPaths");
@@ -98,6 +103,8 @@ QString PVCore::PVFlatpakHelper::host_path(QString const& path)
 		QMap<QString, QByteArray> paths;
 		if (reply.type() == QDBusMessage::ReplyMessage and not reply.arguments().isEmpty()) {
 			reply.arguments().first().value<QDBusArgument>() >> paths;
+		} else {
+			portal_answers = false;
 		}
 		// Null-terminated, the portal says.
 		QByteArray bytes = paths.value(document);

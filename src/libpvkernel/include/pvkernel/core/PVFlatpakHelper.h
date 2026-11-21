@@ -57,6 +57,12 @@ class PVFlatpakHelper
 	 */
 	static QString host_path(QString const& path);
 
+	/** The directory of @p path on the host, to show it or to open a file dialog in it again. */
+	static QString host_directory_of(QString const& path)
+	{
+		return QFileInfo(host_path(path)).absolutePath();
+	}
+
 	/**
 	 * Where the sandbox reaches @p path, a directory of the portal, without the portal: the
 	 * directory of the host itself, when a permission of the sandbox, such as the one

@@ -28,6 +28,7 @@
 #include "ProfileEditor.h"
 #include "Style.h"
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/widgets/PVImportWidget.h>
@@ -323,7 +324,8 @@ void ProfilesPanel::import()
 	    this, tr("Import profiles"), directory,
 	    tr("Profiles (*.json)") + ";;" + tr("All files (*)"));
 	for (const QString& file : files) {
-		PVCore::PVConfig::set_value(LAST_PROFILE_DIRECTORY_KEY, QFileInfo(file).absolutePath());
+		PVCore::PVConfig::set_value(LAST_PROFILE_DIRECTORY_KEY,
+		                            PVCore::PVFlatpakHelper::host_directory_of(file));
 		const std::string name =
 		    pvpcap::free_profile_name(QFileInfo(file).completeBaseName().toStdString());
 		attempt(tr("Can't import the profile"),
@@ -342,7 +344,8 @@ void ProfilesPanel::export_profile()
 	    directory + "/" + QString::fromStdString(_editor->current().name) + ".json",
 	    tr("Profiles (*.json)"));
 	if (not file.isEmpty()) {
-		PVCore::PVConfig::set_value(LAST_PROFILE_DIRECTORY_KEY, QFileInfo(file).absolutePath());
+		PVCore::PVConfig::set_value(LAST_PROFILE_DIRECTORY_KEY,
+		                            PVCore::PVFlatpakHelper::host_directory_of(file));
 		attempt(tr("Can't export the profile"),
 		        [&]() { _editor->export_file(file.toStdString()); });
 	}
