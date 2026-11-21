@@ -35,8 +35,13 @@
 #include <pvkernel/core/PVArchive.h>
 #include <pvkernel/core/PVDirectory.h>
 
+#include <pvkernel/widgets/PVFileDialog.h>
+
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QStandardPaths>
+
+#include <ranges>
 
 #include <sys/time.h>
 //#include <sys/resource.h>
@@ -53,22 +58,21 @@ PVRush::PVInputTypeFilename::PVInputTypeFilename() : PVInputTypeDesc<PVFileDescr
 	// }
 }
 
-bool PVRush::PVInputTypeFilename::create_widget(
-    hash_formats& formats,
-    list_inputs& inputs,
-    QString& format,
-    PVCore::PVArgumentList& /*args_ext*/,
-    QWidget* parent) const
+bool PVRush::PVInputTypeFilename::create_widget(hash_formats& /*formats*/,
+                                                list_inputs& inputs,
+                                                QString& /*format*/,
+                                                PVCore::PVArgumentList& /*args_ext*/,
+                                                QWidget* parent) const
 {
-    QStringList formats_name = formats.keys();
-	formats_name.sort();
-
-	formats_name.prepend(QString(SQUEY_BROWSE_FORMAT_STR));
-	formats_name.prepend(QString(SQUEY_LOCAL_FORMAT_STR));
-
-	// Get information from file dialog
-	PVImportFileDialog file_dlg(formats_name, parent);
-	QStringList filenames = file_dlg.getFileNames(format);
+	const QStringList filenames =
+	    PVWidgets::PVFileDialog::getOpenFileNames(
+	        parent, QObject::tr("Import text files"),
+	        QStandardPaths::writableLocation(QStandardPaths::HomeLocation)) |
+	    std::views::filter([](const QString& f) {
+		    QString ext = QFileInfo(f).suffix().toLower();
+		    return ext != "format" and ext != "pvi";
+	    }) |
+	    std::ranges::to<QStringList>();
 
 	return load_files(filenames, inputs, parent);
 }

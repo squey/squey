@@ -25,8 +25,6 @@
 #ifndef SQUEY_PVINPUTTYPEFILENAME_H
 #define SQUEY_PVINPUTTYPEFILENAME_H
 
-#include "PVImportFileDialog.h"
-
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVFileDescription.h>
 

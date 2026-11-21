@@ -46,9 +46,6 @@ static constexpr const int PVEXTRACT_NUMBER_LINES_NEXT_DEFAULT = 1000000;
 static constexpr const int FORMATBUILDER_EXTRACT_START_DEFAULT = 0;
 static constexpr const int FORMATBUILDER_EXTRACT_END_DEFAULT = 100;
 
-static constexpr const char* SQUEY_LOCAL_FORMAT_STR = "Default local format";
-static constexpr const char* SQUEY_BROWSE_FORMAT_STR = "Custom format";
-
 static constexpr const char PVCORE_DIRECTORY_SEP = ';';
 
 static constexpr const char* PVCONFIG_FORMATS_INVALID_IGNORED = "formats/invalid/ignored";
