@@ -61,12 +61,16 @@ class PVGUIQT_EXPORT PVBackdropWidget : public QWidget
 	void set_decoration_color(QColor const& color);
 
   protected:
+	/** Whether the drawing shows through a card, which the theme gives a translucent background. */
+	enum class Card { Opaque, SeeThrough };
+
 	/**
 	 * Gives a shadow to @p card, a widget in this one with the corners the theme rounds cards
 	 * with, while it shows. Called once @p card is laid out where it stays: the shadow follows it
-	 * as it moves with what holds it then.
+	 * as it moves with what holds it then. A SeeThrough card is painted again wherever the drawing
+	 * changes behind it, an Opaque one only at its corners.
 	 */
-	void add_card(QWidget* card);
+	void add_card(QWidget* card, Card kind = Card::Opaque);
 	/**
 	 * Clears the drawing around @p widget, a widget in this one that shows on the background
 	 * alone: the drawing fades out a bit beyond its edges, out of the room the layout gives it.
@@ -102,7 +106,7 @@ class PVGUIQT_EXPORT PVBackdropWidget : public QWidget
 	 * Lights the rows of _selected up over @p band, none if empty, and no longer where they were.
 	 */
 	void move_glow(QRect const& band);
-	/** Paints @p area again, but where the cards hide the drawing. */
+	/** Paints @p area again, but where the opaque cards hide the drawing. */
 	void update_drawing(QRegion area);
 
   private:
@@ -126,6 +130,8 @@ class PVGUIQT_EXPORT PVBackdropWidget : public QWidget
 	/** Since the fade or the sweep under way started: they never overlap. */
 	QElapsedTimer _clock;
 	std::vector<QPointer<QWidget>> _cards;
+	/** The cards of _cards that hide the drawing. */
+	std::vector<QPointer<QWidget>> _opaque_cards;
 	std::vector<QPointer<QWidget>> _clearings;
 };
 

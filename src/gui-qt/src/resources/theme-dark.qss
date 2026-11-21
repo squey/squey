@@ -2213,15 +2213,26 @@ PVGuiQt--PVBackdropWidget {
 
 /* Start page -------------------------------------------------------------
 
-Its parts are cards over its backdrop.
+Its parts are cards over its backdrop, which shows through them a little:
+what they hold lets their background show, the containers, viewports and
+scroll bar areas (plain QWidget), labels, lines and lists.
 
 --------------------------------------------------------------------------- */
 #import_widget_of_PVStartScreenWidget,
 #project_widget_of_PVStartScreenWidget,
 #format_widget_of_PVStartScreenWidget {
-  background-color: #2a2e32;
+  background-color: rgba(42, 46, 50, 204);
   border: 1px solid #3f454b;
   border-radius: 8px;
+}
+
+#import_widget_of_PVStartScreenWidget .QWidget,
+#import_widget_of_PVStartScreenWidget QFrame,
+#project_widget_of_PVStartScreenWidget .QWidget,
+#project_widget_of_PVStartScreenWidget QFrame,
+#format_widget_of_PVStartScreenWidget .QWidget,
+#format_widget_of_PVStartScreenWidget QFrame {
+  background-color: transparent;
 }
 
 #PVStartScreenWidget, #start_logo {

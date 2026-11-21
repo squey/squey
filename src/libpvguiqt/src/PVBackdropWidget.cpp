@@ -29,6 +29,7 @@
 #include <QLinearGradient>
 #include <QPaintEvent>
 #include <QPainter>
+#include <QPainterPath>
 #include <QPolygonF>
 #include <QRadialGradient>
 #include <QRegion>
@@ -299,9 +300,12 @@ void PVGuiQt::PVBackdropWidget::set_decoration_color(QColor const& color)
 	update();
 }
 
-void PVGuiQt::PVBackdropWidget::add_card(QWidget* card)
+void PVGuiQt::PVBackdropWidget::add_card(QWidget* card, Card kind)
 {
 	_cards.emplace_back(card);
+	if (kind == Card::Opaque) {
+		_opaque_cards.emplace_back(card);
+	}
 	follow(card);
 }
 
@@ -371,7 +375,9 @@ void PVGuiQt::PVBackdropWidget::paintEvent(QPaintEvent* event)
 		    fading);
 	}
 
-	// A shadow, wider and fainter from each card, a bit below it.
+	// A shadow, wider and fainter from each card, a bit below it. Not under it, where it would
+	// darken a card the drawing shows through: each layer reaches at least as high as the card,
+	// which makes a hole in it.
 	painter.setRenderHint(QPainter::Antialiasing);
 	painter.setPen(Qt::NoPen);
 	painter.setBrush(QColor(0, 0, 0, 7));
@@ -381,8 +387,13 @@ void PVGuiQt::PVBackdropWidget::paintEvent(QPaintEvent* event)
 		}
 		const QRectF area(card->mapTo(this, QPoint(0, 0)), card->size());
 		for (int spread = 1; spread <= 8; spread++) {
-			painter.drawRoundedRect(area.adjusted(-spread, 2 - spread, spread, 2 + spread),
-			                        CARD_RADIUS + spread, CARD_RADIUS + spread);
+			QPainterPath layer;
+			layer.setFillRule(Qt::OddEvenFill);
+			layer.addRoundedRect(
+			    area.adjusted(-spread, std::min(0, 2 - spread), spread, 2 + spread),
+			    CARD_RADIUS + spread, CARD_RADIUS + spread);
+			layer.addRoundedRect(area, CARD_RADIUS, CARD_RADIUS);
+			painter.drawPath(layer);
 		}
 	}
 }
@@ -497,9 +508,9 @@ void PVGuiQt::PVBackdropWidget::move_glow(QRect const& band)
 
 void PVGuiQt::PVBackdropWidget::update_drawing(QRegion area)
 {
-	// The drawing does not show through the cards, which are not painted again but at their
-	// rounded corners.
-	for (const QPointer<QWidget>& card : _cards) {
+	// The drawing does not show through the opaque cards, which are not painted again but at
+	// their rounded corners.
+	for (const QPointer<QWidget>& card : _opaque_cards) {
 		if (card != nullptr and card->isVisible()) {
 			const QRect inside(card->mapTo(this, QPoint(0, 0)), card->size());
 			area -= QRegion(inside.adjusted(CARD_RADIUS, 0, -CARD_RADIUS, 0)) |

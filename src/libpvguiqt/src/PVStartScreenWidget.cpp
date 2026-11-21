@@ -343,10 +343,16 @@ PVGuiQt::PVStartScreenWidget::PVStartScreenWidget(QWidget* parent) : PVBackdropW
 
 	refresh_all_recent_items();
 
-	add_card(import_widget);
-	add_card(project_widget);
-	add_card(format_widget);
+	add_card(import_widget, Card::SeeThrough);
+	add_card(project_widget, Card::SeeThrough);
+	add_card(format_widget, Card::SeeThrough);
 	add_clearing(pv_labelWelcomeIcon);
+	// An item opens through its link, so selecting it means nothing. The color of a selection would
+	// show through the widget of the item, which lets the card show, behind a link of much the
+	// same color.
+	for (custom_listwidget_t* list : _recent_list_widgets) {
+		list->setSelectionMode(QAbstractItemView::NoSelection);
+	}
 }
 
 void PVGuiQt::PVStartScreenWidget::import_type()
