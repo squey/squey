@@ -256,18 +256,16 @@ class PVParamsWidget : public PVParamsWidgetBase
 		get_query(&error);
 
 		if (error.empty()) {
-			// FileDialog for option selection and file to write
 			PVWidgets::PVExportDlg export_dlg;
 
 			QFile file;
 			QString filename;
 			// Ask for file until a valid name is given or the action is aborted
 			while (true) {
-				int res = export_dlg.exec();
-				filename = export_dlg.selectedFiles()[0];
-				if (filename.isEmpty() || res == QDialog::Rejected) {
+				if (export_dlg.exec() != QDialog::Accepted) {
 					return;
 				}
+				filename = export_dlg.path();
 
 				file.setFileName(filename);
 				if (file.open(QIODevice::WriteOnly)) {
@@ -282,7 +280,7 @@ class PVParamsWidget : public PVParamsWidgetBase
 
 			// Export query
 			const PVRush::PVCSVExporter& exporter =
-			    dynamic_cast<PVRush::PVCSVExporter&>(export_dlg.exporter_widget()->exporter());
+			    dynamic_cast<PVRush::PVCSVExporter&>(export_dlg.exporter());
 			std::string sep = exporter.get_sep_char(), quote = exporter.get_quote_char();
 			bool header = exporter.get_export_header();
 			PVCore::PVStreamingCompressor compressor(filename.toStdString());

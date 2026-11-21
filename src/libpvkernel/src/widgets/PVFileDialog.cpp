@@ -118,12 +118,13 @@ QString PVWidgets::PVFileDialog::getSaveFileName(QWidget* parent /* = nullptr */
                                                  const QString& dir /* = QString() */,
                                                  const QString& filter /* = QString() */,
                                                  QString* selectedFilter /* = nullptr */,
-                                                 Options options /* = Options() */
+                                                 Options options /* = Options() */,
+                                                 const QString& default_suffix /* = QString() */
                                                  )
 {
 	const QStringList schemes = QStringList(QStringLiteral("file"));
 	const QUrl selectedUrl = getSaveFileUrl(parent, caption, QUrl::fromLocalFile(dir), filter,
-	                                        selectedFilter, options, schemes);
+	                                        selectedFilter, options, schemes, default_suffix);
 	return selectedUrl.toLocalFile();
 }
 
@@ -195,7 +196,8 @@ QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
     const QString& filter /* = QString() */,
     QString* selectedFilter /* = nullptr */,
     Options options /* = Options() */,
-    const QStringList& supportedSchemes /* = QStringList() */
+    const QStringList& supportedSchemes /* = QStringList() */,
+    const QString& default_suffix /* = QString() */
     )
 {
 	PVFileDialog dialog(parent, caption, dir.toLocalFile(), filter);
@@ -203,6 +205,7 @@ QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
 	dialog.setFileMode(QFileDialog::AnyFile);
 	dialog.setSupportedSchemes(supportedSchemes);
 	dialog.setAcceptMode(AcceptSave);
+	dialog.setDefaultSuffix(default_suffix);
 	if (selectedFilter && !selectedFilter->isEmpty())
 		dialog.selectNameFilter(*selectedFilter);
 	if (dialog.exec() == QDialog::Accepted) {

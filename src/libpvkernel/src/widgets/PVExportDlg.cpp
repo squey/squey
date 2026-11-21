@@ -24,106 +24,144 @@
 //
 
 #include <pvkernel/widgets/PVExportDlg.h>
+
+#include <pvkernel/core/PVStreamingCompressor.h>
 #include <pvkernel/widgets/PVCSVExporterWidget.h>
-#include <QtCore/qobjectdefs.h>
-#include <assert.h>
-#include <qfiledialog.h>
-#include <qgridlayout.h>
-#include <qlist.h>
-#include <qobject.h>
-#include <qstring.h>
+#include <pvkernel/widgets/PVFileDialog.h>
+
+#include <QComboBox>
+#include <QDialogButtonBox>
+#include <QFormLayout>
 #include <QGroupBox>
-#include <QStackedLayout>
-#include <regex>
-#include <functional>
-#include <string>
-#include <vector>
+#include <QPushButton>
+#include <QStackedWidget>
 #include <QStandardPaths>
+#include <QVBoxLayout>
 
-#include "pvkernel/core/PVStreamingCompressor.h"
-#include "pvkernel/widgets/PVExporterWidgetInterface.h"
-#include "pvkernel/widgets/PVFileDialog.h"
+#include <cassert>
+#include <regex>
+#include <string>
 
-class QWidget;
-
-PVWidgets::PVExportDlg::PVExportDlg(
-	QWidget* parent /* = 0 */,
-	QFileDialog::AcceptMode accept_mode /* = QFileDialog::AcceptSave */,
-	QFileDialog::FileMode file_mode /* = QFileDialog::AnyFile*/
-)
-	: PVWidgets::PVFileDialog(parent)
+PVWidgets::PVExportDlg::PVExportDlg(QWidget* parent /* = nullptr */,
+                                    Target target /* = Target::File */,
+                                    PVExporterWidgetInterface* csv_widget /* = nullptr */)
+    : QDialog(parent), _target(target), _formats(new QComboBox), _pages(new QStackedWidget)
 {
-	// Set this flags to make sure we can access the layout.
-	setOption(QFileDialog::DontUseNativeDialog);
 	setWindowTitle(tr("Export selection"));
-	setAcceptMode(accept_mode);
-	setFileMode(file_mode);
-	setDirectory(QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+	_formats->setObjectName("export_format");
+	connect(_formats, &QComboBox::currentTextChanged, this, [this](QString const& filter) {
+		_pages->setCurrentWidget(_exporters.value(filter).second);
+	});
 
-	// Use default CSV exporter if input type doesn't define a specific one
-	_exporter_widget = new PVWidgets::PVCSVExporterWidget();
-
-	// Get the layout from the QFileDialog
-	// Layout is:
-	// -----------------main_layout--------------------------------
-	// |           name bar where you can put filename/filedir    |
-	// ------------------------------------------------------------
-	// | dir tree | list of files                                 |
-	// ------------------------------------------------------------
-	// |filename_label | filename | valide_button                 |
-	// ------------------------------------------------------------
-	// |filetype_label | filetype | cancel_button                 |
-	// ------------------------------------------------------------
-	// |----------------group_box---------------------------------|
-	// ||                  export_layout                         ||
-	// |----------------------------------------------------------|
-	// ------------------------------------------------------------
-	auto* main_layout = static_cast<QGridLayout*>(layout());
-
-	_groupbox = new QGroupBox();
-	main_layout->addWidget(_groupbox, 4, 0, 1, 3);
-
-	// Add input specific exporter filter string if any
-	// Default CSV exporter
-	_name_filters << ".csv files (*.csv)";
-	for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
-		const QString& name_filter =
-		    QString::fromStdString(".csv." + extension + " files (*.csv." + extension + ")");
-		_name_filters << name_filter;
+	if (csv_widget == nullptr) {
+		csv_widget = new PVCSVExporterWidget();
 	}
-	setNameFilters(_name_filters);
-	auto suffix_from_filter = [](const QString& filter) { return filter.split(" ")[0]; };
+	PVRush::PVExporterBase& csv_exporter = csv_widget->exporter();
+	insert_format(_formats->count(), ".csv files (*.csv)", csv_widget, csv_exporter);
+	for (const std::string& extension : PVCore::PVStreamingCompressor::supported_extensions()) {
+		const QString& filter =
+		    QString::fromStdString(".csv." + extension + " files (*.csv." + extension + ")");
+		insert_format(_formats->count(), filter, csv_widget, csv_exporter);
+	}
 
-	// Set specific exporter as default if any, .csv.gz otherwise
-	int gz_idx;
-	for (gz_idx = _name_filters.size() - 1; gz_idx >= 0; gz_idx--) {
-		if (_name_filters[gz_idx].contains("gz")) {
+	// The gzip format by default.
+	for (int index = _formats->count() - 1; index >= 0; index--) {
+		if (_formats->itemText(index).contains("gz")) {
+			_formats->setCurrentIndex(index);
 			break;
 		}
 	}
-	int default_filter_index = gz_idx;
 
-	auto* stacked_layout = new QStackedLayout;
-	stacked_layout->addWidget(_exporter_widget);
-	_groupbox->setLayout(stacked_layout);
+	auto* format_layout = new QFormLayout;
+	format_layout->addRow(tr("Format:"), _formats);
 
-	_filter_selected_f = [=,this](const QString& filter) {
-		setDefaultSuffix(suffix_from_filter(filter));
+	auto* options = new QGroupBox;
+	auto* options_layout = new QVBoxLayout(options);
+	options_layout->addWidget(_pages);
 
-		// force filters to reset as setting 'QFileDialog::Directory' erase them
-		setNameFilters(_name_filters);
-		selectNameFilter(filter);
-	};
-	_conn = QObject::connect(this, &QFileDialog::filterSelected, _filter_selected_f);
-	_filter_selected_f(_name_filters.at(default_filter_index));
+	auto* buttons = new QDialogButtonBox(QDialogButtonBox::Cancel);
+	QPushButton* export_button = buttons->addButton(tr("Export..."), QDialogButtonBox::AcceptRole);
+	export_button->setObjectName("export_button");
+	export_button->setDefault(true);
+	connect(buttons, &QDialogButtonBox::accepted, this, &PVExportDlg::choose_path);
+	connect(buttons, &QDialogButtonBox::rejected, this, &QDialog::reject);
+
+	auto* layout = new QVBoxLayout(this);
+	layout->addLayout(format_layout);
+	layout->addWidget(options);
+	layout->addWidget(buttons);
+
+	// Rather than Cancel, the first button of the box, while Enter exports.
+	_formats->setFocus();
+}
+
+QStringList PVWidgets::PVExportDlg::name_filters() const
+{
+	QStringList filters;
+	for (int index = 0; index < _formats->count(); index++) {
+		filters << _formats->itemText(index);
+	}
+	return filters;
+}
+
+QString PVWidgets::PVExportDlg::selected_name_filter() const
+{
+	return _formats->currentText();
+}
+
+void PVWidgets::PVExportDlg::select_name_filter(QString const& filter)
+{
+	if (const int index = _formats->findText(filter); index >= 0) {
+		_formats->setCurrentIndex(index);
+	}
 }
 
 QString PVWidgets::PVExportDlg::file_extension() const
 {
-	const std::string& str = selectedNameFilter().toStdString();
+	const std::string& str = selected_name_filter().toStdString();
 	const std::regex base_regex(R"(.*\(\*(.*)\))");
 	std::smatch base_match;
 	std::regex_match(str, base_match, base_regex);
 	assert(base_match.length() == 1);
 	return QString::fromStdString(base_match[1].str());
+}
+
+PVRush::PVExporterBase& PVWidgets::PVExportDlg::exporter()
+{
+	return *_exporters.value(selected_name_filter()).first;
+}
+
+void PVWidgets::PVExportDlg::add_format(QString const& filter,
+                                        QWidget* page,
+                                        PVRush::PVExporterBase& exporter)
+{
+	insert_format(_formats_ahead++, filter, page, exporter);
+}
+
+void PVWidgets::PVExportDlg::insert_format(int index,
+                                           QString const& filter,
+                                           QWidget* page,
+                                           PVRush::PVExporterBase& exporter)
+{
+	_exporters.insert(filter, {&exporter, page});
+	if (_pages->indexOf(page) < 0) {
+		_pages->addWidget(page);
+	}
+	_formats->insertItem(index, filter);
+}
+
+void PVWidgets::PVExportDlg::choose_path()
+{
+	// The previous choice, when the file it named could not be written.
+	const QString& start =
+	    _path.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : _path;
+	const QString& path =
+	    _target == Target::Directory
+	        ? PVFileDialog::getExistingDirectory(this, windowTitle(), start)
+	        : PVFileDialog::getSaveFileName(this, windowTitle(), start, selected_name_filter(),
+	                                        nullptr, {}, file_extension());
+	if (not path.isEmpty()) {
+		_path = path;
+		accept();
+	}
 }

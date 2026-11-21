@@ -198,6 +198,48 @@ QString import_messages(App::PVMainWindow& main_window)
 	return texts.join('\n');
 }
 
+// Drives an export through its two dialogs, as the attempt of a ModalDriver: chooses the format of
+// 'name_filter' in the first and clicks Export, then names the file 'file_name' in the file dialog
+// that opens. 'set_options' sees the first dialog once its format is chosen. True once the file is
+// named, the export then running on its own.
+std::function<bool()>
+export_through_dialogs(QString name_filter,
+                       QString file_name,
+                       std::function<void(PVGuiQt::PVExportSelectionDlg&)> set_options)
+{
+	return [name_filter = std::move(name_filter), file_name = std::move(file_name),
+	        set_options = std::move(set_options), exporting = false]() mutable -> bool {
+		QWidget* modal = qApp->activeModalWidget();
+		if (auto* file_dialog = qobject_cast<QFileDialog*>(modal)) {
+			// Located explicitly rather than via focusWidget(), which is null under the
+			// offscreen platform on macOS/Windows.
+			auto* name = file_dialog->findChild<QLineEdit*>("fileNameEdit");
+			if (name == nullptr) {
+				return false;
+			}
+			name->setText(file_name);
+			// QFileDialog redeclares accept() as protected, hence the QDialog upcast.
+			static_cast<QDialog*>(file_dialog)->accept();
+			return true;
+		}
+		auto* dialog = qobject_cast<PVGuiQt::PVExportSelectionDlg*>(modal);
+		if (dialog == nullptr or exporting) {
+			return false;
+		}
+		auto* formats = dialog->findChild<QComboBox*>("export_format");
+		auto* export_button = dialog->findChild<QPushButton*>("export_button");
+		if (formats == nullptr or export_button == nullptr or formats->findText(name_filter) < 0) {
+			return false;
+		}
+		formats->setCurrentIndex(formats->findText(name_filter));
+		set_options(*dialog);
+		// Queued: the file dialog it opens runs a loop of its own, from which the driver goes on.
+		QMetaObject::invokeMethod(export_button, &QPushButton::click, Qt::QueuedConnection);
+		exporting = true;
+		return false;
+	};
+}
+
 } // namespace
 
 ImportExportTest::ImportExportTest()
@@ -235,74 +277,43 @@ void ImportExportTest::import_file()
         main_window.export_selection_Slot();
     });
 
-    bool export_connected = false;
-
-    ModalDriver export_driver(&main_window, [&]() -> bool {
-        // qApp->activeModalWidget() is the reliable handle for a modal dialog:
-        // main_window.findChild() never located the import dialog on Windows CI.
-        auto* dlg = qobject_cast<PVGuiQt::PVExportSelectionDlg*>(qApp->activeModalWidget());
-        if (dlg == nullptr) {
-            return false;
-        }
-        if (not export_connected) {
-            connect(dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, [&]() {
-                // Hash the exported rows, not the archive holding them: the
-                // compression is delegated to whichever tool the platform ships
-                // (see PVStreamingCompressor), so the bytes of the .gz change
-                // when that tool is updated while the export itself does not.
-                const QString exported_path = tmp_export_filename + ".csv.gz";
-                QByteArray sha256sum;
-                try {
-                    PVCore::PVStreamingDecompressor decompressor(exported_path.toStdString());
-                    QCryptographicHash hash(QCryptographicHash::Sha256);
-                    char buffer[64 * 1024];
-                    while (true) {
-                        auto [uncompressed, compressed] =
-                            decompressor.read(buffer, sizeof(buffer));
-                        if (uncompressed == 0) {
-                            break;
-                        }
-                        hash.addData(QByteArrayView(buffer, uncompressed));
-                    }
-                    sha256sum = hash.result();
-                } catch (const PVCore::PVStreamingDecompressorError& e) {
-                    QFAIL(e.what());
+    const auto check = [&]() {
+        // Hash the exported rows, not the archive holding them: the
+        // compression is delegated to whichever tool the platform ships
+        // (see PVStreamingCompressor), so the bytes of the .gz change
+        // when that tool is updated while the export itself does not.
+        const QString exported_path = tmp_export_filename + ".csv.gz";
+        QByteArray sha256sum;
+        try {
+            PVCore::PVStreamingDecompressor decompressor(exported_path.toStdString());
+            QCryptographicHash hash(QCryptographicHash::Sha256);
+            char buffer[64 * 1024];
+            while (true) {
+                auto [uncompressed, compressed] =
+                    decompressor.read(buffer, sizeof(buffer));
+                if (uncompressed == 0) {
+                    break;
                 }
-                QFile::remove(exported_path);
-
-                QCOMPARE(sha256sum.toHex(), QString("7bf9a8257c004c57b3a4c707bc965181c983439de757f792183e1c206f21fef8"));
-                success = true;
-            });
-            export_connected = true;
+                hash.addData(QByteArrayView(buffer, uncompressed));
+            }
+            sha256sum = hash.result();
+        } catch (const PVCore::PVStreamingDecompressorError& e) {
+            QFAIL(e.what());
         }
+        QFile::remove(exported_path);
 
-        // Locate the filename field explicitly rather than via focusWidget(),
-        // which is null under the offscreen platform on macOS/Windows.
-        QLineEdit* lineEdit = dlg->findChild<QLineEdit*>("fileNameEdit");
-        if (lineEdit == nullptr) {
-            return false;
-        }
-        lineEdit->setText(tmp_export_filename);
+        QCOMPARE(sha256sum.toHex(), QString("7bf9a8257c004c57b3a4c707bc965181c983439de757f792183e1c206f21fef8"));
+        success = true;
+    };
 
-        // The default name filter is platform-dependent (".csv.gz" on Linux but
-        // ".csv.zip" on macOS/Windows, see PVExportSelectionDlg), while the
-        // checksum above expects the gz export: select the gz filter explicitly.
-        QComboBox* filter_combo = dlg->findChild<QComboBox*>("fileTypeCombo");
-        if (filter_combo == nullptr) {
-            return false;
-        }
-        const QString gz_filter(".csv.gz files (*.csv.gz)");
-        const int filter_index = filter_combo->findText(gz_filter);
-        if (filter_index < 0) {
-            return false;
-        }
-        filter_combo->setCurrentIndex(filter_index);
-        Q_EMIT filter_combo->textActivated(gz_filter);
-
-        // QFileDialog redeclares accept() as protected, hence the QDialog upcast.
-        static_cast<QDialog*>(dlg)->accept();
-        return not dlg->isVisible();
-    });
+    // The default format is platform-dependent (".csv.gz" on Linux but ".csv.zip" on
+    // macOS/Windows, see PVExportSelectionDlg), while the checksum expects the gz export.
+    const auto connect_check = [&](PVGuiQt::PVExportSelectionDlg& dlg) {
+        connect(&dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, check);
+    };
+    ModalDriver export_driver(&main_window,
+                              export_through_dialogs(".csv.gz files (*.csv.gz)",
+                                                     tmp_export_filename, connect_check));
 
     export_driver.start();
 
@@ -485,59 +496,14 @@ void ImportExportTest::import_pcap()
     // Drives one round through the export dialog with the given name filter, and
     // hands the exported file over to 'check'.
     auto run_export = [&](const QString& name_filter, const std::function<void()>& check) {
-        bool connected = false;
-        ModalDriver export_driver(&main_window, [&]() -> bool {
-            auto* dlg = qobject_cast<PVGuiQt::PVExportSelectionDlg*>(qApp->activeModalWidget());
-            if (dlg == nullptr) {
-                return false;
-            }
-            if (not connected) {
-                connect(dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, check);
-                connected = true;
-            }
-            QLineEdit* lineEdit = dlg->findChild<QLineEdit*>("fileNameEdit");
-            if (lineEdit == nullptr) {
-                return false;
-            }
-
-            if (QCheckBox* open_wireshark = dlg->findChild<QCheckBox*>("open_pcap_checkbox")) {
+        const auto set_options = [&](PVGuiQt::PVExportSelectionDlg& dlg) {
+            connect(&dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, check);
+            if (QCheckBox* open_wireshark = dlg.findChild<QCheckBox*>("open_pcap_checkbox")) {
                 open_wireshark->setChecked(false);
             }
-
-            // Picking the format takes simulating a real selection: neither
-            // selectNameFilter() nor setCurrentIndex() emits filterSelected, the signal
-            // the dialog listens to in order to swap the source exporter for the CSV
-            // one -- the former is a plain setter, and QFileDialog wires its combo box
-            // to textActivated(), which only a user's pick triggers. Setting the index
-            // keeps the widget consistent, emitting textActivated() does the work.
-            QComboBox* filter_combo = dlg->findChild<QComboBox*>("fileTypeCombo");
-            if (filter_combo == nullptr) {
-                return false;
-            }
-            const int filter_index = filter_combo->findText(name_filter);
-            if (filter_index < 0) {
-                return false;
-            }
-            filter_combo->setCurrentIndex(filter_index);
-            // A real pick emits both: QFileDialog turns textActivated() into
-            // filterSelected(), which is what swaps the exporter and the default
-            // suffix, but it applies the filter itself from activated(). Emitting
-            // only the first left the second export round writing a .pcap again on
-            // Windows, and the .csv the check looks for was never produced.
-            Q_EMIT filter_combo->activated(filter_index);
-            Q_EMIT filter_combo->textActivated(name_filter);
-
-            // Name last, as a user would: applying the filter re-navigates the
-            // dialog, and a name typed before that loses its directory. That is how
-            // the second round ended up writing to the home directory on Windows
-            // while the check waited for the file in the temporary one.
-            lineEdit->setText(tmp_export_filename);
-            qInfo() << "export round" << name_filter << "-> default suffix"
-                    << dlg->defaultSuffix() << ", selected" << dlg->selectedFiles();
-
-            static_cast<QDialog*>(dlg)->accept();
-            return not dlg->isVisible();
-        });
+        };
+        ModalDriver export_driver(
+            &main_window, export_through_dialogs(name_filter, tmp_export_filename, set_options));
         export_driver.start();
         main_window.export_selection_Slot();
     };

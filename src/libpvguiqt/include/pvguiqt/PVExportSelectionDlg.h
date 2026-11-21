@@ -52,7 +52,7 @@ class PVAxesCombinationWidget;
 
 /** Specific widget to export a selection to csv.
  *
- * Pop a file dialog to specify filename and the kind of export and do it.
+ * Asks for the kind of export and its options, then for the file, and does it.
  *
  * PVGUIQT_EXPORT is required for connecting to selection_exported() from another
  * binary: without Q_DECL_IMPORT, taking &PVExportSelectionDlg::selection_exported
@@ -65,7 +65,7 @@ class PVGUIQT_EXPORT PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	Q_OBJECT;
 
   public:
-	/** Pop the FileDialog and perform the export.
+	/** Pop the dialogs and perform the export.
 	 *
 	 * ExportSelectionDlg can't be created directly, creation and export are
 	 * done in one step.
@@ -74,28 +74,15 @@ class PVGUIQT_EXPORT PVExportSelectionDlg : public PVWidgets::PVExportDlg
 	
 	static void export_layers(Squey::PVView& view);
 
-	/** Create a FileDialog to export selection
+	/** Create a dialog to export selection
 	 *
-	 * @param custom_axes_combination : Combination of axis selected using the view menu
 	 * @param view : The view to export
 	 * @param parent : parent widget (as usual in Qt)
 	 */
-	PVExportSelectionDlg(
-		Squey::PVView& view,
-		QWidget* parent = 0,
-		QFileDialog::AcceptMode accept_mode = QFileDialog::AcceptSave,
-	    QFileDialog::FileMode file_mode = QFileDialog::AnyFile
-	);
+	PVExportSelectionDlg(Squey::PVView& view, QWidget* parent = 0, Target target = Target::File);
 
-  public:
-	/** The exporter of the file filter selected. */
-	PVRush::PVExporterBase& exporter() { return *_exporter; }
-
-	Q_SIGNALS:
+  Q_SIGNALS:
 	void selection_exported();
-
-  private:
-	PVRush::PVExporterBase* _exporter = nullptr;
 };
 } // namespace PVGuiQt
 

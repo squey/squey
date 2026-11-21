@@ -262,7 +262,7 @@ int main(int argc, char** argv)
 		const QString parquet = directory.filePath("values.parquet");
 		{
 			PVGuiQt::PVExportSelectionDlg dialog(view);
-			Q_EMIT dialog.filterSelected(".parquet files (*.parquet)");
+			dialog.select_name_filter(".parquet files (*.parquet)");
 			Squey::PVSelection selection(view.get_row_count());
 			selection.select_all();
 			dialog.exporter().export_rows(parquet.toStdString(), selection);

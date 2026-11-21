@@ -23,14 +23,13 @@
 // CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 //
 
+#include <QFile>
 #include <QFormLayout>
 #include <QGroupBox>
-#include <QHash>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
 #include <QSpacerItem>
-#include <QStackedLayout>
 #include <QVBoxLayout>
 
 #include <pvguiqt/PVAxesCombinationExportWidget.h>
@@ -50,27 +49,13 @@
 #include <filesystem>
 #include <utility>
 
-PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
-	Squey::PVView& view,
-	QWidget* parent /* = 0 */,
-	QFileDialog::AcceptMode accept_mode /* = QFileDialog::AcceptSave */,
-	QFileDialog::FileMode file_mode /* = QFileDialog::AnyFile */)
-    : PVWidgets::PVExportDlg(parent, accept_mode, file_mode)
+PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Squey::PVView& view,
+                                                    QWidget* parent /* = 0 */,
+                                                    Target target /* = Target::File */)
+    : PVWidgets::PVExportDlg(parent, target, new PVGuiQt::PVCSVExporterWidget(view))
 {
 	setObjectName("PVExportSelectionDlg");
-	delete _groupbox->layout();
-	delete _exporter_widget;
 
-	// Use default CSV exporter if input type doesn't define a specific one
-	auto* exporter_widget = new PVGuiQt::PVCSVExporterWidget(view);
-	PVRush::PVExporterBase* csv_exporter = &exporter_widget->exporter();
-
-	auto* stacked_layout = new QStackedLayout;
-	stacked_layout->addWidget(exporter_widget);
-
-	// The pages of the exporters other than the CSV one, by their file filters.
-	QHash<QString, std::pair<int, PVRush::PVExporterBase*>> pages;
-	QStringList filters;
 	const auto add_page = [&](const QString& filter, PVWidgets::PVExporterWidgetInterface* widget,
 	                          PVAxesCombinationExportWidget::Choice choice,
 	                          const QString& all_label) {
@@ -96,59 +81,47 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(
 			QObject::connect(axes, &PVAxesCombinationExportWidget::changed, widget, export_axes);
 			export_axes();
 		}
-		pages.insert(filter, {stacked_layout->addWidget(page), exporter});
-		filters << filter;
+		add_format(filter, page, *exporter);
 	};
 
 	const Squey::PVSource& source = view.get_parent<Squey::PVSource>();
 	const QString source_type_name = source.get_source_creator()->supported_type();
 	const PVRush::PVInputType_p source_type = source.get_source_creator()->supported_type_lib();
 	PVRush::PVNraw const& nraw = view.get_rushnraw_parent();
-	add_page(source_type->get_exporter_filter_string(source.get_inputs()),
-	         source_type->create_exporter_widget(source.get_inputs(), nraw),
+	const QString source_filter = source_type->get_exporter_filter_string(source.get_inputs());
+	add_page(source_filter, source_type->create_exporter_widget(source.get_inputs(), nraw),
 	         PVAxesCombinationExportWidget::Choice::All, tr("Use all the columns of the file"));
-	const bool has_source_exporter = not filters.isEmpty();
+	const bool has_source_exporter = name_filters().contains(source_filter);
 
 	const QStringList column_names = view.get_axes_combination().get_nraw_names();
 	for (const auto& type : LIB_CLASS(PVRush::PVInputType)::get().get_list()) {
 		const QString filter = type.value()->get_nraw_exporter_filter_string();
 		// That of the type of the source too, if this type has no exporter for these inputs.
 		if ((type.key() != source_type_name or not has_source_exporter) and not filter.isEmpty() and
-		    not pages.contains(filter)) {
+		    not name_filters().contains(filter)) {
 			add_page(filter, type.value()->create_nraw_exporter_widget(nraw, column_names),
 			         PVAxesCombinationExportWidget::Choice::Current,
 			         tr("Use all axes combination"));
 		}
 	}
-	_groupbox->setLayout(stacked_layout);
-
-	_name_filters = filters + _name_filters;
-	setNameFilters(_name_filters);
 
 	// Set specific exporter as default if any, otherwise select default platform compressor
-	int compressor_idx;
-	for (compressor_idx = _name_filters.size() - 1; compressor_idx >= 0; compressor_idx--) {
+	if (has_source_exporter) {
+		select_name_filter(source_filter);
+	} else {
 #ifdef __linux__
-		QString default_compressor = "gz";
+		const QString default_compressor = "gz";
 #else
-		QString default_compressor = "zip";
+		const QString default_compressor = "zip";
 #endif
-		if (_name_filters[compressor_idx].contains(default_compressor)) {
-			break;
+		const QStringList filters = name_filters();
+		for (qsizetype index = filters.size() - 1; index >= 0; index--) {
+			if (filters[index].contains(default_compressor)) {
+				select_name_filter(filters[index]);
+				break;
+			}
 		}
 	}
-	int default_filter_index = has_source_exporter ? 0 : compressor_idx;
-
-	auto filter_selected_f = [=,this](const QString& filter) {
-		_filter_selected_f(filter);
-
-		const auto page = pages.find(filter);
-		stacked_layout->setCurrentIndex(page == pages.end() ? 0 : page->first);
-		_exporter = page == pages.end() ? csv_exporter : page->second;
-	};
-	QObject::disconnect(_conn);
-	QObject::connect(this, &QFileDialog::filterSelected, filter_selected_f);
-	filter_selected_f(_name_filters.at(default_filter_index));
 }
 
 /* This is the static function used to export a selection.
@@ -159,17 +132,15 @@ void PVGuiQt::PVExportSelectionDlg::export_selection(Squey::PVView& view,
                                                      const Squey::PVSelection& sel,
 													 QWidget* parent /* = nullptr */)
 {
-	// FileDialog for option selection and file to write
 	PVGuiQt::PVExportSelectionDlg export_selection_dlg(view, parent);
 
 	QFile file;
 	// Ask for file until a valid name is given or the action is aborted
 	while (true) {
-		int res = export_selection_dlg.exec();
-		QString filename = export_selection_dlg.selectedFiles()[0];
-		if (filename.isEmpty() || res == QDialog::Rejected) {
+		if (export_selection_dlg.exec() != QDialog::Accepted) {
 			return;
 		}
+		const QString filename = export_selection_dlg.path();
 
 		file.setFileName(filename);
 		if (file.open(QIODevice::WriteOnly)) {
@@ -214,12 +185,11 @@ void PVGuiQt::PVExportSelectionDlg::export_layers(Squey::PVView& view)
 {
 	const Squey::PVLayerStack& layerstack = view.get_layer_stack();
 
-	PVGuiQt::PVExportSelectionDlg export_dialog(view, nullptr, QFileDialog::AcceptOpen, QFileDialog::Directory);
-	int res = export_dialog.exec();
-	QString dirname = export_dialog.selectedFiles()[0];
-	if (dirname.isEmpty() || res == QDialog::Rejected) {
+	PVGuiQt::PVExportSelectionDlg export_dialog(view, nullptr, Target::Directory);
+	if (export_dialog.exec() != QDialog::Accepted) {
 		return;
 	}
+	const QString dirname = export_dialog.path();
 
 	size_t total_row_count = 0;
 	for (int i = 0; i < layerstack.get_layer_count(); i++) {

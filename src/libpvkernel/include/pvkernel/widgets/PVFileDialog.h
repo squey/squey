@@ -73,12 +73,14 @@ class PVFileDialog : public QFileDialog
 	                                    const QString& dir = QString(),
 	                                    Options options = ShowDirsOnly);
 
+	/** @param default_suffix What a name typed without a suffix takes, as QFileDialog has it. */
 	static QString getSaveFileName(QWidget* parent = nullptr,
 	                               const QString& caption = QString(),
 	                               const QString& dir = QString(),
 	                               const QString& filter = QString(),
 	                               QString* selectedFilter = nullptr,
-	                               Options options = Options());
+	                               Options options = Options(),
+	                               const QString& default_suffix = QString());
 
 	static QUrl getOpenFileUrl(QWidget* parent = nullptr,
 	                           const QString& caption = QString(),
@@ -108,7 +110,8 @@ class PVFileDialog : public QFileDialog
 	                           const QString& filter = QString(),
 	                           QString* selectedFilter = nullptr,
 	                           Options options = Options(),
-	                           const QStringList& supportedSchemes = QStringList());
+	                           const QStringList& supportedSchemes = QStringList(),
+	                           const QString& default_suffix = QString());
 
 	void setOptions(Options options);
 

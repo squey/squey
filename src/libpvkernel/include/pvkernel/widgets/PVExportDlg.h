@@ -25,53 +25,76 @@
 #ifndef __PVKERNEL_WIDGETS_PVEXPORTDLG_H__
 #define __PVKERNEL_WIDGETS_PVEXPORTDLG_H__
 
-#include <QComboBox>
-#include <QCheckBox>
-#include <QRadioButton>
+#include <QDialog>
+#include <QHash>
+#include <QString>
+#include <QStringList>
+
+#include <utility>
 
 #include <pvkernel/rush/PVExporter.h>
-#include <pvkernel/widgets/PVFileDialog.h>
 #include <pvkernel/widgets/PVExporterWidgetInterface.h>
 
-class QGroupBox;
-
-namespace PVWidgets
-{
-class QKeySequenceWidget;
-} // namespace PVWidgets
+class QComboBox;
+class QStackedWidget;
 
 namespace PVWidgets
 {
 
-/** Specific widget to export a selection to csv.
+/**
+ * The format of an export and its options, asked for before the file it writes.
  *
- * Pop a file dialog to specify filename and the kind of export and do it.
+ * The file is then asked for in the file dialog of the platform, which has no room for options.
  */
-class PVExportDlg : public PVWidgets::PVFileDialog
+class PVExportDlg : public QDialog
 {
 	Q_OBJECT;
 
-	/** Create a FileDialog to export selection
-	 *
-	 * @param parent : parent widget (as usual in Qt)
-	 */
   public:
-	PVExportDlg(
-		QWidget* parent = 0,
-		QFileDialog::AcceptMode accept_mode = QFileDialog::AcceptSave,
-	    QFileDialog::FileMode file_mode = QFileDialog::AnyFile
-	);
+	/** What an export writes: a file, or a directory that receives a file per layer. */
+	enum class Target { File, Directory };
 
-	PVWidgets::PVExporterWidgetInterface* exporter_widget() { return _exporter_widget; }
+	/**
+	 * @param csv_widget The options of the CSV formats, which the dialog takes; nullptr for
+	 *                   the default ones.
+	 */
+	explicit PVExportDlg(QWidget* parent = nullptr,
+	                     Target target = Target::File,
+	                     PVExporterWidgetInterface* csv_widget = nullptr);
 
+	/** The file filters of the formats offered, such as ".csv.gz files (*.csv.gz)". */
+	QStringList name_filters() const;
+	QString selected_name_filter() const;
+	/** Chooses the format of @p filter, as the user does. Does nothing if it is not offered. */
+	void select_name_filter(QString const& filter);
+
+	/** The extension of the chosen format, such as ".csv.gz". */
 	QString file_extension() const;
+	/** The exporter of the chosen format. */
+	PVRush::PVExporterBase& exporter();
+
+	/** The file or directory chosen after the options, empty until the dialog is accepted. */
+	QString path() const { return _path; }
 
   protected:
-	QStringList _name_filters;
-	QGroupBox* _groupbox;
-	std::function<void(const QString& filter)> _filter_selected_f;
-	QMetaObject::Connection _conn;
-	PVWidgets::PVExporterWidgetInterface* _exporter_widget = nullptr;
+	/** Offers the format of @p filter ahead of the CSV ones, with @p page holding its options. */
+	void add_format(QString const& filter, QWidget* page, PVRush::PVExporterBase& exporter);
+
+  private:
+	void insert_format(int index,
+	                   QString const& filter,
+	                   QWidget* page,
+	                   PVRush::PVExporterBase& exporter);
+	void choose_path();
+
+	Target _target;
+	QComboBox* _formats;
+	QStackedWidget* _pages;
+	/** The exporter of each format and the page of its options, by its filter. */
+	QHash<QString, std::pair<PVRush::PVExporterBase*, QWidget*>> _exporters;
+	/** How many formats add_format() put ahead of the CSV ones. */
+	int _formats_ahead = 0;
+	QString _path;
 };
 } // namespace PVWidgets
 

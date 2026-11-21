@@ -136,21 +136,21 @@ int main(int argc, char** argv)
 	const QString exported = directory.filePath("exported.parquet");
 	{
 		PVGuiQt::PVExportSelectionDlg dialog(csv_view);
-		PV_VALID(dialog.nameFilters().count(PARQUET), qsizetype(1));
+		PV_VALID(dialog.name_filters().count(PARQUET), qsizetype(1));
 		// The pages of the CSV export and of the Parquet one.
 		PV_VALID(choices_of_all(dialog, "Use all axes combination"), 2);
 		PV_VALID(choices_of_all(dialog, "Use all the columns of the file"), 0);
 		// The CSV export stays the default, for a type of source with no exporter of its own.
-		PV_ASSERT_VALID(dialog.selectedNameFilter().startsWith(".csv"));
+		PV_ASSERT_VALID(dialog.selected_name_filter().startsWith(".csv"));
 		PV_VALID(dialog.exporter().exports_columns(), false);
 
-		Q_EMIT dialog.filterSelected(PARQUET);
+		dialog.select_name_filter(PARQUET);
 		PV_VALID(dialog.exporter().exports_columns(), true);
 		Squey::PVSelection selection(csv_view.get_row_count());
 		selection.select_all();
 		dialog.exporter().export_rows(exported.toStdString(), selection);
 
-		Q_EMIT dialog.filterSelected(dialog.nameFilters().last());
+		dialog.select_name_filter(dialog.name_filters().last());
 		PV_VALID(dialog.exporter().exports_columns(), false);
 	}
 
@@ -164,8 +164,8 @@ int main(int argc, char** argv)
 	{
 		// The exporter of the type of the source, rather than the one of its NRAW, by default.
 		PVGuiQt::PVExportSelectionDlg dialog(parquet_view);
-		PV_VALID(dialog.nameFilters().count(PARQUET), qsizetype(1));
-		PV_VALID(dialog.selectedNameFilter().toStdString(), std::string(PARQUET));
+		PV_VALID(dialog.name_filters().count(PARQUET), qsizetype(1));
+		PV_VALID(dialog.selected_name_filter().toStdString(), std::string(PARQUET));
 		PV_VALID(choices_of_all(dialog, "Use all the columns of the file"), 1);
 		PV_VALID(choices_of_all(dialog, "Use all axes combination"), 1);
 		PV_VALID(dialog.exporter().exports_columns(), true);
@@ -176,10 +176,10 @@ int main(int argc, char** argv)
 		Squey::PVSource& filtered_source = import_parquet(root, exported, "axis3 > 3");
 		PV_VALID(size_t(filtered_source.get_rushnraw().row_count()), size_t(1));
 		PVGuiQt::PVExportSelectionDlg dialog(view_of(filtered_source));
-		PV_VALID(dialog.nameFilters().count(PARQUET), qsizetype(1));
+		PV_VALID(dialog.name_filters().count(PARQUET), qsizetype(1));
 		PV_VALID(choices_of_all(dialog, "Use all the columns of the file"), 0);
 		PV_VALID(choices_of_all(dialog, "Use all axes combination"), 2);
-		Q_EMIT dialog.filterSelected(PARQUET);
+		dialog.select_name_filter(PARQUET);
 		PV_VALID(dialog.exporter().exports_columns(), true);
 	}
 
