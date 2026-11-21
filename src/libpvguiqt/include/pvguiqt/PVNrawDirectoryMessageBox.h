@@ -25,9 +25,13 @@
 #ifndef __PVGUIQT_PVNRAWDIRECTORYMESSAGEBOX_H__
 #define __PVGUIQT_PVNRAWDIRECTORYMESSAGEBOX_H__
 
+#include <QDir>
 #include <QMessageBox>
+#include <QPushButton>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/PVKernelSettings.h>
+#include <pvkernel/core/PVSettings.h>
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 
@@ -37,6 +41,16 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 	PVNrawDirectoryMessageBox(QWidget* parent = nullptr) : QMessageBox(parent)
 	{
 		QString nraw_tmp = PVCore::settings::working_directory.value();
+		const QString default_directory =
+		    PVCore::PVSettings::get()
+		        .default_value(PVCore::settings::working_directory.key())
+		        .toString();
+
+		// The directory of the sandbox is there for Squey alone, and the other ones it can only
+		// reach through the portal, slowly.
+		if (PVCore::PVFlatpakHelper::is_flatpak() and nraw_tmp == default_directory) {
+			QDir().mkpath(nraw_tmp);
+		}
 
 		if (PVCore::can_create_directory_in(nraw_tmp)) {
 			return;
@@ -44,14 +58,29 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 
 		setStandardButtons(QMessageBox::Cancel);
 		setIcon(QMessageBox::Information);
-		setWindowTitle("Welcome to Squey!");
-		setText(
-		    QString(
-		        "It seems that you are using Squey for the first time.<br><br>"
-		        "Please, chose a temporary files directory for Squey.<br>"
-		        "A fast underlying storage for this directory will provide better performances."
-			)
-		);
+		QAbstractButton* default_button = nullptr;
+		if (nraw_tmp == default_directory) {
+			setWindowTitle("Welcome to Squey!");
+			setText(QString("It seems that you are using Squey for the first time.<br><br>"
+			                "Please, chose a temporary files directory for Squey.<br>"
+			                "A fast underlying storage for this directory will provide better "
+			                "performances."));
+		} else {
+			// A directory set before, out of reach, such as one of the host for a Flatpak that
+			// no longer sees it.
+			setWindowTitle("Working directory");
+			setText(QString("Squey cannot write in its working directory, <i>%1</i>.<br><br>"
+			                "Please, choose another one.<br>"
+			                "A fast underlying storage for this directory will provide better "
+			                "performances.")
+			            .arg(nraw_tmp.toHtmlEscaped()));
+			QDir().mkpath(default_directory);
+			if (PVCore::can_create_directory_in(default_directory)) {
+				setInformativeText(QString("The default one is <i>%1</i>.")
+				                       .arg(default_directory.toHtmlEscaped()));
+				default_button = addButton(tr("Use the default"), QMessageBox::ActionRole);
+			}
+		}
 
 		QAbstractButton* browser_button = addButton(tr("Browse..."), QMessageBox::ActionRole);
 
@@ -65,8 +94,10 @@ class PVNrawDirectoryMessageBox : public QMessageBox
 					// The administrator may have set it.
 					nraw_tmp = PVCore::settings::working_directory.value();
 				}
-			}
-			else if (clickedButton() == button(QMessageBox::Cancel)) {
+			} else if (default_button != nullptr and clickedButton() == default_button) {
+				PVCore::PVSettings::get().reset(PVCore::settings::working_directory.key());
+				nraw_tmp = PVCore::settings::working_directory.value();
+			} else if (clickedButton() == button(QMessageBox::Cancel)) {
 				::exit(0);
 			}
 

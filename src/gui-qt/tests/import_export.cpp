@@ -62,6 +62,7 @@
 #include <QJsonDocument>
 #include <QJsonArray>
 #include <pvguiqt/PVImportPage.h>
+#include <pvguiqt/PVNrawDirectoryMessageBox.h>
 #include <pvkernel/core/PVTaskProgress.h>
 #include <QAbstractButton>
 #include <QPointer>
@@ -1276,6 +1277,67 @@ void ImportExportTest::destroy_window_while_importing()
 	QTest::qWait(10);
 	QVERIFY(main_window->import_controller().busy());
 	main_window.reset();
+}
+
+// A working directory set before and out of reach, as one of the host is for a Flatpak that no
+// longer sees the host: the box Squey starts with offers the default one, when Squey can write
+// in it.
+void ImportExportTest::working_directory_out_of_reach()
+{
+	QVERIFY(PVCore::settings::working_directory.set_value("/proc/squey-out-of-reach"));
+	const auto restore = qScopeGuard(
+	    []() { PVCore::PVSettings::get().reset(PVCore::settings::working_directory.key()); });
+	// The pvconfig.ini of a build tree sets it to /srv/tmp-squey, which a machine without that
+	// directory, such as a runner of the CI, does not let Squey create.
+	const QString default_directory =
+	    PVCore::PVSettings::get()
+	        .default_value(PVCore::settings::working_directory.key())
+	        .toString();
+	QDir().mkpath(default_directory);
+	const bool default_reachable = PVCore::can_create_directory_in(default_directory);
+
+	bool offered = false;
+	bool browsing = false;
+	QTemporaryDir writable;
+	ModalDriver driver(qApp, [&]() -> bool {
+		QWidget* modal = qApp->activeModalWidget();
+		// Without the default, a directory chosen closes the box all the same, rather than the
+		// test waiting on it.
+		if (auto* file_dialog = qobject_cast<QFileDialog*>(modal)) {
+			auto* name = file_dialog->findChild<QLineEdit*>("fileNameEdit");
+			if (name == nullptr) {
+				return false;
+			}
+			name->setText(writable.path());
+			static_cast<QDialog*>(file_dialog)->accept();
+			return true;
+		}
+		auto* box = qobject_cast<QMessageBox*>(modal);
+		if (box == nullptr or browsing) {
+			return false;
+		}
+		for (QAbstractButton* button : box->buttons()) {
+			if (button->text() == "Use the default") {
+				offered = true;
+				button->click();
+				return true;
+			}
+		}
+		for (QAbstractButton* button : box->buttons()) {
+			if (button->text() == "Browse...") {
+				browsing = true;
+				// Queued: the file dialog it opens runs a loop of its own.
+				QMetaObject::invokeMethod(button, &QAbstractButton::click, Qt::QueuedConnection);
+			}
+		}
+		return false;
+	});
+	driver.start();
+	PVNrawDirectoryMessageBox box;
+
+	QCOMPARE(offered, default_reachable);
+	QCOMPARE(PVCore::settings::working_directory.value(),
+	         default_reachable ? default_directory : writable.path());
 }
 
 QTEST_MAIN(ImportExportTest)
