@@ -39,6 +39,7 @@
 
 #include <pvbase/general.h>
 #include <pvkernel/core/PVStreamingCompressor.h>
+#include <pvkernel/core/PVUtils.h>
 #include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVSettings.h>
 #include <pvkernel/filter/PVPluginsLoad.h>

@@ -25,35 +25,28 @@
 #ifndef __PVGUIQT_PVFILEDIALOG_H__
 #define __PVGUIQT_PVFILEDIALOG_H__
 
-#include <pvkernel/core/PVWSLHelper.h>
-#include <qcontainerfwd.h>
-#include <qlist.h>
-#include <qnamespace.h>
-#include <qstring.h>
-#include <qtmetamacros.h>
-#include <qurl.h>
 #include <QFileDialog>
+#include <QList>
+#include <QString>
+#include <QStringList>
+#include <QUrl>
 
 class QWidget;
 
 namespace PVWidgets
 {
 
-class PVFileDialog : public QFileDialog
+/**
+ * The file dialogs of Squey: those of the platform where it has some, the one of Qt elsewhere.
+ *
+ * The functions are the static ones of QFileDialog. The dialogs of the platforms hold nothing
+ * but files: what else a dialog asks for is asked before or after it.
+ */
+class PVFileDialog
 {
-	Q_OBJECT
-
   public:
-	PVFileDialog(QWidget* parent, Qt::WindowFlags flags);
+	using Options = QFileDialog::Options;
 
-	PVFileDialog(QWidget* parent = nullptr,
-	             const QString& caption = QString(),
-	             const QString& directory = QString(),
-	             const QString& filter = QString());
-
-	~PVFileDialog() override;
-
-  public:
 	static QString getOpenFileName(QWidget* parent = nullptr,
 	                               const QString& caption = QString(),
 	                               const QString& dir = QString(),
@@ -71,7 +64,7 @@ class PVFileDialog : public QFileDialog
 	static QString getExistingDirectory(QWidget* parent = nullptr,
 	                                    const QString& caption = QString(),
 	                                    const QString& dir = QString(),
-	                                    Options options = ShowDirsOnly);
+	                                    Options options = QFileDialog::ShowDirsOnly);
 
 	/** @param default_suffix What a name typed without a suffix takes, as QFileDialog has it. */
 	static QString getSaveFileName(QWidget* parent = nullptr,
@@ -113,11 +106,9 @@ class PVFileDialog : public QFileDialog
 	                           const QStringList& supportedSchemes = QStringList(),
 	                           const QString& default_suffix = QString());
 
-	void setOptions(Options options);
-
-  protected:
+  private:
+	static int exec(QFileDialog& dialog);
 	static void customize_for_wsl(QFileDialog& dialog);
-	static Options get_options(const Options& options);
 };
 
 } // namespace PVWidgets
