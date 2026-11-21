@@ -260,8 +260,6 @@ class PVMainWindow : public QMainWindow
 	QStackedWidget* pv_centralWidget;
 	QVBoxLayout* pv_mainLayout;
 	QVBoxLayout* pv_startLayout;
-	PVWidgets::PVFileDialog _load_solution_dlg;
-
 	QString _current_save_root_folder;
 
   public:

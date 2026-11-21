@@ -92,13 +92,7 @@
  * App::PVMainWindow::PVMainWindow
  *
  *****************************************************************************/
-App::PVMainWindow::PVMainWindow(QWidget* parent)
-    : QMainWindow(parent)
-    , _load_solution_dlg(this,
-                         tr("Load an investigation..."),
-                         QString(),
-                         SQUEY_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER)
-    , _root()
+App::PVMainWindow::PVMainWindow(QWidget* parent) : QMainWindow(parent), _root()
 {
 	setAcceptDrops(true);
 

@@ -64,9 +64,6 @@ class PVPlainTextEditor : public QWidget
 
   protected:
 	QPlainTextEdit* _text_edit;
-
-  private:
-	PVWidgets::PVFileDialog _file_dlg;
 };
 } // namespace PVWidgets
 

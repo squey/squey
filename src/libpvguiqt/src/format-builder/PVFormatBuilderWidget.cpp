@@ -55,16 +55,14 @@
 #include <boost/thread.hpp>
 #include <memory>
 
-QList<QUrl> App::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl>();
-
 #define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
+#define FORMAT_FILTERS "Formats (*.format);;All files (*.*)"
 /******************************************************************************
  *
  * App::PVFormatBuilderWidget::PVFormatBuilderWidget
  *
  *****************************************************************************/
-App::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
-    : QMainWindow(parent), _file_dialog(this)
+App::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent) : QMainWindow(parent)
 {
 	init(parent);
 	setObjectName("PVFormatBuilderWidget");
@@ -194,28 +192,6 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	 */
 	setCentralWidget(central_widget);
 
-	_file_dialog.setOption(QFileDialog::DontUseNativeDialog, true);
-	_file_dialog.setNameFilters(QStringList{"Formats (*.format)", "All files (*.*)"});
-
-	QList<QUrl> favorites = _file_dialog.sidebarUrls();
-
-	/* As Qt keeps track of QFileDialog's state in an .ini file,
-	 * to avoid polluting this state with P-I related paths, it
-	 * is safe to save it before changing it.
-	 */
-	if (_original_shortcuts.length() == 0) {
-		_original_shortcuts = favorites;
-	}
-
-	for (QString& s : PVRush::normalize_get_helpers_plugins_dirs(QString("text"))) {
-		QFileInfo fi(QFileInfo(s).path());
-		if (fi.isWritable()) {
-			favorites.append(QUrl::fromLocalFile(s));
-		}
-	}
-
-	_file_dialog.setSidebarUrls(favorites);
-
 	// setWindowModality(Qt::ApplicationModal);
 
 	/*
@@ -248,11 +224,6 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
  *****************************************************************************/
 App::PVFormatBuilderWidget::~PVFormatBuilderWidget()
 {
-	/* RH: restore the original shortcut list to prevent Qt from polluting
-	 * its .ini file (under Unix: ~/.config/Trolltech.conf) by adding
-	 * P-I formats related paths.
-	 */
-	_file_dialog.setSidebarUrls(_original_shortcuts);
 	/*actionAddFilterAfter->deleteLater();
 	actionAddRegExAfter->deleteLater();
 	actionDelete->deleteLater();
@@ -623,14 +594,8 @@ void App::PVFormatBuilderWidget::slotNewWindow()
  *****************************************************************************/
 QString App::PVFormatBuilderWidget::slotOpen()
 {
-	_file_dialog.setWindowTitle("Load format from...");
-	_file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
-
-	if (!_file_dialog.exec()) {
-		return {};
-	}
-
-	const QString urlFile = _file_dialog.selectedFiles().at(0);
+	const QString urlFile = PVWidgets::PVFileDialog::getOpenFileName(this, "Load format from...",
+	                                                                 QString(), FORMAT_FILTERS);
 
 	if (urlFile.isEmpty() || (openFormat(urlFile) == false)) {
 		return {};
@@ -751,23 +716,19 @@ bool App::PVFormatBuilderWidget::saveAs()
 	QModelIndex index;
 	myTreeView->applyModification(myParamBord_old_model, index);
 
-	_file_dialog.setWindowTitle("Save format to...");
-	_file_dialog.setAcceptMode(QFileDialog::AcceptSave);
-
-	if (!_file_dialog.exec()) {
+	const QString urlFile = PVWidgets::PVFileDialog::getSaveFileName(
+	    this, "Save format to...", QString(), FORMAT_FILTERS, nullptr, {}, "format");
+	if (urlFile.isEmpty()) {
 		return false;
 	}
 
 	check_for_new_time_formats();
 
-	const QString urlFile = _file_dialog.selectedFiles().at(0);
-	if (!urlFile.isEmpty()) {
-		if (myTreeModel->saveXml(urlFile)) {
-			_cur_file = urlFile;
-			setWindowTitleForFile(urlFile);
-			PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(urlFile);
-			return true;
-		}
+	if (myTreeModel->saveXml(urlFile)) {
+		_cur_file = urlFile;
+		setWindowTitleForFile(urlFile);
+		PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(urlFile);
+		return true;
 	}
 
 	return false;

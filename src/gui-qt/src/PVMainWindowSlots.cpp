@@ -168,12 +168,12 @@ void App::PVMainWindow::solution_new_Slot()
 
 void App::PVMainWindow::solution_load_Slot()
 {
-	_load_solution_dlg.setFileMode(QFileDialog::ExistingFile);
-	_load_solution_dlg.setAcceptMode(QFileDialog::AcceptOpen);
-	if (_load_solution_dlg.exec() != QDialog::Accepted) {
+	const QString file =
+	    PVWidgets::PVFileDialog::getOpenFileName(this, tr("Load an investigation..."), QString(),
+	                                             SQUEY_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if (file.isEmpty()) {
 		return;
 	}
-	QString file = _load_solution_dlg.selectedFiles().at(0);
 	load_solution_and_create_mw(file);
 }
 

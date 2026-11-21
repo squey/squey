@@ -213,8 +213,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	// Invalid lines
 	QListWidget* _inv_lines_widget;
 
-	static QList<QUrl> _original_shortcuts;
-
   protected:
 	QString _cur_file;
 
@@ -224,8 +222,6 @@ class PVFormatBuilderWidget : public QMainWindow
 	bool _guesses_splitter = true; //!< Whether load_log() asks to guess a splitter for no format.
 	/// the lines the guess found before the names of the columns or the first values
 	size_t _preamble_lines = 0;
-
-	PVWidgets::PVFileDialog _file_dialog;
 
 	// FIXME: Those variables names are crap!
 	PVXmlTreeView* myTreeView;
