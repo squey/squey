@@ -66,7 +66,10 @@ class PVFileDialog
 	                                    const QString& dir = QString(),
 	                                    Options options = QFileDialog::ShowDirsOnly);
 
-	/** @param default_suffix What a name typed without a suffix takes, as QFileDialog has it. */
+	/**
+	 * @param default_suffix What a name typed without a suffix takes, as QFileDialog has it,
+	 *                       but in the Flatpak, where the name stays as typed.
+	 */
 	static QString getSaveFileName(QWidget* parent = nullptr,
 	                               const QString& caption = QString(),
 	                               const QString& dir = QString(),

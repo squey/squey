@@ -51,6 +51,8 @@
 #include <PVFormatBuilderWidget.h>
 
 #include <QApplication>
+#include <QDir>
+#include <QStandardPaths>
 #include <QPainter>
 #include <QDockWidget>
 #include <QDesktopServices>
@@ -225,7 +227,13 @@ void App::PVMainWindow::save_solution_as(bool save_log_file)
 		return;
 	}
 
-	const QString start = is_solution_untitled() ? _current_save_root_folder : get_solution_path();
+	const QString directory = _current_save_root_folder.isEmpty()
+	                              ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+	                              : _current_save_root_folder;
+	// A suggested name keeps the extension where nothing adds it, as in the Flatpak.
+	const QString start = is_solution_untitled()
+	                          ? QDir(directory).filePath("investigation." SQUEY_ROOT_ARCHIVE_EXT)
+	                          : get_solution_path();
 	const QString& file = PVWidgets::PVFileDialog::getSaveFileName(
 	    this, tr("Save project..."), start, SQUEY_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER,
 	    nullptr, {}, SQUEY_ROOT_ARCHIVE_EXT);

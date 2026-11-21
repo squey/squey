@@ -76,6 +76,9 @@ class PVExportDlg : public QDialog
 	/** The file or directory chosen after the options, empty until the dialog is accepted. */
 	QString path() const { return _path; }
 
+	/** Names the file the dialog suggests, before the extension of the format. */
+	void set_file_name(QString const& name) { _file_name = name; }
+
   protected:
 	/** Offers the format of @p filter ahead of the CSV ones, with @p page holding its options. */
 	void add_format(QString const& filter, QWidget* page, PVRush::PVExporterBase& exporter);
@@ -94,6 +97,7 @@ class PVExportDlg : public QDialog
 	QHash<QString, std::pair<PVRush::PVExporterBase*, QWidget*>> _exporters;
 	/** How many formats add_format() put ahead of the CSV ones. */
 	int _formats_ahead = 0;
+	QString _file_name = "export";
 	QString _path;
 };
 } // namespace PVWidgets

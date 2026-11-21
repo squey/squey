@@ -57,6 +57,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVFlatpakHelper.h>
 
 #include <pvkernel/core/PVAxisIndexType.h>
 #include <pvkernel/core/PVClassLibrary.h>
@@ -686,20 +687,22 @@ void App::PVMainWindow::save_screenshot(const QPixmap& pixmap,
 		filename.append(default_prefix);
 	}
 
-	QString img_name = PVWidgets::PVFileDialog::getSaveFileName(this, title, filename,
-	                                                            QString("PNG Image (*.png)"));
+	QString img_name = PVWidgets::PVFileDialog::getSaveFileName(
+	    this, title, QDir(_screenshot_root_dir).filePath(filename), QString("PNG Image (*.png)"));
 
 	if (img_name.isEmpty()) {
 		return;
 	}
 
-	if (img_name.endsWith(".png") == false) {
+	// The portal grants the file of the name typed: another one would land beside it, unseen.
+	if (img_name.endsWith(".png") == false and
+	    not PVCore::PVFlatpakHelper::is_document_portal_path(img_name)) {
 		img_name += ".png";
 	}
 
 	_screenshot_root_dir = QFileInfo(img_name).dir().path();
 
-	if (pixmap.save(img_name) == false) {
+	if (pixmap.save(img_name, "PNG") == false) {
 		QMessageBox::critical(this, "Error saving the screenshot",
 		                      "Check for permissions in '" + _screenshot_root_dir +
 		                          "' or for free disk space",

@@ -31,6 +31,7 @@
 
 #include <QComboBox>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QPushButton>
@@ -152,14 +153,17 @@ void PVWidgets::PVExportDlg::insert_format(int index,
 
 void PVWidgets::PVExportDlg::choose_path()
 {
-	// The previous choice, when the file it named could not be written.
-	const QString& start =
-	    _path.isEmpty() ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation) : _path;
-	const QString& path =
+	const QString home = QStandardPaths::writableLocation(QStandardPaths::HomeLocation);
+	// The previous choice when the file it named could not be written. A suggested name keeps
+	// the extension where nothing adds it, as in the Flatpak.
+	const QString path =
 	    _target == Target::Directory
-	        ? PVFileDialog::getExistingDirectory(this, windowTitle(), start)
-	        : PVFileDialog::getSaveFileName(this, windowTitle(), start, selected_name_filter(),
-	                                        nullptr, {}, file_extension());
+	        ? PVFileDialog::getExistingDirectory(this, windowTitle(),
+	                                             _path.isEmpty() ? home : _path)
+	        : PVFileDialog::getSaveFileName(
+	              this, windowTitle(),
+	              _path.isEmpty() ? QDir(home).filePath(_file_name + file_extension()) : _path,
+	              selected_name_filter(), nullptr, {}, file_extension());
 	if (not path.isEmpty()) {
 		_path = path;
 		accept();

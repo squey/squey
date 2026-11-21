@@ -24,6 +24,7 @@
 //
 
 #include <QFile>
+#include <QFileInfo>
 #include <QFormLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -55,6 +56,12 @@ PVGuiQt::PVExportSelectionDlg::PVExportSelectionDlg(Squey::PVView& view,
     : PVWidgets::PVExportDlg(parent, target, new PVGuiQt::PVCSVExporterWidget(view))
 {
 	setObjectName("PVExportSelectionDlg");
+	if (const QString name =
+	        QFileInfo(QString::fromStdString(view.get_parent<Squey::PVSource>().get_name()))
+	            .baseName();
+	    not name.isEmpty()) {
+		set_file_name(name);
+	}
 
 	const auto add_page = [&](const QString& filter, PVWidgets::PVExporterWidgetInterface* widget,
 	                          PVAxesCombinationExportWidget::Choice choice,

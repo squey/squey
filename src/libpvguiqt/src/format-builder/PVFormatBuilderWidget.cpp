@@ -717,7 +717,7 @@ bool App::PVFormatBuilderWidget::saveAs()
 	myTreeView->applyModification(myParamBord_old_model, index);
 
 	const QString urlFile = PVWidgets::PVFileDialog::getSaveFileName(
-	    this, "Save format to...", QString(), FORMAT_FILTERS, nullptr, {}, "format");
+	    this, "Save format to...", _cur_file, FORMAT_FILTERS, nullptr, {}, "format");
 	if (urlFile.isEmpty()) {
 		return false;
 	}

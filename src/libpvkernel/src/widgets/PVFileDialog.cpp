@@ -181,7 +181,10 @@ QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
 	dialog.setFileMode(QFileDialog::AnyFile);
 	dialog.setSupportedSchemes(supportedSchemes);
 	dialog.setAcceptMode(QFileDialog::AcceptSave);
-	dialog.setDefaultSuffix(default_suffix);
+	// The portal grants the file of the name typed, and Qt would add the suffix to it after.
+	if (not PVCore::PVFlatpakHelper::is_flatpak()) {
+		dialog.setDefaultSuffix(default_suffix);
+	}
 	if (selectedFilter && !selectedFilter->isEmpty())
 		dialog.selectNameFilter(*selectedFilter);
 	if (exec(dialog) == QDialog::Accepted) {
