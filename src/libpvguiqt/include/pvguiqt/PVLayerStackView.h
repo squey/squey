@@ -29,8 +29,6 @@
 
 #include <functional>
 
-#include <pvkernel/widgets/PVFileDialog.h>
-
 namespace Squey
 {
 class PVLayer;
@@ -98,9 +96,6 @@ class PVLayerStackView : public QTableView
 	QAction* _ctxt_menu_activate_difference;
 	QAction* _ctxt_menu_activate_intersection;
 	QAction* _ctxt_menu_activate_symmetric_differrence;
-
-	PVWidgets::PVFileDialog _layer_dialog;
-	PVWidgets::PVFileDialog _layerstack_dialog;
 };
 } // namespace PVGuiQt
 

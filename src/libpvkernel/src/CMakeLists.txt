@@ -234,7 +234,6 @@ widgets/PVFileListImportWidget.cpp
 widgets/PVImportFilesWidget.cpp
 widgets/PVImportFilterWidget.cpp
 widgets/PVImportWidget.cpp
-widgets/PVMultipleFileDialog.cpp
 widgets/PVModdedIcon.cpp
 )
 
