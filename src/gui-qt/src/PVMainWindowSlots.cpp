@@ -49,7 +49,6 @@
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
-#include <PVSaveDataTreeDialog.h>
 
 #include <QApplication>
 #include <QPainter>
@@ -212,20 +211,29 @@ void App::PVMainWindow::solution_save_Slot()
 
 void App::PVMainWindow::solution_saveas_Slot()
 {
+	save_solution_as(false);
+}
+
+void App::PVMainWindow::solution_saveas_with_files_Slot()
+{
+	save_solution_as(true);
+}
+
+void App::PVMainWindow::save_solution_as(bool save_log_file)
+{
 	if (get_root().is_empty()) {
 		return;
 	}
 
-	PVSaveDataTreeDialog dlg(SQUEY_ROOT_ARCHIVE_EXT, SQUEY_ROOT_ARCHIVE_FILTER, this);
-	if (!_current_save_root_folder.isEmpty()) {
-		dlg.setDirectory(_current_save_root_folder);
+	const QString start = is_solution_untitled() ? _current_save_root_folder : get_solution_path();
+	const QString& file = PVWidgets::PVFileDialog::getSaveFileName(
+	    this, tr("Save project..."), start, SQUEY_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER,
+	    nullptr, {}, SQUEY_ROOT_ARCHIVE_EXT);
+	if (file.isEmpty()) {
+		return;
 	}
-	dlg.selectFile(get_solution_path());
-	if (dlg.exec() == QDialog::Accepted) {
-		QString file = dlg.selectedFiles().at(0);
-		save_solution(file, dlg.save_log_file());
-	}
-	_current_save_root_folder = dlg.directory().absolutePath();
+	_current_save_root_folder = QFileInfo(file).absolutePath();
+	save_solution(file, save_log_file);
 }
 
 bool App::PVMainWindow::maybe_save_solution()

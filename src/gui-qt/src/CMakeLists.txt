@@ -23,7 +23,6 @@ PVImportController.cpp
 PVMainWindow.cpp
 PVMainWindowMenusActions.cpp
 PVMainWindowSlots.cpp
-PVSaveDataTreeDialog.cpp
 PVStringListChooserWidget.cpp
 )
 

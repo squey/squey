@@ -172,6 +172,7 @@ class PVMainWindow : public QMainWindow
 	void solution_load_Slot();
 	void solution_save_Slot();
 	void solution_saveas_Slot();
+	void solution_saveas_with_files_Slot();
 
 	void close_solution_Slot();
 
@@ -227,6 +228,7 @@ class PVMainWindow : public QMainWindow
 	QAction* solution_load_Action;
 	QAction* solution_save_Action;
 	QAction* solution_saveas_Action;
+	QAction* solution_saveas_with_files_Action;
 	QAction* export_selection_Action;
 	QAction* new_file_Action;
 	QAction* new_scene_Action;
@@ -270,6 +272,8 @@ class PVMainWindow : public QMainWindow
 	static PVMainWindow* find_main_window(const QString& path);
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
 	void save_solution(QString const& file, bool save_log_file = false);
+	/** Asks where to save the investigation, then saves it there. */
+	void save_solution_as(bool save_log_file);
 	void reset_root();
 	void close_solution();
 

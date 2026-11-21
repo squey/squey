@@ -21,7 +21,6 @@ set(SRC_FILES
 ../src/PVMainWindow.cpp
 ../src/PVMainWindowMenusActions.cpp
 ../src/PVMainWindowSlots.cpp
-../src/PVSaveDataTreeDialog.cpp
 ../src/PVStringListChooserWidget.cpp
 )
 

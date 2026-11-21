@@ -59,6 +59,9 @@ void App::PVMainWindow::create_actions()
 	solution_saveas_Action = new QAction(tr("Save &as..."), this);
 	solution_saveas_Action->setShortcut(QKeySequence::SaveAs);
 	solution_saveas_Action->setIcon(PVModdedIcon("floppy-disk-circle-arrow-right"));
+	solution_saveas_with_files_Action = new QAction(tr("Save as with &original files..."), this);
+	solution_saveas_with_files_Action->setStatusTip(
+	    tr("Save the investigation with the files it was imported from."));
 
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
@@ -212,6 +215,7 @@ void App::PVMainWindow::create_menus()
 	solution_Menu->addAction(solution_load_Action);
 	solution_Menu->addAction(solution_save_Action);
 	solution_Menu->addAction(solution_saveas_Action);
+	solution_Menu->addAction(solution_saveas_with_files_Action);
 
 	file_Menu->addMenu(solution_Menu);
 	file_Menu->addSeparator();
@@ -286,6 +290,7 @@ void App::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	tools_cur_format_Action->setEnabled(cond && is_solution_untitled());
 	solution_save_Action->setEnabled(cond);
 	solution_saveas_Action->setEnabled(cond);
+	solution_saveas_with_files_Action->setEnabled(cond);
 }
 
 /******************************************************************************
@@ -300,6 +305,8 @@ void App::PVMainWindow::connect_actions()
 	connect(solution_load_Action, &QAction::triggered, this, &PVMainWindow::solution_load_Slot);
 	connect(solution_save_Action, &QAction::triggered, this, &PVMainWindow::solution_save_Slot);
 	connect(solution_saveas_Action, &QAction::triggered, this, &PVMainWindow::solution_saveas_Slot);
+	connect(solution_saveas_with_files_Action, &QAction::triggered, this,
+	        &PVMainWindow::solution_saveas_with_files_Slot);
 
 	connect(export_selection_Action, &QAction::triggered, this,
 	        &PVMainWindow::export_selection_Slot);
