@@ -126,7 +126,10 @@ OptionsPanel::OptionsPanel(QWidget* parent) : QWidget(parent)
 
 	_geoip = new QLineEdit;
 	_geoip->setReadOnly(true);
-	_geoip->setPlaceholderText(tr("those of the system, if any"));
+	// A Flatpak sees those of the system only with access to the host.
+	_geoip->setPlaceholderText(QFileInfo(pvpcap::DEFAULT_GEOIP_DIRECTORY).isDir()
+	                               ? tr("those of the system")
+	                               : tr("none: choose their directory"));
 	auto* browse = new QToolButton;
 	browse->setIcon(PVModdedIcon("folder-open"));
 	browse->setToolTip(tr("Choose the directory of the MaxMind databases"));
