@@ -108,6 +108,7 @@ class PVFileDialog
 
   private:
 	static int exec(QFileDialog& dialog);
+	static void wait_for_portal();
 	static void customize_for_wsl(QFileDialog& dialog);
 };
 

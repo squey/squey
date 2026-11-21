@@ -25,11 +25,16 @@
 
 #include <pvkernel/widgets/PVFileDialog.h>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/PVWSLHelper.h>
 
 #include <QAbstractItemModel>
+#include <QCoreApplication>
 #include <QDialog>
 #include <QDir>
+#include <QElapsedTimer>
+#include <QEventLoop>
+#include <QListView>
 #include <QString>
 
 #include <string>
@@ -104,6 +109,7 @@ QUrl PVWidgets::PVFileDialog::getOpenFileUrl(
     Options options /* = Options() */,
     const QStringList& supportedSchemes /* = QStringList() */)
 {
+	wait_for_portal();
 	QFileDialog dialog(parent, caption, dir.toLocalFile(), filter_string);
 	dialog.setOptions(options);
 	dialog.setSupportedSchemes(supportedSchemes);
@@ -126,6 +132,7 @@ PVWidgets::PVFileDialog::getOpenFileUrls(QWidget* parent /* = nullptr */,
                                          Options options /* = Options() */,
                                          const QStringList& supportedSchemes /* = QStringList() */)
 {
+	wait_for_portal();
 	QFileDialog dialog(parent, caption, dir.toLocalFile(), filter_string);
 	dialog.setOptions(options);
 	dialog.setFileMode(QFileDialog::ExistingFiles);
@@ -147,6 +154,7 @@ QUrl PVWidgets::PVFileDialog::getExistingDirectoryUrl(
     Options options /* = Options() */,
     const QStringList& supportedSchemes /* = QStringList() */)
 {
+	wait_for_portal();
 	QFileDialog dialog(parent, caption, dir.toLocalFile());
 	dialog.setOptions(options);
 	dialog.setFileMode(QFileDialog::Directory);
@@ -167,6 +175,7 @@ QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
     const QString& default_suffix /* = QString() */
     )
 {
+	wait_for_portal();
 	QFileDialog dialog(parent, caption, dir.toLocalFile(), filter);
 	dialog.setOptions(options);
 	dialog.setFileMode(QFileDialog::AnyFile);
@@ -202,6 +211,34 @@ int PVWidgets::PVFileDialog::exec(QFileDialog& dialog)
 	}
 
 	return result;
+}
+
+void PVWidgets::PVFileDialog::wait_for_portal()
+{
+	if (not PVCore::PVFlatpakHelper::is_flatpak()) {
+		return;
+	}
+
+	// Qt asks the portal which version of its file dialog it serves in an asynchronous call, and
+	// opens its own dialog until the answer comes: one that only browses the sandbox. The answer
+	// takes a few tens of milliseconds, enough for a dialog opened as Squey starts, such as the
+	// one finding a file of an investigation given on the command line. Only the event loop
+	// delivers it, and a dialog of Qt is the only sign of it: one with a list of files.
+	static const bool answered = []() {
+		static constexpr qint64 TIMEOUT_MS = 1000;
+		QElapsedTimer clock;
+		clock.start();
+		while (not QFileDialog().findChildren<QListView*>().isEmpty()) {
+			if (clock.elapsed() >= TIMEOUT_MS) {
+				// No portal: the dialog of Qt it is.
+				return false;
+			}
+			QCoreApplication::processEvents(
+			    QEventLoop::WaitForMoreEvents | QEventLoop::ExcludeUserInputEvents, 20);
+		}
+		return true;
+	}();
+	(void)answered;
 }
 
 void PVWidgets::PVFileDialog::customize_for_wsl(QFileDialog& dialog)
