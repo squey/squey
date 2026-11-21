@@ -21,7 +21,10 @@ config:
       shared: "network;ipc;"
       sockets: "x11;wayland;"
       devices: "dri;"
-      filesystems: "host;"
+      # The portals hand over the files the user picks, and forward those opened from the
+      # desktop. Without the user, Squey reads and writes ~/.squey, and reads the profiles
+      # of Wireshark.
+      filesystems: "~/.squey:create;xdg-config/wireshark:ro;"
       features: "devel"
 
     'Extension org.squey.Squey.Debug':
