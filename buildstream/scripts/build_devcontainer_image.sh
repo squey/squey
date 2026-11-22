@@ -133,6 +133,22 @@ bst --option target_triple x86_64-linux-gnu --option cxx_compiler clang++ \
     artifact checkout --deps build --no-integrate \
     --directory "$SYSROOT_DIR" squey.bst
 
+# A Flatpak made in the devcontainer ships what the runtime dependencies of Squey
+# install into /app, not what every build dependency of the image does: list
+# those paths, directories included, for stage_flatpak.sh to copy alone.
+RUNTIME_DEPS="$(bst --option target_triple x86_64-linux-gnu --option cxx_compiler clang++ \
+    show --deps run --format '%{name}' squey.bst | grep -vx squey.bst)"
+install -d "$SYSROOT_DIR/usr/share/squey-devcontainer"
+# shellcheck disable=SC2086 # one element name per word
+bst --no-colors --option target_triple x86_64-linux-gnu --option cxx_compiler clang++ \
+    artifact list-contents $RUNTIME_DEPS \
+  | sed -n 's|^\tapp/||p' | LC_ALL=C sort -u > "$SYSROOT_DIR/usr/share/squey-devcontainer/runtime-files"
+# No pipefail in this script: an empty list is how a failing listing shows.
+if [ ! -s "$SYSROOT_DIR/usr/share/squey-devcontainer/runtime-files" ]; then
+  echo >&2 "bst listed no file of the runtime dependencies of squey.bst."
+  exit 1
+fi
+
 # BuildStream mounts /etc/passwd and /etc/group from the host into its sandbox
 # (see the "host-files" of app.yml), so the staged sysroot holds neither. A
 # container needs its own: create the unprivileged user the devcontainer runs
