@@ -1,9 +1,9 @@
-{# The command and the finish-args come from buildstream/files/flatpak/finish_args.sh,
-   the runtime version from buildstream/app.yml. -#}
-app-id: org.squey.Squey
-runtime: org.freedesktop.Platform
+{# Everything but the modules comes from buildstream/files/flatpak/metadata.sh, and the
+   runtime version from buildstream/app.yml. -#}
+app-id: {{app_id}}
+runtime: {{runtime}}
 runtime-version: '{{runtime_version}}'
-sdk: org.freedesktop.Sdk
+sdk: {{sdk}}
 command: {{command}}
 finish-args:
 {{finish_args}}

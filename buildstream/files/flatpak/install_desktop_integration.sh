@@ -16,8 +16,8 @@ fi
 PREFIX="$1"
 
 FILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-# shellcheck source=buildstream/files/flatpak/finish_args.sh
-source "$FILES_DIR/flatpak/finish_args.sh"
+# shellcheck source=buildstream/files/flatpak/metadata.sh
+source "$FILES_DIR/flatpak/metadata.sh"
 GENERATED_DIR="$(mktemp -d)"
 trap 'rm -rf "$GENERATED_DIR"' EXIT
 

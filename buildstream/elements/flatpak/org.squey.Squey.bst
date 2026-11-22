@@ -9,14 +9,8 @@ depends:
 config:
   directory: '%{prefix}'
 
-  # buildstream/scripts/export_flatpak.sh adds the command and the permissions, from
-  # buildstream/files/flatpak/finish_args.sh.
+  # buildstream/scripts/export_flatpak.sh writes the metadata, from
+  # buildstream/files/flatpak/metadata.sh: flatpak_image only has to know that the
+  # build is an application.
   metadata:
-    Application:
-      name: org.squey.Squey
-      runtime: org.freedesktop.Platform/%{gcc_arch}/%{runtime-branch}
-      sdk: org.freedesktop.Sdk/%{gcc_arch}/%{runtime-branch}
-      branch: "%{branch}"
-
-    'Extension org.squey.Squey.Debug':
-      directory: lib/debug
+    Application: {}

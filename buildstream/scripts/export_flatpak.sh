@@ -4,12 +4,12 @@
 #
 # Usage: export_flatpak.sh <build directory> <repository> <branch> [<GPG key>]
 #
-# The build directory holds files/ and a metadata that names the application and
-# its runtime, as flatpak/org.squey.Squey.bst lays them out. "flatpak
-# build-finish" adds the command and the permissions of
-# files/flatpak/finish_args.sh, the ones Flathub builds with too, and exports
-# what the host reads out of files/share: the desktop entry, the icons, the MIME
-# types and the metainfo. The commit is signed when a GPG key is given.
+# The build directory holds the files/ of the application, as
+# flatpak/org.squey.Squey.bst lays them out. Whatever metadata it holds, this
+# writes the one of files/flatpak/metadata.sh, which Flathub builds with too, and
+# "flatpak build-finish" exports what the host reads out of files/share: the
+# desktop entry, the icons, the MIME types and the metainfo. The commit is signed
+# when a GPG key is given.
 
 set -e
 
@@ -23,8 +23,22 @@ BRANCH="$3"
 GPG_SIGN_KEY="$4"
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
-# shellcheck source=buildstream/files/flatpak/finish_args.sh
-source "$DIR/files/flatpak/finish_args.sh"
+# shellcheck source=buildstream/files/flatpak/metadata.sh
+source "$DIR/files/flatpak/metadata.sh"
+RUNTIME_BRANCH="$("$DIR/scripts/runtime_branch.sh")"
+ARCH="$(flatpak --default-arch)"
+
+cat > "$BUILD_DIR/metadata" <<EOF
+[Application]
+name=$FLATPAK_APP_ID
+runtime=$FLATPAK_RUNTIME/$ARCH/$RUNTIME_BRANCH
+sdk=$FLATPAK_SDK/$ARCH/$RUNTIME_BRANCH
+
+[Extension $FLATPAK_APP_ID.Debug]
+directory=lib/debug
+EOF
+# Where the debug extension is mounted.
+mkdir -p "$BUILD_DIR/files/lib/debug"
 
 # build-finish refuses a directory that has an export/, which it takes for one it
 # already finished, and flatpak_image creates it, empty.
