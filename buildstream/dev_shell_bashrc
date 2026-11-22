@@ -81,10 +81,13 @@ do
         if [ ! -d "$BUILD_FOLDER" ]
         then
             echo CMAKE_CXX_COMPILER="${compilers[$compiler]}"
+            # lib, as the packages: GNUInstallDirs would pick lib64, where the Flatpak
+            # looks for no library, and the path of the plugins compiled in follows it.
             cmake -Ssrc -B"$BUILD_FOLDER" \
                 -DCMAKE_CXX_COMPILER="${compilers[$compiler]}" \
                 -DCMAKE_BUILD_TYPE="$build_type" \
                 -DCMAKE_INSTALL_PREFIX=$PREFIX \
+                -DCMAKE_INSTALL_LIBDIR=lib \
                 $CMAKE_OPTIONS \
                 -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
                 #-DCMAKE_CXX_INCLUDE_WHAT_YOU_USE="/app/bin/include-what-you-use;-Xiwyu;--error_always"
