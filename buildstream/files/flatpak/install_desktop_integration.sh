@@ -16,6 +16,8 @@ fi
 PREFIX="$1"
 
 FILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+# shellcheck source=buildstream/files/flatpak/finish_args.sh
+source "$FILES_DIR/flatpak/finish_args.sh"
 GENERATED_DIR="$(mktemp -d)"
 trap 'rm -rf "$GENERATED_DIR"' EXIT
 
@@ -26,7 +28,7 @@ cat <<EOF >"$GENERATED_DIR/org.squey.Squey.desktop"
 [Desktop Entry]
 Type=Application
 Name=Squey
-Exec=squey_launcher.sh %F
+Exec=$FLATPAK_COMMAND %F
 Icon=org.squey.Squey
 Categories=Science;Graphics;Network;
 MimeType=application/org.squey.investigation;text/csv;text/tab-separated-values;application/vnd.apache.parquet;application/vnd.tcpdump.pcap;application/x-pcapng;
