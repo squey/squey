@@ -104,27 +104,10 @@ variables:
   # squey-cleanup.bst keeps in %{bindir} the files Squey installs there, and only
   # those of its dependencies that it names: install_manifest.txt, which CMake
   # writes, lists the former, and is left at the root of the prefix for it to
-  # read. The launchers do not go through CMake, so they add themselves to it,
-  # on lines of their own: CMake ends the last one with no newline.
+  # read. The launchers do not go through CMake: install_linux_files.sh adds them
+  # to it, on lines of their own, as CMake ends the last one with no newline.
   record-installed-files: |
     { cat "%{build-dir}/install_manifest.txt" && echo; } > "%{install-root}%{prefix}/install_manifest.txt"
-  install-linux-launchers: |
-    for launcher in run_cmd.sh squey_sh squey_launcher.sh; do
-      cp "buildstream/files/flatpak/$launcher" "%{install-root}%{bindir}" &&
-      echo "%{bindir}/$launcher" >> "%{install-root}%{prefix}/install_manifest.txt" || exit 1
-    done
-  install-linux-deps:
-    install -D /usr/lib/%{gcc_triplet}/crti.o -t %{install-root}%{libdir} &&
-    install -D /usr/lib/%{gcc_triplet}/crtn.o -t %{install-root}%{libdir} &&
-    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so -t %{install-root}%{libdir} &&
-    install -D /usr/lib/%{gcc_triplet}/libgcc_s.so.1 -t %{install-root}%{libdir} &&
-    install -D /usr/lib/%{gcc_triplet}/libc.so -t %{install-root}%{libdir} &&
-    sed -i 's|/usr/lib/x86_64-linux-gnu/||g;s|/lib64/||' %{install-root}%{libdir}/libc.so &&
-    install -D /usr/lib/%{gcc_triplet}/libc_nonshared.a -t %{install-root}%{libdir} &&
-    cp /usr/lib/%{gcc_triplet}/libm.so.6 %{install-root}%{libdir}/libm.so &&
-    find /usr/lib/gcc/%{triplet} -name libgcc.a -exec install -D \{\} -t %{install-root}%{libdir} \; &&
-    find /usr/lib/gcc/%{triplet} -name crtbeginS.o -exec install -D \{\} -t %{install-root}%{libdir} \; &&
-    find /usr/lib/gcc/%{triplet} -name crtendS.o -exec install -D \{\} -t %{install-root}%{libdir} \;
   # The dylibs land in Contents/Frameworks of the bundle, while the executables
   # keep the rpath of the build sysroot. Every executable needs the fix, not just
   # squey: squey-crashreport is spawned after a crash and would die on a missing
@@ -140,7 +123,7 @@ variables:
   install-all: |
     %{make-install} &&
     %{record-installed-files} &&
-    if [ "%{target_triple}" = "x86_64-linux-gnu" ]; then %{install-linux-deps} && %{install-linux-launchers} ; fi &&
+    if [ "%{target_triple}" = "x86_64-linux-gnu" ]; then bash buildstream/files/flatpak/install_linux_files.sh "%{install-root}%{prefix}" "%{gcc_triplet}" "%{triplet}" ; fi &&
     if [ "%{target-platform}" = "darwin" ]; then mkdir -p "%{install-root}%{libdir}" && cp libSystemStub.tbd "%{install-root}%{libdir}/libSystem.tbd" && %{fix-darwin-rpaths} ; fi
 
 config:
