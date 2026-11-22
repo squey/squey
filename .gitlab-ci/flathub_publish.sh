@@ -74,8 +74,8 @@ fi
 cp buildstream/flathub/flathub.json "$checkout"
 # shellcheck source=buildstream/files/flatpak/finish_args.sh
 source buildstream/files/flatpak/finish_args.sh
-jinja2 -D sha256="$sha256" -D version="$version" -D command="$FLATPAK_COMMAND" \
-    -D finish_args="$(printf '  - %s\n' "${FLATPAK_PERMISSIONS[@]}")" \
+jinja2 -D sha256="$sha256" -D version="$version" -D runtime_version="$(buildstream/scripts/runtime_branch.sh)" \
+    -D command="$FLATPAK_COMMAND" -D finish_args="$(printf '  - %s\n' "${FLATPAK_PERMISSIONS[@]}")" \
     buildstream/flathub/org.squey.Squey.yaml.j2 > "$checkout/org.squey.Squey.yaml"
 
 cd "$checkout"
