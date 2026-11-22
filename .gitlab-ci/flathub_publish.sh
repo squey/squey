@@ -72,7 +72,11 @@ if grep -qF "$archive_url" "$checkout/org.squey.Squey.yaml" && grep -qF "$sha256
     exit 0
 fi
 cp buildstream/flathub/flathub.json "$checkout"
-jinja2 -D sha256="$sha256" -D version="$version" buildstream/flathub/org.squey.Squey.yaml.j2 > "$checkout/org.squey.Squey.yaml"
+# shellcheck source=buildstream/files/flatpak/finish_args.sh
+source buildstream/files/flatpak/finish_args.sh
+jinja2 -D sha256="$sha256" -D version="$version" -D command="$FLATPAK_COMMAND" \
+    -D finish_args="$(printf '  - %s\n' "${FLATPAK_PERMISSIONS[@]}")" \
+    buildstream/flathub/org.squey.Squey.yaml.j2 > "$checkout/org.squey.Squey.yaml"
 
 cd "$checkout"
 git checkout --quiet -b "$branch"

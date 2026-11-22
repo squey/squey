@@ -1,17 +1,11 @@
+{# The command and the finish-args come from buildstream/files/flatpak/finish_args.sh. -#}
 app-id: org.squey.Squey
 runtime: org.freedesktop.Platform
 runtime-version: '26.08'
 sdk: org.freedesktop.Sdk
-command: squey_launcher.sh
+command: {{command}}
 finish-args:
-  - --socket=wayland
-  - --socket=fallback-x11
-  - --share=network
-  - --share=ipc
-  - --filesystem=~/.squey:create
-  - --filesystem=xdg-config/wireshark:ro
-  - --device=dri
-  - --allow=devel
+{{finish_args}}
 modules:
   - name: squey
     buildsystem: simple

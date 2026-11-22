@@ -1,0 +1,36 @@
+#!/bin/bash
+#
+# Finishes a Flatpak build directory, then exports it to a repository.
+#
+# Usage: export_flatpak.sh <build directory> <repository> <branch> [<GPG key>]
+#
+# The build directory holds files/ and a metadata that names the application and
+# its runtime, as flatpak/org.squey.Squey.bst lays them out. "flatpak
+# build-finish" adds the command and the permissions of
+# files/flatpak/finish_args.sh, the ones Flathub builds with too, and exports
+# what the host reads out of files/share: the desktop entry, the icons, the MIME
+# types and the metainfo. The commit is signed when a GPG key is given.
+
+set -e
+
+if [ $# -lt 3 ] || [ $# -gt 4 ]; then
+  echo "Usage: $0 <build directory> <repository> <branch> [<GPG key>]" >&2
+  exit 1
+fi
+BUILD_DIR="$1"
+REPOSITORY="$2"
+BRANCH="$3"
+GPG_SIGN_KEY="$4"
+
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
+# shellcheck source=buildstream/files/flatpak/finish_args.sh
+source "$DIR/files/flatpak/finish_args.sh"
+
+# build-finish refuses a directory that has an export/, which it takes for one it
+# already finished, and flatpak_image creates it, empty.
+if [ -d "$BUILD_DIR/export" ]; then
+  rmdir "$BUILD_DIR/export"
+fi
+flatpak build-finish --command="$FLATPAK_COMMAND" "${FLATPAK_PERMISSIONS[@]}" "$BUILD_DIR"
+flatpak build-export ${GPG_SIGN_KEY:+"--gpg-sign=$GPG_SIGN_KEY"} --files=files \
+  "$REPOSITORY" "$BUILD_DIR" "$BRANCH"
