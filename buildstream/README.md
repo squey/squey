@@ -17,8 +17,10 @@ git clone --recursive https://gitlab.com/squey/squey.git
 
 The quickest way in: a prebuilt image carrying the whole build sysroot, so the
 host needs nothing but a container engine. Budget around 12 GB of disk for the
-image. It produces a native Linux build only -- cross-compilation and packaging
-go through the [development shell](#development-shell).
+image. It produces a native Linux build only, which it can
+[package as a flatpak](#packaging-a-devcontainer-build-as-a-flatpak) to try it
+-- cross-compilation and the packages to publish go through the
+[development shell](#development-shell).
 
 Under podman the container has to run with `--userns=keep-id`, or its user owns
 nothing in the workspace and cannot even write to it. The devcontainer CLI
@@ -96,7 +98,7 @@ buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true
 ## Development shell
 
 The BuildStream sandbox: slower to enter than the devcontainer, and the only way
-to cross-compile and to produce a package.
+to cross-compile and to produce a package to publish.
 
 Note : you should have `python` installed.
 
@@ -174,3 +176,29 @@ Installing a local package:
 ```
 flatpak install --user squey_local org.squey.Squey//main
 ```
+
+## Packaging a devcontainer build as a flatpak
+
+A build of the [devcontainer](#build-in-the-devcontainer) can be packaged as a
+flatpak without BuildStream, by the scripts the BuildStream elements use. One
+command does it, from the host, which needs flatpak and podman or docker:
+
+```
+buildstream/scripts/devcontainer_flatpak.sh --install
+flatpak run org.squey.Squey//devcontainer
+```
+
+It builds `builds/x86_64-linux-gnu/Clang/RelWithDebInfo` in a container of the
+pinned image, configuring the tree first if need be, and lays out the package
+there. It then exports the package on the host, to `builds/flatpak/repo` as the
+branch `devcontainer`, and `--install` installs it from there for the user,
+through the remote `squey_devcontainer`. The header of the script lists the
+other options.
+
+The package is made of whatever the checkout holds: it serves to try a change
+inside the sandbox of Flatpak, never to publish one. When the image lists the
+files the runtime dependencies of Squey install, the package takes those alone;
+otherwise it takes the whole sysroot, build dependencies included. A tree
+configured before `configure_builds.sh` named the library directory installs
+into `lib64`, where the Flatpak finds nothing: the script reconfigures it to
+`lib`, which recompiles it once.

@@ -14,7 +14,7 @@ says what each one is for, and how to work in it.
 
 ### The BuildStream development sandbox
 
-The reference environment, and the only one that cross-compiles and packages.
+The reference environment, and the only one that cross-compiles and makes the packages to publish.
 
 - `cd buildstream && ./dev_shell.sh` starts the Linux sandbox and keeps an interactive shell open.
   `--target_triple=` selects another target: `x86_64-w64-mingw32`, `aarch64-apple-darwin` or

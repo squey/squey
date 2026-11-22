@@ -5,11 +5,11 @@
 # Usage: export_flatpak.sh <build directory> <repository> <branch> [<GPG key>]
 #
 # The build directory holds the files/ of the application, as
-# flatpak/org.squey.Squey.bst lays them out. Whatever metadata it holds, this
-# writes the one of files/flatpak/metadata.sh, which Flathub builds with too, and
-# "flatpak build-finish" exports what the host reads out of files/share: the
-# desktop entry, the icons, the MIME types and the metainfo. The commit is signed
-# when a GPG key is given.
+# flatpak/org.squey.Squey.bst and stage_flatpak.sh lay them out. Whatever
+# metadata it holds, this writes the one of files/flatpak/metadata.sh, which
+# Flathub builds with too, and "flatpak build-finish" exports what the host reads
+# out of files/share: the desktop entry, the icons, the MIME types and the
+# metainfo. The commit is signed when a GPG key is given.
 
 set -e
 
@@ -46,5 +46,7 @@ if [ -d "$BUILD_DIR/export" ]; then
   rmdir "$BUILD_DIR/export"
 fi
 flatpak build-finish --command="$FLATPAK_COMMAND" "${FLATPAK_PERMISSIONS[@]}" "$BUILD_DIR"
+# build-export creates the repository, but not the directories above it.
+mkdir -p "$REPOSITORY"
 flatpak build-export ${GPG_SIGN_KEY:+"--gpg-sign=$GPG_SIGN_KEY"} --files=files \
   "$REPOSITORY" "$BUILD_DIR" "$BRANCH"
