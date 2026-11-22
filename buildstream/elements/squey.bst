@@ -199,21 +199,7 @@ config:
         %{install-all}
 
   strip-commands:
-    - |
-      cd "/buildstream-install%{prefix}" && find -type f \
-      '(' -perm -111 -o -name '*.so*' \
-          -o -name '*.cmxs' -o -name '*.node' ')' \
-      -exec sh -ec \
-      'read -n4 hdr <"$1" # check for elf header
-       if [ "$hdr" != "$(printf \\x7fELF)" ]; then
-           exit 0
-       fi
-       debugfile="/buildstream-install/app/lib/debug/$1"
-       mkdir -p "$(dirname "$debugfile")"
-       objcopy --only-keep-debug --compress-debug-sections "$1" "$debugfile"
-       chmod 644 "$debugfile"
-       strip --remove-section=.comment --remove-section=.note --strip-unneeded "$1"
-       objcopy --add-gnu-debuglink "$debugfile" "$1"' - {} ';'
+    - bash buildstream/files/flatpak/split_debug_info.sh "%{install-root}%{prefix}"
 
 build-depends:
 # The digest of the toolchain and of the base environment is part of the recc
