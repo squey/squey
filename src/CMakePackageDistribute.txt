@@ -29,8 +29,10 @@ add_compile_definitions(SQUEY_CONFIG="${SQUEY_CONFIG}")
 
 install(FILES "pvconfig.ini" DESTINATION ${SQUEY_CONFIG})
 install(FILES "samples/sample-network-traffic.parquet" DESTINATION ${SHARE_RESSOURCES})
+# Named after the application ID, which the desktop entry gives as its icon: Flatpak
+# exports no icon under another name.
 install(FILES "gui-qt/src/resources/icon.png"
-	DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps" RENAME squey.png)
+	DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps" RENAME org.squey.Squey.png)
 install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
 
 # The same files, mirrored into the build tree under the layout they have once
