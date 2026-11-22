@@ -21,11 +21,8 @@ set -e
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 
-pinned_image() {
-    sed -n 's/^[[:space:]]*"image"[[:space:]]*:[[:space:]]*"\(.*\)".*$/\1/p'
-}
-PINNED="$(git show HEAD:.devcontainer/devcontainer.json | pinned_image)"
-TAG="$(pinned_image < .devcontainer/devcontainer.json)"
+PINNED="$(git show HEAD:.devcontainer/devcontainer.json | buildstream/scripts/pinned_devcontainer_image.sh -)"
+TAG="$(buildstream/scripts/pinned_devcontainer_image.sh)"
 TAG="${TAG##*:}"
 # Only the tag counts: in a fork, the pipeline writes the registry of the fork,
 # which the pin of the branch has no reason to name.
