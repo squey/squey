@@ -29,7 +29,7 @@ variables:
     -DINSTALL_INCLUDEDIR=%{includedir}/qt6
     -DINSTALL_PLUGINSDIR=%{libdir}/qt6/plugins
     -DMySQL_ROOT=%{includedir}/mariadb
-    -DMySQL_LIBRARY_DIR=%{libdir}/mariadb
+    -DMySQL_LIBRARY_DIR=%{libdir}
     %{qt-crossplatform-options}
     -DBUILD_CMAKE_TESTING=OFF
     -DBUILD_qt3d=OFF

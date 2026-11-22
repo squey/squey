@@ -9,6 +9,12 @@ sources:
 
 variables:
   cmake-local-extra: ""
+  # The library goes beside the others rather than into lib/mariadb, the
+  # default, where nothing looks for it: the MySQL driver of Qt has the library
+  # directory of Qt as its runpath, and the Windows package takes the DLLs of
+  # lib alone. The plugins have a directory of their own, which stays
+  # lib/mariadb/plugin.
   cmake-local: >-
     -DWITH_EXTERNAL_ZLIB=ON
+    -DINSTALL_LIBDIR=%{lib}
     %{cmake-local-extra}
