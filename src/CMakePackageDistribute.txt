@@ -27,30 +27,33 @@ add_compile_definitions(SQUEY_CONFIG="${SQUEY_CONFIG}")
 # Define files to install
 ###############################################################################
 
+# CHANGELOG lives at the repository root; the packaging stages it beside the
+# sources, so it is found here when building a package and one level up when
+# building the working tree.
+set(CHANGELOG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CHANGELOG")
+if(NOT EXISTS "${CHANGELOG_PATH}")
+	set(CHANGELOG_PATH "${CMAKE_CURRENT_SOURCE_DIR}/../CHANGELOG")
+endif()
+
 install(FILES "pvconfig.ini" DESTINATION ${SQUEY_CONFIG})
 install(FILES "samples/sample-network-traffic.parquet" DESTINATION ${SHARE_RESSOURCES})
 # Named after the application ID, which the desktop entry gives as its icon: Flatpak
 # exports no icon under another name.
 install(FILES "gui-qt/src/resources/icon.png"
 	DESTINATION "${CMAKE_INSTALL_DATADIR}/icons/hicolor/64x64/apps" RENAME org.squey.Squey.png)
-install(FILES "CHANGELOG" DESTINATION ${SHARE_RESSOURCES})
+install(FILES "${CHANGELOG_PATH}" DESTINATION ${SHARE_RESSOURCES})
 
 # The same files, mirrored into the build tree under the layout they have once
 # installed. A binary run from the build tree finds them there (see
 # PVCore::PVConfig::shared_dir()), so that working on Squey does not require
 # installing it first -- without this, the start screen offers no sample and the
 # about box has no changelog to read.
-foreach(shared_file "pvconfig.ini" "CHANGELOG" "samples/sample-network-traffic.parquet")
+foreach(shared_file "pvconfig.ini" "${CHANGELOG_PATH}" "samples/sample-network-traffic.parquet")
 	get_filename_component(shared_file_name "${shared_file}" NAME)
-	# CHANGELOG lives at the repository root; the packaging stages it beside the
-	# sources, so it is found here when building a package and one level up when
-	# building the working tree. A file that is in neither place is skipped rather
-	# than failing the configuration: mirroring these is a convenience for a build
-	# run without being installed, not a requirement to build at all.
-	set(shared_file_path "${CMAKE_CURRENT_SOURCE_DIR}/${shared_file}")
-	if(NOT EXISTS "${shared_file_path}")
-		set(shared_file_path "${CMAKE_CURRENT_SOURCE_DIR}/../${shared_file}")
-	endif()
+	# A file that is missing is skipped rather than failing the configuration:
+	# mirroring these is a convenience for a build run without being installed,
+	# not a requirement to build at all.
+	get_filename_component(shared_file_path "${shared_file}" ABSOLUTE)
 	if(EXISTS "${shared_file_path}")
 		configure_file("${shared_file_path}"
 		               "${CMAKE_BINARY_DIR}/share/squey/squey/${shared_file_name}" COPYONLY)
