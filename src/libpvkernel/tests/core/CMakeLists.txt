@@ -36,6 +36,9 @@ add_squey_test(Tcore_visit_bits Tcore_visit_bits)
 add_squey_compile_test(Tcore_bit_field_visit LINKS ${LINK_LIBRARIES} ${OpenMP_LIBRARIES} FILES bit_field_visit.cpp)
 add_squey_test(Tcore_bit_field_visit Tcore_bit_field_visit)
 
+add_squey_compile_test(Tcore_exported_signals LINKS ${LINK_LIBRARIES} FILES exported_signals.cpp)
+add_squey_test(Tcore_exported_signals Tcore_exported_signals)
+
 add_squey_compile_test(Tcore_argument_serialize LINKS ${LINK_LIBRARIES} FILES argument_serialize.cpp)
 add_squey_test(Tcore_argument_serialize Tcore_argument_serialize)
 

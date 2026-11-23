@@ -25,6 +25,8 @@
 #ifndef __PVWIDGETS_PVLONGLONGSPINBOX_H__
 #define __PVWIDGETS_PVLONGLONGSPINBOX_H__
 
+#include <pvkernel/export.h>
+
 #include <qstring.h>
 #include <qtclasshelpermacros.h>
 #include <qtmetamacros.h>
@@ -40,7 +42,7 @@ class QWidget;
 namespace PVWidgets
 {
 
-class PVLongLongSpinBox : public QAbstractSpinBox
+class PVKERNEL_EXPORT PVLongLongSpinBox : public QAbstractSpinBox
 {
 	Q_OBJECT
   public:
