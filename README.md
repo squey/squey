@@ -100,7 +100,7 @@ The quickest way in is the [devcontainer](buildstream/README.md#build-in-the-dev
 
 The files of the host are under `/run/host` in the devcontainer, at their path on the host: `~/captures` is `/run/host/home/<you>/captures`. Squey reads and writes them with your rights on the host.
 
-Cross-compiling to Windows or macOS and building a package need the BuildStream sandbox instead. Both paths are described on the development [README.md](buildstream/README.md) page.
+Cross-compiling to Windows or macOS and building the packages to publish need the BuildStream sandbox instead, though a devcontainer build can be [packaged as a flatpak](buildstream/README.md#packaging-a-devcontainer-build-as-a-flatpak) to try a change. Both paths are described on the development [README.md](buildstream/README.md) page.
 
 ### Installing a development branch
 
@@ -108,7 +108,7 @@ Note : Merge Requests having the `export_linux_package` [label](https://gitlab.c
 
 Adding the flatpak development remote (once):
 ```
-flatpak --user remote-add --no-gpg-verify squey_dev http://inspector-cassiopee.ensam.eu/flatpak
+flatpak --user remote-add --no-gpg-verify squey_dev https://inspector-cassiopee.ensam.eu/flatpak
 ```
 Installing a development branch:
 ```

@@ -161,20 +161,34 @@ Other editors and coding assistants get their C++ support from
 
 # Flatpak
 
+Installing a branch of the package makes it the one the desktop entry and the
+file associations start; `flatpak make-current --user org.squey.Squey <branch>`
+hands them to another branch.
+
 ## Generating and installing a local flatpak package
 
+BuildStream builds the package the CI publishes, out of the artifacts of every
+element. The project publishes no artifact cache for its own elements, so a first
+build compiles every one the local cache lacks, Qt and LLVM included: count
+hours. To try a change,
+[package a devcontainer build](#packaging-a-devcontainer-build-as-a-flatpak)
+instead.
+
 ```
-cd buildstream && ./build.sh --export=true --export-dir=local_repo
+cd buildstream && ./build.sh --export=true --export-dir=flatpak_repo
 ```
 
-Adding the flatpak local remote (once):
+The package lands in the repository `buildstream/flatpak_repo`, as the branch
+`main` unless `--branch` names another. Adding the flatpak local remote (once),
+from `buildstream`:
 ```
-flatpak --user remote-add --no-gpg-verify squey_local ./local_repo
+flatpak --user remote-add --no-gpg-verify squey_local ./flatpak_repo
 ```
 
-Installing a local package:
+Installing the local package, or updating it after the next build:
 ```
-flatpak install --user squey_local org.squey.Squey//main
+flatpak install --user --or-update squey_local org.squey.Squey//main
+flatpak run org.squey.Squey//main
 ```
 
 ## Packaging a devcontainer build as a flatpak
