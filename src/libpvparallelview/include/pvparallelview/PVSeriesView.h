@@ -68,6 +68,7 @@ class PVSeriesView : public QWidget
 	virtual ~PVSeriesView();
 
 	void set_background_color(QColor const& bgcol);
+	// The plot draws these series, in this order, from its next paint on.
 	void show_series(std::vector<SerieDrawInfo> series_draw_order);
 	void refresh();
 
