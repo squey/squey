@@ -57,6 +57,8 @@ add_squey_compile_test(Tseries_date_range_formatter LINKS ${LINK_LIBRARIES} FILE
 add_squey_test(Tseries_date_range_formatter Tseries_date_range_formatter)
 add_squey_compile_test(Tseries_ordinate_label LINKS ${LINK_LIBRARIES} FILES series_ordinate_label.cpp)
 add_squey_test(Tseries_ordinate_label Tseries_ordinate_label)
+add_squey_compile_test(Tseries_shown_series LINKS ${LINK_LIBRARIES} Qt6::Test FILES series_shown_series.cpp)
+add_squey_test(Tseries_shown_series Tseries_shown_series)
 
 add_squey_compile_test(Tpview_scatter_thumbnail_orientation LINKS ${LINK_LIBRARIES} FILES scatter_thumbnail_orientation.cpp)
 add_squey_test(Tpview_scatter_thumbnail_orientation Tpview_scatter_thumbnail_orientation)

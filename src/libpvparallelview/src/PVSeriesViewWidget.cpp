@@ -485,7 +485,6 @@ void PVParallelView::PVSeriesViewWidget::update_selected_series()
 		    QObject::tr("Sampling..."), this);
 	}
 	_plot->show_series(std::move(series_draw_order));
-	_plot->update();
 }
 
 bool PVParallelView::PVSeriesViewWidget::is_in_region(const QRect region, PVCol col) const

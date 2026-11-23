@@ -130,6 +130,7 @@ void PVSeriesView::set_background_color(QColor const& bgcol)
 void PVSeriesView::show_series(std::vector<SerieDrawInfo> series_draw_order)
 {
 	_renderer->show_series(std::move(series_draw_order));
+	refresh();
 }
 
 auto PVSeriesView::capability(Backend backend, DrawMode draw_mode) -> DrawMode
