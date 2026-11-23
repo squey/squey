@@ -13,6 +13,14 @@ add_squey_test(Tcore_directory_remove Tcore_directory_remove)
 add_squey_compile_test(Tcore_create_directory_in LINKS ${LINK_LIBRARIES} FILES create_directory_in.cpp)
 add_squey_test(Tcore_create_directory_in Tcore_create_directory_in)
 
+add_squey_compile_test(Tcore_theme LINKS ${LINK_LIBRARIES} FILES theme.cpp)
+add_squey_test(Tcore_theme Tcore_theme ${TESTS_FILES_DIR}/../../pvconfig.ini -platform offscreen)
+# A configuration directory of its own, rather than the one of whoever runs the
+# suite. Relative, as the packaged testsuite of Windows and macOS does not run
+# from the build tree.
+set_property(TEST SQUEY_TEST_Tcore_theme APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=theme_config")
+
 add_squey_compile_test(Tcore_compressed_selection LINKS ${LINK_LIBRARIES} FILES compressed_selection.cpp)
 add_squey_test(Tcore_compressed_selection Tcore_compressed_selection)
 

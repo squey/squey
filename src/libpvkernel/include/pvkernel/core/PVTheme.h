@@ -73,10 +73,20 @@ Q_SIGNALS:
     void color_scheme_changed(EColorScheme color_scheme);
 
 public Q_SLOTS:
-#ifdef __linux__
+    /**
+     * Switches to the scheme the settings portal of the desktop signals, while the scheme
+     * follows the system.
+     *
+     * Declared on every platform: qt6_wrap_cpp runs moc without the macros of the compiler,
+     * so that moc leaves out whatever #ifdef __linux__ guards, and QtDBus only connects the
+     * signal of the portal to a slot of the meta-object.
+     */
     void setting_changed(const QString& ns, const QString& key, const QDBusVariant& value);
-#elifdef _WIN32
-    void setting_changed(); 
+
+private:
+#ifdef _WIN32
+    /** Switches to the scheme the registry tells, while the scheme follows the system. */
+    void system_scheme_changed();
 #endif
 
 public:
