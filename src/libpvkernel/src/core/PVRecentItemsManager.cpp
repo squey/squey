@@ -75,7 +75,14 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 	}
 
 	// Set source description information in it.
-	_recents_settings.beginGroup(QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
+	// Under a timestamp of its own: sources added within the same millisecond would share a
+	// group, the last one written in place of the others.
+	uint64_t timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
+	const QStringList taken = _recents_settings.childGroups();
+	while (taken.contains(QString::number(timestamp))) {
+		++timestamp;
+	}
+	_recents_settings.beginGroup(QString::number(timestamp));
 
 	_recents_settings.setValue(ITEM_SUBKEY_SOURCE_CREATOR_NAME,
 	                           source_creator_p->registered_name());
