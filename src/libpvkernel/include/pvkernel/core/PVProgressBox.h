@@ -25,6 +25,8 @@
 #ifndef PVCORE_PVPROGRESSBOX_H
 #define PVCORE_PVPROGRESSBOX_H
 
+#include <pvkernel/export.h>
+
 #include <QDialog>
 #include <QString>
 
@@ -38,7 +40,7 @@ class QProgressBar;
 namespace PVCore
 {
 
-class PVProgressBox : public QDialog
+class PVKERNEL_EXPORT PVProgressBox : public QDialog
 {
 	Q_OBJECT
 

@@ -35,6 +35,7 @@
 #include <QVariant>
 #include <QHBoxLayout>
 
+#include <pvkernel/export.h>
 #include <pvkernel/core/PVArgument.h>
 
 namespace PVWidgets
@@ -42,7 +43,7 @@ namespace PVWidgets
 
 class PVArgumentListModel;
 
-class PVArgumentListWidget : public QWidget
+class PVKERNEL_EXPORT PVArgumentListWidget : public QWidget
 {
 	Q_OBJECT
 

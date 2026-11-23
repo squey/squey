@@ -25,6 +25,7 @@
 #ifndef NODEDOM_H
 #define NODEDOM_H
 
+#include <pvkernel/export.h>
 #include <pvkernel/core/PVArgument.h> // for PVArgumentList
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <pvkernel/core/PVField.h>          // for PVField
@@ -56,7 +57,7 @@ class PVField;
 namespace PVRush
 {
 
-class PVXmlTreeNodeDom : public QObject
+class PVKERNEL_EXPORT PVXmlTreeNodeDom : public QObject
 {
 	Q_OBJECT
   public:

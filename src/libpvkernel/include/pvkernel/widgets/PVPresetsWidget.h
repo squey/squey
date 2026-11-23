@@ -25,6 +25,7 @@
 #ifndef PVPRESETSWIDGET_H_
 #define PVPRESETSWIDGET_H_
 
+#include <pvkernel/export.h>
 #include <pvkernel/core/PVLogger.h>
 #include <qcontainerfwd.h>
 #include <qnamespace.h>
@@ -59,7 +60,7 @@ namespace __impl
 class PVPresetsListWidget;
 } // namespace __impl
 
-class PVPresetsWidget : public QWidget
+class PVKERNEL_EXPORT PVPresetsWidget : public QWidget
 {
 	Q_OBJECT
   public:
