@@ -41,16 +41,21 @@
 
 #include <QApplication>
 #include <QCheckBox>
+#include <QColor>
 #include <QComboBox>
 #include <QDoubleSpinBox>
 #include <QDialogButtonBox>
+#include <QDir>
 #include <QFile>
+#include <QImage>
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QLabel>
+#include <QLineEdit>
 #include <QListWidget>
 #include <QPushButton>
 #include <QSpinBox>
+#include <QTemporaryDir>
 #include <QTest>
 #include <QTextEdit>
 #include <QToolButton>
@@ -238,6 +243,33 @@ int main(int argc, char** argv)
 		dialog.reject();
 		PV_VALID(PVCore::settings::import_chunk_size.value(), 20000);
 	}
+
+#ifdef __linux__
+	// Beside the working directory, whether Squey writes there directly: a green disc, or a red
+	// one where it cannot write.
+	{
+		PVGuiQt::PVSettingsDialog dialog;
+		auto* status = row(dialog, "general.working_directory")->findChild<QToolButton*>("status");
+		PV_ASSERT_VALID(status != nullptr);
+		auto* line_edit =
+		    editor<QWidget>(dialog, "general.working_directory")->findChild<QLineEdit*>();
+		// Left of the mark the disc holds, on a grid of 16 by 16.
+		const auto disc = [status]() {
+			return status->icon().pixmap(QSize(16, 16)).toImage().pixelColor(2, 8);
+		};
+		QTemporaryDir writable;
+		line_edit->setText(writable.path());
+		PV_VALID(status->toolTip().toStdString(),
+		         std::string("Squey writes in this directory directly."));
+		PV_ASSERT_VALID(disc().green() > disc().red(), "the disc", disc().name().toStdString());
+		line_edit->setText(writable.filePath("missing"));
+		PV_VALID(status->toolTip().toStdString(),
+		         std::string("Squey cannot write in this directory."));
+		PV_ASSERT_VALID(disc().red() > disc().green(), "the disc", disc().name().toStdString());
+		// The directory created to know is gone.
+		PV_VALID(QDir(writable.path()).isEmpty(), true);
+	}
+#endif
 
 	// A change made elsewhere shows when the dialog opens again.
 	PV_ASSERT_VALID(PVCore::settings::lines_platform.set_value("qt"));

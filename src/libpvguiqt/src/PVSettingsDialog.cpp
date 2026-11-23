@@ -43,6 +43,7 @@
 #include <QFile>
 #include <QHBoxLayout>
 #include <QHeaderView>
+#include <QIconEngine>
 #include <QJsonArray>
 #include <QJsonDocument>
 #include <QJsonParseError>
@@ -51,6 +52,8 @@
 #include <QListWidget>
 #include <QMenu>
 #include <QMessageBox>
+#include <QPainter>
+#include <QPainterPath>
 #include <QPushButton>
 #include <QRegularExpression>
 #include <QScrollArea>
@@ -187,6 +190,161 @@ class wheel_guard : public QObject
   private:
 	QScrollArea* _area;
 };
+
+#ifdef __linux__
+/** What a status icon shows. */
+enum class status_icon {
+	/** A green disc with a check mark. */
+	check,
+	/** An orange triangle with an exclamation mark. */
+	warning,
+	/** A red disc with a cross. */
+	cross
+};
+
+/** A status icon, drawn at the size and scale it is asked for. */
+class status_icon_engine : public QIconEngine
+{
+  public:
+	explicit status_icon_engine(status_icon icon) : _icon(icon) {}
+
+	QIconEngine* clone() const override { return new status_icon_engine(*this); }
+
+	void paint(QPainter* painter, QRect const& rect, QIcon::Mode mode, QIcon::State state) override
+	{
+		painter->drawPixmap(
+		    rect, scaledPixmap(rect.size(), mode, state, painter->device()->devicePixelRatioF()));
+	}
+
+	QPixmap pixmap(QSize const& size, QIcon::Mode mode, QIcon::State state) override
+	{
+		return scaledPixmap(size, mode, state, 1);
+	}
+
+	QPixmap scaledPixmap(QSize const& size, QIcon::Mode mode, QIcon::State, qreal scale) override
+	{
+		QPixmap pixmap(size * scale);
+		pixmap.setDevicePixelRatio(scale);
+		pixmap.fill(Qt::transparent);
+		QPainter painter(&pixmap);
+		painter.setRenderHint(QPainter::Antialiasing);
+		if (mode == QIcon::Disabled) {
+			painter.setOpacity(0.4);
+		}
+		// On a grid of 16 by 16, in the middle of the pixmap.
+		const qreal side = std::min(size.width(), size.height());
+		painter.translate((size.width() - side) / 2, (size.height() - side) / 2);
+		painter.scale(side / 16, side / 16);
+
+		switch (_icon) {
+		case status_icon::check:
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(QColor(0x2e, 0xa0, 0x43));
+			painter.drawEllipse(QRectF(0.5, 0.5, 15, 15));
+			painter.setPen(QPen(Qt::white, 2, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+			painter.setBrush(Qt::NoBrush);
+			painter.drawPolyline(QPolygonF{{4.5, 8.3}, {7, 10.8}, {11.5, 5.6}});
+			break;
+		case status_icon::warning: {
+			const QColor orange(0xf0, 0x88, 0x00);
+			QPainterPath triangle;
+			triangle.moveTo(8, 1.5);
+			triangle.lineTo(15, 14.5);
+			triangle.lineTo(1, 14.5);
+			triangle.closeSubpath();
+			// The width of the pen rounds the corners.
+			painter.setPen(QPen(orange, 1.5, Qt::SolidLine, Qt::RoundCap, Qt::RoundJoin));
+			painter.setBrush(orange);
+			painter.drawPath(triangle);
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(QColor(0x20, 0x20, 0x20));
+			painter.drawRoundedRect(QRectF(7.15, 5.2, 1.7, 5.3), 0.85, 0.85);
+			painter.drawEllipse(QRectF(7.15, 11.4, 1.7, 1.7));
+			break;
+		}
+		case status_icon::cross:
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(QColor(0xda, 0x36, 0x33));
+			painter.drawEllipse(QRectF(0.5, 0.5, 15, 15));
+			painter.setPen(QPen(Qt::white, 2, Qt::SolidLine, Qt::RoundCap));
+			painter.drawLine(QPointF(5.2, 5.2), QPointF(10.8, 10.8));
+			painter.drawLine(QPointF(10.8, 5.2), QPointF(5.2, 10.8));
+			break;
+		}
+		return pixmap;
+	}
+
+  private:
+	status_icon _icon;
+};
+
+/**
+ * Beside the working directory, how Squey reaches it: a check mark when it writes there
+ * directly, a warning when it writes there through the portal of the desktop, slowly, and a
+ * cross when it cannot write there. A click explains a directory the Flatpak reaches through
+ * the portal or does not see, and gives the command that lets it reach the directory.
+ */
+class directory_status : public QToolButton
+{
+  public:
+	explicit directory_status(QLineEdit* line_edit) : _line_edit(line_edit)
+	{
+		setObjectName("status");
+		setAccessibleName(tr("Status of the working directory"));
+		setAutoRaise(true);
+		// Checking creates a directory in the one typed: it waits for the typing to stop.
+		_typing.setSingleShot(true);
+		_typing.setInterval(400);
+		connect(&_typing, &QTimer::timeout, this, [this]() { show_status(); });
+		connect(line_edit, &QLineEdit::textChanged, this, [this]() {
+			if (_line_edit->hasFocus()) {
+				_typing.start();
+			} else {
+				show_status();
+			}
+		});
+		connect(this, &QToolButton::clicked, this,
+		        [this]() { PVNrawDirectoryMessageBox::explain(this, _directory, _reach); });
+	}
+
+  private:
+	void show_status()
+	{
+		using reach = PVNrawDirectoryMessageBox::reach;
+		_typing.stop();
+		_directory = _line_edit->text();
+		_reach = PVNrawDirectoryMessageBox::reach_of(_directory);
+		status_icon icon = status_icon::cross;
+		switch (_reach) {
+		case reach::direct:
+			icon = status_icon::check;
+			setToolTip(tr("Squey writes in this directory directly."));
+			break;
+		case reach::through_portal:
+			icon = status_icon::warning;
+			setToolTip(tr("Squey reaches this directory through the portal of the desktop, "
+			              "slowly. Click to see how to let it reach the directory directly."));
+			break;
+		case reach::out_of_sight:
+			setToolTip(tr("The Flatpak of Squey does not see this directory. Click to see how "
+			              "to give it."));
+			break;
+		case reach::out_of_reach:
+			setToolTip(tr("Squey cannot write in this directory."));
+			break;
+		}
+		setIcon(QIcon(new status_icon_engine(icon)));
+		const bool explained = _reach == reach::through_portal or _reach == reach::out_of_sight;
+		setCursor(explained ? Qt::PointingHandCursor : Qt::ArrowCursor);
+	}
+
+  private:
+	QLineEdit* _line_edit;
+	QTimer _typing;
+	QString _directory;
+	PVNrawDirectoryMessageBox::reach _reach = PVNrawDirectoryMessageBox::reach::out_of_reach;
+};
+#endif
 
 } // namespace
 
@@ -374,6 +532,11 @@ QWidget* PVGuiQt::__impl::setting_row::create_editor()
 		layout->setContentsMargins(0, 0, 0, 0);
 		layout->addWidget(line_edit, 1);
 		layout->addWidget(browse);
+#ifdef __linux__
+		if (_descriptor.key == PVCore::settings::working_directory.key()) {
+			layout->addWidget(new directory_status(line_edit));
+		}
+#endif
 		connect(line_edit, &QLineEdit::textEdited, this,
 		        [this](QString const& text) { notify(text); });
 		connect(browse, &QToolButton::clicked, this, [this, line_edit]() {
