@@ -42,14 +42,15 @@
 
 #include <cstdlib>
 
+static constexpr const char* DBUS_NAMESPACE = "org.freedesktop.appearance";
+static constexpr const char* DBUS_KEY = "color-scheme";
+
 #ifdef __linux__
 static constexpr const char* DBUS_NAME = "org.freedesktop.portal.Desktop";
 static constexpr const char* DBUS_PATH = "/org/freedesktop/portal/desktop";
 static constexpr const char* DBUS_INTERFACE = "org.freedesktop.portal.Settings";
-static constexpr const char* DBUS_NAMESPACE = "org.freedesktop.appearance";
 static constexpr const char* DBUS_METHOD = "ReadOne";
 static constexpr const char* DBUS_SIGNAL = "SettingChanged";
-static constexpr const char* DBUS_KEY = "color-scheme";
 #elifdef _WIN32
 #include <windows.h>
 #include <thread>
@@ -100,7 +101,7 @@ PVCore::PVTheme::PVTheme()
         while (true) {
             if (RegNotifyChangeKeyValue(hKey, FALSE, REG_NOTIFY_CHANGE_LAST_SET, hEvent, TRUE) == ERROR_SUCCESS) {
                 if (WaitForSingleObject(hEvent, INFINITE) == WAIT_OBJECT_0) {
-                    QMetaObject::invokeMethod(this, &PVTheme::setting_changed, Qt::QueuedConnection);
+                    QMetaObject::invokeMethod(this, &PVTheme::system_scheme_changed, Qt::QueuedConnection);
                 }
             } else {
                 pvlogger::error() << "Failed to read THEME_REG_KEY" << std::endl;
@@ -270,7 +271,6 @@ void PVCore::PVTheme::apply_style(bool dark_theme)
     qApp->setStyleSheet(css_string);
 }
 
-#ifdef __linux__
 void PVCore::PVTheme::setting_changed(const QString& ns, const QString& key, const QDBusVariant& value)
 {
     if (_follow_system_scheme and ns == DBUS_NAMESPACE and key == DBUS_KEY) {
@@ -281,8 +281,9 @@ void PVCore::PVTheme::setting_changed(const QString& ns, const QString& key, con
         }
     }
 }
-#elifdef _WIN32
-void PVCore::PVTheme::setting_changed()
+
+#ifdef _WIN32
+void PVCore::PVTheme::system_scheme_changed()
 {
     if (_follow_system_scheme) {
         set_color_scheme(system_color_scheme());
