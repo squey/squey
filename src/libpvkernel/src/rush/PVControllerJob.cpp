@@ -167,7 +167,10 @@ void PVRush::PVControllerJob::cancel()
 	_cancel = true;
 	// Wake the pipeline up, as it may be waiting on a pause request.
 	pause(false);
-	wait_end();
+	// wait() rather than get(), which would throw what the job failed with.
+	if (_executor.valid()) {
+		_executor.wait();
+	}
 	_cancel = false;
 }
 

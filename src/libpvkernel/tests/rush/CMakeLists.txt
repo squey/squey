@@ -184,6 +184,9 @@ add_squey_compile_test(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_crea
 add_squey_test(Trush_nraw_create Trush_nraw_create)
 add_bench(Trush_nraw_create LINKS ${LINK_LIBRARIES} FILES nraw_create.cpp)
 
+add_squey_compile_test(Trush_cancel_failed_job LINKS ${LINK_LIBRARIES} FILES cancel_failed_job.cpp)
+add_squey_test(Trush_cancel_failed_job Trush_cancel_failed_job)
+
 add_squey_compile_test(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
 add_squey_test(Trush_nraw_dump Trush_nraw_dump)
 add_bench(Trush_nraw_dump LINKS ${LINK_LIBRARIES} FILES nraw_dump.cpp)
