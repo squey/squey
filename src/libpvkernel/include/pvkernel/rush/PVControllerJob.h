@@ -94,6 +94,13 @@ class PVControllerJob : public QObject
 
 	bool done() const;
 	bool running() const;
+
+	/**
+	 * Stop the job, and wait for its end.
+	 *
+	 * Does not throw what the job failed with: the next wait_end() does. A job is cancelled where
+	 * nothing would catch that failure, such as the handler of a thread interruption.
+	 */
 	void cancel();
 
 	/**

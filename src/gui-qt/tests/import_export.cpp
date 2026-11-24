@@ -25,6 +25,11 @@
 #include <utility>
 #include <vector>
 
+#ifdef __linux__
+#include <csignal>
+#include <sys/resource.h>
+#endif
+
 #include <import_export.h>
 
 #include <pvbase/general.h>
@@ -664,6 +669,51 @@ void ImportExportTest::import_guessed_formats_without_nraw_dir()
 	}
 
 	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+}
+
+// An import that fails part way says why, whichever stage failed: here the NRaw, whose files
+// cannot grow, as on a full disk.
+void ImportExportTest::import_failure_reported()
+{
+#ifndef __linux__
+	QSKIP("Relies on what fallocate() does past RLIMIT_FSIZE on Linux");
+#else
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	QString report;
+	ModalDriver driver(&main_window, [&]() -> bool {
+		auto* box = qobject_cast<QMessageBox*>(qApp->activeModalWidget());
+		if (box == nullptr or not box->isVisible()) {
+			return false;
+		}
+		report = box->text();
+		box->accept();
+		return true;
+	});
+	driver.start();
+
+	{
+		rlimit previous_limit;
+		QVERIFY(getrlimit(RLIMIT_FSIZE, &previous_limit) == 0);
+		// Past the limit, the kernel refuses to grow a file once it has sent SIGXFSZ, which
+		// would end the test.
+		const auto previous_handler = std::signal(SIGXFSZ, SIG_IGN);
+		const auto restore = qScopeGuard([&]() {
+			setrlimit(RLIMIT_FSIZE, &previous_limit);
+			std::signal(SIGXFSZ, previous_handler);
+		});
+		rlimit limit = previous_limit;
+		limit.rlim_cur = 64 * 1024;
+		QVERIFY(setrlimit(RLIMIT_FSIZE, &limit) == 0);
+
+		main_window.load_files({QString(TEST_FOLDER) + "/picviz/enum_mapping.csv"});
+	}
+
+	QVERIFY2(report.contains(PVRush::PVNrawCacheManager::nraw_dir()), qPrintable(report));
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+#endif
 }
 
 QTEST_MAIN(ImportExportTest)
