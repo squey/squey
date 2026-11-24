@@ -1162,6 +1162,13 @@ bool App::PVMainWindow::load_source(Squey::PVSource* src,
 			    pbox.critical("Unsupported charset", e.what());
 			    pbox.set_canceled();
 			    return;
+		    } catch (std::exception const& e) {
+			    // Any stage of the import can fail, the NRaw when its files can no longer
+			    // grow for one, and an exception leaving this thread ends Squey.
+			    pbox.critical("Cannot create sources",
+			                  QString("Error during extraction: ") + e.what());
+			    pbox.set_canceled();
+			    return;
 		    }
 	    },
 	    QString("Extracting %1...").arg(src->get_format_name()), this);
