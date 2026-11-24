@@ -13,7 +13,8 @@
 # --build       the tree of builds/x86_64-linux-gnu to package, which
 #               .devcontainer/configure_builds.sh configures if need be;
 #               Clang/RelWithDebInfo by default
-# --repository  the repository to export to; builds/flatpak/repo by default
+# --repository  the repository to export to, which keeps the last package of
+#               each branch alone; builds/flatpak/repo by default
 # --branch      the branch of the package; devcontainer by default
 # --install     install the package for the user too, from the remote
 #               squey_devcontainer, which this points at the repository
@@ -86,7 +87,17 @@ trap 'rm -rf "$STAGING"' EXIT
                      buildstream/scripts/stage_flatpak.sh "builds/$TARGET_TRIPLE/$1" "$2"' \
   - "$COMBINATION" "${STAGING#"$CHECKOUT"/}/build"
 
+# An archive repository, the kind build-export creates when there is none,
+# compresses every file of the package, those it holds already included: most
+# of the time of a package whose tree has nothing to build. ostree, which
+# creates an uncompressed one, does not come with flatpak everywhere.
+if [ ! -e "$REPOSITORY" ] && command -v ostree > /dev/null; then
+  mkdir -p "$(dirname "$REPOSITORY")"
+  ostree init --repo="$REPOSITORY" --mode=bare-user-only
+fi
 "$DIR/scripts/export_flatpak.sh" "$STAGING/build" "$REPOSITORY" "$BRANCH"
+# Uncompressed, the repository would grow by whole files at each package.
+flatpak build-update-repo --prune --prune-depth=0 "$REPOSITORY" > /dev/null
 echo "Exported $FLATPAK_APP_ID//$BRANCH to $REPOSITORY"
 
 if [ "$INSTALL" = true ]; then

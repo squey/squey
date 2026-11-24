@@ -209,6 +209,13 @@ branch `devcontainer`, and `--install` installs it from there for the user,
 through the remote `squey_devcontainer`. The header of the script lists the
 other options.
 
+The repository keeps the last package of each branch alone. With the `ostree`
+command, which some systems package apart from flatpak, the script creates it
+uncompressed: an archive repository compresses the whole package at each export,
+most of the time of a package whose tree has nothing to build. A repository that
+exists keeps its kind: remove `builds/flatpak/repo` for the script to create it
+anew.
+
 The package is made of whatever the checkout holds: it serves to try a change
 inside the sandbox of Flatpak, never to publish one. When the image lists the
 files the runtime dependencies of Squey install, the package takes those alone;
