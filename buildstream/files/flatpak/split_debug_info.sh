@@ -25,11 +25,14 @@ DEBUG_DIR="$1/lib/debug"
 export DEBUG_DIR
 
 # The debug files are ELF files too, and the search would split them in turn if
-# it came across them.
-cd "$1" && find . -path ./lib/debug -prune -o -type f \
+# it came across them. Each file has a debug file of its own, so they are split
+# side by side. A file that fails to split is left as it is, and the others are
+# split all the same: xargs then ends with 123.
+cd "$1"
+find . -path ./lib/debug -prune -o -type f \
 '(' -perm -111 -o -name '*.so*' \
-    -o -name '*.cmxs' -o -name '*.node' ')' \
--exec bash -ec \
+    -o -name '*.cmxs' -o -name '*.node' ')' -print0 |
+xargs -0 -r -n 1 -P "$(nproc)" bash -ec \
 'read -n4 hdr <"$1" # check for elf header
  if [ "$hdr" != "$(printf \\x7fELF)" ]; then
      exit 0
@@ -44,4 +47,4 @@ cd "$1" && find . -path ./lib/debug -prune -o -type f \
  strip --remove-section=.comment --remove-section=.note --strip-unneeded "$1"
  if [ -n "$debugfile" ]; then
      objcopy --add-gnu-debuglink "$debugfile" "$1"
- fi' - {} ';'
+ fi' - || [ $? -eq 123 ]
