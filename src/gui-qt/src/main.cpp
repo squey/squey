@@ -33,6 +33,7 @@
 #include <QWidget>
 #include <QSplashScreen>
 #include <QShortcut>
+#include <QMenu>
 #include <QMessageBox>
 
 #include <PVMainWindow.h>
@@ -113,6 +114,31 @@ class DragNDropTransparencyHack : public QObject
 			    QLatin1String("QShapedPixmapWidget") == window->metaObject()->className()) {
 				window->setAttribute(Qt::WA_TranslucentBackground);
 				window->clearMask();
+			}
+		}
+		return false;
+	}
+};
+
+/* Lets the rounded corners of the style sheet show through, for every menu, Qt's own included.
+ *
+ * The window has to be translucent before it is created, and a menu is polished before then,
+ * whether popup() or exec() shows it. Windows only composes the alpha of a frameless window,
+ * and the square drop shadow it adds to popups would outline the corners.
+ */
+class RoundedMenusFilter : public QObject
+{
+  public:
+	bool eventFilter(QObject* watched, QEvent* event) override
+	{
+		if (event->type() == QEvent::Polish) {
+			auto* menu = qobject_cast<QMenu*>(watched);
+			if (menu and not menu->testAttribute(Qt::WA_WState_Created)) {
+				menu->setAttribute(Qt::WA_TranslucentBackground);
+#ifdef _WIN32
+				menu->setWindowFlags(menu->windowFlags() | Qt::FramelessWindowHint |
+				                     Qt::NoDropShadowWindowHint);
+#endif
 			}
 		}
 		return false;
@@ -275,6 +301,7 @@ int run_squey(App::PVSingleInstanceApplication& app, const command_line& cmd)
 
 	app.setWindowIcon(QIcon(":/squey"));
 	app.installEventFilter(new DragNDropTransparencyHack());
+	app.installEventFilter(new RoundedMenusFilter());
 	app.installEventFilter(new DisplaysFocusInEventFilter());
 
 	App::PVMainWindow pv_mw;
