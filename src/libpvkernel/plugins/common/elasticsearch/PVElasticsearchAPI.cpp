@@ -28,6 +28,7 @@
 #include <curl/curl.h>
 #include <rapidjson/writer.h>
 #include <rapidjson/stringbuffer.h>
+#include <pvkernel/core/PVSettings.h>
 #include <pvkernel/core/PVUtils.h>
 #include <pvkernel/rush/PVXmlTreeNodeDom.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -66,6 +67,16 @@
 #include "pvcop/types/formatter/formatter_interface.h"
 #include "pvkernel/core/PVVersion.h"
 #include "pvlogger.h"
+
+static const PVCore::PVSetting<bool> verify_certificates(
+    {.key = "plugins.input.elasticsearch.verify_certificates",
+     .type = PVCore::PVSettingType::Bool,
+     .default_value = false,
+     .title = "Verify certificates",
+     .description = "Check the certificate of a server reached through https. Unchecked, a "
+                    "connection can be intercepted unnoticed; checked, a server whose "
+                    "certificate is self-signed is refused.",
+     .keywords = {"TLS", "SSL", "https", "security"}});
 
 static constexpr const size_t DEFAULT_SCROLL_SIZE = 10000;
 static constexpr const char SCROLL_TIMEOUT[] = "1m";
@@ -1143,7 +1154,7 @@ void PVRush::PVElasticsearchAPI::prepare_query(CURL* curl,
 		    curl, CURLOPT_USERPWD,
 		    (_infos.get_login().toStdString() + ":" + _infos.get_password().toStdString()).c_str());
 	}
-	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, false);
+	curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, verify_certificates.value() ? 1L : 0L);
 	curl_easy_setopt(curl, CURLOPT_NOSIGNAL, true);
 
 	// Set Content-Type header to "application/json"

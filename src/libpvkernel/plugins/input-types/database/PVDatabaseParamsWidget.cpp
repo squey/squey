@@ -450,7 +450,9 @@ QString PVRush::PVDatabaseParamsWidget::get_existing_format()
 
 void PVRush::PVDatabaseParamsWidget::browse_sqlite_Slot()
 {
-	QString file = _file_dlg.getOpenFileName(this, tr("Choose an SQLite database..."), QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+	QString file = PVWidgets::PVFileDialog::getOpenFileName(
+	    this, tr("Choose an SQLite database..."),
+	    QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
 	if (file.isEmpty()) {
 		return;
 	}

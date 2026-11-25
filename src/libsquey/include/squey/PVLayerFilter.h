@@ -78,9 +78,24 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 	explicit PVLayerFilter(PVCore::PVArgumentList const& l = PVLayerFilter::default_args());
 
   public:
+	/**
+	 * Declares, for every layer filter loaded, a setting for each argument whose
+	 * default the user may choose: see get_args_keys_for_settings().
+	 */
+	static void declare_settings();
+
+  public:
 	void set_output(PVLayer* out);
 	void set_view(PVView* view) { _view = view; }
+
 	virtual PVCore::PVArgumentList get_default_args_for_view(PVView const& view);
+
+	/**
+	 * The arguments the dialog of the filter starts with, in a view where the
+	 * filter has not run yet: get_default_args_for_view(), with the defaults the
+	 * user chose in the settings.
+	 */
+	PVCore::PVArgumentList get_preferred_args_for_view(PVView const& view);
 	hash_menu_function_t const& get_menu_entries() const;
 
   public:
@@ -123,6 +138,15 @@ class PVLayerFilter : public PVFilter::PVFilterFunction<const PVLayer, PVLayerFi
 
   protected:
 	void add_ctxt_menu_entry(QString menu_name, ctxt_menu_f f);
+
+	/**
+	 * The arguments whose default the user may choose, by default those of the
+	 * presets. Those a setting cannot hold, such as an axis, get none.
+	 */
+	virtual PVCore::PVArgumentKeyList get_args_keys_for_settings() const;
+
+  private:
+	QString settings_section() const;
 
   protected:
 	PVView* _view;

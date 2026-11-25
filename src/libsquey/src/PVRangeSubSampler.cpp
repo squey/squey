@@ -33,6 +33,7 @@
 
 #include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <algorithm>
 #include <numeric>
 #include <cmath>
 
@@ -194,6 +195,70 @@ void Squey::PVRangeSubSampler::resubsample(const std::unordered_set<size_t>& tim
 
 	subsample(_last_params.first, _last_params.last, _last_params.minmax, _last_params.min,
 	          _last_params.max);
+}
+
+std::optional<std::pair<PVRow, PVRow>>
+Squey::PVRangeSubSampler::sample_extrema(size_t sample, size_t timeserie, size_t radius) const
+{
+	if (not _valid or sample >= _histogram.size()) {
+		return std::nullopt;
+	}
+	const std::vector<size_t> offsets = sample_offsets(_last_params.first);
+
+	const PVCol column(timeserie / _split_count);
+	const size_t group = timeserie % _split_count;
+	const pvcop::db::array& values = _nraw.column(column);
+	const pvcop::core::array<value_type>& scaled = _timeseries[column];
+	const auto split_groups =
+	    _split ? _split_groups.to_core_array() : pvcop::core::array<pvcop::db::index_t>();
+
+	// The series view also asks from the event loop of a progress box, while its thread samples
+	// again and rewrites the histogram: whatever the offsets read then, never past the rows.
+	const size_t row_count = _time.get().size();
+
+	const auto extrema_of = [&](size_t s) {
+		std::optional<std::pair<PVRow, PVRow>> extrema;
+		for (size_t k = offsets[s]; k < std::min(offsets[s + 1], row_count); k++) {
+			const PVRow row = not _sort ? k : _sort[k];
+			if ((_split and split_groups[row] != group) or not _sel[row] or
+			    not _time.get().is_valid(row) or not values.is_valid(row)) {
+				continue;
+			}
+			// The positions are stored inverted: the largest one holds the smallest value.
+			if (not extrema) {
+				extrema.emplace(row, row);
+			} else if (scaled[row] > scaled[extrema->first]) {
+				extrema->first = row;
+			} else if (scaled[row] < scaled[extrema->second]) {
+				extrema->second = row;
+			}
+		}
+		return extrema;
+	};
+
+	for (size_t distance = 0; distance <= radius; distance++) {
+		if (distance <= sample) {
+			if (const auto extrema = extrema_of(sample - distance)) {
+				return extrema;
+			}
+		}
+		if (distance > 0 and sample + distance < _histogram.size()) {
+			if (const auto extrema = extrema_of(sample + distance)) {
+				return extrema;
+			}
+		}
+	}
+	return std::nullopt;
+}
+
+std::vector<size_t> Squey::PVRangeSubSampler::sample_offsets(size_t first) const
+{
+	std::vector<size_t> offsets(_histogram.size() + 1);
+	offsets[0] = first;
+	for (size_t j = 0; j < _histogram.size(); j++) {
+		offsets[j + 1] = offsets[j] + _histogram[j];
+	}
+	return offsets;
 }
 
 void Squey::PVRangeSubSampler::set_split_column(const pvcop::db::array* split)

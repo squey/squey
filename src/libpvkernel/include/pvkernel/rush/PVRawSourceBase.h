@@ -77,6 +77,12 @@ class PVRawSourceBase : public PVFilter::PVFilterFunctionBase<PVCore::PVChunk*, 
 	virtual void seek_begin() = 0;
 	virtual void prepare_for_nelts(chunk_index nelts) = 0;
 	virtual size_t get_size() const = 0;
+	/**
+	 * Bytes of its input the source got through so far, if it knows it before its chunks tell
+	 * it, as one that waits for another process to read the input; 0 else. Thread-safe: asked
+	 * while the source reads.
+	 */
+	virtual size_t read_size() const { return 0; }
 	virtual PVCore::PVChunk* operator()() = 0;
 	virtual EChunkType chunk_type() const = 0;
 

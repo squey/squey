@@ -24,50 +24,22 @@
 //
 
 #include <pvkernel/widgets/PVFileDialog.h>
-#include <qabstractitemmodel.h>
-#include <qdialog.h>
-#include <qdir.h>
-#include <qstringliteral.h>
+
+#include <pvkernel/core/PVFlatpakHelper.h>
+#include <pvkernel/core/PVWSLHelper.h>
+
+#include <QAbstractItemModel>
+#include <QCoreApplication>
+#include <QDialog>
+#include <QDir>
+#include <QElapsedTimer>
+#include <QEventLoop>
+#include <QListView>
+#include <QString>
+
 #include <string>
 #include <utility>
 #include <vector>
-
-#include "pvkernel/core/PVWSLHelper.h"
-
-class QWidget;
-
-PVWidgets::PVFileDialog::PVFileDialog(QWidget* parent, Qt::WindowFlags flags)
-    : QFileDialog(parent, flags)
-{
-	QFileDialog::setOption(DontUseNativeDialog, true);
-	customize_for_wsl(*this);
-}
-
-PVWidgets::PVFileDialog::PVFileDialog(QWidget* parent /* = nullptr */,
-                                      const QString& caption /* = QString() */,
-                                      const QString& directory /* = QString() */,
-                                      const QString& filter /* = QString()*/)
-    : QFileDialog(parent, caption, directory, filter)
-{
-	QFileDialog::setOption(DontUseNativeDialog, true);
-	customize_for_wsl(*this);
-}
-
-PVWidgets::PVFileDialog::~PVFileDialog()
-{
-	// Children are destroyed in the order they were added, and QFileDialog adds its file system
-	// model before the views showing it. A model resets the persistent indexes it tracks as it is
-	// destroyed, but not those it lost track of: on Windows, QFileSystemModel renames a directory
-	// to its case on disk without updating the visible children of its parent, and sort() then
-	// moves the persistent indexes of that directory to row -1, out of its table. A view
-	// releasing one of them after the model reads freed memory.
-	for (QAbstractItemModel* model :
-	     findChildren<QAbstractItemModel*>(Qt::FindDirectChildrenOnly)) {
-		// Taken off and back on, the model goes to the end of the list.
-		model->setParent(nullptr);
-		model->setParent(this);
-	}
-}
 
 QString PVWidgets::PVFileDialog::getOpenFileName(QWidget* parent /* = nullptr */,
                                                  const QString& caption /* = QString() */,
@@ -118,12 +90,13 @@ QString PVWidgets::PVFileDialog::getSaveFileName(QWidget* parent /* = nullptr */
                                                  const QString& dir /* = QString() */,
                                                  const QString& filter /* = QString() */,
                                                  QString* selectedFilter /* = nullptr */,
-                                                 Options options /* = Options() */
+                                                 Options options /* = Options() */,
+                                                 const QString& default_suffix /* = QString() */
                                                  )
 {
 	const QStringList schemes = QStringList(QStringLiteral("file"));
 	const QUrl selectedUrl = getSaveFileUrl(parent, caption, QUrl::fromLocalFile(dir), filter,
-	                                        selectedFilter, options, schemes);
+	                                        selectedFilter, options, schemes, default_suffix);
 	return selectedUrl.toLocalFile();
 }
 
@@ -136,12 +109,13 @@ QUrl PVWidgets::PVFileDialog::getOpenFileUrl(
     Options options /* = Options() */,
     const QStringList& supportedSchemes /* = QStringList() */)
 {
-	PVFileDialog dialog(parent, caption, dir.toLocalFile(), filter_string);
+	wait_for_portal();
+	QFileDialog dialog(parent, caption, dir.toLocalFile(), filter_string);
 	dialog.setOptions(options);
 	dialog.setSupportedSchemes(supportedSchemes);
 	if (selectedFilter && !selectedFilter->isEmpty())
 		dialog.selectNameFilter(*selectedFilter);
-	if (dialog.exec() == QDialog::Accepted) {
+	if (exec(dialog) == QDialog::Accepted) {
 		if (selectedFilter)
 			*selectedFilter = dialog.selectedNameFilter();
 		return dialog.selectedUrls().value(0);
@@ -158,13 +132,14 @@ PVWidgets::PVFileDialog::getOpenFileUrls(QWidget* parent /* = nullptr */,
                                          Options options /* = Options() */,
                                          const QStringList& supportedSchemes /* = QStringList() */)
 {
-	PVFileDialog dialog(parent, caption, dir.toLocalFile(), filter_string);
+	wait_for_portal();
+	QFileDialog dialog(parent, caption, dir.toLocalFile(), filter_string);
 	dialog.setOptions(options);
 	dialog.setFileMode(QFileDialog::ExistingFiles);
 	dialog.setSupportedSchemes(supportedSchemes);
 	if (selectedFilter && !selectedFilter->isEmpty())
 		dialog.selectNameFilter(*selectedFilter);
-	if (dialog.exec() == QDialog::Accepted) {
+	if (exec(dialog) == QDialog::Accepted) {
 		if (selectedFilter)
 			*selectedFilter = dialog.selectedNameFilter();
 		return dialog.selectedUrls();
@@ -179,11 +154,12 @@ QUrl PVWidgets::PVFileDialog::getExistingDirectoryUrl(
     Options options /* = Options() */,
     const QStringList& supportedSchemes /* = QStringList() */)
 {
-	PVFileDialog dialog(parent, caption, dir.toLocalFile());
+	wait_for_portal();
+	QFileDialog dialog(parent, caption, dir.toLocalFile());
 	dialog.setOptions(options);
 	dialog.setFileMode(QFileDialog::Directory);
 	dialog.setSupportedSchemes(supportedSchemes);
-	if (dialog.exec() == QDialog::Accepted)
+	if (exec(dialog) == QDialog::Accepted)
 		return dialog.selectedUrls().value(0);
 	return {};
 }
@@ -195,17 +171,23 @@ QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
     const QString& filter /* = QString() */,
     QString* selectedFilter /* = nullptr */,
     Options options /* = Options() */,
-    const QStringList& supportedSchemes /* = QStringList() */
+    const QStringList& supportedSchemes /* = QStringList() */,
+    const QString& default_suffix /* = QString() */
     )
 {
-	PVFileDialog dialog(parent, caption, dir.toLocalFile(), filter);
+	wait_for_portal();
+	QFileDialog dialog(parent, caption, dir.toLocalFile(), filter);
 	dialog.setOptions(options);
 	dialog.setFileMode(QFileDialog::AnyFile);
 	dialog.setSupportedSchemes(supportedSchemes);
-	dialog.setAcceptMode(AcceptSave);
+	dialog.setAcceptMode(QFileDialog::AcceptSave);
+	// The portal grants the file of the name typed, and Qt would add the suffix to it after.
+	if (not PVCore::PVFlatpakHelper::is_flatpak()) {
+		dialog.setDefaultSuffix(default_suffix);
+	}
 	if (selectedFilter && !selectedFilter->isEmpty())
 		dialog.selectNameFilter(*selectedFilter);
-	if (dialog.exec() == QDialog::Accepted) {
+	if (exec(dialog) == QDialog::Accepted) {
 		if (selectedFilter)
 			*selectedFilter = dialog.selectedNameFilter();
 		return dialog.selectedUrls().value(0);
@@ -213,9 +195,53 @@ QUrl PVWidgets::PVFileDialog::getSaveFileUrl(
 	return {};
 }
 
-void PVWidgets::PVFileDialog::setOptions(Options options)
+int PVWidgets::PVFileDialog::exec(QFileDialog& dialog)
 {
-	QFileDialog::setOptions(get_options(options));
+	customize_for_wsl(dialog);
+	const int result = dialog.exec();
+
+	// Children are destroyed in the order they were added, and the dialog of Qt adds its file
+	// system model before the views showing it. A model resets the persistent indexes it tracks as
+	// it is destroyed, but not those it lost track of: on Windows, QFileSystemModel renames a
+	// directory to its case on disk without updating the visible children of its parent, and
+	// sort() then moves the persistent indexes of that directory to row -1, out of its table. A
+	// view releasing one of them after the model reads freed memory.
+	for (QAbstractItemModel* model :
+	     dialog.findChildren<QAbstractItemModel*>(Qt::FindDirectChildrenOnly)) {
+		// Taken off and back on, the model goes to the end of the list.
+		model->setParent(nullptr);
+		model->setParent(&dialog);
+	}
+
+	return result;
+}
+
+void PVWidgets::PVFileDialog::wait_for_portal()
+{
+	if (not PVCore::PVFlatpakHelper::is_flatpak()) {
+		return;
+	}
+
+	// Qt asks the portal which version of its file dialog it serves in an asynchronous call, and
+	// opens its own dialog until the answer comes: one that only browses the sandbox. The answer
+	// takes a few tens of milliseconds, enough for a dialog opened as Squey starts, such as the
+	// one finding a file of an investigation given on the command line. Only the event loop
+	// delivers it, and a dialog of Qt is the only sign of it: one with a list of files.
+	static const bool answered = []() {
+		static constexpr qint64 TIMEOUT_MS = 1000;
+		QElapsedTimer clock;
+		clock.start();
+		while (not QFileDialog().findChildren<QListView*>().isEmpty()) {
+			if (clock.elapsed() >= TIMEOUT_MS) {
+				// No portal: the dialog of Qt it is.
+				return false;
+			}
+			QCoreApplication::processEvents(
+			    QEventLoop::WaitForMoreEvents | QEventLoop::ExcludeUserInputEvents, 20);
+		}
+		return true;
+	}();
+	(void)answered;
 }
 
 void PVWidgets::PVFileDialog::customize_for_wsl(QFileDialog& dialog)
@@ -241,9 +267,4 @@ void PVWidgets::PVFileDialog::customize_for_wsl(QFileDialog& dialog)
 
 		dialog.setSidebarUrls(drives);
 	}
-}
-
-QFileDialog::Options PVWidgets::PVFileDialog::get_options(const Options& options)
-{
-	return options | DontUseNativeDialog;
 }

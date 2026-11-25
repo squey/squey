@@ -27,8 +27,8 @@
 //
 // Qt lays out the whole text of a cell to elide it: a value of millions of
 // characters took seconds at each repaint, and froze the listing. A table model gives
-// at most DISPLAYED_SIZE_MAX bytes of a value, cut between two characters and
-// followed by an ellipsis, in the cell as in its tooltip.
+// at most the bytes of the setting listing.max_cell_size of a value, cut between two
+// characters and followed by an ellipsis, in the cell as in its tooltip.
 
 #include <pvkernel/core/squey_assert.h>
 
@@ -37,6 +37,7 @@
 #include <squey/PVSource.h>
 #include <squey/PVView.h>
 
+#include <pvguiqt/PVGuiQtSettings.h>
 #include <pvguiqt/PVListingModel.h>
 #include <pvguiqt/PVSimpleStringListModel.h>
 #include <pvguiqt/PVSqlResultModel.h>
@@ -75,7 +76,6 @@ constexpr const char* FORMAT = R"(<?xml version='1.0' encoding='UTF-8'?>
 </param>
 )";
 
-constexpr size_t MAX = PVGuiQt::PVAbstractTableModel::DISPLAYED_SIZE_MAX;
 constexpr QChar ELLIPSIS(0x2026);
 
 // Four bytes in UTF-8: after 0 to 3 ASCII characters, the cut falls on each of its
@@ -89,6 +89,7 @@ struct Value {
 
 std::vector<Value> expected_values()
 {
+	const size_t MAX = size_t(PVGuiQt::settings::listing_max_cell_size.value());
 	std::vector<Value> values{
 	    {"short value", "short value"},
 	    {std::string(MAX, 'a'), QString(MAX, u'a')},

@@ -180,7 +180,7 @@ class PVAnalysisHistory
 	static constexpr size_t hot_steps = 2;
 
   public:
-	explicit PVAnalysisHistory(PVRoot& root) : _root(root) {}
+	explicit PVAnalysisHistory(PVRoot& root);
 
   public:
 	/**

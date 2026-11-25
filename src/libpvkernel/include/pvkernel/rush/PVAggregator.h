@@ -78,6 +78,8 @@ class PVAggregator
 	 * \todo Add a function to compute the number of element of one source.
 	 */
 	void add_input(PVRush::PVRawSourceBase_p in);
+	//! What its sources tell of their read_size(), while they read.
+	size_t read_size() const;
 
   public:
 	void release_inputs(bool cancel_first = false);

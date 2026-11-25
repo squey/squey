@@ -53,6 +53,10 @@ add_squey_compile_test(Tseries_tree_selection LINKS ${LINK_LIBRARIES} FILES seri
 add_squey_test(Tseries_tree_selection Tseries_tree_selection)
 add_squey_compile_test(Tseries_tree_context_menu LINKS ${LINK_LIBRARIES} FILES series_tree_context_menu.cpp)
 add_squey_test(Tseries_tree_context_menu Tseries_tree_context_menu)
+add_squey_compile_test(Tseries_cursor_values LINKS ${LINK_LIBRARIES} Qt6::Test FILES series_cursor_values.cpp)
+add_squey_test(Tseries_cursor_values Tseries_cursor_values)
+add_squey_compile_test(Tseries_selected_only LINKS ${LINK_LIBRARIES} Qt6::Test FILES series_selected_only.cpp)
+add_squey_test(Tseries_selected_only Tseries_selected_only)
 add_squey_compile_test(Tseries_date_range_formatter LINKS ${LINK_LIBRARIES} FILES series_date_range_formatter.cpp)
 add_squey_test(Tseries_date_range_formatter Tseries_date_range_formatter)
 add_squey_compile_test(Tseries_ordinate_label LINKS ${LINK_LIBRARIES} FILES series_ordinate_label.cpp)
@@ -62,6 +66,11 @@ add_squey_test(Tseries_shown_series Tseries_shown_series)
 
 add_squey_compile_test(Tpview_scatter_thumbnail_orientation LINKS ${LINK_LIBRARIES} FILES scatter_thumbnail_orientation.cpp)
 add_squey_test(Tpview_scatter_thumbnail_orientation Tpview_scatter_thumbnail_orientation)
+add_squey_compile_test(Tpview_scatter_thumbnails_scroll LINKS ${LINK_LIBRARIES} Qt6::Test FILES scatter_thumbnails_scroll.cpp)
+add_squey_test(Tpview_scatter_thumbnails_scroll Tpview_scatter_thumbnails_scroll)
+# A configuration directory of its own, for the thumbnail size it reads.
+set_property(TEST SQUEY_TEST_Tpview_scatter_thumbnails_scroll APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=scatter_thumbnails_scroll_config")
 
 add_squey_compile_test(Tpview_zone_tree_filter LINKS ${LINK_LIBRARIES} FILES zone_tree_filter.cpp)
 add_squey_test(Tpview_zone_tree_filter Tpview_zone_tree_filter)
@@ -75,6 +84,11 @@ add_squey_test(Topencl_build_test Topencl_build_test)
 
 add_squey_compile_test(Topencl_cpu_device LINKS ${LINK_LIBRARIES} FILES opencl_cpu_device.cpp)
 add_squey_test(Topencl_cpu_device Topencl_cpu_device)
+add_squey_compile_test(Topencl_qt_platform LINKS ${LINK_LIBRARIES} FILES opencl_qt_platform.cpp)
+add_squey_test(Topencl_qt_platform Topencl_qt_platform)
+# A configuration directory of its own, for the setting it saves.
+set_property(TEST SQUEY_TEST_Topencl_qt_platform APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=opencl_qt_platform_config")
 
 # Linux only, the driver it loads being built there only (see the tests of libpvkernel).
 if(CMAKE_SYSTEM_NAME STREQUAL "Linux")

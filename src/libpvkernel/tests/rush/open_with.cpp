@@ -27,17 +27,13 @@
 // with such a path, and every way this can go wrong goes wrong silently, as a
 // message box in front of a user rather than as a failing build.
 
-#include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVClassLibrary.h>
 #include <pvkernel/core/squey_assert.h>
-#include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVInputType.h>
 
 #include "common.h"
 
-#include <QFile>
 #include <QString>
-#include <QTemporaryDir>
 
 #include <string>
 
@@ -74,6 +70,9 @@ int main()
 	expect_importer("/tmp/capture.pcap", "pcap");
 	expect_importer("/tmp/capture.pcapng", "pcap");
 	expect_importer("/tmp/events.parquet", "parquet");
+	expect_importer("/tmp/events.json", "json");
+	expect_importer("/tmp/events.jsonl", "json");
+	expect_importer("/tmp/eve.ndjson", "json");
 
 	// A compressed file belongs to the importer of what it holds, not to the
 	// one of the container: its extension has two components, and only the
@@ -81,11 +80,24 @@ int main()
 	expect_importer("/tmp/traffic.csv.gz", "file");
 	expect_importer("/tmp/traffic.csv.zst", "file");
 	expect_importer("/tmp/traffic.tsv.bz2", "file");
+	expect_importer("/tmp/eve.json.gz", "json");
+	expect_importer("/tmp/events.jsonl.zip", "json");
+	expect_importer("/tmp/eve.ndjson.xz", "json");
 
 	// Extensions come in whatever case the system that wrote them used.
 	expect_importer("/tmp/TRAFFIC.CSV", "file");
 	expect_importer("/tmp/Capture.PcapNG", "pcap");
+	expect_importer("/tmp/EVENTS.JSONL", "json");
 	expect_importer("/tmp/traffic.CSV.GZ", "file");
+	expect_importer("/tmp/EVE.JSON.ZST", "json");
+
+	// A rotated file goes to the importer of the file it was, whatever number or
+	// date the rotation appended, before or after its compression.
+	expect_importer("/var/log/suricata/eve.json.1", "json");
+	expect_importer("/var/log/suricata/eve.json.2.gz", "json");
+	expect_importer("/var/log/suricata/eve.json.gz.3", "json");
+	expect_importer("/var/log/suricata/eve.json-20261119.zst", "json");
+	expect_importer("/tmp/traffic.csv.1", "file");
 
 	// Names with dots of their own are not extensions: only the components that
 	// match are used, one at a time, from the longest.
@@ -95,39 +107,9 @@ int main()
 	// And what nothing handles is refused rather than sent to an importer that
 	// would fail later, with less to say about why.
 	expect_unsupported("/tmp/archive.gz");
+	expect_unsupported("/tmp/archive.gz.1");
 	expect_unsupported("/tmp/notes.txt");
 	expect_unsupported("/tmp/README");
-
-	// A format named with --format is the user's answer to the question the
-	// importer would otherwise go looking for one for. It has to reach the
-	// import untouched: overwritten with what sits next to the file, the option
-	// does nothing at all, and says nothing about it either.
-	{
-		// A directory of this test's own: the importer opens what it is given,
-		// and a shared path is a collision waiting for the next parallel run.
-		QTemporaryDir dir;
-		PV_ASSERT_VALID(dir.isValid(), "temporary directory", dir.path().toStdString());
-		const QString csv = dir.filePath("traffic.csv");
-		QFile file(csv);
-		PV_ASSERT_VALID(file.open(QIODevice::WriteOnly), "test file", csv.toStdString());
-		file.write("a,b,c\n1,2,3\n");
-		file.close();
-
-		PVRush::PVInputType_p in_file =
-		    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-		const QString named_format = dir.filePath("a-format-of-my-own.format");
-		QString format = named_format;
-		PVRush::hash_formats formats;
-		PVRush::PVInputType::list_inputs inputs;
-		PVCore::PVArgumentList args;
-
-		const bool accepted =
-		    in_file->create_widget_with_input_files({csv}, formats, inputs, format, args, nullptr);
-
-		PV_ASSERT_VALID(accepted, "named format", named_format.toStdString());
-		PV_VALID(format.toStdString(), named_format.toStdString());
-		PV_VALID(inputs.size(), qsizetype(1));
-	}
 
 	return 0;
 }

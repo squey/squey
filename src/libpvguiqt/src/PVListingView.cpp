@@ -82,9 +82,6 @@ PVGuiQt::PVListingView::PVListingView(Squey::PVView& view, QWidget* parent)
     , _ctxt_process(nullptr)
     , _headers_width(view.get_column_count(), horizontalHeader()->defaultSectionSize())
 {
-    _ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
-	_vhead_ctxt_menu.setAttribute(Qt::WA_TranslucentBackground);
-
 	view._axis_hovered.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::highlight_column));
 	view._axis_clicked.connect(sigc::mem_fun(*this, &PVGuiQt::PVListingView::set_section_visible));
 
@@ -419,7 +416,6 @@ void PVGuiQt::PVListingView::show_hhead_ctxt_menu(const QPoint& pos)
 	section_hovered_enter(comb_col, false);
 
 	QMenu menu(this);
-	menu.setAttribute(Qt::WA_TranslucentBackground);
 
 	// Add view creation based on an axis.
 	if (auto container =

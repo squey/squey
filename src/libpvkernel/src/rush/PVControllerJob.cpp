@@ -25,6 +25,7 @@
 
 #include <pvkernel/rush/PVControllerJob.h>
 #include <pvkernel/core/PVTextChunk.h>
+#include <algorithm>
 #include <chrono>
 #include <qtmetamacros.h>
 #include <stddef.h>
@@ -64,6 +65,11 @@ PVRush::PVControllerJob::PVControllerJob(chunk_index begin,
 
 	_max_n_elts = end - begin;
 	_idx_end = end;
+}
+
+size_t PVRush::PVControllerJob::get_value() const
+{
+	return std::max(_out_filter.get_out_size(), _agg.read_size());
 }
 
 void PVRush::PVControllerJob::run_job()

@@ -25,6 +25,7 @@
 #ifndef PVCORE_PVCLASSLIBRARY_H
 #define PVCORE_PVCLASSLIBRARY_H
 
+#include <pvkernel/core/PVFileHelper.h>
 #include <pvkernel/core/PVOrderedMap.h> // for PVOrderedMap
 #include <pvkernel/core/PVSingleton.h>
 #include <qcontainerfwd.h>
@@ -184,10 +185,11 @@ class SQUEY_EXPORT PVClassLibrary
 	{
 		// Some registered extensions have more than one component ("csv.gz"),
 		// so the longest suffix is tried first and shortened one component at a
-		// time: "report.2026.csv" is looked up as "2026.csv" then as "csv",
-		// while "log.csv.gz" finds the compressed CSV plugin rather than being
-		// handed over as a mere gzip archive.
-		const QString suffixes = QFileInfo(file_name).completeSuffix().toLower();
+		// time: "report.v2.csv" is looked up as "v2.csv" then as "csv", while
+		// "log.csv.gz" finds the compressed CSV plugin rather than being handed
+		// over as a mere gzip archive. A rotated file goes to the plugin of the
+		// file it was: "eve.json.2.gz" is looked up as "json.gz".
+		const QString suffixes = PVCore::PVFileHelper::suffixes_without_rotation(file_name);
 		for (QString suffix = suffixes; not suffix.isEmpty();) {
 			if (_classes_extensions.contains(suffix)) {
 				return _classes_extensions.at(suffix);

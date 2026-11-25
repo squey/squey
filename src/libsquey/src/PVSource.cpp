@@ -143,6 +143,12 @@ pvcop::db::INVALID_TYPE Squey::PVSource::has_invalid(PVCol col) const
 	return get_rushnraw().column(col).has_invalid();
 }
 
+void Squey::PVSource::set_name(std::string name)
+{
+	_name = std::move(name);
+	get_parent<PVScene>()._project_updated.emit();
+}
+
 QString Squey::PVSource::get_window_name() const
 {
 	return QString::fromStdString(get_name()) + QString(" / ") + get_format_name();
@@ -175,6 +181,9 @@ void Squey::PVSource::serialize_write(PVCore::PVSerializeObject& so) const
 	so.set_current_status("Saving source...");
 	QString src_name = _src_plugin->registered_name();
 	so.attribute_write("source-plugin", src_name);
+	if (not _name.empty()) {
+		so.attribute_write("name", QString::fromStdString(_name));
+	}
 
 	PVCore::PVSerializeObject_p nraw_obj = so.create_object("nraw");
 	_nraw.serialize_write(*nraw_obj);
@@ -255,6 +264,8 @@ Squey::PVSource& Squey::PVSource::serialize_read(PVCore::PVSerializeObject& so, 
 	PVRush::PVFormat format = PVRush::PVFormat::serialize_read(*format_obj);
 
 	PVSource& source = parent.emplace_add_child(inputs_for_type, sc_lib, format);
+	// A source the user did not name has none in the archive, which reads empty.
+	source._name = so.attribute_read<QString>("name").toStdString();
 
 	try {
 		so.set_current_status("Loading raw data...");

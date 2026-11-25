@@ -35,6 +35,7 @@
 #include <PVXmlParamWidget.h>
 #include <PVOptionsWidget.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
+#include <pvkernel/rush/PVFormatDetection.h>
 
 #include <pvkernel/rush/PVNormalizer.h>
 #include <pvkernel/rush/PVNraw.h>
@@ -54,16 +55,14 @@
 #include <boost/thread.hpp>
 #include <memory>
 
-QList<QUrl> App::PVFormatBuilderWidget::_original_shortcuts = QList<QUrl>();
-
 #define FORMAT_BUILDER_TITLE (QObject::tr("Format builder"))
+#define FORMAT_FILTERS "Formats (*.format);;All files (*.*)"
 /******************************************************************************
  *
  * App::PVFormatBuilderWidget::PVFormatBuilderWidget
  *
  *****************************************************************************/
-App::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent)
-    : QMainWindow(parent), _file_dialog(this)
+App::PVFormatBuilderWidget::PVFormatBuilderWidget(QWidget* parent) : QMainWindow(parent)
 {
 	init(parent);
 	setObjectName("PVFormatBuilderWidget");
@@ -193,28 +192,6 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
 	 */
 	setCentralWidget(central_widget);
 
-	_file_dialog.setOption(QFileDialog::DontUseNativeDialog, true);
-	_file_dialog.setNameFilters(QStringList{"Formats (*.format)", "All files (*.*)"});
-
-	QList<QUrl> favorites = _file_dialog.sidebarUrls();
-
-	/* As Qt keeps track of QFileDialog's state in an .ini file,
-	 * to avoid polluting this state with P-I related paths, it
-	 * is safe to save it before changing it.
-	 */
-	if (_original_shortcuts.length() == 0) {
-		_original_shortcuts = favorites;
-	}
-
-	for (QString& s : PVRush::normalize_get_helpers_plugins_dirs(QString("text"))) {
-		QFileInfo fi(QFileInfo(s).path());
-		if (fi.isWritable()) {
-			favorites.append(QUrl::fromLocalFile(s));
-		}
-	}
-
-	_file_dialog.setSidebarUrls(favorites);
-
 	// setWindowModality(Qt::ApplicationModal);
 
 	/*
@@ -247,11 +224,6 @@ void App::PVFormatBuilderWidget::init(QWidget* /*parent*/)
  *****************************************************************************/
 App::PVFormatBuilderWidget::~PVFormatBuilderWidget()
 {
-	/* RH: restore the original shortcut list to prevent Qt from polluting
-	 * its .ini file (under Unix: ~/.config/Trolltech.conf) by adding
-	 * P-I formats related paths.
-	 */
-	_file_dialog.setSidebarUrls(_original_shortcuts);
 	/*actionAddFilterAfter->deleteLater();
 	actionAddRegExAfter->deleteLater();
 	actionDelete->deleteLater();
@@ -283,7 +255,6 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	actionSaveAs->setIcon(PVModdedIcon("floppy-disk-circle-arrow-right"));
 
 	QMenu* import_menu = new QMenu();
-	import_menu->setAttribute(Qt::WA_TranslucentBackground);
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(import_menu, this, SLOT(slotOpenLog()));
 	buttonImport = new QToolButton();
     buttonImport->setToolTip("Import data");
@@ -293,7 +264,6 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	buttonImport->setMenu(import_menu);
 
 	QMenu* splitter_menu = new QMenu();
-	splitter_menu->setAttribute(Qt::WA_TranslucentBackground);
 	buttonSplitter = new QToolButton();
     buttonSplitter->setToolTip("Add a splitter");
     buttonSplitter->setPopupMode(QToolButton::InstantPopup);
@@ -312,7 +282,6 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	}
 
 	QMenu* converter_menu = new QMenu();
-	converter_menu->setAttribute(Qt::WA_TranslucentBackground);
 	buttonConverter = new QToolButton();
     buttonConverter->setToolTip("Add a converter");
     buttonConverter->setPopupMode(QToolButton::InstantPopup);
@@ -422,7 +391,7 @@ void App::PVFormatBuilderWidget::initToolBar(QVBoxLayout* vb)
 	tools->addAction(actionOpen);
 	tools->addAction(actionSave);
 	tools->addAction(actionSaveAs);
-	tools->addWidget(buttonImport);
+	_import_action = tools->addWidget(buttonImport);
 	tools->addSeparator();
 	tools->addWidget(buttonSplitter);
 	tools->addWidget(buttonConverter);
@@ -622,14 +591,8 @@ void App::PVFormatBuilderWidget::slotNewWindow()
  *****************************************************************************/
 QString App::PVFormatBuilderWidget::slotOpen()
 {
-	_file_dialog.setWindowTitle("Load format from...");
-	_file_dialog.setAcceptMode(QFileDialog::AcceptOpen);
-
-	if (!_file_dialog.exec()) {
-		return {};
-	}
-
-	const QString urlFile = _file_dialog.selectedFiles().at(0);
+	const QString urlFile = PVWidgets::PVFileDialog::getOpenFileName(this, "Load format from...",
+	                                                                 QString(), FORMAT_FILTERS);
 
 	if (urlFile.isEmpty() || (openFormat(urlFile) == false)) {
 		return {};
@@ -750,23 +713,19 @@ bool App::PVFormatBuilderWidget::saveAs()
 	QModelIndex index;
 	myTreeView->applyModification(myParamBord_old_model, index);
 
-	_file_dialog.setWindowTitle("Save format to...");
-	_file_dialog.setAcceptMode(QFileDialog::AcceptSave);
-
-	if (!_file_dialog.exec()) {
+	const QString urlFile = PVWidgets::PVFileDialog::getSaveFileName(
+	    this, "Save format to...", _cur_file, FORMAT_FILTERS, nullptr, {}, "format");
+	if (urlFile.isEmpty()) {
 		return false;
 	}
 
 	check_for_new_time_formats();
 
-	const QString urlFile = _file_dialog.selectedFiles().at(0);
-	if (!urlFile.isEmpty()) {
-		if (myTreeModel->saveXml(urlFile)) {
-			_cur_file = urlFile;
-			setWindowTitleForFile(urlFile);
-			PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(urlFile);
-			return true;
-		}
+	if (myTreeModel->saveXml(urlFile)) {
+		_cur_file = urlFile;
+		setWindowTitleForFile(urlFile);
+		PVCore::PVRecentItemsManager::get().add<PVCore::Category::EDITED_FORMATS>(urlFile);
+		return true;
 	}
 
 	return false;
@@ -843,22 +802,9 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes(bool handle_header /* =
 	// TODO : it would be nice to ignore axes set by user...
 
 	// Update format with discovered axes types
-	QDomElement& dom = myTreeModel->getRootDom();
-	QDomNodeList axes = dom.elementsByTagName("axis");
-	bool has_header = false;
-	for (PVCol i(0); i < axes.size(); i++) {
-		QDomElement ax = axes.at(i).toElement();
-		std::string type;
-		std::string type_format;
-		std::string axe_name;
-		std::tie(type, type_format, axe_name) = type_discovery_output.type_desc(i);
-		ax.setAttribute("type", type.c_str());
-		ax.setAttribute("type_format", type_format.c_str());
-		if (not axe_name.empty() and myTreeModel->get_first_line() == _preamble_lines) {
-			ax.setAttribute("name", axe_name.c_str());
-			has_header = true;
-		}
-	}
+	const bool has_header =
+	    PVRush::set_discovered_types(myTreeModel->getRootDom(), type_discovery_output,
+	                                 myTreeModel->get_first_line() == _preamble_lines);
 
 	if (handle_header) {
 		if (has_header) {
@@ -890,17 +836,10 @@ void App::PVFormatBuilderWidget::slotAutoDetectAxesTypes(bool handle_header /* =
 void App::PVFormatBuilderWidget::update_types_autodetection_count(
     const PVRush::PVFormat& format)
 {
-	static constexpr const size_t total_fields = 100000;
-	static constexpr const size_t multiple_to_round = 100;
-
 	PVCol column_count = (PVCol)format.get_axes().size();
 	assert(column_count != 0);
 
-	size_t row_count =
-	    (((total_fields / column_count) + multiple_to_round - 1) / multiple_to_round) *
-	    multiple_to_round;
-
-	_nraw_widget->set_autodetect_count(row_count);
+	_nraw_widget->set_autodetect_count(PVRush::types_discovery_row_count(column_count));
 }
 
 void App::PVFormatBuilderWidget::setWindowTitleForFile(QString const& path)
@@ -997,99 +936,15 @@ void App::PVFormatBuilderWidget::get_source_creator_from_inputs(
 	}
 }
 
-PVRush::PVFormat App::PVFormatBuilderWidget::load_log_and_guess_format(
-    const PVRush::PVInputDescription_p input, const PVRush::PVInputType_p& input_type)
-{
-	_log_input_type = input_type;
-
-	_inputs.clear();
-	_inputs.push_back(input);
-
-	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
-
-	_cur_file = input->human_name() + ".format";
-
-	return get_format_from_dom();
-}
-
-/******************************************************************************
- *
- * App::PVFormatBuilderWidget::guess_format
- *
- *****************************************************************************/
-PVRush::PVFormat
-App::PVFormatBuilderWidget::guess_format(const PVRush::PVRawSourceBase_p& raw_source_base,
-                                                 PVXmlDomModel& tree_model) const
-{
-	PVLOG_DEBUG("(format_builder) trying to guess first splitter...");
-	PVCol naxes;
-	size_t preamble_lines = 0;
-	PVFilter::PVFieldsSplitter_p sp = PVFilter::PVFieldSplitterChunkMatch::get_match_on_input(
-	    raw_source_base, naxes, &preamble_lines);
-	if (!sp) {
-		// No splitter matches, just do nothing
-		return {};
-	}
-
-	return add_guessed_splitter(sp, naxes, preamble_lines, tree_model);
-}
-
 PVRush::PVFormat
 App::PVFormatBuilderWidget::add_guessed_splitter(const PVFilter::PVFieldsSplitter_p& sp,
                                                  PVCol naxes,
                                                  size_t preamble_lines,
                                                  PVXmlDomModel& tree_model) const
 {
-	// The dom is the reference in here.
-
-	// Get the widget that comes with the splitter. TODO: do better than that
-	QString type_name = sp->type_name();
-	QString filter_name = sp->registered_name();
-	PVFilter::PVFieldsSplitterParamWidget_p sp_widget =
-	    LIB_CLASS(PVFilter::PVFieldsSplitterParamWidget)::get().get_class_by_name(filter_name);
-	if (!sp_widget) {
-		PVLOG_WARN("Filter '%s' of type '%s' has no associated widget !\n", qPrintable(type_name),
-		           qPrintable(filter_name));
-		return {};
-	}
-
-	// Then we need to create 'naxes' children
-	QStringList axes_name;
-	for (PVCol i(0); i < naxes; i++) {
-		axes_name << QString("Axis %1").arg(i + 1);
-	}
-
-	sp_widget->set_child_count(naxes);
-
-	PVRush::PVXmlTreeNodeDom* node =
-	    tree_model.addSplitterWithAxes(tree_model.index(0, 0, QModelIndex()), sp_widget, axes_name);
-	node->setFromArgumentList(sp->get_args());
-
-	// Set proper strings mapping
-	for (PVRush::PVXmlTreeNodeDom* elt : node->getChildren()) {
-		for (PVRush::PVXmlTreeNodeDom* axis : elt->getChildren()) {
-			if (axis->attribute("type") == "string") {
-				axis->setMappingProperties("string", {}, {});
-			}
-		}
-	}
-	tree_model.set_first_line(preamble_lines);
-
+	QDomDocument document = PVRush::format_of_splitter(*sp, naxes, preamble_lines);
+	tree_model.openXml(document);
 	return PVRush::PVFormat(tree_model.getRootDom());
-}
-
-PVRush::PVFormat
-App::PVFormatBuilderWidget::guess_format(const PVRush::PVInputDescription_p input,
-                                                 const PVRush::PVInputType_p& input_type) const
-{
-	PVRush::PVSourceCreator_p source_creator;
-	PVRush::PVRawSourceBase_p raw_source_base;
-
-	get_source_creator_from_inputs(input, input_type, source_creator, raw_source_base);
-
-	PVXmlDomModel tree_model;
-
-	return guess_format(raw_source_base, tree_model);
 }
 
 /******************************************************************************
@@ -1147,6 +1002,10 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
 
 		// First extraction
 		PVRush::PVFormat format;
+		if (is_dom_empty() and not _guesses_splitter) {
+			// Previewed once the user adds a splitter.
+			return;
+		}
 		if (is_dom_empty()) {
 			PVCol naxes;
 			size_t preamble_lines = 0;
@@ -1240,6 +1099,16 @@ void App::PVFormatBuilderWidget::load_log(PVRow rstart, PVRow rend)
  * App::PVFormatBuilderWidget::slotOpenLog
  *
  *****************************************************************************/
+void App::PVFormatBuilderWidget::preview_input(PVRush::PVInputDescription_p const& input,
+                                               PVRush::PVInputType_p const& input_type)
+{
+	_guesses_splitter = false;
+	_import_action->setVisible(false);
+	_log_input_type = input_type;
+	_inputs = {input};
+	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+}
+
 void App::PVFormatBuilderWidget::slotOpenLog()
 {
 	_log_input_type = PVGuiQt::PVInputTypeMenuEntries::input_type_from_action((QAction*)sender());
@@ -1247,6 +1116,11 @@ void App::PVFormatBuilderWidget::slotOpenLog()
 	_inputs.clear();
 
 	load_log(FORMATBUILDER_EXTRACT_START_DEFAULT, FORMATBUILDER_EXTRACT_END_DEFAULT);
+}
+
+QDomDocument App::PVFormatBuilderWidget::get_dom() const
+{
+	return myTreeModel->getRootDom().ownerDocument().cloneNode(true).toDocument();
 }
 
 PVRush::PVFormat App::PVFormatBuilderWidget::get_format_from_dom() const

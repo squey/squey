@@ -28,10 +28,26 @@
 #include <arrow/api.h>
 #include <arrow/io/api.h>
 #include <arrow/io/file.h>
-#include <arrow/filesystem/localfs.h>
 #include <arrow/compute/api.h>
 #include <parquet/arrow/reader.h>
 #include <parquet/arrow/writer.h>
+
+#include <algorithm>
+#include <stdexcept>
+#include <string>
+#include <vector>
+
+/**
+ * @throw PVRush::PVExportError if the first file of @p input_desc cannot be read
+ */
+static PVRush::PVParquetAPI api_of(const PVRush::PVFileListDescription* input_desc)
+{
+    try {
+        return PVRush::PVParquetAPI(input_desc);
+    } catch (const std::runtime_error& e) {
+        throw PVRush::PVExportError(e.what());
+    }
+}
 
 template <typename TYPE>
 static std::shared_ptr<arrow::Array> array_from_indexes(
@@ -102,6 +118,82 @@ static std::shared_ptr<arrow::RecordBatch> viewless_record_batch(
     return arrow::RecordBatch::Make(schema, batch->num_rows(), columns);
 }
 
+/**
+ * Where each of @p columns comes from: its field among those PVParquetAPI::flatten_schema()
+ * makes of the schema of the inputs, or -1 for the column of the input names.
+ */
+static std::vector<int> column_sources(const PVRush::PVParquetAPI& api,
+                                       const PVCore::PVColumnIndexes& columns)
+{
+    const int first_field_column = api.multi_inputs() ? 1 : 0;
+
+    std::vector<int> sources;
+    for (PVCol column : columns) {
+        const int index = int(column) - first_field_column;
+        if (index < 0) {
+            sources.push_back(-1);
+            continue;
+        }
+        if (size_t(index) >= api.column_indexes().size()) {
+            throw PVRush::PVExportError("The input has no column " + std::to_string(int(column)));
+        }
+        sources.push_back(int(api.column_indexes()[size_t(index)]));
+    }
+    return sources;
+}
+
+static std::shared_ptr<arrow::Schema> projected_schema(const std::shared_ptr<arrow::Schema>& schema,
+                                                       const std::vector<int>& sources)
+{
+    const std::shared_ptr<arrow::Schema> flattened = PVRush::PVParquetAPI::flatten_schema(schema);
+
+    arrow::FieldVector fields;
+    fields.reserve(sources.size());
+    for (int source : sources) {
+        if (source < 0) {
+            fields.push_back(arrow::field(PVRush::PVParquetAPI::input_column_name, arrow::utf8()));
+        } else {
+            const std::shared_ptr<arrow::Field>& field = flattened->field(source);
+            fields.push_back(field->WithType(viewless_type(field->type())));
+        }
+    }
+
+    // Without the metadata of the inputs, such as that of pandas, which describes their columns.
+    return arrow::schema(fields);
+}
+
+/**
+ * The columns of @p schema, which projected_schema() made of @p sources, taken from @p batch.
+ * @p input_name is the name of the input @p batch comes from.
+ */
+static std::shared_ptr<arrow::RecordBatch> projected_record_batch(
+    const std::shared_ptr<arrow::RecordBatch>& batch,
+    const std::vector<int>& sources,
+    const std::shared_ptr<arrow::Schema>& schema,
+    const std::string& input_name
+)
+{
+    // Flattened as the import does it, for the fields to be those of the axes.
+    const std::shared_ptr<arrow::Table> flattened = PVRush::PVParquetAPI::flatten_table(
+        arrow::Table::FromRecordBatches({batch}).ValueOrDie());
+
+    arrow::ArrayVector columns;
+    columns.reserve(sources.size());
+    for (size_t i = 0; i < sources.size(); i++) {
+        const std::shared_ptr<arrow::Array> column =
+            sources[i] < 0
+                ? arrow::MakeArrayFromScalar(arrow::StringScalar(input_name), batch->num_rows())
+                      .ValueOrDie()
+                : flattened->column(sources[i])->chunk(0);
+        const std::shared_ptr<arrow::DataType>& type = schema->field(int(i))->type();
+        columns.push_back(column->type()->Equals(*type)
+                              ? column
+                              : arrow::compute::Cast(*column, type).ValueOrDie());
+    }
+
+    return arrow::RecordBatch::Make(schema, batch->num_rows(), columns);
+}
+
 PVRush::PVParquetExporter::PVParquetExporter(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw)
     : _inputs(inputs), _nraw(nraw)
 {
@@ -109,43 +201,57 @@ PVRush::PVParquetExporter::PVParquetExporter(const PVRush::PVInputType::list_inp
 
 void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const PVCore::PVSelBitField & sel)
 {
-    PVRush::PVParquetFileDescription* input_desc = dynamic_cast<PVRush::PVParquetFileDescription*>(_inputs.front().get());
+    PVRush::PVFileListDescription* input_desc = dynamic_cast<PVRush::PVFileListDescription*>(_inputs.front().get());
 
     const auto& paths = input_desc->paths();
     if (paths.contains(QString::fromStdString(out_path))) {
-        throw std::runtime_error("Cannot overwrite an input file during export.");
-        return;
+        throw PVRush::PVExportError("Cannot overwrite an input file during export.");
     }
 
-    std::shared_ptr<parquet::WriterProperties> parquet_props = parquet::WriterProperties::Builder().compression(compression_codec())->build();
-    std::shared_ptr<parquet::ArrowWriterProperties> arrow_props = parquet::ArrowWriterProperties::Builder().store_schema()->build();
-    std::shared_ptr<arrow::fs::FileSystem> fs = arrow::fs::FileSystemFromUri("file:///").ValueOrDie();
-    auto output_stream = fs->OpenOutputStream(out_path).ValueOrDie();
-    std::shared_ptr<arrow::io::FileOutputStream> file_output_stream = std::dynamic_pointer_cast<arrow::io::FileOutputStream>(output_stream);
     std::unique_ptr<parquet::arrow::FileWriter> writer;
 
     const PVCore::PVSelBitField::pvcop_selection_t& selected_rows = (const PVCore::PVSelBitField::pvcop_selection_t&) sel;
 
     size_t exported_rows_count = 0;
     const size_t rows_count_to_export = sel.bit_count();
-    PVRush::PVParquetAPI api(input_desc);
+    PVRush::PVParquetAPI api = api_of(input_desc);
+    const std::vector<int> sources = column_sources(api, _columns);
+    const bool with_input_names = std::find(sources.begin(), sources.end(), -1) != sources.end();
     size_t selection_current_index = 0;
     std::shared_ptr<arrow::Schema> exported_schema;
+    bool canceled = false;
+    // The visit stops at the first file that cannot be opened.
+    qsizetype visited_files = 0;
     api.visit_files([&](){
+        visited_files++;
+        if (canceled) {
+            return;
+        }
         if (writer == nullptr) {
             std::shared_ptr<arrow::Schema> schema;
-            arrow::Status status = api.arrow_reader()->GetSchema(&schema);
-            exported_schema = viewless_schema(schema);
-            writer = parquet::arrow::FileWriter::Open(*exported_schema, arrow::default_memory_pool(), output_stream, parquet_props, arrow_props).ValueOrDie();
+            check(api.arrow_reader()->GetSchema(&schema));
+            exported_schema = _columns.empty() ? viewless_schema(schema) : projected_schema(schema, sources);
+            writer = open(out_path, exported_schema);
         }
 
-        auto recordbatch_reader = api.arrow_reader()->GetRecordBatchReader().ValueOrDie();
+        auto recordbatch_reader = value_of(api.arrow_reader()->GetRecordBatchReader());
 
         size_t total_rows = api.arrow_reader()->parquet_reader()->metadata()->num_rows();
+        // As Squey shows it, in the first row of the input in the NRAW.
+        const std::string input_name =
+            with_input_names and selection_current_index < _nraw.row_count()
+                ? _nraw.column(PVCol(0)).at(selection_current_index)
+                : std::string();
         size_t batch_current_index = 0;
         while (batch_current_index < total_rows and exported_rows_count < rows_count_to_export) {
+            const std::shared_ptr<arrow::RecordBatch> read = value_of(recordbatch_reader->Next());
+            if (read == nullptr) {
+                throw PVRush::PVExportError("The file '" + paths[visited_files - 1].toStdString() +
+                                            "' holds fewer rows than it announces.");
+            }
             std::shared_ptr<arrow::RecordBatch> batch =
-                viewless_record_batch(recordbatch_reader->Next().ValueOrDie(), exported_schema);
+                _columns.empty() ? viewless_record_batch(read, exported_schema)
+                                 : projected_record_batch(read, sources, exported_schema, input_name);
 
             size_t selected_record_batch_indexes_size = pvcop::core::algo::bit_count(selected_rows, selection_current_index + batch_current_index, selection_current_index + batch_current_index + batch->num_rows() -1);
 
@@ -162,15 +268,13 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
                 // filter record batch
                 std::shared_ptr<arrow::Array> indexes = array_from_indexes<arrow::Int32Type>(arrow::int32(), selected_record_batch_indexes_core);
                 arrow::Datum result = arrow::compute::Take(batch, indexes).ValueOrDie();
-                auto status = writer->WriteRecordBatch(*result.record_batch());
+                check(writer->WriteRecordBatch(*result.record_batch()));
 
                 if (_f_progress) {
                     _f_progress(exported_rows_count += indexes->length());
                 }
-                if (_canceled) {
-                    PARQUET_THROW_NOT_OK(writer->Close());
-                    std::remove(out_path.c_str());
-                    _canceled = false;
+                if (close_if_canceled(*writer, out_path)) {
+                    canceled = true;
                     return;
                 }
             }
@@ -180,5 +284,12 @@ void PVRush::PVParquetExporter::export_rows(const std::string & out_path, const 
         selection_current_index += batch_current_index;
     });
 
-    PARQUET_THROW_NOT_OK(writer->Close());
+    if (canceled) {
+        return;
+    }
+    if (visited_files < paths.size()) {
+        throw PVRush::PVExportError("Unable to read parquet file '" +
+                                    paths[visited_files].toStdString() + "'");
+    }
+    check(writer->Close());
 }

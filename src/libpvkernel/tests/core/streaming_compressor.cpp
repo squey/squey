@@ -104,6 +104,21 @@ static void test_round_trip(const std::string& filename, const std::string& cont
 	fs::remove(path);
 }
 
+static void test_rotated_file(const std::string& content)
+{
+	std::cout << "compression before the number of a rotation" << std::endl;
+	const std::string path = (TEST_DIR / "rotated.gz.1").string();
+	compress_file(path, content, 1024 * 1024);
+	{
+		std::ifstream file(path, std::ios::binary);
+		char magic[2] = {};
+		file.read(magic, sizeof(magic));
+		PV_VALID(magic[0] == '\x1f' and magic[1] == '\x8b', true);
+	}
+	PV_VALID(decompress_file(path) == content, true);
+	fs::remove(path);
+}
+
 static void test_passthrough(const std::string& content)
 {
 	std::cout << "passthrough round-trip + reset" << std::endl;
@@ -365,6 +380,7 @@ int main()
 
 	if (tool_available("gz")) {
 		test_uppercase_extension(content);
+		test_rotated_file(content);
 		test_corrupted_input();
 		test_decompressor_cancel_and_reset(content);
 		test_compression_failure_reports_error();

@@ -50,6 +50,7 @@ PVParallelView::PVSeriesViewParamsWidget::PVSeriesViewParamsWidget(PVCol absciss
 	addSeparator();
 	add_selection_activator(enable);
 	add_hunting_activator(enable);
+	add_selected_series_filter(enable);
 	addSeparator();
 	add_rendering_mode_selector();
 	add_sampling_mode_selector();
@@ -159,6 +160,21 @@ void PVParallelView::PVSeriesViewParamsWidget::add_hunting_activator(bool enable
 		_bind_connections.back()();
 	}
 	hunt->setEnabled(enable);
+}
+
+void PVParallelView::PVSeriesViewParamsWidget::add_selected_series_filter(bool enable)
+{
+	auto* selected_only = new QAction(this);
+	selected_only->setIcon(PVModdedIcon("eye"));
+	selected_only->setCheckable(true);
+	selected_only->setChecked(false);
+	selected_only->setText("Selected series only");
+	selected_only->setToolTip("List only the selected series");
+	addAction(selected_only);
+	connect(selected_only, &QAction::toggled,
+	        [this](bool checked) { _series_view_widget->show_selected_series_only(checked); });
+	_bind_connections.emplace_back([selected_only] { selected_only->setEnabled(true); });
+	selected_only->setEnabled(enable);
 }
 
 QToolButton* PVParallelView::PVSeriesViewParamsWidget::add_rendering_mode_selector()

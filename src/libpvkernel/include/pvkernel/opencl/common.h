@@ -34,6 +34,7 @@
 #include <functional> // for function
 #include <stdexcept>  // for runtime_error
 #include <string>
+#include <vector>
 
 #define __squey_verify_opencl(E, F, L)                                                            \
 	{                                                                                              \
@@ -81,26 +82,66 @@ using device_func = std::function<void(cl::Context&, cl::Device&)>;
 bool failed(cl_int err, const char* file, int line);
 
 /**
- * @return whether the rendering must stay on a CPU device
- *
- * Reads the "backend_opencl/force_cpu" setting and the FORCE_CPU environment
- * variable the test suite sets.
+ * What draws the lines of the parallel coordinates.
  */
-bool force_cpu();
+struct lines_platform_t {
+	enum class kind_t {
+		/** Accelerated devices, dedicated GPUs first, then a CPU device. */
+		automatic,
+		/** The accelerated devices of #name. */
+		accelerated,
+		/** The CPU devices of #name, or of the first platform able when #name is empty. */
+		processor,
+		/** No OpenCL: the QPainter backend. */
+		qt
+	};
+
+	kind_t kind;
+	std::string name;
+};
+
+/**
+ * @return the platform the setting rendering.lines_platform names, the automatic choice for a
+ * value it does not know
+ *
+ * The FORCE_CPU environment variable the test suite sets keeps the rendering on a CPU device.
+ */
+lines_platform_t lines_platform();
+
+/**
+ * The devices of a kind that an OpenCL platform offers.
+ */
+struct platform_t {
+	std::string name;
+	/** GPUs and accelerators, rather than CPU devices. */
+	bool accelerated;
+	std::vector<std::string> devices;
+};
+
+/**
+ * @return the OpenCL platforms of the machine, those with accelerated devices first, each in
+ * the order of the loader; a platform with devices of both kinds is there twice
+ *
+ * The platforms are listed, not tried: one of them may still fail to draw.
+ */
+std::vector<platform_t> platforms();
 
 /**
  * find the first OpenCL plateform matching @p accelerated and call @p f on each of its devices
  *
- * When looking for accelerated devices, dedicated GPUs are tried before those
- * built into the processor, which share its memory.
+ * When looking for accelerated devices on any platform, dedicated GPUs are tried
+ * before those built into the processor, which share its memory.
  *
  * @param accelerated a boolean to indicate if the found backend must use decidated hardware or must
  * used software implementation
  * @param f a function to call on each device of the found context
+ * @param platform_name the only platform to look at, any when empty
  *
  * @return a valid OpenCL context in case of success; a null context otherwise.
  */
-cl::Context find_first_usable_context(bool accelerated, device_func const& f);
+cl::Context find_first_usable_context(bool accelerated,
+                                      device_func const& f,
+                                      std::string const& platform_name = {});
 
 /**
  * allocate a host accessible OpenCL buffer object

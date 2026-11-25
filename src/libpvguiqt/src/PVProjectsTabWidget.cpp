@@ -24,6 +24,7 @@
 //
 
 #include <pvguiqt/PVProjectsTabWidget.h>
+#include <pvguiqt/PVImportPage.h>
 #include <pvguiqt/PVStartScreenWidget.h>
 
 #include <QHBoxLayout>
@@ -31,6 +32,8 @@
 #include <QInputDialog>
 #include <QMenu>
 #include <QAction>
+
+#include <algorithm>
 
 const QString star = "*";
 int PVGuiQt::PVProjectsTabWidget::sequence_n = 1;
@@ -55,7 +58,6 @@ void PVGuiQt::__impl::PVTabBar::mousePressEvent(QMouseEvent* event)
 		int index = tabAt(event->pos());
 		if (index >= PVProjectsTabWidget::FIRST_PROJECT_INDEX) {
 			auto* menu = new QMenu(this);
-			menu->setAttribute(Qt::WA_TranslucentBackground);
 			QAction* rename_action = menu->addAction("&Rename...");
 			rename_action->setData(QVariant::fromValue(index));
 			connect(rename_action, SIGNAL(triggered(bool)), this, SLOT(rename_tab()));
@@ -124,16 +126,17 @@ PVGuiQt::PVProjectsTabWidget::PVProjectsTabWidget(Squey::PVRoot* root, QWidget* 
 	QVBoxLayout* tab_layout = new QVBoxLayout;
 	tab_layout_widget->setLayout(tab_layout);
 	tab_layout->addWidget(_tab_widget);
-	QPushButton* new_data_collection = new QPushButton("+");
-	new_data_collection->setToolTip("New data collection");
-	new_data_collection->setFixedSize(QSize(16, 16));
-	tab_layout->addWidget(new_data_collection);
+	_new_data_collection = new QPushButton("+");
+	_new_data_collection->setToolTip("New data collection");
+	_new_data_collection->setFixedSize(QSize(16, 16));
+	tab_layout->addWidget(_new_data_collection);
 
-	connect(new_data_collection, &QPushButton::clicked, this, &PVGuiQt::PVProjectsTabWidget::project_new_Slot);
+	connect(_new_data_collection, &QPushButton::clicked, this, &PVGuiQt::PVProjectsTabWidget::project_new_Slot);
 
 	_stacked_widget = new QStackedWidget();
 
 	create_unclosable_tabs();
+	create_import_tab();
 
 	_splitter = new __impl::PVSplitter(Qt::Horizontal);
 	_splitter->setChildrenCollapsible(true);
@@ -201,6 +204,17 @@ void PVGuiQt::PVProjectsTabWidget::create_unclosable_tabs()
 	        &PVProjectsTabWidget::load_format);
 	connect(_start_screen_widget, &PVStartScreenWidget::edit_format, this,
 	        &PVProjectsTabWidget::edit_format);
+}
+
+void PVGuiQt::PVProjectsTabWidget::create_import_tab()
+{
+	_import_page = new PVImportPage;
+	_tab_widget->addTab(new QWidget(), tr("Import"));
+	_tab_widget->setTabToolTip(IMPORT_PAGE_INDEX, tr("Import"));
+	_tab_widget->setTabVisible(IMPORT_PAGE_INDEX, false);
+	_stacked_widget->addWidget(_import_page);
+	connect(_import_page, &PVImportPage::back_requested, this,
+	        &PVProjectsTabWidget::show_page_before_import);
 }
 
 void PVGuiQt::PVProjectsTabWidget::collapse_tabs(bool collapse /* = true */)
@@ -277,6 +291,10 @@ void PVGuiQt::PVProjectsTabWidget::close_project()
 
 bool PVGuiQt::PVProjectsTabWidget::tab_close_requested(int index)
 {
+	if (index == IMPORT_PAGE_INDEX) {
+		Q_EMIT import_page_close_requested();
+		return true;
+	}
 	QMessageBox ask(QMessageBox::Question, tr("Close data collection?"),
 	                tr("Are you sure you want to close \"%1\"").arg(_tab_widget->tabText(index)),
 	                QMessageBox::Yes | QMessageBox::No);
@@ -351,17 +369,20 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	_stacked_widget->setCurrentIndex(
 	    index); // Map QTabBar signal to QStackedWidget to keep the sync
 	_current_workspace_tab_widget_index = index;
+	if (index != IMPORT_PAGE_INDEX) {
+		_page_before_import = _stacked_widget->widget(index);
+	}
 
 	// to report if the active tab is for a project or not (start page or empty
 	// worspaces page)
 	QWidget* active_widget = _stacked_widget->currentWidget();
-	if ((active_widget == _start_screen_widget) ||
+	if ((active_widget == _start_screen_widget) or (active_widget == _import_page) or
 	    (_stacked_widget->count() <= FIRST_PROJECT_INDEX)) {
 		Q_EMIT active_project(false);
 	} else {
 		const auto& scenes_list = _root->get_children<Squey::PVScene>();
 		auto it = scenes_list.begin();
-		std::advance(it, index - 1);
+		std::advance(it, index - FIRST_PROJECT_INDEX);
 		_root->select_scene(**it);
 		Q_EMIT active_project(true);
 	}
@@ -369,6 +390,33 @@ void PVGuiQt::PVProjectsTabWidget::current_tab_changed(int index)
 	if (index == 0) {
 		return;
 	}
+}
+
+void PVGuiQt::PVProjectsTabWidget::show_import_page()
+{
+	_tab_widget->setTabVisible(IMPORT_PAGE_INDEX, true);
+	_tab_widget->setCurrentIndex(IMPORT_PAGE_INDEX);
+}
+
+void PVGuiQt::PVProjectsTabWidget::hide_import_page()
+{
+	if (_tab_widget->currentIndex() == IMPORT_PAGE_INDEX) {
+		show_page_before_import();
+	}
+	_tab_widget->setTabVisible(IMPORT_PAGE_INDEX, false);
+}
+
+void PVGuiQt::PVProjectsTabWidget::show_page_before_import()
+{
+	// The page may be that of a data collection which the import emptied and removed.
+	_tab_widget->setCurrentIndex(std::max(_stacked_widget->indexOf(_page_before_import), 0));
+}
+
+void PVGuiQt::PVProjectsTabWidget::set_importing(bool importing)
+{
+	_tab_widget->tabBar()->setEnabled(not importing);
+	_new_data_collection->setEnabled(not importing);
+	_import_page->set_back_enabled(not importing);
 }
 
 PVGuiQt::PVSceneWorkspacesTabWidget*

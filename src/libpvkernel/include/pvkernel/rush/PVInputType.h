@@ -41,7 +41,18 @@
 #include <QIcon>
 #include <QCursor>
 #include <QSettings>
+#include <QStringList>
 #include "PVExporter.h"
+
+namespace PVCore
+{
+class PVTaskProgress;
+} // namespace PVCore
+
+namespace PVWidgets
+{
+class PVImportWidget;
+} // namespace PVWidgets
 
 namespace PVRush
 {
@@ -56,31 +67,61 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 	typedef list_inputs list_inputs_desc;
 
   public:
+	/**
+	 * Asks the user for inputs in dialogs: those of an import, for a type that has no
+	 * create_import_widget(), and those the format builder reads.
+	 *
+	 * @return false if the user canceled
+	 */
 	virtual bool create_widget(
-	    hash_formats& formats,
-        list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const = 0;
+	    hash_formats& /*formats*/,
+	    list_inputs& /*inputs*/,
+	    QString& /*format*/,
+	    PVCore::PVArgumentList& /*args_ext*/,
+	    QWidget* /*parent*/ = nullptr
+	) const
+	{
+		return false;
+	}
 
-    virtual bool create_widget_with_input_files(
-        const QStringList& /*input_paths*/,
-        hash_formats& /*formats*/,
-        list_inputs& /*inputs*/,
-        QString& /*format*/,
-        PVCore::PVArgumentList& /*args_ext*/,
-        QWidget* /*parent = nullptr*/
-    ) const { return false; }
+	/**
+	 * What asks for an import of this type in the import page of the main window, or nullptr for
+	 * a type that still asks in dialogs of its own, through create_widget().
+	 */
+	virtual PVWidgets::PVImportWidget* create_import_widget(QWidget* /*parent*/) const
+	{
+		return nullptr;
+	}
 
+	/**
+	 * Describes the inputs that the parameters @p params_json ask for, and their format, out of
+	 * the GUI thread: it may take long to read them, while @p progress shows how far it got and
+	 * can stop it.
+	 *
+	 * @return false if the type takes no parameters, or if @p progress was canceled
+	 * @throw std::runtime_error with what to tell the user, if they cannot be imported
+	 */
 	virtual bool create_source_description_params(
         const QString& /*params_json*/,
         list_inputs& /*inputs*/,
-        PVFormat& /*format*/
+        PVFormat& /*format*/,
+        PVCore::PVTaskProgress& /*progress*/
 	) const { return false; }
 
 	virtual bool has_generated_format() const { return false; }
-	virtual PVFormat get_format_from_inputs(list_inputs const& /*inputs*/) const { return {}; }
+
+	/**
+	 * The format of @p inputs, for a type that makes it from them. Out of the GUI thread, it may
+	 * take long to read them, while @p progress, if any, shows how far it got and can stop it:
+	 * the format is then empty.
+	 *
+	 * @throw std::runtime_error with what to tell the user, if the inputs cannot be imported
+	 */
+	virtual PVFormat get_format_from_inputs(list_inputs const& /*inputs*/,
+	                                        PVCore::PVTaskProgress* /*progress*/ = nullptr) const
+	{
+		return {};
+	}
 
 	/* exporter */
 	virtual std::unique_ptr<PVRush::PVExporterBase>
@@ -94,6 +135,19 @@ class PVInputType : public QObject, public PVCore::PVRegistrableClass<PVInputTyp
 		return nullptr;
 	}
 	virtual QString get_exporter_filter_string(const list_inputs& /*inputs*/) const { return {}; }
+
+	/**
+	 * An exporter of the NRAW of a source of another type, whose columns @p column_names names,
+	 * or nullptr. The export of a source offers it next to the exporter of its own type.
+	 */
+	virtual PVWidgets::PVExporterWidgetInterface*
+	create_nraw_exporter_widget(PVRush::PVNraw const& /*nraw*/,
+	                            QStringList const& /*column_names*/) const
+	{
+		return nullptr;
+	}
+	/** The file filter of the exporter of create_nraw_exporter_widget(). */
+	virtual QString get_nraw_exporter_filter_string() const { return {}; }
 
 	virtual QString name() const = 0;
 	virtual QString human_name() const = 0;

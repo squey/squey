@@ -28,6 +28,7 @@
 #include <pvkernel/core/PVConfig.h>     // for PVConfig
 #include <pvkernel/core/PVDirectory.h>  // for remove_rec
 #include <pvkernel/core/PVFileHelper.h> // for PVFileHelper
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVUtils.h>
 #include <pvbase/general.h> // for SQUEY_PATH_SEPARATOR_CHAR
 
@@ -46,14 +47,22 @@
 #include <functional> // for function
 #include <memory>     // for unique_ptr
 
+namespace
+{
+/**
+ * The working directory of this run. What is written under it is only found
+ * again under it, so a change of the setting waits for the next run.
+ */
+QString const& working_directory_of_this_run()
+{
+	static const QString directory = PVCore::settings::working_directory.value();
+	return directory;
+}
+} // namespace
+
 PVRush::PVNrawCacheManager::PVNrawCacheManager()
     : _cache_file(
-          new QSettings(QString(PVCore::PVConfig::get()
-                                    .config()
-                                    .value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp),
-                                           QString::fromStdString(PVRush::PVNraw::default_tmp_path))
-                                    .toString()) +
-                            SQUEY_PATH_SEPARATOR_CHAR + ".cache",
+          new QSettings(working_directory_of_this_run() + SQUEY_PATH_SEPARATOR_CHAR + ".cache",
                         QSettings::IniFormat))
 {
 	_cache_file->beginGroup("cache");
@@ -186,12 +195,7 @@ QString PVRush::PVNrawCacheManager::nraw_dir()
 		return dir;
 	}
 
-	return PVCore::PVConfig::get()
-	           .config()
-	           .value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp),
-	                  QString::fromStdString(PVRush::PVNraw::default_tmp_path))
-	           .toString() +
-	       QDir::separator() + PVCore::PVConfig::username();
+	return working_directory_of_this_run() + QDir::separator() + PVCore::PVConfig::username();
 }
 
 QStringList
@@ -266,11 +270,7 @@ QString PVRush::PVNrawCacheManager::key_to_path(const QString& key)
 void PVRush::PVNrawCacheManager::compatibility_move_nraws_to_user_nraws_dir()
 {
 	// Compatibility : Move nraw temp directories to nraw user subdirectory
-	QString nraw_dir_base = PVCore::PVConfig::get()
-	                            .config()
-	                            .value(QString::fromStdString(PVRush::PVNraw::config_nraw_tmp),
-	                                   QString::fromStdString(PVRush::PVNraw::default_tmp_path))
-	                            .toString();
+	QString nraw_dir_base = working_directory_of_this_run();
 	QString user_nraw_dir_base = nraw_dir_base + QDir::separator() + PVCore::PVConfig::username();
 	QFileInfo fi(user_nraw_dir_base);
 	if (fi.exists() == false) {

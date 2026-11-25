@@ -56,6 +56,10 @@ try {
     # named after the test -- so unpack it here and point them at it explicitly.
     Expand-Zip "$appdir\tshark.zip" "$appdir\tshark"
     $env:SQUEY_TSHARK_PATH = "$appdir\tshark\tshark.exe"
+    # PVConfig::shared_dir() looks for the files Squey ships, which the package holds
+    # beside squey.exe, next to the running executable. A test with a configuration of
+    # its own makes it from their pvconfig.ini.
+    $env:SQUEY_SHARED_DIR = "$appdir"
 
     # Setup Squey config file
     $squey_unicode = "Squëy" # Validate unicode support
@@ -69,6 +73,9 @@ try {
     $content = Get-Content $iniFile
     $content = $content -replace "(?<=^nraw_tmp=).*", ($nraw_tmp -replace "\\", "/")
     $content | Set-Content $iniFile
+    # Squey reads config.ini only as long as there is no settings.json, which an
+    # earlier run may have left.
+    Remove-Item -Path "$configdir\squey\settings.json" -ErrorAction SilentlyContinue
 
     # Run testsuite
     ctest --test-dir "$appdir" -j $env:NUMBER_OF_PROCESSORS --output-junit "$env:CI_PROJECT_DIR\junit.xml" --output-on-failure -T test -R 'SQUEY_TEST'

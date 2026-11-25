@@ -61,9 +61,19 @@ class PVSceneTabBar : public QTabBar
 	 */
 	//void resizeEvent(QResizeEvent* event) override;
 
+  Q_SIGNALS:
+	/**
+	 * The user asks to rename the source of tab @p index: by a double click on it, from its
+	 * context menu, or with F2 for the current tab.
+	 */
+	void rename_requested(int index);
+
   protected:
 	void mousePressEvent(QMouseEvent* event) override;
 	void mouseReleaseEvent(QMouseEvent* event) override;
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void contextMenuEvent(QContextMenuEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
 
 	void start_drag(QWidget* workspace);
 
@@ -161,6 +171,15 @@ class PVSceneWorkspacesTabWidget : public QWidget, public sigc::trackable
 	void animation_finished();
 
 	void set_project_modified();
+
+	/*! \brief Ask the user for a new name for the source of tab @p index.
+	 */
+	void rename_source(int index);
+
+  private:
+	/*! \brief Show @p name on tab @p index, cut short past a length, then whole in its tooltip.
+	 */
+	void set_tab_name(int index, const QString& name);
 
   Q_SIGNALS:
 	void project_modified();

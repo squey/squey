@@ -99,7 +99,7 @@ Squey::PVView::PVView(PVScaled& scaled)
 	LIB_CLASS(Squey::PVLayerFilter)::list_classes const& lf = filters_layer.get_list();
 
 	for (const auto & it : lf) {
-		filters_args[it.key()] = it.value()->get_default_args_for_view(*this);
+		filters_args[it.key()] = it.value()->get_preferred_args_for_view(*this);
 	}
 
 	_layer_stack_about_to_refresh.emit();

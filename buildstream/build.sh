@@ -171,11 +171,7 @@ elif [ "$TARGET_TRIPLE" == "x86_64-linux-gnu" ]; then # Generate Linux flatpak r
   upload_debug_symbols linux
   bst $BUILD_OPTIONS artifact checkout flatpak/org.squey.Squey.bst --directory "$TMP_ARTIFACT_DIR/flatpak_files"
   mkdir -p "$EXPORT_DIR" &> /dev/null || true
-  if [[ ! -z "$GPG_SIGN_KEY" ]]; then
-    flatpak build-export --gpg-sign=$GPG_SIGN_KEY --files=files $EXPORT_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
-  else
-    flatpak build-export --files=files $EXPORT_DIR "$TMP_ARTIFACT_DIR/flatpak_files" $BRANCH_NAME
-  fi
+  scripts/export_flatpak.sh "$TMP_ARTIFACT_DIR/flatpak_files" "$EXPORT_DIR" "$BRANCH_NAME" "$GPG_SIGN_KEY"
 
   ## Export flatpak Debug image
   #rm -rf $DIR/build

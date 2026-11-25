@@ -73,10 +73,13 @@ for combination in "${@:-Clang/RelWithDebInfo}"; do
         continue
     fi
     echo "Configuring $build_folder with $cxx"
+    # lib, as the packages: GNUInstallDirs would pick lib64, where the Flatpak
+    # looks for no library, and the path of the plugins compiled in follows it.
     cmake -Ssrc -B"$build_folder" \
         -DCMAKE_CXX_COMPILER="$cxx" \
         -DCMAKE_BUILD_TYPE="$build_type" \
         -DCMAKE_INSTALL_PREFIX="$PREFIX" \
+        -DCMAKE_INSTALL_LIBDIR=lib \
         -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 done
 

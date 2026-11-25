@@ -1,16 +1,12 @@
-app-id: org.squey.Squey
-runtime: org.freedesktop.Platform
-runtime-version: '26.08'
-sdk: org.freedesktop.Sdk
-command: squey_launcher.sh
+{# Everything but the modules comes from buildstream/files/flatpak/metadata.sh, and the
+   runtime version from buildstream/app.yml. -#}
+app-id: {{app_id}}
+runtime: {{runtime}}
+runtime-version: '{{runtime_version}}'
+sdk: {{sdk}}
+command: {{command}}
 finish-args:
-  - --socket=wayland
-  - --socket=fallback-x11
-  - --share=network
-  - --share=ipc
-  - --filesystem=host
-  - --device=dri
-  - --allow=devel
+{{finish_args}}
 modules:
   - name: squey
     buildsystem: simple

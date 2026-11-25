@@ -38,6 +38,7 @@
 
 #include <QWidget>
 #include <QObject>
+#include <QPointer>
 #include <QTabWidget>
 #include <QMouseEvent>
 #include <QSize>
@@ -48,6 +49,8 @@
 
 
 
+class QPushButton;
+
 namespace Squey
 {
 class PVRoot;
@@ -56,6 +59,7 @@ class PVRoot;
 namespace PVGuiQt
 {
 
+class PVImportPage;
 class PVStartScreenWidget;
 class PVSceneWorkspacesTabWidget;
 
@@ -143,7 +147,9 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 	Q_OBJECT
 
   public:
-	static constexpr int FIRST_PROJECT_INDEX = 1;
+	/** Hidden but while an import runs, shows what went wrong or what the user sets up. */
+	static constexpr int IMPORT_PAGE_INDEX = 1;
+	static constexpr int FIRST_PROJECT_INDEX = 2;
 
   public:
 	explicit PVProjectsTabWidget(Squey::PVRoot* root, QWidget* parent = 0);
@@ -183,7 +189,16 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 
 	void increase_sequence(size_t inc) { sequence_n += inc; }
 
+	PVImportPage& import_page() { return *_import_page; }
+	void show_import_page();
+	/** Back to the page shown before the import page, unless the import selected another. */
+	void hide_import_page();
+	/** Whether the user cannot leave the page of the import that runs. */
+	void set_importing(bool importing);
+
   private Q_SLOTS:
+	/** Shows the page that was current last before the import page, which stays in its tab. */
+	void show_page_before_import();
 	void current_tab_changed(int index);
 	void emit_workspace_dragged_outside(QWidget* workspace)
 	{
@@ -209,10 +224,13 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 	void edit_format(const QString& format);
 	void save_project();
 	void active_project(bool active);
+	/** From the close button of the tab of the import page. */
+	void import_page_close_requested();
 
   private:
 	bool maybe_save_project(int index);
 	void create_unclosable_tabs();
+	void create_import_tab();
 	void remove_project(int index);
 	QString get_next_scene_name();
 
@@ -223,6 +241,10 @@ class PVGUIQT_EXPORT PVProjectsTabWidget : public QWidget, public sigc::trackabl
 	                                            // inheriting from QTabWidget...
 	QStackedWidget* _stacked_widget = nullptr;
 	PVStartScreenWidget* _start_screen_widget;
+	PVImportPage* _import_page;
+	QPushButton* _new_data_collection;
+	/** The page that was current last but the import page. */
+	QPointer<QWidget> _page_before_import;
 	int _current_workspace_tab_widget_index;
 	Squey::PVRoot* _root;
 	static int sequence_n;

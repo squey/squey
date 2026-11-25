@@ -25,6 +25,7 @@
 
 #include <pvkernel/rush/PVNrawCacheManager.h>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/qobject_helpers.h>
 #include <pvkernel/core/PVProgressBox.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
@@ -37,20 +38,22 @@
 #include <squey/widgets/editors/PVAxisIndexEditor.h>
 
 #include <pvguiqt/PVAxesCombinationDialog.h>
-#include <pvguiqt/PVImportSourceToProjectDlg.h>
 #include <pvguiqt/PVWorkspace.h>
 #include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 #include <pvguiqt/PVAboutBoxDialog.h>
 #include <pvguiqt/PVCredentialDialog.h>
+#include <pvguiqt/PVSettingsDialog.h>
 
+#include <PVImportController.h>
 #include <PVMainWindow.h>
 #include <pvkernel/widgets/PVArgumentListWidget.h>
 #include <squey/widgets/PVArgumentListWidgetFactory.h>
 #include <PVFormatBuilderWidget.h>
-#include <PVSaveDataTreeDialog.h>
 
 #include <QApplication>
+#include <QDir>
+#include <QStandardPaths>
 #include <QPainter>
 #include <QDockWidget>
 #include <QDesktopServices>
@@ -71,6 +74,12 @@ void App::PVMainWindow::about_Slot(PVGuiQt::PVAboutBoxDialog::Tab tab)
 	auto* about_dialog = new PVGuiQt::PVAboutBoxDialog(tab, this);
 	about_dialog->exec();
 	about_dialog->deleteLater();
+}
+
+void App::PVMainWindow::settings_Slot()
+{
+	PVGuiQt::PVSettingsDialog dialog(this);
+	dialog.exec();
 }
 
 void App::PVMainWindow::axes_combination_editor_Slot()
@@ -145,103 +154,11 @@ void App::PVMainWindow::export_selection_Slot()
 	PVGuiQt::PVExportSelectionDlg::export_selection(*view, sel, this);
 }
 
-bool App::PVMainWindow::load_source_from_description_Slot(
-    PVRush::PVSourceDescription src_desc)
+void App::PVMainWindow::load_source_from_description_Slot(PVRush::PVSourceDescription src_desc)
 {
-	bool has_error = false;
-	Squey::PVScene* scene_p;
-
-	PVRush::PVFormat format = src_desc.get_format();
-
-	// Sources whose format is generated from the inputs (e.g. Parquet) are stored
-	// in the recent items without a format on disk: regenerate it from the inputs.
-	if (format.get_full_path().isEmpty() and format.get_axes().size() == 0) {
-		try {
-			PVRush::PVInputType_p input_type =
-			    src_desc.get_source_creator()->supported_type_lib();
-			PVRush::PVFormat regenerated_format =
-			    input_type->get_format_from_inputs(src_desc.get_inputs());
-			if (regenerated_format.get_axes().size() > 0) {
-				src_desc.set_format(regenerated_format);
-				format = regenerated_format;
-			}
-		} catch (const std::exception& e) {
-			QMessageBox::critical(this, tr("Error while loading source..."), e.what());
-			return false;
-		}
-	}
-
-	const size_t axes_count = format.get_axes().size();
-
-	if (axes_count < 2) {
-		const QString text((axes_count == 0) ? "no axis" : "only one axis");
-
-		QMessageBox::critical(
-		    this, tr("Format \"%1\" is invalid").arg(format.get_full_path()),
-		    tr("It has %2, it must define at least 2 axes to be usable.").arg(text));
-
-		return false;
-	}
-
-	auto scenes = get_root().get_children();
-
-	bool new_scene = false;
-	if (scenes.size() == 0) {
-		// No loaded project: create a new one and load the source
-		scene_p = &_projects_tab_widget->project_new();
-		new_scene = true;
-	} else if (scenes.size() == 1) {
-		// Only one project loaded: use it to load the source
-		scene_p = scenes.front();
-		get_root().select_scene(*scene_p);
-	} else {
-		// More than one project loaded: ask the user the project he wants to use to
-		// load the source
-		auto* dlg =
-		    new PVGuiQt::PVImportSourceToProjectDlg(get_root(), get_root().current_scene(), this);
-		if (dlg->exec() != QDialog::Accepted) {
-			return false;
-		}
-
-		get_root().select_scene(*((Squey::PVScene*)dlg->get_selected_scene()));
-		scene_p = current_scene();
-		dlg->deleteLater();
-	}
-
-	Squey::PVSource* src_p = nullptr;
-	try {
-		src_p = &scene_p->emplace_add_child(src_desc);
-	} catch (PVRush::PVFormatException const& e) {
-		QMessageBox::critical(this, "Error with format...", e.what());
-		has_error = true;
-	} catch (PVFilter::PVFieldsFilterInvalidArguments const& e) {
-		QMessageBox::critical(this, "Error", e.what());
-		has_error = true;
-	} catch (PVRush::PVInputException const& e) {
-		QMessageBox::critical(this, tr("Fatal error while loading source..."),
-		                      tr("Fatal error while loading source: %1").arg(e.what()));
-		has_error = true;
-	}
-
-	if (has_error) {
-		if (new_scene) {
-			_projects_tab_widget->remove_project(
-			    _projects_tab_widget->get_workspace_tab_widget_from_scene(scene_p));
-		}
-		return false;
-	}
-
-	try {
-		if (not load_source(src_p)) {
-			remove_source(src_p);
-			return false;
-		}
-	} catch (const PVRush::PVFormatInvalidTime& e) {
-		QMessageBox::critical(this, tr("Fatal error while loading source..."), e.what());
-		return false;
-	}
-
-	return true;
+	std::vector<PVRush::PVSourceDescription> sources;
+	sources.push_back(std::move(src_desc));
+	_import_controller->import(std::move(sources));
 }
 
 void App::PVMainWindow::solution_new_Slot()
@@ -254,12 +171,12 @@ void App::PVMainWindow::solution_new_Slot()
 
 void App::PVMainWindow::solution_load_Slot()
 {
-	_load_solution_dlg.setFileMode(QFileDialog::ExistingFile);
-	_load_solution_dlg.setAcceptMode(QFileDialog::AcceptOpen);
-	if (_load_solution_dlg.exec() != QDialog::Accepted) {
+	const QString file =
+	    PVWidgets::PVFileDialog::getOpenFileName(this, tr("Load an investigation..."), QString(),
+	                                             SQUEY_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER);
+	if (file.isEmpty()) {
 		return;
 	}
-	QString file = _load_solution_dlg.selectedFiles().at(0);
 	load_solution_and_create_mw(file);
 }
 
@@ -297,20 +214,35 @@ void App::PVMainWindow::solution_save_Slot()
 
 void App::PVMainWindow::solution_saveas_Slot()
 {
+	save_solution_as(false);
+}
+
+void App::PVMainWindow::solution_saveas_with_files_Slot()
+{
+	save_solution_as(true);
+}
+
+void App::PVMainWindow::save_solution_as(bool save_log_file)
+{
 	if (get_root().is_empty()) {
 		return;
 	}
 
-	PVSaveDataTreeDialog dlg(SQUEY_ROOT_ARCHIVE_EXT, SQUEY_ROOT_ARCHIVE_FILTER, this);
-	if (!_current_save_root_folder.isEmpty()) {
-		dlg.setDirectory(_current_save_root_folder);
+	const QString directory = _current_save_root_folder.isEmpty()
+	                              ? QStandardPaths::writableLocation(QStandardPaths::HomeLocation)
+	                              : _current_save_root_folder;
+	// A suggested name keeps the extension where nothing adds it, as in the Flatpak.
+	const QString start = is_solution_untitled()
+	                          ? QDir(directory).filePath("investigation." SQUEY_ROOT_ARCHIVE_EXT)
+	                          : get_solution_path();
+	const QString& file = PVWidgets::PVFileDialog::getSaveFileName(
+	    this, tr("Save project..."), start, SQUEY_ROOT_ARCHIVE_FILTER ";;" ALL_FILES_FILTER,
+	    nullptr, {}, SQUEY_ROOT_ARCHIVE_EXT);
+	if (file.isEmpty()) {
+		return;
 	}
-	dlg.selectFile(get_solution_path());
-	if (dlg.exec() == QDialog::Accepted) {
-		QString file = dlg.selectedFiles().at(0);
-		save_solution(file, dlg.save_log_file());
-	}
-	_current_save_root_folder = dlg.directory().absolutePath();
+	_current_save_root_folder = PVCore::PVFlatpakHelper::host_directory_of(file);
+	save_solution(file, save_log_file);
 }
 
 bool App::PVMainWindow::maybe_save_solution()

@@ -104,9 +104,6 @@ class PVDatabaseParamsWidget : public QDialog, private Ui::DbParams
   protected:
 	// New XML format created from the database fields
 	QDomDocument _new_format_doc;
-
-  private:
-	PVWidgets::PVFileDialog _file_dlg;
 };
 }
 

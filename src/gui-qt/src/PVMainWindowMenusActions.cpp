@@ -25,12 +25,14 @@
 
 #include <PVMainWindow.h>
 #include <pvguiqt/PVInputTypeMenuEntries.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 #include <QAction>
 #include <QActionGroup>
 #include <QDesktopServices>
 #include <QMenuBar>
+#include <QMessageBox>
 
 /******************************************************************************
  *
@@ -57,6 +59,9 @@ void App::PVMainWindow::create_actions()
 	solution_saveas_Action = new QAction(tr("Save &as..."), this);
 	solution_saveas_Action->setShortcut(QKeySequence::SaveAs);
 	solution_saveas_Action->setIcon(PVModdedIcon("floppy-disk-circle-arrow-right"));
+	solution_saveas_with_files_Action = new QAction(tr("Save as with &original files..."), this);
+	solution_saveas_with_files_Action->setStatusTip(
+	    tr("Save the investigation with the files it was imported from."));
 
 	// The new_file Action
 	new_file_Action = new QAction(tr("&New"), this);
@@ -128,35 +133,52 @@ void App::PVMainWindow::create_actions()
 	/**************************
 	 * For the "Settings" menu entry
 	 **************************/
+	settings_Action = new QAction(tr("&Settings..."), this);
+	settings_Action->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_Comma));
+	// macOS moves it to the application menu, where its users look for it.
+	settings_Action->setMenuRole(QAction::PreferencesRole);
+
 	auto* act_group_theme = new QActionGroup(this);
-	const QString& settings_color_scheme = PVCore::PVTheme::settings_color_scheme();
 	act_group_theme->setExclusive(true);
 	settings_dark_theme_Action = new QAction(tr("&Dark"), act_group_theme);
 	settings_dark_theme_Action->setCheckable(true);
-	settings_dark_theme_Action->setChecked(settings_color_scheme == "dark");
-	connect(settings_dark_theme_Action, &QAction::triggered, [](){
-		PVCore::PVTheme::follow_system_scheme(false);
-		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme::DARK);
-	});
+	settings_dark_theme_Action->setData("dark");
 	//settings_dark_theme_Action->setIcon(PVModdedIcon("moon"));
 
 	settings_light_theme_Action = new QAction(tr("&Light"), act_group_theme);
 	settings_light_theme_Action->setCheckable(true);
-	settings_light_theme_Action->setChecked(settings_color_scheme == "light");
-	connect(settings_light_theme_Action, &QAction::triggered, [](){
-		PVCore::PVTheme::follow_system_scheme(false);
-		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::EColorScheme::LIGHT);
-	});
+	settings_light_theme_Action->setData("light");
 	//settings_light_theme_Action->setIcon(PVModdedIcon("sun-bright"));
 
 	settings_follow_system_theme_Action = new QAction(tr("&Auto"), act_group_theme);
 	settings_follow_system_theme_Action->setCheckable(true);
-	settings_follow_system_theme_Action->setChecked(settings_color_scheme == "system");
-	connect(settings_follow_system_theme_Action, &QAction::triggered, [](){
-		PVCore::PVTheme::follow_system_scheme(true);
-		PVCore::PVTheme::set_color_scheme(PVCore::PVTheme::system_color_scheme());
-	});
+	settings_follow_system_theme_Action->setData("system");
 	//settings_follow_system_theme_Action->setIcon(PVModdedIcon("moon-over-sun"));
+
+	// Every window has its menu, and the settings dialog changes the scheme too.
+	auto check_color_scheme = [act_group_theme]() {
+		const QString scheme = PVCore::settings::color_scheme.value();
+		for (QAction* action : act_group_theme->actions()) {
+			action->setChecked(action->data().toString() == scheme);
+		}
+	};
+	check_color_scheme();
+	connect(
+	    act_group_theme, &QActionGroup::triggered, this,
+	    [this, check_color_scheme](QAction* action) {
+		    QString error;
+		    if (not PVCore::settings::color_scheme.set_value(action->data().toString(), &error)) {
+			    // The administrator may set it: the item the user checked is not the scheme.
+			    check_color_scheme();
+			    QMessageBox::warning(this, tr("Theme"), error);
+		    }
+	    });
+	connect(&PVCore::PVSettings::get(), &PVCore::PVSettings::changed, act_group_theme,
+	        [check_color_scheme](QString const& key) {
+		        if (key == PVCore::settings::color_scheme.key()) {
+			        check_color_scheme();
+		        }
+	        });
 
 	/**************************
 	 * For the "Help" menu entry
@@ -185,20 +207,18 @@ void App::PVMainWindow::create_menus()
 	menubar = menuBar();
 	
 	file_Menu = menubar->addMenu(tr("&File"));
-	file_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	auto* solution_Menu = new QMenu(tr("&Investigation"));
 	solution_Menu->setIcon(PVModdedIcon("magnifying-glass-waveform"));
-	solution_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	solution_Menu->addAction(solution_new_Action);
 	solution_Menu->addAction(solution_load_Action);
 	solution_Menu->addAction(solution_save_Action);
 	solution_Menu->addAction(solution_saveas_Action);
+	solution_Menu->addAction(solution_saveas_with_files_Action);
 
 	file_Menu->addMenu(solution_Menu);
 	file_Menu->addSeparator();
 	auto* import_Menu = new QMenu(tr("I&mport"));
 	import_Menu->setIcon(PVModdedIcon("file-import"));
-	import_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	create_actions_import_types(import_Menu);
 	file_Menu->addMenu(import_Menu);
 	file_Menu->addAction(export_selection_Action);
@@ -206,7 +226,6 @@ void App::PVMainWindow::create_menus()
 	file_Menu->addAction(quit_Action);
 
 	selection_Menu = menubar->addMenu(tr("S&election"));
-	selection_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	selection_Menu->addAction(undo_Action);
 	selection_Menu->addAction(redo_Action);
 	selection_Menu->addSeparator();
@@ -222,10 +241,10 @@ void App::PVMainWindow::create_menus()
 	selection_Menu->addAction(set_color_Action);
 
 	settings_Menu = menubar->addMenu(tr("&Settings"));
-	settings_Menu->setAttribute(Qt::WA_TranslucentBackground);
+	settings_Menu->addAction(settings_Action);
+	settings_Menu->addSeparator();
 	auto* theme_Menu = settings_Menu->addMenu(tr("&Theme"));
 	theme_Menu->setIcon(PVModdedIcon("sun-bright"));
-	theme_Menu->setAttribute(Qt::WA_TranslucentBackground);
 
 	theme_Menu->addAction(settings_dark_theme_Action);
 	theme_Menu->addAction(settings_light_theme_Action);
@@ -236,7 +255,6 @@ void App::PVMainWindow::create_menus()
 #endif
 
 	help_Menu = menubar->addMenu(tr("&Help"));
-	help_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	help_Menu->addAction(sample_dataset_Action);
 	help_Menu->addAction(refman_Action);
 	help_Menu->addAction(about_Action);
@@ -265,6 +283,7 @@ void App::PVMainWindow::menu_activate_is_file_opened(bool cond)
 	tools_cur_format_Action->setEnabled(cond && is_solution_untitled());
 	solution_save_Action->setEnabled(cond);
 	solution_saveas_Action->setEnabled(cond);
+	solution_saveas_with_files_Action->setEnabled(cond);
 }
 
 /******************************************************************************
@@ -279,6 +298,8 @@ void App::PVMainWindow::connect_actions()
 	connect(solution_load_Action, &QAction::triggered, this, &PVMainWindow::solution_load_Slot);
 	connect(solution_save_Action, &QAction::triggered, this, &PVMainWindow::solution_save_Slot);
 	connect(solution_saveas_Action, &QAction::triggered, this, &PVMainWindow::solution_saveas_Slot);
+	connect(solution_saveas_with_files_Action, &QAction::triggered, this,
+	        &PVMainWindow::solution_saveas_with_files_Slot);
 
 	connect(export_selection_Action, &QAction::triggered, this,
 	        &PVMainWindow::export_selection_Slot);
@@ -318,6 +339,7 @@ void App::PVMainWindow::connect_actions()
 
 	connect(sample_dataset_Action, &QAction::triggered, this,
 	        &PVMainWindow::load_sample_dataset_Slot);
+	connect(settings_Action, &QAction::triggered, this, &PVMainWindow::settings_Slot);
 	connect(about_Action, &QAction::triggered,
 	        [this]() { about_Slot(PVGuiQt::PVAboutBoxDialog::Tab::SOFTWARE); });
 	connect(refman_Action, &QAction::triggered,

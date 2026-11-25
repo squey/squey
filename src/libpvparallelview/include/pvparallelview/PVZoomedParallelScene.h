@@ -32,6 +32,7 @@
 #include <pvkernel/widgets/PVWheelEventAccumulator.h>
 
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVParallelViewSettings.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVSlidersGroup.h>
 #include <pvparallelview/PVZoneRenderingBCI.h>
@@ -571,7 +572,7 @@ class PVZoomedParallelScene : public QGraphicsScene, public sigc::trackable
 	uint32_t _last_y_min;
 	uint32_t _last_y_max;
 	bool _show_bg;
-	bool _antialiased = true;
+	bool _antialiased = settings::antialiasing.value();
 
 	// about rendering
 	QTimer _updateall_timer;

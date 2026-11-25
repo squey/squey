@@ -11,11 +11,17 @@ set(Boost_USE_STATIC_RUNTIME    OFF)
 find_package(Boost 1.55 COMPONENTS filesystem REQUIRED)
 
 set(PCAP_SRC
+    src/capture.cpp
+    src/catalog.cpp
+    src/extraction.cpp
+    src/flow.cpp
     src/libpvpcap.cpp
+    src/process.cpp
+    src/profile.cpp
+    src/sample.cpp
     src/shell.cpp
     src/ws.cpp
     src/profileformat.cpp
-    src/pcap_splitter.cpp
    )
 
 add_library(pvpcap STATIC ${PCAP_SRC})
@@ -31,7 +37,7 @@ set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 find_package(Threads REQUIRED)
 target_link_libraries(pvpcap
 	PUBLIC pvkernel ${Boost_LIBRARIES}
-	PRIVATE pcap Threads::Threads)
+	PRIVATE Threads::Threads)
 
 set(INPUTS_DIST_LIST
 	pvpcap

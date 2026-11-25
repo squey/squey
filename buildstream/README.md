@@ -17,8 +17,10 @@ git clone --recursive https://gitlab.com/squey/squey.git
 
 The quickest way in: a prebuilt image carrying the whole build sysroot, so the
 host needs nothing but a container engine. Budget around 12 GB of disk for the
-image. It produces a native Linux build only -- cross-compilation and packaging
-go through the [development shell](#development-shell).
+image. It produces a native Linux build only, which it can
+[package as a flatpak](#packaging-a-devcontainer-build-as-a-flatpak) to try it
+-- cross-compilation and the packages to publish go through the
+[development shell](#development-shell).
 
 Under podman the container has to run with `--userns=keep-id`, or its user owns
 nothing in the workspace and cannot even write to it. The devcontainer CLI
@@ -96,7 +98,7 @@ buildstream/scripts/build_devcontainer_image.sh --push=true --update-pin=true
 ## Development shell
 
 The BuildStream sandbox: slower to enter than the devcontainer, and the only way
-to cross-compile and to produce a package.
+to cross-compile and to produce a package to publish.
 
 Note : you should have `python` installed.
 
@@ -159,18 +161,65 @@ Other editors and coding assistants get their C++ support from
 
 # Flatpak
 
+Installing a branch of the package makes it the one the desktop entry and the
+file associations start; `flatpak make-current --user org.squey.Squey <branch>`
+hands them to another branch.
+
 ## Generating and installing a local flatpak package
 
+BuildStream builds the package the CI publishes, out of the artifacts of every
+element. The project publishes no artifact cache for its own elements, so a first
+build compiles every one the local cache lacks, Qt and LLVM included: count
+hours. To try a change,
+[package a devcontainer build](#packaging-a-devcontainer-build-as-a-flatpak)
+instead.
+
 ```
-cd buildstream && ./build.sh --export=true --export-dir=local_repo
+cd buildstream && ./build.sh --export=true --export-dir=flatpak_repo
 ```
 
-Adding the flatpak local remote (once):
+The package lands in the repository `buildstream/flatpak_repo`, as the branch
+`main` unless `--branch` names another. Adding the flatpak local remote (once),
+from `buildstream`:
 ```
-flatpak --user remote-add --no-gpg-verify squey_local ./local_repo
+flatpak --user remote-add --no-gpg-verify squey_local ./flatpak_repo
 ```
 
-Installing a local package:
+Installing the local package, or updating it after the next build:
 ```
-flatpak install --user squey_local org.squey.Squey//main
+flatpak install --user --or-update squey_local org.squey.Squey//main
+flatpak run org.squey.Squey//main
 ```
+
+## Packaging a devcontainer build as a flatpak
+
+A build of the [devcontainer](#build-in-the-devcontainer) can be packaged as a
+flatpak without BuildStream, by the scripts the BuildStream elements use. One
+command does it, from the host, which needs flatpak and podman or docker:
+
+```
+buildstream/scripts/devcontainer_flatpak.sh --install
+flatpak run org.squey.Squey//devcontainer
+```
+
+It builds `builds/x86_64-linux-gnu/Clang/RelWithDebInfo` in a container of the
+pinned image, configuring the tree first if need be, and lays out the package
+there. It then exports the package on the host, to `builds/flatpak/repo` as the
+branch `devcontainer`, and `--install` installs it from there for the user,
+through the remote `squey_devcontainer`. The header of the script lists the
+other options.
+
+The repository keeps the last package of each branch alone. With the `ostree`
+command, which some systems package apart from flatpak, the script creates it
+uncompressed: an archive repository compresses the whole package at each export,
+most of the time of a package whose tree has nothing to build. A repository that
+exists keeps its kind: remove `builds/flatpak/repo` for the script to create it
+anew.
+
+The package is made of whatever the checkout holds: it serves to try a change
+inside the sandbox of Flatpak, never to publish one. When the image lists the
+files the runtime dependencies of Squey install, the package takes those alone;
+otherwise it takes the whole sysroot, build dependencies included. A tree
+configured before `configure_builds.sh` named the library directory installs
+into `lib64`, where the Flatpak finds nothing: the script reconfigures it to
+`lib`, which recompiles it once.

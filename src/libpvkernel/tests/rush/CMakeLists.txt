@@ -4,6 +4,9 @@
 
 set(PVRUSH_TEST_FILES "${TESTS_FILES_DIR}/pvkernel/rush")
 set(PVRUSH_TEST_FILES_OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/test-files")
+# The pcap profiles Squey ships, found from TESTS_FILES_DIR rather than from the sources: the
+# packaged testsuite of Windows and macOS does not run where it was built.
+set(PCAP_PROFILES_DIR "${TESTS_FILES_DIR}/../../libpvkernel/plugins/common/pcap/profiles")
 
 # Test UTF8 conversion
 add_squey_compile_test(Trush_conv_utf8 LINKS ${LINK_LIBRARIES} FILES conv_utf8.cpp helpers.cpp)
@@ -112,25 +115,49 @@ add_squey_test(Trush_splitter_csv_tshark Trush_splitter_csv ${PVRUSH_TEST_FILES}
 # End-to-end pcap import: a crafted pcap whose DNS TXT payloads embed the
 # pipeline's own CSV separator (0x7F) and a real newline, driven through the
 # real tshark invocation (requires tshark on PATH).
-# pvpcap (pcap_splitter.cpp) uses htons/ntohs, which on Windows live in ws2_32.
-if (WIN32)
-	set(PCAP_TEST_WINSOCK_LIBRARY "ws2_32")
-endif()
-add_squey_compile_test(Trush_pcap_tshark_escape LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_tshark_escape.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_tshark_escape LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_tshark_escape.cpp helpers.cpp)
 add_squey_test(Trush_pcap_tshark_escape Trush_pcap_tshark_escape ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
-# The test returns 77 to report itself skipped when tshark cannot be run (e.g. CI
-# outside a packaged install, where tshark_path() is not resolvable).
+# The tests running tshark return 77 to report themselves skipped when it cannot be run
+# (e.g. CI outside a packaged install, where tshark_path() is not resolvable).
 set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_escape PROPERTIES SKIP_RETURN_CODE 77)
 
-add_squey_compile_test(Trush_pcap_tshark_refusal LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_tshark_refusal.cpp helpers.cpp)
-add_squey_test(Trush_pcap_tshark_refusal Trush_pcap_tshark_refusal ${PVRUSH_TEST_FILES}/pcap/tshark_escape_trap.pcap)
-set_tests_properties(SQUEY_TEST_Trush_pcap_tshark_refusal PROPERTIES SKIP_RETURN_CODE 77)
-
-add_squey_compile_test(Trush_pcap_every_occurrence_format LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_every_occurrence_format.cpp helpers.cpp)
+add_squey_compile_test(Trush_pcap_every_occurrence_format LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_every_occurrence_format.cpp helpers.cpp)
 add_squey_test(Trush_pcap_every_occurrence_format Trush_pcap_every_occurrence_format)
 
-add_squey_compile_test(Trush_pcap_split_without_progress LINKS ${LINK_LIBRARIES} pvpcap ${PCAP_TEST_WINSOCK_LIBRARY} FILES pcap_split_without_progress.cpp helpers.cpp)
-add_squey_test(Trush_pcap_split_without_progress Trush_pcap_split_without_progress)
+add_squey_compile_test(Trush_pcap_flow LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_flow.cpp helpers.cpp)
+add_squey_test(Trush_pcap_flow Trush_pcap_flow)
+
+add_squey_compile_test(Trush_pcap_capture_reader LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_capture_reader.cpp helpers.cpp)
+add_squey_test(Trush_pcap_capture_reader Trush_pcap_capture_reader)
+
+add_squey_compile_test(Trush_pcap_process LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_process.cpp helpers.cpp)
+add_squey_test(Trush_pcap_process Trush_pcap_process)
+
+add_squey_compile_test(Trush_pcap_extraction LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_extraction.cpp helpers.cpp)
+add_squey_test(Trush_pcap_extraction Trush_pcap_extraction)
+set_tests_properties(SQUEY_TEST_Trush_pcap_extraction PROPERTIES SKIP_RETURN_CODE 77)
+
+# What profiles of pcap imports hold, as this version and earlier ones wrote them
+add_squey_compile_test(Trush_pcap_profiles LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_profiles.cpp)
+add_squey_test(Trush_pcap_profiles Trush_pcap_profiles ${PCAP_PROFILES_DIR})
+# Profiles of the user are files of its configuration: not those of whoever runs the test.
+set_property(TEST SQUEY_TEST_Trush_pcap_profiles APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=pcap_profiles_test_config")
+
+# What helps choose the fields of a pcap import: those tshark knows, those of a capture
+add_squey_compile_test(Trush_pcap_catalog LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_catalog.cpp)
+add_squey_test(Trush_pcap_catalog Trush_pcap_catalog ${TESTS_FILES_DIR}/../../pvconfig.ini ${TESTS_FILES_DIR}/sources/http.pcap)
+set_tests_properties(SQUEY_TEST_Trush_pcap_catalog PROPERTIES SKIP_RETURN_CODE 77)
+set_property(TEST SQUEY_TEST_Trush_pcap_catalog APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=pcap_catalog_test_config")
+
+# The dialog importing captures, used as a user would
+add_squey_compile_test(Trush_pcap_import_dialog LINKS ${LINK_LIBRARIES} pcap-gui-widget pvpcap Qt6::Test Qt6::Widgets FILES pcap_import_dialog.cpp)
+add_squey_test(Trush_pcap_import_dialog Trush_pcap_import_dialog ${PCAP_PROFILES_DIR} ${TESTS_FILES_DIR}/../../pvconfig.ini ${TESTS_FILES_DIR}/sources/http.pcap -platform offscreen)
+set_tests_properties(SQUEY_TEST_Trush_pcap_import_dialog PROPERTIES SKIP_RETURN_CODE 77)
+set_property(TEST SQUEY_TEST_Trush_pcap_import_dialog APPEND PROPERTY ENVIRONMENT "SQUEY_CONFIG_DIR=pcap_import_dialog_test_config")
+
+add_squey_compile_test(Trush_pcap_import LINKS ${LINK_LIBRARIES} pvpcap FILES pcap_import.cpp helpers.cpp)
+add_squey_test(Trush_pcap_import Trush_pcap_import ${PCAP_PROFILES_DIR})
+set_tests_properties(SQUEY_TEST_Trush_pcap_import PROPERTIES SKIP_RETURN_CODE 77)
 
 add_squey_compile_test(Trush_splitter_csv_nested LINKS ${LINK_LIBRARIES} FILES splitter_csv_nested.cpp helpers.cpp)
 add_squey_test(Trush_splitter_csv_nested Trush_splitter_csv_nested)
@@ -264,7 +291,9 @@ add_squey_test(Trush_logstats Trush_logstats)
 
 set(PARQUET_SRC_FILES
 ../../plugins/common/parquet/PVParquetAPI.cpp
+../../plugins/input-types/parquet/PVParquetExporterBase.cpp
 ../../plugins/input-types/parquet/PVParquetExporter.cpp
+../../plugins/input-types/parquet/PVParquetNrawExporter.cpp
 )
 
 add_squey_compile_test(Trush_apache_parquet LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet.cpp ${PARQUET_SRC_FILES})
@@ -289,6 +318,20 @@ add_squey_compile_test(Trush_apache_parquet_dictionary_column_index LINKS ${LINK
 add_squey_test(Trush_apache_parquet_dictionary_column_index Trush_apache_parquet_dictionary_column_index)
 add_squey_compile_test(Trush_apache_parquet_homonym_inputs LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_homonym_inputs.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_apache_parquet_homonym_inputs Trush_apache_parquet_homonym_inputs)
+add_squey_compile_test(Trush_apache_parquet_export_columns LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_export_columns.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet_export_columns Trush_apache_parquet_export_columns)
+add_squey_compile_test(Trush_apache_parquet_export_file LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_export_file.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet_export_file Trush_apache_parquet_export_file)
+add_squey_compile_test(Trush_apache_parquet_export_nraw LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES apache_parquet_export_nraw.cpp ${PARQUET_SRC_FILES})
+add_squey_test(Trush_apache_parquet_export_nraw Trush_apache_parquet_export_nraw)
+
+set(JSON_SRC_FILES
+../../plugins/common/json/PVJsonLines.cpp
+../../plugins/common/json/PVJsonSchema.cpp
+../../plugins/common/parquet/PVParquetAPI.cpp
+)
+add_squey_compile_test(Trush_json_import LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES json_import.cpp ${JSON_SRC_FILES})
+add_squey_test(Trush_json_import Trush_json_import)
 add_squey_compile_test(Trush_recent_items LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES recent_items.cpp ${PARQUET_SRC_FILES})
 add_squey_test(Trush_recent_items Trush_recent_items ${PVRUSH_TEST_FILES}/csv/tiny.csv ${PVRUSH_TEST_FILES}/formats/tiny-with-ac-v10.csv.format ${TESTS_FILES_DIR}/pvkernel/rush/parquet/offset.parquet ${TESTS_FILES_DIR}/pvkernel/rush/parquet/multïchunks.parquet ${TESTS_FILES_DIR}/../../pvconfig.ini)
 # Isolate the recent items file (recents.ini) from the real user configuration.

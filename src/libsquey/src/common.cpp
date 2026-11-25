@@ -32,6 +32,7 @@
 
 #include <squey/common.h>
 #include <squey/plugins.h>
+#include <squey/PVLayerFilter.h>
 
 void Squey::common::load_filters()
 {
@@ -63,6 +64,7 @@ int Squey::common::load_layer_filters()
 	} else {
 		PVLOG_INFO("%d layer filters have been loaded.\n", ret);
 	}
+	Squey::PVLayerFilter::declare_settings();
 
 	return ret;
 }

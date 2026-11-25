@@ -43,6 +43,7 @@ class PVInputTypeElasticsearch : public PVInputTypeDesc<PVElasticsearchQuery>
 	                  QString& format,
 	                  PVCore::PVArgumentList& args_ext,
 	                  QWidget* parent = nullptr) const override;
+	PVWidgets::PVImportWidget* create_import_widget(QWidget* parent) const override;
 	QString name() const override;
 	QString human_name() const override;
 	QString human_name_serialize() const override;

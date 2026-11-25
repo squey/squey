@@ -13,6 +13,9 @@ add_squey_test(Tcore_directory_remove Tcore_directory_remove)
 add_squey_compile_test(Tcore_create_directory_in LINKS ${LINK_LIBRARIES} FILES create_directory_in.cpp)
 add_squey_test(Tcore_create_directory_in Tcore_create_directory_in)
 
+add_squey_compile_test(Tcore_flatpak_override_command LINKS ${LINK_LIBRARIES} FILES flatpak_override_command.cpp)
+add_squey_test(Tcore_flatpak_override_command Tcore_flatpak_override_command)
+
 add_squey_compile_test(Tcore_theme LINKS ${LINK_LIBRARIES} FILES theme.cpp)
 add_squey_test(Tcore_theme Tcore_theme ${TESTS_FILES_DIR}/../../pvconfig.ini -platform offscreen)
 # A configuration directory of its own, rather than the one of whoever runs the
@@ -44,6 +47,14 @@ add_squey_test(Tcore_argument_serialize Tcore_argument_serialize)
 
 add_squey_compile_test(Tcore_network LINKS ${LINK_LIBRARIES} FILES network.cpp)
 add_squey_test(Tcore_network Tcore_network)
+
+add_squey_compile_test(Tcore_settings LINKS ${LINK_LIBRARIES} FILES settings.cpp)
+add_squey_test(Tcore_settings Tcore_settings)
+# A configuration directory of its own, for the settings that go through the
+# files of the user. Relative, as the packaged testsuite of Windows and macOS
+# does not run from the build tree.
+set_property(TEST SQUEY_TEST_Tcore_settings APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=settings_config")
 
 add_squey_compile_test(Tcore_timeformat LINKS ${LINK_LIBRARIES} ${ICU_LIBRARY} FILES time-format.cpp)
 add_squey_test(Tcore_timeformat Tcore_timeformat ${TESTS_FILES_DIR}/pvkernel/core/time_format)
@@ -104,6 +115,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
 		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd_hybrid>\")
 	add_dependencies(SQUEY_TEST_Tcore_opencl_dedicated_gpu squey_test_opencl_icd_hybrid)
 	add_squey_test(Tcore_opencl_dedicated_gpu Tcore_opencl_dedicated_gpu)
+
+	# The same two GPUs, one of them named by the settings, which it saves.
+	add_squey_compile_test(Tcore_opencl_lines_platform LINKS ${LINK_LIBRARIES} FILES opencl_lines_platform.cpp)
+	target_compile_definitions(SQUEY_TEST_Tcore_opencl_lines_platform PRIVATE
+		SQUEY_TEST_OPENCL_ICD=\"$<TARGET_FILE:squey_test_opencl_icd_hybrid>\")
+	add_dependencies(SQUEY_TEST_Tcore_opencl_lines_platform squey_test_opencl_icd_hybrid)
+	add_squey_test(Tcore_opencl_lines_platform Tcore_opencl_lines_platform)
+	set_property(TEST SQUEY_TEST_Tcore_opencl_lines_platform APPEND PROPERTY
+		ENVIRONMENT "SQUEY_CONFIG_DIR=opencl_lines_platform_config")
 endif()
 
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})

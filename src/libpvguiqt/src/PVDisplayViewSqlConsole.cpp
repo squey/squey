@@ -25,6 +25,7 @@
 #include <pvguiqt/PVDisplayViewSqlConsole.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
+#include <pvguiqt/PVGuiQtSettings.h>
 #include <pvguiqt/PVListDisplayDlg.h>
 #include <pvguiqt/PVSqlCodeEditor.h>
 #include <pvguiqt/PVSqlResultModel.h>
@@ -439,7 +440,8 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 				    if (as_selection) {
 					    query->select(sql, *input, result);
 				    } else {
-					    table = query->run_tabular(sql, input);
+					    table = query->run_tabular(
+					        sql, input, size_t(PVGuiQt::settings::sql_result_rows.value()));
 				    }
 			    } catch (const std::exception& e) {
 				    error = QString::fromUtf8(e.what());
@@ -476,7 +478,8 @@ QWidget* PVDisplays::PVDisplayViewSqlConsole::create_widget(Squey::PVView* view,
 				auto create_model = [query, sql](const Squey::PVView&, PVCol,
 				                                 const Squey::PVSelection& sel)
 				    -> PVGuiQt::PVStatsModel* {
-					return stats_model_from(query->run_tabular(sql, &sel));
+					return stats_model_from(query->run_tabular(
+					    sql, &sel, size_t(PVGuiQt::settings::sql_result_rows.value())));
 				};
 				auto* stats_dlg = new PVGuiQt::PVAbstractListStatsDlg(
 				    *view, PVCol(0), create_model, true, console_widget);

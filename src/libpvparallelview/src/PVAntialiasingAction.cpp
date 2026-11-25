@@ -25,13 +25,16 @@
 
 #include <pvparallelview/PVAntialiasingAction.h>
 
+#include <pvparallelview/PVParallelViewSettings.h>
+
 #include <pvkernel/widgets/PVModdedIcon.h>
 
 PVParallelView::PVAntialiasingAction::PVAntialiasingAction(QObject* parent)
-    : QAction(PVModdedIcon("antialiasing-on"), tr("Antialiasing"), parent)
+    : QAction(tr("Antialiasing"), parent)
 {
 	setCheckable(true);
-	setChecked(true);
+	setChecked(settings::antialiasing.value());
+	setIcon(PVModdedIcon(isChecked() ? "antialiasing-on" : "antialiasing-off"));
 	setToolTip(tr("Antialiasing: smooth the edges of the lines"));
 
 	connect(this, &QAction::toggled, this, [this](bool checked) {

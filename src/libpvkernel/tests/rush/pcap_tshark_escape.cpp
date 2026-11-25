@@ -37,9 +37,7 @@
 
 #include "../../plugins/common/pcap/PVPcapDescription.h"
 #include "../../plugins/common/pcap/libpvpcap/include/libpvpcap.h"
-#include "../../plugins/common/pcap/libpvpcap/include/libpvpcap/pcap_splitter.h"
 #include "../../plugins/common/pcap/libpvpcap/include/libpvpcap/profileformat.h"
-#include "../../plugins/common/pcap/libpvpcap/include/libpvpcap/shell.h"
 #include "../../plugins/common/pcap/libpvpcap/include/libpvpcap/ws.h"
 
 #include "common.h"
@@ -53,10 +51,10 @@
  *   #4 "a" 0x7F "b" \n "cd" (both at once)
  *
  * tshark backslash-escapes both bytes in its -Tfields output. This test
- * drives the real pcap import pipeline (split_pcaps -> extract_csv, using the
- * exact tshark command built by ws_get_cmdline_opts()) end to end, and checks
- * that dns.txt reaches the NRAW unshifted, and that the following column
- * (ip.dst) is never contaminated by the escaped bytes.
+ * drives the real pcap import, from the inputs PVInputTypePcap makes of the
+ * capture and of the profile up to the NRAW, and checks that dns.txt reaches
+ * the NRAW unshifted, and that the following column (ip.dst) is never
+ * contaminated by the escaped bytes.
  *
  * The escaped separator (0x7F) is unescaped back to its literal byte, but the
  * escaped newline is intentionally left as its 2-character "\n" escape form:
@@ -96,20 +94,12 @@ UNICODE_MAIN()
 
 	pvtest::init_ctxt();
 
-	// This is an integration test that shells out to tshark. On Windows/macOS
-	// tshark_path() resolves into the app cache directory, which only squey.exe
-	// populates at startup; the CI therefore points SQUEY_TSHARK_PATH at the
-	// bundled tshark for the testsuite (see .gitlab-ci/run_testsuite.ps1). If
-	// tshark still cannot be run, skip (SKIP_RETURN_CODE, see CMakeLists) rather
-	// than fail.
-	const std::vector<std::string> tshark_version =
-	    pvpcap::execute_cmd(pvpcap::tshark_path() + " -v");
-	const bool tshark_available =
-	    std::any_of(tshark_version.begin(), tshark_version.end(), [](const std::string& line) {
-		    return line.find("TShark") != std::string::npos or
-		           line.find("Wireshark") != std::string::npos;
-	    });
-	if (not tshark_available) {
+	// This is an integration test that runs tshark. On Windows/macOS tshark_path()
+	// resolves into the app cache directory, which only squey.exe populates at
+	// startup; the CI therefore points SQUEY_TSHARK_PATH at the bundled tshark for
+	// the testsuite (see .gitlab-ci/run_testsuite.ps1). If tshark still cannot be
+	// run, skip (SKIP_RETURN_CODE, see CMakeLists) rather than fail.
+	if (pvpcap::ws_get_version().empty()) {
 		std::cerr << "tshark is not available, skipping pcap integration test" << std::endl;
 		return 77;
 	}
@@ -118,37 +108,15 @@ UNICODE_MAIN()
 	json_data.Parse(PROFILE_JSON);
 	PV_VALID(json_data.HasParseError(), false);
 
-	// 1) split by flow, exactly as PVPcapParamsWidget does. All 4 crafted
-	//    packets share the same 5-tuple, so this yields a single chunk.
-	bool canceled = false;
-	const std::string output_dir =
-	    PVRush::PVNrawCacheManager::nraw_dir().toStdString() + "/pcap_tshark_escape";
-	pvpcap::splitted_files_t splitted =
-	    pvpcap::split_pcaps({pcap_path}, output_dir, /*preserve_flows=*/true, canceled);
-	PV_VALID(splitted.empty(), false);
-
-	// 2) run the exact tshark command the production code path builds
-	std::vector<std::string> cmd = pvpcap::ws_get_cmdline_opts(json_data);
-	pvpcap::splitted_files_t csv_files = pvpcap::extract_csv(std::move(splitted), cmd, canceled);
-	PV_VALID(csv_files.empty(), false);
-
-	// 3) build the format and inputs, mirroring PVInputTypePcap::load_files()
+	// The inputs and the format, as PVInputTypePcap makes them.
 	QDomDocument fmt_doc = pvpcap::get_format(json_data, /*input_pcap_count=*/1);
 	PVRush::PVFormat format(fmt_doc.documentElement());
-
 	QList<PVRush::PVInputDescription_p> list_inputs;
-	size_t packets_count_offset = 0;
-	size_t streams_id_offset = 0;
-	for (pvpcap::splitted_file_t& sf : csv_files) {
-		list_inputs << PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
-		    QString::fromStdString(sf.path()), QString::fromStdString(sf.original_pcap_path()),
-		    packets_count_offset, sf.packets_indexes(), streams_id_offset, sf.streams_ids(),
-		    /*multi_inputs=*/false));
-		packets_count_offset += sf.packets_count();
-		streams_id_offset += sf.streams_ids_count();
-	}
+	list_inputs << PVRush::PVInputDescription_p(new PVRush::PVPcapDescription(
+	    QString::fromStdString(pcap_path), pvpcap::ws_extraction_options(json_data),
+	    std::make_shared<PVRush::PVPcapImport>(1), 0, /*multi_inputs=*/false));
 
-	// 4) run the real "pcap" PVSourceCreator through the extractor, up to the NRAW
+	// Run the real "pcap" PVSourceCreator through the extractor, up to the NRAW
 	PVRush::PVSourceCreator_p sc = LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("pcap");
 	PVRush::PVNraw nraw;
 	PVRush::PVNrawOutput output(nraw);
@@ -184,6 +152,8 @@ UNICODE_MAIN()
 
 	for (PVRow row(0); row < nraw.row_count(); row++) {
 		const std::string& frame_number = nraw.at_string(row, PVCol(col_frame));
+		// The rows come in the order of the frames.
+		PV_VALID(frame_number, std::to_string(row + 1));
 		const auto it = expected_txt.find(frame_number);
 		PV_VALID(it != expected_txt.end(), true);
 		PV_VALID(nraw.at_string(row, PVCol(col_txt)), it->second);

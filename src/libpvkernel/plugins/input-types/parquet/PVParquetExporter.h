@@ -31,14 +31,17 @@
 
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVNraw.h>
-#include <pvkernel/rush/PVExporter.h>
 
-#include <arrow/util/type_fwd.h>
+#include "PVParquetExporterBase.h"
 
 namespace PVRush
 {
 
-class PVParquetExporter : public PVExporterBase
+/**
+ * Exports the rows of a Parquet source from its files. The columns chosen are those of the NRAW:
+ * the fields of a structure come out as columns of their own, named as their axes.
+ */
+class PVParquetExporter : public PVParquetExporterBase
 {
   public:
 	PVParquetExporter(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw);
@@ -47,16 +50,11 @@ class PVParquetExporter : public PVExporterBase
   public:
 	void export_rows(const std::string& out_path, const PVCore::PVSelBitField& sel) override;
 
-  public:
-	void set_compression_codec(arrow::Compression::type codec) { _compression_codec = codec; }
-	arrow::Compression::type compression_codec() const { return _compression_codec; }
-
   protected:
 	const PVRush::PVInputType::list_inputs& _inputs;
 	PVRush::PVNraw const& _nraw;
 	std::vector<std::pair<std::string, size_t>> _input_parquet;
 	pvcop::db::indexes _sorted_indexes;
-	arrow::Compression::type _compression_codec = arrow::Compression::UNCOMPRESSED;
 };
 
 } // namespace PVRush

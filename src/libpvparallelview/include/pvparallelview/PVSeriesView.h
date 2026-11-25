@@ -50,7 +50,7 @@ class PVSeriesView : public QWidget
 	// list until one of them reports it can run here. QRhi and Hybrid are ahead of the
 	// rasteriser but neither is the default, because whether a GPU wins here depends on
 	// the machine and bringing one up costs more than it saves on the common picture:
-	// both are asked for by name, through SQUEY_SERIES_BACKEND.
+	// both are asked for by name, through the setting rendering.series_backend.
 	enum class Backend {
 		QRhi,    // GPU always, for benchmarking and the correctness test
 		Hybrid,  // GPU past a work threshold, CPU rasteriser below it
@@ -59,8 +59,8 @@ class PVSeriesView : public QWidget
 		Default = Raster
 	};
 
-	// Reads SQUEY_SERIES_BACKEND, falling back to Default.
-	static Backend backend_from_environment();
+	// Reads SQUEY_SERIES_BACKEND, else the setting rendering.series_backend.
+	static Backend chosen_backend();
 
 	explicit PVSeriesView(Squey::PVRangeSubSampler& rss,
 	                      Backend backend = Backend::Default,

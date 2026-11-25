@@ -25,23 +25,19 @@
 
 #include <pvkernel/opencl/common.h> // for squey_verify_opencl_var, etc
 
-#include <pvkernel/core/PVConfig.h> // for PVConfig
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVLogger.h> // for PVLOG_INFO
 
 #include <CL/cl.hpp> // for cl_context_properties, etc
 
-#include <cstddef> // for size_t
-#include <cstdlib> // for getenv
-#include <string>  // for string
-#include <utility> // for pair
-#include <vector>  // for vector
-
-#include <QSettings>
-#include <QVariant>
+#include <cstddef>  // for size_t
+#include <cstdlib>  // for getenv
+#include <iterator> // for make_move_iterator
+#include <string>   // for string
+#include <utility>  // for pair
+#include <vector>   // for vector
 
 #include <pvlogger.h>
-
-static const constexpr int PLATFORM_ANY_INDEX = -1;
 
 bool PVOpenCL::failed(cl_int err, const char* file, int line)
 {
@@ -57,9 +53,10 @@ bool PVOpenCL::failed(cl_int err, const char* file, int line)
 namespace
 {
 
-/* The platform and device strings below only feed the log. A driver that will
- * not describe itself earns a line in the log rather than the loss of the
- * device it was asked about.
+/* The platform and device strings below feed the log, the list of the settings
+ * dialog and the choice of a platform by its name. A driver that will not
+ * describe itself earns a line in the log rather than the loss of the device it
+ * was asked about, and cannot be chosen by its name.
  */
 template <cl_int Param, typename Object>
 auto info(const Object& object)
@@ -89,20 +86,81 @@ bool is_dedicated(const cl::Device& device)
 
 } // namespace
 
-bool PVOpenCL::force_cpu()
+PVOpenCL::lines_platform_t PVOpenCL::lines_platform()
 {
-	if (PVCore::PVConfig::get().config().value("backend_opencl/force_cpu", false).toBool()) {
-		return true;
+	using kind_t = lines_platform_t::kind_t;
+
+	const std::string value = PVCore::settings::lines_platform.value().toStdString();
+	lines_platform_t platform{kind_t::automatic, {}};
+	if (value == "qt") {
+		platform.kind = kind_t::qt;
+	} else if (value == "cpu") {
+		platform.kind = kind_t::processor;
+	} else if (value.starts_with("gpu:")) {
+		platform = {kind_t::accelerated, value.substr(4)};
+	} else if (value.starts_with("cpu:")) {
+		platform = {kind_t::processor, value.substr(4)};
+	} else if (value != "auto") {
+		PVLOG_WARN("Unknown %s \"%s\", drawing as with \"auto\"\n",
+		           qPrintable(PVCore::settings::lines_platform.key()), value.c_str());
 	}
+
 	const char* env = getenv("FORCE_CPU");
-	return env != nullptr && std::string(env) == "1";
+	const bool force_cpu = env != nullptr and std::string(env) == "1";
+	if (force_cpu and
+	    (platform.kind == kind_t::automatic or platform.kind == kind_t::accelerated)) {
+		platform = {kind_t::processor, {}};
+	}
+	return platform;
+}
+
+std::vector<PVOpenCL::platform_t> PVOpenCL::platforms()
+{
+	std::vector<cl::Platform> cl_platforms;
+	cl::Platform::get(&cl_platforms);
+
+	std::vector<platform_t> accelerated;
+	std::vector<platform_t> processors;
+	for (const auto& platform : cl_platforms) {
+		std::vector<cl::Device> devices;
+		// All of them, sorted here: see find_first_usable_context() for the drivers that refuse
+		// a combination of types.
+		const cl_int err = platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
+		if (err == CL_DEVICE_NOT_FOUND or squey_opencl_failed(err)) {
+			continue;
+		}
+
+		const std::string name = info<CL_PLATFORM_NAME>(platform);
+		platform_t gpus{name, true, {}};
+		platform_t cpus{name, false, {}};
+		for (const auto& device : devices) {
+			const cl_device_type type = info<CL_DEVICE_TYPE>(device);
+			if ((type & (CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR)) != 0) {
+				gpus.devices.push_back(info<CL_DEVICE_NAME>(device));
+			} else if ((type & CL_DEVICE_TYPE_CPU) != 0) {
+				cpus.devices.push_back(info<CL_DEVICE_NAME>(device));
+			}
+		}
+		if (not gpus.devices.empty()) {
+			accelerated.push_back(std::move(gpus));
+		}
+		if (not cpus.devices.empty()) {
+			processors.push_back(std::move(cpus));
+		}
+	}
+
+	accelerated.insert(accelerated.end(), std::make_move_iterator(processors.begin()),
+	                   std::make_move_iterator(processors.end()));
+	return accelerated;
 }
 
 /*****************************************************************************
  * PVOpenCL::visit_usable_devices
  *****************************************************************************/
 
-cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::device_func const& f)
+cl::Context PVOpenCL::find_first_usable_context(bool accelerated,
+                                                PVOpenCL::device_func const& f,
+                                                std::string const& platform_name)
 {
 	cl_int err = 0;
 
@@ -125,16 +183,17 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 		return {};
 	}
 
-	auto& config = PVCore::PVConfig::get().config();
-	const int wanted_platform_index =
-	    config.value("backend_opencl/platform_index", PLATFORM_ANY_INDEX).toInt();
-
 	/* Every platform with devices of the type sought, and those devices, in the
 	 * order the loader lists the platforms.
 	 */
 	std::vector<std::pair<cl::Platform, std::vector<cl::Device>>> candidates;
 
 	for (const auto& platform : platforms) {
+		// The drivers of the other platforms are not asked for anything more.
+		if (not platform_name.empty() and info<CL_PLATFORM_NAME>(platform) != platform_name) {
+			continue;
+		}
+
 		/* Ask the driver for all of its devices and match the type here, on what
 		 * each device reports. The Adreno driver of Windows on ARM machines
 		 * refuses CL_DEVICE_TYPE_GPU | CL_DEVICE_TYPE_ACCELERATOR with
@@ -176,17 +235,15 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 	 * views -- 2.8 times, an RTX 3060 against an Iris Xe. Nothing lists the
 	 * platforms by speed: ocl-icd puts first those with the most GPUs, and leaves
 	 * the others in the order its directory reads. So the dedicated GPUs get a
-	 * round of their own first. A platform picked by index in the settings is
+	 * round of their own first. A platform picked by name in the settings is
 	 * taken as it comes.
 	 */
-	const bool dedicated_first = accelerated and wanted_platform_index == PLATFORM_ANY_INDEX;
+	const bool dedicated_first = accelerated and platform_name.empty();
 
 	for (const bool dedicated_only : {true, false}) {
 		if (dedicated_only and not dedicated_first) {
 			continue;
 		}
-
-		int platform_index = 0;
 
 		for (const auto& [platform, platform_devices] : candidates) {
 			std::vector<cl::Device> devices;
@@ -210,12 +267,6 @@ cl::Context PVOpenCL::find_first_usable_context(bool accelerated, PVOpenCL::devi
 			 * backend, can still draw the views.
 			 */
 			if (squey_opencl_failed(err)) {
-				continue;
-			}
-
-			if ((wanted_platform_index != PLATFORM_ANY_INDEX) &&
-			    (platform_index != wanted_platform_index)) {
-				++platform_index;
 				continue;
 			}
 

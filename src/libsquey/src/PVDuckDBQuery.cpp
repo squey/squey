@@ -23,8 +23,8 @@
  */
 
 #include <squey/PVDuckDBQuery.h>
+#include <squey/PVSqueySettings.h>
 
-#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/core/PVSelBitField.h>
 #include <pvkernel/core/PVUtils.h>
@@ -1474,16 +1474,14 @@ struct Squey::PVDuckDBQuery::impl {
 	 * this too -- and may take half of what is free there; the memory, half of
 	 * the machine's. A query that needs more fails, with a message naming the
 	 * setting, rather than taking the disk or the memory from everything else.
-	 * Both halves are settings: duckdb/max_temp_percent and duckdb/memory_percent.
+	 * Both halves are settings: sql.spill_percent and sql.memory_percent.
 	 *
 	 * Before confine(), whose lock would refuse these.
 	 */
 	void bound()
 	{
-		const auto share = [](const char* setting, uint64_t whole) {
-			const QVariant stored = PVCore::PVConfig::value(setting);
-			const int percent = stored.isValid() ? std::clamp(stored.toInt(), 1, 100) : 50;
-			return std::to_string(whole / 100 * uint64_t(percent)) + "B";
+		const auto share = [](PVCore::PVSetting<int> const& percent, uint64_t whole) {
+			return std::to_string(whole / 100 * uint64_t(percent.value())) + "B";
 		};
 
 		const QString collections = PVRush::PVNrawCacheManager::nraw_dir();
@@ -1495,16 +1493,21 @@ struct Squey::PVDuckDBQuery::impl {
 			                         duckdb::KeywordHelper::WriteQuoted(path, '\'')));
 			const duckdb::optional_idx available = duckdb::FileSystem::GetAvailableDiskSpace(path);
 			if (available.IsValid()) {
-				expect_success(con.Query("SET max_temp_directory_size = '" +
-				                         share("duckdb/max_temp_percent", available.GetIndex()) +
-				                         "'"));
+				expect_success(con.Query(
+				    "SET max_temp_directory_size = '" +
+				    share(Squey::settings::sql_spill_percent, available.GetIndex()) + "'"));
 			}
+		}
+
+		if (const int threads = Squey::settings::sql_threads.value(); threads > 0) {
+			expect_success(con.Query("SET threads = " + std::to_string(threads)));
 		}
 
 		const duckdb::optional_idx memory = duckdb::FileSystem::GetAvailableMemory();
 		if (memory.IsValid()) {
 			expect_success(con.Query("SET memory_limit = '" +
-			                         share("duckdb/memory_percent", memory.GetIndex()) + "'"));
+			                         share(Squey::settings::sql_memory_percent, memory.GetIndex()) +
+			                         "'"));
 		}
 	}
 

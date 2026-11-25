@@ -77,7 +77,7 @@ set(PCAP_SRC_FILES
 
 # Create lib
 add_library(source_pcap SHARED ${PCAP_SRC_FILES})
-target_link_libraries(source_pcap PRIVATE pvkernel)
+target_link_libraries(source_pcap PRIVATE pvkernel pvpcap)
 
 ###############################################################################
 # parquet sources
@@ -85,6 +85,7 @@ target_link_libraries(source_pcap PRIVATE pvkernel)
 
 # # Define ressources
 set(PARQUET_SRC_FILES
+	../common/arrow/PVArrowRowFilter.cpp
 	../common/parquet/PVParquetAPI.cpp
 	parquet/PVParquetSource.cpp
 	parquet/PVParquetBinaryChunk.cpp
@@ -97,6 +98,26 @@ add_library(source_parquet SHARED ${PARQUET_SRC_FILES})
 target_link_libraries(source_parquet PRIVATE pvkernel Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
 
 ###############################################################################
+# json sources
+###############################################################################
+
+# The rows are read as Arrow arrays, which become those of the NRAW as Parquet rows do.
+set(JSON_SRC_FILES
+	../common/arrow/PVArrowRowFilter.cpp
+	../common/json/PVJsonLines.cpp
+	../common/json/PVJsonRows.cpp
+	../common/json/PVJsonSchema.cpp
+	../common/parquet/PVParquetAPI.cpp
+	parquet/PVParquetBinaryChunk.cpp
+	json/PVJsonSource.cpp
+	json/PVSourceCreatorJson.cpp
+	json/register.cpp
+)
+
+add_library(source_json SHARED ${JSON_SRC_FILES})
+target_link_libraries(source_json PRIVATE pvkernel ${PARQUET_LIBS})
+
+###############################################################################
 # Define installation folders
 ###############################################################################
 set(SOURCES_DIST_LIST
@@ -105,6 +126,7 @@ source_database
 source_elasticsearch
 source_pcap
 source_parquet
+source_json
 )
 install(TARGETS ${SOURCES_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/sources
 		RUNTIME DESTINATION ${PVKERNEL_PLUGIN}/sources)

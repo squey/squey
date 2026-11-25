@@ -66,8 +66,6 @@ class QObject;
  *****************************************************************************/
 PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget* parent) : QWidget(parent)
 {
-	_file_dlg.setDirectory(PVCore::PVConfig::get().get_lists_dir());
-
 	_text_edit = new QPlainTextEdit();
 	QFontMetrics m(_text_edit->font());
 	_text_edit->setMinimumHeight(5 * m.lineSpacing());
@@ -110,8 +108,8 @@ PVWidgets::PVPlainTextEditor::PVPlainTextEditor(QWidget* parent) : QWidget(paren
 
 void PVWidgets::PVPlainTextEditor::save_to_file(const bool append)
 {
-	QString file = _file_dlg.getSaveFileName(this, tr("Save text file..."),
-	                                         _file_dlg.directory().absolutePath());
+	QString file = PVFileDialog::getSaveFileName(this, tr("Save text file..."),
+	                                             PVCore::PVConfig::get().get_lists_dir());
 
 	QFile outfile;
 	outfile.setFileName(file);
@@ -156,8 +154,8 @@ void PVWidgets::PVPlainTextEditor::slot_export_and_import_file()
 
 void PVWidgets::PVPlainTextEditor::slot_import_file()
 {
-	QString file = _file_dlg.getOpenFileName(this, tr("Open text file..."),
-	                                         _file_dlg.directory().absolutePath());
+	QString file = PVFileDialog::getOpenFileName(this, tr("Open text file..."),
+	                                             PVCore::PVConfig::get().get_lists_dir());
 	if (file.isEmpty()) {
 		return;
 	}

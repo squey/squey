@@ -25,12 +25,22 @@
 #ifndef PVCORE_PVFILEHELPER_H
 #define PVCORE_PVFILEHELPER_H
 
+#include <QString>
+
 namespace PVCore
 {
 
 struct PVFileHelper {
 
 	static bool is_already_opened(const char* file_name);
+
+	/**
+	 * The suffixes of the name of the file @p path, after its first dot and in lower case, but
+	 * for the numbers and the dates that the rotation of files adds: "eve.json.2.gz",
+	 * "eve.json-20261119.gz" and "eve.json.gz.1" have "json.gz", and "report.2026.01.csv" has
+	 * "csv".
+	 */
+	static QString suffixes_without_rotation(const QString& path);
 };
 } // namespace PVCore
 

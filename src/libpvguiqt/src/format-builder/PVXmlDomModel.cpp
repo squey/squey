@@ -25,6 +25,7 @@
 
 #include <PVXmlDomModel.h>
 
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/filter/PVFieldsFilterParamWidget.h>
 #include <pvkernel/rush/PVFormat.h>
 #include <pvkernel/rush/PVFormat_types.h>
@@ -340,7 +341,9 @@ bool App::PVXmlDomModel::setData(const QModelIndex& index, const QVariant& value
 bool App::PVXmlDomModel::saveXml(QString xml_file)
 {
 
-	if (!xml_file.endsWith(".format")) {
+	// The portal grants the file of the name typed: another one would land beside it, unseen.
+	if (!xml_file.endsWith(".format") and
+	    not PVCore::PVFlatpakHelper::is_document_portal_path(xml_file)) {
 		xml_file.append(".format");
 	}
 

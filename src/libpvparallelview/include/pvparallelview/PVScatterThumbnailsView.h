@@ -29,6 +29,7 @@
 #include <pvkernel/core/PVDisconnector.h>
 #include <pvkernel/widgets/PVHelpWidget.h>
 #include <pvkernel/widgets/PVMouseButtonsLegend.h>
+#include <pvkernel/widgets/PVWheelEventAccumulator.h>
 
 #include <QModelIndex>
 #include <QPixmap>
@@ -74,6 +75,8 @@ class PVScatterThumbnailDelegate : public QStyledItemDelegate
 
 	//! Edge of the thumbnail square, in pixels. Follows the size slider.
 	void set_display_size(int size) { _display_size = size; }
+	//! Size of every cell, its label included, in the font of @a metrics.
+	QSize cell_size(QFontMetrics const& metrics) const;
 
 	QSize sizeHint(QStyleOptionViewItem const& option, QModelIndex const& index) const override;
 	void paint(QPainter* painter,
@@ -115,6 +118,7 @@ class PVScatterThumbnailsView : public QWidget
   protected:
 	void changeEvent(QEvent* event) override;
 	void enterEvent(QEnterEvent* event) override;
+	bool eventFilter(QObject* watched, QEvent* event) override;
 	void keyPressEvent(QKeyEvent* event) override;
 	void leaveEvent(QEvent* event) override;
 
@@ -142,6 +146,8 @@ class PVScatterThumbnailsView : public QWidget
 
 	//! Row in the source model behind a (possibly sorted) view index.
 	int source_row(QModelIndex const& index) const;
+	//! From a row of thumbnails to the next, in pixels.
+	int row_height() const;
 
   private:
 	Squey::PVView& _view;
@@ -174,6 +180,8 @@ class PVScatterThumbnailsView : public QWidget
 	PVWidgets::PVHelpWidget _help_widget;
 
 	PVCore::PVDisconnector _view_deleted_connection;
+
+	PVWidgets::PVWheelEventAccumulator _wheel_accumulator;
 };
 
 } // namespace PVParallelView

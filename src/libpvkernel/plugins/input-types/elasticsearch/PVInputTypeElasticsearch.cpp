@@ -31,6 +31,10 @@
 
 #include "../../common/elasticsearch/PVElasticsearchInfos.h"
 
+#include <pvkernel/widgets/PVDialogImportWidget.h>
+
+#include <QDialogButtonBox>
+
 bool PVRush::PVInputTypeElasticsearch::create_widget(hash_formats& formats,
                                                     list_inputs& inputs,
                                                     QString& format,
@@ -58,6 +62,25 @@ bool PVRush::PVInputTypeElasticsearch::create_widget(hash_formats& formats,
 	}
 
 	return true;
+}
+
+PVWidgets::PVImportWidget*
+PVRush::PVInputTypeElasticsearch::create_import_widget(QWidget* parent) const
+{
+	auto* params = new PVElasticsearchParamsWidget(this, hash_formats(), nullptr);
+	auto* buttons = params->findChild<QDialogButtonBox*>("buttonBox");
+	const auto sources = [params]() -> std::vector<PVWidgets::PVImportWidget::source_t> {
+		const PVInputDescription_p query(new PVElasticsearchQuery(params->get_query()));
+		return {{{query},
+		         params->is_format_custom()
+		             ? PVFormat(params->get_custom_format().documentElement())
+		             : PVWidgets::PVImportWidget::format_of(params->get_format_path())}};
+	};
+	return new PVWidgets::PVDialogImportWidget(params,
+	                                           {.accept = buttons->button(QDialogButtonBox::Open),
+	                                            .buttons = {buttons},
+	                                            .sources = sources},
+	                                           parent);
 }
 
 QString PVRush::PVInputTypeElasticsearch::name() const

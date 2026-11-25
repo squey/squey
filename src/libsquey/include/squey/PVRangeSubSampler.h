@@ -33,8 +33,10 @@
 
 #include <numeric>
 #include <math.h>
+#include <optional>
 #include <type_traits>
 #include <unordered_set>
+#include <utility>
 
 namespace Squey
 {
@@ -134,6 +136,18 @@ class PVRangeSubSampler
 	std::pair<zoom_f, zoom_f> minmax_to_ratio(const pvcop::db::array& minmax) const;
 	const pvcop::db::indexes& sorted_indexes() const { return _sorted_indexes; }
 
+	/**
+	 * The rows of timeserie @p timeserie that a sample reduces, holding its smallest and its
+	 * largest value: the same row when the sample holds one.
+	 *
+	 * The sample is @p sample when it holds any, or else the closest one that does, at most
+	 * @p radius samples away and the earlier one first; none when there is none. The timeserie
+	 * is numbered as sampled_timeserie() numbers them. The samples are those of the last
+	 * subsampling, the rows those selected.
+	 */
+	std::optional<std::pair<PVRow, PVRow>>
+	sample_extrema(size_t sample, size_t timeserie, size_t radius = 0) const;
+
 	void
 	subsample(zoom_f first_ratio, zoom_f last_ratio, zoom_f min_ratio = 0, zoom_f max_ratio = 0);
 	void subsample(const pvcop::db::array& minmax, uint32_t min = 0, uint32_t max = 0);
@@ -143,6 +157,11 @@ class PVRangeSubSampler
 
   private:
 	void allocate_internal_structures();
+	/**
+	 * Where each sample starts in the chronological order, the range starting at @p first, and
+	 * where the last one ends.
+	 */
+	std::vector<size_t> sample_offsets(size_t first) const;
 	void update_time_ordering();
 	void subsample(size_t first,
 	               size_t last,
@@ -267,11 +286,7 @@ void Squey::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 	// samples independent from one another, so they can be spread over the cores : the
 	// column loop alone leaves all but a handful of them idle, and a single displayed
 	// timeserie is the nominal case.
-	std::vector<size_t> sample_offsets(_histogram.size() + 1);
-	sample_offsets[0] = first;
-	for (size_t j = 0; j < _histogram.size(); j++) {
-		sample_offsets[j + 1] = sample_offsets[j] + _histogram[j];
-	}
+	const std::vector<size_t> offsets = sample_offsets(first);
 
 	for (size_t i : columns_to_subsample) {
 		const pvcop::core::array<value_type>& timeserie = _timeseries[i];
@@ -282,8 +297,8 @@ void Squey::PVRangeSubSampler::compute_ranges_reduction(size_t first,
 
 #pragma omp parallel for schedule(guided) firstprivate(accums, selected_values_counts)
 		for (size_t j = 0; j < _histogram.size(); j++) {
-			const size_t start = sample_offsets[j];
-			const size_t end = sample_offsets[j + 1];
+			const size_t start = offsets[j];
+			const size_t end = offsets[j + 1];
 			std::fill(selected_values_counts.begin(), selected_values_counts.end(), 0);
 			std::fill(accums.begin(), accums.end(), F::init());
 			for (size_t k = start; k < end; k++) {

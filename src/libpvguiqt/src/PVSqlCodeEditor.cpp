@@ -24,14 +24,12 @@
 
 #include <pvguiqt/PVSqlCodeEditor.h>
 
+#include <pvguiqt/PVCodeEditorStyle.h>
+#include <pvguiqt/PVGuiQtSettings.h>
+
 #include <pvkernel/core/PVTheme.h>
 
 #include <squey/PVDuckDBQuery.h>
-
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/definition.h>
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/repository.h>
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/syntaxhighlighter.h>
-#include <KF6/KSyntaxHighlighting/KSyntaxHighlighting/theme.h>
 
 #include <algorithm>
 
@@ -50,8 +48,6 @@
 #include <QStyledItemDelegate>
 #include <QTimer>
 #include <QVector>
-
-static const char* THEME_NAMES[] = {"ayu Light", "ayu Dark"};
 
 namespace
 {
@@ -410,23 +406,7 @@ static QString unquoted(QString token)
 
 PVGuiQt::PVSqlCodeEditor::PVSqlCodeEditor(QWidget* parent /* = nullptr */) : QTextEdit(parent)
 {
-	auto* repository = new KSyntaxHighlighting::Repository;
-	auto* highlighter = new KSyntaxHighlighting::SyntaxHighlighter(document());
-
-	QFont font = document()->defaultFont();
-	font.setFamily("Monospace");
-	font.setPointSizeF(10.5);
-	font.setStyleStrategy(QFont::PreferAntialias);
-	document()->setDefaultFont(font);
-
-	highlighter->setDefinition(repository->definitionForName("SQL"));
-
-	const auto& theme = repository->theme(THEME_NAMES[(size_t)PVCore::PVTheme::color_scheme()]);
-	highlighter->setTheme(theme);
-	setStyleSheet(
-	    QString("QTextEdit { background-color : %1; }")
-	        .arg(QColor(theme.editorColor(KSyntaxHighlighting::Theme::EditorColorRole::BackgroundColor))
-	                 .name()));
+	style_code_editor(this, "SQL");
 
 	// Typing puts one back on the draft, so that walking up from there saves it.
 	// On textChanged rather than on the keys, since a paste is an edit too, and
@@ -1200,8 +1180,7 @@ void PVGuiQt::PVSqlCodeEditor::remember(const QString& query)
 		_history.append(kept);
 		// A console left open for a day is still a console. What falls off the
 		// end is what nobody walks back that far to reach.
-		static constexpr int KEPT = 100;
-		while (_history.size() > KEPT) {
+		while (_history.size() > settings::sql_history_size.value()) {
 			_history.removeFirst();
 		}
 	}

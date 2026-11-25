@@ -33,7 +33,7 @@
 #include <memory>
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
-#include "../../plugins/common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 #include "../../plugins/input-types/parquet/PVParquetExporter.h"
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -453,7 +453,7 @@ static void import_file(
 	PVRush::PVSourceCreator_p sc =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("parquet");
 	PVRush::PVNrawOutput output(nraw);
-	PVRush::PVParquetFileDescription* input_desc = new PVRush::PVParquetFileDescription(QStringList{file});
+	PVRush::PVFileListDescription* input_desc = new PVRush::PVFileListDescription(QStringList{file});
 	list_inputs << PVRush::PVInputDescription_p(input_desc);
 	input_desc->disable_multi_inputs(true);
 	PVRush::PVParquetAPI parquet_api(input_desc);

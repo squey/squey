@@ -132,10 +132,21 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	PVRush::PVInputType::list_inputs const& get_inputs() const { return _inputs; }
 
 	PVRush::PVSourceCreator_p get_source_creator() const { return _src_plugin; }
+	/**
+	 * The name the user gave the source, or else the name of its inputs.
+	 *
+	 * The views show it, and Python and SQL find the source by it.
+	 */
 	std::string get_name() const
 	{
-		return _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs).toStdString();
+		return _name.empty()
+		           ? _src_plugin->supported_type_lib()->tab_name_of_inputs(_inputs).toStdString()
+		           : _name;
 	}
+	/**
+	 * Gives the source the name @p name, an empty one giving it back the name of its inputs.
+	 */
+	void set_name(std::string name);
 	QString get_format_name() const { return get_format().get_format_name(); }
 	QString get_window_name() const;
 	QString get_tooltip() const;
@@ -181,6 +192,7 @@ class PVSource : public PVCore::PVDataTreeParent<PVMapped, PVSource>,
 	// required a move constructor)
 	PVRush::PVExtractor _extractor;
 	std::map<size_t, std::string> _inv_elts; //!< List of invalid elements sorted by line number.
+	std::string _name; //!< Given by the user, empty for the name of the inputs.
 };
 } // namespace Squey
 

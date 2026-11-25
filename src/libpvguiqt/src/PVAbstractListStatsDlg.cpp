@@ -33,6 +33,7 @@
 #include <squey/PVView.h>
 
 #include <pvguiqt/PVAbstractListStatsDlg.h>
+#include <pvguiqt/PVGuiQtSettings.h>
 #include <pvguiqt/PVLayerFilterProcessWidget.h>
 #include <pvguiqt/PVStatsModel.h>
 
@@ -358,16 +359,16 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 	});
 
 	auto* sync_button = new QPushButton;
-	connect(sync_button, &QPushButton::toggled,
-	        [&,sync_button](bool checked) {
+	auto follow_selection = [this, sync_button](bool checked) {
 		_selection_change_connection.block(not checked);
 		sync_button->setIcon(PVModdedIcon(checked ? "arrows-rotate" : "arrows-no-rotate" ));
-	});
-	sync_button->setIcon(PVModdedIcon("arrows-rotate"));
+	};
+	connect(sync_button, &QPushButton::toggled, follow_selection);
 
 	sync_button->setToolTip("Keep in sync with selection");
 	sync_button->setCheckable(true);
-	sync_button->setChecked(true);
+	sync_button->setChecked(settings::statistics_follow_selection.value());
+	follow_selection(sync_button->isChecked());
 	horizontalLayout_3->addWidget(sync_button);
 
 	// Enable values view sorting capability
@@ -425,19 +426,20 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 	_hhead_ctxt_menu->addAction(_act_toggle_relative);
 	_hhead_ctxt_menu->addSeparator();
 
-	// By default, show count and percentage.
 	_act_show_count = new QAction("Count", _hhead_ctxt_menu);
 	_act_show_count->setCheckable(true);
-	_act_show_count->setChecked(true);
+	_act_show_count->setChecked(settings::statistics_count.value());
 	_act_show_scientific_notation = new QAction("Scientific notation", _hhead_ctxt_menu);
 	_act_show_scientific_notation->setCheckable(true);
+	_act_show_scientific_notation->setChecked(settings::statistics_scientific.value());
 	_act_show_percentage = new QAction("Percentage", _hhead_ctxt_menu);
 	_act_show_percentage->setCheckable(true);
-	_act_show_percentage->setChecked(true);
+	_act_show_percentage->setChecked(settings::statistics_percentage.value());
 
 	// Give formating information to the model
-	model().set_format(ValueFormat::Count, true);
-	model().set_format(ValueFormat::Percent, true);
+	model().set_format(ValueFormat::Count, _act_show_count->isChecked());
+	model().set_format(ValueFormat::Scientific, _act_show_scientific_notation->isChecked());
+	model().set_format(ValueFormat::Percent, _act_show_percentage->isChecked());
 	connect(_act_show_count, &QAction::triggered, [&](bool e) {
 		model().set_format(ValueFormat::Count, e);
 		update_stats_column_width();
@@ -478,7 +480,6 @@ PVGuiQt::PVAbstractListStatsDlg::PVAbstractListStatsDlg(Squey::PVView& view,
 
 	// Copy values menu
 	_copy_values_menu = new QMenu();
-	_copy_values_menu->setAttribute(Qt::WA_TranslucentBackground);
 	_copy_values_act->setMenu(_copy_values_menu);
 	_copy_values_with_count_act = new QAction("with count", this);
 	_copy_values_with_count_act->setShortcut(
@@ -732,6 +733,8 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 	if (custom_args.get_edition_flag()) {
 		_ctxt_process->show();
 	} else {
+		// The user may have stopped following the selection, which has to last.
+		const bool following_selection = not _selection_change_connection.blocked();
 		_selection_change_connection.block();
 		/* The selection the search has to be applied on is an intermediate state: notifying
 		 * it would make the views flicker through it while the filter is being computed,
@@ -744,7 +747,7 @@ void PVGuiQt::PVAbstractListStatsDlg::multiple_search(QAction* act,
 			// The filter has been canceled, tell the views about the restored selection
 			lib_view()->set_selection_view(_old_sel, false);
 		}
-		_selection_change_connection.unblock();
+		_selection_change_connection.block(not following_selection);
 	}
 }
 

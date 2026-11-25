@@ -26,6 +26,10 @@
 #include <pvkernel/core/PVFileHelper.h>
 #include <pvkernel/core/PVLogger.h>
 
+#include <QFileInfo>
+#include <QStringList>
+
+#include <algorithm>
 #include <cerrno> // for EAGAIN, errno
 #include <fcntl.h>
 #include <unistd.h>
@@ -80,3 +84,24 @@ bool PVCore::PVFileHelper::is_already_opened(const char* file_name)
 	return ret;
 }
 #endif
+
+QString PVCore::PVFileHelper::suffixes_without_rotation(const QString& path)
+{
+	QStringList suffixes;
+	for (QString suffix : QFileInfo(path).completeSuffix().toLower().split('.')) {
+		// From a dash before a digit, as the dates that logrotate appends with "dateext".
+		for (qsizetype i = 0; i + 1 < suffix.size(); i++) {
+			if (suffix[i] == '-' and suffix[i + 1].isDigit()) {
+				suffix.truncate(i);
+				break;
+			}
+		}
+		const bool rotation = std::all_of(suffix.cbegin(), suffix.cend(), [](QChar c) {
+			return c.isDigit() or c == '-' or c == '_';
+		});
+		if (not rotation) {
+			suffixes << suffix;
+		}
+	}
+	return suffixes.join('.');
+}

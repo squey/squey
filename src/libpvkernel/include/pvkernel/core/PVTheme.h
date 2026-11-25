@@ -67,6 +67,7 @@ public:
     static void follow_system_scheme(bool follow);
 
 private:
+    static void apply_settings_color_scheme();
     void apply_style(bool dark_theme);
 
 Q_SIGNALS:

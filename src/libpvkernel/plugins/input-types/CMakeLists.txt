@@ -8,11 +8,11 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # File input plugin
 ################################################
 # Define ressources
-set(FILE_MOC_HEADERS file/PVImportFileDialog.h)
+set(FILE_MOC_HEADERS file/PVTextImportWidget.h)
 
 set(FILE_SRC
 file/PVInputTypeFilename.cpp
-file/PVImportFileDialog.cpp
+file/PVTextImportWidget.cpp
 file/register.cpp
 )
 
@@ -29,21 +29,12 @@ target_link_libraries(input_type_file PRIVATE pvkernel)
 
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/libpvkernel/plugins/input-types/")
 
-# The generated ui_*.h of the pcap import dialog are looked up from here.
-include_directories(SYSTEM "pcap/pcap-gui/")
-
 # libraries
 add_subdirectory(../common/pcap/libpvpcap pvpcap)
 add_subdirectory(pcap/pcap-gui pcap-gui)
 
-# Define ressources
-set(PCAP_MOC_HEADERS 
-pcap/PVPcapParamsWidget.h
-)
-
 set(PCAP_SRC_FILES
 pcap/PVInputTypePcap.cpp
-pcap/PVPcapParamsWidget.cpp
 pcap/register.cpp
 )
 
@@ -51,20 +42,11 @@ pcap/register.cpp
 set(CMAKE_INSTALL_RPATH "${CMAKE_INSTALL_RPATH}:${PVKERNEL_PLUGIN}/input-types/")
 set(CMAKE_INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-# Generate moc files
-qt6_wrap_cpp(PCAP_MOC_SRC ${PCAP_MOC_HEADERS} OPTIONS)
-
 # Generate linkage configuration
-add_library(input_type_pcap SHARED ${PCAP_SRC_FILES} ${PCAP_MOC_SRC})
-if (WIN32)
-set(WINSOCK_LIBRARY "ws2_32")
-endif()
+add_library(input_type_pcap SHARED ${PCAP_SRC_FILES})
 target_link_libraries(input_type_pcap PRIVATE pvkernel
-	
 	pcap-gui-widget
 	pvpcap
-	light_pcapng_static
-	${WINSOCK_LIBRARY}
 )
 
 set(INPUTS_DIST_LIST
@@ -145,7 +127,10 @@ parquet/PVParquetExporterWidget.h
 )
 
 set(PARQUET_SRC
+../common/arrow/PVArrowRowFilter.cpp
+parquet/PVParquetExporterBase.cpp
 parquet/PVParquetExporter.cpp
+parquet/PVParquetNrawExporter.cpp
 parquet/PVParquetExporterWidget.cpp
 parquet/PVInputTypeParquet.cpp
 ../common/parquet/PVParquetAPI.cpp
@@ -159,6 +144,22 @@ qt6_wrap_cpp(PARQUET_MOC_SRC ${PARQUET_MOC_HEADERS} OPTIONS)
 add_library(input_type_parquet SHARED ${PARQUET_SRC} ${PARQUET_MOC_SRC})
 target_link_libraries(input_type_parquet PRIVATE pvkernel ${PARQUET_LIBS})
 
+################################################
+# JSON input plugin
+################################################
+# The format of the files is made by that of the Parquet files of their Arrow schema.
+set(JSON_SRC
+json/PVInputTypeJson.cpp
+../common/arrow/PVArrowRowFilter.cpp
+../common/json/PVJsonLines.cpp
+../common/json/PVJsonSchema.cpp
+../common/parquet/PVParquetAPI.cpp
+json/register.cpp
+)
+
+add_library(input_type_json SHARED ${JSON_SRC})
+target_link_libraries(input_type_json PRIVATE pvkernel ${PARQUET_LIBS})
+
 ###############################################################################
 # Install plugins
 ###############################################################################
@@ -169,6 +170,7 @@ set(INPUTS_DIST_LIST
 	input_type_elasticsearch
 	input_type_pcap
 	input_type_parquet
+	input_type_json
 )
 
 install(TARGETS ${INPUTS_DIST_LIST} LIBRARY DESTINATION ${PVKERNEL_PLUGIN}/input-types

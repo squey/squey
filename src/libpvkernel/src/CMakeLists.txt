@@ -14,6 +14,7 @@ core/network.cpp
 
 core/PVArchive.cpp
 core/PVArgument.cpp
+core/PVArgumentSettings.cpp
 core/PVOriginalAxisIndexType.cpp
 core/PVAxisIndexType.cpp
 core/PVAxisIndexCheckBoxType.cpp
@@ -27,6 +28,7 @@ core/PVDateTimeParser.cpp
 core/PVDirectory.cpp
 core/PVElement.cpp
 core/PVField.cpp
+core/PVFlatpakHelper.cpp
 core/PVHSVColor.cpp
 core/PVPredefinedHSVColors.cpp
 core/PVLogger.cpp
@@ -41,6 +43,8 @@ core/PVUtils.cpp
 core/PVAllocators.cpp
 core/PVRecentItemsManager.cpp
 core/PVConfig.cpp
+core/PVSettings.cpp
+core/PVKernelSettings.cpp
 core/PVFileHelper.cpp
 core/PVMemory2D.cpp
 core/PVStreamingCompressor.cpp
@@ -59,6 +63,7 @@ set(CORE_MOC_HEADERS
 ../include/pvkernel/core/PVProgressBox.h
 ../include/pvkernel/core/PVDBusConnection.h
 ../include/pvkernel/core/PVTheme.h
+../include/pvkernel/core/PVSettings.h
 )
 
 set(OPENCL_SRC_FILES
@@ -94,6 +99,7 @@ set(RUSH_SRC_FILES
 rush/PVAxisFormat.cpp
 rush/PVCSVRecords.cpp
 rush/PVFormat.cpp
+rush/PVFormatDetection.cpp
 rush/PVNraw.cpp
 rush/PVNrawOutput.cpp
 rush/PVTypesDiscoveryOutput.cpp
@@ -105,6 +111,8 @@ rush/PVCharsetDetect.cpp
 rush/PVAggregator.cpp
 rush/PVControllerJob.cpp
 rush/PVExtractor.cpp
+rush/PVInputTypeFileList.cpp
+rush/PVRowFilter.cpp
 rush/PVPluginsLoad.cpp
 rush/PVSourceCreatorFactory.cpp
 rush/PVTests.cpp
@@ -183,9 +191,13 @@ set(WIDGETS_MOC_HEADERS
 
 ../include/pvkernel/widgets/PVLongLongSpinBox.h
 ../include/pvkernel/widgets/PVExportDlg.h
+../include/pvkernel/widgets/PVDialogImportWidget.h
+../include/pvkernel/widgets/PVFileListImportWidget.h
+../include/pvkernel/widgets/PVImportFilesWidget.h
+../include/pvkernel/widgets/PVImportFilterWidget.h
+../include/pvkernel/widgets/PVImportWidget.h
 ../include/pvkernel/widgets/PVCSVExporterWidget.h
 ../include/pvkernel/widgets/PVModdedIcon.h
-../include/pvkernel/widgets/PVFileDialog.h
 )
 
 set(WIDGETS_SRC_FILES
@@ -217,7 +229,11 @@ widgets/PVLayerNamingPatternDialog.cpp
 widgets/PVLongLongSpinBox.cpp
 widgets/PVFileDialog.cpp
 widgets/PVExportDlg.cpp
-widgets/PVMultipleFileDialog.cpp
+widgets/PVDialogImportWidget.cpp
+widgets/PVFileListImportWidget.cpp
+widgets/PVImportFilesWidget.cpp
+widgets/PVImportFilterWidget.cpp
+widgets/PVImportWidget.cpp
 widgets/PVModdedIcon.cpp
 )
 

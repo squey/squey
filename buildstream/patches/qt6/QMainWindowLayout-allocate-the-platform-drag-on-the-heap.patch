@@ -1,0 +1,54 @@
+From 0000000000000000000000000000000000000000 Mon Sep 17 00:00:00 2001
+From: Jean-Baptiste Leonesio <jbleonesio@squey.org>
+Date: Thu, 1 Oct 2026 16:49:48 +0200
+Subject: [PATCH] QMainWindowLayout: allocate the platform drag on the heap
+
+QDragManager::drag() deletes the QDrag with deleteLater() once the drag
+is over, and on Wayland QWaylandDrag::cancel() and finishDrag() do it
+from inside the drag event loop. performPlatformWidgetDrag() built its
+QDrag on the stack, although QDrag must be constructed on the heap: when
+the drag event loop processed the deferred delete before exec()
+returned, the drag of a dock widget deleted a stack object, and glibc
+aborted with "double free or corruption (out)" or the process crashed.
+
+Qt 6.9 and 6.10.0 to 6.10.1 get there when Escape, or a mouse release
+that no drop target accepts, cancels the drag:
+QWaylandDisplay::flushRequests() delivers that event at the start of a
+loop iteration, before the posted events of the same iteration. Qt
+6.10.2 no longer flushes the window system events there (qtbase
+44b6b62d83), which hides this ordering, but the QDrag still lives on the
+stack.
+---
+ qtbase/src/widgets/widgets/qmainwindowlayout.cpp | 8 +++++---
+ 1 file changed, 5 insertions(+), 3 deletions(-)
+
+diff --git a/qtbase/src/widgets/widgets/qmainwindowlayout.cpp b/qtbase/src/widgets/widgets/qmainwindowlayout.cpp
+index 02e2889..97ba28b 100644
+--- a/qtbase/src/widgets/widgets/qmainwindowlayout.cpp
++++ b/qtbase/src/widgets/widgets/qmainwindowlayout.cpp
+@@ -3449,7 +3449,9 @@ Qt::DropAction QMainWindowLayout::performPlatformWidgetDrag(QLayoutItem *widgetI
+ {
+     draggingWidget = widgetItem;
+     QWidget *widget = widgetItem->widget();
+-    auto drag = QDrag(widget);
++    // The drag manager, or the platform drag that owns it, calls deleteLater() on the drag,
++    // and the drag event loop can process that deletion before exec() returns.
++    auto drag = new QDrag(widget);
+     auto mimeData = new QMimeData();
+     auto window = widgetItem->widget()->windowHandle();
+ 
+@@ -3462,9 +3464,9 @@ Qt::DropAction QMainWindowLayout::performPlatformWidgetDrag(QLayoutItem *widgetI
+     mimeData->setData("application/x-qt-mainwindowdrag-window"_L1,
+                       serialize(reinterpret_cast<qintptr>(window)));
+     mimeData->setData("application/x-qt-mainwindowdrag-position"_L1, serialize(pressPosition));
+-    drag.setMimeData(mimeData);
++    drag->setMimeData(mimeData);
+ 
+-    auto result = drag.exec();
++    auto result = drag->exec();
+ 
+     draggingWidget = nullptr;
+     return result;
+-- 
+2.55.0
+

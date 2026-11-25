@@ -33,6 +33,7 @@
 #include <pvkernel/core/PVAlgorithms.h>
 
 #include <pvparallelview/common.h>
+#include <pvparallelview/PVParallelViewSettings.h>
 #include <pvparallelview/PVBCIBackendImage.h>
 #include <pvparallelview/PVZoneRenderingBCI_types.h>
 
@@ -260,7 +261,7 @@ class PVLinesView
 
 	uint32_t _axis_width = PVParallelView::AxisWidth;
 	float _line_opacity = 1.f;
-	bool _antialiased = true;
+	bool _antialiased = settings::antialiasing.value();
 
 	// Every rendering launched and possibly not over yet. The zone images only
 	// keep their last renderings, and they are dropped as fewer zones become

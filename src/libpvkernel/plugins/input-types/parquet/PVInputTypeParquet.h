@@ -27,8 +27,7 @@
 
 #include "parquet/PVParquetExporter.h"
 #include "parquet/PVParquetExporterWidget.h"
-#include <pvkernel/rush/PVInputType.h>
-#include "../common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVInputTypeFileList.h>
 
 #include <QString>
 #include <QStringList>
@@ -38,33 +37,14 @@
 namespace PVRush
 {
 
-class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
+class PVInputTypeParquet : public PVInputTypeFileList
 {
   public:
 	PVInputTypeParquet();
 
   public:
-	bool create_widget(
-	    hash_formats& formats,
-        list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const override;
-
-	bool create_widget_with_input_files(
-	    const QStringList& input_paths,
-	    hash_formats& formats,
-        list_inputs& inputs,
-        QString& format,
-        PVCore::PVArgumentList& args_ext,
-        QWidget* parent = nullptr
-	) const override;
-
-	bool create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const override;
-
-	bool has_generated_format() const override { return true; }
-	PVFormat get_format_from_inputs(list_inputs const& inputs) const override;
+	PVFormat get_format_from_inputs(list_inputs const& inputs,
+	                                PVCore::PVTaskProgress* progress = nullptr) const override;
 
 	/* exporter */
 	std::unique_ptr<PVRush::PVExporterBase>
@@ -72,6 +52,10 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 	PVWidgets::PVExporterWidgetInterface*
 	create_exporter_widget(const list_inputs& inputs, PVRush::PVNraw const& nraw) const override;
 	QString get_exporter_filter_string(const list_inputs& inputs) const override;
+	PVWidgets::PVExporterWidgetInterface*
+	create_nraw_exporter_widget(PVRush::PVNraw const& nraw,
+	                            QStringList const& column_names) const override;
+	QString get_nraw_exporter_filter_string() const override;
 
 	QString name() const override;
 	QString human_name() const override;
@@ -79,14 +63,24 @@ class PVInputTypeParquet : public PVInputTypeDesc<PVParquetFileDescription>
 	QString internal_name() const override;
 	QStringList get_supported_extensions() const override;
 	QString menu_input_name() const override;
-	QString tab_name_of_inputs(list_inputs const& in) const override;
-	bool get_custom_formats(PVInputDescription_p /*in*/, hash_formats& /*formats*/) const override { return false; }
 
 	PVModdedIcon icon() const override { return PVModdedIcon("parquet"); }
-	QCursor cursor() const override { return QCursor(Qt::PointingHandCursor); }
 
-  private:
-	bool create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const;
+	QString files_dialog_title() const override;
+	QString files_dialog_filter() const override;
+	/** Of files of one schema. */
+	std::shared_ptr<PVFileListDescription> describe(const QStringList& paths,
+	                                                PVCore::PVTaskProgress& progress,
+	                                                QStringList& warnings) const override;
+	std::shared_ptr<PVFileListDescription> with_paths(const PVFileListDescription& description,
+	                                                  const QStringList& paths) const override;
+	/**
+	 * From the statistics of the files, which count the nulls of their columns, but for those of
+	 * the values of lists and maps.
+	 */
+	QHash<QString, double> fill_rates(const PVFileListDescription& input_desc) const override;
+	QString row_filter_error(const PVFileListDescription& input_desc,
+	                         const QString& condition) const override;
 
   protected:
 	mutable QStringList _tmp_dir_to_delete;

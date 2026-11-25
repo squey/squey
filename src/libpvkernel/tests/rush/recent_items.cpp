@@ -32,7 +32,7 @@
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
 #include <pvkernel/core/PVUtils.h>
-#include "../../plugins/common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVFormat.h>
@@ -40,6 +40,7 @@
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVSourceDescription.h>
 #include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <pvkernel/core/PVSerializedSource.h>
 #include <pvkernel/core/squey_assert.h>
@@ -58,7 +59,7 @@
 static PVRush::PVFormat build_parquet_source(const QStringList& paths,
                                              PVRush::PVInputType::list_inputs& inputs)
 {
-	auto* input_desc = new PVRush::PVParquetFileDescription(paths);
+	auto* input_desc = new PVRush::PVFileListDescription(paths);
 	inputs << PVRush::PVInputDescription_p(input_desc);
 	PVRush::PVParquetAPI api(input_desc);
 	return PVRush::PVFormat(api.get_format().documentElement());
@@ -163,7 +164,7 @@ UNICODE_MAIN()
 		PV_VALID(sd.get_inputs().size(), qsizetype(1));
 		PV_ASSERT_VALID(dynamic_cast<PVRush::PVFileDescription*>(sd.get_inputs()[0].get()) !=
 		                nullptr);
-		PV_ASSERT_VALID(dynamic_cast<PVRush::PVParquetFileDescription*>(
+		PV_ASSERT_VALID(dynamic_cast<PVRush::PVFileListDescription*>(
 		                    sd.get_inputs()[0].get()) == nullptr);
 
 		// clear_missing_files() (run at startup) keeps the valid source.
@@ -212,11 +213,11 @@ UNICODE_MAIN()
 		PV_VALID(filenames.size(), qsizetype(1));
 
 		// Rebuild must NOT throw despite the empty format (the crash fix) and must
-		// rebuild a PVParquetFileDescription.
+		// rebuild a PVFileListDescription.
 		PVRush::PVSourceDescription sd(ss);
 		PV_VALID(sd.get_inputs().size(), qsizetype(1));
 		auto* rebuilt =
-		    dynamic_cast<PVRush::PVParquetFileDescription*>(sd.get_inputs()[0].get());
+		    dynamic_cast<PVRush::PVFileListDescription*>(sd.get_inputs()[0].get());
 		PV_ASSERT_VALID(rebuilt != nullptr);
 		PV_VALID(rebuilt->paths().size(), qsizetype(1));
 		PV_VALID(rebuilt->paths().front().toStdString(), parquet_file1);
@@ -230,6 +231,52 @@ UNICODE_MAIN()
 		// must not throw.
 		recents.clear_missing_files();
 		PV_VALID(recents.get_list<PVCore::Category::SOURCES>().size(), size_t(1));
+	}
+
+	// -------------------------------------------------------------------------
+	// The columns and the rows a source imports come back with it
+	// -------------------------------------------------------------------------
+	{
+		PVRush::PVSourceCreator_p sc =
+		    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("parquet");
+		recents.clear(PVCore::Category::SOURCES);
+
+		const QStringList paths{QString::fromStdString(parquet_file1)};
+		PVRush::PVInputType::list_inputs chosen_inputs;
+		const PVRush::PVFormat format = build_parquet_source(paths, chosen_inputs);
+		auto& chosen = static_cast<PVRush::PVFileListDescription&>(*chosen_inputs.front());
+		chosen.set_columns({"id", "dns.rrname"});
+		chosen.set_row_filter(R"("dns.rrname" LIKE '%.org' AND id > 2)");
+		recents.add_source(sc, chosen_inputs, format);
+
+		// The same file, whole, is another source.
+		PVRush::PVInputType::list_inputs whole_inputs;
+		recents.add_source(sc, whole_inputs, build_parquet_source(paths, whole_inputs));
+
+		std::vector<PVCore::PVSerializedSource> sources =
+		    recents.get_list<PVCore::Category::SOURCES>();
+		PV_VALID(sources.size(), size_t(2));
+		// The most recent first.
+		const PVCore::PVSerializedSource& ss = sources.back();
+		PV_VALID(ss.input_desc.front().front(), parquet_file1);
+		auto [label, filenames] = recents.get_string_from_entry(ss);
+		PV_VALID(filenames.size(), qsizetype(1));
+		// The description makes the path absolute, which the packaged testsuite of Windows and
+		// macOS gives relative.
+		PV_VALID(label.toStdString(),
+		         QDir().absoluteFilePath(QString::fromStdString(parquet_file1)).toStdString());
+
+		PVRush::PVSourceDescription sd(ss);
+		auto* rebuilt = dynamic_cast<PVRush::PVFileListDescription*>(sd.get_inputs()[0].get());
+		PV_ASSERT_VALID(rebuilt != nullptr);
+		PV_VALID(rebuilt->paths().join(",").toStdString(), paths.join(",").toStdString());
+		PV_VALID(rebuilt->columns().join(",").toStdString(), std::string("id,dns.rrname"));
+		PV_VALID(rebuilt->row_filter().toStdString(), chosen.row_filter().toStdString());
+		PV_ASSERT_VALID(*rebuilt == chosen);
+
+		// The fields after the paths name no file that could be missing.
+		recents.clear_missing_files();
+		PV_VALID(recents.get_list<PVCore::Category::SOURCES>().size(), size_t(2));
 	}
 
 	// -------------------------------------------------------------------------
@@ -260,15 +307,33 @@ UNICODE_MAIN()
 		PVRush::PVSourceDescription sd(ss);
 		PV_VALID(sd.get_inputs().size(), qsizetype(1));
 		auto* rebuilt =
-		    dynamic_cast<PVRush::PVParquetFileDescription*>(sd.get_inputs()[0].get());
+		    dynamic_cast<PVRush::PVFileListDescription*>(sd.get_inputs()[0].get());
 		PV_ASSERT_VALID(rebuilt != nullptr);
 		PV_VALID(rebuilt->paths().size(), qsizetype(2));
 		PV_VALID(rebuilt->paths()[0].toStdString(), parquet_file1);
 		PV_VALID(rebuilt->paths()[1].toStdString(), parquet_file2);
 	}
 
+	// -------------------------------------------------------------------------
+	// A list keeps as many items as the settings say
+	// -------------------------------------------------------------------------
+	{
+		PV_ASSERT_VALID(PVCore::settings::recent_items.set_value(2));
+		for (const char* format : {"/a.format", "/b.format", "/c.format"}) {
+			recents.add<PVCore::Category::USED_FORMATS>(format);
+		}
+		const std::vector<std::string> formats = recents.get_list<PVCore::Category::USED_FORMATS>();
+		PV_VALID(formats.size(), size_t(2));
+		PV_VALID(formats.front(), std::string("/c.format"));
+		// Lowered, the setting shortens the lists already written.
+		PV_ASSERT_VALID(PVCore::settings::recent_items.set_value(1));
+		PV_VALID(recents.get_list<PVCore::Category::USED_FORMATS>().size(), size_t(1));
+		PV_ASSERT_VALID(PVCore::PVSettings::get().reset(PVCore::settings::recent_items.key()));
+	}
+
 	// Cleanup.
 	QFile::remove(recents_file);
+	QFile::remove(PVCore::PVConfig::user_dir() + PVCore::PVSettings::USER_FILENAME);
 
 	return 0;
 }

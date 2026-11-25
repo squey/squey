@@ -33,6 +33,8 @@
 
 #include "rapidjson/document.h"
 
+#include "extraction.h"
+#include "profile.h"
 #include "shell.h"
 
 /*!
@@ -89,7 +91,7 @@ Other explanation on https://www.wireshark.org/docs/wsar_html/epan/ftypes_8h_sou
 static const std::unordered_map<std::string, std::string> ws_types_mapping = {
     {"FT_NONE Label", "string"},
     {"FT_PROTOCOL", "string"},
-    {"FT_BOOLEAN", "number_uint8"}, /* should be stored on bool */
+    {"FT_BOOLEAN", "string"}, /* tshark writes "True" and "False" */
     {"FT_UINT8", "number_uint8"},
     {"FT_UINT16", "number_uint16"},
     {"FT_UINT24", "number_uint32"},
@@ -126,8 +128,6 @@ static const std::unordered_map<std::string, std::string> ws_types_mapping = {
 };
 
 static const std::unordered_set<std::string> ws_disabled_fields = {"frame.offset_shift",
-                                                                   "frame.time_delta",
-                                                                   "frame.time_delta_displayed",
                                                                    "frame.ref_time",
                                                                    "frame.number",
                                                                    "frame.marked",
@@ -175,7 +175,8 @@ std::string get_wireshark_profiles_dir();
  */
 std::vector<std::string> get_wireshark_profiles_paths();
 
-std::string ws_protocols_dict_path();
+//! Whether Wireshark has a configuration profile of this name: an empty name is none.
+bool wireshark_profile_exists(const std::string& name);
 
 /**
  * Get the list of wireshark's known protocols' fields.
@@ -191,45 +192,95 @@ std::vector<std::string> ws_get_tshark_fields();
  */
 std::vector<std::string> ws_get_tshark_protocols();
 
-/**
- * Build a dictionnary of all known protocols and fields from tshark and store
- * it in a json format file.
- *
- * @param protocols_dict_file file to save json string.
- */
-void ws_create_protocols_dict(std::string const& protocols_dict_file);
-
-rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_file);
+//! What tshark needs in its environment to write what Squey reads.
+std::vector<std::pair<std::string, std::string>> tshark_environment();
 
 /**
- * Build json tree structure from a pcap file.
+ * Whether tshark only writes a field right once it read the frames after its own, which it
+ * does when it reads the capture twice (-2), as Wireshark does.
  *
- * @param source pcap file name.
- * @param  document rapidjson document.
- * @param  protocols_dict_file a json file of all known protocols and fields from tshark
+ * tshark does not tell which fields these are. These were found comparing what a single
+ * pass and two write, field by field, on captures of HTTP, DNS, TLS, SMB and SMB2 traffic,
+ * with tshark 4.6:
+ * - the numbers of other frames, such as the response to a request (http.response_in) or
+ *   where a PDU is reassembled (tcp.reassembled_in), except those of earlier frames a
+ *   single pass is known to write (http.request_in);
+ * - the Info column, which a single pass leaves empty on the segments of a PDU reassembled
+ *   later, or describes as the PDU itself;
+ * - what TCP says of a whole conversation on each of its frames, such as tcp.completeness;
+ * - the expert information, such as what never came: dns.response_missing, icmp.no_resp;
+ * - what SMB, SMB2 and DCE/RPC say of the file or handle a frame is about, and of the time
+ *   since its request: smb2.filename, smb2.time.
+ *
+ * @param type as tshark names it, such as FT_FRAMENUM; empty if unknown
  */
-rapidjson::Document ws_create_protocols_tree(const std::string& source,
-                                             const rapidjson::Document& protocols_dict);
-
-void ws_merge_protocols_tree(rapidjson::Value& dst,
-                             const rapidjson::Value& src,
-                             rapidjson::Document::AllocatorType& allocator);
-
-void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
-                              const rapidjson::Document& protocols_tree,
-                              const rapidjson::Document& protocols_dict);
+bool ws_needs_two_passes(const std::string& name, const std::string& type);
 
 /**
- *
+ * Whatever looks like the name of a field in a display filter, outside of its strings: values
+ * and operators too, which are not fields tshark knows.
  */
-rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data);
+std::vector<std::string> ws_filter_fields(const std::string& filter);
+
+//! Where Flatpak shows the GeoIP databases of the system, which tshark reads if they are there.
+inline constexpr char DEFAULT_GEOIP_DIRECTORY[] = "/var/run/host/usr/share/GeoIP/";
 
 /**
- *
+ * The options of tshark a profile gives of how to read the captures: -o, -N and -C, unless
+ * Wireshark has no such configuration profile.
  */
-std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data);
+std::vector<std::string> ws_reading_options(const profile& p);
+
+/**
+ * The fields and the options of tshark a profile asks for.
+ *
+ * tshark reads the capture twice if a field asked for, or named by the display filter,
+ * needs it: see ws_needs_two_passes(). tshark is then asked the types of the fields of the
+ * filter.
+ *
+ * Leaves out the directory of the temporary files, which only the caller knows.
+ */
+extraction::options ws_extraction_options(const profile& p);
+
+//! @throw profile_error if the document holds no profile
+inline extraction::options ws_extraction_options(const rapidjson::Document& json)
+{
+	return ws_extraction_options(profile_from_json(json));
+}
+
+//! What tshark says of a display filter.
+struct filter_check {
+	bool checked = false; //!< false if tshark could not be run
+	std::string problem;  //!< what is wrong with the filter, empty if nothing is
+	size_t position = 0;  //!< of what is wrong, in bytes from the start of the filter
+	size_t length = 0;    //!< of what is wrong, 0 if tshark did not tell where it is
+};
+
+//! Has tshark read the filter, which takes it a tenth of a second.
+filter_check ws_check_filter(const std::string& filter);
 
 std::string ws_get_version();
+
+//! What `tshark -G fields` says of a field.
+struct field_description {
+	std::string type; //!< such as FT_UINT16
+	std::string base; //!< how tshark writes it, for an integer: BASE_HEX, BASE_DEC...
+};
+
+/**
+ * What `tshark -G fields` says of the given fields.
+ *
+ * Empty for the fields tshark does not know, and for all of them when tshark can't run.
+ */
+std::unordered_map<std::string, field_description>
+ws_field_descriptions(const std::vector<std::string>& names);
+
+/**
+ * Runs tshark with the given arguments, and returns the lines it wrote.
+ *
+ * @return nothing if tshark could not be run
+ */
+std::vector<std::string> tshark_output(const std::vector<std::string>& arguments);
 
 } /* namespace pvpcap */
 

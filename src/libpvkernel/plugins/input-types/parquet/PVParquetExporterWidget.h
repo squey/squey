@@ -26,7 +26,10 @@
 #define __PVKERNEL_PVPARQUETEXPORTERWIDGET_H__
 
 #include <pvkernel/widgets/PVExporterWidgetInterface.h>
-#include <pvkernel/rush/PVInputType.h>
+
+#include "PVParquetExporterBase.h"
+
+#include <memory>
 
 namespace PVRush
 {
@@ -36,19 +39,24 @@ namespace PVRush
 namespace PVWidgets
 {
 
+/**
+ * The choice of the codec that a Parquet exporter compresses its file with.
+ */
 class PVParquetExporterWidget : public PVWidgets::PVExporterWidgetInterface
 {
 	Q_OBJECT
 
   public:
-	PVParquetExporterWidget(const PVRush::PVInputType::list_inputs& inputs, PVRush::PVNraw const& nraw);
+	/** Starts with @p codec, if Parquet supports it, and with no compression otherwise. */
+	PVParquetExporterWidget(std::unique_ptr<PVRush::PVParquetExporterBase> exporter,
+	                        arrow::Compression::type codec);
 	virtual ~PVParquetExporterWidget(){};
 
   public:
 	PVRush::PVExporterBase& exporter() override { return *_exporter; }
 
   private:
-	std::unique_ptr<PVRush::PVExporterBase> _exporter;
+	std::unique_ptr<PVRush::PVParquetExporterBase> _exporter;
 };
 
 } // namespace PVWidgets

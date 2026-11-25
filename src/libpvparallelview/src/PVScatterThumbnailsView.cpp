@@ -26,13 +26,13 @@
 #include <pvparallelview/PVScatterThumbnailsView.h>
 
 #include <pvparallelview/PVDisplayViewScatter.h>
+#include <pvparallelview/PVParallelViewSettings.h>
 #include <pvparallelview/PVScatterThumbnail.h>
 #include <pvparallelview/PVScatterThumbnailsModel.h>
 
 #include <pvdisplays/PVDisplayIf.h>
 #include <pvdisplays/PVDisplaysContainer.h>
 
-#include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/qobject_helpers.h>
 
 #include <squey/PVView.h>
@@ -56,6 +56,7 @@
 #include <QTextLayout>
 #include <QTimer>
 #include <QVBoxLayout>
+#include <QWheelEvent>
 
 namespace
 {
@@ -83,17 +84,6 @@ constexpr int cell_margin = 4;
  * rather than one per step.
  */
 constexpr int size_settle_ms = 250;
-
-/**
- * Where the toolbar state is remembered between two openings.
- *
- * Thumbnail size and sort order are how the user has chosen to read the
- * gallery, not something about one dataset, so they belong in the application
- * configuration. The axis filter is deliberately left out: reopening on a
- * gallery silently showing a fraction of its pairs would read as a bug.
- */
-constexpr const char* size_setting = "scatter_thumbnails/thumbnail_size";
-constexpr const char* sort_setting = "scatter_thumbnails/sort_by_correlation";
 
 /**
  * Widen @a combo so the theme's drop-down arrow cannot eat into its text.
@@ -127,13 +117,18 @@ int PVParallelView::PVScatterThumbnailDelegate::label_height(QFontMetrics const&
 	return metrics.lineSpacing() * label_lines;
 }
 
+QSize PVParallelView::PVScatterThumbnailDelegate::cell_size(QFontMetrics const& metrics) const
+{
+	return QSize(_display_size + 2 * cell_margin,
+	             _display_size + label_height(metrics) + 3 * cell_margin);
+}
+
 QSize PVParallelView::PVScatterThumbnailDelegate::sizeHint(QStyleOptionViewItem const& option,
                                                            QModelIndex const&) const
 {
 	// Independent of the item: every cell is the same size, whatever the pixmap
 	// it currently holds and however long its axis names are.
-	const int height = _display_size + label_height(option.fontMetrics) + 3 * cell_margin;
-	return QSize(_display_size + 2 * cell_margin, height);
+	return cell_size(option.fontMetrics);
 }
 
 void PVParallelView::PVScatterThumbnailDelegate::paint(QPainter* painter,
@@ -253,6 +248,8 @@ PVParallelView::PVScatterThumbnailsView::PVScatterThumbnailsView(Squey::PVView& 
 	// the view with a button held down unless the viewport itself tracks.
 	_list->viewport()->setMouseTracking(true);
 	_list->setContextMenuPolicy(Qt::CustomContextMenu);
+	// For the wheel events, which reach the list through its viewport.
+	_list->viewport()->installEventFilter(this);
 	layout->addWidget(_list);
 
 	connect(_list, &QAbstractItemView::doubleClicked, this,
@@ -295,8 +292,7 @@ PVParallelView::PVScatterThumbnailsView::PVScatterThumbnailsView(Squey::PVView& 
 	// Correlation first: the gallery exists to point at the pairs worth
 	// opening, and axes order says nothing about which those are. Setting the
 	// combo is enough -- its currentIndexChanged does the sorting.
-	const QVariant stored_sort = PVCore::PVConfig::value(sort_setting);
-	const bool by_correlation = not stored_sort.isValid() or stored_sort.toBool();
+	const bool by_correlation = settings::scatter_thumbnails_by_correlation.value();
 	_sort_combo->setCurrentIndex(by_correlation ? 1 : 0);
 	if (not by_correlation) {
 		// setCurrentIndex(0) on a combo already at 0 emits nothing.
@@ -354,11 +350,7 @@ void PVParallelView::PVScatterThumbnailsView::setup_toolbar(QBoxLayout* layout)
 
 	_size_slider = new QSlider(Qt::Horizontal, this);
 	_size_slider->setRange(PVScatterThumbnailsModel::min_size, PVScatterThumbnailsModel::max_size);
-	// PVConfig::value() returns an invalid variant for a key never written, so
-	// the fallback is applied here rather than passed in.
-	const QVariant stored_size = PVCore::PVConfig::value(size_setting);
-	_size_slider->setValue(stored_size.isValid() ? stored_size.toInt()
-	                                             : PVScatterThumbnailsModel::default_size);
+	_size_slider->setValue(settings::scatter_thumbnail_size.value());
 	_size_slider->setFixedWidth(120);
 	_size_slider->setToolTip(tr("Thumbnail size"));
 
@@ -367,11 +359,16 @@ void PVParallelView::PVScatterThumbnailsView::setup_toolbar(QBoxLayout* layout)
 	_size_apply_timer->setInterval(size_settle_ms);
 	connect(_size_apply_timer, &QTimer::timeout, this,
 	        &PVScatterThumbnailsView::apply_render_size);
+	// Thumbnail size and sort order are how the user reads galleries, so the
+	// next one opens with them. The axis filter is deliberately not kept: a
+	// gallery opening on a fraction of its pairs would read as a bug. The size
+	// is saved once the slider settles, rather than at every step of a drag.
+	connect(_size_apply_timer, &QTimer::timeout, this,
+	        [this]() { settings::scatter_thumbnail_size.set_value(_size_slider->value()); });
 
 	connect(_size_slider, &QSlider::valueChanged, this, [this](int size) {
 		apply_grid_size(size);
 		_size_apply_timer->start();
-		PVCore::PVConfig::set_value(size_setting, size);
 	});
 
 	_sort_combo = new QComboBox(this);
@@ -381,7 +378,7 @@ void PVParallelView::PVScatterThumbnailsView::setup_toolbar(QBoxLayout* layout)
 	_sort_combo->setSizeAdjustPolicy(QComboBox::AdjustToContents);
 	reserve_room_for_arrow(_sort_combo);
 	connect(_sort_combo, &QComboBox::currentIndexChanged, this, [this](int index) {
-		PVCore::PVConfig::set_value(sort_setting, index == 1);
+		settings::scatter_thumbnails_by_correlation.set_value(index == 1);
 		apply_sorting(index == 1);
 	});
 
@@ -592,6 +589,43 @@ void PVParallelView::PVScatterThumbnailsView::changeEvent(QEvent* event)
 	    (event->type() == QEvent::StyleChange or event->type() == QEvent::FontChange)) {
 		reserve_room_for_arrow(_sort_combo);
 	}
+}
+
+bool PVParallelView::PVScatterThumbnailsView::eventFilter(QObject* watched, QEvent* event)
+{
+	if (watched != _list->viewport() or event->type() != QEvent::Wheel) {
+		return QWidget::eventFilter(watched, event);
+	}
+	auto* wheel = static_cast<QWheelEvent*>(event);
+	// With a modifier, the list scrolls a page.
+	if (wheel->modifiers() != Qt::NoModifier or
+	    (wheel->pixelDelta().y() == 0 and wheel->angleDelta().y() == 0)) {
+		return QWidget::eventFilter(watched, event);
+	}
+	// A touchpad scrolls as far as its fingers went, and a wheel by whole rows of thumbnails, a row
+	// a notch whatever their size: the fractions of a notch a high-resolution wheel reports would
+	// leave the gallery between two rows. The list would scroll three rows a notch, and as many for
+	// the few pixels a touchpad counts as one. The phases of its gestures are what tells a
+	// touchpad: Qt's Wayland plugin gives the events of a wheel pixels too.
+	QScrollBar* bar = _list->verticalScrollBar();
+	if (wheel->phase() != Qt::NoScrollPhase) {
+		bar->setValue(bar->value() - wheel->pixelDelta().y());
+	} else if (const int notches = _wheel_accumulator.steps(wheel->angleDelta().y());
+	           notches != 0) {
+		// Rows start at the multiples of their height, and a notch goes to the next start in its
+		// direction: a touchpad or the end of the list can leave the gallery between two.
+		const int row = row_height();
+		const int value = bar->value();
+		const int start = notches > 0 ? (value + row - 1) / row : value / row;
+		bar->setValue((start - notches) * row);
+	}
+	wheel->accept();
+	return true;
+}
+
+int PVParallelView::PVScatterThumbnailsView::row_height() const
+{
+	return _delegate->cell_size(_list->fontMetrics()).height() + _list->spacing();
 }
 
 void PVParallelView::PVScatterThumbnailsView::keyPressEvent(QKeyEvent* event)

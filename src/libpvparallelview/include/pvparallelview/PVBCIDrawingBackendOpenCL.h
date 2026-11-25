@@ -143,13 +143,14 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 
   private:
 	/**
-	 * Bring up the OpenCL context, devices and kernel this backend draws with:
-	 * on an accelerated device unless the CPU is forced, and on a CPU device
-	 * when it is, when there is no accelerated one, or when that one fails.
+	 * Bring up the OpenCL context, devices and kernel this backend draws with,
+	 * on the platform PVOpenCL::lines_platform() names: on an accelerated
+	 * device unless it names a CPU device, and on a CPU device when it does,
+	 * when there is no accelerated one, or when that one fails.
 	 *
-	 * @return true once the backend can draw; false when the OpenCL stack could
-	 * not be brought up, which leaves the backend without a device and has the
-	 * QPainter backend take over.
+	 * @return true once the backend can draw; false when the settings ask for
+	 * Qt, or when the OpenCL stack could not be brought up, which leaves the
+	 * backend without a device and has the QPainter backend take over.
 	 */
 	bool initialize();
 
@@ -160,11 +161,12 @@ class PVBCIDrawingBackendOpenCL : public PVBCIDrawingBackendAsync
 	 *
 	 * @param accelerated whether the device must be a GPU or an accelerator
 	 * rather than a CPU
+	 * @param platform the only platform to look at, any when empty
 	 *
 	 * @return true once the backend can draw; false when no platform offers
 	 * such a device, or when the one found fails to be set up.
 	 */
-	bool initialize_devices(bool accelerated);
+	bool initialize_devices(bool accelerated, std::string const& platform);
 
 	/**
 	 * Callback function called once image creation is done and back on computer.

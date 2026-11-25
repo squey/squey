@@ -9,20 +9,8 @@ depends:
 config:
   directory: '%{prefix}'
 
+  # buildstream/scripts/export_flatpak.sh writes the metadata, from
+  # buildstream/files/flatpak/metadata.sh: flatpak_image only has to know that the
+  # build is an application.
   metadata:
-    Application:
-      name: org.squey.Squey
-      runtime: org.freedesktop.Platform/%{gcc_arch}/%{runtime-branch}
-      sdk: org.freedesktop.Sdk/%{gcc_arch}/%{runtime-branch}
-      command: squey_launcher.sh
-      branch: "%{branch}"
-
-    Context:
-      shared: "network;ipc;"
-      sockets: "x11;wayland;"
-      devices: "dri;"
-      filesystems: "host;"
-      features: "devel"
-
-    'Extension org.squey.Squey.Debug':
-      directory: lib/debug
+    Application: {}

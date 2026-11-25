@@ -24,6 +24,7 @@
 //
 
 #include <pvkernel/core/PVStreamingCompressor.h>
+#include <pvkernel/core/PVFileHelper.h>
 #include <fcntl.h>
 #ifndef _WIN32
 #include <sys/wait.h>
@@ -50,6 +51,7 @@
 #include <memory>
 #include <vector>
 #include <QString>
+#include <QStringList>
 #include <filesystem>
 
 #include "pvkernel/core/PVOrderedMap.h"
@@ -125,13 +127,13 @@ const PVCore::PVOrderedMap<std::string, std::pair<std::string, std::string>>
  *
  ******************************************************************************/
 
+/** The last of the suffixes of @p path, before the number or the date of a rotation. */
 static std::string extension_from_path(const std::string& path)
 {
-	const size_t dot_pos = path.rfind('.');
-	if (dot_pos == std::string::npos) {
-		return {};
-	}
-	return boost::algorithm::to_lower_copy(path.substr(dot_pos + 1));
+	return PVCore::PVFileHelper::suffixes_without_rotation(QString::fromStdString(path))
+	    .split('.')
+	    .back()
+	    .toStdString();
 }
 
 PVCore::__impl::PVStreamingBase::PVStreamingBase(const std::string& path)

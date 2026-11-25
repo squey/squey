@@ -107,6 +107,12 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	static QString ordinate_label(zoom_f ratio, zoom_f row_height);
 
 	SelectorMode current_selector_mode() const { return _selector_mode; }
+
+	/**
+	 * The radius of the hole the crosshair leaves around the cursor, in pixels.
+	 */
+	int cross_hairs_radius() const { return _cross_hairs_radius; }
+
 	void change_selector_mode(SelectorMode const mode);
 	void disable_selecting_mode(bool disabled) // TODO : implement selection mode on splitted series
 	{
@@ -121,6 +127,11 @@ class PVSeriesViewZoomer : public PVViewZoomer
 	void selection_commit(Zoom selection);
 	void cursor_moved(QRect region);
 	void hunt_commit(QRect region, bool addition);
+
+	/**
+	 * The column of pixels under the cursor, or -1 once the cursor has left the view.
+	 */
+	void cursor_x_changed(int x);
 
   protected:
 	void mousePressEvent(QMouseEvent*) override;

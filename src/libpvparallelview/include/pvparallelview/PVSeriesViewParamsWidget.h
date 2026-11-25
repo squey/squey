@@ -57,6 +57,7 @@ class PVSeriesViewParamsWidget : public QToolBar
 	QToolButton* add_sampling_mode_selector();
 	void add_selection_activator(bool enable);
 	void add_hunting_activator(bool enable);
+	void add_selected_series_filter(bool enable);
 
 	void set_rendering_mode(QAction* action);
 	void set_rendering_mode(PVSeriesView::DrawMode mode) const;

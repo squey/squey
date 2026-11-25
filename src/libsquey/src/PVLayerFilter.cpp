@@ -26,6 +26,9 @@
 #include <squey/PVLayerFilter.h>
 #include <squey/PVLayer.h>
 
+#include <pvkernel/core/PVArgumentSettings.h>
+#include <pvkernel/core/PVSettings.h>
+
 #include <boost/thread.hpp>
 
 #include <cassert>
@@ -85,6 +88,43 @@ void Squey::PVLayerFilter::set_output(PVLayer* out)
 PVCore::PVArgumentList Squey::PVLayerFilter::get_default_args_for_view(PVView const& /*view*/)
 {
 	return get_args();
+}
+
+PVCore::PVArgumentList Squey::PVLayerFilter::get_preferred_args_for_view(PVView const& view)
+{
+	PVCore::PVArgumentList args = get_default_args_for_view(view);
+	PVCore::apply_argument_settings(settings_section(), args);
+	return args;
+}
+
+void Squey::PVLayerFilter::declare_settings()
+{
+	PVCore::PVSettings& settings = PVCore::PVSettings::get();
+	settings.declare_section(
+	    {.key = "plugins.layer_filters",
+	     .title = "Layer filters",
+	     .description = "What the dialog of a filter starts with, in a view where the filter has "
+	                    "not run yet. The entries of the context menus keep their own values."});
+	for (auto const& registered : LIB_CLASS(PVLayerFilter)::get().get_list()) {
+		PVLayerFilter const& filter = *registered.value();
+		const PVCore::PVArgumentKeyList declared =
+		    PVCore::declare_argument_settings(filter.settings_section(), filter.get_default_args(),
+		                                      filter.get_args_keys_for_settings());
+		if (not declared.empty()) {
+			settings.declare_section({.key = filter.settings_section(),
+			                          .title = filter.menu_name().replace('/', " › ")});
+		}
+	}
+}
+
+PVCore::PVArgumentKeyList Squey::PVLayerFilter::get_args_keys_for_settings() const
+{
+	return get_args_keys_for_preset();
+}
+
+QString Squey::PVLayerFilter::settings_section() const
+{
+	return "plugins.layer_filters." + registered_name();
 }
 
 /******************************************************************************

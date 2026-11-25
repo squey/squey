@@ -34,7 +34,7 @@
 #include <memory>
 
 #include "../../plugins/common/parquet/PVParquetAPI.h"
-#include "../../plugins/common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 #include <pvkernel/rush/PVSourceCreator.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
 #include <pvkernel/core/squey_assert.h>
@@ -98,7 +98,7 @@ static void import_files(const QStringList& paths, PVRush::PVNraw& nraw)
 	PVRush::PVSourceCreator_p sc =
 	    LIB_CLASS(PVRush::PVSourceCreator)::get().get_class_by_name("parquet");
 	PVRush::PVNrawOutput output(nraw);
-	auto* input_desc = new PVRush::PVParquetFileDescription(paths);
+	auto* input_desc = new PVRush::PVFileListDescription(paths);
 	QList<std::shared_ptr<PVRush::PVInputDescription>> list_inputs;
 	list_inputs << PVRush::PVInputDescription_p(input_desc);
 	PVRush::PVParquetAPI parquet_api(input_desc);

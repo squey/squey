@@ -13,7 +13,7 @@ config:
 sources:
     - kind: ostree
       url: flathub:repo/
-      track: org.freedesktop.Sdk.Extension.mingw-w64/x86_64/26.08
+      track: org.freedesktop.Sdk.Extension.mingw-w64/x86_64/%{runtime-branch}
       ref: 8ba08ed5a47dfe1757797fec1042b67d0bcb025984484998b9d381bfd300b748
 
 depends:

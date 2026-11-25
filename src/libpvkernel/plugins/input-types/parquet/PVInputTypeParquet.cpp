@@ -31,110 +31,137 @@
 #include <pvkernel/core/PVDirectory.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include "../../common/parquet/PVParquetAPI.h"
-#include "../../common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
+#include "PVParquetNrawExporter.h"
+#include "../../common/arrow/PVArrowRowFilter.h"
 
-#include <QMessageBox>
+#include <parquet/file_reader.h>
+#include <parquet/metadata.h>
+#include <parquet/statistics.h>
+
+#include <QSet>
+
 #include <QFileInfo>
 #include <QStandardPaths>
 
 #include <sys/time.h>
 
-PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeDesc<PVParquetFileDescription>()
+#include <memory>
+#include <stdexcept>
+
+PVRush::PVInputTypeParquet::PVInputTypeParquet() : PVInputTypeFileList()
 {
 }
 
-bool PVRush::PVInputTypeParquet::create_widget(
-    hash_formats& formats,
-    list_inputs& inputs,
-    QString& format_str,
-    PVCore::PVArgumentList& args_ext,
-    QWidget* parent) const
+QString PVRush::PVInputTypeParquet::files_dialog_title() const
 {
-	// Get information from file dialog
-	QStringList file_paths = PVWidgets::PVFileDialog::getOpenFileNames(
-	    parent,
-		tr("Import Apache Parquet files"),
-		QStandardPaths::writableLocation(QStandardPaths::HomeLocation),
-		tr("Apache Parquet files (*.parquet)")
-	);
-	if (file_paths.size() == 0) {
-		return false;
-	}
-
-	return create_widget_with_input_files(file_paths, formats, inputs, format_str, args_ext, parent);
+	return tr("Import Apache Parquet files");
 }
 
-bool PVRush::PVInputTypeParquet::create_widget_with_input_files(
-    const QStringList& input_paths,
-    hash_formats& formats,
-    list_inputs& inputs,
-    QString& format_str,
-    PVCore::PVArgumentList& /*args_ext*/,
-    QWidget* /*parent*/) const
+QString PVRush::PVInputTypeParquet::files_dialog_filter() const
 {
-    PVFormat format;
-	if (create_source_description_params(input_paths, inputs, format)) {
-		formats[QString("custom")] = format;
-		format_str = "custom";
-		return true;
-	}
-	else {
-		return false;
-	}
+	return tr("Apache Parquet files (*.parquet)");
 }
 
-bool PVRush::PVInputTypeParquet::create_source_description_params(const QString& params_json, list_inputs& inputs, PVFormat& format) const
+std::shared_ptr<PVRush::PVFileListDescription>
+PVRush::PVInputTypeParquet::describe(const QStringList& paths,
+                                     PVCore::PVTaskProgress& /*progress*/,
+                                     QStringList& /*warnings*/) const
 {
-	QStringList paths;
-	rapidjson::Document json;
-	json.Parse<0>(params_json.toStdString().c_str());
-	if (not json.HasParseError()) {
-		if (json.HasMember("paths")) {
-			const rapidjson::Value& json_paths = json["paths"];
-			if (json_paths.IsArray()) {
-				for (rapidjson::SizeType i = 0; i < json_paths.Size(); i++) {
-					const std::string& path_str = json_paths[i].GetString();
-					paths << QString::fromStdString(path_str);
+	auto input_desc = std::make_shared<PVFileListDescription>(paths);
+	if (not PVParquetAPI(input_desc.get()).same_schemas()) {
+		throw std::runtime_error(tr("All files should have the exact same schema in order to be "
+		                            "loaded as a concatenation.")
+		                             .toStdString());
+	}
+	return input_desc;
+}
+
+std::shared_ptr<PVRush::PVFileListDescription>
+PVRush::PVInputTypeParquet::with_paths(const PVFileListDescription& /*description*/,
+                                       const QStringList& paths) const
+{
+	return std::make_shared<PVFileListDescription>(paths);
+}
+
+QHash<QString, double>
+PVRush::PVInputTypeParquet::fill_rates(const PVFileListDescription& input_desc) const
+{
+	QHash<QString, int64_t> nulls;
+	QSet<QString> unknown;
+	int64_t row_count = 0;
+	try {
+		for (const QString& path : input_desc.paths()) {
+			const std::shared_ptr<parquet::FileMetaData> metadata =
+			    parquet::ParquetFileReader::OpenFile(path.toStdString())->metadata();
+			row_count += metadata->num_rows();
+			const parquet::SchemaDescriptor* schema = metadata->schema();
+			for (int leaf = 0; leaf < schema->num_columns(); leaf++) {
+				const parquet::ColumnDescriptor* column = schema->Column(leaf);
+				if (column->max_repetition_level() > 0) {
+					continue;
+				}
+				// The name of a field of a structure is that of its flattened column.
+				const QString name = QString::fromStdString(column->path()->ToDotString());
+				for (int group = 0; group < metadata->num_row_groups(); group++) {
+					const std::shared_ptr<parquet::Statistics> statistics =
+					    metadata->RowGroup(group)->ColumnChunk(leaf)->statistics();
+					if (statistics == nullptr or not statistics->HasNullCount()) {
+						unknown.insert(name);
+					} else {
+						nulls[name] += statistics->null_count();
+					}
 				}
 			}
 		}
+	} catch (const std::exception&) {
+		return {};
 	}
-	if (paths.isEmpty()) {
-		QMessageBox::critical(nullptr, tr("Parquet | Import data parameters error"), "Unable to import data using the following JSON parameters: \n\n" + params_json);
-		return false;
+
+	QHash<QString, double> rates;
+	for (auto column = nulls.cbegin(); column != nulls.cend(); ++column) {
+		if (row_count > 0 and not unknown.contains(column.key())) {
+			rates[column.key()] = 1. - double(column.value()) / double(row_count);
+		}
 	}
-	return create_source_description_params(paths, inputs, format);
+	return rates;
 }
 
-bool PVRush::PVInputTypeParquet::create_source_description_params(const QStringList& paths, list_inputs& inputs, PVFormat& format) const
+QString PVRush::PVInputTypeParquet::row_filter_error(const PVFileListDescription& input_desc,
+                                                     const QString& condition) const
 {
 	try {
-		PVParquetFileDescription* input_desc = new PVParquetFileDescription(paths);
-		PVParquetAPI api(input_desc);
-
-		if (not api.same_schemas()) {
-			QMessageBox::critical(nullptr, tr("Incompatible schemas"), tr("All files should have the exact same schema in order to be loaded as a concatenation."));
-			return false;
+		PVParquetAPI api(&input_desc);
+		std::shared_ptr<arrow::Schema> schema;
+		const arrow::Status status = api.arrow_reader()->GetSchema(&schema);
+		if (not status.ok()) {
+			return QString::fromStdString(status.ToString());
 		}
-
-		format = PVRush::PVFormat(api.get_format().documentElement());
-		inputs.push_back(PVInputDescription_p(input_desc));
+		// The columns the source hands the condition.
+		const std::shared_ptr<arrow::Schema> flat_schema = PVParquetAPI::flatten_schema(schema);
+		arrow::FieldVector fields;
+		if (api.multi_inputs()) {
+			fields.push_back(arrow::field(PVParquetAPI::input_column_name, arrow::utf8()));
+		}
+		for (int column : PVParquetAPI::row_filter_columns(*flat_schema)) {
+			fields.push_back(flat_schema->field(column));
+		}
+		return QString::fromStdString(
+		    PVArrowRowFilter::error_of(condition.toStdString(), arrow::schema(fields)));
+	} catch (const std::exception& e) {
+		return e.what();
 	}
-	catch (const std::exception& e) {
-		QMessageBox::critical(nullptr, tr("Error when loading files"), e.what());
-		return false;
-	}
-
-	return true;
 }
 
-PVRush::PVFormat PVRush::PVInputTypeParquet::get_format_from_inputs(list_inputs const& inputs) const
+PVRush::PVFormat
+PVRush::PVInputTypeParquet::get_format_from_inputs(list_inputs const& inputs,
+                                                   PVCore::PVTaskProgress* /*progress*/) const
 {
 	if (inputs.isEmpty()) {
 		return {};
 	}
 
-	auto* input_desc = dynamic_cast<PVParquetFileDescription*>(inputs.front().get());
+	auto* input_desc = dynamic_cast<PVFileListDescription*>(inputs.front().get());
 	if (input_desc == nullptr) {
 		return {};
 	}
@@ -147,7 +174,23 @@ PVWidgets::PVExporterWidgetInterface*
 PVRush::PVInputTypeParquet::create_exporter_widget(const list_inputs& inputs,
                                                    PVRush::PVNraw const& nraw) const
 {
-	return new PVWidgets::PVParquetExporterWidget(inputs, nraw);
+	// This exporter copies the rows of the files, which a condition on the rows makes others than
+	// those of the NRAW: the export of the NRAW writes these instead.
+	auto* input_desc = dynamic_cast<PVFileListDescription*>(inputs.front().get());
+	if (input_desc != nullptr and not input_desc->row_filter().isEmpty()) {
+		return nullptr;
+	}
+
+	// The codec of the input, unless it cannot be read anymore, which the export then reports.
+	arrow::Compression::type codec = arrow::Compression::UNCOMPRESSED;
+	try {
+		PVParquetAPI api(input_desc);
+		codec = api.arrow_reader()->parquet_reader()->metadata()->RowGroup(0)->ColumnChunk(0)->compression();
+	} catch (...) {
+	}
+
+	return new PVWidgets::PVParquetExporterWidget(std::make_unique<PVParquetExporter>(inputs, nraw),
+	                                              codec);
 }
 
 std::unique_ptr<PVRush::PVExporterBase>
@@ -165,6 +208,20 @@ QStringList PVRush::PVInputTypeParquet::get_supported_extensions() const
 QString PVRush::PVInputTypeParquet::get_exporter_filter_string(const list_inputs& /*inputs*/) const
 {
 	return ".parquet files (*.parquet)";
+}
+
+PVWidgets::PVExporterWidgetInterface*
+PVRush::PVInputTypeParquet::create_nraw_exporter_widget(PVRush::PVNraw const& nraw,
+                                                        QStringList const& column_names) const
+{
+	// The default codec of most of the writers of Parquet files.
+	return new PVWidgets::PVParquetExporterWidget(
+	    std::make_unique<PVParquetNrawExporter>(nraw, column_names), arrow::Compression::SNAPPY);
+}
+
+QString PVRush::PVInputTypeParquet::get_nraw_exporter_filter_string() const
+{
+	return get_exporter_filter_string({});
 }
 
 QString PVRush::PVInputTypeParquet::name() const
@@ -190,18 +247,4 @@ QString PVRush::PVInputTypeParquet::internal_name() const
 QString PVRush::PVInputTypeParquet::menu_input_name() const
 {
 	return {"Parquet"};
-}
-
-QString PVRush::PVInputTypeParquet::tab_name_of_inputs(list_inputs const& in) const
-{
-	QString tab_name;
-	auto* f = dynamic_cast<PVFileDescription*>(in[0].get());
-	assert(f);
-	QFileInfo fi(f->path());
-	if (in.count() == 1) {
-		tab_name = fi.fileName();
-	} else {
-		tab_name = fi.canonicalPath();
-	}
-	return tab_name;
 }

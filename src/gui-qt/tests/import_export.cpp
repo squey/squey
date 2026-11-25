@@ -7,6 +7,7 @@
 #include <functional>
 #include <algorithm>
 
+#include <QDateTime>
 #include <QFile>
 #include <QFileDialog>
 #include <QInputDialog>
@@ -15,7 +16,11 @@
 #include <QRegularExpression>
 #include <QScopeGuard>
 #include <QTemporaryDir>
+#include <QTimeZone>
 #include <QTimer>
+#include <QDropEvent>
+#include <QMimeData>
+#include <QUrl>
 #include <qtest_widgets.h>
 
 #include <atomic>
@@ -34,6 +39,9 @@
 
 #include <pvbase/general.h>
 #include <pvkernel/core/PVStreamingCompressor.h>
+#include <pvkernel/core/PVUtils.h>
+#include <pvkernel/core/PVKernelSettings.h>
+#include <pvkernel/core/PVSettings.h>
 #include <pvkernel/filter/PVPluginsLoad.h>
 #include <pvkernel/rush/PVInputType.h>
 #include <pvkernel/rush/PVNrawCacheManager.h>
@@ -43,10 +51,29 @@
 #include <squey/PVSource.h>
 #include <pvkernel/widgets/PVFileDialog.h>
 #include <pvguiqt/PVAnalysisBreadcrumb.h>
+#include <pvguiqt/PVWorkspacesTabWidget.h>
 #include <squey/PVAnalysisHistory.h>
 #include <squey/PVView.h>
 #include <QToolButton>
+#include <pvkernel/widgets/PVImportWidget.h>
+#include <pvkernel/rush/PVSourceDescription.h>
+#include <pvkernel/rush/PVSourceCreatorFactory.h>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonArray>
+#include <pvguiqt/PVImportPage.h>
+#include <pvguiqt/PVNrawDirectoryMessageBox.h>
+#include <pvkernel/core/PVTaskProgress.h>
+#include <QAbstractButton>
+#include <QPointer>
+#include <QPushButton>
+#include <QRadioButton>
+#include <QTabBar>
+#include <QMenuBar>
+#include <QLabel>
+#include <PVImportController.h>
 #include <PVMainWindow.h>
+#include <pvguiqt/PVProjectsTabWidget.h>
 #include <pvguiqt/common.h>
 #include <pvguiqt/PVExportSelectionDlg.h>
 
@@ -132,6 +159,91 @@ class ModalDriver {
 	std::shared_ptr<int> _alive = std::make_shared<int>(0);
 };
 
+namespace
+{
+
+// Imports run in the import page of the main window, once the call that asked for them returned.
+bool wait_for_import(App::PVMainWindow& main_window)
+{
+	return QTest::qWaitFor([&]() { return not main_window.import_controller().busy(); }, 120000);
+}
+
+// Waits for the import, with no dialog meanwhile.
+bool wait_for_import_without_dialog(App::PVMainWindow& main_window)
+{
+	bool modal = false;
+	const bool imported = QTest::qWaitFor(
+	    [&]() {
+		    modal |= qApp->activeModalWidget() != nullptr;
+		    return not main_window.import_controller().busy();
+	    },
+	    120000);
+	return imported and not modal;
+}
+
+// Opens the files as a command line does, and imports them as the import page asks.
+void import_files(App::PVMainWindow& main_window, QStringList const& files)
+{
+	main_window.load_files(files);
+	main_window._projects_tab_widget->import_page().findChild<QPushButton*>("import_import")->click();
+}
+
+// What the messages of the import page say.
+QString import_messages(App::PVMainWindow& main_window)
+{
+	QStringList texts;
+	for (const QFrame* message : main_window.findChildren<QFrame*>("import_message")) {
+		for (const QLabel* label : message->findChildren<QLabel*>()) {
+			texts << label->text();
+		}
+	}
+	return texts.join('\n');
+}
+
+// Drives an export through its two dialogs, as the attempt of a ModalDriver: chooses the format of
+// 'name_filter' in the first and clicks Export, then names the file 'file_name' in the file dialog
+// that opens. 'set_options' sees the first dialog once its format is chosen. True once the file is
+// named, the export then running on its own.
+std::function<bool()>
+export_through_dialogs(QString name_filter,
+                       QString file_name,
+                       std::function<void(PVGuiQt::PVExportSelectionDlg&)> set_options)
+{
+	return [name_filter = std::move(name_filter), file_name = std::move(file_name),
+	        set_options = std::move(set_options), exporting = false]() mutable -> bool {
+		QWidget* modal = qApp->activeModalWidget();
+		if (auto* file_dialog = qobject_cast<QFileDialog*>(modal)) {
+			// Located explicitly rather than via focusWidget(), which is null under the
+			// offscreen platform on macOS/Windows.
+			auto* name = file_dialog->findChild<QLineEdit*>("fileNameEdit");
+			if (name == nullptr) {
+				return false;
+			}
+			name->setText(file_name);
+			// QFileDialog redeclares accept() as protected, hence the QDialog upcast.
+			static_cast<QDialog*>(file_dialog)->accept();
+			return true;
+		}
+		auto* dialog = qobject_cast<PVGuiQt::PVExportSelectionDlg*>(modal);
+		if (dialog == nullptr or exporting) {
+			return false;
+		}
+		auto* formats = dialog->findChild<QComboBox*>("export_format");
+		auto* export_button = dialog->findChild<QPushButton*>("export_button");
+		if (formats == nullptr or export_button == nullptr or formats->findText(name_filter) < 0) {
+			return false;
+		}
+		formats->setCurrentIndex(formats->findText(name_filter));
+		set_options(*dialog);
+		// Queued: the file dialog it opens runs a loop of its own, from which the driver goes on.
+		QMetaObject::invokeMethod(export_button, &QPushButton::click, Qt::QueuedConnection);
+		exporting = true;
+		return false;
+	};
+}
+
+} // namespace
+
 ImportExportTest::ImportExportTest()
 {
     PVCore::setenv("QTWEBENGINE_CHROMIUM_FLAGS", "--no-sandbox", 1); // see  https://bugs.chromium.org/p/chromium/issues/detail?id=638180
@@ -167,86 +279,51 @@ void ImportExportTest::import_file()
         main_window.export_selection_Slot();
     });
 
-    bool export_connected = false;
-
-    ModalDriver export_driver(&main_window, [&]() -> bool {
-        // qApp->activeModalWidget() is the reliable handle for a modal dialog:
-        // main_window.findChild() never located the import dialog on Windows CI.
-        auto* dlg = qobject_cast<PVGuiQt::PVExportSelectionDlg*>(qApp->activeModalWidget());
-        if (dlg == nullptr) {
-            return false;
-        }
-        if (not export_connected) {
-            connect(dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, [&]() {
-                // Hash the exported rows, not the archive holding them: the
-                // compression is delegated to whichever tool the platform ships
-                // (see PVStreamingCompressor), so the bytes of the .gz change
-                // when that tool is updated while the export itself does not.
-                const QString exported_path = tmp_export_filename + ".csv.gz";
-                QByteArray sha256sum;
-                try {
-                    PVCore::PVStreamingDecompressor decompressor(exported_path.toStdString());
-                    QCryptographicHash hash(QCryptographicHash::Sha256);
-                    char buffer[64 * 1024];
-                    while (true) {
-                        auto [uncompressed, compressed] =
-                            decompressor.read(buffer, sizeof(buffer));
-                        if (uncompressed == 0) {
-                            break;
-                        }
-                        hash.addData(QByteArrayView(buffer, uncompressed));
-                    }
-                    sha256sum = hash.result();
-                } catch (const PVCore::PVStreamingDecompressorError& e) {
-                    QFAIL(e.what());
+    const auto check = [&]() {
+        // Hash the exported rows, not the archive holding them: the
+        // compression is delegated to whichever tool the platform ships
+        // (see PVStreamingCompressor), so the bytes of the .gz change
+        // when that tool is updated while the export itself does not.
+        const QString exported_path = tmp_export_filename + ".csv.gz";
+        QByteArray sha256sum;
+        try {
+            PVCore::PVStreamingDecompressor decompressor(exported_path.toStdString());
+            QCryptographicHash hash(QCryptographicHash::Sha256);
+            char buffer[64 * 1024];
+            while (true) {
+                auto [uncompressed, compressed] =
+                    decompressor.read(buffer, sizeof(buffer));
+                if (uncompressed == 0) {
+                    break;
                 }
-                QFile::remove(exported_path);
-
-                QCOMPARE(sha256sum.toHex(), QString("7bf9a8257c004c57b3a4c707bc965181c983439de757f792183e1c206f21fef8"));
-                success = true;
-            });
-            export_connected = true;
+                hash.addData(QByteArrayView(buffer, uncompressed));
+            }
+            sha256sum = hash.result();
+        } catch (const PVCore::PVStreamingDecompressorError& e) {
+            QFAIL(e.what());
         }
+        QFile::remove(exported_path);
 
-        // Locate the filename field explicitly rather than via focusWidget(),
-        // which is null under the offscreen platform on macOS/Windows.
-        QLineEdit* lineEdit = dlg->findChild<QLineEdit*>("fileNameEdit");
-        if (lineEdit == nullptr) {
-            return false;
-        }
-        lineEdit->setText(tmp_export_filename);
+        QCOMPARE(sha256sum.toHex(), QString("7bf9a8257c004c57b3a4c707bc965181c983439de757f792183e1c206f21fef8"));
+        success = true;
+    };
 
-        // The default name filter is platform-dependent (".csv.gz" on Linux but
-        // ".csv.zip" on macOS/Windows, see PVExportSelectionDlg), while the
-        // checksum above expects the gz export: select the gz filter explicitly.
-        QComboBox* filter_combo = dlg->findChild<QComboBox*>("fileTypeCombo");
-        if (filter_combo == nullptr) {
-            return false;
-        }
-        const QString gz_filter(".csv.gz files (*.csv.gz)");
-        const int filter_index = filter_combo->findText(gz_filter);
-        if (filter_index < 0) {
-            return false;
-        }
-        filter_combo->setCurrentIndex(filter_index);
-        Q_EMIT filter_combo->textActivated(gz_filter);
-
-        // QFileDialog redeclares accept() as protected, hence the QDialog upcast.
-        static_cast<QDialog*>(dlg)->accept();
-        return not dlg->isVisible();
-    });
+    // The default format is platform-dependent (".csv.gz" on Linux but ".csv.zip" on
+    // macOS/Windows, see PVExportSelectionDlg), while the checksum expects the gz export.
+    const auto connect_check = [&](PVGuiQt::PVExportSelectionDlg& dlg) {
+        connect(&dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, check);
+    };
+    ModalDriver export_driver(&main_window,
+                              export_through_dialogs(".csv.gz files (*.csv.gz)",
+                                                     tmp_export_filename, connect_check));
 
     export_driver.start();
 
-    // Import programmatically, bypassing the file-selection dialog. That dialog
-    // (PVImportFileDialog, a QFileDialog with an injected combo box) drives an
-    // infinite size-hint propagation loop under the offscreen platform on
-    // Windows CI -- an endless flood of "propagateSizeHints" warnings ending in a
-    // stack overflow (0xc00000fd) -- and is not even reliably findable there.
-    // load_files() is the command-line import path (see main.cpp); it reaches the
-    // very same import_type() with no modal file dialog. The export dialog is
-    // still driven for real, through the modal export flow it triggers.
-    main_window.load_files({source_path});
+    // load_files() is the command-line import path (see main.cpp): it opens the import page
+    // with the file, whose format sits next to it. The export dialog is still driven for real,
+    // through the modal export flow it triggers.
+    import_files(main_window, {source_path});
+    QVERIFY(wait_for_import(main_window));
 
     QCOMPARE(success, true);
 }
@@ -286,7 +363,8 @@ void ImportExportTest::undo_redo()
 
     const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
     QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
-    main_window.load_files({source_path});
+    import_files(main_window, {source_path});
+    QVERIFY(wait_for_import(main_window));
 
     Squey::PVView* view = main_window.current_view();
     QVERIFY(view != nullptr);
@@ -359,6 +437,52 @@ void ImportExportTest::undo_redo()
     QCOMPARE(view->get_real_output_selection().bit_count(), all_rows);
 }
 
+// Several files of the same name are told apart by the names the user gives
+// their sources, which a double click on the tab of a source asks for.
+void ImportExportTest::rename_source()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	const QString source_path = QString(TEST_FOLDER) + "/picviz/enum_mapping.csv";
+	QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
+	import_files(main_window, {source_path});
+	QVERIFY(wait_for_import(main_window));
+
+	Squey::PVView* view = main_window.current_view();
+	QVERIFY(view != nullptr);
+	Squey::PVSource& source = view->get_parent<Squey::PVSource>();
+	QCOMPARE(source.get_name(), std::string("enum_mapping.csv"));
+
+	auto* tab_bar = main_window.findChild<PVGuiQt::PVSceneTabBar*>();
+	QVERIFY(tab_bar != nullptr);
+	QCOMPARE(tab_bar->tabText(0), QString("enum_mapping.csv"));
+
+	// Longer than a tab shows, which then cuts it short and gives it whole in its tooltip.
+	const QString name = "Enumerations mapped from the reference";
+	ModalDriver rename_driver(&main_window, [&]() -> bool {
+		auto* dlg = qobject_cast<QInputDialog*>(qApp->activeModalWidget());
+		if (dlg == nullptr) {
+			return false;
+		}
+		if (dlg->textValue() != QString("enum_mapping.csv")) {
+			dlg->reject();
+			return true;
+		}
+		dlg->setTextValue(name);
+		dlg->accept();
+		return not dlg->isVisible();
+	});
+	rename_driver.start();
+
+	QTest::mouseDClick(tab_bar, Qt::LeftButton, Qt::NoModifier, tab_bar->tabRect(0).center());
+
+	QCOMPARE(source.get_name(), name.toStdString());
+	QCOMPARE(tab_bar->tabText(0), name.left(30) + "...");
+	QCOMPARE(tab_bar->tabToolTip(0), name);
+}
+
 void ImportExportTest::import_pcap()
 {
     App::PVMainWindow main_window;
@@ -374,59 +498,14 @@ void ImportExportTest::import_pcap()
     // Drives one round through the export dialog with the given name filter, and
     // hands the exported file over to 'check'.
     auto run_export = [&](const QString& name_filter, const std::function<void()>& check) {
-        bool connected = false;
-        ModalDriver export_driver(&main_window, [&]() -> bool {
-            auto* dlg = qobject_cast<PVGuiQt::PVExportSelectionDlg*>(qApp->activeModalWidget());
-            if (dlg == nullptr) {
-                return false;
-            }
-            if (not connected) {
-                connect(dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, check);
-                connected = true;
-            }
-            QLineEdit* lineEdit = dlg->findChild<QLineEdit*>("fileNameEdit");
-            if (lineEdit == nullptr) {
-                return false;
-            }
-
-            if (QCheckBox* open_wireshark = dlg->findChild<QCheckBox*>("open_pcap_checkbox")) {
+        const auto set_options = [&](PVGuiQt::PVExportSelectionDlg& dlg) {
+            connect(&dlg, &PVGuiQt::PVExportSelectionDlg::selection_exported, check);
+            if (QCheckBox* open_wireshark = dlg.findChild<QCheckBox*>("open_pcap_checkbox")) {
                 open_wireshark->setChecked(false);
             }
-
-            // Picking the format takes simulating a real selection: neither
-            // selectNameFilter() nor setCurrentIndex() emits filterSelected, the signal
-            // the dialog listens to in order to swap the source exporter for the CSV
-            // one -- the former is a plain setter, and QFileDialog wires its combo box
-            // to textActivated(), which only a user's pick triggers. Setting the index
-            // keeps the widget consistent, emitting textActivated() does the work.
-            QComboBox* filter_combo = dlg->findChild<QComboBox*>("fileTypeCombo");
-            if (filter_combo == nullptr) {
-                return false;
-            }
-            const int filter_index = filter_combo->findText(name_filter);
-            if (filter_index < 0) {
-                return false;
-            }
-            filter_combo->setCurrentIndex(filter_index);
-            // A real pick emits both: QFileDialog turns textActivated() into
-            // filterSelected(), which is what swaps the exporter and the default
-            // suffix, but it applies the filter itself from activated(). Emitting
-            // only the first left the second export round writing a .pcap again on
-            // Windows, and the .csv the check looks for was never produced.
-            Q_EMIT filter_combo->activated(filter_index);
-            Q_EMIT filter_combo->textActivated(name_filter);
-
-            // Name last, as a user would: applying the filter re-navigates the
-            // dialog, and a name typed before that loses its directory. That is how
-            // the second round ended up writing to the home directory on Windows
-            // while the check waited for the file in the temporary one.
-            lineEdit->setText(tmp_export_filename);
-            qInfo() << "export round" << name_filter << "-> default suffix"
-                    << dlg->defaultSuffix() << ", selected" << dlg->selectedFiles();
-
-            static_cast<QDialog*>(dlg)->accept();
-            return not dlg->isVisible();
-        });
+        };
+        ModalDriver export_driver(
+            &main_window, export_through_dialogs(name_filter, tmp_export_filename, set_options));
         export_driver.start();
         main_window.export_selection_Slot();
     };
@@ -488,32 +567,24 @@ void ImportExportTest::import_pcap()
     const QString source_path = QString(TEST_FOLDER) + "/sources/http.pcap";
     QVERIFY2(QFileInfo::exists(source_path), qPrintable(source_path));
 
-    // load_files() feeds the capture straight into the pcap import wizard, which
-    // opens *pre-populated* (PVInputTypePcap::create_widget_with_input_files) --
-    // so there is no "add" button to click and, crucially, no nested modal
-    // QFileDialog to drive (that QFileDialog is what stack-overflows the offscreen
-    // platform on Windows, see import_file). The wizard is still modal: this
-    // driver just clicks its "process" button once it is up.
-    bool processed = false;
-    ModalDriver wizard_driver(&main_window, [&]() -> bool {
-        auto* modal = qApp->activeModalWidget();
-        if (modal == nullptr) {
-            return false;
-        }
-        QPushButton* process_btn = modal->findChild<QPushButton*>("process_import_button");
-        if (process_btn == nullptr or not process_btn->isVisible()) {
-            return false;
-        }
-        if (not processed) {
-            processed = true;
-            QTest::mouseClick(process_btn, Qt::LeftButton, Qt::NoModifier);
-        }
-        return true;
-    });
+    // Without captures, the pcap import dialog asks for some as the other importers ask for
+    // files, in their place.
+    main_window.import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("pcap"));
+    PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+    QVERIFY(page.findChild<QToolButton*>("import_ask_files")->isVisible());
+    QVERIFY(not page.findChild<QWidget*>("captures_list")->isVisible());
 
-    wizard_driver.start();
-
+    // load_files() hands the capture to the pcap import dialog, in the import page, which
+    // reads the fields of the capture before it can import.
     main_window.load_files({source_path});
+    QVERIFY(page.content() != nullptr);
+    QVERIFY(not page.findChild<QToolButton*>("import_ask_files")->isVisible());
+    QVERIFY(page.findChild<QWidget*>("captures_list")->isVisible());
+    QVERIFY(page.findChild<QPushButton*>("process_import_button")->isHidden());
+    QPushButton* import = page.findChild<QPushButton*>("import_import");
+    QVERIFY(QTest::qWaitFor([&]() { return import->isEnabled(); }, 60000));
+    import->click();
+    QVERIFY(wait_for_import(main_window));
 
     main_window.disconnect();
 
@@ -523,8 +594,6 @@ void ImportExportTest::import_pcap()
 
 namespace
 {
-//! Answers to the questions of an import, each by a part of the text of its question.
-using Answers = std::vector<std::pair<QString, QMessageBox::StandardButton>>;
 
 void write_csv(QString const& path, int columns)
 {
@@ -539,51 +608,20 @@ void write_csv(QString const& path, int columns)
 	}
 }
 
-// Imports the files as the import dialog hands them over with the default
-// format. With no format next to the files, the import guesses one for each, and
-// asks about it as a user would be asked: a question gets the first answer whose
-// key is part of its text, and any other dialog fails the test.
-void import_guessing_formats(App::PVMainWindow& main_window,
-                             QStringList const& files,
-                             Answers const& answers_by_question)
+// Imports the files through the import page, which detects the formats of those without one next
+// to them, as one source each or one of all: no dialog opens meanwhile.
+void import_detecting_formats(App::PVMainWindow& main_window,
+                              QStringList const& files,
+                              bool source_per_file)
 {
-	PVRush::PVInputType_p in_file = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file");
-	PVRush::hash_formats formats;
-	PVRush::PVInputType::list_inputs inputs;
-	PVCore::PVArgumentList args;
-	QString format;
-	QVERIFY(in_file->create_widget_with_input_files(files, formats, inputs, format, args,
-	                                                &main_window));
-	QCOMPARE(format, QString(SQUEY_LOCAL_FORMAT_STR));
-
-	QStringList unexpected;
-	ModalDriver answers(&main_window, [&]() -> bool {
-		QWidget* modal = qApp->activeModalWidget();
-		if (modal == nullptr or not modal->isVisible()) {
-			return false;
-		}
-		if (auto* box = qobject_cast<QMessageBox*>(modal)) {
-			for (auto const& [question, answer] : answers_by_question) {
-				if (box->text().contains(question)) {
-					box->button(answer)->click();
-					return false;
-				}
-			}
-			unexpected << box->text() + " " + box->informativeText();
-			box->reject();
-		} else if (qobject_cast<QInputDialog*>(modal) or qobject_cast<QFileDialog*>(modal)) {
-			unexpected << modal->windowTitle();
-			static_cast<QDialog*>(modal)->reject();
-		}
-		// One question after the other, until the import is over.
-		return false;
-	});
-	answers.start();
-
-	PVRush::hash_format_creator format_creator;
-	main_window.import_type(in_file, inputs, formats, format_creator, format);
-
-	QVERIFY2(unexpected.isEmpty(), qPrintable(unexpected.join('\n')));
+	main_window.load_files(files);
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(page.content() != nullptr);
+	page.findChild<QRadioButton*>("import_source_per_file")->setChecked(source_per_file);
+	QPushButton* import = page.findChild<QPushButton*>("import_import");
+	QVERIFY(import->isEnabled());
+	import->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
 }
 } // namespace
 
@@ -605,22 +643,22 @@ void ImportExportTest::import_guessed_formats()
 		return;
 	}
 
-	// The format is only used once saved.
-	import_guessing_formats(main_window, files,
-	                        {{"Do you want to automatically add that splitter", QMessageBox::Yes},
-	                         {"do you want to manually enter column names", QMessageBox::No},
-	                         {"The format has been modified", QMessageBox::Save}});
+	import_detecting_formats(main_window, files, true);
 	if (QTest::currentTestFailed()) {
 		return;
 	}
 
-	// A source of its own for each file, read with the format guessed from it.
+	// A source of its own for each file, read with the format detected from it, which is not
+	// written next to the data.
 	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
 	QCOMPARE(sources.size(), size_t(files.size()));
 	for (Squey::PVSource const* source : sources) {
 		QCOMPARE(source->get_inputs().size(), qsizetype(1));
-		QCOMPARE(source->get_original_format().get_full_path(),
-		         source->get_inputs().front()->human_name() + ".format");
+		const QString path = source->get_inputs().front()->human_name();
+		QCOMPARE(source->get_original_format().get_axes().size(),
+		         path.endsWith("narrow.csv") ? qsizetype(3) : qsizetype(5));
+		QVERIFY(source->get_original_format().get_full_path().isEmpty());
+		QVERIFY(not QFile::exists(path + ".format"));
 	}
 }
 
@@ -654,20 +692,17 @@ void ImportExportTest::import_guessed_formats_without_nraw_dir()
 		return;
 	}
 
-	// The format builder previews the file as soon as it adds the guessed splitter,
-	// from the event loop of the question that follows. Neither that preview nor the
-	// import can create the collection: the import fails, and says where.
-	import_guessing_formats(
-	    main_window, {file},
-	    {{"Do you want to automatically add that splitter", QMessageBox::Yes},
-	     {"do you want to manually enter column names", QMessageBox::No},
-	     {"The format has been modified", QMessageBox::Save},
-	     {"Unable to create a temporary directory in " + QDir::toNativeSeparators(nraw_dir),
-	      QMessageBox::Ok}});
+	// The detection of the format needs no collection, the import cannot create it: it fails,
+	// and says where.
+	import_detecting_formats(main_window, {file}, false);
 	if (QTest::currentTestFailed()) {
 		return;
 	}
 
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("Unable to create a temporary directory in " +
+	                           QDir::toNativeSeparators(nraw_dir)),
+	         qPrintable(messages));
 	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 }
 
@@ -680,19 +715,6 @@ void ImportExportTest::import_failure_reported()
 #else
 	App::PVMainWindow main_window;
 	main_window.show();
-	main_window.raise();
-
-	QString report;
-	ModalDriver driver(&main_window, [&]() -> bool {
-		auto* box = qobject_cast<QMessageBox*>(qApp->activeModalWidget());
-		if (box == nullptr or not box->isVisible()) {
-			return false;
-		}
-		report = box->text();
-		box->accept();
-		return true;
-	});
-	driver.start();
 
 	{
 		rlimit previous_limit;
@@ -708,12 +730,614 @@ void ImportExportTest::import_failure_reported()
 		limit.rlim_cur = 64 * 1024;
 		QVERIFY(setrlimit(RLIMIT_FSIZE, &limit) == 0);
 
-		main_window.load_files({QString(TEST_FOLDER) + "/picviz/enum_mapping.csv"});
+		import_files(main_window, {QString(TEST_FOLDER) + "/picviz/enum_mapping.csv"});
+		QVERIFY(wait_for_import(main_window));
 	}
 
-	QVERIFY2(report.contains(PVRush::PVNrawCacheManager::nraw_dir()), qPrintable(report));
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains(PVRush::PVNrawCacheManager::nraw_dir()), qPrintable(messages));
 	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
 #endif
+}
+
+// The axes of the dates, decimals and words that the import page detects are mapped as their
+// types call for.
+void ImportExportTest::import_guessed_types()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	main_window.raise();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString path = tmp_dir.filePath("readings.log");
+	QFile file(path);
+	QVERIFY(file.open(QIODevice::WriteOnly));
+	const char* const places[] = {"north", "south", "east", "west"};
+	const QDateTime start(QDate(2022, 12, 8), QTime(13, 3, 3),
+	                      QTimeZone::fromSecondsAheadOfUtc(3600));
+	for (int row = 0; row < 100; row++) {
+		file.write(start.addSecs(60 * row).toString(Qt::ISODate).toUtf8() + ';' +
+		           QByteArray::number(9.812 + row * 0.125) + ';' + places[row % 4] + '\n');
+	}
+	file.close();
+
+	main_window.import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("file"));
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	page.content()->add_paths({path});
+	QPushButton* import = page.findChild<QPushButton*>("import_import");
+	QVERIFY(import->isEnabled());
+	import->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
+
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	const QList<PVRush::PVAxisFormat>& axes = sources.front()->get_format().get_axes();
+	QCOMPARE(axes.size(), qsizetype(3));
+	QCOMPARE(axes[0].get_type(), QString("time"));
+	QCOMPARE(axes[0].get_mapping(), QString("default"));
+	QCOMPARE(axes[1].get_type(), QString("number_double"));
+	QCOMPARE(axes[1].get_mapping(), QString("default"));
+	QCOMPARE(axes[2].get_type(), QString("string"));
+	QCOMPARE(axes[2].get_mapping(), QString("string"));
+}
+
+namespace
+{
+
+constexpr const char* ROWS_FORMAT = R"(<?xml version='1.0' encoding='UTF-8'?>
+<!DOCTYPE PVParamXml>
+<param version="11" first_line="0">
+ <splitter type="csv" sep="," quote="&quot;">
+  <field><axis name="a" type="number_uint32"/></field>
+  <field><axis name="b" type="number_uint32"/></field>
+  <field><axis name="c" type="number_uint32"/></field>
+ </splitter>
+</param>
+)";
+
+// @p row_count rows of three numbers, with the format next to them, which the import finds.
+void write_rows(QString const& path, int row_count)
+{
+	QFile file(path);
+	QVERIFY(file.open(QIODevice::WriteOnly));
+	QByteArray rows;
+	for (int row = 0; row < row_count; row++) {
+		rows += QByteArray::number(row) + ',' + QByteArray::number(row + 1) + ',' +
+		        QByteArray::number(row + 2) + '\n';
+		if (rows.size() > (1 << 20)) {
+			file.write(rows);
+			rows.clear();
+		}
+	}
+	file.write(rows);
+	QFile format(path + ".format");
+	QVERIFY(format.open(QIODevice::WriteOnly));
+	format.write(ROWS_FORMAT);
+}
+
+// The button @p text of the progress of the import page.
+QPushButton* progress_button(App::PVMainWindow& main_window, QString const& text)
+{
+	auto* progress =
+	    main_window._projects_tab_widget->import_page().findChild<QWidget*>("import_progress");
+	for (QPushButton* button : progress->findChildren<QPushButton*>()) {
+		if (button->text().trimmed() == text) {
+			return button;
+		}
+	}
+	return nullptr;
+}
+
+// The button @p text of the message of the import page that asks a question.
+QPushButton* message_button(App::PVMainWindow& main_window, QString const& text)
+{
+	for (QFrame* message : main_window.findChildren<QFrame*>("import_message")) {
+		for (QPushButton* button : message->findChildren<QPushButton*>()) {
+			if (button->text().trimmed() == text) {
+				return button;
+			}
+		}
+	}
+	return nullptr;
+}
+
+} // namespace
+
+// The extraction and the processing show in the import page of the main window, which asks
+// nothing, while the rest of the window waits.
+void ImportExportTest::import_in_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 1000);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	import_files(main_window, {csv});
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QPushButton* back = page.findChild<QPushButton*>("import_back");
+	QVERIFY(main_window.import_controller().busy());
+	QVERIFY(page.isVisible());
+	QVERIFY(not main_window.menuBar()->isEnabled());
+	QVERIFY(not back->isEnabled());
+	bool modal = false;
+	QVERIFY(QTest::qWaitFor(
+	    [&]() {
+		    modal |= qApp->activeModalWidget() != nullptr;
+		    return not main_window.import_controller().busy();
+	    },
+	    120000));
+	QVERIFY(not modal);
+
+	QVERIFY(not page.isVisible());
+	QVERIFY(main_window.menuBar()->isEnabled());
+	QVERIFY(back->isEnabled());
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_row_count(), PVRow(1000));
+}
+
+// Files dropped on the main window open in the import page, as a command line opens them, but
+// not over what the page asks for.
+void ImportExportTest::import_dropped_files()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 100);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	QMimeData mime;
+	mime.setUrls({QUrl::fromLocalFile(csv)});
+	const auto drop = [&]() {
+		QDragEnterEvent enter(QPointF(10, 10), Qt::CopyAction, &mime, Qt::LeftButton,
+		                      Qt::NoModifier);
+		QCoreApplication::sendEvent(&main_window, &enter);
+		if (not enter.isAccepted()) {
+			return false;
+		}
+		QDropEvent dropped(QPointF(10, 10), Qt::CopyAction, &mime, Qt::LeftButton, Qt::NoModifier);
+		QCoreApplication::sendEvent(&main_window, &dropped);
+		return dropped.isAccepted();
+	};
+	QVERIFY(drop());
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(
+	    QTest::qWaitFor([&]() { return page.content() != nullptr and page.isVisible(); }, 10000));
+	QCOMPARE(page.content()->sources().size(), size_t(1));
+	QCOMPARE(page.content()->sources().front().first.size(), qsizetype(1));
+	QVERIFY(not drop());
+
+	page.findChild<QPushButton*>("import_import")->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_row_count(), PVRow(100));
+}
+
+// What cannot be imported is told in the import page, which stays until the user leaves it.
+void ImportExportTest::import_error_in_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("empty.csv");
+	write_rows(csv, 0);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	import_files(main_window, {csv});
+	QVERIFY(wait_for_import(main_window));
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(page.isVisible());
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("were empty"), qPrintable(messages));
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+
+	// With what it asked for the import, to try again.
+	QVERIFY(page.content() != nullptr and page.content()->isVisible());
+	QPushButton* cancel = page.findChild<QPushButton*>("import_cancel");
+	QVERIFY(cancel->isVisible());
+	cancel->click();
+	QVERIFY(not page.isVisible());
+	QVERIFY(import_messages(main_window).isEmpty());
+}
+
+// A format whose types do not allow its mappings is told in the import page.
+void ImportExportTest::import_incompatible_format()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 100);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+	// The mapping of the hours of times, for numbers.
+	QFile format(csv + ".format");
+	QVERIFY(format.open(QIODevice::WriteOnly | QIODevice::Truncate));
+	format.write(
+	    QByteArray(ROWS_FORMAT)
+	        .replace(R"(<axis name="a" type="number_uint32"/>)",
+	                 R"(<axis name="a" type="number_uint32"><mapping mode="24h"/></axis>)"));
+	format.close();
+
+	import_files(main_window, {csv});
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("not compatible"), qPrintable(messages));
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+}
+
+// Discarding an import asks first, in the page: going on resumes it, discarding drops the source.
+// The window cannot close meanwhile.
+void ImportExportTest::discard_import()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 100000);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	import_files(main_window, {csv});
+	QVERIFY(not main_window.close());
+	QPushButton* discard = progress_button(main_window, "Discard");
+	QVERIFY(discard != nullptr and discard->isVisible());
+	discard->click();
+	QPushButton* resume = message_button(main_window, "Continue");
+	QVERIFY(resume != nullptr);
+	QVERIFY(not discard->isEnabled());
+	resume->click();
+	QVERIFY(discard->isEnabled());
+	discard->click();
+	QPushButton* confirm = message_button(main_window, "Discard");
+	QVERIFY(confirm != nullptr);
+	confirm->click();
+
+	QVERIFY(wait_for_import(main_window));
+	QVERIFY(main_window.get_root().get_children<Squey::PVSource>().empty());
+	// Only what told the window could not close.
+	QVERIFY2(not import_messages(main_window).contains("Discard"),
+	         qPrintable(import_messages(main_window)));
+}
+
+// Stopping an import keeps the events extracted so far, which are processed.
+void ImportExportTest::stop_import()
+{
+	// Small chunks, two at once: the import goes a few chunks further than where it is paused or
+	// stopped.
+	QVERIFY(PVCore::settings::import_chunk_size.set_value(65536));
+	QVERIFY(PVCore::settings::import_parallel_chunks.set_value(2));
+	const auto restore = qScopeGuard([]() {
+		PVCore::PVSettings::get().reset(PVCore::settings::import_chunk_size.key());
+		PVCore::PVSettings::get().reset(PVCore::settings::import_parallel_chunks.key());
+	});
+
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	constexpr int row_count = 400000;
+	write_rows(csv, row_count);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	// The question of the discard pauses the import before it can go far, whatever the speed of
+	// the machine, and lets the chunks it holds go through meanwhile.
+	import_files(main_window, {csv});
+	progress_button(main_window, "Discard")->click();
+	QTest::qWait(200);
+	message_button(main_window, "Continue")->click();
+	progress_button(main_window, "Stop and process")->click();
+
+	QVERIFY(wait_for_import(main_window));
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QVERIFY(sources.front()->get_row_count() > 0);
+	QVERIFY2(sources.front()->get_row_count() < PVRow(row_count),
+	         qPrintable(QString::number(sources.front()->get_row_count())));
+}
+
+namespace
+{
+
+void write_json(QString const& path, QByteArray const& lines)
+{
+	QFile file(path);
+	QVERIFY(file.open(QIODevice::WriteOnly));
+	file.write(lines);
+}
+
+
+} // namespace
+
+// JSON files given together, as from the command line, open in the import page, which reads them
+// for their columns, and imports them as one source once asked to.
+void ImportExportTest::import_json_in_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString first = tmp_dir.filePath("first.json");
+	const QString second = tmp_dir.filePath("second.json");
+	write_json(first, "{\"x\": 1, \"s\": \"a\"}\n");
+	write_json(second, "{\"x\": 2}\n{\"x\": 3, \"s\": \"c\"}\n");
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	main_window.load_files({first, second});
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+	QVERIFY(page.isVisible());
+	QVERIFY(page.content() != nullptr);
+	bool modal = false;
+	QVERIFY(QTest::qWaitFor(
+	    [&]() {
+		    modal |= qApp->activeModalWidget() != nullptr;
+		    return page.content()->is_ready();
+	    },
+	    60000));
+	QVERIFY(not modal);
+	page.findChild<QPushButton*>("import_import")->click();
+	QVERIFY(wait_for_import_without_dialog(main_window));
+
+	QVERIFY(not page.isVisible());
+	QVERIFY(page.content() == nullptr);
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	const PVRush::PVNraw& nraw = sources.front()->get_rushnraw();
+	QCOMPARE(nraw.row_count(), PVRow(3));
+	QCOMPARE(nraw.at_string(2, PVCol(0)), std::string("second.json"));
+}
+
+// A source of the recent items, of JSON files, has no schema: it is read again out of the GUI
+// thread, while the page shows the progress.
+void ImportExportTest::import_recent_json()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString path = tmp_dir.filePath("recent.json");
+	write_json(path, "{\"x\": 1, \"s\": \"a\"}\n{\"x\": 2, \"s\": \"b\"}\n");
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	PVRush::PVInputType_p json = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json");
+	main_window.load_source_from_description_Slot(PVRush::PVSourceDescription(
+	    {json->load_input_from_string({path.toStdString()}, false)},
+	    PVRush::PVSourceCreatorFactory::get_by_input_type(json), PVRush::PVFormat()));
+	QVERIFY(wait_for_import_without_dialog(main_window));
+
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_rushnraw().row_count(), PVRow(2));
+}
+
+// The parameters of an import, as D-Bus gives them, are read out of the GUI thread, and what is
+// wrong with them is told in the page.
+void ImportExportTest::import_params()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString path = tmp_dir.filePath("params.json");
+	write_json(path, "{\"x\": 1, \"s\": \"a\"}\n{\"x\": 2, \"s\": \"b\"}\n{\"x\": 3, \"s\": \"c\"}\n");
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	PVRush::PVInputType_p json = LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json");
+	const auto params = [&path](QString const& row_filter) {
+		return QJsonDocument(QJsonObject{{"paths", QJsonArray{path}}, {"row_filter", row_filter}})
+		    .toJson(QJsonDocument::Compact);
+	};
+	main_window.import_controller().import_params(json, params("x > 1"));
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	const auto sources = main_window.get_root().get_children<Squey::PVSource>();
+	QCOMPARE(sources.size(), size_t(1));
+	QCOMPARE(sources.front()->get_rushnraw().row_count(), PVRow(2));
+
+	main_window.import_controller().import_params(json, params("nope > 1"));
+	QVERIFY(wait_for_import_without_dialog(main_window));
+	QCOMPARE(main_window.get_root().get_children<Squey::PVSource>().size(), size_t(1));
+	const QString messages = import_messages(main_window);
+	QVERIFY2(messages.contains("nope"), qPrintable(messages));
+}
+
+// The Back button of the import page leaves it in its tab, with what it shows, for the page shown
+// before; the close button of its tab drops what it shows.
+void ImportExportTest::leave_import_page()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	PVGuiQt::PVProjectsTabWidget& projects = *main_window._projects_tab_widget;
+	PVGuiQt::PVImportPage& page = projects.import_page();
+	QTabBar* tabs = projects.findChild<QTabBar*>();
+	constexpr int import_tab = PVGuiQt::PVProjectsTabWidget::IMPORT_PAGE_INDEX;
+	projects.project_new();
+	const int collection_tab = tabs->currentIndex();
+	QCOMPARE(collection_tab, PVGuiQt::PVProjectsTabWidget::FIRST_PROJECT_INDEX);
+
+	main_window.import_type(LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json"));
+	const QPointer<PVWidgets::PVImportWidget> content = page.content();
+	QVERIFY(content != nullptr);
+	QVERIFY(page.isVisible());
+	page.findChild<QPushButton*>("import_back")->click();
+	QCOMPARE(tabs->currentIndex(), collection_tab);
+	QVERIFY(tabs->isTabVisible(import_tab));
+	QCOMPARE(page.content(), content.data());
+
+	tabs->setCurrentIndex(import_tab);
+	QVERIFY(page.isVisible());
+	QWidget* close = tabs->tabButton(import_tab, QTabBar::LeftSide);
+	if (close == nullptr) {
+		close = tabs->tabButton(import_tab, QTabBar::RightSide);
+	}
+	QVERIFY(qobject_cast<QAbstractButton*>(close) != nullptr);
+	qobject_cast<QAbstractButton*>(close)->click();
+	QCOMPARE(tabs->currentIndex(), collection_tab);
+	QVERIFY(not tabs->isTabVisible(import_tab));
+	QVERIFY(QTest::qWaitFor([&]() { return content.isNull(); }, 10000));
+}
+
+namespace
+{
+
+// What the import page shows, which reads its inputs until it is canceled.
+class ReadingContent : public PVWidgets::PVImportWidget
+{
+  public:
+	bool is_ready() const override { return false; }
+	std::vector<source_t> sources() const override { return {}; }
+
+	void read()
+	{
+		run_task(
+		    "Reading",
+		    [](PVCore::PVTaskProgress& progress) {
+			    while (not progress.canceled()) {
+				    std::this_thread::sleep_for(std::chrono::milliseconds(10));
+			    }
+		    },
+		    [](bool) {});
+	}
+};
+
+} // namespace
+
+// Closing the import page while what it shows reads its inputs stops the reading first.
+void ImportExportTest::close_import_page_while_reading()
+{
+	App::PVMainWindow main_window;
+	main_window.show();
+	PVGuiQt::PVImportPage& page = main_window._projects_tab_widget->import_page();
+
+	const QPointer<ReadingContent> content = new ReadingContent;
+	QVERIFY(main_window.import_controller().edit(
+	    LIB_CLASS(PVRush::PVInputType)::get().get_class_by_name("json"), content));
+	content->read();
+	QVERIFY(page.task_running());
+	page.findChild<QPushButton*>("import_cancel")->click();
+	QVERIFY(page.isVisible());
+	QCOMPARE(page.content(), content.data());
+
+	QVERIFY(QTest::qWaitFor([&]() { return not page.isVisible(); }, 10000));
+	QVERIFY(QTest::qWaitFor([&]() { return content.isNull(); }, 10000));
+	QVERIFY(not main_window.import_controller().busy());
+}
+
+// The window going away while an import runs, as the application quits, stops the import before
+// it drops the source.
+void ImportExportTest::destroy_window_while_importing()
+{
+	QTemporaryDir tmp_dir;
+	QVERIFY(tmp_dir.isValid());
+	const QString csv = tmp_dir.filePath("rows.csv");
+	write_rows(csv, 400000);
+	if (QTest::currentTestFailed()) {
+		return;
+	}
+
+	auto main_window = std::make_unique<App::PVMainWindow>();
+	main_window->show();
+	import_files(*main_window, {csv});
+	// For the extraction to be under way.
+	QTest::qWait(10);
+	QVERIFY(main_window->import_controller().busy());
+	main_window.reset();
+}
+
+// A working directory set before and out of reach, as one of the host is for a Flatpak that no
+// longer sees the host: the box Squey starts with offers the default one, when Squey can write
+// in it.
+void ImportExportTest::working_directory_out_of_reach()
+{
+	QVERIFY(PVCore::settings::working_directory.set_value("/proc/squey-out-of-reach"));
+	const auto restore = qScopeGuard(
+	    []() { PVCore::PVSettings::get().reset(PVCore::settings::working_directory.key()); });
+	// The pvconfig.ini of a build tree sets it to /srv/tmp-squey, which a machine without that
+	// directory, such as a runner of the CI, does not let Squey create.
+	const QString default_directory =
+	    PVCore::PVSettings::get()
+	        .default_value(PVCore::settings::working_directory.key())
+	        .toString();
+	QDir().mkpath(default_directory);
+	const bool default_reachable = PVCore::can_create_directory_in(default_directory);
+
+	bool offered = false;
+	bool browsing = false;
+	QTemporaryDir writable;
+	ModalDriver driver(qApp, [&]() -> bool {
+		QWidget* modal = qApp->activeModalWidget();
+		// Without the default, a directory chosen closes the box all the same, rather than the
+		// test waiting on it.
+		if (auto* file_dialog = qobject_cast<QFileDialog*>(modal)) {
+			auto* name = file_dialog->findChild<QLineEdit*>("fileNameEdit");
+			if (name == nullptr) {
+				return false;
+			}
+			name->setText(writable.path());
+			static_cast<QDialog*>(file_dialog)->accept();
+			return true;
+		}
+		auto* box = qobject_cast<QMessageBox*>(modal);
+		if (box == nullptr or browsing) {
+			return false;
+		}
+		for (QAbstractButton* button : box->buttons()) {
+			if (button->text() == "Use the default") {
+				offered = true;
+				button->click();
+				return true;
+			}
+		}
+		for (QAbstractButton* button : box->buttons()) {
+			if (button->text() == "Browse...") {
+				browsing = true;
+				// Queued: the file dialog it opens runs a loop of its own.
+				QMetaObject::invokeMethod(button, &QAbstractButton::click, Qt::QueuedConnection);
+			}
+		}
+		return false;
+	});
+	driver.start();
+	PVNrawDirectoryMessageBox box;
+
+	QCOMPARE(offered, default_reachable);
+	QCOMPARE(PVCore::settings::working_directory.value(),
+	         default_reachable ? default_directory : writable.path());
 }
 
 QTEST_MAIN(ImportExportTest)

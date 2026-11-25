@@ -27,6 +27,7 @@
 #include <pvkernel/core/squey_assert.h>
 
 #include <iostream>
+#include <string>
 #include <cstdio>
 
 #include <pvlogger.h>
@@ -34,8 +35,28 @@
 #define FILENAME                                                                                   \
 	"test_file_helper.test" // won't work on tmpfs, see https://lkml.org/lkml/2008/4/29/602
 
+static void expect_suffixes(const char* path, const char* expected)
+{
+	PV_VALID(PVCore::PVFileHelper::suffixes_without_rotation(path).toStdString(),
+	         std::string(expected), "path", std::string(path));
+}
+
 int main()
 {
+	// The numbers and the dates that logrotate and Suricata append, before or after a compression.
+	expect_suffixes("/var/log/suricata/eve.json.1", "json");
+	expect_suffixes("/var/log/suricata/eve.json.2.gz", "json.gz");
+	expect_suffixes("/var/log/suricata/eve.json.gz.3", "json.gz");
+	expect_suffixes("/var/log/suricata/eve.json-20261119", "json");
+	expect_suffixes("/var/log/suricata/eve.json-2026-11-19_12.zst", "json.zst");
+	expect_suffixes("/var/log/suricata/eve.json.1700000000", "json");
+	// Names with dots, dashes and cases of their own.
+	expect_suffixes("/tmp/report.2026.01.csv", "csv");
+	expect_suffixes("/tmp/Traffic.CSV.GZ", "csv.gz");
+	expect_suffixes("/tmp/notes.v2-final.txt", "v2-final.txt");
+	expect_suffixes("/tmp/archive.d/README", "");
+	expect_suffixes("/tmp/backup.1", "");
+
 	std::cout << "testing for a non existing file (a warning must be printed)" << std::endl;
 	PV_VALID(PVCore::PVFileHelper::is_already_opened(FILENAME), false);
 

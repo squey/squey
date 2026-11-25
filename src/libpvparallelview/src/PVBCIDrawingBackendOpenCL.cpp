@@ -149,6 +149,13 @@ PVParallelView::PVBCIDrawingBackendOpenCL::PVBCIDrawingBackendOpenCL()
 
 bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 {
+	// Qt keeps OpenCL out entirely, for a driver that crashes as soon as it is loaded.
+	const PVOpenCL::lines_platform_t platform = PVOpenCL::lines_platform();
+	if (platform.kind == PVOpenCL::lines_platform_t::kind_t::qt) {
+		PVLOG_INFO("No OpenCL: the settings ask for Qt.\n");
+		return false;
+	}
+
 	PVCore::setenv("POCL_CPU_LOCAL_MEM_SIZE", std::to_string(PARALLELVIEW_POCL_CPU_LOCAL_MEM_SIZE).c_str(), 0);
 
 #ifdef __APPLE__
@@ -294,25 +301,34 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize()
 	PVCore::setenv("POCL_LINKER_DIR", libdir.c_str(), 1);
 #endif
 
+	using kind_t = PVOpenCL::lines_platform_t::kind_t;
+
 	/* The CPU device gets its turn whenever the accelerated one fails, not only
 	 * when there is none: a GPU found and then refusing a queue, a buffer or the
 	 * kernel used to leave the backend without a device, and the views to the
-	 * QPainter backend while PortableCL could have drawn them.
+	 * QPainter backend while PortableCL could have drawn them. So does any CPU
+	 * device when that of the platform named in the settings fails.
 	 */
-	if (not PVOpenCL::force_cpu() and initialize_devices(true)) {
+	if ((platform.kind == kind_t::automatic or platform.kind == kind_t::accelerated) and
+	    initialize_devices(true, platform.name)) {
 		return true;
 	}
 
 	_is_gpu_accelerated = false;
 
-	return initialize_devices(false);
+	if (platform.kind == kind_t::processor and not platform.name.empty() and
+	    initialize_devices(false, platform.name)) {
+		return true;
+	}
+	return initialize_devices(false, {});
 }
 
 /*****************************************************************************
  * PVParallelView::PVBCIDrawingBackendOpenCL::initialize_devices
  *****************************************************************************/
 
-bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize_devices(bool accelerated)
+bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize_devices(bool accelerated,
+                                                                   std::string const& platform)
 {
 	// Whatever a previous attempt set up goes first, the kernel before the
 	// context it was built in.
@@ -351,7 +367,7 @@ bool PVParallelView::PVBCIDrawingBackendOpenCL::initialize_devices(bool accelera
 		++dev_idx;
 	};
 
-	_context = PVOpenCL::find_first_usable_context(accelerated, fun);
+	_context = PVOpenCL::find_first_usable_context(accelerated, fun, platform);
 
 	if (_context() == nullptr) {
 		PVLOG_INFO("No %s OpenCL support: no context available.\n", kind);

@@ -28,6 +28,7 @@
 #include <pvkernel/rush/PVInputType.h>        // for PVInputType, etc
 #include <pvkernel/rush/PVSourceCreator.h>    // for PVSourceCreator, etc
 #include <pvkernel/rush/PVSourceDescription.h> // for PVSourceDescription
+#include <pvkernel/core/PVFlatpakHelper.h>
 #include <pvkernel/core/PVConfig.h>
 #include <pvkernel/core/PVRecentItemsManager.h>
 #include <qchar.h>
@@ -73,9 +74,24 @@ void PVCore::PVRecentItemsManager::add_source(PVRush::PVSourceCreator_p source_c
 	if (source_timestamp) {
 		_recents_settings.remove(QString::number(source_timestamp));
 	}
+	// The setting may have been lowered since the list was written: the oldest go.
+	QStringList timestamps = _recents_settings.childGroups();
+	std::sort(timestamps.begin(), timestamps.end(), [](QString const& lhs, QString const& rhs) {
+		return lhs.toULongLong() < rhs.toULongLong();
+	});
+	while (not timestamps.isEmpty() and timestamps.size() >= settings::recent_items.value()) {
+		_recents_settings.remove(timestamps.takeFirst());
+	}
 
 	// Set source description information in it.
-	_recents_settings.beginGroup(QString::number(QDateTime::currentDateTime().toMSecsSinceEpoch()));
+	// Under a timestamp of its own: sources added within the same millisecond would share a
+	// group, the last one written in place of the others.
+	uint64_t timestamp = QDateTime::currentDateTime().toMSecsSinceEpoch();
+	const QStringList taken = _recents_settings.childGroups();
+	while (taken.contains(QString::number(timestamp))) {
+		++timestamp;
+	}
+	_recents_settings.beginGroup(QString::number(timestamp));
 
 	_recents_settings.setValue(ITEM_SUBKEY_SOURCE_CREATOR_NAME,
 	                           source_creator_p->registered_name());
@@ -131,6 +147,10 @@ template <PVCore::Category category>
 typename PVCore::list_type<category>::type PVCore::PVRecentItemsManager::items_list() const
 {
 	QStringList v = _recents_settings.value(_recents_items_keys[category]).toStringList();
+	// Newest first, and as many as the settings say: they may have changed since.
+	if (category != Category::PROJECTS) {
+		v = v.mid(0, settings::recent_items.value());
+	}
 	std::vector<std::string> res(v.size());
 	std::transform(v.begin(), v.end(), res.begin(), std::mem_fn(&QString::toStdString));
 	return res;
@@ -184,7 +204,8 @@ std::vector<PVCore::PVSerializedSource> PVCore::PVRecentItemsManager::sources_de
 	_recents_settings.beginGroup(_recents_items_keys[SOURCES]);
 
 	QStringList sources = _recents_settings.childGroups();
-	for (int i = sources.length(); i-- > 0;) {
+	for (int i = sources.length();
+	     i-- > 0 and res.size() < size_t(settings::recent_items.value());) {
 		QString source = sources.at(i);
 		_recents_settings.beginGroup(source);
 
@@ -243,7 +264,7 @@ uint64_t PVCore::PVRecentItemsManager::get_source_timestamp_to_replace(
 		_recents_settings.endGroup();
 	}
 
-	if (sources.size() < _max_recent_items) {
+	if (sources.size() < settings::recent_items.value()) {
 		return 0;
 	}
 
@@ -307,7 +328,8 @@ PVCore::PVRecentItemsManager::PVRecentItemsManager()
 std::tuple<QString, QStringList>
 PVCore::PVRecentItemsManager::get_string_from_entry(QString const& string) const
 {
-	return std::make_tuple(string, QStringList() << string);
+	const QString shown = PVCore::PVFlatpakHelper::host_path(string);
+	return std::make_tuple(shown, QStringList() << shown);
 }
 
 std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_entry(
@@ -318,7 +340,8 @@ std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_e
 
 	if (src_desc.input_desc.size() == 1) {
 		PVRush::PVSourceDescription input(src_desc);
-		QString source_path = input.get_inputs()[0]->human_name();
+		QString source_path =
+		    PVCore::PVFlatpakHelper::host_path(input.get_inputs()[0]->human_name());
 		long_string = source_path;
 		if (not src_desc.format_name.empty()) {
 			long_string += " [" + QString::fromStdString(src_desc.format_name) + "]";
@@ -327,7 +350,7 @@ std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_e
 	} else {
 		PVRush::PVSourceDescription desc(src_desc);
 		for (auto const& input : desc.get_inputs()) {
-			filenames << input->human_name();
+			filenames << PVCore::PVFlatpakHelper::host_path(input->human_name());
 		}
 		if (not src_desc.format_name.empty()) {
 			long_string = "[" + QString::fromStdString(src_desc.format_name) + "]\n";
@@ -341,10 +364,10 @@ std::tuple<QString, QStringList> PVCore::PVRecentItemsManager::get_string_from_e
 std::tuple<QString, QStringList>
 PVCore::PVRecentItemsManager::get_string_from_entry(PVRush::PVFormat const& format) const
 {
-	QString long_string =
-	    QString("%1 (%2)").arg(format.get_format_name()).arg(format.get_full_path());
+	const QString path = PVCore::PVFlatpakHelper::host_path(format.get_full_path());
+	QString long_string = QString("%1 (%2)").arg(format.get_format_name()).arg(path);
 	QStringList filenames;
-	filenames << format.get_full_path();
+	filenames << path;
 
 	return std::make_tuple(long_string, filenames);
 }

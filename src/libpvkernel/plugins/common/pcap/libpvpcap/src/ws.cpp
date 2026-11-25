@@ -47,8 +47,11 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <unordered_set>
 #include <QDir>
+#include <QFile>
 #include <QFileInfo>
+#include <QTemporaryDir>
 #include <cstdlib>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iterator>
@@ -56,9 +59,14 @@
 #include <unordered_map>
 #include <vector>
 #include <algorithm>
+#include <array>
+#include <cctype>
+#include <string_view>
 #include <regex>
 
 #include "../include/libpvpcap.h"
+#include "../include/libpvpcap/capture.h"
+#include "../include/libpvpcap/process.h"
 #include "../include/libpvpcap/ws.h"
 #include "../include/libpvpcap/exception.h"
 #include "rapidjson/document.h"
@@ -139,394 +147,149 @@ std::vector<std::string> get_wireshark_profiles_paths()
 	return wireshark_profiles;
 }
 
-std::string ws_protocols_dict_path()
-{
-	return get_user_conf_dir() + "/ws_protocols_dict";
-}
-
-rapidjson::Document ws_parse_protocol_dict(const std::string& protocols_dict_file)
-{
-	rapidjson::Document protocol_dict;
-
-	// Open protocols_dict json file
-	std::ifstream ifs(std::filesystem::path{protocols_dict_file});
-
-	if (not ifs) {
-		throw PcapTreeException("Unable to open protocol_dict json file");
-	}
-
-	std::string content{std::istreambuf_iterator<char>(ifs), std::istreambuf_iterator<char>()};
-
-	// json DOM
-	protocol_dict.Parse(content.c_str());
-
-	if (protocol_dict.HasParseError()) {
-		throw PcapTreeException("protocol_dict json parse error");
-	}
-
-	return protocol_dict;
-}
-
 /*******************************************************************************
  *
  * ws_get_version
  *
  ******************************************************************************/
+bool wireshark_profile_exists(const std::string& name)
+{
+	return name.empty() or
+	       QFileInfo(QString::fromStdString(get_wireshark_profiles_dir() + "/" + name)).isDir();
+}
+
 std::string ws_get_version()
 {
-	// Save tshark version. we use the first line
-	std::string tshark_cmd = std::string(tshark_path()) + " -v";
-	std::vector<std::string> tshark_version = execute_cmd(tshark_cmd);
-
-	// Extract version number
-    std::regex version_regex(R"(\d+\.\d+\.\d+)");
-    std::smatch match;
-    if (not std::regex_search(tshark_version[0], match, version_regex)) {
+	// The version number is on the first line.
+	const std::vector<std::string> lines = tshark_output({"-v"});
+	std::regex version_regex(R"(\d+\.\d+\.\d+)");
+	std::smatch match;
+	if (lines.empty() or not std::regex_search(lines.front(), match, version_regex)) {
 		pvlogger::error() << "Unable to detect tshark version" << std::endl;
-    }
-	return match.str().c_str();
+		return {};
+	}
+	return match.str();
 }
 
-/*******************************************************************************
- *
- * ws_create_protocols_dict
- *
- ******************************************************************************/
-void ws_create_protocols_dict(std::string const& protocols_dict_file)
+std::vector<std::string> tshark_output(const std::vector<std::string>& arguments)
 {
-	rapidjson::Document json;
-	json.SetObject();
-	rapidjson::Document::AllocatorType& alloc = json.GetAllocator();
-	std::vector<std::string> split_fields;
+	QTemporaryDir directory;
+	if (not directory.isValid()) {
+		return {};
+	}
+	child_process::options process;
+	process.argv.push_back(tshark_path());
+	process.argv.insert(process.argv.end(), arguments.begin(), arguments.end());
+	process.output = directory.filePath("output").toStdString();
+	process.errors = directory.filePath("errors").toStdString();
+	process.environment = tshark_environment();
 
-	rapidjson::Value version;
-	std::string tshark_version = ws_get_version();
-	version.SetString(tshark_version.c_str(), alloc);
-	json.AddMember("tshark_version", version, alloc);
-
-	// Add protocols information : key = protocol filter name
-	std::vector<std::string> protocols = ws_get_tshark_protocols();
-	for (auto& p : protocols) {
-		p = p.substr(0, p.length() - 1); // delete '\n'
-		boost::split(split_fields, p, boost::is_any_of("\t"));
-
-		rapidjson::Value val;
-		rapidjson::Value obj;
-		obj.SetObject();
-
-		val.SetString(split_fields[0].c_str(), alloc);
-		obj.AddMember("name", val, alloc);
-
-		val.SetString(split_fields[1].c_str(), alloc);
-		obj.AddMember("short_name", val, alloc);
-
-		val.SetString(split_fields[2].c_str(), alloc);
-		obj.AddMember("filter_name", val, alloc);
-
-		obj.AddMember("fields", rapidjson::Value(rapidjson::kArrayType), alloc);
-
-		rapidjson::Value filter_name(split_fields[2].c_str(), split_fields[2].size(), alloc);
-		json.AddMember(filter_name, obj, alloc);
+	try {
+		child_process tshark(process);
+		tshark.close_input();
+		const child_process::status status = tshark.wait();
+		if (not status.exited or status.code != 0) {
+			return {};
+		}
+	} catch (const process_error& e) {
+		pvlogger::error() << e.what() << std::endl;
+		return {};
 	}
 
-	// Add the fields of every protocols
-	std::vector<std::string> fields = ws_get_tshark_fields();
-	for (auto& f : fields) {
-		f = f.substr(0, f.length() - 1); // delete '\n'
-		boost::split(split_fields, f, boost::is_any_of("\t"));
+	std::vector<std::string> lines;
+	std::ifstream output{std::filesystem::path(directory.filePath("output").toStdU16String())};
+	for (std::string line; std::getline(output, line);) {
+		if (not line.empty() and line.back() == '\r') {
+			line.pop_back();
+		}
+		lines.push_back(std::move(line));
+	}
+	return lines;
+}
 
-		rapidjson::Value val;
-		rapidjson::Value obj;
-		obj.SetObject();
-
-		// Find protocol filter_name  (split_fields[4])
-		rapidjson::Value::MemberIterator it = json.FindMember(split_fields[4].c_str());
-		if (it != json.MemberEnd()) {
-
-			val.SetString(split_fields[1].c_str(), alloc);
-			obj.AddMember("name", val, alloc);
-
-			val.SetString(split_fields[2].c_str(), alloc);
-			obj.AddMember("filter_name", val, alloc);
-
-			val.SetString(split_fields[3].c_str(), alloc);
-			obj.AddMember("type", val, alloc);
-
-			val.SetString(split_fields[7].c_str(), alloc);
-			obj.AddMember("description", val, alloc);
-
-			// it's the best way to add select tag here.
-			// we will use this tag to select or unselect the field object later
-			val.SetBool(false);
-			obj.AddMember("select", val, alloc);
-
-			it->value["fields"].GetArray().PushBack(obj, alloc);
+filter_check ws_check_filter(const std::string& filter)
+{
+	filter_check check;
+	QTemporaryDir directory;
+	if (not directory.isValid()) {
+		return check;
+	}
+	// A capture of no frame: tshark only checks the filter.
+	const std::string capture = directory.filePath("empty.pcap").toStdString();
+	{
+		QFile file(QString::fromStdString(capture));
+		const uint32_t header[] = {0xa1b2c3d4, 0x00040002, 0, 0, 65535, 1};
+		if (not file.open(QIODevice::WriteOnly) or
+		    file.write(reinterpret_cast<const char*>(header), sizeof(header)) != sizeof(header)) {
+			return check;
 		}
 	}
-
-	// save json to file
-	rapidjson::StringBuffer str_buffer;
-	rapidjson::Writer<rapidjson::StringBuffer> writer(str_buffer);
-	json.Accept(writer);
-
-	std::ofstream ofs{std::filesystem::path(protocols_dict_file)};
-	ofs << str_buffer.GetString();
-
-	if (!ofs.good()) {
-		throw PcapTreeException("Can't write the JSON string to the file!");
+	child_process::options process;
+	process.argv = {tshark_path(), "-r", capture, "-Y", filter};
+	process.output = directory.filePath("output").toStdString();
+	process.errors = directory.filePath("errors").toStdString();
+	process.environment = tshark_environment();
+	child_process::status status;
+	try {
+		child_process tshark(process);
+		tshark.close_input();
+		status = tshark.wait();
+	} catch (const process_error&) {
+		return check;
 	}
-}
+	check.checked = true;
+	if (status.exited and status.code == 0) {
+		return check;
+	}
 
-/*******************************************************************************
- *
- * build_protocols_dict
- *
- ******************************************************************************/
-
-rapidjson::Document ws_create_protocols_tree(const std::string& source,
-                                             const rapidjson::Document& protocols_dict)
-{
-	/*
-	 * We use the tshark hierarchy statistics to build the protocol tree.
-	 * Here is an example of the output of the command :
-	 *
-	 *>>>
-	 * $ tshark -q -z io,phs,frame -r demo_02.pcapng
-	 *
-	 * ===================================================================
-	 * Protocol Hierarchy Statistics
-	 * Filter: frame
-	 *
-	 * frame                                    frames:19246 bytes:20524313
-	 *   eth                                    frames:19246 bytes:20524313
-	 *     ip                                   frames:19246 bytes:20524313
-	 *       tcp                                frames:19235 bytes:20522161
-	 *         http                             frames:10 bytes:5989
-	 *           data-text-lines                frames:1 bytes:118
-	 *             tcp.segments                 frames:1 bytes:118
-	 *           image-gif                      frames:2 bytes:916
-	 *           xml                            frames:1 bytes:487
-	 *           media                          frames:1 bytes:1261
-	 *             tcp.segments                 frames:1 bytes:1261
-	 *       ipv6                               frames:11 bytes:2152
-	 *         tcp                              frames:11 bytes:2152
-	 *           http                           frames:2 bytes:1282
-	 *             image-gif                    frames:1 bytes:539
-	 * ===================================================================
-	 *>>>
-	 *
-	 * The aim is to read that output line by line, apply some transforms
-	 * and add it to the protocol tree.
-	 *
+	/* Such as:
+	 * tshark: "http.reqest" is not a valid protocol or protocol field.
+	 *     http.reqest
+	 *     ^~~~~~~~~~~
 	 */
-	rapidjson::Document document;
-	rapidjson::Document::AllocatorType& alloc = document.GetAllocator();
-	document.SetObject();
-	document.AddMember("children", rapidjson::Value(rapidjson::kArrayType), alloc);
-
-	/*
-	 * Now we use 3 variables to help us building the tree
-	 */
-	std::vector<rapidjson::Value*> parents; // save current parents hierarchy
-	std::vector<std::size_t> indentations;  // save the positions of the current parents hierarchy
-	std::size_t position;                   // the current position
-	std::size_t indent_position = 0;        // the "..." position
-
-	// we define the root node. It's an empty item and its parent is on nullptr.
-	// It's necessary for Qt QAbstractItemModel managing.
-	parents.emplace_back(&document);
-	indentations.push_back(0);
-
-	// We begin by ignoring the superfluous lines
-	std::string row;
-	std::ifstream infile(std::filesystem::path{source});
-	size_t row_idx = 0;
-	while (std::getline(infile, row)) {
-		if (++row_idx > 5 and row[0] != '=') { // skip 5 rows header and 1 row footer
-
-			// find the position of the next protocol
-			// We go through the whole line until we find a non-null character.
-			position = row.find_first_not_of(' ');
-
-			// We have found the position of a new protocol, we split the line
-			// and escape all the space characters.
-			// we get an array of 3 columns : "protocol_filter,frames,bytes"
-			std::vector<std::string> split_row;
-			boost::trim(row);
-			boost::split(split_row, row, boost::is_any_of(" "), boost::token_compress_on);
-
-			/*
-			 * Get protocol filter
-			 */
-			std::string protocol_filter = split_row[0];
-			// sometimes a row begin with "..."
-			// it means indent
-			if (protocol_filter.substr(0, 3) == "...") {
-				protocol_filter = protocol_filter.substr(3, protocol_filter.length() - 3);
-				indent_position += 2; // two spaces indentation
-			} else {
-				indent_position = 0;
-			}
-			position += indent_position;
-
-			/*
-			 * Buid protocol object with previous information
-			 */
-			rapidjson::Value val;
-			rapidjson::Value protocol;
-			protocol.SetObject();
-
-			rapidjson::Value::ConstMemberIterator it =
-			    protocols_dict.FindMember(protocol_filter.c_str());
-			if (it != protocols_dict.MemberEnd()) {
-				assert(it->value.IsObject() && "The protocol found is not an json object");
-
-				/*
-				 * Get frames : number of packets
-				 */
-				std::string prefix_packets = "frames:";
-				std::string packets_str = split_row[1];
-				std::size_t packets = std::stoll(packets_str.erase(0, prefix_packets.length()));
-
-				/*
-				 * Get bytes : size of packets
-				 */
-				std::string prefix_bytes = "bytes:";
-				std::string bytes_str = split_row[2];
-				std::size_t bytes = std::stoll(bytes_str.erase(0, prefix_bytes.length()));
-
-				val.SetString(protocol_filter.c_str(), alloc);
-				protocol.AddMember("filter_name", val, alloc);
-
-				val.SetUint64(bytes);
-				protocol.AddMember("bytes", val, alloc);
-
-				val.SetUint64(packets);
-				protocol.AddMember("packets", val, alloc);
-
-				protocol.AddMember("children", rapidjson::Value(rapidjson::kArrayType), alloc);
-
-				if (protocol_filter == "frame") {
-					// frame has the total bytes and total packets. We save it to root node
-					val.SetUint64(bytes);
-					document.AddMember("bytes", val, alloc);
-					val.SetUint64(packets);
-					document.AddMember("packets", val, alloc);
-				}
-			} else {
-				continue; // sometime tshark output fields as they were protocols...
-			}
-
-			if (position > indentations.back()) {
-				// The last child of the current parent is now the new parent
-				// unless the current parent has no children
-				rapidjson::Value& children = (*parents.back())["children"];
-				if (not children.Empty()) {
-					parents.emplace_back(&children[children.Size() - 1]);
-					indentations.push_back(position);
-				}
-			} else {
-				while (position < indentations.back() && parents.size() > 0) {
-					parents.pop_back();
-					indentations.pop_back();
-				}
-			}
-
-			// Append a new item to the current parent's list of children.
-			rapidjson::Value& children = (*parents.back())["children"];
-			children.GetArray().PushBack(protocol, alloc);
+	const std::string errors = tshark_errors(directory.filePath("errors").toStdString());
+	std::vector<std::string> lines;
+	boost::split(lines, errors, boost::is_any_of("\n"));
+	for (std::string& line : lines) {
+		if (not line.empty() and line.back() == '\r') {
+			line.pop_back();
 		}
 	}
-
-	return document;
-}
-
-static void ws_merge_protocols_tree_rec(rapidjson::Value& dst,
-                                        const rapidjson::Value& src,
-                                        rapidjson::Document::AllocatorType& allocator)
-{
-	const rapidjson::Value& src_children = src["children"];
-	rapidjson::Value& dst_children = dst["children"];
-
-	for (auto src_array_it = src_children.Begin(); src_array_it != src_children.End();
-	     ++src_array_it) {
-
-		const std::string& src_protocol = (*src_array_it)["filter_name"].GetString();
-
-		bool protocol_found = false;
-		for (auto dst_array_it = dst_children.Begin(); dst_array_it != dst_children.End();
-		     ++dst_array_it) {
-
-			if ((*dst_array_it)["filter_name"].GetString() == src_protocol) {
-				(*dst_array_it)["bytes"].SetUint64((*dst_array_it)["bytes"].GetUint64() +
-				                                   (*src_array_it)["bytes"].GetUint64());
-				(*dst_array_it)["packets"].SetUint64((*dst_array_it)["packets"].GetUint64() +
-				                                     (*src_array_it)["packets"].GetUint64());
-
-				if (not(*dst_array_it)["children"].Empty()) {
-					ws_merge_protocols_tree_rec((*dst_array_it), (*src_array_it), allocator);
-				}
-				protocol_found = true;
-				break;
-			}
-		}
-
-		if (not protocol_found) {
-			rapidjson::Value protocol;
-			protocol.CopyFrom((*src_array_it), allocator);
-			dst_children.PushBack(protocol, allocator);
+	if (lines.front().empty()) {
+		check.problem = "tshark can't read this filter.";
+		return check;
+	}
+	check.problem = lines.front().starts_with("tshark: ") ? lines.front().substr(8) : lines.front();
+	for (size_t i = 1; i < lines.size(); i++) {
+		const size_t caret = lines[i].find('^');
+		if (caret != std::string::npos and lines[i].find_first_not_of(' ') == caret and
+		    caret >= 4) {
+			check.position = caret - 4;
+			check.length = lines[i].find_first_not_of("^~", caret);
+			check.length =
+			    (check.length == std::string::npos ? lines[i].size() : check.length) - caret;
+			break;
 		}
 	}
+	return check;
 }
 
-void ws_merge_protocols_tree(rapidjson::Value& dst,
-                             const rapidjson::Value& src,
-                             rapidjson::Document::AllocatorType& allocator)
+std::unordered_map<std::string, field_description>
+ws_field_descriptions(const std::vector<std::string>& names)
 {
-	dst["bytes"].SetUint64(dst["bytes"].GetUint64() + src["bytes"].GetUint64());
-	dst["packets"].SetUint64(dst["packets"].GetUint64() + src["packets"].GetUint64());
-
-	ws_merge_protocols_tree_rec(dst, src, allocator);
-}
-
-static void ws_enrich_protocols_tree_rec(rapidjson::Value& enriched_protocols_tree,
-                                         const rapidjson::Document& protocols_dict,
-                                         rapidjson::Document::AllocatorType& alloc)
-{
-	rapidjson::Value& children = enriched_protocols_tree["children"];
-
-	for (auto it = children.Begin(); it != children.End(); ++it) {
-
-		const std::string& filter_name = (*it)["filter_name"].GetString();
-
-		auto proto_it = protocols_dict.FindMember(filter_name.c_str());
-
-		rapidjson::Value val;
-
-		val.SetString(proto_it->value["name"].GetString(), alloc);
-		(*it).AddMember("name", val, alloc);
-
-		val.SetString(proto_it->value["short_name"].GetString(), alloc);
-		(*it).AddMember("short_name", val, alloc);
-
-		val.CopyFrom(proto_it->value["fields"], alloc);
-		(*it).AddMember("fields", val, alloc);
-
-		ws_enrich_protocols_tree_rec((*it), protocols_dict, alloc);
+	const std::unordered_set<std::string> wanted(names.begin(), names.end());
+	std::unordered_map<std::string, field_description> descriptions;
+	std::vector<std::string> columns;
+	for (const std::string& line : tshark_output({"-G", "fields"})) {
+		if (not line.starts_with("F\t")) {
+			continue;
+		}
+		boost::split(columns, line, boost::is_any_of("\t"));
+		if (columns.size() > 5 and wanted.contains(columns[2])) {
+			descriptions[columns[2]] = {columns[3], columns[5]};
+		}
 	}
-}
-
-void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
-                              const rapidjson::Document& protocols_tree,
-                              const rapidjson::Document& protocols_dict)
-{
-	rapidjson::Document::AllocatorType& alloc = enriched_protocols_tree.GetAllocator();
-
-	enriched_protocols_tree.AddMember("bytes", protocols_tree["bytes"].GetUint64(), alloc);
-	enriched_protocols_tree.AddMember("packets", protocols_tree["packets"].GetUint64(), alloc);
-	enriched_protocols_tree["children"].CopyFrom(protocols_tree["children"], alloc);
-
-	ws_enrich_protocols_tree_rec(enriched_protocols_tree, protocols_dict, alloc);
+	return descriptions;
 }
 
 /*******************************************************************************
@@ -536,18 +299,12 @@ void ws_enrich_protocols_tree(rapidjson::Document& enriched_protocols_tree,
  ******************************************************************************/
 std::vector<std::string> ws_get_tshark_fields()
 {
-	std::string cmdline = tshark_path() + " -G fields";
-	std::vector<std::string> fields = execute_cmd(cmdline);
-
-	// delete all line who doesn't begin with "F"
-	auto i = fields.begin();
-	while (i != fields.end()) {
-		if ((*i).at(0) != 'F')
-			i = fields.erase(i); // delete all not fields line
-		else
-			++i;
+	std::vector<std::string> fields;
+	for (std::string& line : tshark_output({"-G", "fields"})) {
+		if (line.starts_with("F\t")) {
+			fields.push_back(std::move(line));
+		}
 	}
-
 	return fields;
 }
 
@@ -558,165 +315,193 @@ std::vector<std::string> ws_get_tshark_fields()
  ******************************************************************************/
 std::vector<std::string> ws_get_tshark_protocols()
 {
-	std::string cmdline = tshark_path() + " -G protocols";
-	return execute_cmd(cmdline);
+	return tshark_output({"-G", "protocols"});
 }
 
-/*******************************************************************************
- *
- * ws_get_selected_field_list
- *
- ******************************************************************************/
-static void visit_fields(const rapidjson::Value& children,
-                         const std::function<void(const rapidjson::Value&)>& f,
-                         bool all)
+namespace
 {
-	rapidjson::Document::AllocatorType alloc;
 
-	for (auto& child : children.GetArray()) {
+//! Numbers of earlier frames, which a single pass writes as two do.
+constexpr std::array<std::string_view, 7> ONE_PASS_FRAMES = {"dns.response_to",
+                                                             "http.request_in",
+                                                             "icmp.resp_to",
+                                                             "ldap.response_to",
+                                                             "sip.response-request",
+                                                             "tcp.analysis.acks_frame",
+                                                             "tcp.analysis.duplicate_ack_frame"};
 
-		for (auto& field : child["fields"].GetArray()) {
-			if (all or field["select"].GetBool()) {
-				f(field);
+constexpr std::array<std::string_view, 9> TWO_PASS_FIELDS = {
+    "_ws.col.Info",          "_ws.col.info",        "dns.response_missing",
+    "icmp.no_resp",          "icmp.resp_not_found", "icmpv6.no_resp",
+    "icmpv6.resp_not_found", "ntp.delta_time",      "tcp.analysis.initial_rtt"};
+
+constexpr std::array<std::string_view, 6> TWO_PASS_PREFIXES = {
+    "_ws.expert", "dcerpc.", "smb.", "smb2.", "tcp.completeness", "tcp.stream."};
+
+extraction::field::kind field_kind(const std::string& name, const std::string& type)
+{
+	if (name == "frame.time_relative") {
+		return extraction::field::kind::time_since_first;
+	}
+	if (name == "frame.time_delta") {
+		return extraction::field::kind::time_since_previous;
+	}
+	if (name == "frame.time_delta_displayed") {
+		return extraction::field::kind::time_since_shown;
+	}
+	if (canonical_field_name(name) == "_ws.col.Info") {
+		return extraction::field::kind::summary;
+	}
+	if (type == "FT_FRAMENUM") {
+		return extraction::field::kind::frames;
+	}
+	if (type == "FT_ABSOLUTE_TIME") {
+		return extraction::field::kind::absolute_time;
+	}
+	return extraction::field::kind::text;
+}
+
+} // namespace
+
+bool ws_needs_two_passes(const std::string& name, const std::string& type)
+{
+	if (type == "FT_FRAMENUM") {
+		return std::find(ONE_PASS_FRAMES.begin(), ONE_PASS_FRAMES.end(), name) ==
+		       ONE_PASS_FRAMES.end();
+	}
+	return std::find(TWO_PASS_FIELDS.begin(), TWO_PASS_FIELDS.end(), name) !=
+	           TWO_PASS_FIELDS.end() or
+	       std::any_of(TWO_PASS_PREFIXES.begin(), TWO_PASS_PREFIXES.end(),
+	                   [&](std::string_view prefix) { return name.starts_with(prefix); });
+}
+
+std::vector<std::string> ws_filter_fields(const std::string& filter)
+{
+	const auto in_name = [](char c) {
+		return std::isalnum(static_cast<unsigned char>(c)) or c == '_' or c == '.' or c == '-';
+	};
+	std::vector<std::string> names;
+	size_t i = 0;
+	while (i < filter.size()) {
+		const char c = filter[i];
+		if (c == '"' or c == '\'') {
+			for (i++; i < filter.size() and filter[i] != c; i++) {
+				i += filter[i] == '\\';
+			}
+			i++;
+		} else if (in_name(c)) {
+			const size_t begin = i;
+			while (i < filter.size() and in_name(filter[i])) {
+				i++;
+			}
+			names.push_back(filter.substr(begin, i - begin));
+		} else {
+			i++;
+		}
+	}
+	return names;
+}
+
+std::vector<std::pair<std::string, std::string>> tshark_environment()
+{
+	// Times tshark writes as local come in UTC, which is how the formats read them.
+	std::vector<std::pair<std::string, std::string>> environment = {{"TZ", "UTC0"}};
+#ifdef __linux__
+	// Within Flatpak, XDG_CONFIG_HOME points inside the sandbox: tshark has to be told where
+	// Wireshark keeps the configuration of the user, its profiles included.
+	const std::string home = getenv_or_empty("HOME");
+	if (qEnvironmentVariableIsSet("FLATPAK_ID") and not home.empty() and
+	    QFileInfo(QString::fromStdString(home + "/.config/wireshark")).isDir()) {
+		environment.emplace_back("XDG_CONFIG_HOME", home + "/.config");
+	}
+#endif
+	return environment;
+}
+
+std::vector<std::string> ws_reading_options(const profile& p)
+{
+	bool tcp_times = false;
+	bool bytes_in_flight = false;
+	for (const profile_field& f : p.columns) {
+		tcp_times |= f.name.starts_with("tcp.time_");
+		bytes_in_flight |=
+		    f.name == "tcp.analysis.bytes_in_flight" or f.name == "tcp.analysis.push_bytes_sent";
+	}
+
+	std::vector<std::string> args;
+	if (not p.reassemble_tcp) {
+		args.insert(args.end(), {"-o", "tcp.desegment_tcp_streams:FALSE"});
+	}
+	if (not p.defragment_ip) {
+		args.insert(args.end(), {"-o", "ip.defragment:FALSE"});
+	}
+
+	// See https://www.wireshark.org/docs/man-pages/tshark.html
+	std::string name_resolution;
+	if (p.resolve_names) {
+		name_resolution += "n";
+	}
+	if (p.names_from_captures) {
+		name_resolution += "d";
+	}
+	if (p.names_from_servers) {
+		name_resolution += "N";
+	}
+	if (not name_resolution.empty()) {
+		args.insert(args.end(), {"-N", name_resolution});
+	}
+
+	// Through an option, rather than in a file of the configuration of the user, which
+	// Wireshark reads too.
+	const std::string geoip =
+	    p.geoip_directory.empty() ? DEFAULT_GEOIP_DIRECTORY : p.geoip_directory;
+	if (QFileInfo(QString::fromStdString(geoip)).isDir()) {
+		args.insert(args.end(), {"-o", "uat:maxmind_db_paths:\"" + geoip + "\""});
+	}
+
+	args.insert(args.end(),
+	            {"-o", "tcp.summary_in_tree:TRUE", "-o", "tcp.check_checksum:FALSE", "-o",
+	             "tcp.analyze_sequence_numbers:TRUE", "-o", "tcp.relative_sequence_numbers:FALSE",
+	             "-o",
+	             std::string("tcp.track_bytes_in_flight:") + (bytes_in_flight ? "TRUE" : "FALSE"),
+	             "-o", std::string("tcp.calculate_timestamps:") + (tcp_times ? "TRUE" : "FALSE")});
+
+	// tshark would refuse to read the captures at all.
+	if (not p.wireshark_profile.empty() and wireshark_profile_exists(p.wireshark_profile)) {
+		args.insert(args.end(), {"-C", p.wireshark_profile});
+	}
+	return args;
+}
+
+extraction::options ws_extraction_options(const profile& p)
+{
+	extraction::options opts;
+	for (const profile_field& f : p.columns) {
+		opts.fields.push_back({f.name, field_kind(f.name, f.type)});
+		opts.two_pass |= ws_needs_two_passes(f.name, f.type);
+	}
+
+	std::vector<std::string>& args = opts.tshark_options;
+	if (not p.filter.empty()) {
+		args.insert(args.end(), {"-Y", p.filter});
+		// A single pass would keep other frames than such a filter says.
+		if (not opts.two_pass) {
+			const std::vector<std::string> names = ws_filter_fields(p.filter);
+			const auto descriptions = ws_field_descriptions(names);
+			for (const std::string& name : names) {
+				const auto it = descriptions.find(name);
+				opts.two_pass |=
+				    ws_needs_two_passes(name, it != descriptions.end() ? it->second.type : "");
 			}
 		}
-
-		// recurse over children
-		visit_fields(child["children"], f, all);
 	}
-}
+	opts.aggregator = p.aggregator;
+	args.insert(args.end(), {"-E", std::string("occurrence=") + p.occurrence, "-E",
+	                         "aggregator=" + opts.aggregator});
+	const std::vector<std::string> reading = ws_reading_options(p);
+	args.insert(args.end(), reading.begin(), reading.end());
 
-static void visit_fields(const rapidjson::Document& json_data,
-                         const std::function<void(const rapidjson::Value& json_data)>& f,
-                         bool all = false)
-{
-	visit_fields(json_data["children"], f, all);
-}
-
-rapidjson::Document ws_get_selected_fields(const rapidjson::Document& json_data)
-{
-	rapidjson::Document selected_fields;
-	selected_fields.SetObject();
-
-	rapidjson::Document::AllocatorType& alloc = selected_fields.GetAllocator();
-
-	visit_fields(json_data, [&](const rapidjson::Value& field) {
-
-		rapidjson::Value::MemberIterator it =
-		    selected_fields.FindMember(field["filter_name"].GetString());
-		if (it == selected_fields.MemberEnd()) {
-			rapidjson::Value field_value(field, alloc);
-			rapidjson::Value filter_name(field["filter_name"].GetString(),
-			                             strlen(field["filter_name"].GetString()), alloc);
-			selected_fields.AddMember(filter_name, field_value, alloc);
-		}
-	});
-
-	return selected_fields;
-}
-
-std::vector<std::string> ws_get_cmdline_opts(rapidjson::Document& json_data)
-{
-	std::vector<std::string> ts_fields;
-
-	// Removed duplicated fields
-	std::unordered_set<std::string> distinct_fields;
-	visit_fields(json_data, [&](const rapidjson::Value& field) {
-		const std::string& field_name = field["filter_name"].GetString();
-		if (distinct_fields.find(field_name) == distinct_fields.end()) {
-			ts_fields.emplace_back(field_name);
-			distinct_fields.emplace(field_name);
-		}
-	});
-
-	// add wireshark specials fields
-	if (json_data["options"]["source"].GetBool())
-		ts_fields.emplace_back(ws_map_special_fields.at("source"));
-
-	if (json_data["options"]["destination"].GetBool())
-		ts_fields.emplace_back(ws_map_special_fields.at("destination"));
-
-	if (json_data["options"]["protocol"].GetBool())
-		ts_fields.emplace_back(ws_map_special_fields.at("protocol"));
-
-	if (json_data["options"]["info"].GetBool())
-		ts_fields.emplace_back(ws_map_special_fields.at("info"));
-
-	// get rewrite options
-	const std::string& header = (json_data["options"]["header"].GetBool() ? "y" : "n");
-	const std::string& occurrence = json_data["options"]["occurrence"].GetString();
-	const std::string& aggregator = json_data["options"]["aggregator"].GetString();
-	const std::string& filters = json_data["options"]["filters"].GetString();
-
-	std::vector<std::string> opts;
-	opts.emplace_back(tshark_path());
-	if (not filters.empty()) {
-		opts.emplace_back("-Y" + filters);
-	}
-	opts.emplace_back("-Tfields");
-	for (const std::string& field : ts_fields) {
-		opts.emplace_back("-e" + field);
-	}
-	opts.emplace_back("-Eheader=" + header);
-	opts.emplace_back(std::string("-Eseparator=") + pvpcap::SEPARATOR);
-	opts.emplace_back("-Eoccurrence=" + occurrence);
-	opts.emplace_back("-Eaggregator=" + aggregator);
-	opts.emplace_back(std::string("-Equote=") + pvpcap::QUOTE);
-
-	// TCP/IP
-	if (json_data["options"].HasMember("tcp.desegment_tcp_streams") &&
-	    not json_data["options"]["tcp.desegment_tcp_streams"].GetBool()) {
-		opts.emplace_back("-otcp.desegment_tcp_streams:FALSE");
-	}
-	if (json_data["options"].HasMember("ip.defragment") &&
-	    not json_data["options"]["ip.defragment"].GetBool()) {
-		opts.emplace_back("-oip.defragment:FALSE");
-	}
-
-	// Name resolution (see https://www.wireshark.org/docs/man-pages/tshark.html)
-	std::string name_resolving_flags;
-	if (json_data["options"].HasMember("nameres.network_name") &&
-	    json_data["options"]["nameres.network_name"].GetBool()) {
-		name_resolving_flags += "n";
-	}
-	if (json_data["options"].HasMember("nameres.dns_pkt_addr_resolution") &&
-	    json_data["options"]["nameres.dns_pkt_addr_resolution"].GetBool()) {
-		name_resolving_flags += "d";
-	}
-	if (json_data["options"].HasMember("nameres.use_external_name_resolver") &&
-	    json_data["options"]["nameres.use_external_name_resolver"].GetBool()) {
-		name_resolving_flags += "N";
-	}
-	std::string geoip_db_paths = "/var/run/host/usr/share/GeoIP/";
-	if (json_data["options"].HasMember("geoip_db_paths")) {
-		geoip_db_paths = json_data["options"]["geoip_db_paths"].GetString();
-	}
-	QString geoip_db_paths_filename = "~/.wireshark/maxmind_db_paths";
-	geoip_db_paths_filename.replace(QString('~'), QDir::homePath());
-	QDir().mkdir(QFileInfo(geoip_db_paths_filename).dir().path());
-	std::ofstream geoip_db_paths_file(std::filesystem::path(geoip_db_paths_filename.toUtf8().constData()), std::ios_base::trunc);
-	geoip_db_paths_file << "\"" << geoip_db_paths << "\"" << std::endl;
-	if (not name_resolving_flags.empty()) {
-		opts.emplace_back("-N" + name_resolving_flags);
-	}
-
-	// disable some tcp reconstructions options
-	opts.emplace_back("-otcp.summary_in_tree:TRUE");
-	opts.emplace_back("-otcp.check_checksum:FALSE");
-	opts.emplace_back("-otcp.analyze_sequence_numbers:TRUE");
-	opts.emplace_back("-otcp.relative_sequence_numbers:FALSE");
-	opts.emplace_back("-otcp.track_bytes_in_flight:FALSE");
-	opts.emplace_back("-otcp.calculate_timestamps:FALSE");
-
-	// Add wireshark profile if any
-	if (json_data["options"].HasMember("wireshark_profile")) {
-		const std::string& wireshark_profile =
-		    json_data["options"]["wireshark_profile"].GetString();
-		opts.emplace_back("-C" + wireshark_profile);
-	}
-
-	opts.emplace_back("-r-");
-
+	opts.environment = tshark_environment();
 	return opts;
 }
 

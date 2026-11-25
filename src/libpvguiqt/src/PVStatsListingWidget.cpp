@@ -165,7 +165,6 @@ PVGuiQt::PVStatsListingWidget::PVStatsListingWidget(PVGuiQt::PVListingView* list
 void PVGuiQt::PVStatsListingWidget::create_vhead_ctxt_menu()
 {
 	_vhead_ctxt_menu = new QMenu(this);
-	_vhead_ctxt_menu->setAttribute(Qt::WA_TranslucentBackground);
 
 	for (int row = 0; row < _stats_panel->rowCount(); row++) {
 		const QString& section_text = _stats_panel->verticalHeaderItem(row)->toolTip();

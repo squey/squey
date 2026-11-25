@@ -41,7 +41,7 @@ GL_MOUNT_OPTS=""
 export IS_TRUE_LINUX=$([[ "$(uname -s)" == "Linux" && -z "$(uname -a | grep -i 'microsoft')" ]] && echo 1 || echo 0)
 
 if [[ "$IS_TRUE_LINUX" -eq 1 ]]; then # Enable GPU acceleration
-    GL_BRANCH="26.08"
+    GL_BRANCH="$("$DIR/scripts/runtime_branch.sh")"
     GL_HOST_DIR="runtime/org.freedesktop.Platform.GL.default/x86_64/$GL_BRANCH/active/files"
     GL_HOST_DIR_USER="$HOME/.local/share/flatpak/$GL_HOST_DIR"
     GL_HOST_DIR_SYSTEM="/var/lib/flatpak/$GL_HOST_DIR"

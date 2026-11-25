@@ -71,5 +71,44 @@ add_squey_test(Tpvguiqt_crash_report_cleanup Tpvguiqt_crash_report_cleanup -plat
 set_property(TEST SQUEY_TEST_Tpvguiqt_crash_report_cleanup APPEND PROPERTY
 	ENVIRONMENT "SQUEY_CONFIG_DIR=crash_report_cleanup_config")
 
+add_squey_compile_test(Tpvguiqt_settings_dialog LINKS ${COMMON_LIBRARIES} Qt6::Test Qt6::Widgets FILES settings_dialog.cpp)
+add_squey_test(Tpvguiqt_settings_dialog Tpvguiqt_settings_dialog -platform offscreen)
+# A configuration of its own, relative for the same reason as above.
+set_property(TEST SQUEY_TEST_Tpvguiqt_settings_dialog APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=settings_dialog_config")
+
+add_squey_compile_test(Tpvguiqt_axes_combination_export LINKS ${COMMON_LIBRARIES} FILES axes_combination_export.cpp common.cpp)
+add_squey_test(Tpvguiqt_axes_combination_export Tpvguiqt_axes_combination_export -platform offscreen)
+# The default options of the CSV export, rather than those the user last chose.
+set_property(TEST SQUEY_TEST_Tpvguiqt_axes_combination_export APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=axes_combination_export_config")
+
+add_squey_compile_test(Tpvguiqt_export_selection_dialog LINKS ${COMMON_LIBRARIES} FILES export_selection_dialog.cpp common.cpp)
+add_squey_test(Tpvguiqt_export_selection_dialog Tpvguiqt_export_selection_dialog -platform offscreen)
+# The default options of the exports, rather than those the user last chose.
+set_property(TEST SQUEY_TEST_Tpvguiqt_export_selection_dialog APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=export_selection_dialog_config")
+
+add_squey_compile_test(Tpvguiqt_json_input_type LINKS ${COMMON_LIBRARIES} FILES json_input_type.cpp common.cpp)
+add_squey_test(Tpvguiqt_json_input_type Tpvguiqt_json_input_type -platform offscreen)
+
+# The content of an import, its buttons, and the tasks it runs out of the GUI thread.
+add_squey_compile_test(Tpvguiqt_import_page LINKS ${COMMON_LIBRARIES} Qt6::Test FILES import_page.cpp)
+add_squey_test(Tpvguiqt_import_page Tpvguiqt_import_page -platform offscreen)
+
+add_squey_compile_test(Tpvguiqt_file_list_import LINKS ${COMMON_LIBRARIES} Qt6::Test FILES file_list_import.cpp common.cpp)
+add_squey_test(Tpvguiqt_file_list_import Tpvguiqt_file_list_import -platform offscreen)
+# The default options of the exports, rather than those the user last chose.
+set_property(TEST SQUEY_TEST_Tpvguiqt_file_list_import APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=file_list_import_config")
+
+# The dialog of an input type, shown in the import page.
+add_squey_compile_test(Tpvguiqt_dialog_import LINKS ${COMMON_LIBRARIES} Qt6::Test FILES dialog_import.cpp)
+add_squey_test(Tpvguiqt_dialog_import Tpvguiqt_dialog_import -platform offscreen)
+
+# The files of a text import, and their format, found, chosen or detected.
+add_squey_compile_test(Tpvguiqt_text_import LINKS ${COMMON_LIBRARIES} Qt6::Test FILES text_import.cpp common.cpp)
+add_squey_test(Tpvguiqt_text_import Tpvguiqt_text_import -platform offscreen)
+
 file(RELATIVE_PATH REL_TEST_DIR ${squey_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR})
 install(FILES ${CMAKE_CURRENT_BINARY_DIR}/CTestTestfile.cmake DESTINATION "tests/${REL_TEST_DIR}" COMPONENT tests)

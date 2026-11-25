@@ -21,16 +21,12 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )/.." && pwd )"
 REPO_DIR="$( cd "$DIR/.." && pwd )"
 DEVCONTAINER_JSON="$REPO_DIR/.devcontainer/devcontainer.json"
 
-pinned_image() {
-  sed -n 's/^[[:space:]]*"image"[[:space:]]*:[[:space:]]*"\(.*\)".*$/\1/p' "$DEVCONTAINER_JSON"
-}
-
 # A pin agreeing with the dependency graph says nothing about the image being
 # published: without this, a merge request can go green on a pin that names
 # something nobody can pull, and the devcontainer of the default branch stays
 # broken until someone notices.
 if [ "$1" = "--verify-image" ]; then
-  pinned="$(pinned_image)"
+  pinned="$("$DIR/scripts/pinned_devcontainer_image.sh" "$DEVCONTAINER_JSON")"
   if skopeo inspect "docker://$pinned" &> /dev/null; then
     echo "$pinned is published."
     exit 0

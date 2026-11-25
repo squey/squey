@@ -33,9 +33,10 @@ namespace PVParallelView
 /**
  * The toolbar action that antialiases the lines of a parallel view.
  *
- * It starts checked, as the views start antialiased: connected once built, it
- * only signals what the user asks for. Its pictogram shows the lines as they are
- * drawn, a smooth "a" when checked and a pixelated one when not.
+ * It starts as the setting parallel_view.antialiasing, which the views start
+ * with too: connected once built, it only signals what the user asks for. Its
+ * pictogram shows the lines as they are drawn, a smooth "a" when checked and a
+ * pixelated one when not.
  */
 class PVAntialiasingAction : public QAction
 {

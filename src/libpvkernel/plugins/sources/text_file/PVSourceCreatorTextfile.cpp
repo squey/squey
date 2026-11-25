@@ -25,13 +25,11 @@
 
 #include "PVSourceCreatorTextfile.h"
 
-#include <pvkernel/core/PVConfig.h>
+#include <pvkernel/core/PVKernelSettings.h>
 #include <pvkernel/rush/PVFileDescription.h>
 #include <pvkernel/rush/PVInputFile.h>
 #include <assert.h>
 #include <qbytearray.h>
-#include <qsettings.h>
-#include <qvariant.h>
 #include <memory>
 
 #include "PVTextFileSource.h"
@@ -41,16 +39,10 @@
 PVRush::PVSourceCreatorTextfile::source_p
 PVRush::PVSourceCreatorTextfile::create_source_from_input(PVInputDescription_p input) const
 {
-	QSettings& pvconfig = PVCore::PVConfig::get().config();
-
 	PVLOG_DEBUG("(text_file plugin) create source for %s\n", qPrintable(input->human_name()));
 	auto* file = reinterpret_cast<PVFileDescription*>(input.get());
 	PVRush::PVInput_p ifile(new PVRush::PVInputFile(file->path().toUtf8()));
-	// FIXME: chunk size must be computed somewhere once and for all !
-	int size_chunk = pvconfig.value("pvkernel/max_size_chunk").toInt();
-	if (size_chunk <= 0) {
-		size_chunk = 4096 * 100; // Aligned on a page boundary (4ko)
-	}
+	const int size_chunk = PVCore::settings::import_chunk_size.value();
 	source_p src = source_p(new PVTextFileSource(ifile, file, size_chunk));
 
 	return src;

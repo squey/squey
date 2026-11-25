@@ -30,6 +30,8 @@
 #include <QFile>
 #include <QStackedWidget>
 
+#include <memory>
+
 #include <pvkernel/core/PVArgument.h>
 #include <pvkernel/core/PVMeanValue.h>
 #include <pvkernel/core/PVDBusConnection.h>
@@ -72,6 +74,7 @@ class PVExportSelectionDlg;
 namespace App
 {
 
+class PVImportController;
 class PVMainWindow;
 class PVStartScreenWidget;
 
@@ -82,6 +85,7 @@ class PVMainWindow : public QMainWindow
 {
 	Q_OBJECT
 
+	friend class PVImportController;
 	friend class PVStartScreenWidget;
 
   public:
@@ -108,12 +112,6 @@ class PVMainWindow : public QMainWindow
 	void set_color(Squey::PVView* view);
 
 	void import_type(PVRush::PVInputType_p in_t);
-	void import_type(PVRush::PVInputType_p in_t,
-	                 PVRush::PVInputType::list_inputs const& inputs,
-	                 PVRush::hash_formats& formats,
-	                 PVRush::hash_format_creator& format_creator,
-	                 QString const& choosenFormat,
-					 bool concatenation = false);
 	/* void import_type(); */
 
 	QString get_solution_path() const { return get_root().get_path(); }
@@ -121,6 +119,8 @@ class PVMainWindow : public QMainWindow
 	void set_window_title_with_filename();
 
 	bool maybe_save_solution();
+
+	PVImportController& import_controller() { return *_import_controller; }
 
   protected:
 	void remove_source(Squey::PVSource* src_p);
@@ -145,8 +145,10 @@ class PVMainWindow : public QMainWindow
 	void import_type_Slot();
 	void import_type_Slot(const QString& itype);
 	void load_sample_dataset_Slot();
+	void settings_Slot();
 	void events_display_unselected_zombies_parallelview_Slot();
-	bool load_source_from_description_Slot(PVRush::PVSourceDescription);
+	/** Imports the source of @p src_desc once those already given are. */
+	void load_source_from_description_Slot(PVRush::PVSourceDescription src_desc);
 	void quit_Slot();
 	void undo_Slot();
 	void redo_Slot();
@@ -170,6 +172,7 @@ class PVMainWindow : public QMainWindow
 	void solution_load_Slot();
 	void solution_save_Slot();
 	void solution_saveas_Slot();
+	void solution_saveas_with_files_Slot();
 
 	void close_solution_Slot();
 
@@ -205,7 +208,6 @@ class PVMainWindow : public QMainWindow
 	void create_actions_import_types(QMenu* menu);
 
   private:
-	bool load_source(Squey::PVSource* src, bool update_recent_items = true);
 	void source_loaded(Squey::PVSource& src, bool update_recent_items);
 	void flag_investigation_as_cached(const QString& file);
 
@@ -226,6 +228,7 @@ class PVMainWindow : public QMainWindow
 	QAction* solution_load_Action;
 	QAction* solution_save_Action;
 	QAction* solution_saveas_Action;
+	QAction* solution_saveas_with_files_Action;
 	QAction* export_selection_Action;
 	QAction* new_file_Action;
 	QAction* new_scene_Action;
@@ -246,6 +249,7 @@ class PVMainWindow : public QMainWindow
 	QAction* tools_cur_format_Action;
 	QAction* view_Action;
 	QAction* view_display_inv_elts_Action;
+	QAction* settings_Action;
 	QAction* settings_dark_theme_Action;
 	QAction* settings_light_theme_Action;
 	QAction* settings_follow_system_theme_Action;
@@ -256,12 +260,7 @@ class PVMainWindow : public QMainWindow
 	QStackedWidget* pv_centralWidget;
 	QVBoxLayout* pv_mainLayout;
 	QVBoxLayout* pv_startLayout;
-	PVWidgets::PVFileDialog _load_solution_dlg;
-
 	QString _current_save_root_folder;
-
-  protected:
-	void treat_invalid_formats(QHash<QString, std::pair<QString, QString>> const& errors);
 
   public:
 	Squey::PVRoot& get_root();
@@ -271,6 +270,8 @@ class PVMainWindow : public QMainWindow
 	static PVMainWindow* find_main_window(const QString& path);
 	bool is_solution_untitled() const { return get_solution_path().isEmpty(); }
 	void save_solution(QString const& file, bool save_log_file = false);
+	/** Asks where to save the investigation, then saves it there. */
+	void save_solution_as(bool save_log_file);
 	void reset_root();
 	void close_solution();
 
@@ -282,6 +283,8 @@ class PVMainWindow : public QMainWindow
   private:
 	QString _cur_project_file;
 	Squey::PVRoot _root;
+	/** After _root, which it imports sources into: it goes first. */
+	std::unique_ptr<PVImportController> _import_controller;
 #ifdef __linux__
 	PVCore::PVDBusConnection _dbus_connection;
 #endif

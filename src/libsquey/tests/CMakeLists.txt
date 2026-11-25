@@ -80,10 +80,25 @@ find_package(re2 REQUIRED)
 set(PARQUET_LIBS Arrow::arrow_shared Parquet::parquet_shared thrift re2::re2 snappy)
 set(PARQUET_SRC_FILES
 ../../libpvkernel/plugins/common/parquet/PVParquetAPI.cpp
+../../libpvkernel/plugins/input-types/parquet/PVParquetExporterBase.cpp
 ../../libpvkernel/plugins/input-types/parquet/PVParquetExporter.cpp
 )
 add_squey_compile_test(Tsquey_duckdb_null_strings LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES duckdb_null_strings.cpp ${COMMON_FILES} ${PARQUET_SRC_FILES})
 add_squey_test(Tsquey_duckdb_null_strings Tsquey_duckdb_null_strings)
+
+# The imports of files filter their rows through the engine this library registers.
+add_squey_compile_test(Tsquey_arrow_row_filter LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES arrow_row_filter.cpp ${COMMON_FILES} ../../libpvkernel/plugins/common/arrow/PVArrowRowFilter.cpp)
+add_squey_test(Tsquey_arrow_row_filter Tsquey_arrow_row_filter)
+
+set(JSON_SRC_FILES
+../../libpvkernel/plugins/common/json/PVJsonLines.cpp
+../../libpvkernel/plugins/common/json/PVJsonSchema.cpp
+../../libpvkernel/plugins/common/parquet/PVParquetAPI.cpp
+)
+add_squey_compile_test(Tsquey_json_import_filters LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES json_import_filters.cpp ${COMMON_FILES} ${JSON_SRC_FILES})
+add_squey_test(Tsquey_json_import_filters Tsquey_json_import_filters)
+add_squey_compile_test(Tsquey_parquet_import_filters LINKS ${LINK_LIBRARIES} ${PARQUET_LIBS} FILES parquet_import_filters.cpp ${COMMON_FILES} ${PARQUET_SRC_FILES})
+add_squey_test(Tsquey_parquet_import_filters Tsquey_parquet_import_filters)
 
 # An address is exposed as the integer it is stored as, so the conversions that
 # bridge the two have to agree with pvcop's own formatter -- in both directions.
@@ -118,6 +133,13 @@ add_squey_test(Tsquey_search_vs_sql Tsquey_search_vs_sql)
 add_squey_compile_test(Tsquey_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_multiple_search Tsquey_multiple_search)
 add_bench(Tsquey_multiple_search LINKS ${LINK_LIBRARIES} FILES multiple_search.cpp ${COMMON_FILES})
+
+add_squey_compile_test(Tsquey_plugin_settings LINKS ${LINK_LIBRARIES} FILES plugin_settings.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_plugin_settings Tsquey_plugin_settings ${TESTS_FILES_DIR}/../../pvconfig.ini)
+# A configuration of its own, relative as the packaged testsuite of Windows and
+# macOS does not run from the build tree.
+set_property(TEST SQUEY_TEST_Tsquey_plugin_settings APPEND PROPERTY
+	ENVIRONMENT "SQUEY_CONFIG_DIR=plugin_settings_config")
 
 add_squey_compile_test(Tsquey_errors_search LINKS ${LINK_LIBRARIES} FILES errors_search.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_errors_search Tsquey_errors_search)
@@ -247,6 +269,11 @@ set_tests_properties(SQUEY_TEST_Tsquey_investigation_multisource PROPERTIES DEPE
 add_squey_compile_test(Tsquey_investigation_accents LINKS ${LINK_LIBRARIES} FILES investigation_accents.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_investigation_accents Tsquey_investigation_accents)
 
+add_squey_compile_test(Tsquey_investigation_pcap LINKS ${LINK_LIBRARIES} pvpcap FILES investigation_pcap.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_investigation_pcap Tsquey_investigation_pcap)
+# Skipped, returning 77, where tshark can't be run.
+set_tests_properties(SQUEY_TEST_Tsquey_investigation_pcap PROPERTIES SKIP_RETURN_CODE 77)
+
 add_squey_compile_test(Tscaling_integer_default_default LINKS ${LINK_LIBRARIES} FILES scaling.cpp ${COMMON_FILES})
 add_squey_test(Tscaling_integer_default_default Tscaling_integer_default_default ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv ${TESTS_FILES_DIR}/picviz/integer_default_mapping.csv.format)
 add_bench(Tscaling_integer_default_default LINKS ${LINK_LIBRARIES} FILES scaling.cpp ${COMMON_FILES})
@@ -355,6 +382,8 @@ add_squey_test(Tsquey_cancel_export Tsquey_cancel_export ${TESTS_FILES_DIR}/sour
 # Range subsampler
 add_squey_compile_test(Tsquey_range_subsampler LINKS ${LINK_LIBRARIES} FILES range_subsampler.cpp ${COMMON_FILES})
 add_squey_test(Tsquey_range_subsampler Tsquey_range_subsampler)
+add_squey_compile_test(Tsquey_range_subsampler_extrema LINKS ${LINK_LIBRARIES} FILES range_subsampler_extrema.cpp ${COMMON_FILES})
+add_squey_test(Tsquey_range_subsampler_extrema Tsquey_range_subsampler_extrema)
 add_bench(Tsquey_subsample_bench LINKS ${LINK_LIBRARIES} FILES subsample_bench.cpp ${COMMON_FILES})
 
 # multi-inputs

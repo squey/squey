@@ -35,8 +35,12 @@
 
 #include <sigc++/sigc++.h>
 
+#include <QContextMenuEvent>
 #include <QDrag>
 #include <QImage>
+#include <QInputDialog>
+#include <QKeyEvent>
+#include <QMenu>
 #include <QMimeData>
 #include <QMouseEvent>
 #include <QPainter>
@@ -81,6 +85,36 @@ void PVGuiQt::PVSceneTabBar::mousePressEvent(QMouseEvent* event)
 		_drag_start_position = event->pos();
 	}
 	QTabBar::mousePressEvent(event);
+}
+
+void PVGuiQt::PVSceneTabBar::mouseDoubleClickEvent(QMouseEvent* event)
+{
+	if (const int index = tabAt(event->pos()); index != -1) {
+		Q_EMIT rename_requested(index);
+	}
+	QTabBar::mouseDoubleClickEvent(event);
+}
+
+void PVGuiQt::PVSceneTabBar::contextMenuEvent(QContextMenuEvent* event)
+{
+	const int index = tabAt(event->pos());
+	if (index == -1) {
+		return;
+	}
+	QMenu menu(this);
+	const QAction* rename_action = menu.addAction(tr("&Rename..."));
+	if (menu.exec(event->globalPos()) == rename_action) {
+		Q_EMIT rename_requested(index);
+	}
+}
+
+void PVGuiQt::PVSceneTabBar::keyPressEvent(QKeyEvent* event)
+{
+	if (event->key() == Qt::Key_F2 and currentIndex() != -1) {
+		Q_EMIT rename_requested(currentIndex());
+		return;
+	}
+	QTabBar::keyPressEvent(event);
 }
 
 void PVGuiQt::PVSceneTabBar::start_drag(QWidget* workspace)
@@ -207,6 +241,8 @@ PVGuiQt::PVSceneWorkspacesTabWidget::PVSceneWorkspacesTabWidget(Squey::PVScene& 
 	connect(_workspace_tab_bar, &QTabBar::currentChanged, this, &PVSceneWorkspacesTabWidget::tab_changed);
 	connect(_workspace_tab_bar, &QTabBar::tabCloseRequested, this, &PVSceneWorkspacesTabWidget::tab_close_requested);
 	connect(_workspace_tab_bar, &QTabBar::tabMoved, this, &PVSceneWorkspacesTabWidget::tab_moved);
+	connect(_workspace_tab_bar, &PVSceneTabBar::rename_requested, this,
+	        &PVSceneWorkspacesTabWidget::rename_source);
 
 	connect(_import_worflow_tab_bar, &QTabBar::currentChanged, [this]() {
 		_stacked_widget->setCurrentIndex(_import_worflow_tab_bar->currentIndex());
@@ -259,20 +295,40 @@ int PVGuiQt::PVSceneWorkspacesTabWidget::index_of(QWidget* workspace)
 	return _stacked_widget_workspace->indexOf(workspace);
 }
 
+void PVGuiQt::PVSceneWorkspacesTabWidget::set_tab_name(int index, const QString& name)
+{
+	static constexpr const int MAX_LEN = 30;
+	if (name.size() > MAX_LEN) {
+		_workspace_tab_bar->setTabText(index, name.mid(0, MAX_LEN) + "...");
+		_workspace_tab_bar->setTabToolTip(index, name);
+	} else {
+		_workspace_tab_bar->setTabText(index, name);
+		_workspace_tab_bar->setTabToolTip(index, QString());
+	}
+}
+
+void PVGuiQt::PVSceneWorkspacesTabWidget::rename_source(int index)
+{
+	auto* workspace = qobject_cast<PVSourceWorkspace*>(_stacked_widget_workspace->widget(index));
+	if (workspace == nullptr) {
+		return;
+	}
+	Squey::PVSource* source = workspace->get_source();
+	const QString name =
+	    QInputDialog::getText(this, tr("Rename source"), tr("New source name:"), QLineEdit::Normal,
+	                          QString::fromStdString(source->get_name()));
+	if (not name.isEmpty()) {
+		source->set_name(name.toStdString());
+		set_tab_name(index, name);
+	}
+}
+
 void PVGuiQt::PVSceneWorkspacesTabWidget::add_workspace(PVWorkspaceBase* workspace,
                                                         const QString& tab_name)
 {
-	static constexpr const int MAX_LEN = 30;
-	QString elipsed_tab_name = tab_name;
-	if (tab_name.size() > MAX_LEN) {
-		elipsed_tab_name = tab_name.mid(0, MAX_LEN) + "...";
-	}
-
 	// Add the new workspace and select it
-	int index = _workspace_tab_bar->addTab(elipsed_tab_name);
-	if (elipsed_tab_name != tab_name) {
-		_workspace_tab_bar->setTabToolTip(index, tab_name);
-	}
+	int index = _workspace_tab_bar->addTab(QString());
+	set_tab_name(index, tab_name);
 
 	auto views = _scene.get_children<Squey::PVView>();
 	Squey::PVView* view = *std::next(views.begin(), index);

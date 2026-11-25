@@ -28,6 +28,9 @@ export SQUEY_PYTHONPATH="$appdir/../Resources/python/site-packages"
 # extracted outside the bundle. Without this the pcap import spawns a tshark that is
 # not there, produces no csv, and import_pcap sits until the 300 s test timeout.
 export SQUEY_TSHARK_PATH="$appdir/tshark"
+# Again: PVConfig::shared_dir() looks for the files Squey ships next to the running
+# executable. A test with a configuration of its own makes it from their pvconfig.ini.
+export SQUEY_SHARED_DIR="$appdir/../share/squey/squey"
 
 # Install dependencies
 export HOMEBREW_NO_INSTALL_CLEANUP=1
@@ -66,6 +69,9 @@ inifile="$configdir/squey/config.ini"
 mkdir -p "$configdir/squey" "${TMPDIR}${USER}"
 cp "$CI_PROJECT_DIR/src/pvconfig.ini" "$inifile"
 sed -i '' "s|\(nraw_tmp=\).*|\1${TMPDIR}|" "$inifile"
+# Squey reads config.ini only as long as there is no settings.json, which an
+# earlier run may have left.
+rm -f "$configdir/squey/settings.json"
 
 # Increase file descriptors limit to avoid "Too many open files" error
 ulimit -n 1048576

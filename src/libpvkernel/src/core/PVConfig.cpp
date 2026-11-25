@@ -40,8 +40,6 @@
 
 #include <boost/dll/runtime_symbol_info.hpp>
 
-static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/squey/squey.conf";
-
 #ifdef _WIN32
 	static const QString _config_dir = []() {
 		QString config_dir = QString::fromLocal8Bit(qgetenv("SQUEY_CONFIG_DIR"));
@@ -59,8 +57,6 @@ static constexpr const char GLOBAL_CONFIG_FILENAME[] = "/opt/squey/squey.conf";
 		return config_dir;
 	}();
 #endif
-
-static const QString CONFIG_BASENAME = "/pvconfig.ini";
 
 static const QString _lists_folder = "lists";
 
@@ -86,7 +82,7 @@ PVCore::PVConfig::PVConfig()
 	if (!fi.exists()) {
 		fi.dir().mkpath(fi.path());
 
-		QFileInfo sys_fi(shared_dir() + CONFIG_BASENAME);
+		QFileInfo sys_fi(shared_dir() + "/" + SHIPPED_CONFIG_FILENAME);
 
 		if (sys_fi.exists()) {
 			QFile::copy(sys_fi.filePath(), fi.filePath());
@@ -105,8 +101,8 @@ PVCore::PVConfig::PVConfig()
 
 	_local_config = new QSettings(fi.filePath(), QSettings::IniFormat);
 
-	if (QFileInfo(GLOBAL_CONFIG_FILENAME).exists()) {
-		_global_config = new QSettings(GLOBAL_CONFIG_FILENAME, QSettings::IniFormat);
+	if (QFileInfo(GLOBAL_CONFIG_PATH).exists()) {
+		_global_config = new QSettings(GLOBAL_CONFIG_PATH, QSettings::IniFormat);
 	}
 
 #ifdef _WIN32

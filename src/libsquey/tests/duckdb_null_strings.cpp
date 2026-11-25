@@ -39,7 +39,7 @@
 // would need that derivation to be committed alongside and kept in step.
 
 #include "../../libpvkernel/plugins/common/parquet/PVParquetAPI.h"
-#include "../../libpvkernel/plugins/common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
 
 #include <squey/PVDuckDBQuery.h>
 #include <squey/PVSource.h>
@@ -130,7 +130,7 @@ int main()
 	// the inputs and the format are built here rather than sniffed from a file.
 	PVRush::PVInputType::list_inputs inputs;
 	auto* input_desc =
-	    new PVRush::PVParquetFileDescription(QStringList{QString::fromStdString(path)});
+	    new PVRush::PVFileListDescription(QStringList{QString::fromStdString(path)});
 	input_desc->disable_multi_inputs(true);
 	inputs << PVRush::PVInputDescription_p(input_desc);
 	PVRush::PVParquetAPI api(input_desc);

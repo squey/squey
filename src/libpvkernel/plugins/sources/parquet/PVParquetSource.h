@@ -42,7 +42,8 @@
 #include <QString>
 #include <vector>
 
-#include "../../common/parquet/PVParquetFileDescription.h"
+#include <pvkernel/rush/PVFileListDescription.h>
+#include "../../common/arrow/PVArrowRowFilter.h"
 #include "../../common/parquet/PVParquetAPI.h"
 #include "PVParquetSource.h"
 #include "PVParquetBinaryChunk.h"
@@ -52,7 +53,7 @@
 
 namespace PVRush
 {
-class PVParquetFileDescription;
+class PVFileListDescription;
 
 class PVParquetSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 {
@@ -73,7 +74,18 @@ class PVParquetSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	PVCore::PVBinaryChunk* operator()() override;
 
   private:
-	PVRush::PVParquetFileDescription* _input_desc;
+	/** The rows of the next batch of the files, flattened, or nullptr after the last one. */
+	std::shared_ptr<arrow::Table> next_table();
+
+	/**
+	 * The rows of @p flat_table that the row filter keeps.
+	 *
+	 * @throw std::runtime_error if the condition is not one over the columns of the files
+	 */
+	std::shared_ptr<arrow::Table> kept_rows(const std::shared_ptr<arrow::Table>& flat_table);
+
+  private:
+	PVRush::PVFileListDescription* _input_desc;
 	PVRush::PVParquetAPI _api;
 	std::unique_ptr<::arrow::RecordBatchReader> _recordbatch_reader;
 
@@ -94,6 +106,12 @@ class PVParquetSource : public PVRawSourceBaseType<PVCore::PVBinaryChunk>
 	// and the entry of the name of each file, by position of the file.
 	std::unique_ptr<pvcop::db::write_dict> _input_names_dict;
 	std::vector<pvcop::db::index_t> _input_name_indexes;
+
+	/** Unless the description has no condition for the rows. */
+	std::unique_ptr<PVArrowRowFilter> _row_filter;
+	/** The flattened columns that the condition reads, those of the types the import knows. */
+	std::vector<int> _filtered_columns;
+	QStringList _input_names;
 
 };
 
