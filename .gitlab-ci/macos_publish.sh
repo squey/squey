@@ -55,8 +55,13 @@ prepare_kernels()
 {
     bundlename="$1"
     shift
+    # A file codesign refuses only matters if the tool loads it, which then fails
+    # with its own message: under "set -e", the status of the last file would end
+    # the script without a word.
     mach_o_files "$bundlename/Contents" | while read -r bin; do
-        codesign --force --sign - "$bin" 2> /dev/null
+        if ! output=$(codesign --force --sign - "$bin" 2>&1); then
+            echo "warning: could not sign $bin ad hoc: $output" >&2
+        fi
     done
     "$@" "$bundlename/$KERNELS_TOOL" "$bundlename/$KERNELS_DIR"
 }
