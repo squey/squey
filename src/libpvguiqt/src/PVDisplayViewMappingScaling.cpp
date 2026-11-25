@@ -71,7 +71,6 @@ void PVDisplays::PVDisplayViewMappingScaling::add_to_axis_menu(
 
 	menu.addSeparator();
 	QMenu* chm = menu.addMenu("Change mapping to...");
-	chm->setAttribute(Qt::WA_TranslucentBackground);
 	chm->setIcon(PVModdedIcon("mapping"));
 	QActionGroup* chm_group = new QActionGroup(chm);
 
@@ -99,7 +98,6 @@ void PVDisplays::PVDisplayViewMappingScaling::add_to_axis_menu(
 	    scaled.get_properties_for_col(axis);
 
 	QMenu* chp = menu.addMenu("Change scaling to...");
-	chp->setAttribute(Qt::WA_TranslucentBackground);
 	chp->setIcon(PVModdedIcon("scaling"));
 	menu.addSeparator();
 	QActionGroup* chp_group = new QActionGroup(chp);
@@ -142,7 +140,6 @@ void PVDisplays::PVDisplayViewMappingScaling::add_selection_scaling_menu(
 	using ESelectionScaling = Squey::PVScalingProperties::ESelectionScaling;
 
 	QMenu* sub = menu.addMenu(QObject::tr("Stretch on selection"));
-	sub->setAttribute(Qt::WA_TranslucentBackground);
 	sub->setIcon(PVModdedIcon("scaling"));
 	menu.addSeparator();
 

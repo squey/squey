@@ -207,10 +207,8 @@ void App::PVMainWindow::create_menus()
 	menubar = menuBar();
 	
 	file_Menu = menubar->addMenu(tr("&File"));
-	file_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	auto* solution_Menu = new QMenu(tr("&Investigation"));
 	solution_Menu->setIcon(PVModdedIcon("magnifying-glass-waveform"));
-	solution_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	solution_Menu->addAction(solution_new_Action);
 	solution_Menu->addAction(solution_load_Action);
 	solution_Menu->addAction(solution_save_Action);
@@ -221,7 +219,6 @@ void App::PVMainWindow::create_menus()
 	file_Menu->addSeparator();
 	auto* import_Menu = new QMenu(tr("I&mport"));
 	import_Menu->setIcon(PVModdedIcon("file-import"));
-	import_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	create_actions_import_types(import_Menu);
 	file_Menu->addMenu(import_Menu);
 	file_Menu->addAction(export_selection_Action);
@@ -229,7 +226,6 @@ void App::PVMainWindow::create_menus()
 	file_Menu->addAction(quit_Action);
 
 	selection_Menu = menubar->addMenu(tr("S&election"));
-	selection_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	selection_Menu->addAction(undo_Action);
 	selection_Menu->addAction(redo_Action);
 	selection_Menu->addSeparator();
@@ -245,12 +241,10 @@ void App::PVMainWindow::create_menus()
 	selection_Menu->addAction(set_color_Action);
 
 	settings_Menu = menubar->addMenu(tr("&Settings"));
-	settings_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	settings_Menu->addAction(settings_Action);
 	settings_Menu->addSeparator();
 	auto* theme_Menu = settings_Menu->addMenu(tr("&Theme"));
 	theme_Menu->setIcon(PVModdedIcon("sun-bright"));
-	theme_Menu->setAttribute(Qt::WA_TranslucentBackground);
 
 	theme_Menu->addAction(settings_dark_theme_Action);
 	theme_Menu->addAction(settings_light_theme_Action);
@@ -261,7 +255,6 @@ void App::PVMainWindow::create_menus()
 #endif
 
 	help_Menu = menubar->addMenu(tr("&Help"));
-	help_Menu->setAttribute(Qt::WA_TranslucentBackground);
 	help_Menu->addAction(sample_dataset_Action);
 	help_Menu->addAction(refman_Action);
 	help_Menu->addAction(about_Action);

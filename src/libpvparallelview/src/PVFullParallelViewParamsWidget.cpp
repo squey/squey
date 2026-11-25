@@ -133,7 +133,6 @@ PVParallelView::PVFullParallelViewParamsWidget::PVFullParallelViewParamsWidget(
 	_scale_on_selection_button->setToolTip(tr("Selection stretch"));
 
 	auto* scale_menu = new QMenu(_scale_on_selection_button);
-	scale_menu->setAttribute(Qt::WA_TranslucentBackground);
 	_rescale_now = scale_menu->addAction(tr("Stretch on current selection"));
 	_auto_rescale = scale_menu->addAction(tr("Stretch on each selection"));
 	_auto_rescale->setCheckable(true);

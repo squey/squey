@@ -255,7 +255,6 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	actionSaveAs->setIcon(PVModdedIcon("floppy-disk-circle-arrow-right"));
 
 	QMenu* import_menu = new QMenu();
-	import_menu->setAttribute(Qt::WA_TranslucentBackground);
 	PVGuiQt::PVInputTypeMenuEntries::add_inputs_to_menu(import_menu, this, SLOT(slotOpenLog()));
 	buttonImport = new QToolButton();
     buttonImport->setToolTip("Import data");
@@ -265,7 +264,6 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	buttonImport->setMenu(import_menu);
 
 	QMenu* splitter_menu = new QMenu();
-	splitter_menu->setAttribute(Qt::WA_TranslucentBackground);
 	buttonSplitter = new QToolButton();
     buttonSplitter->setToolTip("Add a splitter");
     buttonSplitter->setPopupMode(QToolButton::InstantPopup);
@@ -284,7 +282,6 @@ void App::PVFormatBuilderWidget::actionAllocation()
 	}
 
 	QMenu* converter_menu = new QMenu();
-	converter_menu->setAttribute(Qt::WA_TranslucentBackground);
 	buttonConverter = new QToolButton();
     buttonConverter->setToolTip("Add a converter");
     buttonConverter->setPopupMode(QToolButton::InstantPopup);
