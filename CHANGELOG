@@ -1,3 +1,53 @@
+5.3 (2026-11-25)
+----------------
+
+This major release adds the following features:
+* new settings dialog to search and edit every setting
+* any source type is now exportable to Parquet file
+* new NDJSON import plugin
+* columns of Parquet files are selectable before import
+* NDJSON and Parquet files rows can be filtered with SQL during import
+* overhauled PCAP import dialog
+* values of series under the cursor are now displayed
+* new "Selected series only" button in the series view
+* sources can be renamed from their tabs
+* improved startup page with backdrop animation and unified plugins import
+* use the file dialogs of the platform
+* [linux] Flatpak access restricted to the files the user picks
+
+This major release fixes or improves:
+* improve import speed of text files and compressed text files
+* fix detected dates and numbers being placed as strings
+* fix Parquet exports with the lz4 and bz2 codecs failing
+* fix recent sources lost when added together
+* fix stats dialogs following the selection again after a search
+* fix a crash when a detected format refuses its mappings
+* fix a crash when the Parquet export cannot write its file
+* remember the options of the CSV export
+* ask for the export options before the file
+* save investigations with their original files from a menu action
+* scroll the gallery by rows of thumbnails, and by touchpad pixels
+* [pcap] fix TCP streams and HTTP responses split apart
+* [pcap] fix frame numbers after frames dropped by a display filter
+* [pcap] fix the empty responses, reassemblies and Info of TCP captures
+* [pcap] fix boolean and hexadecimal fields being invalid
+* [pcap] fix exports writing other packets than the selected ones
+* [pcap] fix captures of other links rewritten as Ethernet ones
+* [pcap] fix "Export complete TCP streams" having no effect
+* [pcap] fix a hang when importing compressed captures
+* [pcap] fix canceling an import waiting for tshark to finish
+* [pcap] reopen investigations of captures whose data is gone
+* [pcap] speed up imports, without temporary files
+* [pcap] show the real progress of imports
+* [pcap] start the import with the last profile used
+* [pcap] stop writing the GeoIP paths into the Wireshark configuration
+* [linux] fix a crash when dragging a view on Wayland
+* [linux] fix the MySQL driver failing to load
+* [linux] keep the Flatpak working directory on disk
+* [linux] warn of a working directory slowed down by the portal
+* [windows] [pcap] fix capture paths and filters with spaces in them
+* [windows] fix the black corners of menus
+
 5.2.2 (2026-11-11)
 ------------------
 
