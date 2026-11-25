@@ -102,7 +102,6 @@ void PVGuiQt::PVSceneTabBar::contextMenuEvent(QContextMenuEvent* event)
 		return;
 	}
 	QMenu menu(this);
-	menu.setAttribute(Qt::WA_TranslucentBackground);
 	const QAction* rename_action = menu.addAction(tr("&Rename..."));
 	if (menu.exec(event->globalPos()) == rename_action) {
 		Q_EMIT rename_requested(index);
